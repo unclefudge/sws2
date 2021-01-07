@@ -121,9 +121,12 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    //
+    //  logging lines below commented out per laravel 5.5 -> 5.6 upgrade. 5.6 now uses config/logging.php file
+    //
 
-    'log_level' => env('APP_LOG_LEVEL', 'debug'),
+    //'log' => env('APP_LOG', 'single'),
+    //'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
     /*
     |--------------------------------------------------------------------------
@@ -185,7 +188,7 @@ return [
         nilsenj\Toastr\ToastrServiceProvider::class,
         UxWeb\SweetAlert\SweetAlertServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        //Barryvdh\Snappy\ServiceProvider::class,
+        //Barryvdh\Snappy\ServiceProvider::class,   old version prior laravel 5.5
         Barryvdh\DomPDF\ServiceProvider::class,
         Spatie\Backup\BackupServiceProvider::class,
 
@@ -247,7 +250,7 @@ return [
         'Toastr' => nilsenj\Toastr\Facades\Toastr::class,
         'Alert' => UxWeb\SweetAlert\SweetAlert::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        //'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
+        //'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,  older version prior laravel 5.5
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
 

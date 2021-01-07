@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use DB;
 use PDF;
+use Mail;
 use Session;
 use App\User;
 use App\Models\Company\Company;
@@ -135,6 +136,15 @@ class PagesController extends Controller {
     public function quick()
     {
 
+        echo "<b>Mail testing</b></br>";
+        $todo = ToDo::findOrFail(26493);
+        echo "Todo: $todo->name<br>";
+        echo "Todo: ".$todo->assignedToBySBC()."<br>";
+        echo "sending mail ".Carbon::now()->format('g:i:s')."<br>";
+        Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Comms\TodoCreated($todo));
+        echo "mail sent";
+
+        /*
         echo "<b>Active Equipment Locations with no items </b></br>";
         $locations = EquipmentLocation::where('status', 1)->get();
         foreach ($locations as $location) {
@@ -147,7 +157,7 @@ class PagesController extends Controller {
                     echo "-- [$location->id] $location->name<br>";
             }
 
-        }
+        }*
 
 
         /*

@@ -360,9 +360,9 @@ function format_phone($country, $phone)
 
 function format_phone_au($phone)
 {
-    if (!isset($phone{3})) {
-        return '';
-    } // making sure we have something
+    //if (!isset($phone{3})) {
+    //    return '';
+    //} // making sure we have something
 
     $stripped = preg_replace("/[^0-9]/", "", $phone);  // strip out everything but numbers
     $char2 = substr($stripped, 1, 1);
@@ -385,9 +385,9 @@ function format_phone_au($phone)
 
 function format_phone_us($phone)
 {
-    if (!isset($phone{3})) {
-        return '';
-    }
+    //if (!isset($phone{3})) {
+    //    return '';
+    //}
     $stripped = preg_replace("/[^0-9]/", "", $phone);
     $length = strlen($stripped);
     switch ($length) {
