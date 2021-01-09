@@ -148,11 +148,7 @@
                                             {!! Form::text('filename', $doc->attachment, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                         <div class="col-md-3">
-                                            @if ($doc->category_id == 5 && $doc->status == 2)
-                                                <a href="/company/{{ $company->id }}/doc/period-trade-contract/{{ $doc->ref_no }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
-                                            @else
-                                                <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
-                                            @endif
+                                            <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
                                         </div>
                                     </div>
                                 </div>

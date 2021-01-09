@@ -137,7 +137,7 @@ class PagesController extends Controller {
     {
 
         echo "<b>Mail testing</b></br>";
-        $todo = ToDo::findOrFail(26493);
+        $todo = ToDo::findOrFail(26492);
         echo "Todo: $todo->name<br>";
         echo "Todo: ".$todo->assignedToBySBC()."<br>";
         echo "sending mail ".Carbon::now()->format('g:i:s')."<br>";
