@@ -76,7 +76,7 @@ class SupportTicketAction extends Model {
 
         $email_to = [env('EMAIL_DEV')];
         if (\App::environment('prod', 'dev')) {
-            $email_to[] = "jo@capecod.com.au";
+            $email_to[] = "kirstie@capecod.com.au";
             if ($ticket && validEmail($ticket->createdBy->email))
                 $email_to[] = $ticket->createdBy->email; // email ticket owner
         }
