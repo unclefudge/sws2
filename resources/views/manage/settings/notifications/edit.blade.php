@@ -68,8 +68,12 @@
                             {{-- Email Lists --}}
                             <h3 class="font-green form-section">Report Email Lists</h3>
                             {!! notificationSelect($notificationTypes::type('n.site.jobstartexport'), 'Job Start Export', 'Job Start Export', 'Default list to email Job Start Export ') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.report.noaction'), 'Maintenance No Actions', 'Maintenance Request No Actions', 'No Actions for 14 days on Maintenance Request', 'Report sent fortnightly (Monday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.report.onhold'), 'Maintenance On Hold', 'Maintenance Request On Hold', 'Maintenance Requests currently On Hold', 'Report sent fortnightly (Monday)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.noaction'), 'Maintenance No Actions', 'Maintenance Request No Actions', 'No Actions for 14 days on Maintenance Request', 'Report sent fortnightly (Monday)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.onhold'), 'Maintenance On Hold', 'Maintenance Request On Hold', 'Maintenance Requests currently On Hold', 'Report sent fortnightly (Monday)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.executive'), 'Maintenance Executive', 'Maintenance Executive Report', 'Maintenance overview of all requests and how they were dealt with', 'Report sent quarterly (end Feb/May/Aug/Nov)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.site.qa.outstanding'), 'QA Outstanding', 'Quality Assurance Outstanding', 'Report to show all outstanding QA Checklists at the time of the report', 'Report sent weekly (Tuesday)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.site.qa.onhold'), 'QA On Hold', 'Quality Assurance On Hold', 'Report to show all QA Checklists on Hold at the time of the report', 'Report sent fortnightly (Thursday)') !!}
+                            {!! notificationSelect($notificationTypes::type('n.equipment.transfers'), 'Equipment Transfers', 'Equipment Transfers', 'Equipment transfers for the last 7 days', 'Report sent weekly (Thursday)') !!}
                         @endif
 
 

@@ -22,10 +22,14 @@ class SettingsNotificationTypes {
         '15' => 'n.site.status',
         '16' => 'n.site.jobstartexport',
         '17' => 'n.site.maintenance.completed',
-        '18' => 'n.site.maintenance.report.noaction',
-        '19' => 'n.site.maintenance.report.onhold',
+        '18' => 'n.site.maintenance.noaction',
+        '19' => 'n.site.maintenance.onhold',
         '20' => 'n.site.qa.super.photo',
-        '21' => 'n.site.inspection.completed'
+        '21' => 'n.site.inspection.completed',
+        '22' => 'n.site.qa.outstanding',
+        '23' => 'n.site.qa.onhold',
+        '24' => 'n.site.maintenance.executive',
+        '25' => 'n.equipment.transfers'
     ];
 
 

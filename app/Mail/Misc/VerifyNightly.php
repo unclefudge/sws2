@@ -2,8 +2,6 @@
 
 namespace App\Mail\Misc;
 
-use App\Models\Support\SupportTicket;
-use App\Models\Support\SupportTicketAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;

@@ -70,12 +70,12 @@
 
         {{-- Loop through Actions --}}
         @foreach ($actions as $action_code => $action_name)
-            @if (($row_count + $transactions->where('action', $action_code)->count() > 40) && $transactions->where('action', $code)->count() < 40) {{-- New Page if no of lines for current item exceed max --}}
+            @if (($row_count + $transactions->where('action', $action_code)->count() > 40) && $transactions->where('action', $action_code)->count() < 40) {{-- New Page if no of lines for current item exceed max --}}
             <?php $row_count = 0; $page_count ++ ?>
             {{-- New Page - Show header --}}
             <div class="page"></div>
             <div class="row">
-                <div class="col-xs-8"><h3 style="margin: 0px">Equipment Transactions</h3></div>
+                <div class="col-xs-8"><h3 style="margin: 0px">Equipment Transactions..</h3></div>
                 <div class="col-xs-4"><h6><b>{{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}</b></h6></div>
             </div>
             <hr style="margin: 5px 0px">
@@ -91,7 +91,7 @@
             <div class="row">
                 <div class="col-md-12"><b>{{ $action_name }}</b></div>
             </div>
-            @foreach ($transactions->where('action', 'D') as $trans)
+            @foreach ($transactions->where('action', $action_code) as $trans)
                 <?php $row_count ++ ?>
                 <div class="row">
                     <div class="col-xs-2">&nbsp; &nbsp; {{ $trans->item->name }}</div>

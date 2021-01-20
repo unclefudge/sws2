@@ -182,8 +182,7 @@
         });
 
 
-    })
-    ;
+    });
 
     $('.date-picker').datepicker({
         autoclose: true,

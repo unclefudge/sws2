@@ -81,7 +81,7 @@ class SupportTicket extends Model {
     {
         $email_to = [env('EMAIL_DEV')];
         if (\App::environment('prod', 'dev'))
-            $email_to[] = "jo@capecod.com.au";
+            $email_to[] = "kirstie@capecod.com.au";
 
 
         $email_user = (Auth::check() && validEmail($this->createdBy->email)) ? $this->createdBy->email : '';

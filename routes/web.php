@@ -489,6 +489,7 @@ Route::get('cron/expired-swms', 'Misc\CronController@expiredSWMS');
 Route::get('cron/archive-toolbox', 'Misc\CronController@archiveToolbox');
 Route::get('cron/email-jobstart', 'Misc\CronController@emailJobstart');
 Route::get('cron/email-fortnight', 'Misc\CronController@emailFortnightlyReports');
+Route::get('cron/email-equipment-transfers', 'Misc\CronController@emailEquipmentTransfers');
 
 Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');

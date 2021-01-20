@@ -25,6 +25,11 @@ use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaAction;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
+use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentLocation;
+use App\Models\Misc\Equipment\EquipmentStocktake;
+use App\Models\Misc\Equipment\EquipmentStocktakeItem;
+use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Comms\SafetyTip;
@@ -55,8 +60,10 @@ class CronController extends Controller {
         if (Carbon::today()->isMonday())
             CronController::overdueToDo();
 
-        if (Carbon::today()->isThursday())
+        if (Carbon::today()->isThursday()) {
             CronController::emailJobstart();
+            CronController::emailEquipmentTransfers();
+        }
 
         // Fortnightly on Mondays starting 26 Oct 2020
         $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
@@ -852,6 +859,48 @@ class CronController extends Controller {
     }
 
     /*
+    * Email Equipment Transfers
+    */
+    static public function emailEquipmentTransfers()
+    {
+        $log = '';
+        echo "<h2>Email Equipment Transfers</h2>";
+        $log .= "Email Equipment Transfers\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $emails = implode("; ", $cc->notificationsUsersEmailType('n.equipment.transfers'));
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $to = Carbon::now();
+        $from = Carbon::now()->subDays(7);
+        $transactions = EquipmentLog::where('action', 'T')->whereDate('equipment_log.created_at', '>=', $from->format('Y-m-d'))->whereDate('equipment_log.created_at', '<=', $to->format('Y-m-d'))->get();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+        //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
+
+        $pdf = PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->save($file);
+
+        $email_list = $cc->notificationsUsersEmailType('n.equipment.transfers');
+
+        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
     * Email Fortnightly Reports
     */
     static public function emailFortnightlyReports()
@@ -862,7 +911,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.report.noaction');
+        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.noaction');
         $emails = implode("; ", $email_list);
         echo "Sending No Actions email to $emails";
         $log .= "Sending No Actions email to $emails";
@@ -893,7 +942,7 @@ class CronController extends Controller {
         //
         // On Hold Requests
         //
-        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.report.onhold');
+        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.onhold');
         $emails = implode("; ", $email_list);
         echo "Sending On Hold email to $emails";
         $log .= "Sending On Hold email to $emails";
