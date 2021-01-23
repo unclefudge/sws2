@@ -74,17 +74,17 @@ trait UserDocs {
 
             // Public Docs
             //if ($this->hasPermission2("$action.docs.$doc_type.pub") || $this->hasPermission2("$action.docs.$doc_type.pri")) {
-                foreach (UserDocTypes::docs($doc_type, 0)->pluck('name', 'id')->toArray() as $id => $name) {
-                    if (!($action == 'add' && in_array($id, $single) && $user->activeUserDoc($id)))
-                        $array[$id] = $name;
-                }
+            foreach (UserDocTypes::docs($doc_type, 0)->pluck('name', 'id')->toArray() as $id => $name) {
+                if (!($action == 'add' && in_array($id, $single) && $user->activeUserDoc($id)))
+                    $array[$id] = $name;
+            }
             //}
             // Private Docs
             //if ($this->hasPermission2("$action.docs.$doc_type.pri")) {
-                foreach (UserDocTypes::docs($doc_type, 1)->pluck('name', 'id')->toArray() as $id => $name) {
-                    if (!($action == 'add' && in_array($id, $single) && $user->activeUserDoc($id)))
-                        $array[$id] = $name;
-                }
+            foreach (UserDocTypes::docs($doc_type, 1)->pluck('name', 'id')->toArray() as $id => $name) {
+                if (!($action == 'add' && in_array($id, $single) && $user->activeUserDoc($id)))
+                    $array[$id] = $name;
+            }
             //}
         }
 
@@ -211,6 +211,7 @@ trait UserDocs {
 
             return $array;
         }
+
         return [];
     }
 
@@ -229,6 +230,7 @@ trait UserDocs {
 
             return rtrim($string, ', ');
         }
+
         return '';
     }
 
@@ -352,6 +354,30 @@ trait UserDocs {
      * Company Docs
      *
      ***************************/
+
+    /**
+     * A dropdown list of types of Company Document Types user can access
+     *
+     * @return array
+     */
+    public function companyDocTypeAllowed($action)
+    {
+        $array = [];
+        foreach (CompanyDocTypes::all() as $doc_type => $doc_name) {
+            // Public Docs
+            if ($this->hasPermission2("$action.docs.$doc_type.pub") || $this->hasPermission2("$action.docs.$doc_type.pri")) {
+                foreach (CompanyDocTypes::docsAll($doc_type, 0)->pluck('name', 'id')->toArray() as $id => $name)
+                    $array[] = $id;
+            }
+            // Private Docs
+            if ($this->hasPermission2("$action.docs.$doc_type.pri")) {
+                foreach (CompanyDocTypes::docsAll($doc_type, 1)->pluck('name', 'id')->toArray() as $id => $name)
+                    $array[] = $id;
+            }
+        }
+        return $array;
+    }
+
 
     /**
      * A dropdown list of types of Company Document Departments user can access

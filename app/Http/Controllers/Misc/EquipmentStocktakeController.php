@@ -83,7 +83,11 @@ class EquipmentStocktakeController extends Controller {
             });
         }
 
-        return view('misc/equipment/stocktake', compact('location', 'sites', 'others', 'items'));
+        $items = $items->sortBy('item_name');
+        $items2 = [];
+        $items3 = [];
+
+        return view('misc/equipment/stocktake', compact('location', 'sites', 'others', 'items', 'items2', 'items3'));
     }
 
 

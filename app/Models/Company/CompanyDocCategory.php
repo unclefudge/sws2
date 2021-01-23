@@ -32,6 +32,31 @@ class CompanyDocCategory extends Model {
     }
 
     /**
+     * A Category has many sub-categories.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subcategories() {
+        return $this->hasMany('App\Models\Company\CompanyDocCategory', 'parent');
+    }
+
+    /**
+     * A dropdown list of sub-categories for given category.
+     *
+     * @return array
+     */
+    public function subcategorySelect($prompt = '')
+    {
+        $array = [];
+        foreach ($this->subcategories as $sub)
+            $array[$sub->id] = $sub->name;
+
+        asort($array);
+
+        return ($prompt) ? $array = array('' => 'Select sub-category') + $array : $array;
+    }
+
+    /**
      * Get the owner of record   (getter)
      *
      * @return string;

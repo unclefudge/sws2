@@ -487,9 +487,12 @@ Route::get('cron/overdue-todo', 'Misc\CronController@overdueToDo');
 Route::get('cron/expired-companydoc', 'Misc\CronController@expiredCompanyDoc');
 Route::get('cron/expired-swms', 'Misc\CronController@expiredSWMS');
 Route::get('cron/archive-toolbox', 'Misc\CronController@archiveToolbox');
-Route::get('cron/email-jobstart', 'Misc\CronController@emailJobstart');
-Route::get('cron/email-fortnight', 'Misc\CronController@emailFortnightlyReports');
-Route::get('cron/email-equipment-transfers', 'Misc\CronController@emailEquipmentTransfers');
+Route::get('cron/email-jobstart', 'Misc\CronReportController@emailJobstart');
+Route::get('cron/email-fortnight', 'Misc\CronReportController@emailFortnightlyReports');
+Route::get('cron/email-equipment-transfers', 'Misc\CronReportController@emailEquipmentTransfers');
+Route::get('cron/email-outstanding-qa', 'Misc\CronReportController@emailOutstandingQA');
+Route::get('cron/email-onhold-qa', 'Misc\CronReportController@emailOnHoldQA');
+Route::get('cron/email-maintenance-executive', 'Misc\CronReportController@emailMaintenanceExecutive');
 
 Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');

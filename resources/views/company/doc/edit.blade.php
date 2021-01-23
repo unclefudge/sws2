@@ -1,3 +1,4 @@
+@inject('CompanyDocCategory', 'App\Models\Company\CompanyDocCategory')
 @extends('layout')
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
@@ -91,10 +92,21 @@
                                         <input type="hidden" name="super_class3[]" id="super_class3" value="{{ $val }}">
                                     @endforeach
 
-                                    @if ($doc->category_id > 8)
+                                    @if ($doc->category_id > 8 && $doc->category_id != 22)
                                         <div class="form-group">
                                             {!! Form::label('category_id_text', 'Category', ['class' => 'control-label']) !!}
-                                            {!! Form::text('category_id_text', \App\Models\Company\CompanyDocCategory::find($doc->category_id)->name, ['class' => 'form-control bs-select', 'disabled']) !!}
+                                            {!! Form::text('category_id_text', $CompanyDocCategory::find($doc->category_id)->name, ['class' => 'form-control bs-select', 'disabled']) !!}
+                                        </div>
+                                    @endif
+
+                                    @if ($doc->category_id == 22 || $doc->category->parent == 22)
+                                        <div class="form-group">
+                                            {!! Form::label('category_id_text', 'Category', ['class' => 'control-label']) !!}
+                                            {!! Form::text('category_id_text', ($doc->category->parent) ? $CompanyDocCategory::find($doc->category->parent)->name : $CompanyDocCategory::find($doc->category_id)->name, ['class' => 'form-control bs-select', 'disabled']) !!}
+                                        </div>
+                                        <div class="form-group">
+                                            {!! Form::label('subcategory_id', 'Sub Category', ['class' => 'control-label']) !!}
+                                            {!! Form::select('subcategory_id', ($doc->category->parent) ? $CompanyDocCategory::find($doc->category->parent)->subcategorySelect('prompt') : $CompanyDocCategory::find($doc->category_id)->subcategorySelect('prompt'), $doc->category_id, ['class' => 'form-control bs-select']) !!}
                                         </div>
                                     @endif
 

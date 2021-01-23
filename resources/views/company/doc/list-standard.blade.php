@@ -21,7 +21,9 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
+                                <th> Category</th>
                                 <th> Document</th>
+                                <th> Updated</th>
                             </tr>
                             </thead>
                         </table>
@@ -60,7 +62,9 @@
         },
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
+            {data: 'category_id', name: 'category_id'},
             {data: 'name', name: 'name'},
+            {data: 'updated_at', name: 'updated_at'},
         ],
         order: [
             [1, "asc"]

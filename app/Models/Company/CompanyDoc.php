@@ -43,6 +43,8 @@ class CompanyDoc extends Model {
         return $this->belongsTo('App\Models\Company\Company', 'company_id');
     }
 
+
+
     /**
      * A Company Doc  was created by a user
      *
@@ -74,7 +76,7 @@ class CompanyDoc extends Model {
     }
 
     /**
-     * A Document belongs to a Category.  (sometimes - Some Reports do)
+     * A Document belongs to a Category.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

@@ -60,15 +60,24 @@ class CronController extends Controller {
         if (Carbon::today()->isMonday())
             CronController::overdueToDo();
 
+        // Email Nightly Reports
+        CronReportController::nightly();
+
+
+        /*if (Carbon::today()->isTuesday())
+            CronController::emailOutstandingQA();
+
         if (Carbon::today()->isThursday()) {
             CronController::emailJobstart();
             CronController::emailEquipmentTransfers();
+            CronController::emailOnHoldQA();
         }
 
         // Fortnightly on Mondays starting 26 Oct 2020
         $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
         if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
             CronController::emailFortnightlyReports();
+        */
 
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
@@ -875,7 +884,7 @@ class CronController extends Controller {
 
         $to = Carbon::now();
         $from = Carbon::now()->subDays(7);
-        $transactions = EquipmentLog::where('action', 'T')->whereDate('equipment_log.created_at', '>=', $from->format('Y-m-d'))->whereDate('equipment_log.created_at', '<=', $to->format('Y-m-d'))->get();
+        $transactions = EquipmentLog::where('action', 'T')->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
 
         // Create PDF
         $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
@@ -892,6 +901,90 @@ class CronController extends Controller {
         $email_list = $cc->notificationsUsersEmailType('n.equipment.transfers');
 
         Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+   * Email Outstanding QA checklists
+   */
+    static public function emailOutstandingQA()
+    {
+        $log = '';
+        echo "<h2>Email Outstanding QA Checklists</h2>";
+        $log .= "Email Outstanding QA Checklists\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.outstanding'));
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $weekago = Carbon::now()->subWeek();
+        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/site-qa-outstanding', compact('qas', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'today'))->setPaper('a4', 'landscape')->stream();
+
+        $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'today'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
+        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+  * Email OnHold QA checklists
+  */
+    static public function emailOnHoldQA()
+    {
+        $log = '';
+        echo "<h2>Email On Hold QA Checklists</h2>";
+        $log .= "Email On Hold QA Checklists\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.outstanding'));
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $weekago = Carbon::now()->subWeek();
+        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/site-qa-outstanding', compact('qas', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'today'))->setPaper('a4', 'landscape')->stream();
+
+        $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'today'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
+        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

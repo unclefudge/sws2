@@ -175,6 +175,10 @@ class CompanyDocController extends Controller {
         if (request('category_id') == '9')
             $doc_request['name'] = request('name'); //'Additional Licence';
 
+        // Update category ID if subcategory is specified
+        if (request('subcategory_id'))
+            $doc_request['category_id'] = request('subcategory_id');
+
         // Create Company Doc
         //dd($doc_request);
         $doc = CompanyDoc::create($doc_request);
@@ -289,6 +293,10 @@ class CompanyDocController extends Controller {
         // Reassign Additional Licences to correct name
         if (request('category_id') == '9')
             $doc_request['name'] = request('name'); //'Additional Licence';
+
+        // Update category ID if subcategory is specified
+        if (request('subcategory_id'))
+            $doc_request['category_id'] = request('subcategory_id');
 
         // Verify if document is rejected
         $doc_request['reject'] = '';
@@ -509,8 +517,9 @@ class CompanyDocController extends Controller {
     public function getDocs($cid)
     {
         $company = Company::find($cid);
-        $categories = (request('category_id') == 'ALL') ? array_keys(Auth::user()->companyDocTypeSelect('view', $company)) : [request('category_id')];
-
+        //$categories = (request('category_id') == 'ALL') ? array_keys(Auth::user()->companyDocTypeSelect('view', $company)) : [request('category_id')];
+        $categories = (request('category_id') == 'ALL') ? Auth::user()->companyDocTypeAllowed('view', $company) : [request('category_id')];
+        //dd($categories);
         if (request('department') != 'all') {
             $filtered = [];
             if ($categories) {
@@ -550,6 +559,8 @@ class CompanyDocController extends Controller {
                     $details = "Lic no: $doc->ref_no  &nbsp; Class: " . $doc->company->contractorLicenceSBC();
                 if (in_array($doc->category_id, [8])) // CL + Asb
                     $details = "Class: $doc->ref_type";
+                if ($doc->category->parent != 0) // Sub-category (Standard Details 22)
+                    $details = "Standard Details: " . $doc->category->name;
 
                 return ($details == '') ? '-' : $details;
             })
@@ -711,10 +722,18 @@ class CompanyDocController extends Controller {
      */
     public function getStandard()
     {
-        $records = CompanyDoc::where('company_id', 3)->where('category_id', 22)->where('status', '1');
+        $cats = array_merge([22], CompanyDocCategory::where('parent', '22')->pluck('id')->toArray());
+        //dd($cats);
+        $records = CompanyDoc::where('company_id', 3)->whereIn('category_id', $cats)->where('status', '1')->orderBy('category_id');
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/filebank/company/3/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('category_id', function ($doc) {
+                return $doc->category->name;
+            })
+            ->editColumn('updated_at', function ($doc) {
+                return $doc->updated_at->format('d/m/Y');
+            })
             ->rawColumns(['id', 'name'])
             ->make(true);
 

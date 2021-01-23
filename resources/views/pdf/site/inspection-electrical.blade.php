@@ -179,7 +179,7 @@
             </div>
         </div>
 
-        <div class="page"></div>
+        {{-- <div class="page"></div> --}}
 
         {{-- Additional Notes  --}}
         <div class="row">

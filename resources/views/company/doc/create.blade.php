@@ -56,6 +56,12 @@
                                              $category_id, ['class' => 'form-control bs-select']) !!}
                                         {!! fieldErrorMessage('category_id', $errors) !!}
                                     </div>
+                                    {{-- Doc Sub-Category --}}
+                                    <div class="form-group {!! fieldHasError('subcategory_id', $errors) !!}" id="fields_subcategory">
+                                        {!! Form::label('subcategory_id', 'Sub Category', ['class' => 'control-label']) !!}
+                                        {!! Form::select('subcategory_id', \App\Models\Company\CompanyDocCategory::find(22)->subcategorySelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
+                                        {!! fieldErrorMessage('subcategory_id', $errors) !!}
+                                    </div>
                                     {{-- Name --}}
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}" style="display: none" id="fields_name">
                                         {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
@@ -278,6 +284,7 @@
             $('#fields_policy').hide();
             $('#fields_insurer').hide();
             $('#fields_category').hide();
+            $('#fields_subcategory').hide();
             $('#fields_lic_no').hide();
             $('#fields_lic_class').hide();
             $('#fields_supervisor').hide();
@@ -360,6 +367,9 @@
 
             if (cat == 8)  // Asbestos
                 $('#fields_asb_class').show();
+
+            if (cat == 22)  // Standard Details
+                $('#fields_subcategory').show();
         }
 
         display_fields();
