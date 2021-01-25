@@ -44,7 +44,7 @@ class CronReportController extends Controller {
         echo "<h1> Nightly Reports - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
         $log = "Nightly Reports\n";
         $log .= "------------------------------------------------------------------------\n\n";
-        $bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 
 

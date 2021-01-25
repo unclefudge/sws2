@@ -146,7 +146,7 @@
                                                         <tbody>
                                                         @if (count($items))
                                                             <?php $x = 0; ?>
-                                                            @foreach($items3 as $loc)
+                                                            @foreach($items as $loc)
                                                                 @if ($loc->equipment->parent_category == 3)
                                                                     <?php $x ++; ?>
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
@@ -208,7 +208,7 @@
                                                         <tbody>
                                                         @if (count($items))
                                                             <?php $x = 0; ?>
-                                                            @foreach($items2 as $loc)
+                                                            @foreach($items as $loc)
                                                                 @if ($loc->equipment->category_id == 2)
                                                                     <?php $x ++; ?>
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
@@ -457,7 +457,7 @@
             }
         });
 
-        /*
+
         var table_history = $('#table_history').DataTable({
             pageLength: 10,
             processing: true,
@@ -478,7 +478,7 @@
             order: [
                 [1, "desc"]
             ]
-        }); */
+        });
     });
 </script>
 @stop
