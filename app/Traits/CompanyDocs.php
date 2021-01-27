@@ -48,9 +48,9 @@ trait CompanyDocs {
      */
     public function expiredCompanyDoc($category_id)
     {
-        $doc = CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('status', '>', '0')->first();
+        $doc = CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('status', '0')->first();
         if ($doc)
-            return ($doc->expiry->lt(Carbon::today())) ? 'Expired ' . $doc->expiry->format('d/m/Y') : null;
+            return $doc; // ($doc->expiry->lt(Carbon::today())) ? 'Expired ' . $doc->expiry->format('d/m/Y') : null;
         else
             return 'N/A';
     }

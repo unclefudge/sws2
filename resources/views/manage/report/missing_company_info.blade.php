@@ -29,7 +29,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Missing Company Information</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
+                            <a href="/manage/report/missing_company_info_csv" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download CSV</a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -38,8 +38,8 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Name</th>
-                                <th> Missing Info</th>
-                                <th> Updated</th>
+                                <th> Missing Info / Document</th>
+                                <th> Last Updated</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -50,9 +50,22 @@
                                             <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
                                         </td>
                                         <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                        <td>{!! $company->missingInfo() !!}<br>{!! $company->displayUpdatedBy() !!}</td>
+                                        <td>{!! $company->missingInfo() !!}</td>
                                         <td>{!! $company->updated_at->format('d/m/Y')!!}</td>
                                     </tr>
+                                @endif
+                                @if ($company->missingDocs())
+                                    @foreach($company->missingDocs() as $type => $name)
+                                        <?php $doc = $company->expiredCompanyDoc($type) ?>
+                                        <tr>
+                                            <td>
+                                                <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
+                                            </td>
+                                            <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
+                                            <td>{{ $name }}</td>
+                                            <td>{!! ($doc != 'N/A') ? $doc->expiry->format('d/m/Y') : 'never' !!} </td>
+                                        </tr>
+                                    @endforeach
                                 @endif
                             @endforeach
                             </tbody>

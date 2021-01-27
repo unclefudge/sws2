@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use DB;
 use PDF;
+use File;
 use Session;
 use App\User;
 use App\Models\Site\Site;
@@ -204,6 +205,30 @@ class ReportController extends Controller {
         $companies = \App\Models\Company\Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
 
         return view('manage/report/missing_company_info', compact('companies'));
+    }
+
+    public function missingCompanyInfoCSV()
+    {
+        $companies = \App\Models\Company\Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+        $csv = "Company, Missing Info / Document, Last updated\r\n";
+
+        foreach ($companies as $company) {
+            if ($company->missingInfo())
+                $csv .= "$company->name, " . $company->missingInfo() . ',' . $company->updated_at->format('d/m/Y') . "\r\n";
+            if ($company->missingDocs()) {
+                foreach ($company->missingDocs() as $type => $name) {
+                    $doc = $company->expiredCompanyDoc($type);
+                    $exp = ($doc != 'N/A') ? $doc->expiry->format('d/m/Y') : 'never';
+                    $csv .= "$company->name, $name, $exp\r\n";
+                }
+            }
+        }
+
+        //echo $csv;
+        $filename = '/filebank/tmp/report/' . Auth::user()->company_id . '/missing_company_info.csv';
+        $bytes_written = File::put(public_path($filename), $csv);
+        if ($bytes_written === false) die("Error writing to file");
+        return redirect($filename);
     }
 
 
@@ -681,7 +706,7 @@ class ReportController extends Controller {
 
     public function maintenanceNoAction()
     {
-        $active_requests = SiteMaintenance::where('status', 1 )->orderBy('reported')->get();
+        $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $mains = [];
         foreach ($active_requests as $main) {
             if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
@@ -693,7 +718,7 @@ class ReportController extends Controller {
 
     public function maintenanceOnHold()
     {
-        $mains = SiteMaintenance::where('status', 3 )->orderBy('reported')->get();
+        $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
 
         return view('manage/report/maintenance_onhold', compact('mains'));
     }

@@ -923,7 +923,7 @@ class Company extends Model {
         $today = Carbon::today();
         $str = '';
         if ($this->category) {
-            $contact = '<b>Company Details:</b> ';
+            $contact = 'Company Details: ';
             if (!$this->email) $contact .= '<span class="font-red">email</span>, ';
             if (!$this->phone) $contact .= 'phone, ';
             if (!$this->address) $contact .= 'address, ';
@@ -931,20 +931,20 @@ class Company extends Model {
             if (!$this->state) $contact .= 'state, ';
             if (!$this->postcode) $contact .= 'postcode, ';
             if (!$this->primary_user) $contact .= '<span class="font-red">primary contact</span>, ';
-            if ($contact != '<b>Company Details:</b> ')
+            if ($contact != 'Company Details: ')
                 $str .= rtrim($contact, ', ') . '<br>';
 
-            $details = '<b>Business Details:</b> ';
+            $details = 'Business Details: ';
             if (!$this->abn) $details .= 'ABN, ';
             if (!$this->business_entity) $details .= 'Business Entity, ';
             if ($this->gst === null) $details .= 'GST, ';
             if (!$this->creditor_code) $details .= 'Creditor Code, ';
-            if ($details != '<b>Business Details:</b> ')
+            if ($details != 'Business Details: ')
                 $str .= rtrim($details, ', ') . '<br>';
 
 
-            if ($this->missingDocs())
-                $str .= "<b>Documents:</b> " . $this->missingDocs('csv');
+            //if ($this->missingDocs())
+            //    $str .= "<b>Documents:</b> " . $this->missingDocs('csv');
         }
 
 
