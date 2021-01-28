@@ -83,7 +83,7 @@ class EquipmentStocktakeController extends Controller {
             });
         }
 
-        $items = $items->sortBy('item_name');
+        $items = ($items) ? $items->sortBy('item_name') : [];
         $items2 = [];
         $items3 = [];
 
