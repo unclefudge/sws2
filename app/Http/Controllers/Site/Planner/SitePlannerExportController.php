@@ -255,16 +255,14 @@ class SitePlannerExportController extends Controller {
                 mkdir(public_path($dir), 0777, true);
             $output_file = public_path($dir . "/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
+
+            //return view($view, compact('data'));
+            //$pdf = PDF::loadView($view, compact('data'));
+            //$pdf->setPaper('a4', 'landscape');//->setOrientation('landscape');
+            //return $pdf->stream();
             SitePlannerPdf::dispatch($view, $data, $output_file);
 
             return redirect('/manage/report/recent');
-
-            //return view($view, compact('site', 'date', 'weeks', 'sitedata'));
-
-            //$pdf = PDF::loadView($view, compact('data'));
-            //$pdf->setPaper('a4', 'landscape');//->setOrientation('landscape');
-
-            //return $pdf->stream();
         }
 
 

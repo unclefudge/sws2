@@ -225,7 +225,7 @@ class ReportController extends Controller {
         }
 
         //echo $csv;
-        $filename = '/filebank/tmp/report/' . Auth::user()->company_id . '/missing_company_info.csv';
+        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/missing_company_info.csv';
         $bytes_written = File::put(public_path($filename), $csv);
         if ($bytes_written === false) die("Error writing to file");
         return redirect($filename);

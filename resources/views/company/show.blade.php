@@ -67,9 +67,10 @@
                 @endif
 
                 {{-- SWMS --}}
+                {{--}}
                 @if (Auth::user()->allowed2('view.company.whs', $company))
                     @include('company/_show-swms')
-                @endif
+                @endif --}}
 
             </div>
         </div>
