@@ -60,7 +60,7 @@
                     @endif
 
                     @if(!$site->status)
-                        <h3 class="font-red uppercase" style="margin:0 0 10px;">Completed {{ $site->completed->format('d/m/Y') }}</h3>
+                        <h3 class="font-red uppercase" style="margin:0 0 10px;">Completed {{ ($site->completed) ? $site->completed->format('d/m/Y')  : 'N/A'}}</h3>
                     @elseif($site->status < 0)
                         <h3 class="font-blue uppercase" style="margin:0 0 10px;">Upcoming</h3>
                     @endif

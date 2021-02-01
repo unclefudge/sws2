@@ -214,7 +214,7 @@ class ReportController extends Controller {
 
         foreach ($companies as $company) {
             if ($company->missingInfo())
-                $csv .= "$company->name, " . $company->missingInfo() . ',' . $company->updated_at->format('d/m/Y') . "\r\n";
+                $csv .= "$company->name, " . $company->missingInfo() . ', ' . $company->updated_at->format('d/m/Y') . "\r\n";
             if ($company->missingDocs()) {
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
