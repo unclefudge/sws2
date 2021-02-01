@@ -39,7 +39,7 @@
                                 <th width="5%"> #</th>
                                 <th> Name</th>
                                 <th> Missing Info / Document</th>
-                                <th> Last Updated</th>
+                                <th> Expiry / Last Updated</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -59,7 +59,11 @@
                                         <?php $doc = $company->expiredCompanyDoc($type) ?>
                                         <tr>
                                             <td>
-                                                <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
+                                                @if ($doc != 'N/A')
+                                                <div class="text-center"><a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit"><i class="fa fa-search"></i></a></div>
+                                                    @else
+                                                    <div class="text-center"><a href="/company/{{ $company->id }}/doct"><i class="fa fa-search"></i></a></div>
+                                                @endif
                                             </td>
                                             <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
                                             <td>{{ $name }}</td>

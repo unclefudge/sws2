@@ -210,7 +210,7 @@ class ReportController extends Controller {
     public function missingCompanyInfoCSV()
     {
         $companies = \App\Models\Company\Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-        $csv = "Company, Missing Info / Document, Last updated\r\n";
+        $csv = "Company, Missing Info / Document, Expiry / Last updated\r\n";
 
         foreach ($companies as $company) {
             if ($company->missingInfo())

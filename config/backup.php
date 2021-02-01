@@ -20,7 +20,9 @@ return [
                 'include' => [
                     base_path('public/filebank/site/*/hazard'),
                     base_path('public/filebank/support'),
-                    base_path('public/filebank/users'),
+                    base_path('public/filebank/user'),
+                    base_path('public/filebank/company'),
+                    base_path('public/filebank/site'),
                 ],
 
                 /*
@@ -175,7 +177,7 @@ return [
              * After cleaning up the backups remove the oldest backup until
              * this amount of megabytes has been reached.
              */
-            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 5000,
+            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 50000,
         ],
     ],
 ];
