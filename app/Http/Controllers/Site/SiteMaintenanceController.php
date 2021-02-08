@@ -294,6 +294,7 @@ class SiteMaintenanceController extends Controller {
             $super = User::find(request('super_id'));
             $main_request['step'] = 4;
             $main_request['status'] = 1; // Set status to active
+            $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
             $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             Toastr::success("Assigned Request");
 
@@ -404,6 +405,10 @@ class SiteMaintenanceController extends Controller {
             $super = User::find($main_request['super_id']);
             $main->emailAssigned($super);
             $action = Action::create(['action' => "Assigned Task Owner updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+
+            // Set Assigned to Super date field if not set
+            if (!$main->assigned_super_at)
+                $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
         }
 
         // Email if Company Assigned is updated
@@ -412,6 +417,10 @@ class SiteMaintenanceController extends Controller {
             if ($company && $company->primary_contact())
                 $main->emailAssigned($company->primary_contact());
             $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+
+            // Set Assigned to date field if not set
+            if (!$main->assigned_at)
+                $main_request['assigned_at'] = Carbon::now()->toDateTimeString();
         }
 
         // Add note if change of Status
