@@ -8,6 +8,7 @@ use Validator;
 use DB;
 use Session;
 use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentCategory;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentStocktake;
@@ -39,7 +40,7 @@ class EquipmentStocktakeController extends Controller {
     }
 
     /**
-     * Display a listing of the resource.
+     * Display the resource.
      *
      * @return \Illuminate\Http\Response
      */
@@ -53,10 +54,80 @@ class EquipmentStocktakeController extends Controller {
         } else
             $location = EquipmentLocation::find($id);
 
+        $sites = $this->getSites();
+        $others = $this->getOthers();
+
+        if ($location)
+            return redirect("/equipment/stocktake/$id/edit/general");
+        else
+            return view('misc/equipment/stocktake', compact('location', 'sites', 'others'));
+    }
+
+    /**
+     * Edit the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id, $tab = null)
+    {
+        if (preg_match('/^newloc/', $id)) {
+            // Create New Location for Site ID
+            list($crap, $site_id) = explode('-', $id);
+            $location = new EquipmentLocation(['site_id' => $site_id]);
+            $location->save();
+        } else
+            $location = EquipmentLocation::find($id);
+
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.equipment.stocktake', $location))
+        if (!(Auth::user()->allowed2('edit.equipment.stocktake', $location) && in_array($tab, ['general', 'materials', 'scaffold', 'history'])))
             return view('errors/404');
 
+        // Determine Equipment IDs for each category
+        $cat1_ids = Equipment::where('category_id', 1)->pluck('id')->toArray();
+        $cat2_ids = Equipment::where('category_id', 2)->pluck('id')->toArray();
+        $cats = EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
+        $cat3_ids = Equipment::whereIn('category_id', $cats)->pluck('id')->toArray();
+
+        $category = 0;
+        $equip_ids = [];
+        if ($tab == 'general') {
+            $category = 1;
+            $equip_ids = $cat1_ids;
+        }
+        if ($tab == 'scaffold') {
+            $category = 2;
+            $equip_ids = $cat2_ids;
+        }
+        if ($tab == 'materials') {
+            $category = 3;
+            $equip_ids = $cat3_ids;
+        }
+
+        $sites = $this->getSites();
+        $others = $this->getOthers();
+
+
+        $items = [];
+        $items_count = [1 => 0, 2 => 0, 3 => 0];
+        if ($location) {
+            // Get items then filter out 'deleted'
+            $all_items = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $equip_ids)->get();
+            $items = $all_items->filter(function ($item) {
+                if ($item->equipment->status) return $item;
+            });
+
+            // Count items for each category;
+            $items_count[1] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat1_ids)->get()->count();
+            $items_count[2] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat2_ids)->get()->count();
+            $items_count[3] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat3_ids)->get()->count();
+        }
+
+        $items = ($items) ? $items->sortBy('item_name') : [];
+
+        return view('misc/equipment/stocktake-edit', compact('location', 'sites', 'others', 'items', 'category', 'items_count'));
+    }
+
+    public function getSites() {
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc)
             $sites[$loc->id] = $loc->name;
         // Active Site but current no equipment
@@ -68,31 +139,21 @@ class EquipmentStocktakeController extends Controller {
         asort($sites);
         $sites = ['1' => 'CAPE COD STORE'] + $sites;
 
+        return $sites;
+    }
+
+    public function getOthers() {
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', null)->get() as $loc)
             $others[$loc->id] = $loc->name;
         asort($others);
 
-
-        $items = [];
-        if ($location) {
-            // Get items then filter out 'deleted'
-            $all_items = EquipmentLocationItem::where('location_id', $location->id)->get();
-            //dd($all_items);
-            $items = $all_items->filter(function ($item) {
-                if ($item->equipment->status) return $item;
-            });
-        }
-
-        $items = ($items) ? $items->sortBy('item_name') : [];
-        $items2 = [];
-        $items3 = [];
-
-        return view('misc/equipment/stocktake', compact('location', 'sites', 'others', 'items', 'items2', 'items3'));
+        return $others;
     }
 
 
+
     /**
-     * Display a listing of the resource.
+     * Display the resource.
      *
      * @return \Illuminate\Http\Response
      */

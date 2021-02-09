@@ -398,6 +398,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Stocktake
     Route::get('equipment/stocktake/dt/stocktake', 'Misc\EquipmentStocktakeController@getStocktake');
     Route::get('equipment/stocktake/view/{id}', 'Misc\EquipmentStocktakeController@showStocktake');
+    Route::get('equipment/stocktake/{id}/edit/{tab}', 'Misc\EquipmentStocktakeController@edit');
     Route::resource('equipment/stocktake', 'Misc\EquipmentStocktakeController');
 
 
