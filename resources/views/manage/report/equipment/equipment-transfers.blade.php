@@ -6,40 +6,39 @@
         @if (Auth::user()->hasAnyPermissionType('manage.report'))
             <li><a href="/manage/report">Management Reports</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Equipment List</span></li>
+        <li><span>Equipment Transfers</span></li>
     </ul>
 @stop
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('EquipmentPdf', ['action' => 'Site\Planner\SitePlannerExportController@attendancePDF', 'class' => 'horizontal-form']) !!}
+        {!! Form::model('EquipmentTransfersPDF', ['action' => 'Misc\ReportEquipmentController@equipmentTransfersPDF', 'class' => 'horizontal-form']) !!}
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Equipment List</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Equipment Transfers Last 7 Days</span>
+                            <span class="caption-helper"> &nbsp; {{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}</span>
                         </div>
                         <div class="actions">
-                            <a href="/manage/report/equipment/report" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</a>
+                            <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
                         </div>
                     </div>
                     <div class="portlet-body form">
                         <div class="portlet-body">
-                            @foreach ($equipment as $equip)
-                                <div class="row">
-                                    <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
-                                </div>
-                                @foreach ($equip->locations() as $location)
-                                    @if ($location->equipment($equip->id)->qty)
-                                        <div class="row">
-                                            <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
-                                            <div class="col-xs-11">{{ $location->name2 }}</div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @endforeach
+                            <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th width="5%"> Qty</th>
+                                    <th> Item</th>
+                                    <th> From</th>
+                                    <th> To</th>
+                                    <th width="10%"> Date</th>
+                                </tr>
+                                </thead>
+                            </table>
                         </div>
 
                         <div class="form-actions right">
@@ -82,7 +81,47 @@
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-
 <script type="text/javascript">
+
+    $(document).ready(function () {
+        //$('#view_pdf').click(function (e) {
+        $('form').submit(function (e) {
+            $('#spinner').show();
+            return true;
+        });
+    });
+
+    var table1 = $('#table1').DataTable({
+        pageLength: 100,
+        processing: true,
+        serverSide: true,
+        ajax: {
+            'url': '{!! url('/manage/report/equipment/dt/transfers') !!}',
+            'type': 'GET',
+            'data': function (d) {
+                d.from = $('#from').val();
+                d.to = $('#to').val();
+            }
+        },
+        columns: [
+            {data: 'qty', name: 'equipment_log.qty'},
+            {data: 'name', name: 'equipment.name'},
+            {data: 'trans_from', name: 'trans_from'},
+            {data: 'trans_to', name: 'trans_to'},
+            {data: 'created_at', name: 'equipment_log.created_at'},
+            //{data: 'firstname', name: 'users.firstname', visible: false},
+            //{data: 'lastname', name: 'users.lastname', visible: false},
+        ],
+        order: [
+            [4, "desc"]
+        ]
+    });
+
+    $('#from').change(function () {
+        table1.ajax.reload();
+    });
+    $('#to').change(function () {
+        table1.ajax.reload();
+    });
 </script>
 @stop

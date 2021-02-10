@@ -6,20 +6,20 @@
         @if (Auth::user()->hasAnyPermissionType('manage.report'))
             <li><a href="/manage/report">Management Reports</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Equipment Transfers</span></li>
+        <li><span>Equipment Transactions</span></li>
     </ul>
 @stop
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('EquipmentTransactionsPDF', ['action' => 'Misc\ReportController@equipmentTransactionsPDF', 'class' => 'horizontal-form']) !!}
+        {!! Form::model('EquipmentTransactionsPDF', ['action' => 'Misc\ReportEquipmentController@equipmentTransactionsPDF', 'class' => 'horizontal-form']) !!}
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Equipment Transfers</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Equipment Transactions</span>
                         </div>
                         <div class="actions">
                             <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>

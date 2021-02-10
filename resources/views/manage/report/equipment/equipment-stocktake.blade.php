@@ -12,7 +12,6 @@
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('EquipmentTransactionsPDF', ['action' => 'Misc\ReportController@equipmentTransactionsPDF', 'class' => 'horizontal-form']) !!}
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -22,7 +21,6 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Equipment Stocktake</span>
                         </div>
                         <div class="actions">
-                            <button type="submit" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> View PDF</button>
                         </div>
                     </div>
                     <div class="portlet-body form">
@@ -79,7 +77,6 @@
                 </div>
             </div>
         </div>
-        {!! Form::close() !!}
     </div>
     <!-- loading Spinner -->
     <div style="background-color: #FFF; padding: 20px; display: none" id="spinner">

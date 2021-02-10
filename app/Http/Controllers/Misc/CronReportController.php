@@ -269,7 +269,7 @@ class CronReportController extends Controller {
         }
         sort($supers);
 
-        //return view('pdf/site/site-qa-onhold', compact('qas', 'today'));
+        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
         //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
 
         $pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));

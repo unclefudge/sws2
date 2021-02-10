@@ -26,7 +26,6 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Report List</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -85,6 +84,15 @@
                                 <td><a href="/manage/report/attendance">Attendance</a></td>
                             </tr>
                             <tr style="background-color: #f0f6fa">
+                                <th> Quality Assurance</th>
+                            </tr>
+                            <tr>
+                                <td><a href="/manage/report/qa_onhold">On Hold QA</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="/manage/report/qa_outstanding">Outstanding QA</a></td>
+                            </tr>
+                            <tr style="background-color: #f0f6fa">
                                 <th> Maintenance Requests</th>
                             </tr>
                             <tr>
@@ -105,6 +113,9 @@
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/equipment_transactions">Equipment Transactions</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/equipment_transfers">Equipment Transfers</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/equipment_stocktake">Equipment Stocktake</a></td>
