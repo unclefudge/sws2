@@ -579,7 +579,7 @@ class SiteMaintenanceController extends Controller {
     {
         $completed = SitePlanner::where('site_id', request('site_id'))->where('task_id', 265)->get()->last();
         if ($completed) {
-            return $completed->to;
+            return $completed->to; //->format('d/m/Y');
         }
 
         return '';

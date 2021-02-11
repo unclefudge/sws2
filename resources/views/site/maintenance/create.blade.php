@@ -302,9 +302,10 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
-                        var year = data.date.substring(0, 4);
-                        var month = data.date.substring(5, 7);
-                        var day = data.date.substring(8, 10);
+                        console.log(data);
+                        var year = data.substring(0, 4);
+                        var month = data.substring(5, 7);
+                        var day = data.substring(8, 10);
                         $("#completed").val(day + '/' + month + '/' + year);
                     },
                 })
