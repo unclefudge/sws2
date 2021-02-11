@@ -86,7 +86,7 @@
                 </div>
             </div>
             <hr style="margin: 2px 0px">
-            @foreach ($location->items as $item)
+            @foreach ($location->itemsOrderedByName() as $item)
                 <div class="row" style="padding: 0px; margin: 0px">
                     <div class="col-xs-1 text-right" style="padding: 0px 10px; margin: 0px">{{ $item->qty }}</div>
                     <div class="col-xs-11" style="padding: 0px 10px; margin: 0px">{{ $item->item_name }}</div>

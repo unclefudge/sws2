@@ -118,6 +118,7 @@ class SupportTicketController extends Controller {
         //Add action to ticket
         if ($ticket) {
             $action = $ticket->actions()->save(new SupportTicketAction(['action' => request('action')]));
+            //$action = SupportTicketAction::create(['ticket_id' => $ticket->id, 'action' => request('action')]);
 
             // Handle attachment
             if ($request->hasFile('attachment'))

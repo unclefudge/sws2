@@ -20,8 +20,9 @@
                 </tr>
                 <tr>
                     <td style="vertical-align: top"><b>Description</b></td>
-                    <td>{!! nl2br($ticket->summary) !!}</td>
+                    <td>{!! nl2br($action->action) !!}</td>
                 </tr>
+
                 <tr>
                     <td><b>Date/Time</b></td>
                     <td>{{ $ticket->created_at->format('d/m/Y g:i a')  }}</td>

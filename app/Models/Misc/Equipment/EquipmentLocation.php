@@ -4,6 +4,8 @@ namespace App\Models\Misc\Equipment;
 
 use App\User;
 use App\Models\Comms\Todo;
+use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentLocationItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,6 +81,16 @@ class EquipmentLocation extends Model {
             $str .= "$item->qty:$item->item_name, ";
         }
         return rtrim($str, ', ');
+    }
+
+    /**
+     * A EquipmentLocation has many items - Ordered by Item Name.
+     *
+     * @return STRING
+     */
+    public function itemsOrderedByName()
+    {
+        return EquipmentLocationItem::where('location_id', $this->id)->join('equipment', 'equipment.id', '=', 'equipment_location_items.equipment_id')->orderBy('equipment.name')->get();
     }
 
     /**

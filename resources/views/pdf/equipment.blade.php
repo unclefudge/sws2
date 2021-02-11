@@ -44,10 +44,36 @@
             margin-bottom: -999px;
             padding-bottom: 999px;
         }
+
+        header {
+            position: fixed;
+            top: 10px;
+            left: 0px;
+            right: 0px;
+            height: 50px;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            height: 20px;
+        }
+
+        footer .pagenum:before {
+            content: counter(page);
+        }
     </style>
 </head>
 
 <body>
+<header></header>
+<footer>
+    <div class="pagenum-container">
+        Document created {!! date('\ d/m/Y\ ') !!} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>
+    </div>
+</footer>
 <div class="container">
     <div class="page22">
         <div class="row">
@@ -56,40 +82,58 @@
         </div>
         <hr style="margin: 5px 0px">
         <br>
-        <?php $row_count = 0; ?>
-        <?php $page_count = 1; ?>
+        <h4>General</h4>
+        <hr>
         @foreach ($equipment as $equip)
-            <?php $row_count ++ ?>
-            @if (($row_count + $equip->locations()->count() > 45) && $equip->locations()->count() < 45) {{-- New Page if no of lines for current item exceed max --}}
-                    <?php $row_count = 0; $page_count++ ?>
-                    <div class="page"></div>
-                    <div class="row">
-                        <div class="col-xs-8"><h3 style="margin: 0px">Equipment List</h3></div>
-                        <div class="col-xs-4"><h6><b>Date: {{ \Carbon\Carbon::today()->format('d/m/Y') }}</b></h6></div>
-                    </div>
-                    <hr style="margin: 5px 0px">
+            @if ($equip->category_id == 1)
+                <div class="row">
+                    <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
+                </div>
+                @foreach ($equip->locations() as $location)
+                    @if ($location->equipment($equip->id)->qty)
+                        <div class="row">
+                            <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
+                            <div class="col-xs-11">{!! $location->name2 !!}</div>
+                        </div>
+                    @endif
+                @endforeach
             @endif
-            <div class="row">
-                <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
-            </div>
-            @foreach ($equip->locations() as $location)
-                <?php $row_count ++ ?>
-                @if ($row_count > 45)
-                    <?php $row_count = 0 ?>
-                    <div class="page"></div>
-                    <div class="row">
-                        <div class="col-xs-8"><h3 style="margin: 0px">Equipment List</h3></div>
-                        <div class="col-xs-4"><h6><b>Date: {{ \Carbon\Carbon::today()->format('d/m/Y') }}</b></h6></div>
-                    </div>
-                    <hr style="margin: 5px 0px">
-                @endif
-                @if ($location->equipment($equip->id)->qty)
-                    <div class="row">
-                        <div class="col-xs-1 text-right">{{ $row_count }}-{{ $location->equipment($equip->id)->qty }}</div>
-                        <div class="col-xs-11">{{ $location->name2 }}</div>
-                    </div>
-                @endif
-            @endforeach
+        @endforeach
+
+        <h4>Materials</h4>
+        <hr>
+        @foreach ($equipment as $equip)
+            @if ($equip->category->parent == 3)
+                <div class="row">
+                    <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
+                </div>
+                @foreach ($equip->locations() as $location)
+                    @if ($location->equipment($equip->id)->qty)
+                        <div class="row">
+                            <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
+                            <div class="col-xs-11">{!! $location->name2 !!}</div>
+                        </div>
+                    @endif
+                @endforeach
+            @endif
+        @endforeach
+
+        <h4>Scaffold</h4>
+        <hr>
+        @foreach ($equipment as $equip)
+            @if ($equip->category_id == 2)
+                <div class="row">
+                    <div class="col-md-12"><b>{{ $equip->name }} ({{ $equip->total }})</b></div>
+                </div>
+                @foreach ($equip->locations() as $location)
+                    @if ($location->equipment($equip->id)->qty)
+                        <div class="row">
+                            <div class="col-xs-1 text-right">{{ $location->equipment($equip->id)->qty }}</div>
+                            <div class="col-xs-11">{!! $location->name2 !!}</div>
+                        </div>
+                    @endif
+                @endforeach
+            @endif
         @endforeach
     </div>
 </div>
