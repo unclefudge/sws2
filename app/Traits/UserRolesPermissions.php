@@ -694,7 +694,6 @@ trait UserRolesPermissions {
                 if ($be_child && ($this->permissionLevel($doc_permission, 210) == 99 || $this->permissionLevel($doc_permission, 210) == 1)) return true;  // User has 'All' permission to this record
 
 
-
                 // Document is For User Company but isn't the owner of it
                 // Only allowed to edit/delete documents with status pending/rejected ie. 2 or 3
                 if ($record->for_company_id == $this->company_id && $record->company_id != $this->company_id) {

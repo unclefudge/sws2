@@ -72,7 +72,7 @@ Vue.component('app-weekly', {
 });
 
 Vue.component('app-site', {
-    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address'],
+    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status'],
     template: '#site-template',
 
     data: function () {

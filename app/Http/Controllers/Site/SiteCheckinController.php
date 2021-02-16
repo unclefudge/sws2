@@ -167,7 +167,7 @@ class SiteCheckinController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($slug)
+    public function show($id)
     {
         //
     }
@@ -178,7 +178,7 @@ class SiteCheckinController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(SiteRequest $request, $slug)
+    public function update(SiteRequest $request, $id)
     {
     }
 

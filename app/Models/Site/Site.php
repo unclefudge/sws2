@@ -720,6 +720,26 @@ class Site extends Model {
     }
 
     /**
+     * Get the Status Text Both  (getter)
+     */
+    public function getStatusTextAttribute()
+    {
+
+        if ($this->status == 1)
+            return '<span class="font-green">ACTIVE</span>';
+
+        if ($this->status == 0)
+            return '<span class="font-red">COMPLETED</span>';
+
+        if ($this->status == -1)
+            return '<span class="font-yellow">UPCOMING</span>';
+
+        if ($this->status == 2)
+            return '<span class="font-yellow">MAINTENANCE</span>';
+
+    }
+
+    /**
      * Get the suburb, state, postcode  (getter)
      */
     public function getAddressFormattedSingleAttribute()

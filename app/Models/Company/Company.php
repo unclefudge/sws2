@@ -388,7 +388,7 @@ class Company extends Model {
      */
     public function onsiteUsers($status = '')
     {
-        $company_list = $this->companies()->whereIn('category', [1,2])->pluck('id')->toArray();
+        $company_list = $this->companies()->whereIn('category', [1, 2])->pluck('id')->toArray();
 
         return ($status != '') ? User::where('status', $status)->whereIn('company_id', $company_list)->get() : User::whereIn('company_id', $company_list)->get();
     }
@@ -768,7 +768,10 @@ class Company extends Model {
      */
     public function sites($status = '')
     {
-        return ($status == '') ? Site::where('company_id', $this->id)->get() : Site::where('status', $status)->where('company_id', $this->id)->get();
+        if ($status && !is_array($status))
+            $status = [$status];
+
+        return ($status == '') ? Site::where('company_id', $this->id)->get() : Site::whereIn('status', $status)->where('company_id', $this->id)->get();
     }
 
     /**
@@ -801,7 +804,10 @@ class Company extends Model {
      */
     public function sitesPlannedFor($status = '', $date_from = '', $date_to = '')
     {
-        $collection = ($status != '') ? Site::where('status', $status)->where('company_id', $this->id)->orWhere('company_id', $this->reportsTo()->id)->get() :
+        if ($status && !is_array($status))
+            $status = [$status];
+
+        $collection = ($status != '') ? Site::whereIn('status', $status)->where('company_id', $this->id)->orWhere('company_id', $this->reportsTo()->id)->get() :
             Site::where('company_id', $this->id)->orWhere('company_id', $this->reportsTo()->id)->get();
 
         // If Company has no Parent then return full collection
@@ -858,9 +864,9 @@ class Company extends Model {
 
         // Site planned for today
         $sites_planned = [];
-        foreach ($this->sitesPlannedFor(1, Carbon::today(), Carbon::today()) as $site) {
+        foreach ($this->sitesPlannedFor([1,2], Carbon::today(), Carbon::today()) as $site) {
             $site = Site::findOrFail($site->id);
-            if ($site->status == 1 && $site->show_checkin)
+            if (in_array($site->status, [1,2]) && $site->show_checkin)
                 $sites_planned[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
         asort($sites_planned);
@@ -874,9 +880,9 @@ class Company extends Model {
 
         // All Sites
         $sites_all = [];
-        foreach (Auth::user()->authSitesSelect('view.site', 1) as $site_id => $name) {
+        foreach (Auth::user()->authSitesSelect('view.site', [1,2]) as $site_id => $name) {
             $site = Site::findOrFail($site_id);
-            if ($site->status == 1 && $site->show_checkin)
+            if (in_array($site->status, [1,2]) && $site->show_checkin)
                 $sites_all[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
         asort($sites_all);
@@ -910,7 +916,6 @@ class Company extends Model {
 
         return ($prompt) ? $array = array('' => 'Select category') + $array : $array;
     }
-
 
 
     /**
@@ -1181,12 +1186,13 @@ class Company extends Model {
     public function notificationsUsersType($type)
     {
         //if (\App::environment('prod', 'dev')) {
-            if (!is_int($type))
-                $type = SettingsNotificationTypes::type($type);
+        if (!is_int($type))
+            $type = SettingsNotificationTypes::type($type);
 
-            $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
+        $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
-            return ($users) ? User::find($users) : null;
+        return ($users) ? User::find($users) : null;
+
         //}
 
         return User::find([3]); // Fudge
@@ -1201,12 +1207,13 @@ class Company extends Model {
     public function notificationsUsersTypeArray($type)
     {
         //if (\App::environment('prod', 'dev')) {
-            if (!is_int($type))
-                $type = SettingsNotificationTypes::type($type);
+        if (!is_int($type))
+            $type = SettingsNotificationTypes::type($type);
 
-            $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
+        $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
-            return ($users) ? User::find($users)->pluck('id')->toArray() : [];
+        return ($users) ? User::find($users)->pluck('id')->toArray() : [];
+
         //}
 
         return [3]; // Fudge
@@ -1370,7 +1377,7 @@ class Company extends Model {
         if ($this->status == 1)
             return '<span class="font-green">ACTIVE</span>';
 
-        if ($this->status == 1)
+        if ($this->status == - 1)
             return '<span class="font-yellow">PENDING</span>';
 
         if ($this->status == 0)

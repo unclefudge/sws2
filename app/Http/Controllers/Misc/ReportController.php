@@ -160,7 +160,7 @@ class ReportController extends Controller {
                 return $attendance->date->format('d/m/Y H:i a');
             })
             ->editColumn('sites.name', function ($attendance) {
-                return '<a href="/site/' . $attendance->site->slug . '">' . $attendance->site->name . '</a>';
+                return '<a href="/site/' . $attendance->site->id . '">' . $attendance->site->name . '</a>';
             })
             ->editColumn('full_name', function ($attendance) {
                 return '<a href="/user/' . $attendance->user->id . '">' . $attendance->user->full_name . '</a>';

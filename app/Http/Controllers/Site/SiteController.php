@@ -7,7 +7,9 @@ use Validator;
 
 use DB;
 use Session;
+use App\User;
 use App\Models\Site\Site;
+use App\Models\Site\SiteDoc;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Http\Requests;
 use App\Http\Requests\Site\SiteRequest;
@@ -74,9 +76,7 @@ class SiteController extends Controller {
         if (!Auth::user()->allowed2('add.site'))
             return view('errors/404');
 
-        $site_request = $request->except('tabs', 'supervisors');
-        //$site_request['client_id'];
-        //dd($site_request);
+        $site_request = $request->except('supervisors');
 
         // Create Site
         $newSite = Site::create($site_request);
@@ -99,17 +99,15 @@ class SiteController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($slug)
+    public function show($id)
     {
-        $site = Site::where(compact('slug'))->firstorFail();
+        $site = Site::findorFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.site', $site))
             return view('errors/404');
 
-        $tabs = ['profile', 'info'];
-
-        return view('site.show', compact('site', 'tabs'));
+        return view('site/show', compact('site'));
     }
 
     /**
@@ -118,17 +116,15 @@ class SiteController extends Controller {
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function showSettings($slug, $tab = 'info')
+    public function showDocs($id)
     {
-        $site = Site::where(compact('slug'))->firstOrFail();
+        $site = Site::findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site', $site))
             return view('errors/404');
 
-        $tabs = ['settings', $tab];
-
-        return view('site.show', compact('site', 'tabs'));
+        return view('site/docs', compact('site'));
     }
 
     /**
@@ -136,16 +132,16 @@ class SiteController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(SiteRequest $request, $slug)
+    public function update($id)
     {
-        $site = Site::where(compact('slug'))->firstOrFail();
+        $site = Site::findorFail($id);
         $old_status = $site->status;
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site', $site))
             return view('errors/404');
 
-        $site_request = $request->except('supervisors', 'tabs');
+        $site_request = request()->except('supervisors');
 
         // Site recently marked completed
         if ($site_request['status'] == 0 && $site->status != 0) {
@@ -172,8 +168,8 @@ class SiteController extends Controller {
         $site->update($site_request);
 
         // Update supervisors for site
-        if ($request->get('supervisors'))
-            $site->supervisors()->sync($request->get('supervisors'));
+        if (request('supervisors'))
+            $site->supervisors()->sync(request('supervisors'));
         else
             $site->supervisors()->detach();
 
@@ -182,37 +178,52 @@ class SiteController extends Controller {
             $site->emailSite();
 
         Toastr::success("Saved changes");
-        $tabs = explode(':', $request->get('tabs'));
 
-        return redirect('/site/' . $site->slug . '/' . $tabs[0] . '/' . $tabs[1]);
+        return redirect('/site/' . $site->id);
     }
 
-    public function updateAdmin(Request $request, $slug)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateClient($id)
     {
-        $site = Site::where(compact('slug'))->firstOrFail();
+        $site = Site::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site', $site))
+            return view('errors/404');
+
+        $site_request = request()->all();
+        $site->update($site_request);
+        Toastr::success("Saved changes");
+
+        return redirect('/site/' . $site->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateAdmin($id)
+    {
+        $site = Site::findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.admin', $site))
             return view('errors/404');
 
-        $site_request = $request->except('slug');
-
-        $site_request['contract_sent'] = ($request->filled('contract_sent')) ? Carbon::createFromFormat('d/m/Y H:i', $request->get('contract_sent') . '00:00')->toDateTimeString() : null;
-        $site_request['contract_signed'] = ($request->filled('contract_signed')) ? Carbon::createFromFormat('d/m/Y H:i', $request->get('contract_signed') . '00:00')->toDateTimeString() : null;
-        $site_request['deposit_paid'] = ($request->filled('deposit_paid')) ? Carbon::createFromFormat('d/m/Y H:i', $request->get('deposit_paid') . '00:00')->toDateTimeString() : null;
-        $site_request['completion_signed'] = ($request->filled('completion_signed')) ? Carbon::createFromFormat('d/m/Y H:i', $request->get('completion_signed') . '00:00')->toDateTimeString() : null;
-
-        // Clear Site Certificates if not set
-        if (!$request->has('engineering')) $site_request['engineering'] = '0';
-        if (!$request->has('construction')) $site_request['construction'] = '0';
-        if (!$request->has('hbcf')) $site_request['hbcf'] = '0';
-
+        $site_request = request()->all();
+        $site_request['contract_sent'] = (request('contract_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('contract_sent') . '00:00')->toDateTimeString() : null;
+        $site_request['contract_signed'] = (request('contract_signed')) ? Carbon::createFromFormat('d/m/Y H:i', request('contract_signed') . '00:00')->toDateTimeString() : null;
+        $site_request['deposit_paid'] = (request('deposit_paid')) ? Carbon::createFromFormat('d/m/Y H:i', request('deposit_paid') . '00:00')->toDateTimeString() : null;
+        $site_request['completion_signed'] = (request('completion_signed')) ? Carbon::createFromFormat('d/m/Y H:i', request('completion_signed') . '00:00')->toDateTimeString() : null;
         $site->update($site_request);
 
         Toastr::success("Saved changes");
-        $tabs = explode(':', $request->get('tabs'));
-
-        return redirect('/site/' . $site->slug . '/' . $tabs[0] . '/' . $tabs[1]);
+        return redirect('/site/' . $site->id);
     }
 
     /**
@@ -255,7 +266,7 @@ class SiteController extends Controller {
         $dt = Datatables::of($site_records)
             ->editColumn('id', function ($site) {
                 // Only return link to site if owner of site
-                return (Auth::user()->isCompany($site->company_id)) ? '<div class="text-center"><a href="/site/' . $site->slug . '"><i class="fa fa-search"></i></a></div>' : '';
+                return (Auth::user()->isCompany($site->company_id)) ? '<div class="text-center"><a href="/site/' . $site->id . '"><i class="fa fa-search"></i></a></div>' : '';
             })
             ->editColumn('client_phone', function ($site) {
                 $string = '';
@@ -317,6 +328,55 @@ class SiteController extends Controller {
                 return $site->supervisorsSBC();
             })
             ->rawColumns(['id', 'client_phone'])
+            ->make(true);
+
+        return $dt;
+    }
+
+    /**
+     * Get Site Docs current user is authorised to manage + Process datatables ajax request.
+     */
+    public function getSiteDocs()
+    {
+        //dd($allowedSites);
+        $type = request('type');
+        if ($type == 'ALL')
+            $records = DB::table('site_docs as d')
+                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
+                ->join('sites as s', 'd.site_id', '=', 's.id')
+                ->where('site_id', request('site_id'))
+                ->where('d.status', '1');
+        else
+            $records = DB::table('site_docs as d')
+                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
+                ->join('sites as s', 'd.site_id', '=', 's.id')
+                ->where('d.type', $type)
+                ->where('site_id', request('site_id'))
+                ->where('d.status', '1');
+
+        //dd($records);
+
+        $dt = Datatables::of($records)
+            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->addColumn('action', function ($doc) {
+                $record = SiteDoc::find($doc->id);
+                $actions = '';
+/*
+                if ($doc->type == 'PLAN') {
+                    if (Auth::user()->allowed2('edit.site.doc', $record))
+                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                    if (Auth::user()->allowed2('del.site.doc', $record))
+                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                } else {
+                    if (Auth::user()->allowed2('edit.safety.doc', $record))
+                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                    if (Auth::user()->allowed2('del.safety.doc', $record))
+                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                }
+*/
+                return $actions;
+            })
+            ->rawColumns(['id', 'action'])
             ->make(true);
 
         return $dt;

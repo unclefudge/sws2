@@ -67,6 +67,7 @@ class SiteRequest extends Request {
         //
         // Can return a response, a view, a redirect, or whatever else
 
+        /*
         if ($this->ajax() || $this->wantsJson()) {
             return new JsonResponse($errors, 422);
         }
@@ -87,7 +88,7 @@ class SiteRequest extends Request {
                 return $this->redirector->to($this->getRedirectUrl())
                     ->withInput($this->except($this->dontFlash))
                     ->withErrors($errors, $this->errorBag);
-        }
+        }*/
 
     }
 }

@@ -83,7 +83,7 @@
                                 <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
                             </div>
                             <template v-for="site in xx.sites">
-                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address"></app-site>
+                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status"></app-site>
                             </template>
 
                         </div>
@@ -109,12 +109,13 @@
 
 
     <template id="site-template">
-        <div v-show="showSite(site_id) && site_code != '0007'" class="row row-striped" style="border-bottom: 1px solid lightgrey; overflow: hidden;">
+        <div v-show="showSite(site_id) && site_code != '0007' && site_status == '1'" class="row row-striped" style="border-bottom: 1px solid lightgrey; overflow: hidden;">
             <div class="col-xs-2 sideColBG">
                 <small>@{{ site_name | max20chars }}<br>
                     <small>
                         <span v-if="xx.show_contact == 1"><br><span v-html="site_address"></span><br>@{{ site_contact }}</span>
                         <span v-else>@{{ site_code }}</span>
+                        <span v-if="site_status == 2" style="color: red"><br>*** Maintenance ***</span>
                     </small>
                 </small>
             </div>

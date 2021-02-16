@@ -330,10 +330,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('sitelist', 'Site\SiteController@siteList');
     //Route::get('site/{slug}/checkin', 'Site\SiteController@siteCheckin');
     //Route::post('site/{slug}/checkin', 'Site\SiteController@processCheckin');
-    Route::get('site/{slug}/settings', 'Site\SiteController@showSettings');
-    Route::post('site/{slug}/settings/admin', 'Site\SiteController@updateAdmin');
-    Route::post('site/{slug}/settings/logo', 'Site\SiteController@updateLogo');
-    Route::get('site/{slug}/settings/{tab}', 'Site\SiteController@showSettings');
+    //Route::get('site/{slug}/settings', 'Site\SiteController@showSettings');
+    Route::post('site/{id}/admin', 'Site\SiteController@updateAdmin');
+    Route::post('site/{id}/client', 'Site\SiteController@updateClient');
+    Route::get('site/{id}/doc', 'Site\SiteController@showDocs');
+    Route::get('site/data/doc/dt', 'Site\SiteController@getSiteDocs');
+    //Route::post('site/{slug}/settings/logo', 'Site\SiteController@updateLogo');
+    //Route::get('site/{slug}/settings/{tab}', 'Site\SiteController@showSettings');
     Route::get('site/data/details/{id}', 'Site\SiteController@getSiteDetails');
     //Route::get('site/data/owner/{id}', 'Site\SiteController@getSiteOwner');
     Route::resource('site', 'Site\SiteController');
