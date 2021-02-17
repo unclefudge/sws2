@@ -3,7 +3,7 @@
     <div class="col-md-12">
         <div class="member-bar">
             <!--<i class="fa fa-user ppicon-user-member-bar" style="font-size: 80px; opacity: .5; padding:5px"></i>-->
-            <i class="icon-user-member-bar hidden-xs"></i>
+            <i class="icon-site-member-bar hidden-xs"></i>
             <div class="member-name">
                 <div class="full-name-wrap">{{ $site->name }}</div>
                 <span class="member-number">Site ID #{{ $site->id }}</span>

@@ -768,7 +768,8 @@ class Company extends Model {
      */
     public function sites($status = '')
     {
-        if ($status && !is_array($status))
+        //dd($status);
+        if ($status != '' && !is_array($status))
             $status = [$status];
 
         return ($status == '') ? Site::where('company_id', $this->id)->get() : Site::whereIn('status', $status)->where('company_id', $this->id)->get();
