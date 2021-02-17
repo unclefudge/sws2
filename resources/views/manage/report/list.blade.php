@@ -112,7 +112,7 @@
                                     <td><a href="/manage/report/equipment_site">Equipment List by Site </a></td>
                                 </tr>
                                 <tr>
-                                    <td><a href="/manage/report/equipment_transactions">Equipment Transactions</a></td>
+                                    <td><a href="/manage/report/equipment_transactions">Equipment Purchases</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/equipment_transfers">Equipment Transfers</a></td>
@@ -135,6 +135,9 @@
                             </tr>
                             <tr>
                                 <td><a href="/manage/report/users_extra_permissions">Users with extra permissions (on top of what is provided by their role)</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="/manage/report/users_with_permission/user">Users with Specific Permission</a></td>
                             </tr>
                             @if (Auth::user()->hasRole2('web-admin'))
                                 <tr style="background-color: #f0f6fa">

@@ -93,6 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/users_lastlogin', 'Misc\ReportUserCompanyController@usersLastLogin');
     Route::get('/manage/report/roleusers', 'Misc\ReportUserCompanyController@roleusers');
     Route::get('/manage/report/users_extra_permissions', 'Misc\ReportUserCompanyController@usersExtraPermissions');
+    Route::get('/manage/report/users_with_permission/{type}', 'Misc\ReportUserCompanyController@usersWithPermission');
     Route::get('/manage/report/missing_company_info', 'Misc\ReportUserCompanyController@missingCompanyInfo');
     Route::get('/manage/report/missing_company_info_csv', 'Misc\ReportUserCompanyController@missingCompanyInfoCSV');
     Route::get('/manage/report/company_users', 'Misc\ReportUserCompanyController@companyUsers');
@@ -513,6 +514,7 @@ Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', 'Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance');
+Route::get('manage/export-support', 'Misc\PagesController@exportSupportTickets');
 
 // PHP Info
 Route::get('php-info', function () {

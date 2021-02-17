@@ -136,6 +136,7 @@ class PagesController extends Controller {
     public function quick()
     {
 
+        /*
         echo "<b>Mail testing</b></br>";
         $todo = ToDo::findOrFail(26492);
         echo "Todo: $todo->name<br>";
@@ -143,6 +144,7 @@ class PagesController extends Controller {
         echo "sending mail ".Carbon::now()->format('g:i:s')."<br>";
         Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Comms\TodoCreated($todo));
         echo "mail sent";
+        */
 
         /*
         echo "<b>Active Equipment Locations with no items </b></br>";
@@ -157,23 +159,7 @@ class PagesController extends Controller {
                     echo "-- [$location->id] $location->name<br>";
             }
 
-        }*
-
-
-        /*
-        echo "<b>Export of Dev Support Tickets </b></br>";
-        $tickets = SupportTicket::where('status', 1)->where('type', 1)->get();
-
-        echo "<table st><br>";
-        echo "<tr><td width='5%'><b>ID</b></td><td width='5%'><b>NAME</b></td><td><b>ACTIONS</b></td></tr>";
-        foreach ($tickets as $ticket) {
-            echo "<tr style='outline: thin solid'><td>$ticket->id</td><td>$ticket->name</td><td>&nbsp;</td></tr>";
-            foreach ($ticket->actions as $action) {
-                echo "<tr style='outline: thin dotted'><td>&nbsp;</td><td>" . $action->created_at->format('d/m/Y') . "\n" . $action->user->firstname . "</td><td>$action->action</td></tr>";
-            }
-        }
-        echo "</table>";
-        */
+        }*/
 
 
         /*
@@ -1302,6 +1288,21 @@ class PagesController extends Controller {
                 echo "- Site (id: $site->id) $site->name planned for " . $plan->to->format('d/m/Y') . "<br>";
             }
         }
+    }
+
+    function exportSupportTickets() {
+        echo "<b>Export of Dev Support Tickets </b></br>";
+        $tickets = SupportTicket::where('status', 1)->where('type', 1)->get();
+
+        echo "<table st><br>";
+        echo "<tr><td width='5%'><b>ID</b></td><td width='5%'><b>NAME</b></td><td><b>ACTIONS</b></td></tr>";
+        foreach ($tickets as $ticket) {
+            echo "<tr style='outline: thin solid'><td>$ticket->id</td><td>$ticket->name</td><td>&nbsp;</td></tr>";
+            foreach ($ticket->actions as $action) {
+                echo "<tr style='outline: thin dotted'><td>&nbsp;</td><td>" . $action->created_at->format('d/m/Y') . "\n" . $action->user->firstname . "</td><td>$action->action</td></tr>";
+            }
+        }
+        echo "</table>";
     }
 
 }

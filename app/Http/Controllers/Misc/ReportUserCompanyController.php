@@ -7,23 +7,11 @@ use PDF;
 use File;
 use Session;
 use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentStocktake;
-use App\Models\Misc\Equipment\EquipmentStocktakeItem;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Action;
+use App\Models\Misc\Permission2;
+use App\Models\Misc\Role2;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Http\Requests;
@@ -365,6 +353,36 @@ class ReportUserCompanyController extends Controller {
         $permissions = DB::table('permission_user')->where('company_id', Auth::user()->company_id)->orderBy('user_id')->get();
 
         return view('manage/report/user/users_extra_permissions', compact('permissions'));
+    }
+
+    public function usersWithPermission($type)
+    {
+        $permission_list = [];
+        $ignore_list = ['client', 'client.doc'];
+        $permissions2 = Permission2::all();
+        foreach ($permissions2 as $p) {
+            list($action, $rest) = explode('.', $p->slug, 2);
+            if (!array_key_exists($rest, $permission_list) && !in_array($rest, $ignore_list))
+                $permission_list[$rest] = str_replace(['View ','Edit ','Add ','Delete '], '', $p->name);
+        }
+        asort($permission_list);
+        //dd($permission_list);
+
+        $users = [];
+        foreach(Auth::user()->company->users(1) as $user) {
+            if ($user->hasAnyPermissionType($type) && !array_key_exists($user->id, $users)) {
+                $view = ($user->hasPermission2("view.$type")) ? 1 : 0;
+                $edit = ($user->hasPermission2("edit.$type")) ? 1 : 0;
+                $add = ($user->hasPermission2("add.$type")) ? 1 : 0;
+                $del = ($user->hasPermission2("del.$type")) ? 1 : 0;
+                $sig = ($user->hasPermission2("sig.$type")) ? 1 : 0;
+                $users[$user->id] = [$view,$edit, $add, $del, $sig];
+            }
+
+        }
+        //dd($users);
+
+        return view('manage/report/user/users_with_permission', compact('permission_list', 'type', 'users'));
     }
 
 
