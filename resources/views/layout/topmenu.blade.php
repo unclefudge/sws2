@@ -138,6 +138,10 @@
                     <li><a href="/company/{{ Auth::user()->company_id }}"><i class="fa fa-users"></i> Company Profile </a></li>
                 @endif
                 <li class="divider"></li>
+                @if (Auth::user()->id == 3)
+                    <li><a href="/userlog"><i class="fa fa-users"></i> Login as User </a></li>
+                    <li class="divider"></li>
+                @endif
                 <li>
                     <a href="/logout">
                         <i class="fa fa-key"></i> Log Out </a>

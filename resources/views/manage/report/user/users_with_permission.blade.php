@@ -48,29 +48,52 @@
                                 <th width="5%"> #</th>
                                 <th> Name</th>
                                 <th> Company</th>
-                                <th width="5%"> View</th>
-                                <th width="5%"> Edit</th>
+                                <th width="10%"> View</th>
+                                <th width="10%"> Edit</th>
                                 <th width="5%"> Add</th>
                                 <th width="5%"> Del</th>
                                 <th width="5%"> Sig</th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($users as $user_id => $permissions)
-                                <?php $user = App\User::find($user_id) ?>
+                            <?php
+                            $levels = ['99' => 'All', '50' => 'Our Company', '40' => 'Supervisor for', '30' => 'Planned for', '20' => 'Own Company', '10' => 'Individual Only', '1' => 'Y'];
+                            $cid = Auth::user()->company_id;
+                            $pid = Auth::user()->company->reportsTo()->id;
+                            ?>
+                            @foreach($users as $user)
+                                <?php
+                                $view = $user->permissionLevel("view.$type", $cid);
+                                $edit = $user->permissionLevel("edit.$type", $cid);
+                                $add = $user->permissionLevel("add.$type", $cid);
+                                $del = $user->permissionLevel("del.$type", $cid);
+                                $sig = $user->permissionLevel("sig.$type", $cid);
+                                ?>
+                                @if ($view || $edit || $add || $del || $sig)
                                 <tr @if(!$user->status) class="font-red" @endif>
-                                    <td><div class="text-center"><a href="/user/{{$user->id}}/security"><i class="fa fa-search"></i></a></div></td>
+                                    <td>
+                                        <div class="text-center"><a href="/user/{{$user->id}}/security"><i class="fa fa-search"></i></a></div>
+                                    </td>
                                     <td>{{ $user->fullname }}</td>
                                     <td>{{ $user->company->name_alias }}</td>
-                                    <td>{{ ($user->hasPermission2("view.$type")) ? 'Y' : 'N' }}</td>
-                                    <td>{{ ($user->hasPermission2("edit.$type")) ? 'Y' : 'N' }}</td>
-                                    <td>{{ ($user->hasPermission2("add.$type")) ? 'Y' : 'N' }}</td>
-                                    <td>{{ ($user->hasPermission2("del.$type")) ? 'Y' : 'N' }}</td>
-                                    <td>{{ ($user->hasPermission2("sig.$type")) ? 'Y' : 'N' }}</td>
+                                    <td>{{ ($view) ? $levels[$view] : '' }}</td>
+                                    <td>{{ ($edit) ? $levels[$edit] : '' }}</td>
+                                    <td>{{ ($add) ? $levels[$add] : '' }}</td>
+                                    <td>{{ ($del) ? $levels[$del] : '' }}</td>
+                                    <td>{{ ($sig) ? $levels[$sig] : '' }}</td>
                                 </tr>
-                                @endforeach
+                                @endif
+                            @endforeach
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="loadSpinnerOverlay" id="spinner" style="display: none">
+                            <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,4 +110,14 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        // Location
+        $("#permission").change(function () {
+            $("#spinner").show();
+            window.location.href = "/manage/report/users_with_permission/" + $("#permission").val();
+        });
+    });
+</script>
 @stop

@@ -101,6 +101,9 @@
                             <tr>
                                 <td><a href="/manage/report/maintenance_on_hold">On Hold</a></td>
                             </tr>
+                            <tr>
+                                <td><a href="/manage/report/maintenance_executive">Excutive Summary</a></td>
+                            </tr>
                             @if (Auth::user()->isCC())
                                 <tr style="background-color: #f0f6fa">
                                     <th> Equipment</th>
@@ -136,12 +139,12 @@
                             <tr>
                                 <td><a href="/manage/report/users_extra_permissions">Users with extra permissions (on top of what is provided by their role)</a></td>
                             </tr>
-                            <tr>
-                                <td><a href="/manage/report/users_with_permission/user">Users with Specific Permission</a></td>
-                            </tr>
                             @if (Auth::user()->hasRole2('web-admin'))
                                 <tr style="background-color: #f0f6fa">
                                     <th> Website Admin</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/users_with_permission/user">Users with Specific Permission</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/nightly">Nightly Log</a></td>

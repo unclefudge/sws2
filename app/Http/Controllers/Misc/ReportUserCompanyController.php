@@ -368,8 +368,21 @@ class ReportUserCompanyController extends Controller {
         asort($permission_list);
         //dd($permission_list);
 
+        /*
+        $permission_types = ['view', 'edit', 'add', 'del', 'sig'];
+
+            foreach ($permission_types as $ptype) {
+                if ( || $this->permissionLevel("$ptype.$permission", $this->company->reportsTo()->id))
+                    return true;
+            }
         $users = [];
         foreach(Auth::user()->company->users(1) as $user) {
+            // Own Company
+            if ($user->id == Auth::user()->id) {
+                $this->permissionLevel("$ptype.$permission", $this->company_id)
+            } else {
+
+            }
             if ($user->hasAnyPermissionType($type) && !array_key_exists($user->id, $users)) {
                 $view = ($user->hasPermission2("view.$type")) ? 1 : 0;
                 $edit = ($user->hasPermission2("edit.$type")) ? 1 : 0;
@@ -379,8 +392,10 @@ class ReportUserCompanyController extends Controller {
                 $users[$user->id] = [$view,$edit, $add, $del, $sig];
             }
 
-        }
+        } */
         //dd($users);
+
+        $users = Auth::user()->company->users(1);
 
         return view('manage/report/user/users_with_permission', compact('permission_list', 'type', 'users'));
     }

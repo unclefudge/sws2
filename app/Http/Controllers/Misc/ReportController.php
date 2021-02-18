@@ -84,96 +84,6 @@ class ReportController extends Controller {
         return $reports;
     }
 
-    public function nightly()
-    {
-        $files = array_reverse(array_diff(scandir(public_path('/filebank/log/nightly')), array('.', '..')));
-
-        return view('manage/report/nightly', compact('files'));
-    }
-
-    /*
-     * Payroll Report
-     */
-    public function payroll()
-    {
-        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-        $companies = Auth::user()->company->companies();
-
-        return view('manage/report/payroll', compact('companies'));
-    }
-
-    /*
-     * Site Attendance Report
-     */
-    public function attendance()
-    {
-        //$companies = \App\Models\Company\Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-
-        return view('manage/report/attendance'); // compact('companies'));
-    }
-
-    /**
-     * Get Site Attendance user is authorise to view
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-    public function getAttendance()
-    {
-
-        $site_id_all = (request('site_id_all') == 'all') ? '' : request('site_id_all');
-        $site_id_active = (request('site_id_active') == 'all') ? '' : request('site_id_active');
-        $site_id_completed = (request('site_id_completed') == 'all') ? '' : request('site_id_completed');
-        $company_id = (request('company_id') == 'all') ? '' : request('company_id');
-
-        if (request('status') == 1)
-            $site_ids = ($site_id_active) ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id')->toArray();
-        elseif (request('status') == '0')
-            $site_ids = ($site_id_completed) ? [$site_id_completed] : Auth::user()->company->sites(0)->pluck('id')->toArray();
-        else
-            $site_ids = ($site_id_all) ? [$site_id_all] : Auth::user()->company->sites()->pluck('id')->toArray();
-
-        $date_from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00')->format('Y-m-d') : '2000-01-01';
-        $date_to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00')->format('Y-m-d') : Carbon::tomorrow()->format('Y-m-d');
-
-
-        //dd(request('site_id_all'));
-
-        $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
-
-        $attendance_records = SiteAttendance::select([
-            'site_attendance.site_id', 'site_attendance.user_id', 'site_attendance.date', 'sites.name',
-            'users.id', 'users.username', 'users.firstname', 'users.lastname', 'users.company_id', 'companys.id', 'companys.name',
-            DB::raw('CONCAT(users.firstname, " ", users.lastname) AS full_name')
-        ])
-            ->join('sites', 'sites.id', '=', 'site_attendance.site_id')
-            ->join('users', 'users.id', '=', 'site_attendance.user_id')
-            ->join('companys', 'users.company_id', '=', 'companys.id')
-            ->whereIn('site_attendance.site_id', $site_ids)
-            ->whereIn('companys.id', $company_ids)
-            ->whereDate('site_attendance.date', '>=', $date_from)
-            ->whereDate('site_attendance.date', '<=', $date_to);
-
-        //dd($attendance_records);
-        $dt = Datatables::of($attendance_records)
-            ->editColumn('date', function ($attendance) {
-                return $attendance->date->format('d/m/Y H:i a');
-            })
-            ->editColumn('sites.name', function ($attendance) {
-                return '<a href="/site/' . $attendance->site->id . '">' . $attendance->site->name . '</a>';
-            })
-            ->editColumn('full_name', function ($attendance) {
-                return '<a href="/user/' . $attendance->user->id . '">' . $attendance->user->full_name . '</a>';
-            })
-            ->editColumn('companys.name', function ($attendance) {
-                return '<a href="/company/' . $attendance->user->company_id . '">' . $attendance->user->company->name . '</a>';
-            })
-            ->rawColumns(['id', 'full_name', 'companys.name', 'sites.name'])
-            ->make(true);
-
-        return $dt;
-    }
-
     /****************************************************
      * Quality Assurance
      ***************************************************/
@@ -273,25 +183,82 @@ class ReportController extends Controller {
         return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
     }
 
-    public function maintenanceNoAction()
-    {
-        $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
-        $mains = [];
-        foreach ($active_requests as $main) {
-            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
-                $mains[] = $main;
-        }
 
-        return view('manage/report/maintenance_no_action', compact('mains'));
+    /****************************************************
+     * Site
+     ***************************************************/
+
+    /*
+     * Site Attendance Report
+     */
+    public function attendance()
+    {
+        //$companies = \App\Models\Company\Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+
+        return view('manage/report/attendance'); // compact('companies'));
     }
 
-    public function maintenanceOnHold()
+    /**
+     * Get Site Attendance user is authorise to view
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function getAttendance()
     {
-        $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
 
-        return view('manage/report/maintenance_onhold', compact('mains'));
+        $site_id_all = (request('site_id_all') == 'all') ? '' : request('site_id_all');
+        $site_id_active = (request('site_id_active') == 'all') ? '' : request('site_id_active');
+        $site_id_completed = (request('site_id_completed') == 'all') ? '' : request('site_id_completed');
+        $company_id = (request('company_id') == 'all') ? '' : request('company_id');
+
+        if (request('status') == 1)
+            $site_ids = ($site_id_active) ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id')->toArray();
+        elseif (request('status') == '0')
+            $site_ids = ($site_id_completed) ? [$site_id_completed] : Auth::user()->company->sites(0)->pluck('id')->toArray();
+        else
+            $site_ids = ($site_id_all) ? [$site_id_all] : Auth::user()->company->sites()->pluck('id')->toArray();
+
+        $date_from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00')->format('Y-m-d') : '2000-01-01';
+        $date_to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00')->format('Y-m-d') : Carbon::tomorrow()->format('Y-m-d');
+
+
+        //dd(request('site_id_all'));
+
+        $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
+
+        $attendance_records = SiteAttendance::select([
+            'site_attendance.site_id', 'site_attendance.user_id', 'site_attendance.date', 'sites.name',
+            'users.id', 'users.username', 'users.firstname', 'users.lastname', 'users.company_id', 'companys.id', 'companys.name',
+            DB::raw('CONCAT(users.firstname, " ", users.lastname) AS full_name')
+        ])
+            ->join('sites', 'sites.id', '=', 'site_attendance.site_id')
+            ->join('users', 'users.id', '=', 'site_attendance.user_id')
+            ->join('companys', 'users.company_id', '=', 'companys.id')
+            ->whereIn('site_attendance.site_id', $site_ids)
+            ->whereIn('companys.id', $company_ids)
+            ->whereDate('site_attendance.date', '>=', $date_from)
+            ->whereDate('site_attendance.date', '<=', $date_to);
+
+        //dd($attendance_records);
+        $dt = Datatables::of($attendance_records)
+            ->editColumn('date', function ($attendance) {
+                return $attendance->date->format('d/m/Y H:i a');
+            })
+            ->editColumn('sites.name', function ($attendance) {
+                return '<a href="/site/' . $attendance->site->id . '">' . $attendance->site->name . '</a>';
+            })
+            ->editColumn('full_name', function ($attendance) {
+                return '<a href="/user/' . $attendance->user->id . '">' . $attendance->user->full_name . '</a>';
+            })
+            ->editColumn('companys.name', function ($attendance) {
+                return '<a href="/company/' . $attendance->user->company_id . '">' . $attendance->user->company->name . '</a>';
+            })
+            ->rawColumns(['id', 'full_name', 'companys.name', 'sites.name'])
+            ->make(true);
+
+        return $dt;
     }
-
 
     /*
     * Inspection List Report
@@ -358,4 +325,97 @@ class ReportController extends Controller {
         return $dt;
     }
 
+    /****************************************************
+     * Maintenance
+     ***************************************************/
+
+    public function maintenanceNoAction()
+    {
+        $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+        $mains = [];
+        foreach ($active_requests as $main) {
+            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
+                $mains[] = $main;
+        }
+
+        return view('manage/report/maintenance_no_action', compact('mains'));
+    }
+
+    public function maintenanceOnHold()
+    {
+        $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
+
+        return view('manage/report/maintenance_onhold', compact('mains'));
+    }
+
+    public function maintenanceExecutive()
+    {
+        $to = Carbon::now();
+        $from = Carbon::now()->subDays(60);
+        /*$mains = SiteMaintenance::all()->filter(function($main) use ($to, $from) {
+            if ($main->created_at->gte($from) && $main->created_at->lte($to))
+                return $main;
+        });*/
+        $created_last60 = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->get()->count();
+        $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
+        $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1,3])->get();
+
+        $count_main = $count_main_allocated = $count_old = 0;
+        $total_allocated = $total_completed = 0;
+
+        foreach ([$mains, $mains_old] as $mains_collect) {
+            foreach ($mains_collect as $main) {
+                $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
+                $total_completed = $total_completed + $days;
+                if ($main->assigned_at) {
+                    // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                    $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00');
+                    $days = $assigned_at->diffInWeekDays($main->reported);
+                    $total_allocated = $total_allocated + $days;
+                    $count_main_allocated ++;
+                    //echo "id:$main->id s:$main->status c:$count_main_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . $main->assigned_at->format('d/m/Y g:i') . "<br>";
+                }
+                $count_main ++;
+            }
+        }
+
+        foreach ($mains_old as $main) {
+            if ($main->assigned_at) {
+                //echo "[$main->id] [$main->status]";
+            }
+        }
+
+        $avg_completed = ($count_main) ? round($total_completed / $count_main) : 0;
+        $avg_allocated = ($count_main_allocated) ? round($total_allocated / $count_main_allocated) : 0;
+        //dd($total_allocated / $count_main_allocated);
+
+        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated'));
+    }
+
+    /****************************************************
+     * Accounting
+     ***************************************************/
+
+    /*
+     * Payroll Report
+     */
+    public function payroll()
+    {
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+        $companies = Auth::user()->company->companies();
+
+        return view('manage/report/payroll', compact('companies'));
+    }
+
+
+    /****************************************************
+     * Website Admin
+     ***************************************************/
+
+    public function nightly()
+    {
+        $files = array_reverse(array_diff(scandir(public_path('/filebank/log/nightly')), array('.', '..')));
+
+        return view('manage/report/nightly', compact('files'));
+    }
 }

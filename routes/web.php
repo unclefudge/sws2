@@ -131,6 +131,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/manage/report/qa_outstanding/report', 'Misc\ReportController@OutstandingQAPDF');
     Route::get('/manage/report/maintenance_no_action', 'Misc\ReportController@maintenanceNoAction');
     Route::get('/manage/report/maintenance_on_hold', 'Misc\ReportController@maintenanceOnHold');
+    Route::get('/manage/report/maintenance_executive', 'Misc\ReportController@maintenanceExecutive');
     Route::get('/manage/report/site_inspections', 'Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', 'Misc\ReportController@getSiteInspections');
 
