@@ -81,7 +81,7 @@
                             </tbody>
                         </table>
                         <hr>
-                        <h2>Requests Updated in Last 60 Days &nbsp; <small style="color: #999"> (#{{ $mains->count() }})</small> </h2>
+                        <h2>Requests Updated in Last 90 Days &nbsp; <small style="color: #999"> (#{{ $mains->count() }})</small> </h2>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
