@@ -25,7 +25,7 @@
                     </div>
                     <div class="portlet-body">
                         <div class="row">
-                            <div class="col-md-4">Date Range (60 days)</div>
+                            <div class="col-md-4">Date Range (90 days)</div>
                             <div class="col-md-8">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
                         </div>
                         <div class="row">
@@ -43,7 +43,7 @@
                             <div class="col-md-8">{{ $avg_completed }}</div>
                         </div>
                         <hr>
-                        <h2>Open Requests Older than 60 Days &nbsp; <small style="color: #999"> (#{{ $mains_old->count() }})</small></h2>
+                        <h2>Open Requests Older than 90 Days &nbsp; <small style="color: #999"> (#{{ $mains_old->count() }})</small></h2>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">

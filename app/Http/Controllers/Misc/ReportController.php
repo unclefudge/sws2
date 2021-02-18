@@ -351,7 +351,7 @@ class ReportController extends Controller {
     public function maintenanceExecutive()
     {
         $to = Carbon::now();
-        $from = Carbon::now()->subDays(60);
+        $from = Carbon::now()->subDays(90);
         /*$mains = SiteMaintenance::all()->filter(function($main) use ($to, $from) {
             if ($main->created_at->gte($from) && $main->created_at->lte($to))
                 return $main;
