@@ -26,21 +26,27 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-md-4">Date Range (90 days)</div>
-                            <div class="col-md-8">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
+                            <div class="col-md-4">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
+                            <div class="col-md-2">Active Requests</div>
+                            <div class="col-md-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count())}}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">Average days for allocating Requests
                                 <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
                                    data-content="Calculated 'Working Days' from time request is reported to assigned to Supervisor"
                                    data-original-title="Average days for allocating Requests"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
-                            <div class="col-md-8">{{ $avg_allocated }}</div>
+                            <div class="col-md-4">{{ $avg_allocated }}</div>
+                            <div class="col-md-2">Completed Requests</div>
+                            <div class="col-md-2">{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">Average days for completing Requests
                                 <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
                                    data-content="Calculated 'Working Days' from time request is reported to either a) Completed b) placed On Hold c) end of date range"
                                    data-original-title="Average days for completing Requests"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
-                            <div class="col-md-8">{{ $avg_completed }}</div>
+                            <div class="col-md-4">{{ $avg_completed }}</div>
+                            <div class="col-md-2">On Hold Requests</div>
+                            <div class="col-md-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
                         </div>
                         <hr>
                         <h2>Open Requests Older than 90 Days &nbsp; <small style="color: #999"> (#{{ $mains_old->count() }})</small></h2>
