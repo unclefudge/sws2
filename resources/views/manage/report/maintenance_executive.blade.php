@@ -49,7 +49,45 @@
                             <div class="col-md-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
                         </div>
                         <hr>
-                        <h2>Open Requests Older than 90 Days &nbsp; <small style="color: #999"> (#{{ $mains_old->count() }})</small></h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <b>Categories Summary</b>
+                                @foreach ($cats as $name => $count)
+                                    <div class="row">
+                                        <div class="col-xs-1">{{ $count }}</div>
+                                        <div class="col-xs-11">{!! $name !!}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6"><b>Task Owner</b></div>
+                                    <div class="col-md-2">Active</div>
+                                    <div class="col-md-2">Completed</div>
+                                    <div class="col-md-2">On Hold</div>
+                                </div>
+                                @foreach ($supers as $name => $count)
+                                    <div class="row">
+                                        <div class="col-md-6">{{ $name }}</div>
+                                        <div class="col-md-2">{!! $count[0] !!}</div>
+                                        <div class="col-md-2">{!! $count[1] !!}</div>
+                                        <div class="col-md-2">{!! $count[2] !!}</div>
+                                    </div>
+                                @endforeach
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6">&nbsp;</div>
+                                    <div class="col-md-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</div>
+                                    <div class="col-md-2">{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</div>
+                                    <div class="col-md-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <hr>
+                        <h2>Open Requests Older than 90 Days &nbsp;
+                            <small style="color: #999"> (#{{ $mains_old->count() }})</small>
+                        </h2>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
@@ -87,7 +125,9 @@
                             </tbody>
                         </table>
                         <hr>
-                        <h2>Requests Updated in Last 90 Days &nbsp; <small style="color: #999"> (#{{ $mains->count() }})</small> </h2>
+                        <h2>Requests Updated in Last 90 Days &nbsp;
+                            <small style="color: #999"> (#{{ $mains->count() }})</small>
+                        </h2>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">

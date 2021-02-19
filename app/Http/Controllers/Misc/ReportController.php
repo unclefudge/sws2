@@ -11,6 +11,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\SiteInspectionElectrical;
@@ -360,36 +361,58 @@ class ReportController extends Controller {
         $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
         $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1,3])->get();
 
-        $count_main = $count_main_allocated = $count_old = 0;
+        $count = $count_allocated = 0;
         $total_allocated = $total_completed = 0;
+        $cats = [];
+        $supers = [];
 
         foreach ([$mains, $mains_old] as $mains_collect) {
             foreach ($mains_collect as $main) {
                 $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
                 $total_completed = $total_completed + $days;
+
+                // Assigned Requests
                 if ($main->assigned_at) {
                     // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
                     $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00');
                     $days = $assigned_at->diffInWeekDays($main->reported);
                     $total_allocated = $total_allocated + $days;
-                    $count_main_allocated ++;
+                    $count_allocated ++;
                     //echo "id:$main->id s:$main->status c:$count_main_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . $main->assigned_at->format('d/m/Y g:i') . "<br>";
                 }
-                $count_main ++;
+
+                // Count Categories
+                $name = ($main->category_id) ? SiteMaintenanceCategory::find($main->category_id)->name : 'N/A';
+                if (!array_key_exists($name, $cats))
+                    $cats[$name] = 1;
+                else
+                    $cats[$name] = $cats[$name] + 1;
+
+                // Count Supers
+                $name = ($main->super_id) ? User::find($main->super_id)->name : 'N/A';
+                if (!array_key_exists($name, $supers)) {
+                    $active = ($main->status == 1) ? 1 : 0;
+                    $completed = ($main->status == 0) ? 1 : 0;
+                    $onhold = ($main->status == 3) ? 1 : 0;
+                    $supers[$name] = [$active, $completed, $onhold];
+                } else {
+                    $active = ($main->status == 1) ? $supers[$name][0] + 1 : $supers[$name][0];
+                    $completed = ($main->status == 0) ? $supers[$name][1] + 1 : $supers[$name][1];
+                    $onhold = ($main->status == 3) ? $supers[$name][2] + 1 : $supers[$name][2];
+                    $supers[$name] = [$active, $completed, $onhold];
+                }
+                $count ++;
             }
         }
 
-        foreach ($mains_old as $main) {
-            if ($main->assigned_at) {
-                //echo "[$main->id] [$main->status]";
-            }
-        }
+        ksort($cats);
+        ksort($supers);
 
-        $avg_completed = ($count_main) ? round($total_completed / $count_main) : 0;
-        $avg_allocated = ($count_main_allocated) ? round($total_allocated / $count_main_allocated) : 0;
-        //dd($total_allocated / $count_main_allocated);
+        $avg_completed = ($count) ? round($total_completed / $count) : 0;
+        $avg_allocated = ($count_allocated) ? round($total_allocated / $count_allocated) : 0;
+        //dd($supers);
 
-        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated'));
+        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
     }
 
     /****************************************************
