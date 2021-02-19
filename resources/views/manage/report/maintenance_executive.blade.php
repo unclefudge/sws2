@@ -60,28 +60,29 @@
                                 @endforeach
                             </div>
                             <div class="col-md-6">
+                                <div class="visible-sm visible-xs"><br></div>
                                 <div class="row">
-                                    <div class="col-md-1"><b>#</b></div>
-                                    <div class="col-md-5"><b>Task Owner</b></div>
-                                    <div class="col-md-2"><b>Active</b></div>
-                                    <div class="col-md-2"><b>Completed</b></div>
-                                    <div class="col-md-2"><b>On Hold</b></div>
+                                    <div class="col-xs-1"><b>#</b></div>
+                                    <div class="col-xs-5"><b>Task Owner</b></div>
+                                    <div class="col-xs-2"><b>Active</b></div>
+                                    <div class="col-xs-2"><b>Completed</b></div>
+                                    <div class="col-xs-2"><b>On Hold</b></div>
                                 </div>
                                 @foreach ($supers as $name => $count)
                                     <div class="row">
-                                        <div class="col-md-1">{!! ($count[0] + $count[1] + $count[2]) !!}</div>
-                                        <div class="col-md-5">{{ $name }}</div>
-                                        <div class="col-md-2">{!! $count[0] !!}</div>
-                                        <div class="col-md-2">{!! $count[1] !!}</div>
-                                        <div class="col-md-2">{!! $count[2] !!}</div>
+                                        <div class="col-xs-1">{!! ($count[0] + $count[1] + $count[2]) !!}</div>
+                                        <div class="col-xs-5">{{ $name }}</div>
+                                        <div class="col-xs-2">{!! $count[0] !!}</div>
+                                        <div class="col-xs-2">{!! $count[1] !!}</div>
+                                        <div class="col-xs-2">{!! $count[2] !!}</div>
                                     </div>
                                 @endforeach
                                 <hr style="padding: 2px; margin: 2px 0px">
                                 <div class="row">
-                                    <div class="col-md-6">&nbsp;</div>
-                                    <div class="col-md-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</div>
-                                    <div class="col-md-2">{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</div>
-                                    <div class="col-md-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
+                                    <div class="col-xs-6">&nbsp;</div>
+                                    <div class="col-xs-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</div>
+                                    <div class="col-xs-2">{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</div>
+                                    <div class="col-xs-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
                                 </div>
 
                             </div>
