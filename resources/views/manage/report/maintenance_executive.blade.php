@@ -74,7 +74,7 @@
                                         <div class="col-md-2">{!! $count[2] !!}</div>
                                     </div>
                                 @endforeach
-                                <hr>
+                                <hr style="padding: 2px; margin: 2px 0px">
                                 <div class="row">
                                     <div class="col-md-6">&nbsp;</div>
                                     <div class="col-md-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</div>
