@@ -360,6 +360,7 @@ class ReportController extends Controller {
         $created_last60 = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->get()->count();
         $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
         $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1,3])->get();
+        $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
 
         $count = $count_allocated = 0;
         $total_allocated = $total_completed = 0;
@@ -410,9 +411,9 @@ class ReportController extends Controller {
 
         $avg_completed = ($count) ? round($total_completed / $count) : 0;
         $avg_allocated = ($count_allocated) ? round($total_allocated / $count_allocated) : 0;
-        //dd($supers);
+        //dd($mains->groupBy('site_id')->count());
 
-        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
+        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
     }
 
     /****************************************************

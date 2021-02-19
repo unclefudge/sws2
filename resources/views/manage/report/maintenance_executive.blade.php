@@ -27,8 +27,8 @@
                         <div class="row">
                             <div class="col-md-4">Date Range (90 days)</div>
                             <div class="col-md-4">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
-                            <div class="col-md-2">Active Requests</div>
-                            <div class="col-md-2">{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count())}}</div>
+                            <div class="col-md-2">Total Requests</div>
+                            <div class="col-md-2">{{ ($mains->count() + $mains_old->count()) }}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">Average days for allocating Requests
@@ -36,8 +36,8 @@
                                    data-content="Calculated 'Working Days' from time request is reported to assigned to Supervisor"
                                    data-original-title="Average days for allocating Requests"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
                             <div class="col-md-4">{{ $avg_allocated }}</div>
-                            <div class="col-md-2">Completed Requests</div>
-                            <div class="col-md-2">{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</div>
+                            <div class="col-md-2">New Requests</div>
+                            <div class="col-md-2">{{ $mains_created->count() }}</div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">Average days for completing Requests
@@ -45,8 +45,8 @@
                                    data-content="Calculated 'Working Days' from time request is reported to either a) Completed b) placed On Hold c) end of date range"
                                    data-original-title="Average days for completing Requests"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
                             <div class="col-md-4">{{ $avg_completed }}</div>
-                            <div class="col-md-2">On Hold Requests</div>
-                            <div class="col-md-2">{{ ($mains->where('status', 3)->count() + $mains_old->where('status', 3)->count()) }}</div>
+                            <div class="col-md-2">Unique Sites</div>
+                            <div class="col-md-2">{{ ($mains->groupBy('site_id')->count() + $mains_old->groupBy('site_id')->count()) }}</div>
                         </div>
                         <hr>
                         <div class="row">
