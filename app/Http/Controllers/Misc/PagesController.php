@@ -135,7 +135,6 @@ class PagesController extends Controller {
 
     public function quick()
     {
-
         /*
         echo "<b>Mail testing</b></br>";
         $todo = ToDo::findOrFail(26492);

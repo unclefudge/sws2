@@ -765,6 +765,11 @@ trait UserRolesPermissions {
                 if ($this->authSites($permission)->contains('id', $record->id)) return true;
             }
 
+            // Sites + Planners (Site/Trade)
+            if ($permissiontype == 'site.planner' || $permissiontype == 'trade.planner') {
+                if ($action == 'edit' && $this->permissionLevel($permission, 3) == 40 && $record->status == 2 && $record->company_id == $this->company_id) return true; // Allow supervisors edit access to all maintenance sites
+            }
+
             // Site Accident + Hazard
             if ($permissiontype == 'site.accident' || $permissiontype == 'site.hazard') {
                 if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40) {

@@ -54,7 +54,7 @@
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                         @endforeach
                                         <optgroup label="Maintenance"></optgroup>
-                                        @foreach (Auth::user()->authSitesSelect('view.site.planner', 2, 'prompt', 'started') as $id => $name)
+                                        @foreach (Auth::user()->authSitesSelect('view.site.planner', 2, 'prompt') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                         @endforeach
                                     </select>
