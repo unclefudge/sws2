@@ -818,7 +818,7 @@ class Company extends Model {
 
         $logged_site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
 
-        // Otherwise return a filtered collection of sites that company is on b ber for
+        // Otherwise return a filtered collection of sites that company is on planner for
         $filteredCollection = [];
         foreach ($collection as $site) {
             if ($date_from && $date_to)

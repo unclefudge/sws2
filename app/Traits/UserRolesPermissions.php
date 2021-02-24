@@ -640,6 +640,7 @@ trait UserRolesPermissions {
             if ($record->type == 'equipment' && $action == 'edit')
                 if ($this->hasPermission2('edit.equipment') && $this->id == $record->created_by) return true; // User created equipment ToDoo
 
+            return false;
         }
 
         // Support Tickets
@@ -669,7 +670,6 @@ trait UserRolesPermissions {
                     }
                 }
             }
-
             return false;
         }
 
@@ -712,7 +712,6 @@ trait UserRolesPermissions {
                 }
 
             }
-
             return false;
         }
 
@@ -739,6 +738,7 @@ trait UserRolesPermissions {
             // Users
             if ($permissiontype == 'user' || $permissiontype == 'user.contact' || $permissiontype == 'user.security' || $permissiontype == 'user.construction') {
                 if ($this->authUsers($permission)->contains('id', $record->id)) return true;
+                return false;
             }
 
             // Companies
@@ -746,11 +746,13 @@ trait UserRolesPermissions {
                 if ($action == 'del' && $record->id == $this->company_id) return false; // User can't delete own company
                 if ($action == 'sig' && $record->id == $this->company_id && $record->parent_company) return false; // User can't sign off own company if has parent
                 if ($this->authCompanies($permission)->contains('id', $record->id)) return true;
+                return false;
             }
 
             // Company Accounting + Leave
             if ($permissiontype == 'company.acc' || $permissiontype == 'company.leave') {
                 if ($this->authCompanies($permission)->contains('id', $record->id)) return true;
+                return false;
             }
 
             // Company WHS + Construction
@@ -758,6 +760,7 @@ trait UserRolesPermissions {
                 // Company has no parent or Uses doesn't belong to this company
                 // ie Users can't edit their own company record if they have a parent
                 if ((!$record->parent_company || $this->company_id != $record->id) && $this->authCompanies($permission)->contains('id', $record->id)) return true;
+                return false;
             }
 
             // Sites + Planners (Weekly/Site/Trade)
@@ -784,6 +787,7 @@ trait UserRolesPermissions {
 
                 // User always allowed to view on Hazard of site they currently logged into
                 if ($action == 'view' && $permissiontype == 'site.hazard' && Session::has('siteID') && Session::get('siteID') == $record->site_id) return true;
+                return false;
             }
 
             // Site Maintenance
@@ -791,6 +795,7 @@ trait UserRolesPermissions {
                 if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && $record->assigned_to == $this->company_id) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
                 if ($this->permissionLevel($permission, 3) == 40 && $record->super_id == $this->id) return true; // User has 'Supervisor For' permission to this record
+                return false;
             }
 
             // Site Inspection Reports
@@ -798,6 +803,7 @@ trait UserRolesPermissions {
                 if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && $record->assigned_to == $this->company_id) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
                 if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
+                return false;
             }
 
 
@@ -806,6 +812,7 @@ trait UserRolesPermissions {
                 $permissiontype == 'roster' || $permissiontype == 'compliance' || $permissiontype == 'safety.doc'
             ) {
                 if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
+                return false;
 
             }
 
@@ -815,26 +822,31 @@ trait UserRolesPermissions {
                 if ($action == 'view' && $record->master && $record->company_id == '3') return true; // User can view library
                 if ($this->permissionLevel($permission, $record->company_id) == 99 || $this->permissionLevel($permission, $record->company_id) == 1) return true;  // User has 'All' permission to this record
                 if ($this->permissionLevel($permission, $record->company_id) == 20 && $record->for_company_id == $this->company_id) return true; // User has 'Own Company' permission so record must be 'for' their company
+                return false;
             }
 
             // Safetytip + Notify + SDS
             if ($permissiontype == 'safetytip' || $permissiontype == 'notify' || $permissiontype == 'sds') {
                 if ($this->hasPermission2($permission)) return true;
+                return false;
             }
 
             // Equipment
             if ($permissiontype == 'equipment' || $permissiontype == 'equipment.stocktake') {
                 if ($this->hasPermission2($permission)) return true; // User has the permission
+                return false;
             }
 
             // Settings
             if ($permissiontype == 'settings') {
                 if ($this->hasPermission2($permission) && $record->company_id == $this->company_id) return true; // User belong to same company record
+                return false;
             }
 
             // Area Super - Needs to be fixed for Multiple level 2 companies
             if ($permissiontype == 'area.super') {
                 if ($this->permissionLevel($permission, $record->company_id) && $record->company_id == $this->company_id) return true; // User belong to same company record
+                return false;
             }
 
             return false;

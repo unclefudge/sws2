@@ -23,7 +23,6 @@
                             @if (Auth::user()->allowed2('add.site'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/create" data-original-title="Add">Add</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

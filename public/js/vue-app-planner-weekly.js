@@ -95,15 +95,22 @@ Vue.component('app-site', {
             return moment(date).add(days, 'days').format('YYYY-MM-DD');
         },
         showSite: function (site_id) {
-            if (this.xx.params.supervisor_id === 'all')
-                return true;
+            // Need to determine of User is from CapeCod to either hide/show maintenance sites
+            var allowed_site_status = [1,2];
+            if (this.xx.user_company_id == 3)
+                allowed_site_status = [1];
 
-            var show = false;
             var obj = objectFindByKey(this.xx.sites, 'id', site_id);
-            if (obj.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
-                show = true;
+            if (allowed_site_status.includes(obj.status)) {
+                if (this.xx.params.supervisor_id === 'all')
+                    return true;
 
-            return show;
+                var show = false;
+                if (obj.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
+                    show = true;
+
+                return show;
+            }
         },
     },
 

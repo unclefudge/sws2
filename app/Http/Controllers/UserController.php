@@ -275,7 +275,7 @@ class UserController extends Controller {
 
         // If user being made inactive then update email
         if (request('status') == 0) {
-            // Delete outstanding ToDoos (except Toolbox
+            // Delete outstanding ToDoos (except Toolbox)
             $user->todoDeleteAllActive();
 
             // If user being made inactive and has email then append 'achived-userid' to front to allow
@@ -289,7 +289,12 @@ class UserController extends Controller {
                     $user_request['notes'] = "updated email to " . $user_request['email'] . ' due to archiving';
             }
             // Remove user from any Notification emails
-            DB::table('settings_notifications')->where('user_id', $user->id)->delete();
+            $notifys= DB::table('settings_notifications')->where('user_id', $user->id)->get();
+            //if ($notifys) {
+            //    if ()
+                DB::table('settings_notifications')->where('user_id', $user->id)->delete();
+            }
+
 
         }
 

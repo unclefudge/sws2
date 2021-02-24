@@ -109,7 +109,7 @@
 
 
     <template id="site-template">
-        <div v-show="showSite(site_id) && site_code != '0007' && site_status == '1'" class="row row-striped" style="border-bottom: 1px solid lightgrey; overflow: hidden;">
+        <div v-show="showSite(site_id) && site_code != '0007'" class="row row-striped" style="border-bottom: 1px solid lightgrey; overflow: hidden;">
             <div class="col-xs-2 sideColBG">
                 <small>@{{ site_name | max20chars }}<br>
                     <small>
