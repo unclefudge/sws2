@@ -293,7 +293,7 @@ class UserController extends Controller {
             //if ($notifys) {
             //    if ()
                 DB::table('settings_notifications')->where('user_id', $user->id)->delete();
-            }
+            //}
 
 
         }
