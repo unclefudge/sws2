@@ -29,7 +29,8 @@ class SettingsNotificationTypes {
         '22' => 'n.site.qa.outstanding',
         '23' => 'n.site.qa.onhold',
         '24' => 'n.site.maintenance.executive',
-        '25' => 'n.equipment.transfers'
+        '25' => 'n.equipment.transfers',
+        '26' => 'n.user.archived.notifications'
     ];
 
 

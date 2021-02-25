@@ -64,6 +64,12 @@
                         {!! notificationSelect($notificationTypes::type('n.doc.whs.approval'), 'WHS Approval', 'WHS document requires approval', $companyDocTypes::docNames('whs', 0), 'Companies are automatically notified 2 weeks prior document expiry + every week after expiry for 1 month<br>Users above are notified 2 weeks prior document expiry + 2 weeks after.') !!}
                         {!! notificationSelect($notificationTypes::type('n.swms.approval'), 'SWMS Approval', 'SWMS requires approval', 'SWMS documents', 'Companies are automatically notified 2 weeks prior document expiry + every week after expiry for 1 month<br>Users above are notified 2 weeks prior document expiry + 2 weeks after.') !!}
 
+                        {{-- Miscellaneous --}}
+                        @if (Auth::user()->isCC())
+                            <h3 class="font-green form-section">Miscellaneous Notifications</h3>
+                            {!! notificationSelect($notificationTypes::type('n.user.archived.notifications'), 'User Achived Notifys', 'User archived', 'User archived with active Notifications') !!}
+                        @endif
+
                         @if (Auth::user()->isCC())
                             {{-- Email Lists --}}
                             <h3 class="font-green form-section">Report Email Lists</h3>

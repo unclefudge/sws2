@@ -14,6 +14,7 @@ use App\Models\Misc\Role2;
 use App\Models\Misc\Permission2;
 use App\Models\Misc\ComplianceOverride;
 use App\Models\Misc\PermissionRoleCompany;
+use App\Http\Utilities\SettingsNotificationTypes;
 use App\Http\Requests;
 use App\Http\Requests\UserRequest;
 use App\Http\Controllers\Controller;
@@ -289,11 +290,20 @@ class UserController extends Controller {
                     $user_request['notes'] = "updated email to " . $user_request['email'] . ' due to archiving';
             }
             // Remove user from any Notification emails
-            $notifys= DB::table('settings_notifications')->where('user_id', $user->id)->get();
-            //if ($notifys) {
-            //    if ()
+            $notifications= DB::table('settings_notifications')->where('user_id', $user->id)->get();
+            if ($notifications) {
+                if ($user->isCC()) {
+                    $email_list = $user->company->notificationsUsersEmailType('n.user.archived.notifications');
+                    $email_list = ['fudge@jordan.net.au'];
+                    $notifys = [];
+                    foreach ($notifications as $n)
+                        $notifys[] = preg_replace('/\./', ' ', substr(SettingsNotificationTypes::name($n->type), 2));
+
+                    Mail::to($email_list)->send(new \App\Mail\User\UserArchivedNotifys($user, Auth::user(), $notifys));
+                    dd($notifys);
+                }
                 DB::table('settings_notifications')->where('user_id', $user->id)->delete();
-            //}
+            }
 
 
         }

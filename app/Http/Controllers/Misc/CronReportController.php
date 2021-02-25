@@ -277,7 +277,6 @@ class CronReportController extends Controller {
         $pdf->save($file);
 
         $email_list = $cc->notificationsUsersEmailType('n.site.qa.onhold');
-
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file));
 
         echo "<h4>Completed</h4>";
@@ -385,7 +384,6 @@ class CronReportController extends Controller {
         $pdf->save($file);
 
         $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.executive');
-
         Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
 
         echo "<h4>Completed</h4>";
