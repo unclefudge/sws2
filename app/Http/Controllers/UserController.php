@@ -300,7 +300,6 @@ class UserController extends Controller {
                         $notifys[] = preg_replace('/\./', ' ', substr(SettingsNotificationTypes::name($n->type), 2));
 
                     Mail::to($email_list)->send(new \App\Mail\User\UserArchivedNotifys($user, Auth::user(), $notifys));
-                    dd($notifys);
                 }
                 DB::table('settings_notifications')->where('user_id', $user->id)->delete();
             }

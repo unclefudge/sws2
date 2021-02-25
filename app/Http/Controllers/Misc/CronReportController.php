@@ -16,6 +16,7 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
@@ -64,7 +65,7 @@ class CronReportController extends Controller {
             CronReportController::emailFortnightlyReports();
 
         // Quarterly Reports 25th of month
-        if (Carbon::now()->format('d') == '25' && in_array(Carbon::now()->format('m'), ['02','05','08','11']))
+        if (Carbon::now()->format('d') == '01' && in_array(Carbon::now()->format('m'), ['03', '06', '09', '12']))
             CronReportController::emailMaintenanceExecutive();
 
     }
@@ -237,7 +238,6 @@ class CronReportController extends Controller {
     }
 
 
-
     /*
      * Email OnHold QA checklists
     */
@@ -369,27 +369,79 @@ class CronReportController extends Controller {
 
         $to = Carbon::now();
         $from = Carbon::now()->subDays(90);
-        $mains = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
+
+        $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
+        $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1, 3])->get();
+        $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
+
+        $count = $count_allocated = 0;
+        $total_allocated = $total_completed = 0;
+        $cats = [];
+        $supers = [];
+
+        foreach ([$mains, $mains_old] as $mains_collect) {
+            foreach ($mains_collect as $main) {
+                $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
+                $total_completed = $total_completed + $days;
+
+                // Assigned Requests
+                if ($main->assigned_at) {
+                    // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                    $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00');
+                    $days = $assigned_at->diffInWeekDays($main->reported);
+                    $total_allocated = $total_allocated + $days;
+                    $count_allocated ++;
+                }
+
+                // Count Categories
+                $name = ($main->category_id) ? SiteMaintenanceCategory::find($main->category_id)->name : 'N/A';
+                if (!array_key_exists($name, $cats))
+                    $cats[$name] = 1;
+                else
+                    $cats[$name] = $cats[$name] + 1;
+
+                // Count Supers
+                $name = ($main->super_id) ? User::find($main->super_id)->name : 'N/A';
+                if (!array_key_exists($name, $supers)) {
+                    $active = ($main->status == 1) ? 1 : 0;
+                    $completed = ($main->status == 0) ? 1 : 0;
+                    $onhold = ($main->status == 3) ? 1 : 0;
+                    $supers[$name] = [$active, $completed, $onhold];
+                } else {
+                    $active = ($main->status == 1) ? $supers[$name][0] + 1 : $supers[$name][0];
+                    $completed = ($main->status == 0) ? $supers[$name][1] + 1 : $supers[$name][1];
+                    $onhold = ($main->status == 3) ? $supers[$name][2] + 1 : $supers[$name][2];
+                    $supers[$name] = [$active, $completed, $onhold];
+                }
+                $count ++;
+            }
+        }
+
+        ksort($cats);
+        ksort($supers);
+        $avg_completed = ($count) ? round($total_completed / $count) : 0;
+        $avg_allocated = ($count_allocated) ? round($total_allocated / $count_allocated) : 0;
 
         // Create PDF
         $file = public_path('filebank/tmp/maintenace-executive-cron.pdf');
         if (file_exists($file))
             unlink($file);
 
-        return view('pdf/site/maintenance-executive', compact('mains', 'from', 'to'));
-        //return PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
+        //return view('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
+        //return PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'cats', 'supers'))->setPaper('a4', 'landscape')->stream();
 
-        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'from', 'to'));
-        $pdf->setPaper('A4', 'portrait');
+        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
+        $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
         $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.executive');
-        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
+        $email_list = ['fudge@jordan.net.au'];
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceExecutive($file));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        //$bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        //if ($bytes_written === false) die("Error writing to file");
     }
 }

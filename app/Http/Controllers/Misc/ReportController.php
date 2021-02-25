@@ -353,11 +353,7 @@ class ReportController extends Controller {
     {
         $to = Carbon::now();
         $from = Carbon::now()->subDays(90);
-        /*$mains = SiteMaintenance::all()->filter(function($main) use ($to, $from) {
-            if ($main->created_at->gte($from) && $main->created_at->lte($to))
-                return $main;
-        });*/
-        $created_last60 = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->get()->count();
+
         $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
         $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1,3])->get();
         $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
@@ -413,7 +409,7 @@ class ReportController extends Controller {
         $avg_allocated = ($count_allocated) ? round($total_allocated / $count_allocated) : 0;
         //dd($mains->groupBy('site_id')->count());
 
-        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'created_last60', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
+        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
     }
 
     /****************************************************

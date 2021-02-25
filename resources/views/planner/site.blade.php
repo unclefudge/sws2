@@ -19,6 +19,7 @@
         <input v-model="xx.params.supervisor_id" type="hidden" value="{{ $supervisor_id }}">
         <input v-model="xx.params.site_id" type="hidden" value="{{ $site_id }}">
         <input v-model="xx.params.site_start" type="hidden" value="{{ $site_start }}">
+        <input v-model="xx.status" type="hidden" value="{{ ($site) ? $site->status : 0 }}">
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">

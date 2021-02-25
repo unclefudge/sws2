@@ -12,7 +12,7 @@ $('#site_id').change(function () {
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '',
+    status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '',
     first_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
     total_weeks: '', first_week: 1, current_week: 1,
     showSidebar: false, showSidebarHeader: false, showNewTask: false, showAssign: false, showClearModal: false,
@@ -295,8 +295,8 @@ Vue.component('app-siteplan', {
             } else if (newtask.task_code === 'START') {
                 toastr.error("This task can only be added by the Trade Planner Actions button");
                 validTask = false;
-            } else if (this.xx.start_date == '') {
-                toastr.error("You can't a a task to the planner until it has a START Job");
+            } else if (this.xx.start_date == '' && this.xx.status != 2) {
+                toastr.error("You can't add a task to the planner until it has a START Job");
                 validTask = false;
             }
             if (newtask.task_code === 'STARTCarp') {   // Check for 'STARTCarp' tasks
