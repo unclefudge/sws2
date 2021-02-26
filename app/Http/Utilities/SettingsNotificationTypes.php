@@ -30,7 +30,8 @@ class SettingsNotificationTypes {
         '23' => 'n.site.qa.onhold',
         '24' => 'n.site.maintenance.executive',
         '25' => 'n.equipment.transfers',
-        '26' => 'n.user.archived.notifications'
+        '26' => 'n.user.archived.notifications',
+        '27' => 'n.company.privacy.outstanding'
     ];
 
 

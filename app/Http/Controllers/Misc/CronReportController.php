@@ -53,6 +53,12 @@ class CronReportController extends Controller {
         if (Carbon::today()->isTuesday())
             CronReportController::emailOutstandingQA();
 
+        // Monthly first Tuesday of the month
+        $first_tues = new Carbon('first tuesday of this month');
+        if (Carbon::today()->isSameDay($first_tues))
+            CronReportController::emailOutstandingPrivacy();
+
+
         if (Carbon::today()->isThursday()) {
             CronReportController::emailJobstart();
             CronReportController::emailEquipmentTransfers();
@@ -118,6 +124,41 @@ class CronReportController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    /*
+    * Email Outstanding Privacy Policies
+    */
+    static public function emailOutstandingPrivacy()
+    {
+        $log = '';
+        echo "<h2>Email Outstanding Privacy Policies</h2>";
+        $log .= "Email Outstanding Privacy Policies\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $emails = implode("; ", $cc->notificationsUsersEmailType('n.company.privacy.outstanding'));
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+
+        $all_companies = $cc->companies(1);
+        $cids = [];
+        foreach ($all_companies as $company) {
+            if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
+                $cids[] = $company->id;
+        }
+        $companies = Company::find($cids)->sortBy('name');
+
+        $email_list = $cc->notificationsUsersEmailType('n.company.privacy.outstanding');
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyPrivacyOutstanding($companies));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 
     /*
     * Email Jobstart

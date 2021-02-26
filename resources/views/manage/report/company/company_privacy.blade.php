@@ -41,35 +41,37 @@
                             <tbody>
                             @foreach($companies as $company)
                                 <?php $todo = \App\Models\Comms\Todo::where('type', 'company privacy')->where('type_id', $company->id)->where('status', '1')->first(); ?>
-                                <tr>
-                                    <td>
-                                        <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
-                                    </td>
-                                    <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                    <td>
-                                        @if ($company->activeCompanyDoc(12))
-                                            <a href="{{ $company->activeCompanyDoc(12)->attachment_url }}"> <i class="fa fa-2x fa-check green" style="color: #26C281"></i> </a>
-                                        @elseif ($todo)
-                                            Request Sent
+                                @if (!preg_match('/cc-/', strtolower($company->name)))
+                                    <tr>
+                                        <td>
+                                            <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
+                                        </td>
+                                        <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
+                                        <td>
+                                            @if ($company->activeCompanyDoc(12))
+                                                <a href="{{ $company->activeCompanyDoc(12)->attachment_url }}"> <i class="fa fa-2x fa-check green" style="color: #26C281"></i> </a>
+                                            @elseif ($todo)
+                                                Request Sent
                                             @else
-                                            <i class="fa fa-2x fa-times font-red"></i>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($company->activeCompanyDoc(12))
-                                            {{ $company->activeCompanyDoc(12)->createdBy->name }}
-                                        @elseif ($todo)
-                                            {{ $todo->assignedToBySBC() }}
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($company->activeCompanyDoc(12))
-                                            {{ $company->activeCompanyDoc(12)->created_at->format('d/m/Y') }}
-                                        @elseif ($todo)
-                                            {{ $todo->created_at->format('d/m/Y') }}
-                                        @endif
-                                    </td>
-                                </tr>
+                                                <i class="fa fa-2x fa-times font-red"></i>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($company->activeCompanyDoc(12))
+                                                {{ $company->activeCompanyDoc(12)->createdBy->name }}
+                                            @elseif ($todo)
+                                                {{ $todo->assignedToBySBC() }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($company->activeCompanyDoc(12))
+                                                {{ $company->activeCompanyDoc(12)->created_at->format('d/m/Y') }}
+                                            @elseif ($todo)
+                                                {{ $todo->created_at->format('d/m/Y') }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                             </tbody>
                         </table>
