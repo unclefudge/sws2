@@ -294,7 +294,6 @@ class UserController extends Controller {
             if ($notifications) {
                 if ($user->isCC()) {
                     $email_list = $user->company->notificationsUsersEmailType('n.user.archived.notifications');
-                    $email_list = ['fudge@jordan.net.au'];
                     $notifys = [];
                     foreach ($notifications as $n)
                         $notifys[] = preg_replace('/\./', ' ', substr(SettingsNotificationTypes::name($n->type), 2));
