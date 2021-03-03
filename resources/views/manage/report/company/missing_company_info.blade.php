@@ -62,7 +62,7 @@
                                                 @if ($doc != 'N/A')
                                                 <div class="text-center"><a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit"><i class="fa fa-file-text-o"></i></a></div>
                                                     @else
-                                                    <div class="text-center"><a href="/company/{{ $company->id }}/doct"><i class="fa fa-search"></i></a></div>
+                                                    <div class="text-center"><a href="/company/{{ $company->id }}/doc"><i class="fa fa-search"></i></a></div>
                                                 @endif
                                             </td>
                                             <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>

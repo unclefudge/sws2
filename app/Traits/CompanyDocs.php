@@ -115,16 +115,17 @@ trait CompanyDocs {
         // 5  PTC - Period Trade Contract
         // 6  TT - Test & Tag
         // 7  CL - Contractors Licence
+        // 12 PP - Privacy Policy
         //
-        // Categories                          | PL  |WC/SA| SUB | PTC | CL  |
-        // 0  Unallocated                      |_____|_____|_____|_____|_____|
-        // 1  Subcontractor (On Site Trade)    |__X__|__X__|__X__|__X__|__X__|
-        // 2  Service Provider (On Site trade  |__X__|__X__|__X__|_____|__X__|
-        // 3  Service Provider (Off Site)      |_____|__X__|__X__|_____|_____|
-        // 4  Supply & Fit                     |__X__|__X__|_____|_____|__X__|
-        // 5  Supply Only                      |__X__|_____|_____|_____|_____|
-        // 6  Consultant                       |__X__|__X__|__X__|_____|_____|
-        // 7  Builder                          |__X__|__X__|_____|_____|_____|
+        // Categories                          | PL  |WC/SA| SUB | PTC | CL  | PP  |
+        // 0  Unallocated                      |_____|_____|_____|_____|_____|_____|
+        // 1  Subcontractor (On Site Trade)    |__X__|__X__|__X__|__X__|__X__|__X__|
+        // 2  Service Provider (On Site trade  |__X__|__X__|__X__|_____|__X__|__X__|
+        // 3  Service Provider (Off Site)      |_____|__X__|__X__|_____|_____|__X__|
+        // 4  Supply & Fit                     |__X__|__X__|_____|_____|__X__|__X__|
+        // 5  Supply Only                      |__X__|_____|_____|_____|_____|__X__|
+        // 6  Consultant                       |__X__|__X__|__X__|_____|_____|__X__|
+        // 7  Builder                          |__X__|__X__|_____|_____|_____|__X__|
 
         // Ignore docs for some split companys (NRW Carpentry 2 (202)
         if (in_array($this->id, [202]))
@@ -285,7 +286,7 @@ trait CompanyDocs {
      */
     public function isCompliant()
     {
-        $doc_types = [1, 2, 3, 4, 5, 7];
+        $doc_types = [1, 2, 3, 4, 5, 7, 12];
         foreach ($doc_types as $type) {
             if ($this->requiresCompanyDoc($type) && (!$this->activeCompanyDoc($type) || $this->activeCompanyDoc($type)->status != 1))
                 return false;
