@@ -130,18 +130,19 @@ $compliantDocs = $company->compliantDocs();
                 @endif
                 <hr>
                 <b>Additional documents:</b>
-                    {{-- Privacy Policy --}}
-                    <div class="row">
-                    @if ($company->activeCompanyDoc(12))
-                            <div class="col-xs-8">
-                                <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $company->activeCompanyDoc(12)->attachment_url !!}" class="linkDark">Privacy Policy</a>
-                            </div>
-                        @else
-                            <div class="col-xs-8">
-                                <i class="fa fa-times" style="width:35px; padding: 4px 15px;"></i>Privacy Policy</a>
-                            </div>
-                        @endif
-                        </div>
+                {{-- Privacy Policy --}}
+                {{--}}
+            <div class="row">
+                @if ($company->activeCompanyDoc(12))
+                    <div class="col-xs-8">
+                        <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $company->activeCompanyDoc(12)->attachment_url !!}" class="linkDark">Privacy Policy</a>
+                    </div>
+                @else
+                    <div class="col-xs-8">
+                        <i class="fa fa-times" style="width:35px; padding: 4px 15px;"></i>Privacy Policy</a>
+                    </div>
+                @endif
+            </div> --}}
                 {{-- Test & Tag --}}
                 <?php $tag_doc = $company->activeCompanyDoc(6) ?>
                 <div class="row">
