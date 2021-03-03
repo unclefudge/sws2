@@ -127,33 +127,46 @@ $compliantDocs = $company->compliantDocs();
                             {{ $name }} : {{ $classes }}<br>
                         @endforeach
                     @endif
-                    <hr>
-                    <b>Additional documents:</b>
-                    {{-- Test & Tag --}}
-                    <?php $tag_doc = $company->activeCompanyDoc(6) ?>
-                    <div class="row">
-                        @if ($tag_doc && $tag_doc->status == 1)
-                            <div class="col-xs-8">
-                                <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
-                            </div>
-                        @endif
-                        @if ($tag_doc && $tag_doc->status == 2)
-                            <div class="col-xs-8">
-                                <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
-                            </div>
-                            <div class="col-xs-4"><span class="label label-warning label-sm">Pending Approval</span></div>
-                        @endif
-                        @if ($tag_doc && $tag_doc->status == 3)
-                            <div class="col-xs-8">
-                                <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
-                            </div>
-                            <div class="col-xs-4"><span class="label label-danger label-sm">Rejected</span></div>
-                        @endif
-                        @if (!$tag_doc)
-                            <div class="col-xs-8"><i class="fa fa-times" style="width:35px; padding: 4px 15px;"></i> Electrical Test & Tagging</div>
-                        @endif
-                    </div>
                 @endif
+                <hr>
+                <b>Additional documents:</b>
+                    {{-- Privacy Policy --}}
+                    <div class="row">
+                    @if ($company->activeCompanyDoc(12))
+                            <div class="col-xs-8">
+                                <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $company->activeCompanyDoc(12)->attachment_url !!}" class="linkDark">Privacy Policy</a>
+                            </div>
+                        @else
+                            <div class="col-xs-8">
+                                <i class="fa fa-times" style="width:35px; padding: 4px 15px;"></i>Privacy Policy</a>
+                            </div>
+                        @endif
+                        </div>
+                {{-- Test & Tag --}}
+                <?php $tag_doc = $company->activeCompanyDoc(6) ?>
+                <div class="row">
+                    @if ($tag_doc && $tag_doc->status == 1)
+                        <div class="col-xs-8">
+                            <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
+                        </div>
+                    @endif
+                    @if ($tag_doc && $tag_doc->status == 2)
+                        <div class="col-xs-8">
+                            <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
+                        </div>
+                        <div class="col-xs-4"><span class="label label-warning label-sm">Pending Approval</span></div>
+                    @endif
+                    @if ($tag_doc && $tag_doc->status == 3)
+                        <div class="col-xs-8">
+                            <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
+                        </div>
+                        <div class="col-xs-4"><span class="label label-danger label-sm">Rejected</span></div>
+                    @endif
+                    @if (!$tag_doc && in_array($company->category, [1,2]))
+                        <div class="col-xs-8"><i class="fa fa-times" style="width:35px; padding: 4px 15px;"></i> Electrical Test & Tagging</div>
+                    @endif
+                </div>
+
 
                 {{-- Non-compliant docs needing Approval --}}
                 @if (Auth::user()->companyDocTypeSelect('view', $company, 'all') && count($company->nonCompliantDocs('array', 2)))

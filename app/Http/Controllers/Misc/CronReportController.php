@@ -71,7 +71,7 @@ class CronReportController extends Controller {
             CronReportController::emailFortnightlyReports();
 
         // Quarterly Reports 25th of month
-        if (Carbon::now()->format('d') == '01' && in_array(Carbon::now()->format('m'), ['03', '06', '09', '12']))
+        if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), ['03', '06', '09', '12']))
             CronReportController::emailMaintenanceExecutive();
 
     }
@@ -482,7 +482,7 @@ class CronReportController extends Controller {
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        //$bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        //if ($bytes_written === false) die("Error writing to file");
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 }

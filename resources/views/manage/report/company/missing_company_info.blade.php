@@ -44,7 +44,7 @@
                             </thead>
                             <tbody>
                             @foreach($companies as $company)
-                                @if ($company->missingInfo())
+                                @if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
                                     <tr>
                                         <td>
                                             <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
@@ -54,7 +54,7 @@
                                         <td>{!! $company->updated_at->format('d/m/Y')!!}</td>
                                     </tr>
                                 @endif
-                                @if ($company->missingDocs())
+                                @if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
                                     @foreach($company->missingDocs() as $type => $name)
                                         <?php $doc = $company->expiredCompanyDoc($type) ?>
                                         <tr>

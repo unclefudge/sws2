@@ -168,6 +168,9 @@ trait CompanyDocs {
         // Builder
         if ($this->category == 7 && in_array($type, [1, 7])) return true; // Requires PL + BL
 
+        // Privacy Policy
+        if ($type == 12) return true; // Requires Privacy Policy
+
         return false;
     }
 
@@ -298,7 +301,7 @@ trait CompanyDocs {
      */
     public function compliantDocs($format = 'array')
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         $compliant_docs = [];
         $compliant_html = '';
 
@@ -364,7 +367,7 @@ trait CompanyDocs {
      */
     public function missingDocs($format = 'array')
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         $missing_docs = [];
         $missing_html = '';
 
