@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CompanyPrivacyOutstanding extends Mailable implements ShouldQueue {
+class CompanyMissingInfo extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
@@ -31,6 +31,6 @@ class CompanyPrivacyOutstanding extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        return $this->markdown('emails/company/privacy-outstanding')->subject('SafeWorksite - Outstanding Privacy Policies');
+        return $this->markdown('emails/company/missing-info')->subject('SafeWorksite - Missing Company Info');
     }
 }

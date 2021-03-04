@@ -131,12 +131,12 @@ class CronReportController extends Controller {
     static public function emailOutstandingPrivacy()
     {
         $log = '';
-        echo "<h2>Email Outstanding Privacy Policies</h2>";
-        $log .= "Email Outstanding Privacy Policies\n";
+        echo "<h2>Email Missing Company Info</h2>";
+        $log .= "Email Missing Company Info\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.company.privacy.outstanding'));
+        $emails = implode("; ", $cc->notificationsUsersEmailType('n.company.missing.info'));
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -144,13 +144,26 @@ class CronReportController extends Controller {
         $all_companies = $cc->companies(1);
         $cids = [];
         foreach ($all_companies as $company) {
-            if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
+            //if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
+            if (!preg_match('/cc-/', strtolower($company->name)))
                 $cids[] = $company->id;
         }
         $companies = Company::find($cids)->sortBy('name');
 
-        $email_list = $cc->notificationsUsersEmailType('n.company.privacy.outstanding');
-        Mail::to($email_list)->send(new \App\Mail\Company\CompanyPrivacyOutstanding($companies));
+        $comps = [];
+        foreach ($companies as $company) {
+            if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
+                $comps[] = [$company->name, $company->missingInfo(), $company->updated_at->format('d/m/Y')];
+
+            if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
+                foreach ($company->missingDocs() as $type => $name) {
+                    $doc = $company->expiredCompanyDoc($type);
+                    $comps[] = [$company->name, $name, ($doc != 'N/A') ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
+                }
+        }
+
+        $email_list = $cc->notificationsUsersEmailType('n.company.missing.info');
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($comps));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

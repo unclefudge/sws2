@@ -31,7 +31,7 @@ class SettingsNotificationTypes {
         '24' => 'n.site.maintenance.executive',
         '25' => 'n.equipment.transfers',
         '26' => 'n.user.archived.notifications',
-        '27' => 'n.company.privacy.outstanding'
+        '27' => 'n.company.missing.info',
     ];
 
 
