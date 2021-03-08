@@ -171,7 +171,7 @@ class SiteQaController extends Controller {
         // Re-create new ones
         $order = 1;
         for ($i = 1; $i <= 25; $i ++) {
-            if ($request->get("item$i")) {
+            if ($request->get("item$i") && $request->get("item$i") != 'DELETE-ITEM') {
                 $super = ($request->has("super$i")) ? '1' : '0';
                 $cert = ($request->has("cert$i")) ? '1' : '0';
                 $newItem = SiteQaItem::create(

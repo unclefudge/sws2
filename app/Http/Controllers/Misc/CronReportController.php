@@ -56,7 +56,7 @@ class CronReportController extends Controller {
         // Monthly first Tuesday of the month
         $first_tues = new Carbon('first tuesday of this month');
         if (Carbon::today()->isSameDay($first_tues))
-            CronReportController::emailOutstandingPrivacy();
+            CronReportController::emailMissingCompanyInfo();
 
 
         if (Carbon::today()->isThursday()) {
@@ -126,9 +126,9 @@ class CronReportController extends Controller {
     }
 
     /*
-    * Email Outstanding Privacy Policies
+    * Email Missing Company Info
     */
-    static public function emailOutstandingPrivacy()
+    static public function emailMissingCompanyInfo()
     {
         $log = '';
         echo "<h2>Email Missing Company Info</h2>";

@@ -156,6 +156,18 @@
                                         {!! Form::select('warranty', $maintenanceWarranty::all(), null, ['class' => 'form-control bs-select', 'id' => 'warranty']) !!}
                                     </div>
                                 </div>
+
+                                {{-- AC Form --}}
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('ac_form_sent', $errors) !!}">
+                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
+                                        <div class="input-group date date-picker">
+                                            {!! Form::text('ac_form_sent', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
+                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                        </div>
+                                        {!! fieldErrorMessage('ac_form_sent', $errors) !!}
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Multi File upload -->

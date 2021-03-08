@@ -80,7 +80,7 @@
                             {!! notificationSelect($notificationTypes::type('n.site.qa.outstanding'), 'QA Outstanding', 'Quality Assurance Outstanding', 'Report to show all outstanding QA Checklists at the time of the report', 'Report sent weekly (Tuesday)') !!}
                             {!! notificationSelect($notificationTypes::type('n.site.qa.onhold'), 'QA On Hold', 'Quality Assurance On Hold', 'Report to show all QA Checklists on Hold at the time of the report', 'Report sent fortnightly (Thursday)') !!}
                             {!! notificationSelect($notificationTypes::type('n.equipment.transfers'), 'Equipment Transfers', 'Equipment Transfers', 'Equipment transfers for the last 7 days', 'Report sent weekly (Thursday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.missing.info'), 'Outstanding Privacy Policy', 'Outstanding Privacy Policy', 'Companies with outstanding Privacy Policies', 'Report send first Tuesday of the month') !!}
+                            {!! notificationSelect($notificationTypes::type('n.company.missing.info'), 'Missing Company Info', 'Missing Company Info', 'Companies with missing info or documents', 'Report send first Tuesday of the month') !!}
                         @endif
 
 

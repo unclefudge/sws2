@@ -96,21 +96,28 @@ Vue.component('app-site', {
         },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
-            var allowed_site_status = [1,2];
-            if (this.xx.user_company_id == 3)
-                allowed_site_status = [1];
+            //var allowed_site_status = [1, 2];
+            //if (this.xx.user_company_id == 3)
+            //    allowed_site_status = [1];
 
             var obj = objectFindByKey(this.xx.sites, 'id', site_id);
-            if (allowed_site_status.includes(obj.status)) {
-                if (this.xx.params.supervisor_id === 'all')
+            //if (allowed_site_status.includes(obj.status)) {
+            if (this.xx.user_company_id == 3) {
+                if (this.xx.params.supervisor_id === 'all' && obj.status != 2)
                     return true;
-
-                var show = false;
-                if (obj.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
-                    show = true;
-
-                return show;
             }
+            else if (this.xx.params.supervisor_id === 'all')
+                return true;
+
+            if (this.xx.params.supervisor_id === 'maint' && obj.status == 2)
+                return true;
+
+            var show = false;
+            if (obj.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
+                show = true;
+
+            return show;
+            //}
         },
     },
 

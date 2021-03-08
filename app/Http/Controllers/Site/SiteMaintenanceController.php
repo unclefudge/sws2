@@ -166,10 +166,23 @@ class SiteMaintenanceController extends Controller {
                 return back()->withErrors(['completed' => "Invalid Prac Completed date. Required format dd/mm/yyyy"]);
         }
 
+        // Verify AC Form send  date
+        if (request('ac_form_sent')) {
+            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('ac_form_sent'), $matches)) {
+                list($dd, $mm, $yyyy) = explode('/', request('ac_form_sent'));
+                if (checkdate($mm, $dd, $yyyy))
+                    $main_request['ac_form_sent'] = Carbon::createFromFormat('d/m/Y H:i:s', request('ac_form_sent') . ' 00:00:00');
+                else
+                    return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
+            } else
+                return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
+        }
+
         $site_id = request('site_id');
         $main_request = request()->except('multifile');
         $main_request['completed'] = (request('completed')) ? Carbon::createFromFormat('d/m/Y H:i', request('completed') . '00:00')->toDateTimeString() : null;
         $main_request['reported'] = (request('reported')) ? Carbon::createFromFormat('d/m/Y H:i', request('reported') . '00:00')->toDateTimeString() : null;
+        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
         $main_request['status'] = 2; // set new request to 'Under Review'
         $main_request['step'] = 2; // set new request to step 2 'Add Photos'
 
@@ -288,6 +301,19 @@ class SiteMaintenanceController extends Controller {
                 return back()->withErrors(['completed' => "Invalid Prac Completed date. Required format dd/mm/yyyy"]);
         }
 
+        // Verify AC Form send  date
+        if (request('ac_form_sent')) {
+            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('ac_form_sent'), $matches)) {
+                list($dd, $mm, $yyyy) = explode('/', request('ac_form_sent'));
+                if (checkdate($mm, $dd, $yyyy))
+                    $main_request['ac_form_sent'] = Carbon::createFromFormat('d/m/Y H:i:s', request('ac_form_sent') . ' 00:00:00');
+                else
+                    return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
+            } else
+                return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
+        }
+        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
+
         //dd($main_request);
 
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
@@ -343,27 +369,14 @@ class SiteMaintenanceController extends Controller {
             $action = Action::create(['action' => "Items updated by " . Auth::user()->fullname, 'table' => 'site_maintenance', 'table_id' => $main->id]);
         */
 
-        // Status Updated
-        /*
-        if (request('status') == 1) {  // Maintenance Request Accepted
-            $main_request['step'] = 5;
-            $action = Action::create(['action' => "Maintenance Request approved", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        } elseif (request('status') == - 1)  // Maintenance Request Declined
-            $action = Action::create(['action' => "Maintenance Request declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        */
 
         //dd($main_request);
         Toastr::success("Updated Request");
-
         $main->update($main_request);
 
         // Email Assigned Supervisor
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
             $main->emailAssigned($super);
-            //$main = SiteMaintenance::findOrFail($id);
-            //$email_super = (validEmail($super->email)) ? $super->email : '';
-            //if ($email_super)
-            //    Mail::to($email_super)->cc(['support@openhands.com.au'])->send(new \App\Mail\Site\SiteMaintenanceAssigned($main));
         }
 
         return (request('status') == 2) ? redirect('site/maintenance/' . $main->id . '/edit') : redirect('site/maintenance/' . $main->id);

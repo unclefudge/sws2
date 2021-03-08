@@ -76,7 +76,7 @@
                                 <div class="col-md-6">
                                     <p><h4>Client Details</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->contact_name) <b>{{ $main->contact_name }}</b> @endif<br>
+                                    @if ($main->contact_name) <b>{{ $main->contact_name }}</b><br> @endif
                                     @if ($main->contact_phone) {{ $main->contact_phone }}<br> @endif
                                     @if ($main->contact_email) {{ $main->contact_email }}<br> @endif
                                     </p>

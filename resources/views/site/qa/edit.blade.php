@@ -79,9 +79,10 @@
                             <br>
                             <div class="row" style="border: 1px solid #e7ecf1; padding: 10px 0px; margin: 0px; background: #f0f6fa; font-weight: bold">
                                 <div class="col-md-6">INSPECTION ITEMS</div>
-                                <div class="col-md-3">TASK TRIGGER</div>
+                                <div class="col-md-2">TASK TRIGGER</div>
                                 <div class="col-md-2" style="text-align:right">SUPERVISOR<br>COMPLETES</div>
                                 <div class="col-md-1" style="text-align:right">CERTIF-ICATION</div>
+                                <div class="col-md-1" style="text-align:right"></div>
                             </div>
                             <br>
                             <!-- Items -->
@@ -89,10 +90,10 @@
                                 <div class="row" id="itemrow{{ $item->order }}">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            {!! Form::textarea("item$item->order", $item->name, ['rows' => '2', 'class' => 'form-control', 'placeholder' => "Item $item->order."]) !!}
+                                            {!! Form::textarea("item$item->order", $item->name, ['rows' => '2', 'class' => 'form-control', 'placeholder' => "Item $item->order.", 'id' => "item$item->order"]) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError("task$item->order", $errors) !!}">
                                             {!! Form::select("task$item->order", Auth::user()->company->taskSelect(),$item->task_id, ['class' => 'form-control select2 task_sel']) !!}
                                             {!! fieldErrorMessage("task$item->order", $errors) !!}
@@ -117,6 +118,9 @@
                                                 </label>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <a id="del{{$item->order}}" name="del{{$item->order}}" class="deleteItem" onClick="deleteItem(this.id)"><i class="fa fa-times font-red"></i> </a>
                                     </div>
                                 </div>
                                 @endforeach
@@ -196,17 +200,34 @@
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script>
     $(document).ready(function () {
+        /* Select2 */
+        $("#category_id").select2({placeholder: "Select category", width: "100%"});
+        $(".task_sel").select2({placeholder: "Select task",});
 
         $("#more").click(function (e) {
             e.preventDefault();
             $('#more').hide();
             $('#more_items').show();
         });
-
-        /* Select2 */
-        $("#category_id").select2({placeholder: "Select category", width: "100%"});
-        $(".task_sel").select2({placeholder: "Select task",});
     });
+
+    function deleteItem(item_id) {
+        var id = item_id.substring(3);
+        var item_name = $("#item"+id).val();
+        swal({
+            title: "Are you sure?",
+            text: item_name,
+            showCancelButton: true,
+            cancelButtonColor: "#555555",
+            confirmButtonColor: "#E7505A",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: true,
+            html: true,
+        }, function () {
+            $("#item"+id).val('DELETE-ITEM');
+            $("#itemrow"+id).hide();
+        });
+    };
 </script>
 @stop
 

@@ -185,8 +185,10 @@ class SitePlannerController extends Controller {
             } else
                 $supervisors = Auth::user()->company->supervisorsSelect();
         }
-        $supervisors = ['all' => 'All Sites'] + $supervisors;
-
+        if (Auth::user()->isCC())
+            $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+        else
+            $supervisors = ['all' => 'All Sites'] + $supervisors;
 
         return view('planner/weekly', compact('date', 'site_id', 'supervisor_id', 'site_start', 'supervisors'));
     }
@@ -297,25 +299,25 @@ class SitePlannerController extends Controller {
 
         if (Auth::user()->company->addon('planner')) {
             if ($super_id == 'all')
-                $allowedSites = Auth::user()->company->reportsTo()->sites([1,2])->pluck('id')->toArray();
+                $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
             else
                 $allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
         } else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
             $this_mon_2->addDays(34);  // was 13
-            $allowedSites = Auth::user()->company->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
 
             // Hack to allow Split Companies NRW (57,202,255) + Solid Foundations (120,121) to see their other Sites
             if (in_array(Auth::user()->company_id, [57, 202, 255])) {
-                $c1 = Company::find(57)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
-                $c2 = Company::find(202)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
-                $c3 = Company::find(255)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c1 = Company::find(57)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c2 = Company::find(202)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c3 = Company::find(255)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
                 $allowedSites = array_merge($c1, $c2);
             }
             if (in_array(Auth::user()->company_id, [120, 121])) {
-                $c1 = Company::find(120)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
-                $c2 = Company::find(121)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c1 = Company::find(120)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c2 = Company::find(121)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
                 $allowedSites = array_merge($c1, $c2);
             }
         }
@@ -855,22 +857,22 @@ class SitePlannerController extends Controller {
     public function getSites(Request $request)
     {
         if (Auth::user()->company->addon('planner'))
-            $allowedSites = Auth::user()->company->sites([1,2])->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sites([1, 2])->pluck('id')->toArray();
         else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
             $this_mon_2->addDays(34); // was 13
-            $allowedSites = Auth::user()->company->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
 
             // Hack to allow Split Companies NRW (57,202) + Solid Foundations (120,121) to see their other Sites
             if (in_array(Auth::user()->company_id, [57, 202])) {
-                $c1 = Company::find(57)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
-                $c2 = Company::find(202)->sitesPlannedFor([1,2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c1 = Company::find(57)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
+                $c2 = Company::find(202)->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
                 $allowedSites = array_merge($c1, $c2);
             }
         }
 
-        $sites = Site::select(['id', 'name'])->whereIn('status', [1,2])->whereIn('id', $allowedSites)->orderBy('name')->get();
+        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->orderBy('name')->get();
 
         $site_details = [];
         foreach ($sites as $site) {

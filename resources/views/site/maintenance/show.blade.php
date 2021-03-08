@@ -263,31 +263,24 @@
                                     </div>
                                 </div>
 
-                                {{-- Assigned Task Owner --}}
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Assigned Task Owner', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {{-- Supervisor --}}
-                                            <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
-                                                <option value=""></option>
-                                                <optgroup label="Cape Code Supervisors"></optgroup>
-                                                @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                    <option value="{{ $super->id }}" {{ ($super->id == $main->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
-                                                @endforeach
-                                                <optgroup label="External Users"></optgroup>
-                                                <option value="75" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Geoff Barbuto (G.B.T Carpentry Services)</option>
-                                            </select>
-                                            {!! fieldErrorMessage('super_id', $errors) !!}
+                                {{-- AC Form --}}
+                                {{--}}
+                                <div class="col-md-2 ">
+                                    <div class="form-group">
+                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
+                                        @if ($main->status && Auth::user()->allowed2('add.site.maintenance'))
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
+                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                            </div>
                                         @else
-                                            {!! Form::text('assigned_super_text', ($main->super_id) ? $main->taskOwner->name : 'Unassigned', ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
-                                        {!! fieldErrorMessage('super_id', $errors) !!}
                                     </div>
-                                </div>
+                                </div>--}}
 
                                 {{-- Status --}}
-                                <div class="col-md-2">
+                                <div class="col-md-2 pull-right">
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
@@ -313,6 +306,29 @@
                             </div>
 
                             <div class="row">
+                                {{-- Assigned Task Owner --}}
+                                <div class="col-md-5">
+                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
+                                        {!! Form::label('super_id', 'Assigned Task Owner', ['class' => 'control-label']) !!}
+                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            {{-- Supervisor --}}
+                                            <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
+                                                <option value=""></option>
+                                                <optgroup label="Cape Code Supervisors"></optgroup>
+                                                @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
+                                                    <option value="{{ $super->id }}" {{ ($super->id == $main->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
+                                                @endforeach
+                                                <optgroup label="External Users"></optgroup>
+                                                <option value="75" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Geoff Barbuto (G.B.T Carpentry Services)</option>
+                                            </select>
+                                            {!! fieldErrorMessage('super_id', $errors) !!}
+                                        @else
+                                            {!! Form::text('assigned_super_text', ($main->super_id) ? $main->taskOwner->name : 'Unassigned', ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
+                                        {!! fieldErrorMessage('super_id', $errors) !!}
+                                    </div>
+                                </div>
+
                                 {{-- Assigned To Trade --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
