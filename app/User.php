@@ -336,6 +336,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
+     * User is from Cape Cod Sub-company
+     * @param $company
+     * @return boolean
+     */
+    public function isCCcompany()
+    {
+        $cc_companies = Company::find(3)->companies()->pluck('id')->toArray();
+        return ($this->company_id == 3 || in_array($this->id, $cc_companies)) ? true : false;
+    }
+
+    /**
      * A list of Sites a user attended on a certain date
      * @param $date
      * @return mixed
