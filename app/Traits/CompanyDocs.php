@@ -5,6 +5,7 @@ use DB;
 use Auth;
 use Session;
 use App\User;
+use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\ContractorLicence;
@@ -170,7 +171,10 @@ trait CompanyDocs {
         if ($this->category == 7 && in_array($type, [1, 7])) return true; // Requires PL + BL
 
         // Privacy Policy
-        if ($type == 12) return true; // Requires Privacy Policy
+        if ($type == 12) {
+            $cc_companies = Company::find(3)->companies()->pluck('id')->toArray();
+            if (in_array($this->id, $cc_companies)) return true; // Requires Privacy Policy for CC companies ONLY
+        }
 
         return false;
     }

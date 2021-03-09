@@ -18,6 +18,15 @@
         font-weight: 600;
         color: #333 !important;
     }
+
+    .datepicker-ctrl p {
+        margin: 0px;
+    }
+
+    .modal-open .colorpicker, .modal-open .datepicker, .modal-open .daterangepicker {
+        z-index: 888 !important;
+    }
+
 </style>
 
 @section('content')
@@ -177,7 +186,7 @@
 
                             {{-- Gallery --}}
                             <br>
-                            <div class="row"  id="photos-show">
+                            <div class="row" id="photos-show">
                                 <div class="col-md-7">
                                     <h4>Photos
                                         @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
@@ -264,20 +273,27 @@
                                 </div>
 
                                 {{-- AC Form --}}
-                                {{--}}
                                 <div class="col-md-2 ">
                                     <div class="form-group">
                                         {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('add.site.maintenance'))
-                                            <div class="input-group date date-picker">
+
+                                            {{--}}<div class="input-group date date-picker">
                                                 {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
                                                 <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                            </div>
+                                            </div>--}}
+                                            {{--}}
+                                                <div class="pull-left">
+                                                    <datepicker :value.sync="xx.ac_format_sent" format="dd/MM/yyyy" :placeholder="choose date" :disabled-days-of-week="[0,6]"></datepicker>
+                                                </div>
+                                                <span class="input-group-btn pull-left"><button class="btn default" type="button"><i class="fa fa-calendar"></i></button></span>
+                                                --}}
+                                            <div v-if="xx.showDD"></div>
                                         @else
                                             {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
                                     </div>
-                                </div>--}}
+                                </div>
 
                                 {{-- Status --}}
                                 <div class="col-md-2 pull-right">
@@ -611,7 +627,7 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+{{--}}<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>--}}
 <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
 <script src="/js/libs/vue-strap.min.js"></script>
 <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
@@ -729,6 +745,7 @@
         done_by: '',
         itemList: [],
         actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
+        ac_format_sent: '01/01/2001', showDD: ''
     };
 
     //
@@ -979,6 +996,23 @@
     var myApp = new Vue({
         el: 'body',
         data: {xx: xx},
+        components: {
+            datepicker: VueStrap.datepicker,
+        },
+
+        mounted: function () {
+            this.xx.showDD = true;
+
+            alert('hh');
+
+            $('select', this.$el).selectpicker();
+            $('.datepicker', this.$el).datepicker({format: 'mm/dd/yyyy', orientation: 'bottom auto'});
+
+            //this is how you allow datepicker to send its value to v-model on the input field
+            $('.datepicker').change(function () {
+                $(this)[0].dispatchEvent(new Event('input'));
+            });
+        }
     });
 </script>
 @stop

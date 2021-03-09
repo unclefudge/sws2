@@ -17,8 +17,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group {!! fieldHasError('assign', $errors) !!}">
+                                <select id="user" name="user" class="form-control select2" style="width:100%">
+                                    @foreach (\App\User::where('status', 1)->get() as $user)
+                                        <option value="{{ $user->id }}">{{ $user->full_name }} ({{$user->company->name_alias}})</option>
+                                    @endforeach
+                                </select>
+                                {{--}}
                                 {!! Form::select('user', Auth::user()->company->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'id' => 'user', 'width' => '100%']) !!}
-                                {!! fieldErrorMessage('user', $errors) !!}
+                                --}}{!! fieldErrorMessage('user', $errors) !!}
                             </div>
                         </div>
                     </div>
