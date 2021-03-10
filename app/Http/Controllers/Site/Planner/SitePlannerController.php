@@ -876,25 +876,28 @@ class SitePlannerController extends Controller {
 
         $site_details = [];
         foreach ($sites as $site) {
-            $array = [];
-            $array['id'] = $site->id;
-            $array['value'] = $site->id;
-            $array['name'] = $site->name;
-            $array['text'] = $site->name;
             $site_record = Site::find($site->id);
-            $array['code'] = $site_record->code;
-            $array['start'] = ($site_record->job_start) ? $site_record->job_start->format('Y-m-d') : '';
+            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive())) {
+                $array = [];
+                $array['id'] = $site->id;
+                $array['value'] = $site->id;
+                $array['name'] = $site->name;
+                $array['text'] = $site->name;
+                $array['code'] = $site_record->code;
+                $array['start'] = ($site_record->job_start) ? $site_record->job_start->format('Y-m-d') : '';
 
-            // First task on the planner for given site
-            $firstTask = SitePlanner::where('site_id', $site->id)->orderBy('from')->first();
-            $array['first'] = ($firstTask) ? $firstTask->from->format('Y-m-d') : '';
-            $array['first_id'] = ($firstTask) ? $firstTask->id : '';
+                // First task on the planner for given site
+                $firstTask = SitePlanner::where('site_id', $site->id)->orderBy('from')->first();
+                $array['first'] = ($firstTask) ? $firstTask->from->format('Y-m-d') : '';
+                $array['first_id'] = ($firstTask) ? $firstTask->id : '';
 
-            $array['supervisors'] = $site_record->supervisorsSelect();
-            $array['supervisors_contact'] = $site_record->supervisorsContactSBC();
-            $array['address'] = $site_record->address_formatted;
-            $array['status'] = $site_record->status;
-            $site_details[] = $array;
+                $array['supervisors'] = $site_record->supervisorsSelect();
+                $array['supervisors_contact'] = $site_record->supervisorsContactSBC();
+                $array['address'] = $site_record->address_formatted;
+                $array['status'] = $site_record->status;
+                $array['maintenance'] = $site_record->hasMaintenanceActive();
+                $site_details[] = $array;
+            }
         }
 
         return $site_details;

@@ -188,6 +188,40 @@ class Site extends Model {
     }
 
     /**
+     * A Site has many SiteMaintenance
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function maintenance()
+    {
+        return $this->hasMany('App\Models\Site\SiteMaintenance');
+    }
+
+    /**
+     * A Site has open SiteMaintenance
+     *
+     * @return bool
+     */
+    public function hasMaintenanceOpen()
+    {
+        return $this->maintenance->filter(function ($record) {
+            return $record->status;
+        })->count();
+    }
+
+    /**
+     * A Site has active SiteMaintenance
+     *
+     * @return bool
+     */
+    public function hasMaintenanceActive()
+    {
+        return $this->maintenance->filter(function ($record) {
+            return $record->status == 1;
+        })->count();
+    }
+
+    /**
      * A Site has many supervisors
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany

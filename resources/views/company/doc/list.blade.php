@@ -37,16 +37,10 @@
                                             <i class="fa fa-angle-down"></i>
                                         </a>
                                         <ul class="dropdown-menu pull-right">
-                                            <li>
-                                                <a href="/company/{{ $company->id }}/doc/period-trade-contract/create">Period Trade Contract</a>
-                                            </li>
-                                            <li>
-                                                <a href="/company/{{ $company->id }}/doc/subcontractor-statement/create">Subcontractor's Statement</a>
-                                            </li>
+                                            <li><a href="/company/{{ $company->id }}/doc/period-trade-contract/create">Period Trade Contract</a></li>
+                                            <li><a href="/company/{{ $company->id }}/doc/subcontractor-statement/create">Subcontractor's Statement</a></li>
                                             @if (!$company->activeCompanyDoc('12') && Auth::user()->isCCcompany())
-                                                <li>
-                                                    <a href="/company/{{ $company->id }}/doc/privacy-policy/create">Privacy Policy</a>
-                                                </li>
+                                                <li><a href="/company/{{ $company->id }}/doc/privacy-policy/create">Privacy Policy</a></li>
                                             @endif
                                         </ul>
                                     </div>

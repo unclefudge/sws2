@@ -8,7 +8,11 @@
                 <div class="full-name-wrap">{{ $site->name }}</div>
                 <span class="member-number">Site ID #{{ $site->id }}</span>
                 <span class="member-split">&nbsp;|&nbsp;</span>
-                <span class="member-number">{!! ($site->status == 1) ? 'ACTIVE' : '<span class="label label-sm label-danger">INACTIVE</span>' !!}</span>
+                <span class="member-number">
+                    @if ($site->status == 1) ACTIVE @endif
+                    @if ($site->status == 0) <span class="label label-sm label-danger">INACTIVE</span> @endif
+                    @if ($site->status == 2) <span class="label label-sm label-warning">MAINTENANCE</span> @endif
+                </span>
                 <!--<a href="/reseller/member/member_account_status/?member_id=8013759" class="member-status">Active</a>-->
             </div>
 

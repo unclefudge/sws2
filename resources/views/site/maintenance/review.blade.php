@@ -246,7 +246,7 @@
                             @if(!$main->super_id)
                                 {{-- Under Review - asign to super --}}
                                 <div class="note note-warning">
-                                    <h4>Assign Request to Task Owner</h4>
+                                    <h4>Assign Request to Maintenance Supervisor</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px; border-color: #000000">
                                     <input type="hidden" name="visited" value="0">
 

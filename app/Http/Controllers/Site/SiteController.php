@@ -81,8 +81,8 @@ class SiteController extends Controller {
         // Create Site
         $newSite = Site::create($site_request);
 
-        if ($request->get('supervisors'))
-            $newSite->supervisors()->sync($request->get('supervisors'));
+        if (request('supervisors'))
+            $newSite->supervisors()->sync(request('supervisors'));
 
         // Create new Equipment Location
         EquipmentLocation::create(['site_id' => $newSite->id, 'status' => 1]);

@@ -327,6 +327,9 @@ class SiteMaintenanceController extends Controller {
             // Delete Todoo
             $main->closeToDo();
 
+            // Update Site with new Maintenance Supervisor
+            $main->site->supervisors()->sync([request('super_id')]);
+
             // Add to Client Visit planner
             /*
             $newPlanner = SitePlanner::create(array(
@@ -422,6 +425,9 @@ class SiteMaintenanceController extends Controller {
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
                 $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
+
+            $main->site->supervisors()->sync([request('super_id')]);
+
         }
 
         // Email if Company Assigned is updated
@@ -438,10 +444,10 @@ class SiteMaintenanceController extends Controller {
 
         // Add note if change of Status
         if (request('status') && $main->status != 3 && request('status') == 3)
-            $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n".request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
         if (request('status') && $main->status != 1 && request('status') == 1)
             $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        if (request('status') && $main->status != -1 && request('status') == -1)
+        if (request('status') && $main->status != - 1 && request('status') == - 1)
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
         // Add note if change of Category
@@ -454,7 +460,6 @@ class SiteMaintenanceController extends Controller {
 
         //dd($main_request);
         $main->update($main_request);
-
         Toastr::success("Updated Request");
 
         return redirect('site/maintenance/' . $main->id);
@@ -689,6 +694,7 @@ class SiteMaintenanceController extends Controller {
             })
             ->addColumn('last_updated', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
+
                 return ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
             })
             ->addColumn('completed', function ($doc) {

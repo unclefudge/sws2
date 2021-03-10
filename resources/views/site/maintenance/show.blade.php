@@ -275,7 +275,7 @@
                                 {{-- AC Form --}}
                                 <div class="col-md-2 ">
                                     <div class="form-group">
-                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
+                                        {{--}}{!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}--}}
                                         @if ($main->status && Auth::user()->allowed2('add.site.maintenance'))
 
                                             {{--}}<div class="input-group date date-picker">
@@ -325,7 +325,7 @@
                                 {{-- Assigned Task Owner --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Assigned Task Owner', ['class' => 'control-label']) !!}
+                                        {!! Form::label('super_id', 'Maintenance Supervisor', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
                                             {{-- Supervisor --}}
                                             <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
