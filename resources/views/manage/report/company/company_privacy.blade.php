@@ -24,7 +24,13 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Company Privacy Policy</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/company_privacy_send" data-original-title="Send Request">Send Request to Sign</a>
+                            <div class="btn-group">
+                                <a class="btn green btn-outline btn-circle btn-sm" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true"> Send Request to Sign &nbsp; <i class="fa fa-angle-down"></i></a>
+                                <ul class="dropdown-menu pull-right">
+                                    <li><a href="/manage/report/company_privacy_send/new">Send To New Companies Only</a></li>
+                                    <li><a href="/manage/report/company_privacy_send/all">Re-send To All Outstanding Companies</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div class="portlet-body">

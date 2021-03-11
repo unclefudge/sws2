@@ -18,28 +18,6 @@
         font-weight: 600;
         color: #333 !important;
     }
-
-    .datepicker-ctrl p {
-        margin: 0px;
-    }
-
-    .datepicker-popup {
-        z-index: 1888 !important;
-    }
-
-    .datepicker-inner {
-        z-index: 1888 !important;
-    }
-
-    .datepicker {
-        z-index: 1999 !important;
-    }
-
-    .datepicker > div {
-        /*display: inline !important;*/
-    }
-
-
 </style>
 
 @section('content')
@@ -327,7 +305,7 @@
                             </div>
 
                             <div class="row">
-                                {{-- Assigned Task Owner --}}
+                                {{-- Assigned Supervisor --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('super_id', 'Maintenance Supervisor', ['class' => 'control-label']) !!}
@@ -350,6 +328,27 @@
                                     </div>
                                 </div>
 
+                                {{-- Client Contacted --}}
+                                <div class="col-md-2">
+                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
+                                    <div class="input-group" style="width=80%">
+                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                    </div>
+                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
+                                </div>
+
+                                <div class="col-md-1">&nbsp;</div>
+
+                                {{-- Client Appointment --}}
+                                <div class="col-md-2 ">
+                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
+                                    <div class="input-group">
+                                        <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                    </div>
+                                    <input v-model="xx.client_appointment" type="hidden" name="client_appointment" value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
+                                </div>
+                            </div>
+                            <div class="row">
                                 {{-- Assigned To Trade --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
@@ -387,7 +386,7 @@
                                 </div>--}}
 
                                 @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                    <div class="col-md-1">
+                                    <div class="col-md-1 pull-right">
                                         <button type="submit" name="save" class="btn blue" style="margin-top: 25px"> Save</button>
                                     </div>
                                 @endif
@@ -747,7 +746,7 @@
         done_by: '',
         itemList: [],
         actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
-        ac_format_sent: '01/01/2001', showDD: ''
+        ac_format_sent: '', client_contacted: '', client_appointment: ''
     };
 
     //

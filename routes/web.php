@@ -99,7 +99,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/company_users', 'Misc\ReportUserCompanyController@companyUsers');
     Route::get('/manage/report/company_contactinfo', 'Misc\ReportUserCompanyController@companyContactInfo');
     Route::get('/manage/report/company_privacy', 'Misc\ReportUserCompanyController@companyPrivacy');
-    Route::get('/manage/report/company_privacy_send', 'Misc\ReportUserCompanyController@companyPrivacySend');
+    Route::get('/manage/report/company_privacy_send/{type}', 'Misc\ReportUserCompanyController@companyPrivacySend');
     Route::get('/manage/report/company_swms', 'Misc\ReportUserCompanyController@companySWMS');
     Route::get('/manage/report/expired_company_docs', 'Misc\ReportUserCompanyController@expiredCompanyDocs');
     Route::get('/manage/report/expired_company_docs/dt/expired_company_docs', 'Misc\ReportUserCompanyController@getExpiredCompanyDocs');

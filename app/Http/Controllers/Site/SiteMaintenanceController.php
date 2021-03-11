@@ -416,6 +416,8 @@ class SiteMaintenanceController extends Controller {
         }
         // AC Form sent
         $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
+        $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
+        $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
 
         //dd($main_request);
         // Email if Super Assigned is updated

@@ -97,7 +97,7 @@
                                 <th width="10%"> Reported</th>
                                 <th width="7%"> Site</th>
                                 <th> Name</th>
-                                <th> Task Owner</th>
+                                <th> Supervisor</th>
                                 <th width="10%"> Updated</th>
                                 <th width="10%"> Completed</th>
                                 <th width="5%"></th>

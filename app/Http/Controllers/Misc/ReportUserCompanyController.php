@@ -187,10 +187,14 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_privacy', compact('companies'));
     }
 
-    public function companyPrivacySend()
+    public function companyPrivacySend($type)
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
+
+        // If type 'ALL' then delete all existing active ToDoos
+        if ($type == 'all')
+            $todo = Todo::where('type', 'company privacy')->where('status', '1')->delete();
 
         $sent_to_company = [];
         $sent_to_user = [];
