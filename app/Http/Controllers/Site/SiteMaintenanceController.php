@@ -414,6 +414,8 @@ class SiteMaintenanceController extends Controller {
             } else
                 return back()->withErrors(['completed' => "Invalid Prac Completed date. Required format dd/mm/yyyy"]);
         }
+        // AC Form sent
+        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
 
         //dd($main_request);
         // Email if Super Assigned is updated

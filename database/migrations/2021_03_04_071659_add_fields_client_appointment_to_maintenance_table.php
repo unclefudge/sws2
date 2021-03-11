@@ -14,7 +14,7 @@ class AddFieldsClientAppointmentToMaintenanceTable extends Migration
     public function up()
     {
         Schema::table('site_maintenance', function (Blueprint $table) {
-            $table->dateTime('client_contacted_')->nullable();
+            $table->dateTime('client_contacted')->nullable();
             $table->dateTime('client_appointment')->nullable();
             $table->dateTime('ac_form_sent')->nullable();
         });
