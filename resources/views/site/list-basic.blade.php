@@ -53,7 +53,7 @@
                                 <th> Suburb</th>
                                 <th> Name</th>
                                 {{-- CapeCod + JonSpin --}}
-                                @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96')
+                                @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29])) {{-- CC, JonSpin Building,  GBT Carpentry--}}
                                     <th width="15%"> Phone</th> @endif
                                 <th> Address</th>
                                 <th> Supervisor</th>
@@ -101,7 +101,7 @@
             {data: 'code', name: 'code'},
             {data: 'suburb', name: 'suburb'},
             {data: 'name', name: 'name'},
-                @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96') {data: 'client_phone', name: 'client_phone'}, @endif
+                @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29])) {data: 'client_phone', name: 'client_phone'}, @endif
             {
                 data: 'address', name: 'address'
             },
