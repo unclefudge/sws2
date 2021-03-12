@@ -81,6 +81,8 @@
                             {!! notificationSelect($notificationTypes::type('n.site.qa.onhold'), 'QA On Hold', 'Quality Assurance On Hold', 'Report to show all QA Checklists on Hold at the time of the report', 'Report sent fortnightly (Thursday)') !!}
                             {!! notificationSelect($notificationTypes::type('n.equipment.transfers'), 'Equipment Transfers', 'Equipment Transfers', 'Equipment transfers for the last 7 days', 'Report sent weekly (Thursday)') !!}
                             {!! notificationSelect($notificationTypes::type('n.company.missing.info'), 'Missing Company Info', 'Missing Company Info', 'Companies with missing info or documents', 'Report send first Tuesday of the month') !!}
+                            {!! notificationSelect($notificationTypes::type('n.user.oldusers'), 'Old Users', 'Old Users', 'Users not logged in within the last 3 months meeting certain criteria', 'Report send third Friday of the month') !!}
+
                         @endif
 
 

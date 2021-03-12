@@ -223,9 +223,7 @@ class ReportUserCompanyController extends Controller {
                         if ($company->nickname)
                             $sent_to_company[$company->id] .= "<span class='font-grey-cascade'><br>$company->nickname</span>";
                     }
-
                 }
-
             }
         }
 

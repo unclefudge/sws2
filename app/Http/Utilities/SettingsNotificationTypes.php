@@ -32,6 +32,7 @@ class SettingsNotificationTypes {
         '25' => 'n.equipment.transfers',
         '26' => 'n.user.archived.notifications',
         '27' => 'n.company.missing.info',
+        '28' => 'n.user.oldusers',
     ];
 
 

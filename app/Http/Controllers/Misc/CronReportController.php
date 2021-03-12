@@ -49,15 +49,9 @@ class CronReportController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 
-
+        // Weekly Reports
         if (Carbon::today()->isTuesday())
             CronReportController::emailOutstandingQA();
-
-        // Monthly first Tuesday of the month
-        $first_tues = new Carbon('first tuesday of this month');
-        if (Carbon::today()->isSameDay($first_tues))
-            CronReportController::emailMissingCompanyInfo();
-
 
         if (Carbon::today()->isThursday()) {
             CronReportController::emailJobstart();
@@ -70,7 +64,12 @@ class CronReportController extends Controller {
         if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
             CronReportController::emailFortnightlyReports();
 
-        // Quarterly Reports 25th of month
+        // Monthly third Friday of the month
+        $third_fri = new Carbon('third friday of this month');
+        if (Carbon::today()->isSameDay($third_fri))
+            CronReportController::emailOldUsers();
+
+        // Quarterly Reports 1th of month
         if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), ['03', '06', '09', '12']))
             CronReportController::emailMaintenanceExecutive();
 
@@ -82,12 +81,14 @@ class CronReportController extends Controller {
     static public function emailOutstandingQA()
     {
         $log = '';
-        echo "<h2>Email Outstanding QA Checklists</h2>";
-        $log .= "Email Outstanding QA Checklists\n";
+        $email_name = "Outstanding QA Checklists";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.outstanding'));
+        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -115,7 +116,6 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
 
         echo "<h4>Completed</h4>";
@@ -131,12 +131,14 @@ class CronReportController extends Controller {
     static public function emailMissingCompanyInfo()
     {
         $log = '';
-        echo "<h2>Email Missing Company Info</h2>";
-        $log .= "Email Missing Company Info\n";
+        $email_name = "Missing Company Info";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.company.missing.info'));
+        $email_list = $cc->notificationsUsersEmailType('n.company.missing.info');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -162,7 +164,6 @@ class CronReportController extends Controller {
                 }
         }
 
-        $email_list = $cc->notificationsUsersEmailType('n.company.missing.info');
         Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($comps));
 
         echo "<h4>Completed</h4>";
@@ -179,12 +180,14 @@ class CronReportController extends Controller {
     static public function emailJobstart()
     {
         $log = '';
-        echo "<h2>Email Jobstart</h2>";
-        $log .= "Email Jobstart\n";
+        $email_name = "Jobstart";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.jobstartexport'));
+        $email_list = $cc->notificationsUsersEmailType('n.site.jobstartexport');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -227,7 +230,6 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.jobstartexport');
         $data = [
             'user_fullname'     => "Auto Generated",
             'user_company_name' => "Cape Cod",
@@ -255,12 +257,14 @@ class CronReportController extends Controller {
     static public function emailEquipmentTransfers()
     {
         $log = '';
-        echo "<h2>Email Equipment Transfers</h2>";
-        $log .= "Email Equipment Transfers\n";
+        $email_name = "Equipment Transfers";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.equipment.transfers'));
+        $email_list = $cc->notificationsUsersEmailType('n.equipment.transfers');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -280,8 +284,6 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'portrait');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.equipment.transfers');
-
         Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
 
         echo "<h4>Completed</h4>";
@@ -298,12 +300,14 @@ class CronReportController extends Controller {
     static public function emailOnHoldQA()
     {
         $log = '';
-        echo "<h2>Email On Hold QA Checklists</h2>";
-        $log .= "Email On Hold QA Checklists\n";
+        $email_name = "On Hold QA Checklists";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.onhold'));
+        $email_list = $cc->notificationsUsersEmailType('n.site.qa.onhold');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -330,7 +334,6 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.qa.onhold');
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file));
 
         echo "<h4>Completed</h4>";
@@ -351,10 +354,11 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
+        $email_name = "Maintenance No Actions";
         $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.noaction');
         $emails = implode("; ", $email_list);
-        echo "Sending No Actions email to $emails";
-        $log .= "Sending No Actions email to $emails";
+        echo "Sending $email_name email to $emails";
+        $log .= "Sending $email_name email to $emails";
 
         //
         // Active Requests with No Action 14 Days
@@ -367,7 +371,6 @@ class CronReportController extends Controller {
         }
 
         $data = ['data' => $mains];
-
         if ($email_list) {
             Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
@@ -382,10 +385,11 @@ class CronReportController extends Controller {
         //
         // On Hold Requests
         //
+        $email_name = "Maintenance On Hold";
         $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.onhold');
         $emails = implode("; ", $email_list);
-        echo "Sending On Hold email to $emails";
-        $log .= "Sending On Hold email to $emails";
+        echo "Sending $email_name email to $emails";
+        $log .= "Sending $email_name email to $emails";
         $hold_requests = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
         $data = ['data' => $hold_requests];
 
@@ -407,17 +411,64 @@ class CronReportController extends Controller {
     }
 
     /*
+    * Email Old Users
+    */
+    static public function emailOldUsers()
+    {
+        $log = '';
+        $email_name = "Old Users";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('n.user.oldusers');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails";
+        $log .= "Sending $email_name email to $emails";
+
+
+        $cc_users = $cc->users(1)->pluck('id')->toArray();
+        $user_list = User::where('status', 1)->whereIn('id', $cc_users)->orderBy('company_id', 'ASC')->pluck('id')->toArray();
+
+        $date_3_month = Carbon::today()->subMonths(3);
+        $user_list2 = User::where('status', 1)->whereIn('id', $user_list)->wheredate('last_login', '<', $date_3_month->format('Y-m-d'))->orderBy('company_id', 'ASC')->get();
+
+        $user_list3 = [];
+        foreach ($user_list2 as $user) {
+            if (in_array($user->company->category, [1,2]) && $user->company->status == 1 && $user->hasAnyRole2('ext-leading-hand|tradie|labourers')) { // Onsite Trade + Active Company + appropriate role
+                if (!$user->last_login || ($user->last_login->lt($date_3_month) && $user->last_login->lt($user->company->lastDateOnPlanner()))) { // User not logged in or not logged in last 3 months but company has been on planner
+                    $user_list3[] = $user->id;
+                }
+            }
+        }
+
+        $users = User::whereIn('id', $user_list3)->orderBy('company_id', 'ASC')->get();
+        //dd($users);
+
+        Mail::to($email_list)->send(new \App\Mail\User\OldUsers($users));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
     * Email Site Maintenance Executive Report
     */
     static public function emailMaintenanceExecutive()
     {
         $log = '';
-        echo "<h2>Email Site Maintenance Executive Report</h2>";
-        $log .= "Email Site Maintenance Executive Report\n";
+        $email_name = "Site Maintenance Executive Report";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.maintenance.executive'));
+        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.executive');
+        $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -488,8 +539,6 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.executive');
-        $email_list = ['fudge@jordan.net.au'];
         Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceExecutive($file));
 
         echo "<h4>Completed</h4>";

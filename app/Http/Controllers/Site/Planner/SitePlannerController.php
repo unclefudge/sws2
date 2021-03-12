@@ -300,6 +300,8 @@ class SitePlannerController extends Controller {
         if (Auth::user()->company->addon('planner')) {
             if ($super_id == 'all')
                 $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
+            elseif ($super_id == 'maint')
+                $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
             else
                 $allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
         } else {
@@ -854,7 +856,7 @@ class SitePlannerController extends Controller {
     /**
      * Get list of Sites User is authorised to view
      */
-    public function getSites(Request $request)
+    public function getSites()
     {
         if (Auth::user()->company->addon('planner'))
             $allowedSites = Auth::user()->company->sites([1, 2])->pluck('id')->toArray();
