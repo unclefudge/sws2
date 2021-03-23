@@ -241,7 +241,7 @@ class ToolboxTalk extends Model {
     {
         $email_to = [];
         if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval');   // WHS Mgr
+            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
         else
             $email_to[] = env('EMAIL_ME');
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
@@ -272,7 +272,7 @@ class ToolboxTalk extends Model {
     {
         $email_to = [];
         if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval');   // WHS Mgr
+            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
         else
             $email_to[] = env('EMAIL_ME');
         // Send to User who created
@@ -303,7 +303,7 @@ class ToolboxTalk extends Model {
     public function emailOverdue()
     {
         if (\App::environment('prod')) {
-            $email_to = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval');   // WHS Mgr
+            $email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
             // Send to User who created
             if ($this->createdBy && validEmail($this->createdBy->email))
                 $email_to[] = $this->createdBy->email;
@@ -336,7 +336,7 @@ class ToolboxTalk extends Model {
     {
         $email_to = [];
         if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval');   // WHS Mgr
+            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
         else
             $email_to[] = env('EMAIL_ME');
 
@@ -368,7 +368,7 @@ class ToolboxTalk extends Model {
     {
         $email_to = [];
         if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval');   // WHS Mgr
+            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
         else
             $email_to[] = env('EMAIL_ME');
 

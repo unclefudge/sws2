@@ -257,10 +257,12 @@ class SiteMaintenance extends Model {
         if (\App::environment('prod'))
             $email_to = (validEmail($user->email)) ? $user->email : '';
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        // Gary didn't want to be email when assigning - so comment out email_user :)
+        //
+        //if ($email_to && $email_user)
+        //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        //elseif ($email_to)
+        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
 
     }
 
@@ -273,7 +275,7 @@ class SiteMaintenance extends Model {
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
         if (\App::environment('prod')) {
-            //$email_list = $this->site->company->notificationsUsersEmailType('n.site.qa');
+            //$email_list = $this->site->company->notificationsUsersEmailType('site.qa');
             //$email_supers = $this->site->supervisorsEmails();
             //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
             $email_to = $this->site->supervisorsEmails();

@@ -194,8 +194,8 @@ class ToolboxTalkController extends Controller {
                 if (request('status') == 1 && Auth::user()->isCC() && !Auth::user()->hasPermission2('sig.toolbox') && (!$talk->master_id || $master_version != $tool_request['version'])) {
                     $tool_request['status'] = 2;
                     // Mail notification talk owner
-                    if ($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))
-                        Mail::to($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkSignoff($talk));
+                    if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
+                        Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkSignoff($talk));
 
                     Toastr::warning("Requesting Sign Off");
                 }*/
@@ -209,16 +209,16 @@ class ToolboxTalkController extends Controller {
                     if ($mod_controls) $diffs .= "CONTROLS<br>$diff_controls<br>";
                     if ($mod_further) $diffs .= "FURTHER INFOMATION<br>$diff_further<br>";
                     // Mail notification talk owner
-                    if ($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))
-                        Mail::to($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($talk, $diffs));
+                    if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
+                        Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($talk, $diffs));
                 }
 
                 // If toolbox template is made Active email activeTemplate
                 if (request('status') == 1 && $talk->master) {
                     $talk->emailActiveTemplate();
                     // Mail notification talk owner
-                    if ($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))
-                        Mail::to($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($talk));
+                    if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
+                        Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($talk));
                 }
 
 
@@ -454,8 +454,8 @@ class ToolboxTalkController extends Controller {
         $talk->status = 0;
         $talk->save();
         // Mail notification talk creator + cc: talk owner
-        if (validEmail($talk->createdBy->email) && $talk->owned_by->notificationsUsersType('n.doc.whs.approval'))
-            Mail::to($talk->createdBy)->cc($talk->owned_by->notificationsUsersType('n.doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkRejected($talk));
+        if (validEmail($talk->createdBy->email) && $talk->owned_by->notificationsUsersType('doc.whs.approval'))
+            Mail::to($talk->createdBy)->cc($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkRejected($talk));
         elseif (validEmail($talk->createdBy->email))
             Mail::to($talk->createdBy)->send(new \App\Mail\Safety\ToolboxTalkRejected($talk));
         Toastr::error("Rejected sign off");

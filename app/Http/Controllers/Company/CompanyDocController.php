@@ -236,7 +236,7 @@ class CompanyDocController extends Controller {
         } else {
             // Create approval ToDoo
             if ($doc->category->type == 'acc' || $doc->category->type == 'whs')
-                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval'));
+                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
         }
         $doc->save();
 
@@ -355,7 +355,7 @@ class CompanyDocController extends Controller {
             $doc->closeToDo();
             // Create approval ToDoo
             if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs'))
-                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval'));
+                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
         }
 
         // Handle attached file

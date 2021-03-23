@@ -195,7 +195,7 @@ class SiteInspectionElectricalController extends Controller {
             $report_request['inspected_by'] = Auth::user()->id;
 
             // Email completed notification
-            $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('n.site.inspection.completed') : [env('EMAIL_DEV')];
+            $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
 
         } elseif (request('status') == 1) {

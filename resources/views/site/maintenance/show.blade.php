@@ -18,6 +18,18 @@
         font-weight: 600;
         color: #333 !important;
     }
+
+    @media screen and (min-width: 992px) {
+        .datepicker-input {
+            width: 130px !important;
+        }
+    }
+
+    @media screen and (min-width: 1200px) {
+        .datepicker-input {
+            width: 160px !important;
+        }
+    }
 </style>
 
 @section('content')
@@ -263,18 +275,29 @@
                                     </div>
                                 </div>
 
-                                {{-- AC Form --}}
-                                <div class="col-md-2 ">
-                                    {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
-
-                                    @if ($main->status && Auth::user()->allowed2('add.site.maintenance'))
-                                        <div class="input-group">
-                                            <datepicker :value.sync="xx.ac_format_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                            {{--}}<span class="input-group-btn"><button class="btn default" type="button"><i class="fa fa-calendar" style="line-height: 20px"></i></button></span>--}}
-                                        </div>
-                                        <input v-model="xx.ac_format_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                {{-- Client Contacted --}}
+                                <div class="col-md-2">
+                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    <div class="input-group" style="width=80%">
+                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                    </div>
+                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
                                     @else
-                                        {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        {!! Form::text('client_contacted', ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                    @endif
+                                </div>
+
+                                {{-- Client Appointment --}}
+                                <div class="col-md-2">
+                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                        <div class="input-group">
+                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.client_appointment" type="hidden" name="client_appointment" value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
+                                    @else
+                                        {!! Form::text('client_appointment', ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                     @endif
                                 </div>
 
@@ -286,6 +309,8 @@
                                             {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline',  '3' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             {!! Form::select('status', ['1' => 'Active', '3' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                        @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            {!! Form::select('status', ['0' => 'Completed', '1' => 'Re-Activate'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @else
                                             {!! Form::text('status_text', ($main->status == 0) ? 'Completed' : 'Declined', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
@@ -328,28 +353,25 @@
                                     </div>
                                 </div>
 
-                                {{-- Client Contacted --}}
-                                <div class="col-md-2">
-                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
-                                    <div class="input-group" style="width=80%">
-                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                    </div>
-                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
-                                </div>
+                                {{-- AC Form --}}
+                                @if (!$main->status)
+                                    <div class="col-md-2 pull-right">
+                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
 
-                                <div class="col-md-1">&nbsp;</div>
-
-                                {{-- Client Appointment --}}
-                                <div class="col-md-2 ">
-                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
-                                    <div class="input-group">
-                                        <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        @if (Auth::user()->allowed2('add.site.maintenance'))
+                                            <div class="input-group">
+                                                <datepicker :value.sync="xx.ac_format_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                                {{--}}<span class="input-group-btn"><button class="btn default" type="button"><i class="fa fa-calendar" style="line-height: 20px"></i></button></span>--}}
+                                            </div>
+                                            <input v-model="xx.ac_format_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                        @else
+                                            {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
                                     </div>
-                                    <input v-model="xx.client_appointment" type="hidden" name="client_appointment" value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
-                                </div>
+                                @endif
                             </div>
                             <div class="row">
-                                {{-- Assigned To Trade --}}
+                                {{-- Assigned To Company --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
@@ -367,25 +389,9 @@
                                     </div>
                                 </div>
 
-                                {{-- Planner Date --}}
-                                {{--}}
-                                <div class="col-md-3 ">
-                                    <div class="form-group {!! fieldHasError('visit_date', $errors) !!}">
-                                        {!! Form::label('visit_date', 'Visit Date', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
-                                                <input type="text" class="form-control" value="{!! ($main->nextClientVisit()) ? $main->nextClientVisit()->from->format('d/m/Y') : '' !!}" readonly style="background:#FFF" id="visit_date" name="visit_date">
-                                            <span class="input-group-btn">
-                                                <button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
-                                            </span>
-                                            </div>
-                                        @else
-                                            {!! Form::text('visit_text', ($main->nextClientVisit()) ? $main->nextClientVisit()->from->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>--}}
+                                <div class="col-md-1">&nbsp;</div>
 
-                                @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                @if (Auth::user()->allowed2('edit.site.maintenance', $main))
                                     <div class="col-md-1 pull-right">
                                         <button type="submit" name="save" class="btn blue" style="margin-top: 25px"> Save</button>
                                     </div>
@@ -468,7 +474,7 @@
     </div>
     </div>
 
-    <pre v-if="xx.dev">@{{ $data | json }}</pre>
+    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
     -->
 
     <!-- loading Spinner -->
@@ -701,7 +707,7 @@
             uploadUrl: "/site/maintenance/upload/", // server upload action
             uploadAsync: true,
             //allowedFileExtensions: ["image"],
-            allowedFileTypes: ["image"],
+            //allowedFileTypes: ["image"],
             browseClass: "btn blue",
             browseLabel: "Browse",
             browseIcon: "<i class=\"fa fa-folder-open\"></i> ",

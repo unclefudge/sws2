@@ -571,7 +571,7 @@ class Site extends Model {
         $email_to = [env('EMAIL_DEV')];
 
         if (\App::environment('prod')) {
-            $email_list = $this->company->notificationsUsersEmailType('n.site.status');
+            $email_list = $this->company->notificationsUsersEmailType('site.status');
             $email_supers = $this->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
         }

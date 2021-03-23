@@ -129,7 +129,7 @@ class CompanyPeriodTradeController extends Controller {
         ]);
 
         // Create approval ToDoo
-        $ptc->createApprovalToDo($ptc->owned_by->notificationsUsersTypeArray('n.doc.acc.approval'));
+        $ptc->createApprovalToDo($ptc->owned_by->notificationsUsersTypeArray('doc.acc.approval'));
 
         // Delete any rejected docs
         $deleted = CompanyDocPeriodTrade::where('for_company_id', $company->id)->where('status', 3)->delete();

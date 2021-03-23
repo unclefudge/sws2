@@ -170,7 +170,7 @@ class WmsDoc extends Model {
         $email_to = [];
         $email_user = '';
         if (\App::environment('dev', 'prod')) {
-            $email_to = $this->owned_by->notificationsUsersEmailType('n.swms.approval');
+            $email_to = $this->owned_by->notificationsUsersEmailType('swms.approval');
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         } else
             $email_to[] = env('EMAIL_ME');
@@ -206,7 +206,7 @@ class WmsDoc extends Model {
         $email_to = [];
         $email_user = '';
         if (\App::environment('dev', 'prod'))
-            $email_to = $this->owned_by->notificationsUsersEmailType('n.doc.whs.approval'); 
+            $email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');
         //$email_to[] = env('EMAIL_ME');
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
@@ -252,7 +252,7 @@ class WmsDoc extends Model {
                 $email_to[] = $company->seniorUsersEmail();
 
                 // Send CC to Parent Company Account
-                $email_user = $company->reportsTo()->notificationsUsersEmailType('n.doc.whs.approval');
+                $email_user = $company->reportsTo()->notificationsUsersEmailType('doc.whs.approval');
             }
         } else {
             $email_to = [env('EMAIL_ME')];

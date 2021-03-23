@@ -301,19 +301,6 @@ class SiteMaintenanceController extends Controller {
                 return back()->withErrors(['completed' => "Invalid Prac Completed date. Required format dd/mm/yyyy"]);
         }
 
-        // Verify AC Form send  date
-        if (request('ac_form_sent')) {
-            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('ac_form_sent'), $matches)) {
-                list($dd, $mm, $yyyy) = explode('/', request('ac_form_sent'));
-                if (checkdate($mm, $dd, $yyyy))
-                    $main_request['ac_form_sent'] = Carbon::createFromFormat('d/m/Y H:i:s', request('ac_form_sent') . ' 00:00:00');
-                else
-                    return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
-            } else
-                return back()->withErrors(['ac_form_sent' => "Invalid AC Form Sent date. Required format dd/mm/yyyy"]);
-        }
-        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
-
         //dd($main_request);
 
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
@@ -513,7 +500,7 @@ class SiteMaintenanceController extends Controller {
 
                 $email_list = [env('EMAIL_DEV')];
                 if (\App::environment('prod'))
-                    $email_list = $main->site->company->notificationsUsersEmailType('n.site.maintenance.completed');
+                    $email_list = $main->site->company->notificationsUsersEmailType('site.maintenance.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceCompleted($main));
             }

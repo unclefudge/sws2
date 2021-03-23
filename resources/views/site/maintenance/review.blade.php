@@ -226,21 +226,6 @@
                                         @endif
                                     </div>
                                 </div>
-
-                                {{-- AC Form --}}
-                                <div class="col-md-2 ">
-                                    <div class="form-group">
-                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('add.site.maintenance'))
-                                            <div class="input-group date date-picker">
-                                                {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                            </div>
-                                        @else
-                                            {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>
                             </div>
 
                             @if(!$main->super_id)

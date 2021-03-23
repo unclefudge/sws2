@@ -450,9 +450,9 @@ class CronController extends Controller {
 
                             // Email SeniorUsers + Parent Company
                             if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
-                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval'), false);
-                                echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval')) . "<br>";
-                                $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval')) . "\n";
+                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval'), false);
+                                echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "<br>";
+                                $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
                             }
                         } else {
                             $doc->closeToDo(User::find(1));
@@ -462,9 +462,9 @@ class CronController extends Controller {
                                 if ($date == Carbon::today()->subDays(14)->format('Y-m-d')) {
                                     // Email Parent Company
                                     if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
-                                        $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval'), true);
-                                        echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval')) . "<br>";
-                                        $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.doc.' . $doc->category->type . '.approval')) . "\n";
+                                        $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval'), true);
+                                        echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "<br>";
+                                        $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
                                     }
                                 }
                             }
@@ -524,18 +524,18 @@ class CronController extends Controller {
                             if ($date == Carbon::today()->addDays(14)->subYear()->format('Y-m-d')) {
                                 // Due in 2 weeks
                                 if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
-                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('n.swms.approval'), false);
-                                echo "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.swms.approval')) . "<br>";
-                                $log .= "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.swms.approval')) . "\n";
+                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'), false);
+                                echo "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "<br>";
+                                $log .= "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "\n";
                             } else {
                                 $doc->closeToDo(User::find(1));
                                 if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
                                 echo "Created ToDo for company<br>";
                                 $log .= "Created ToDo for company\n";
                                 if ($date == Carbon::today()->subDays(28)->format('Y-m-d')) {
-                                    $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('n.swms.approval'), true);
-                                    echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.swms.approval')) . "<br>";
-                                    $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('n.swms.approval')) . "\n";
+                                    $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'), true);
+                                    echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "<br>";
+                                    $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "\n";
                                 }
                             }
                         }
@@ -802,7 +802,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.jobstartexport'));
+        $emails = implode("; ", $cc->notificationsUsersEmailType('site.jobstartexport'));
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -845,7 +845,7 @@ class CronController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.jobstartexport');
+        $email_list = $cc->notificationsUsersEmailType('site.jobstartexport');
         $data = [
             'user_fullname'     => "Auto Generated",
             'user_company_name' => "Cape Cod",
@@ -878,7 +878,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.equipment.transfers'));
+        $emails = implode("; ", $cc->notificationsUsersEmailType('equipment.transfers'));
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -898,7 +898,7 @@ class CronController extends Controller {
         $pdf->setPaper('A4', 'portrait');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.equipment.transfers');
+        $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
 
         Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
 
@@ -920,7 +920,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.outstanding'));
+        $emails = implode("; ", $cc->notificationsUsersEmailType('site.qa.outstanding'));
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -940,7 +940,7 @@ class CronController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
+        $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
 
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
 
@@ -962,7 +962,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $emails = implode("; ", $cc->notificationsUsersEmailType('n.site.qa.outstanding'));
+        $emails = implode("; ", $cc->notificationsUsersEmailType('site.qa.outstanding'));
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
@@ -982,7 +982,7 @@ class CronController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        $email_list = $cc->notificationsUsersEmailType('n.site.qa.outstanding');
+        $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
 
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
 
@@ -1004,7 +1004,7 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.noaction');
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
         $emails = implode("; ", $email_list);
         echo "Sending No Actions email to $emails";
         $log .= "Sending No Actions email to $emails";
@@ -1035,7 +1035,7 @@ class CronController extends Controller {
         //
         // On Hold Requests
         //
-        $email_list = $cc->notificationsUsersEmailType('n.site.maintenance.onhold');
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
         $emails = implode("; ", $email_list);
         echo "Sending On Hold email to $emails";
         $log .= "Sending On Hold email to $emails";

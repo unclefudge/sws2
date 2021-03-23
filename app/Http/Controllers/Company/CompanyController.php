@@ -91,8 +91,8 @@ class CompanyController extends Controller {
         // Mail request to new company
         Mail::to(request('email'))->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         // Mail notification to parent company
-        if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('n.company.signup.sent'))
-            Mail::to($newCompany->reportsTo()->notificationsUsersType('n.company.signup.sent'))->send(new \App\Mail\Company\CompanyCreated($newCompany));
+        if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))
+            Mail::to($newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))->send(new \App\Mail\Company\CompanyCreated($newCompany));
 
         Toastr::success("Company signup sent");
 
@@ -191,8 +191,8 @@ class CompanyController extends Controller {
             $company_request['approved_by'] = 0;
             $company_request['approved_at'] = null;
             // Email Parent if updated
-            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('n.company.updated.details'))
-                Mail::to($company->reportsTo()->notificationsUsersType('n.company.updated.details'))->send(new \App\Mail\Company\CompanyUpdatedDetails($company));
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.updated.details'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.updated.details'))->send(new \App\Mail\Company\CompanyUpdatedDetails($company));
         }
 
         $company->update($company_request);
@@ -200,8 +200,8 @@ class CompanyController extends Controller {
 
         if (!$company->status && $old_status) {
             // Company made inactive
-            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('n.company.signup.completed'))
-                Mail::to($company->reportsTo()->notificationsUsersType('n.company.signup.completed'))->send(new \App\Mail\Company\CompanyArchived($company));
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.signup.completed'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyArchived($company));
             $company->deactivateAllStaff();
             $company->deleteFromPlanner(Carbon::today());
             CompanyLeave::where('from', '>=', Carbon::today()->toDateTimeString())->where('company_id', $company->id)->delete();  // delete future leave
@@ -238,8 +238,8 @@ class CompanyController extends Controller {
                 Toastr::success("Reactivated Primary User");
             }
             // Company + Primary User reactivated
-            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('n.company.signup.completed'))
-                Mail::to($company->reportsTo()->notificationsUsersType('n.company.signup.completed'))->send(new \App\Mail\Company\CompanyActive($company));
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.signup.completed'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyActive($company));
 
         }
 
@@ -278,8 +278,8 @@ class CompanyController extends Controller {
             $company_request['approved_by'] = 0;
             $company_request['approved_at'] = null;
             // Email Parent if updated
-            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('n.company.updated.business'))
-                Mail::to($company->reportsTo()->notificationsUsersType('n.company.updated.business'))->send(new \App\Mail\Company\CompanyUpdatedBusiness($company));
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.updated.business'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.updated.business'))->send(new \App\Mail\Company\CompanyUpdatedBusiness($company));
         }
 
         $company->update($company_request);
@@ -392,8 +392,8 @@ class CompanyController extends Controller {
         $new_trades_skilled_in = $company->tradesSkilledInSBC();
         if ($old_licence_overide && $old_trades_skilled_in != $new_trades_skilled_in) {
             // Email Parent if updated
-            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('n.company.updated.trades'))
-                Mail::to($company->reportsTo()->notificationsUsersType('n.company.updated.trades'))->send(new \App\Mail\Company\CompanyUpdatedTrades($company));
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.updated.trades'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.updated.trades'))->send(new \App\Mail\Company\CompanyUpdatedTrades($company));
         }
 
         return redirect("company/$company->id");

@@ -24,7 +24,7 @@
                 <li>These are used to determine what users have access to view/update in the system.</li>
             </ul>
             @if (Auth::user()->company->subscription > 1)
-                <p><b>'Child Role'</b> is a role that is allowed to be assign to a 'Child Company'.<br>
+                <p><b>'Child Role'</b> is a role that is allowed to be assigned to a 'Child Company'.<br>
                     <b>'Child First'</b> refers to the very first user created after a 'Child Company' is setup.<br>
                     <b>'Child Other'</b> refers to any other user the 'Child Company' creates themselves.
                 </p>

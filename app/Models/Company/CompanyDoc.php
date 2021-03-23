@@ -227,7 +227,7 @@ class CompanyDoc extends Model {
             $email_to = $this->company->seniorUsersEmail();
             // Send CC to Parent Company if doc type acc or whs
             if ($this->category->type == 'acc' || $this->category->type == 'whs')
-                $email_user = $this->owned_by->notificationsUsersEmailType('n.doc.' . $this->category->type . '.approval');
+                $email_user = $this->owned_by->notificationsUsersEmailType('doc.' . $this->category->type . '.approval');
         }
 
         if ($email_to && $email_user)

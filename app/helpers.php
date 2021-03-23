@@ -235,6 +235,8 @@ function getPermissionTypes()
  *
  * @return string
  */
+/*
+ * moved function to DB class
 function notificationSelect($id, $name, $pop_head = '', $pop_info = '', $help_mesg = '')
 {
     $str = '<div class="row"><div class="col-md-12"><div class="form-group"><div class="col-md-3">';
@@ -260,7 +262,7 @@ function notificationSelect($id, $name, $pop_head = '', $pop_info = '', $help_me
     $str .= '</div></div></div></div><br>';
 
     return $str;
-}
+} */
 
 /**
  * Create a array of all user emails with specific role

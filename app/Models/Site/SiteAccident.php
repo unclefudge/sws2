@@ -72,7 +72,7 @@ class SiteAccident extends Model {
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('n.site.accident');
+            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
             $email_supers = $this->site->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
         }
@@ -92,7 +92,7 @@ class SiteAccident extends Model {
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('n.site.accident');
+            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
             $email_supers = $this->site->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
         }

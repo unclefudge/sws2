@@ -183,7 +183,7 @@ class CompanySubcontractorStatementController extends Controller {
 
 
         // Create approval ToDoo
-        $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('n.doc.acc.approval'));
+        $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.acc.approval'));
         Toastr::success("Signed contract");
 
         return redirect("/company/$company->id/doc/$doc->id/edit");

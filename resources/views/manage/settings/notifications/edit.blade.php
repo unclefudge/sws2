@@ -38,51 +38,50 @@
                         {{-- Company --}}
                         @if (Auth::user()->company->subscription > 1)
                             <h3 class="font-green form-section">Company Notifications</h3>
-                            {!! notificationSelect($notificationTypes::type('n.company.signup.sent'), 'Signup Sent', 'Company Signup', 'Company signup request sent') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.signup.completed'), 'Signup Completed / Archived', 'Company Signup/Archived', 'Company has completed the signup process or made inactive/active') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.updated.details'), 'Company Details updated', 'Company updated', 'Company details have been updated') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.updated.business'), 'Business Details updated', 'Company updated', 'Business details have been updated') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.updated.trades'), 'Company Trades updated (WHS)', 'Company updated', 'Company trades have been updated but also licence required was previously overridden') !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.sent')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.completed')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.details')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.business')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.trades')->first()->notificationSelect() !!}
                         @endif
                         {{-- Site --}}
                         <h3 class="font-green form-section">Site Notifications</h3>
-                        {!! notificationSelect($notificationTypes::type('n.site.status'), 'Site Created/Status change', 'Site Status', 'created, status change', 'Automatically includes relevant Site/Area Supervisors') !!}
-                        {!! notificationSelect($notificationTypes::type('n.site.accident'), 'Accident Reports', 'Site Accident', 'lodgement, updated', 'Automatically includes relevant Site/Area Supervisors') !!}
-                        {!! notificationSelect($notificationTypes::type('n.site.hazard'), 'Hazard Reports', 'Site Hazard', 'lodgement, updated', 'Automatically includes: Site/Area Supervisors') !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.status')->first()->notificationSelect() !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.accident')->first()->notificationSelect() !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.hazard')->first()->notificationSelect() !!}
                         @if (Auth::user()->isCC())
-                            {!! notificationSelect($notificationTypes::type('n.site.asbestos'), 'Asbestos Notification', 'Site Asbestos', 'lodgement, updated', 'Automatically includes relevant Site/Area Supervisors') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.qa.handover'), 'QA Handover Completion', 'Site Quality Assurance', 'Handover Completion') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.qa.super.photo'), 'QA Supervisor Photo Checklist', 'Site Quality Assurance', 'QA Supervisor Photo Checklist Completion') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.completed'), 'Maintenance Request Completed', 'Maintenance Request', 'Maintenance completed') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.inspection.completed'), 'Inspection Report Completed', 'Inspection Report', 'Inspection completed') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.jobstart'), 'Job Start', 'Job Start', 'Job Start created / updated') !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.asbestos')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.handover')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.super.photo')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.completed')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.completed')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
                         @endif
 
                         {{-- Document --}}
                         <h3 class="font-green form-section">Document Notifications</h3>
-                        {!! notificationSelect($notificationTypes::type('n.doc.acc.approval'), 'Accounts Approval', 'Accounts document requires approval', $companyDocTypes::docNames('acc', 0), 'Companies are automatically notified 2 weeks prior document expiry + every week after expiry for 1 month<br>Users above are notified 2 weeks prior document expiry + 2 weeks after.') !!}
-                        {!! notificationSelect($notificationTypes::type('n.doc.whs.approval'), 'WHS Approval', 'WHS document requires approval', $companyDocTypes::docNames('whs', 0), 'Companies are automatically notified 2 weeks prior document expiry + every week after expiry for 1 month<br>Users above are notified 2 weeks prior document expiry + 2 weeks after.') !!}
-                        {!! notificationSelect($notificationTypes::type('n.swms.approval'), 'SWMS Approval', 'SWMS requires approval', 'SWMS documents', 'Companies are automatically notified 2 weeks prior document expiry + every week after expiry for 1 month<br>Users above are notified 2 weeks prior document expiry + 2 weeks after.') !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.acc.approval')->first()->notificationSelect() !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'doc.whs.approval')->first()->notificationSelect() !!}
+                        {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'swms.approval')->first()->notificationSelect() !!}
 
                         {{-- Miscellaneous --}}
                         @if (Auth::user()->isCC())
                             <h3 class="font-green form-section">Miscellaneous Notifications</h3>
-                            {!! notificationSelect($notificationTypes::type('n.user.archived.notifications'), 'User Achived Notifys', 'User archived', 'User archived with active Notifications') !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.archived.notifications')->first()->notificationSelect() !!}
                         @endif
 
                         @if (Auth::user()->isCC())
                             {{-- Email Lists --}}
                             <h3 class="font-green form-section">Report Email Lists</h3>
-                            {!! notificationSelect($notificationTypes::type('n.site.jobstartexport'), 'Job Start Export', 'Job Start Export', 'Default list to email Job Start Export', 'Report sent weekly (Thursday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.noaction'), 'Maintenance No Actions', 'Maintenance Request No Actions', 'No Actions for 14 days on Maintenance Request', 'Report sent fortnightly (Monday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.onhold'), 'Maintenance On Hold', 'Maintenance Request On Hold', 'Maintenance Requests currently On Hold', 'Report sent fortnightly (Monday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.maintenance.executive'), 'Maintenance Executive', 'Maintenance Executive Report', 'Maintenance overview of all requests and how they were dealt with', 'Report sent quarterly (1st of Mar/Jun/Sep/Dec)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.qa.outstanding'), 'QA Outstanding', 'Quality Assurance Outstanding', 'Report to show all outstanding QA Checklists at the time of the report', 'Report sent weekly (Tuesday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.site.qa.onhold'), 'QA On Hold', 'Quality Assurance On Hold', 'Report to show all QA Checklists on Hold at the time of the report', 'Report sent fortnightly (Thursday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.equipment.transfers'), 'Equipment Transfers', 'Equipment Transfers', 'Equipment transfers for the last 7 days', 'Report sent weekly (Thursday)') !!}
-                            {!! notificationSelect($notificationTypes::type('n.company.missing.info'), 'Missing Company Info', 'Missing Company Info', 'Companies with missing info or documents', 'Report send first Tuesday of the month') !!}
-                            {!! notificationSelect($notificationTypes::type('n.user.oldusers'), 'Old Users', 'Old Users', 'Users not logged in within the last 3 months meeting certain criteria', 'Report send third Friday of the month') !!}
-
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstartexport')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.noaction')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.onhold')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.executive')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.outstanding')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.onhold')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.transfers')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.missing.info')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.oldusers')->first()->notificationSelect() !!}
                         @endif
 
 

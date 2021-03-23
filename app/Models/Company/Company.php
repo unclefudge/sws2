@@ -13,7 +13,8 @@ use App\Models\Comms\SafetyTip;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Misc\Role2;
-use App\Http\Utilities\SettingsNotificationTypes;
+use App\Models\Misc\SettingsNotificationsCategory;
+//use App\Http\Utilities\SettingsNotificationTypes;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 use DB;
@@ -865,9 +866,9 @@ class Company extends Model {
 
         // Site planned for today
         $sites_planned = [];
-        foreach ($this->sitesPlannedFor([1,2], Carbon::today(), Carbon::today()) as $site) {
+        foreach ($this->sitesPlannedFor([1, 2], Carbon::today(), Carbon::today()) as $site) {
             $site = Site::findOrFail($site->id);
-            if (in_array($site->status, [1,2]) && $site->show_checkin)
+            if (in_array($site->status, [1, 2]) && $site->show_checkin)
                 $sites_planned[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
         asort($sites_planned);
@@ -881,9 +882,9 @@ class Company extends Model {
 
         // All Sites
         $sites_all = [];
-        foreach (Auth::user()->authSitesSelect('view.site', [1,2]) as $site_id => $name) {
+        foreach (Auth::user()->authSitesSelect('view.site', [1, 2]) as $site_id => $name) {
             $site = Site::findOrFail($site_id);
-            if (in_array($site->status, [1,2]) && $site->show_checkin)
+            if (in_array($site->status, [1, 2]) && $site->show_checkin)
                 $sites_all[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
         asort($sites_all);
@@ -1186,18 +1187,16 @@ class Company extends Model {
      */
     public function notificationsUsersType($type)
     {
-        //if (\App::environment('prod', 'dev')) {
-        if (!is_int($type))
-            $type = SettingsNotificationTypes::type($type);
+        if (\App::environment('prod', 'dev')) {
+            if (!is_int($type))
+                $type = SettingsNotificationsCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
 
-        $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
+            $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
-        return ($users) ? User::find($users) : null;
-
-        //}
+            return ($users) ? User::find($users) : null;
+        }
 
         return User::find([3]); // Fudge
-
     }
 
     /**
@@ -1209,7 +1208,7 @@ class Company extends Model {
     {
         //if (\App::environment('prod', 'dev')) {
         if (!is_int($type))
-            $type = SettingsNotificationTypes::type($type);
+            $type = SettingsNotificationsCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
 
         $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 

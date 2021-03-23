@@ -43,7 +43,7 @@
                                 <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
                                     {!! Form::label('email_list', 'Email List', ['class' => 'control-label']) !!}
                                     {{--}}{!! Form::text('email_list', 'scott@capecod.com.au; nadia@capecod.com.au; nicole@capecod.com.au; kirstie@capecod.com.au; abarden@capecod.com.au; robert@capecod.com.au; kylie@capecod.com.au; alethea@capecod.com.au; julien@capecod.com.au; george@capecod.com.au', ['class' => 'form-control']) !!}
-                                    --}}{!! Form::text('email_list', implode("; ", Auth::user()->company->notificationsUsersEmailType('n.site.jobstartexport')), ['class' => 'form-control']) !!}
+                                    --}}{!! Form::text('email_list', implode("; ", Auth::user()->company->notificationsUsersEmailType('site.jobstartexport')), ['class' => 'form-control']) !!}
 
                                     {!! fieldErrorMessage('email_list', $errors) !!}
                                 </div>

@@ -202,7 +202,7 @@ class UserDocController extends Controller {
         } else {
             // Create approval ToDoo
             if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
-                $doc_owner_notify = $doc->owned_by->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval');
+                $doc_owner_notify = $doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
                 if (!$doc_owner_notify) // in cases of company without a subscription
                     $doc_owner_notify = ($doc->owned_by->primary_user) ? [$doc->owned_by->primary_contact()->id] : [];
 
@@ -210,7 +210,7 @@ class UserDocController extends Controller {
                 $cc = Company::find(3);
                 $cc_notify = [];
                 if (in_array($doc->owned_by->id, flatten_array($cc->subCompanies(3))))
-                    $cc_notify = $cc->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval');
+                    $cc_notify = $cc->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
 
                 $doc->createApprovalToDo(array_merge($doc_owner_notify, $cc_notify));
             }
@@ -299,7 +299,7 @@ class UserDocController extends Controller {
             $doc->closeToDo();
             // Create approval ToDoo
             if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs')) {
-                $doc_owner_notify = $doc->owned_by->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval');
+                $doc_owner_notify = $doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
                 if (!$doc_owner_notify) // in cases of company without a subscription
                     $doc_owner_notify = ($doc->owned_by->primary_user) ? [$doc->owned_by->primary_contact()->id] : [];
 
@@ -307,7 +307,7 @@ class UserDocController extends Controller {
                 $cc = Company::find(3);
                 $cc_notify = [];
                 if (in_array($doc->owned_by->id, flatten_array($cc->subCompanies(3))))
-                    $cc_notify = $cc->notificationsUsersTypeArray('n.doc.' . $doc->category->type . '.approval');
+                    $cc_notify = $cc->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
 
                 $doc->createApprovalToDo(array_merge($doc_owner_notify, $cc_notify));
             }
