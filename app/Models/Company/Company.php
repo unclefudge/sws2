@@ -13,7 +13,7 @@ use App\Models\Comms\SafetyTip;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Misc\Role2;
-use App\Models\Misc\SettingsNotificationsCategory;
+use App\Models\Misc\SettingsNotificationCategory;
 //use App\Http\Utilities\SettingsNotificationTypes;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
@@ -1189,7 +1189,7 @@ class Company extends Model {
     {
         if (\App::environment('prod', 'dev')) {
             if (!is_int($type))
-                $type = SettingsNotificationsCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
+                $type = SettingsNotificationCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
 
             $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
@@ -1208,7 +1208,7 @@ class Company extends Model {
     {
         //if (\App::environment('prod', 'dev')) {
         if (!is_int($type))
-            $type = SettingsNotificationsCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
+            $type = SettingsNotificationCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
 
         $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 
