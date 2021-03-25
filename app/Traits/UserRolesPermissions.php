@@ -719,7 +719,7 @@ trait UserRolesPermissions {
         if (($permission == 'add.sds' || $permission == 'edit.sds' || $permission == 'del.sds') && in_array($this->id, ['3', '109', '351', '6', '424'])) return true;
 
         // Site QA Master templates
-        if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '109', '351', '6'])) return true;
+        //if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '109', '351', '6'])) return true;
 
 
         // Get permission levels
@@ -806,6 +806,11 @@ trait UserRolesPermissions {
                 return false;
             }
 
+            // Site QA Templates
+            if ($permissiontype == 'site.qa.templates') {
+                if ($this->hasPermission2($permission) && $record->company_id == $this->company_id) return true; // User belong to same company record
+                return false;
+            }
 
             // Site (Doc, QA, Asbestos, Export) + Attendance + Compliance + Safety Doc
             if ($permissiontype == 'site.doc' || $permissiontype == 'site.qa' || $permissiontype == 'site.asbestos' || $permissiontype == 'site.export' ||

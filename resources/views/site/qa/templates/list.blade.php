@@ -14,48 +14,46 @@
 @section('content')
     <div class="page-content-inner">
         <!-- Templates -->
-        @if (Auth::user()->hasPermission2('add.site.qa'))
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="portlet light ">
-                        <div class="portlet-title">
-                            <div class="caption font-dark">
-                                <i class="icon-layers"></i>
-                                <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Template Library</span>
-                            </div>
-                            <div class="actions">
-                                @if(Auth::user()->hasPermission2('add.site.qa'))
-                                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/category" data-original-title="Add">Categories</a>
-                                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/create" data-original-title="Add">Add</a>
-                                @endif
-                            </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption font-dark">
+                            <i class="icon-layers"></i>
+                            <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Template Library</span>
                         </div>
-                        <div class="row">
-                            <div class="col-md-2 pull-right">
-                                <div class="form-group">
-                                    <select name="status2" id="status2" class="form-control bs-select">
-                                        <option value="1" selected>Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
-                                </div>
+                        <div class="actions">
+                            @if(Auth::user()->hasPermission2('add.site.qa.templates'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/category" data-original-title="Add">Categories</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/create" data-original-title="Add">Add</a>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pull-right">
+                            <div class="form-group">
+                                <select name="status2" id="status2" class="form-control bs-select">
+                                    <option value="1" selected>Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="portlet-body">
-                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
-                                <thead>
-                                <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th> Name</th>
-                                    <th width="10%"> Updated</th>
-                                    <th width="5%"></th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <table class="table table-striped table-bordered table-hover order-column" id="table2">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th width="5%"> #</th>
+                                <th> Name</th>
+                                <th width="10%"> Updated</th>
+                                <th width="5%"></th>
+                            </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
     </div>
     <!-- END PAGE CONTENT INNER -->
 @stop

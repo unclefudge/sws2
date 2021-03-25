@@ -53,7 +53,7 @@ class SiteQaController extends Controller {
     public function templates()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.qa'))
+        if (!Auth::user()->hasAnyPermissionType('site.qa.templates'))
             return view('errors/404');
 
         return view('site/qa/templates/list');
@@ -67,7 +67,7 @@ class SiteQaController extends Controller {
     public function create()
     {
         /// Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.qa'))
+        if (!Auth::user()->allowed2('add.site.qa.templates'))
             return view('errors/404');
 
         return view('site/qa/create');
@@ -83,8 +83,13 @@ class SiteQaController extends Controller {
         $qa = SiteQa::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.qa', $qa))
-            return view('errors/404');
+        if ($qa->master) {
+            if (!Auth::user()->allowed2('view.site.qa.templates', $qa))
+                return view('errors/404');
+        } else {
+            if (!Auth::user()->allowed2('view.site.qa', $qa))
+                return view('errors/404');
+        }
 
         return view('site/qa/show', compact('qa'));
     }
@@ -99,8 +104,13 @@ class SiteQaController extends Controller {
         $qa = SiteQa::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.qa', $qa))
-            return view('errors/404');
+        if ($qa->master) {
+            if (!Auth::user()->allowed2('edit.site.qa.templates', $qa))
+                return view('errors/404');
+        } else {
+            if (!Auth::user()->allowed2('edit.site.qa', $qa))
+                return view('errors/404');
+        }
 
         return view('site/qa/edit', compact('qa'));
     }
@@ -113,7 +123,7 @@ class SiteQaController extends Controller {
     public function store(SiteQaRequest $request)
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.qa'))
+        if (!Auth::user()->allowed2('add.site.qa.templates'))
             return view('errors/404');
 
         $qa_request = $request->all();
@@ -150,7 +160,7 @@ class SiteQaController extends Controller {
         $qa = SiteQa::findOrFail($id);
 
         /// Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.qa', $qa))
+        if (!Auth::user()->allowed2('edit.site.qa.templates', $qa))
             return view('errors/404');
 
         $qa_request = $request->all();
@@ -303,7 +313,7 @@ class SiteQaController extends Controller {
     /**
      * Get QA Reports current user is authorised to manage + Process datatables ajax request.
      */
-    public function getQaReports(Request $request)
+    public function getQaReports()
     {
         $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
         $records = DB::table('site_qa AS q')
@@ -313,7 +323,7 @@ class SiteQaController extends Controller {
             ->where('q.company_id', Auth::user()->company_id)
             ->where('q.master', '0')
             ->whereIn('q.site_id', $site_list)
-            ->where('q.status', $request->get('status'));
+            ->where('q.status', request('status'));
 
         //dd($records);
         $dt = Datatables::of($records)
@@ -395,13 +405,13 @@ class SiteQaController extends Controller {
     /**
      * Get QA templates current user is authorised to manage + Process datatables ajax request.
      */
-    public function getQaTemplates(Request $request)
+    public function getQaTemplates()
     {
         $records = DB::table('site_qa')
             ->select(['id', 'name', 'version', 'company_id', 'status', 'updated_at'])
             ->where('company_id', Auth::user()->company_id)
             ->where('master', '1')
-            ->where('status', $request->get('status'));
+            ->where('status', request('status'));
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/qa/{{$id}}"><i class="fa fa-search"></i></a></div>')
@@ -417,7 +427,7 @@ class SiteQaController extends Controller {
             })
             ->addColumn('action', function ($doc) {
                 $qa = SiteQa::find($doc->id);
-                if (Auth::user()->allowed2('add.site.qa'))
+                if (Auth::user()->allowed2('edit.site.qa.templates', $qa))
                     return '<a href="/site/qa/' . $qa->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
 
                 return '<a href="/site/qa/' . $qa->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';

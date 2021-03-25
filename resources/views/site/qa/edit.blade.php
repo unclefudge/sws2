@@ -58,22 +58,25 @@
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group {!! fieldHasError('status', $errors) !!}">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive'],
-                                         $qa->status, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('status', $errors) !!}
+                                        @if (Auth::user()->hasPermission2('del.site.qa.templates'))
+                                            {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive'], $qa->status, ['class' => 'form-control bs-select']) !!}
+                                        @else
+                                            {!! Form::text('status_text', ($qa->status) ? 'Active' : 'Inactive', ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
+                                            {!! fieldErrorMessage('status', $errors) !!}
                                     </div>
                                 </div>
                             </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                            {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                            {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteQaCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
-                                            {!! fieldErrorMessage('category_id', $errors) !!}
-                                            Note: If you change category this won't update any currently active/past QA's
-                                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
+                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
+                                        {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteQaCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
+                                        {!! fieldErrorMessage('category_id', $errors) !!}
+                                        Note: If you change category this won't update any currently active/past QA's
                                     </div>
                                 </div>
+                            </div>
 
                             <!-- Items -->
                             <br>
@@ -213,7 +216,7 @@
 
     function deleteItem(item_id) {
         var id = item_id.substring(3);
-        var item_name = $("#item"+id).val();
+        var item_name = $("#item" + id).val();
         swal({
             title: "Are you sure?",
             text: item_name,
@@ -224,10 +227,11 @@
             allowOutsideClick: true,
             html: true,
         }, function () {
-            $("#item"+id).val('DELETE-ITEM');
-            $("#itemrow"+id).hide();
+            $("#item" + id).val('DELETE-ITEM');
+            $("#itemrow" + id).hide();
         });
-    };
+    }
+    ;
 </script>
 @stop
 

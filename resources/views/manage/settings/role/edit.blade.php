@@ -557,6 +557,14 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('sig.site.qa', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
+                                                    <td>Quality Assurance Templates<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td width="15%">{!! permSelect('view.site.qa.templates', 'all', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.site.qa.templates', 'all', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('add.site.qa.templates', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.site.qa.templates', 'arc', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
+                                                </tr>
+                                                <tr>
                                                     <td>Inspection Reports<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid, $dis) !!}</td>

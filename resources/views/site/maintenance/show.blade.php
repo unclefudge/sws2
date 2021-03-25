@@ -509,7 +509,7 @@
                     {{-- Completed --}}
                     <td>
                         <div v-if="item.done_by">
-                            @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }} <a v-if="xx.main.status != 0" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
+                            @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }} <a v-if="xx.main.status != 0 && xx.main.signed != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
                         </div>
                         <div v-else>
                             <select v-if="!item.done_by && xx.user_edit == 1 && xx.main.signed == 0" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">

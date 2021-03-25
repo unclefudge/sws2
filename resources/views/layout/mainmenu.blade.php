@@ -84,7 +84,7 @@
                                                 </div>
                                             @endif
                                             {{-- Site Info Document --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.maintenance'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.qa.templates|site.maintenance'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Reports</h3></li>
@@ -97,7 +97,7 @@
                                                         @if (Auth::user()->hasAnyPermissionType('site.qa'))
                                                             <li><a href="/site/qa" class="nav-link"> Quality Assurance </a></li>
                                                         @endif
-                                                        @if (Auth::user()->hasPermission2('add.site.qa'))
+                                                        @if (Auth::user()->hasAnyPermissionType('site.qa.templates'))
                                                             <li><a href="/site/qa/templates" class="nav-link"> QA Templates </a></li>
                                                         @endif
                                                     </ul>

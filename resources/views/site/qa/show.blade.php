@@ -35,9 +35,6 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Report</span>
                             <span class="caption-helper">ID: {{ $qa->id }}</span>
                         </div>
-                        <div class="actions">
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen"> </a>
-                        </div>
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
@@ -46,6 +43,7 @@
                             <input v-model="xx.qa.site_id" type="hidden" id="qa_site_id" value="{{ $qa->site_id }}">
                             <input v-model="xx.qa.status" type="hidden" id="qa_status" value="{{ $qa->status }}">
                             <input v-model="xx.qa.master" type="hidden" id="qa_master" value="{{ $qa->master }}">
+                            <input v-model="xx.qa.signoff" type="hidden" id="qa_signoff" value="{{ ($qa->supervisor_sign_by || $qa->manager_sign_by) ? '1' : '0' }}">
                             <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $qa->id }}">
                             <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $qa->status }}">
                             <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
@@ -171,7 +169,11 @@
                             </div>
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
-                                <a href="/site/qa" class="btn default"> Back</a>
+                                @if ($qa->master)
+                                    <a href="/site/qa/templates" class="btn default"> Back</a>
+                                @else
+                                    <a href="/site/qa" class="btn default"> Back</a>
+                                @endif
                                 @if (!$qa->master && Auth::user()->allowed2('edit.site.qa', $qa))
                                     <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn blue"
                                             v-on:click="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
@@ -189,7 +191,7 @@
     </div>
 
     <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
-    -->
+-->
 
     <!-- loading Spinner -->
     <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
@@ -248,7 +250,8 @@
                     <td>
                         @if (!$qa->master)
                             <div v-if="item.sign_by">
-                                @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }} <a v-if="xx.qa.status != 0" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
+                                @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
+                                <a v-if="xx.qa.status != 0 && xx.qa.signoff != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
                             </div>
                             <div v-else>
                                 @if (!$qa->isSigned() && Auth::user()->allowed2('edit.site.qa', $qa))
@@ -272,8 +275,8 @@
             </tbody>
         </table>
         <!--
-           Confirm Item Checked Modal
-         -->
+        Confirm Item Checked Modal
+        -->
         <confirm-Signoff :show.sync="xx.showSignOff" effect="fade">
             <div slot="modal-header" class="modal-header">
                 <h4 class="modal-title text-center"><b>Update Item Company</b></h4>
@@ -371,7 +374,7 @@
 <script>
     var xx = {
         dev: dev,
-        qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0},
+        qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0, signoff: 0},
         spinner: false, showSignOff: false, showAction: false,
         record: {},
         action: '', loaded: false,
@@ -453,7 +456,7 @@
             },
             itemCompany: function (record) {
                 this.xx.sel_company = [];
-                // Get Company list
+// Get Company list
                 $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
                     this.xx.sel_company = companies;
                     this.xx.done_by = record.done_by;
@@ -465,14 +468,14 @@
             updateItemCompany: function (record, response) {
                 if (response) {
                     record.done_by = this.xx.done_by;
-                    //alert('by:'+record.done_by);
+//alert('by:'+record.done_by);
 
-                    // Get company name + licence from dropdown menu array
+// Get company name + licence from dropdown menu array
                     var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
                     record.done_by_company = company.text;
                     record.dony_by_licence = company.licence;
 
-                    // Get original item from list
+// Get original item from list
                     var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
                     obj = record;
                     this.updateItemDB(obj);
@@ -482,7 +485,7 @@
                 this.xx.showSignOff = false;
             },
             updateItemDB: function (record) {
-                //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
+//alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
                 this.$http.patch('/site/qa/item/' + record.id, record)
                         .then(function (response) {
                             this.itemsCompleted();
@@ -516,7 +519,7 @@
                 return '';
             },
             doNothing: function () {
-                //
+//
             },
         },
     });
