@@ -195,16 +195,18 @@ class SupportTicketController extends Controller {
             $action = $ticket->actions()->save(new SupportTicketAction($action_request));
             $action->emailAction();
             Toastr::success("Re-opened ticket");
+            $ticket->save();
+            return redirect('support/ticket/' . $id);
         } else {
             $ticket->resolved_at = Carbon::now();
             $action_request = ['action' => 'Resolved ticket'];
             $action = $ticket->actions()->save(new SupportTicketAction($action_request));
             $action->emailAction();
             Toastr::success("Resolved ticket");
+            $ticket->save();
+            return redirect('support/ticket');
         }
-        $ticket->save();
 
-        return redirect('support/ticket/' . $id);
     }
 
     /**
