@@ -424,7 +424,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-sm-3 text-right">Task Owner:</div>
+                            <div class="col-sm-3 text-right">Maintenance Supervisor:</div>
                             <div class="col-sm-9">
                                 @if ($main->supervisor_sign_by)
                                     {!! \App\User::find($main->supervisor_sign_by)->full_name !!}, &nbsp;{{ $main->supervisor_sign_at->format('d/m/Y') }}
@@ -448,7 +448,7 @@
                                         </button>
                                         <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
                                     @else
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total" class="font-red">Waiting for Task Owner Sign Off</span>
+                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total" class="font-red">Waiting for Maintenance Supervisor Sign Off</span>
                                         <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                     @endif
                                 @endif
