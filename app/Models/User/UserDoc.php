@@ -151,13 +151,14 @@ class UserDoc extends Model {
     public function emailReject()
     {
         $email_to = [env('EMAIL_DEV')];
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $email_user = '';
 
         if (\App::environment('prod')) {
             // Send to User who uploaded doc & Company senior users
             $email_created = (validEmail($this->createdBy->email)) ? [$this->createdBy->email] : [];
             $email_seniors = []; //$this->company->seniorUsersEmail();
             $email_to = array_unique(array_merge($email_created, $email_seniors), SORT_REGULAR);
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
         if ($email_to && $email_user)

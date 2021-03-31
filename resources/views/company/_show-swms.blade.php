@@ -3,11 +3,6 @@
         <div class="caption">
             <span class="caption-subject font-dark bold uppercase">SWMS Documents</span>
         </div>
-        <div class="actions">
-            @if (Auth::user()->allowed2('edit.company.whs', $company) && $company->status)
-                    <!--<button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('swms')">Edit</button>-->
-            @endif
-        </div>
     </div>
     <div class="portlet-body">
         {{-- Licence equired --}}

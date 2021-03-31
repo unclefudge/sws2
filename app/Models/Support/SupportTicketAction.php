@@ -79,13 +79,11 @@ class SupportTicketAction extends Model {
             $email_to[] = "kirstie@capecod.com.au";
             if ($ticket && validEmail($ticket->createdBy->email))
                 $email_to[] = $ticket->createdBy->email; // email ticket owner
+
+            // Email user who updated ticket
+            if (Auth::check() && validEmail($this->createdBy->email) && !in_array($this->createdBy->email, $email_to ))
+                $email_to[] = $this->createdBy->email;
         }
-
-        //$email_user = (Auth::check() && validEmail($this->createdBy->email)) ? $this->createdBy->email : '';
-
-        // Email user who updated ticket
-        if (Auth::check() && validEmail($this->createdBy->email) && !in_array($this->createdBy->email, $email_to ))
-            $email_to[] = $this->createdBy->email;
 
         //if ($email_to && $email_user)
         //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Misc\SupportTicketUpdated($ticket, $this));

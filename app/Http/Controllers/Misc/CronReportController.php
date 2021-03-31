@@ -376,7 +376,6 @@ class CronReportController extends Controller {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
                 $m->to($email_list);
-                $m->cc('support@openhands.com.au');
                 $m->subject('Maintenance Requests No Action');
             });
         }
@@ -398,7 +397,6 @@ class CronReportController extends Controller {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
                 $m->to($email_list);
-                $m->cc('support@openhands.com.au');
                 $m->subject('Maintenance Requests On Hold');
             });
         }

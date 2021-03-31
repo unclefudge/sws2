@@ -293,6 +293,7 @@ class CompanyController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function updateWHS($id)
     {
         $company = Company::findorFail($id);
@@ -316,7 +317,7 @@ class CompanyController extends Controller {
         Toastr::success("Saved changes");
 
         return back();
-    }
+    }*/
 
     /**
      * Update the specified resource in storage.

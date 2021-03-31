@@ -200,7 +200,7 @@ class CompanyDoc extends Model {
     public function emailReject()
     {
         $email_to = [env('EMAIL_DEV')];
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $email_user = '';
 
         if (\App::environment('prod')) {
             // Send to User who uploaded doc & Company senior users

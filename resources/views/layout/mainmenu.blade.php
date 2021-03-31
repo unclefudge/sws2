@@ -84,7 +84,7 @@
                                                 </div>
                                             @endif
                                             {{-- Site Info Document --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.qa.templates|site.maintenance'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.qa|site.qa.templates|site.maintenance'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Reports</h3></li>

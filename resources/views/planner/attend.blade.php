@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
-        <h1><i class="fa fa-calendar"></i> Site Roster</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>

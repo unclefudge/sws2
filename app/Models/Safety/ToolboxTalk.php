@@ -302,14 +302,13 @@ class ToolboxTalk extends Model {
      */
     public function emailOverdue()
     {
+        $email_to = [env('EMAIL_ME')];
         if (\App::environment('prod')) {
             $email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
             // Send to User who created
             if ($this->createdBy && validEmail($this->createdBy->email))
                 $email_to[] = $this->createdBy->email;
-        } else if (\App::environment('local', 'dev'))
-            $email_to = [env('EMAIL_ME')];
-
+        }
 
         $data = [
             'talk_id'           => $this->id,
@@ -334,11 +333,9 @@ class ToolboxTalk extends Model {
     /*
     public function emailModifiedTemplate()
     {
-        $email_to = [];
+        $email_to = [env('EMAIL_ME')];
         if (\App::environment('dev', 'prod'))
             $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
-        else
-            $email_to[] = env('EMAIL_ME');
 
         $master = ToolboxTalk::find($this->master_id);
         $data = [

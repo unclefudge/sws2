@@ -105,7 +105,7 @@ class SitePlannerController extends Controller {
     /*
      * Delete all users for given Entity from the Roster
      */
-    public function delCompanyRoster(Request $request, $cid, $site_id, $date)
+    public function delCompanyRoster($cid, $site_id, $date)
     {
         $staff = Company::findOrFail($cid)->staff->pluck('id')->toArray();
         $deleted = SiteRoster::where('site_id', $site_id)->where('date', '=', $date)->whereIn('user_id', $staff)->delete();
@@ -118,7 +118,7 @@ class SitePlannerController extends Controller {
     /*
      * Allocate a Site to a Supervisor
      */
-    public function allocateSiteSupervisor(Request $request, $site_id, $user_id)
+    public function allocateSiteSupervisor($site_id, $user_id)
     {
         $site = Site::findOrFail($site_id);
         $site->supervisors()->detach();
@@ -132,7 +132,7 @@ class SitePlannerController extends Controller {
     /*
      * Add all users for given Entity from the Roster
      */
-    public function addCompanyRoster(Request $request, $cid, $site_id, $date)
+    public function addCompanyRoster($cid, $site_id, $date)
     {
         $staff = Company::findOrFail($cid)->staffStatus(1)->pluck('id')->toArray();
         foreach ($staff as $user_id) {
@@ -149,7 +149,7 @@ class SitePlannerController extends Controller {
     /**
      * Show Weekly Planner
      */
-    public function showWeekly(Request $request)
+    public function showWeekly()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('weekly.planner'))
@@ -157,21 +157,21 @@ class SitePlannerController extends Controller {
 
 
         // Set Date
-        if ($request->get('date') == '') {
+        if (request('date') == '') {
             $date = new Carbon('monday this week');
             $date = $date->format('Y-m-d');
         } else
-            $date = $request->get('date');
+            $date = request('date');
 
         // Set Supervisor_id
         $supervisor_id = 'all';
-        if ($request->get('supervisor_id'))
-            $supervisor_id = $request->get('supervisor_id');
+        if (request('supervisor_id'))
+            $supervisor_id = request('supervisor_id');
         elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
             $supervisor_id = Auth::user()->id;
 
-        $site_id = $request->get('site_id');
-        $site_start = $request->get('site_start');
+        $site_id = request('site_id');
+        $site_start = request('site_start');
 
         $supervisors = [];
         if (Auth::user()->company->addon('planner')) {
@@ -218,13 +218,13 @@ class SitePlannerController extends Controller {
     /**
      * Show Attendance Planner
      */
-    public function showAttendance(Request $request)
+    public function showAttendance()
     {
-        $date = $request->get('date');
-        $supervisor_id = $request->get('supervisor_id');
-        $site_id = $request->get('site_id');
-        if ($request->get('site_start'))
-            $site_start = $request->get('site_start');
+        $date = request('date');
+        $supervisor_id = request('supervisor_id');
+        $site_id = request('site_id');
+        if (request('site_start'))
+            $site_start = request('site_start');
         else
             $site_start = 'week';
 
@@ -236,23 +236,23 @@ class SitePlannerController extends Controller {
     /**
      * Show Trade Planner
      */
-    public function showTrade(Request $request)
+    public function showTrade()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('trade.planner'))
             return view('errors/404');
 
         // Set Date
-        if ($request->get('date') == '') {
+        if (request('date') == '') {
             $date = new Carbon('monday this week');
             $date = $date->format('Y-m-d');
         } else
-            $date = $request->get('date');
+            $date = request('date');
 
-        $site_id = $request->get('site_id');
-        $supervisor_id = $request->get('supervisor_id');
-        $site_start = $request->get('site_start');
-        $trade_id = $request->get('trade_id');
+        $site_id = request('site_id');
+        $supervisor_id = request('supervisor_id');
+        $site_start = request('site_start');
+        $trade_id = request('trade_id');
 
         // Set trade_id to 'Carpenter' as default for Cape Cod
         if (!$trade_id && Auth::user()->isCC()) $trade_id = 2;
@@ -263,22 +263,22 @@ class SitePlannerController extends Controller {
     /**
      * Show Trade Planner
      */
-    public function showTransient(Request $request)
+    public function showTransient()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('trade.planner'))
             return view('errors/404');
 
         // Set Date
-        if ($request->get('date') == '') {
+        if (request('date') == '') {
             $date = new Carbon('monday this week');
             $date = $date->format('Y-m-d');
         } else
-            $date = $request->get('date');
+            $date = request('date');
 
-        $site_id = $request->get('site_id');
-        $supervisor_id = $request->get('supervisor_id');
-        $site_start = $request->get('site_start');
+        $site_id = request('site_id');
+        $supervisor_id = request('supervisor_id');
+        $site_start = request('site_start');
         $trade_id = 21;
 
         return view('planner/labour', compact('date', 'site_id', 'supervisor_id', 'site_start', 'trade_id'));
@@ -975,9 +975,11 @@ class SitePlannerController extends Controller {
     /**
      * Get Companies options for 'select' dropdown in Vuejs format
      */
-    public function getCompanies(Request $request, $company_id, $trade_id, $site_id)
+    public function getCompanies($company_id, $trade_id, $site_id)
     {
         $company_list = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        //$company_list = Company::where('parent_company', Auth::user()->company_id)->pluck('id')->toArray();
+        //$company_list[] = Auth::user()->company_id;
 
         if ($company_id == 'match-trade' || $trade_id == 'match-trade') {
             //if ($trade_id == 'match-trade')

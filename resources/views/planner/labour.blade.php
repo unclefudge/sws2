@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-calendar"></i> Labourer Planner</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>

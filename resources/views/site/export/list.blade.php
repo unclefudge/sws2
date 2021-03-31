@@ -55,7 +55,7 @@
                             <tr>
                                 <td><a href="/site/export/qa"> Quality Assurance Export </a></td>
                             </tr>
-                            @if (Auth::user()->hasPermission2('view.company.doc.gen') || Auth::user()->hasPermission2('view.company.doc.lic') || Auth::user()->hasPermission2('view.company.whs') || Auth::user()->hasPermission2('view.company.doc.ics'))
+                            @if (Auth::user()->hasPermission2('view.company.doc.gen') || Auth::user()->hasPermission2('view.company.doc.lic') || Auth::user()->hasPermission2('view.company.doc.ics'))
                                 <tr>
                                     <td><a href="/company/doc/export"> Company Documents Export </a></td>
                                 </tr>

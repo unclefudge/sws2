@@ -80,11 +80,11 @@ class SupportTicket extends Model {
     public function emailTicket($action)
     {
         $email_to = [env('EMAIL_DEV')];
-        if (\App::environment('prod', 'dev'))
+        $email_user = '';
+        if (\App::environment('prod', 'dev')) {
             $email_to[] = "kirstie@capecod.com.au";
-
-
-        $email_user = (Auth::check() && validEmail($this->createdBy->email)) ? $this->createdBy->email : '';
+            $email_user = (Auth::check() && validEmail($this->createdBy->email)) ? $this->createdBy->email : '';
+        }
 
         if ($email_to && $email_user)
             Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Misc\SupportTicketCreated($this, $action));

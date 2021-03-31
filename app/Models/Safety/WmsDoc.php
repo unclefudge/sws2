@@ -167,14 +167,12 @@ class WmsDoc extends Model {
      */
     public function emailSignOff()
     {
-        $email_to = [];
+        $email_to = [env('EMAIL_ME')];
         $email_user = '';
         if (\App::environment('dev', 'prod')) {
             $email_to = $this->owned_by->notificationsUsersEmailType('swms.approval');
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        } else
-            $email_to[] = env('EMAIL_ME');
-
+        }
 
         $data = [
             'user_email'        => Auth::user()->email,
@@ -203,12 +201,12 @@ class WmsDoc extends Model {
      */
     public function emailArchived()
     {
-        $email_to = [];
+        $email_to = [env('EMAIL_ME')];
         $email_user = '';
-        if (\App::environment('dev', 'prod'))
+        if (\App::environment('dev', 'prod')) {
             $email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');
-        //$email_to[] = env('EMAIL_ME');
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        }
 
         $data = [
             'user_email'        => Auth::user()->email,
@@ -246,6 +244,9 @@ class WmsDoc extends Model {
     public function emailExpired($email_to = '', $expired)
     {
         $company = Company::find($this->for_company_id);
+        $email_to = [env('EMAIL_ME')];
+        $email_user = [env('EMAIL_ME')];
+
         if (\App::environment('prod')) {
             if (!$email_to) {
                 $email_to = [];
@@ -254,9 +255,6 @@ class WmsDoc extends Model {
                 // Send CC to Parent Company Account
                 $email_user = $company->reportsTo()->notificationsUsersEmailType('doc.whs.approval');
             }
-        } else {
-            $email_to = [env('EMAIL_ME')];
-            $email_user = [env('EMAIL_ME')];
         }
 
         $mesg = ($expired == true) ? "has Expired " . $this->updated_at->addYear()->format('d/m/Y') : "due to expire " . $this->updated_at->addYear()->format('d/m/Y');
