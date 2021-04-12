@@ -69,7 +69,7 @@
                                                 </div>
                                             @endif
                                             {{-- Site Info Document --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.doc|site'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.doc|site.list'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Documents</h3></li>
@@ -77,7 +77,7 @@
                                                             <li><a href="/site/doc/type/plan" class="nav-link"> Site Plans </a></li>
                                                         @endif
 
-                                                        @if (Auth::user()->hasAnyPermissionType('site'))
+                                                        @if (Auth::user()->hasAnyPermissionType('site.list'))
                                                             <li><a href="/sitelist" class="nav-link"> Site List </a></li>
                                                         @endif
                                                     </ul>
