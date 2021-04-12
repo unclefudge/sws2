@@ -7,7 +7,6 @@
     </ul>
 @stop
 
-
 @section('content')
     <style>
         .aside {
