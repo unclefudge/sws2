@@ -45,7 +45,7 @@ class SiteController extends Controller {
     public function sitelist()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site'))
+        if (!Auth::user()->hasAnyPermissionType('site.list'))
             return view('errors/404');
 
         return view('site/list-basic');
