@@ -299,13 +299,13 @@ class SiteController extends Controller {
     {
         $status = request('status');
         if (request('site_group'))
-            $site_records = Auth::user()->authSites('view.site', $status)->where('company_id', request('site_group'));
+            $site_records = Auth::user()->authSites('view.site.list', $status)->where('company_id', request('site_group'));
         else {
             // If SiteGroup is All (ie 0) and Status (Upcoming or Inactive) then restrict sites to only user own company
             // Child company can't see inactive or upcoming sites for parent
             $site_records = (request('site_group') == '0' && $status != 1) ?
-                Auth::user()->authSites('view.site', $status)->where('company_id', Auth::user()->company_id) :
-                Auth::user()->authSites('view.site', $status);
+                Auth::user()->authSites('view.site.list', $status)->where('company_id', Auth::user()->company_id) :
+                Auth::user()->authSites('view.site.list', $status);
         }
 
         $dt = Datatables::of($site_records)
