@@ -489,7 +489,7 @@ trait UserRolesPermissions {
 
 
         if ($permission == 'checkin') {
-            $permission = 'view.site';
+            $permission = 'view.site.list';
             if ($this->company->parent_company && $this->company->reportsTo()->addon('planner')) {
                 // Site Checkin and either Company or Parent Company has Planner
                 $sites_planned = [];

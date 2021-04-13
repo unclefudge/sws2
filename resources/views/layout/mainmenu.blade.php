@@ -271,7 +271,7 @@
                                                     <ul class="mega-menu-submenu">
                                                         @if (Auth::user()->hasAnyPermissionType('site|trade|area.super'))
                                                             <li><h3 class="h3-submenu">Construction</h3></li>
-                                                            @if (Auth::user()->hasAnyPermission2('edit.site|add.site|del.site'))
+                                                            @if (Auth::user()->hasAnyPermissionType('site'))
                                                                 <li><a href="/site" class="nav-link"> Sites </a></li>
                                                             @endif
                                                             @if (Auth::user()->hasAnyPermissionType('trade'))
