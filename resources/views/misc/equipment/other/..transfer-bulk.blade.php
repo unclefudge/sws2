@@ -54,7 +54,7 @@
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}" style="{{ fieldHasError('site_id', $errors) ? '' : 'display:none' }}" id="site-div">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site', old('site_id')) !!}
+                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                         </select>
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
@@ -97,7 +97,7 @@
                                         {!! Form::label('site_id', 'Transfer To', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
                                             <option value="25">CAPE COD STORE</option>
-                                            {!! Auth::user()->authSitesSelect2Options('view.site', old('site_id')) !!}
+                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                         </select>
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>

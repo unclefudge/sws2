@@ -131,7 +131,7 @@ class EquipmentStocktakeController extends Controller {
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc)
             $sites[$loc->id] = $loc->name;
         // Active Site but current no equipment
-        foreach (Auth::user()->authSites('view.site', 1) as $site) {
+        foreach (Auth::user()->authSites('view.site.list', 1) as $site) {
             $name = "$site->suburb ($site->name)";
             if (!in_array($name, $sites) && !in_array($site->id, [25, 92, 366])) // Store, Conference, OnLeave
                 $sites["newloc-$site->id"] = "$name";

@@ -410,6 +410,10 @@ trait UserRolesPermissions {
      */
     public function authSites($permission, $status = '')
     {
+        // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
+        if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
+            $permission = 'view.site';
+        
         // Company
         $company_level = $this->permissionLevel($permission, $this->company_id);
         $company_ids = [];
@@ -487,7 +491,6 @@ trait UserRolesPermissions {
         $headers = false;
         $options = '<option></option>';
 
-
         if ($permission == 'checkin') {
             $permission = 'view.site.list';
             if ($this->company->parent_company && $this->company->reportsTo()->addon('planner')) {
@@ -518,6 +521,9 @@ trait UserRolesPermissions {
             $headers = true;
         }
 
+        // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
+        if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
+            $permission = 'view.site';
 
         // Company
         $company_level = $this->permissionLevel($permission, $this->company_id);

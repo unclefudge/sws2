@@ -47,7 +47,7 @@ class SiteAttendanceController extends Controller {
 
     public function getAttendance()
     {
-        $site_ids = (request('site_id')) ? [request('site_id')] : Auth::user()->authSites('view.site')->pluck('id')->toArray();
+        $site_ids = (request('site_id')) ? [request('site_id')] : Auth::user()->authSites('view.site.list')->pluck('id')->toArray();
         $company_ids = Auth::user()->company->companies()->pluck('id')->toArray();
         $user_ids = Auth::user()->authUsers('view.site.attendance')->pluck('id')->toArray();
         $date_from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00')->format('Y-m-d') : '2000-01-01';

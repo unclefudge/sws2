@@ -21,7 +21,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        @if (Auth::user()->permissionLevel('view.site', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('view.site', Auth::user()->company->reportsTo()->id)))
+                        @if (Auth::user()->permissionLevel('view.site.list', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('view.site.list', Auth::user()->company->reportsTo()->id)))
                             <div class="col-md-5">
                                 <div class="form-group">
                                     {!! Form::select('site_group', ['0' => 'All Sites', Auth::user()->company_id => Auth::user()->company->name,

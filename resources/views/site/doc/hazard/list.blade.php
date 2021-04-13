@@ -39,7 +39,7 @@
                             <div class="form-group">
                                 {!! Form::label('site_id', '&nbsp;', ['class' => 'control-label']) !!}
                                 <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                    {!! Auth::user()->authSitesSelect2Options('view.site', old('site_id')) !!}
+                                    {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                 </select>
                             </div>
                         </div>
