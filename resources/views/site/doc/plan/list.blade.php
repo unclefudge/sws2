@@ -50,7 +50,7 @@
                                     {!! Form::label('site_id2', 'Site', ['class' => 'control-label']) !!}
                                     <select id="site_id2" name="site_id2" class="form-control select2" style="width:100%" placeholder="Select site">
                                         <optgroup label="Upcoming Sites"></optgroup>
-                                        {!! Auth::user()->authSitesSelect2Options('view.site', old('site_id2'), -1) !!}
+                                        {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id2'), -1) !!}
                                     </select>
                                 </div>
                             </div>
