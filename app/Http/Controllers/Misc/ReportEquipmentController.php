@@ -246,8 +246,10 @@ class ReportEquipmentController extends Controller {
     public function equipmentTransfers()
     {
         $to = Carbon::now();
-        $from = Carbon::now()->subDays(7);
+        $from = Carbon::now()->subDays(14);
         $transactions = EquipmentLog::where('action', 'T')->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
+
+        //dd($transactions);
 
         return view('manage/report/equipment/equipment-transfers', compact('transactions', 'from', 'to'));
     }

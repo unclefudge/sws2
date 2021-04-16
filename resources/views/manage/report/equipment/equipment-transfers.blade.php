@@ -19,7 +19,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Equipment Transfers Last 7 Days</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Equipment Transfers Last 14 Days</span>
                             <span class="caption-helper"> &nbsp; {{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}</span>
                         </div>
                         <div class="actions">
@@ -27,6 +27,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
+                        <input type="hidden" name="from" id="from" value="{{ $from->format('d/m/Y') }}">
+                        <input type="hidden" name="to" id="to" value="{{ $to->format('d/m/Y') }}">
                         <div class="portlet-body">
                             <table class="table table-striped table-bordered table-hover order-column" id="table1">
                                 <thead>
