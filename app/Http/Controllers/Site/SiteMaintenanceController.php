@@ -657,10 +657,11 @@ class SiteMaintenanceController extends Controller {
         $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
 
         $records = DB::table('site_maintenance AS m')
-            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.goodwill', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
+            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
                 DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
                 DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
                 DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
                 's.code as sitecode', 's.name as sitename'])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
             ->whereIn('m.id', $request_ids)
