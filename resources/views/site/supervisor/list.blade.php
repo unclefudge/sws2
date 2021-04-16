@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-building"></i> Supervisor Management</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -48,7 +42,6 @@
                                     @if (Auth::user()->hasPermission2('edit.area.super'))
                                         <a class="btn btn-circle green btn-outline btn-sm" href="javascript:;" v-on:click="openSidebar(0)">Add</a>
                                     @endif
-                                    <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen" style="margin: 3px"></a>
                                 </div>
                             </div>
                         </div>

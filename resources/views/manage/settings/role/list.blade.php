@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-cog"></i> Role Management</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -42,7 +36,6 @@
                             @if(Auth::user()->hasPermission2('edit.settings'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/settings/role/create" data-original-title="Add">Add</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="portlet-body">

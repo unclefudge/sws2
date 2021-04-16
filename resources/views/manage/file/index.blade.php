@@ -1,21 +1,14 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-hdd-o"></i> File Manager</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>File Manager</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -24,9 +17,6 @@
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> File Manager</span>
-                        </div>
-                        <div class="actions">
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -44,9 +34,9 @@
                                 <td><a href="/company/{{ Auth::user()->company_id }}/doc"> Company Documents</a></td>
                             </tr>
                             @if (in_array(Auth::user()->id, [3, 109, 351, 6])) {{-- Fudge, Jo, Tara, Rob --}}
-                                <tr>
-                                    <td><a href="/safety/doc/sds">Safety Data Sheets</a></td>
-                                </tr>
+                            <tr>
+                                <td><a href="/safety/doc/sds">Safety Data Sheets</a></td>
+                            </tr>
                             @endif
                             </tbody>
                         </table>

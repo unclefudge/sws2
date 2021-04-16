@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-user"></i> User Management</h1>
-    </div>
-@stop
-
 @section('content')
 
 @section('breadcrumbs')

@@ -1,11 +1,6 @@
 @extends('layout')
 @inject('failureTypes', 'App\Http\Utilities\FailureTypes')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-exclamation-triangle"></i> Hazard Register</h1>
-    </div>
-@stop
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -27,9 +22,6 @@
                             <i class="fa fa-file-text-o "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Hazard</span>
                             <span class="caption-helper"> ID: {{ $hazard->id }}</span>
-                        </div>
-                        <div class="actions">
-                            <a href="" class="btn btn-circle btn-icon-only btn-default collapse"> </a>
                         </div>
                     </div>
                     <div class="portlet-body form">

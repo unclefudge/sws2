@@ -1,10 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-medkit"></i> Site Accidents</h1>
-    </div>
-@stop
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -34,9 +29,6 @@
                             <i class="fa fa-file-text-o "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Accident Report</span>
                             <span class="caption-helper"> ID: {{ $accident->id }}</span>
-                        </div>
-                        <div class="actions">
-                            <a href="" class="btn btn-circle btn-icon-only btn-default collapse"> </a>
                         </div>
                     </div>
                     <div class="portlet-body form">

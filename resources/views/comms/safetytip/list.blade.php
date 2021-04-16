@@ -1,10 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-life-ring"></i> Manage Safety Tips </h1>
-    </div>
-@stop
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -26,7 +21,6 @@
                             @if(Auth::user()->hasPermission2('add.safetytip'))
                                 <a v-on:click="$root.$broadcast('add-tip-modal')" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</a>
                             @endif
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen"> </a>
                         </div>
                     </div>
                     <div class="portlet-body">

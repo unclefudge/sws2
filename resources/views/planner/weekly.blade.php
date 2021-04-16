@@ -47,7 +47,6 @@
                                 <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</button>
                             @endif
                             <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">W</button>
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen" style="margin: 3px"></a>
                         </div>
                     </div>
                     <div class="portlet-body">

@@ -36,7 +36,6 @@
                             @if (Auth::user()->hasPermission2('view.weekly.planner'))
                                 <a href="javascript: postAndRedirect('/planner/weekly', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</a>
                             @endif
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen" style="margin: 3px"></a>
                         </div>
                     </div>
                     <div class="portlet-body">

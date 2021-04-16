@@ -1,20 +1,13 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-life-ring"></i> Safety Data Sheets</h1>
-    </div>
-@stop
-
-@section('content')
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Safety Data Sheets</span></li>
     </ul>
-    @stop
-            <!-- BEGIN PAGE CONTENT INNER -->
+@stop
+
+@section('content')
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">

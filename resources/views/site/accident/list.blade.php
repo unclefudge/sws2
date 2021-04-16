@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-medkit"></i> Site Accidents</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -32,7 +26,6 @@
                             @if(Auth::user()->allowed2('add.site.accident'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/accident/create" data-original-title="Add">Add</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

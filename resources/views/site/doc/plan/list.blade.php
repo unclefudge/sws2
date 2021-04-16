@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-life-ring"></i> Site Plans</h1>
-    </div>
-@stop
-
 @section('content')
 
 @section('breadcrumbs')
@@ -31,7 +25,6 @@
                             @if(false && Auth::user()->hasPermission2('add.site.doc'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/user/create" data-original-title="Add">Add</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

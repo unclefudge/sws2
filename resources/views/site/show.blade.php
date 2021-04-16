@@ -43,7 +43,7 @@
                 @endif
 
                 {{-- Attendance Details --}}
-                @if (Auth::user()->allowed2('view.site', $site))
+                @if (Auth::user()->allowed2('view.site.attendance', $site))
                     @include('site/_show-attendance')
                 @endif
 

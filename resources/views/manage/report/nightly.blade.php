@@ -21,9 +21,6 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Nightly Log</span>
                             <span class="caption-helper"> 12:05am daily</span>
                         </div>
-                        <div class="actions">
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
-                        </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">

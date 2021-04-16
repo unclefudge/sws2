@@ -1,11 +1,4 @@
 @extends('layout')
-
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-life-ring"></i> Hazard Documents</h1>
-    </div>
-@stop
-
 @section('content')
 
 @section('breadcrumbs')
@@ -31,7 +24,6 @@
                             @if(false && Auth::user()->hasPermission2('add.safety.doc'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/create" data-original-title="Add">Add</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

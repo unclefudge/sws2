@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-life-ring"></i> Toolbox Talks</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -40,7 +34,6 @@
                             @if(Auth::user()->hasPermission2('add.toolbox'))
                                 <a class="btn btn-circle blue btn-sm" href="/safety/doc/toolbox2/create" data-original-title="Give a toolbox talk">Give a toolbox talk</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

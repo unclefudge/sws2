@@ -8,11 +8,10 @@
         @endif
         <li><span>Users Last Login</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -21,9 +20,6 @@
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Onsite Users Last Login</span>
-                        </div>
-                        <div class="actions">
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="portlet-body">

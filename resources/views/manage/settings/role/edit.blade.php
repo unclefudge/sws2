@@ -17,12 +17,6 @@ $cc = 1;*/
 @inject('companyDocTypes', 'App\Http\Utilities\CompanyDocTypes')
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-cog"></i> Role Management</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>

@@ -22,9 +22,6 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Recent Reports</span>
                         </div>
-                        <div class="actions">
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen" style="margin: 3px"></a>
-                        </div>
                     </div>
                     <div class="portlet-body form">
                         <h3>Reports created in the last 10 days</h3>

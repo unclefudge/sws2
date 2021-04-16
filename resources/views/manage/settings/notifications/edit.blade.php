@@ -2,12 +2,6 @@
 @inject('companyDocTypes', 'App\Http\Utilities\CompanyDocTypes')
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-cog"></i> Settings</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -27,9 +21,6 @@
                             <i class="fa fa-cog "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Notifications</span>
                             <span class="caption-helper"> ID: {{ Auth::user()->company->id }}</span>
-                        </div>
-                        <div class="actions">
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen"> </a>
                         </div>
                     </div>
                     <div class="portlet-body form">

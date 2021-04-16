@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-hdd-o"></i> File Manager</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -31,7 +25,6 @@
                             @if(Auth::user()->hasAnyPermission2('add.site.doc|add.safety.doc'))
                                 <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">

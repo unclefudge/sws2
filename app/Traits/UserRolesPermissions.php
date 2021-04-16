@@ -413,7 +413,7 @@ trait UserRolesPermissions {
         // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
         if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
             $permission = 'view.site';
-        
+
         // Company
         $company_level = $this->permissionLevel($permission, $this->company_id);
         $company_ids = [];
@@ -722,7 +722,7 @@ trait UserRolesPermissions {
         }
 
         // SDS add - Only Fudge, Jo, Tara, Rob, Demi
-        if (($permission == 'add.sds' || $permission == 'edit.sds' || $permission == 'del.sds') && in_array($this->id, ['3', '109', '351', '6', '424'])) return true;
+        if (in_array($permission, ['add.sds', 'edit.sds', 'del.sds']) && in_array($this->id, ['3', '109', '351', '6', '424'])) return true;
 
         // Site QA Master templates
         //if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '109', '351', '6'])) return true;
@@ -770,7 +770,7 @@ trait UserRolesPermissions {
             }
 
             // Sites + Planners (Weekly/Site/Trade)
-            if ($permissiontype == 'site' || $permissiontype == 'site.admin' || $permissiontype == 'weekly.planner' || $permissiontype == 'site.planner' || $permissiontype == 'trade.planner') {
+            if ($permissiontype == 'site' || $permissiontype == 'site.admin' || $permissiontype == 'site.attendance' || $permissiontype == 'weekly.planner' || $permissiontype == 'site.planner' || $permissiontype == 'trade.planner') {
                 if ($this->authSites($permission)->contains('id', $record->id)) return true;
             }
 

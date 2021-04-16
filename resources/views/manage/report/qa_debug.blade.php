@@ -28,9 +28,6 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Report</span>
                             <span class="caption-helper">ID: {{ $qa->id }}</span>
                         </div>
-                        <div class="actions">
-                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen"> </a>
-                        </div>
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">

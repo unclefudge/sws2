@@ -62,7 +62,6 @@
                                 @if (Auth::user()->hasPermission2('view.weekly.planner'))
                                     <button v-on:click="gotoURL('/planner/weekly')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</button>
                                 @endif
-                                <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen" style="margin: 3px"></a>
                             </div>
                         </div>
                         <div class="row">

@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-list-ul"></i> ToDo List</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -27,7 +21,6 @@
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/todo/create" data-original-title="Add">Add</a>
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
 
