@@ -349,6 +349,13 @@ class ReportController extends Controller {
         return view('manage/report/maintenance_onhold', compact('mains'));
     }
 
+    public function maintenanceAppointment()
+    {
+        $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+
+        return view('manage/report/maintenance_appointment', compact('mains'));
+    }
+
     public function maintenanceExecutive()
     {
         $to = Carbon::now();

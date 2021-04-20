@@ -97,7 +97,7 @@
                                 <th width="10%"> Reported</th>
                                 <th width="7%"> Site</th>
                                 <th> Name</th>
-                                <th> Appointment</th>
+                                <th width="10%"> Appointment</th>
                                 <th> Supervisor</th>
                                 <th width="10%"> Updated</th>
                                 <th width="10%"> Completed</th>

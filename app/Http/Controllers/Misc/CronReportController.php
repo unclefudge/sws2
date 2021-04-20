@@ -50,6 +50,9 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
 
         // Weekly Reports
+        if (Carbon::today()->isMonday())
+            CronReportController::emailMaintenanceAppointment();
+
         if (Carbon::today()->isTuesday())
             CronReportController::emailOutstandingQA();
 
@@ -343,6 +346,42 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
+
+    /*
+    * Email Maintenance With Appointment
+    */
+    static public function emailMaintenanceAppointment()
+    {
+        $log = '';
+        $email_name = "Maintenance Without Appointment";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $data = ['data' => $app_requests];
+
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests Without Appointment');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
     /*
     * Email Fortnightly Reports
     */
@@ -357,7 +396,7 @@ class CronReportController extends Controller {
         $email_name = "Maintenance No Actions";
         $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails";
+        echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
 
         //
@@ -387,7 +426,7 @@ class CronReportController extends Controller {
         $email_name = "Maintenance On Hold";
         $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails";
+        echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
         $hold_requests = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
         $data = ['data' => $hold_requests];

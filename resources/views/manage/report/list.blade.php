@@ -96,6 +96,9 @@
                                 <td><a href="/manage/report/maintenance_on_hold">On Hold</a></td>
                             </tr>
                             <tr>
+                                <td><a href="/manage/report/maintenance_appointment">Without Client Appointment</a></td>
+                            </tr>
+                            <tr>
                                 <td><a href="/manage/report/maintenance_executive">Excutive Summary</a></td>
                             </tr>
                             @if (Auth::user()->isCC())
