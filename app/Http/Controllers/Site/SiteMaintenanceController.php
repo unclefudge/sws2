@@ -193,7 +193,6 @@ class SiteMaintenanceController extends Controller {
         $newMain->save();
         $action = Action::create(['action' => "Maintenance Request created", 'table' => 'site_maintenance', 'table_id' => $newMain->id]);
 
-
         // Add Request Items
         SiteMaintenanceItem::create(['main_id' => $newMain->id, 'name' => request("item1"), 'order' => 1, 'status' => 0]);
         /*$order = 1;
@@ -303,6 +302,7 @@ class SiteMaintenanceController extends Controller {
 
         //dd($main_request);
 
+        // Supervisor Assigned
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
             $super = User::find(request('super_id'));
             $main_request['step'] = 4;
@@ -405,8 +405,8 @@ class SiteMaintenanceController extends Controller {
         $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
         $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
         $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
-
         //dd($main_request);
+
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $main->super_id) {
             $super = User::find($main_request['super_id']);
@@ -482,9 +482,10 @@ class SiteMaintenanceController extends Controller {
                 $main->closeToDo();
                 if (!$main->manager_sign_by) {
                     $site = Site::findOrFail($main->site_id);
-                    $main->createManagerSignOffToDo($site->areaSupervisors()->pluck('id')->toArray());
+                    $con_mgr = DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray(); // Construction Manager
+                    $main->createManagerSignOffToDo($con_mgr);
                 }
-                $action = Action::create(['action' => "Request has been signed off by Task Owner", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                $action = Action::create(['action' => "Request has been signed off by Supervisor", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             }
             if ($signoff == 'manager') {
                 $main_request['manager_sign_by'] = Auth::user()->id;

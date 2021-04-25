@@ -397,8 +397,6 @@
                                     </div>
                                 @endif
                             </div>
-
-                            {!! Form::close() !!}
                         </div>
 
                         {{-- List Items --}}
@@ -408,12 +406,23 @@
                             </div>
                         </div>
 
+                        <h4>Additional Info</h4>
+                        <div class="row">
+                            {{-- Item Details  --}}
+                            <div class="col-md-12 ">
+                                <div class="form-group {!! fieldHasError('notes', $errors) !!}">
+                                    {!! Form::textarea("notes", nl2br($main->notes), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details."]) !!}
+                                    {!! fieldErrorMessage('notes', $errors) !!}
+                                </div>
+                            </div>
+                        </div>
                         {{-- Actions --}}
                         <div class="row">
                             <div class="col-md-12">
                                 <app-actions :table_id="{{ $main->id }}"></app-actions>
                             </div>
                         </div>
+                        {!! Form::close() !!}
 
                         {{-- Sign Off --}}
                         <hr>
@@ -889,8 +898,8 @@
                 this.$http.patch('/site/maintenance/' + record.id + '/update', record)
                         .then(function (response) {
                             this.itemsCompleted();
-                            if (redirect)
-                                window.location.href = '/site/maintenance/' + record.id;
+                            //if (redirect)
+                            //    window.location.href = '/site/maintenance/' + record.id;
                             toastr.success('Updated record');
 
                         }.bind(this)).catch(function (response) {

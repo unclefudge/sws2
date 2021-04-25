@@ -14,6 +14,7 @@ A maintenance request has been assigned for {{ $main->site->name }}.
 | **ID**  | {{ $main->code  }} |
 | **Site Name**  | {{ $main->site->name  }} |
 | **Site Address**  | {{ $main->site->address }}, {{ $main->site->SuburbStatePostcode }} |
+| **Assigned to**  | {{ $main->assignedTo->name }} |
 
 
 
