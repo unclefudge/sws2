@@ -223,16 +223,16 @@
                             </div>
                         </div>
 
+                        {{--}}
                         <h4>Additional Info</h4>
                         <div class="row">
-                            {{-- Item Details  --}}
                             <div class="col-md-12 ">
                                 <div class="form-group {!! fieldHasError('notes', $errors) !!}">
                                     {!! Form::textarea("notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
                                     {!! fieldErrorMessage('notes', $errors) !!}
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="form-actions right">
                             <a href="/site/maintenance" class="btn default"> Back</a>
                             <button type="submit" class="btn green"> Save</button>
