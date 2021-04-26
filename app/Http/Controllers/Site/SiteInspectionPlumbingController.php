@@ -220,8 +220,13 @@ class SiteInspectionPlumbingController extends Controller {
         if (request('assigned_to') != $report->assigned_to) {
             $report->closeToDo();
             $company = Company::find(request('assigned_to'));
-            if ($company)
-                $report->createAssignedToDo($company->staffStatus(1)->pluck('id')->toArray());
+            if ($company && $company->primary_user) {
+                $report->createAssignedToDo([$company->primary_user]);
+
+                // Email assigned notification
+                $email_list = (\App::environment('prod')) ? ['micelle@capecod.com.au'] : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingAssigned($report));
+            }
         }
 
         //dd($report_request);
