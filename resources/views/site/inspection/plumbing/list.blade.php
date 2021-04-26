@@ -13,7 +13,7 @@
 
             <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
-        @if ($non_assigned->count())
+        @if (Auth::user()->isCC() && $non_assigned->count())
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">

@@ -105,6 +105,7 @@ class SiteInspectionPlumbingController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
+        $report_request['status'] = 2;
         //dd($report_request);
 
         // Create Report
@@ -305,9 +306,13 @@ class SiteInspectionPlumbingController extends Controller {
     /**
      * Get Accidents current user is authorised to manage + Process datatables ajax request.
      */
-    public function getInspections(Request $request)
+    public function getInspections()
     {
-        $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
+        if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
+            $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
+        else
+            $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
+
         $inspect_records = SiteInspectionPlumbing::select([
             'site_inspection_plumbing.id', 'site_inspection_plumbing.site_id', 'site_inspection_plumbing.inspected_name', 'site_inspection_plumbing.inspected_by',
             'site_inspection_plumbing.inspected_at', 'site_inspection_plumbing.created_at',

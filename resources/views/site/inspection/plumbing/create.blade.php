@@ -82,6 +82,17 @@
                                 </div>
                             </div>
 
+                            <h4 class="font-green-haze">Notes</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
+                                        {!! Form::textarea("info", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
+                                        {!! fieldErrorMessage('info', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-actions right">
                                 <a href="/site/inspection/plumbing" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>

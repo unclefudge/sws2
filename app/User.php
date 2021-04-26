@@ -271,7 +271,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * A list of Site Accidents this user is allowed to view
+     * A list of Maintenance Requests this user is allowed to view
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -288,7 +288,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         return null;
     }
-
 
     /**
      * User is a Supervisor

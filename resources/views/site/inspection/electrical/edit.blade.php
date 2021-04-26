@@ -3,9 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->company->subscription)
-            <li><a href="/site/inspection/electrical">Electrical Inspection Report</a><i class="fa fa-circle"></i></li>
-        @endif
+        <li><a href="/site/inspection/electrical">Electrical Inspection Reports</a><i class="fa fa-circle"></i></li>
         <li><span>Edit Report</span></li>
     </ul>
 @stop
@@ -94,9 +92,20 @@
                                 </div>
                             </div>
 
+                            <h4 class="font-green-haze">Notes</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
+                                        {!! Form::textarea("info", nl2br($report->info), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
+                                        {!! fieldErrorMessage('info', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Gallery --}}
                             <br>
-                            <div class="row"  id="photos-show">
+                            <div class="row" id="photos-show">
                                 <div class="col-md-7">
                                     <h4>Photos
                                         @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))

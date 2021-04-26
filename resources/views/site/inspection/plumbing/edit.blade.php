@@ -94,6 +94,17 @@
                                 </div>
                             </div>
 
+                            <h4 class="font-green-haze">Notes</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
+                                        {!! Form::textarea("info", nl2br($report->info), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
+                                        {!! fieldErrorMessage('info', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Gallery --}}
                             <br>
                             <div class="row"  id="photos-show">
@@ -499,7 +510,7 @@
                             </div>
 
                             <div class="form-actions right">
-                                <a href="/site/inspection/electrical" class="btn default"> Back</a>
+                                <a href="/site/inspection/plumbing" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
                         </div>

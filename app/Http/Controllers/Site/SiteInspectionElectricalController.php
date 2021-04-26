@@ -105,6 +105,7 @@ class SiteInspectionElectricalController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
+        $report_request['status'] = 2;
         //dd($report_request);
 
         // Create Report
@@ -298,9 +299,14 @@ class SiteInspectionElectricalController extends Controller {
     /**
      * Get Accidents current user is authorised to manage + Process datatables ajax request.
      */
-    public function getInspections(Request $request)
+    public function getInspections()
     {
-        $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
+        if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
+            $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
+        else
+            $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
+
+
         $inspect_records = SiteInspectionElectrical::select([
             'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.inspected_name', 'site_inspection_electrical.inspected_by',
             'site_inspection_electrical.inspected_at', 'site_inspection_electrical.created_at',
