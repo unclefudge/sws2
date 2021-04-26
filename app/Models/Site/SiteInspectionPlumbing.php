@@ -16,7 +16,7 @@ class SiteInspectionPlumbing extends Model {
 
     protected $table = 'site_inspection_plumbing';
     protected $fillable = [
-        'site_id', 'client_name', 'client_address', 'client_contacted', 'assigned_to', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
+        'site_id', 'client_name', 'client_address', 'client_contacted', 'info', 'assigned_to', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
         'pressure', 'pressure_reduction', 'pressure_cost', 'pressure_notes', 'hammer', 'hammer_notes', 'hotwater_type', 'hotwater_lowered',
         'fuel_type', 'gas_position', 'gas_pipes', 'gas_lines', 'gas_notes', 'existing', 'existing_notes',
         'sewer_cost', 'sewer_allowance', 'sewer_extra', 'sewer_notes',
