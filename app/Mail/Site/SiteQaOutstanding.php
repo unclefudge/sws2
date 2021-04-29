@@ -12,16 +12,17 @@ class SiteQaOutstanding extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $file_attachment;
+    public $file_attachment, $qas;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($file_attachment)
+    public function __construct($file_attachment, $qas)
     {
         $this->file_attachment = $file_attachment;
+        $this->qas = $qas;
     }
 
     /**

@@ -521,8 +521,8 @@ trait UserRolesPermissions {
             $headers = true;
         }
 
-        // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
-        if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
+        // For CC users Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
+        if ($this->isCC() && $permission == 'view.site.list' && $this->hasPermission2('view.site'))
             $permission = 'view.site';
 
         // Company
@@ -545,7 +545,7 @@ trait UserRolesPermissions {
                 $options .= '<optgroup label="' . $this->company->name . '">';
             foreach ($sites_company_array as $site_id => $text) {
                 $sel_tag = ($selected == $site_id) ? ' selected ' : '';
-                $options .= "<option value='$site_id' $sel_tag>$text</option>";
+                $options .= "<option value='$site_id' $sel_tag>$text </option>";
             }
             if ($headers || ($this->company->parent_company && $this->company->subscription))
                 $options .= '</optgroup>';

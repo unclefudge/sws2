@@ -119,7 +119,7 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file));
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -287,7 +287,7 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'portrait');
         $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file));
+        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -337,7 +337,9 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file));
+        //dd($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

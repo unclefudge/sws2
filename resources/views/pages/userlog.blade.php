@@ -24,7 +24,8 @@
                                 </select>
                                 {{--}}
                                 {!! Form::select('user', Auth::user()->company->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'id' => 'user', 'width' => '100%']) !!}
-                                --}}{!! fieldErrorMessage('user', $errors) !!}
+                                --}}
+                                {!! fieldErrorMessage('user', $errors) !!}
                             </div>
                         </div>
                     </div>
