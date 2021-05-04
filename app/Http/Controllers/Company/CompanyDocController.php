@@ -311,7 +311,7 @@ class CompanyDocController extends Controller {
             return redirect("company/$company->id/doc/$doc->id/edit");
         }
 
-        if ($doc->category_id < 21) {
+        //if ($doc->category_id < 21) {
             // Determine Status of Doc
             // If uploaded by User with 'authorise' permissions set to active otherwise set pending
             $company = Company::findOrFail($doc->for_company_id);
@@ -326,7 +326,7 @@ class CompanyDocController extends Controller {
             } else {
                 $doc_request['status'] = 2;
             }
-        }
+        //}
 
         //dd($doc_request);
         $doc->update($doc_request);

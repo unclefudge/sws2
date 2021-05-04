@@ -28,7 +28,6 @@
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/support/ticket/create" data-original-title="Add">Add</a>
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
                     </div>
                     <div class="row">
@@ -73,7 +72,6 @@
                                 @if (Auth::user()->isCC() && Auth::user()->hasPermission2('add.support.ticket.upgrade'))
                                     <a class="btn btn-circle green btn-outline btn-sm" href="/support/ticket/create" data-original-title="Add">Add</a>
                                 @endif
-                                <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                             </div>
                         </div>
                         <div class="row">
