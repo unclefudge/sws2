@@ -532,6 +532,11 @@ class CompanyDocController extends Controller {
             }
         }
 
+        // Filter for Standard Details
+        if (request('category_id') == '22') {
+            $categories = CompanyDocCategory::where('id', 22)->orWhere('parent', 22)->pluck('id')->toArray();
+        }
+
         $status = (request('status') == 0) ? [0] : [1, 2, 3];
         $records = CompanyDoc::where('for_company_id', $cid)
             ->whereIn('category_id', $categories)
