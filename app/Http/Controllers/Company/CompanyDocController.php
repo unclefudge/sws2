@@ -537,7 +537,7 @@ class CompanyDocController extends Controller {
             $categories = CompanyDocCategory::where('id', 22)->orWhere('parent', 22)->pluck('id')->toArray();
         }
 
-        $status = (request('status') == 0) ? [0] : [1, 2, 3];
+        $status = (request('status') == 1) ? [1, 2, 3] : [request('status')];
         $records = CompanyDoc::where('for_company_id', $cid)
             ->whereIn('category_id', $categories)
             ->whereIn('status', $status)->orderBy('category_id')->get();
