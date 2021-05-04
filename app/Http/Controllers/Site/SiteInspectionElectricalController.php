@@ -207,6 +207,7 @@ class SiteInspectionElectricalController extends Controller {
         // Create ToDoo for change of assigned company
         if (request('assigned_to') != $report->assigned_to) {
             $report->closeToDo();
+            $report_request['assigned_at'] = Carbon::now()->toDateTimeString();
             $company = Company::find(request('assigned_to'));
             if ($company && $company->primary_user) {
                 $report->createAssignedToDo([$company->primary_user]);
@@ -315,10 +316,11 @@ class SiteInspectionElectricalController extends Controller {
 
         $inspect_records = SiteInspectionElectrical::select([
             'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.inspected_name', 'site_inspection_electrical.inspected_by',
-            'site_inspection_electrical.inspected_at', 'site_inspection_electrical.created_at',
+            'site_inspection_electrical.inspected_at', 'site_inspection_electrical.created_at', 'site_inspection_electrical.assigned_at',
             'site_inspection_electrical.status', 'sites.company_id',
             DB::raw('DATE_FORMAT(site_inspection_electrical.created_at, "%d/%m/%y") AS nicedate'),
             DB::raw('DATE_FORMAT(site_inspection_electrical.inspected_at, "%d/%m/%y") AS nicedate2'),
+            DB::raw('DATE_FORMAT(site_inspection_electrical.assigned_at, "%d/%m/%y") AS assigned_date'),
             DB::raw('sites.name AS sitename'), 'sites.code',
         ])
             ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')

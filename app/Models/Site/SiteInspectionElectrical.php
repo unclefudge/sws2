@@ -16,12 +16,12 @@ class SiteInspectionElectrical extends Model {
 
     protected $table = 'site_inspection_electrical';
     protected $fillable = [
-        'site_id', 'client_name', 'client_address', 'client_contacted', 'info', 'assigned_to', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
+        'site_id', 'client_name', 'client_address', 'client_contacted', 'info', 'assigned_to', 'assigned_at', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
         'existing', 'required', 'required_cost', 'recommend', 'recommend_cost', 'notes', 'status',
         'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['inspected_at'];
+    protected $dates = ['inspected_at', 'assigned_at'];
 
     /**
      * A SiteInspectionElectrical belongs to a site
@@ -74,7 +74,7 @@ class SiteInspectionElectrical extends Model {
             'name'       => 'Electrical Inspection Report - ' . ' (' . $this->site->name . ')',
             'info'       => 'Please complete the inspection report',
             'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
             'company_id' => '3',
         ];
 

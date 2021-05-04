@@ -91,6 +91,7 @@
                                 <th width="5%"> Site</th>
                                 <th> Name</th>
                                 <th> Assigned to</th>
+                                <th width="10%"> Assigned Date</th>
                             </tr>
                             </thead>
                         </table>
@@ -136,7 +137,7 @@
             {data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
             {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
-            //{data: 'nicedate2', name: 'site_accidents.resolved_at', visible: false,},
+            {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
         ],
         order: [
             [2, "desc"]

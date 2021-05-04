@@ -351,12 +351,12 @@ class CompanyDocController extends Controller {
         }
 
         // Close any ToDoo and create new one
-        if ($doc->category_id < 21) {
+        //if ($doc->category_id < 21) {
             $doc->closeToDo();
             // Create approval ToDoo
             if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs'))
                 $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
-        }
+        //}
 
         // Handle attached file
         if (request()->hasFile('singlefile')) {
