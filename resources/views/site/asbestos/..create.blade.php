@@ -31,7 +31,6 @@
                         <input type="hidden" name="company_id" value="{{ Auth::user()->company_id }}">
                         {!! Form::hidden('amount_over', '0', ['id' => 'amount_over']) !!}
                         <div class="form-body">
-                            {{-- Site --}}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
@@ -42,27 +41,19 @@
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {!! Form::label('address', 'Site Address', ['class' => 'control-label']) !!}
+                                        {!! Form::text('address', null, ['class' => 'form-control', 'readonly']) !!}
+                                    </div>
+                                </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         {!! Form::label('code', 'Site No.', ['class' => 'control-label']) !!}
                                         {!! Form::text('code', null, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('address', 'Site Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
                             </div>
-
-
-                            {{-- Individual Details --}}
-                            <h4>Individual (Client) Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-
                             {{-- Amount --}}
                             <div class="row">
                                 <div class="col-md-6">
