@@ -11,6 +11,20 @@
     </ul>
 @stop
 
+<style>
+    @media screen and (min-width: 992px) {
+        .datepicker-input {
+            width: 200px !important;
+        }
+    }
+
+    @media screen and (min-width: 1200px) {
+        .datepicker-input {
+            width: 250px !important;
+        }
+    }
+</style>
+
 @section('content')
     <div class="page-content-inner">
         <div class="row">
@@ -24,6 +38,9 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
+                        {!! Form::model($asb, ['method' => 'PATCH', 'action' => ['Site\SiteAsbestosController@updateExtra', $asb->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        @include('form-error')
+
                         <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $asb->id }}">
                         <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $asb->status }}">
                         <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $asb->resolved_at }}">
@@ -42,67 +59,263 @@
                                 </div>
                             </div>
                             <hr>
-                            <h4 class="font-green-haze">Asbestos Details</h4>
-                            {{-- Dates / Hours --}}
+
+                            {{-- Client + Supervisor Details --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{-- Client name + phone--}}
+                                    <h4 class="font-green-haze">Individual (Client) Details</h4>
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Name:</b></div>
+                                        <div class="col-md-8">{{ $asb->client_name }}</div>
+                                        <div class="col-md-4"><b>Phone:</b></div>
+                                        <div class="col-md-8">{{ $asb->client_phone }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Supervisor name + phone--}}
+                                    <h4 class="font-green-haze">Contact Person (Supervisor) Details</h4>
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Name:</b></div>
+                                        <div class="col-md-8">{{ ($asb->supervisor) ? $asb->supervisor->name : '' }}</div>
+                                        <div class="col-md-4"><b>Phone:</b></div>
+                                        <div class="col-md-8">{{ $asb->super_phone }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+
+                            {{-- Site Details--}}
+                            <h4 class="font-green-haze">Site Details</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Site Name:</b></div>
+                                        <div class="col-md-8">{{ $asb->site->name }}</div>
+                                    </div>
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Address:</b></div>
+                                        <div class="col-md-8">{{ $asb->site->fulladdress }}</div>
+                                    </div>
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Workplace type:</b></div>
+                                        <div class="col-md-8">{{ $asb->workplace }}</div>
+                                    </div>
+                                    {{-- Open Hours --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Opening hours: </b></div>
+                                        <div class="col-md-8">{{ $asb->hours_from }} to {{ $asb->hours_to }}</div>
+                                    </div>
+                                    {{-- Start --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Proposed start:</b></div>
+                                        <div class="col-md-8">{{ $asb->date_from->format('d/m/Y') }}</div>
+                                    </div>
+                                    {{-- Finish --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Proposed finish:</b></div>
+                                        <div class="col-md-8">{{ $asb->date_to->format('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Workers --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Number of workers: </b></div>
+                                        <div class="col-md-8">{{ $asb->workers }}</div>
+                                    </div>
+                                    {{-- Coal / Mining --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Coal/mining workplace: </b></div>
+                                        <div class="col-md-8">{{ ($asb->coalmine) ? 'Yes' : 'No' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+
+                            <h4 class="font-green-haze">Asbestos Identification &nbsp;
+                                <small>(Applicable to Friable / Asbestos in soils)</small>
+                            </h4>
+                            {{-- Hydiene Report --}}
                             <div class="row" style="line-height: 2">
-                                <div class="col-md-3"><b>Proposed dates of removal:</b></div>
-                                <div class="col-xs-3">{{ $asb->date_from->format('d/m/Y') }} to {{ $asb->date_to->format('d/m/Y') }}</div>
-                                <div class="col-md-6"><b>Opening hours: </b> &nbsp; {{ $asb->hours_from }} to {{ $asb->hours_to }}</div>
+                                <div class="col-md-2"><b>Hygienist report:</b></div>
+                                <div class="col-md-10">{!! ($asb->hygiene) ? "Yes &nbsp; ($asb->hygiene_report)" : 'No' !!}</div>
+                            </div>
+                            <br>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Assessor Contact Details</h5>
+                                    <hr style="padding: 0px; margin: 0px">
+                                    {{-- Assessor Name --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Name:</b></div>
+                                        <div class="col-md-8">{{ $asb->assessor_name }}</div>
+                                    </div>
+
+                                    {{-- Assessor Phone --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Phone:</b></div>
+                                        <div class="col-md-8">{{ $asb->assessor_phone }}</div>
+                                    </div>
+
+                                    {{-- Assessor --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Licence No.:</b></div>
+                                        <div class="col-md-8">{{ $asb->assessor_lic }}</div>
+                                    </div>
+
+                                    {{-- Assessor --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>Department:</b></div>
+                                        <div class="col-md-8">{{ $asb->assessor_dept }}</div>
+                                    </div>
+
+                                    {{-- Report --}}
+                                    <div class="row" style="line-height: 2">
+                                        <div class="col-md-4"><b>State:</b></div>
+                                        <div class="col-md-8">{{ $asb->assessor_state }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Testing Laboratory</h5>
+                                    <hr style="padding: 0px; margin: 0px">
+                                </div>
+                            </div>
+                            <br>
+
+
+                            <h4 class="font-green-haze">Asbestos Details &nbsp;
+                                <small>(Type / Location / Amount)</small>
+                            </h4>
+                            {{-- Class--}}
+                            <div class="row" style="line-height: 2">
+                                <div class="col-md-2"><b>Asbestos Class:</b></div>
+                                <div class="col-md-10">{{ ($asb->friable) ? 'Class A (Friable)' : 'Class B (Non-Friable)' }}</div>
                             </div>
                             {{-- Amount --}}
                             <div class="row" style="line-height: 2">
-                                <div class="col-md-3"><b>Amount to be removed (m2):</b></div>
-                                <div class="col-md-9">{{ $asb->amount }}</div>
-                            </div>
-                            {{-- Class--}}
-                            <div class="row" style="line-height: 2">
-                                <div class="col-md-3"><b>Asbestos Class:</b></div>
-                                <div class="col-md-9">{{ ($asb->friable) ? 'Class A (Friable)' : 'Class B (Non-Friable)' }}</div>
-                            </div>
-                            {{-- Type --}}
-                            <div class="row" style="line-height: 2">
-                                <div class="col-md-3"><b>Type:</b></div>
-                                <div class="col-md-9">{{ $asb->type }}</div>
+                                <div class="col-md-2"><b>Amount:</b></div>
+                                <div class="col-md-10">{{ $asb->amount }} (m2)</div>
                             </div>
                             {{-- Location --}}
                             <div class="row" style="line-height: 2">
-                                <div class="col-md-3"><b>Specific Location of Asbestos:</b></div>
-                                <div class="col-md-9">{{ $asb->location }}</div>
+                                <div class="col-md-2"><b>Location:</b></div>
+                                <div class="col-md-10">{{ $asb->location }}</div>
                             </div>
+                            {{-- Type --}}
+                            <div class="row" style="line-height: 2">
+                                <div class="col-md-2"><b>Type:</b></div>
+                                <div class="col-md-10">{{ $asb->type }}</div>
+                            </div>
+
+
                             {{-- Asbestos Removal --}}
                             @if(!$asb->friable)
-                                <br><h4 class="font-green-haze">Asbestos Removal</h4>
+                                <br><h4 class="font-green-haze">Protective Equipment and Isolation / Encapsulation</h4>
                                 <div class="row" style="line-height: 2">
-                                    {{-- Workers --}}
-                                    <div class="col-md-3"><b>Number of workers: </b></div>
-                                    <div class="col-md-9">{{ $asb->workers }}</div>
                                     {{-- Equipment --}}
-                                    <div class="col-md-3"><b>Protective Equipment to be used: </b></div>
-                                    <div class="col-md-9">{!! $asb->equipment('bullet') !!}</div>
-                                    <div class="col-md-12" style="line-height: 1">&nbsp;</div>
+                                    <div class="col-md-2"><b>Personal equipment: </b></div>
+                                    <div class="col-md-10">{!! $asb->equipment('SBC') !!}</div>
+                                </div>
+                                <div class="row" style="line-height: 2">
                                     {{-- Methods --}}
-                                    <div class="col-md-3"><b>Methods used to isolate: </b></div>
-                                    <div class="col-md-9">{!! $asb->methods('bullet') !!}</div>
-                                    <div class="col-md-12" style="line-height: 1">&nbsp;</div>
+                                    <div class="col-md-2"><b>Isolate / Enclose: </b></div>
+                                    <div class="col-md-10">{!! $asb->methods('SBC') !!}</div>
+                                </div>
+                                <div class="row" style="line-height: 2">
                                     {{-- Extent --}}
-                                    <div class="col-md-3"><b>Extent of isolation: </b></div>
-                                    <div class="col-md-9">{{ $asb->isolation }}</div>
-                                    {{-- Extent --}}
-                                    <div class="col-md-3"><b>Reviewed Asbestos Register: </b></div>
-                                    <div class="col-md-9">{{ ($asb->register) ? 'Yes' : 'An Asbestos Register was not available for this site' }}</div>
+                                    <div class="col-md-2"><b>Extent of isolation: </b></div>
+                                    <div class="col-md-10">{{ $asb->isolation }}</div>
                                 </div>
                             @endif
 
-                            {{-- Licensed Asbestos Removal (10m2) --}}
-                            @if($asb->amount > 9 && !$asb->friable)
-                                <br><h4 class="font-green-haze">Licensed Asbestos Removal (10m2)</h4>
+
+                            {{-- Additional Details --}}
+                            <br><h4 class="font-green-haze">Additional Infomation</h4>
+                            @if(!$asb->friable)
+                                {{-- Register --}}
+                                <div class="row" style="line-height: 2">
+                                    <div class="col-md-2"><b>Asbestos Register: </b></div>
+                                    <div class="col-md-10">{{ ($asb->register) ? 'Yes - Asbestos Register was reviewed' : 'An Asbestos Register was not available for this site' }}</div>
+                                </div>
+                            @endif
+                            <br>
+                            @if (Auth::user()->allowed2('edit.site.asbestos', $asb))
+                                @if(!$asb->friable)
+                                    <div class="row">
+                                        {{-- Safe Work Notification --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                {!! Form::label('safework', 'Safe Work Notification', ['class' => 'control-label']) !!}
+                                                <?php
+                                                $safe_at = ($asb->safework_at) ? $asb->safework_at->format('d/m/Y') : '';
+                                                $lodged = "Lodged"; //($asb->safework == 2 && $asb->safework_at) ? "Lodged - $safe_at" : 'Lodged';
+                                                $accept = "Accepted"; //($asb->safework == 1 && $asb->safework_at) ? "Accepted - $safe_at" : 'Accepted';
+                                                ?>
+                                                {!! Form::select('safework', ['' => 'Not lodged', '2' => $lodged, '1' => $accept], null, ['class' => 'form-control bs-select']) !!}
+                                            </div>
+                                        </div>
+                                        {{-- Safe Work Ref# --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                {!! Form::label('safework', 'Safe Work Reference', ['class' => 'control-label']) !!}
+                                                {!! Form::text('safework_ref', null, ['class' => 'form-control']) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        {{-- Supervisor Form --}}
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                {!! Form::label('safework', 'Supervisor form sent', ['class' => 'control-label']) !!}
+                                                <br class="col-md-2 visible-sm visible-xs">
+                                                <datepicker :value.sync="xx.supervisor_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                            </div>
+                                            <input v-model="xx.supervisor_at" type="hidden" name="supervisor_at" value="{{  ($asb->supervisor_at) ? $asb->supervisor_at->format('d/m/Y') : ''}}">
+                                        </div>
+                                        {{-- Neighbour Form --}}
+                                        <div class="col-md-3">
+                                            <div class="input-group">
+                                                {!! Form::label('safework', 'Neighbours form sent', ['class' => 'control-label']) !!}
+                                                <br class="col-md-2 visible-sm visible-xs">
+                                                <datepicker :value.sync="xx.neighbours_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                            </div>
+                                            <input v-model="xx.neighbours_at" type="hidden" name="neighbours_at" value="{{  ($asb->neighbours_at) ? $asb->neighbours_at->format('d/m/Y') : ''}}">
+                                        </div>
+                                    </div>
+                                    <br>
+                                @endif
+
+
                                 <div class="row">
-                                    {{-- Supervisor --}}
-                                    <div class="col-md-3"><b>Asbestos Supervisor: </b></div>
-                                    <div class="col-md-9">{!! \App\User::find($asb->supervisor_id)->fullname !!}</div>
+                                    {{-- Removal Date --}}
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            {!! Form::label('safework', 'Removal Date', ['class' => 'control-label']) !!}
+                                            <br class="col-md-2 visible-sm visible-xs">
+                                            <datepicker :value.sync="xx.removal_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.removal_at" type="hidden" name="removal_at" value="{{  ($asb->removal_at) ? $asb->removal_at->format('d/m/Y') : ''}}">
+                                    </div>
+                                    {{-- Register Updated Date --}}
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            {!! Form::label('safework', 'Register Updated', ['class' => 'control-label']) !!}
+                                            <br class="col-md-2 visible-sm visible-xs">
+                                            <datepicker :value.sync="xx.reg_updated_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.reg_updated_at" type="hidden" name="reg_updated_at" value="{{  ($asb->reg_updated_at) ? $asb->reg_updated_at->format('d/m/Y') : ''}}">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn blue" style="margin-top: 25px"> Save</button>
+                                    </div>
                                 </div>
                             @endif
                         </div>
+
+                        {!! Form::close() !!}
 
                         {{-- Actions --}}
                         <div class="row">
@@ -197,8 +410,10 @@
 
 <!-- Vue -->
 <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+<script src="/js/libs/vue-strap.min.js"></script>
 <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
 <script src="/js/vue-modal-component.js"></script>
+<script src="/js/vue-app-basic-functions.js"></script>
 <script>
     Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
 
@@ -211,6 +426,7 @@
         dev: dev,
         action: '', loaded: false,
         table_name: 'site_asbestos', table_id: '', record_status: '', record_resdate: '',
+        supervisor_at: '', neighbours_at: '', removal_at: '', reg_updated_at: '',
         created_by: '', created_by_fullname: '',
     };
 
@@ -303,6 +519,9 @@
     var myApp = new Vue({
         el: 'body',
         data: {xx: xx},
+        components: {
+            datepicker: VueStrap.datepicker,
+        },
     });
 
 </script>

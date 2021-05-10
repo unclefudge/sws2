@@ -392,6 +392,14 @@ class SiteController extends Controller {
     }
 
     /**
+     * Get Site supervisor (first).
+     */
+    public function getSiteSuper($id)
+    {
+        return Site::findOrFail($id)->supervisors->first();
+    }
+
+    /**
      * Get basic Site details.
      */
     /*

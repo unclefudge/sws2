@@ -112,8 +112,6 @@ class SiteAsbestosController extends Controller {
         $validator->after(function ($validator) {
             if (request('friable') == '0' && request('amount_over') == '1' && request('inspection') != '1')
                 $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
-            if (request('friable') == '0' && request('amount_over') == '1' && request('supervisor_id') == '')
-                $validator->errors()->add('supervisor_id', 'You must select a Supervisor');
         });
 
         if ($validator->fails()) {
@@ -121,6 +119,7 @@ class SiteAsbestosController extends Controller {
         }
 
         $asb_request = removeNullValues(request()->all());
+        //dd($asb_request);
 
         // Type Other Specificed
         if (request('type') == 'other')
@@ -186,8 +185,6 @@ class SiteAsbestosController extends Controller {
         $validator->after(function ($validator) {
             if (request()->get('friable') == '0' && request()->get('amount_over') == '1' && request()->get('inspection') != '1')
                 $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
-            if (request()->get('friable') == '0' && request()->get('amount_over') == '1' && request()->get('supervisor_id') == '')
-                $validator->errors()->add('supervisor_id', 'You must select a Supervisor');
         });
 
         if ($validator->fails()) {
@@ -232,6 +229,59 @@ class SiteAsbestosController extends Controller {
         //dd($asb_request);
         $asb->update($asb_request);
         Action::create(['action' => 'Notification fields updated', 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+        Toastr::success("Saved changes");
+
+        return redirect("site/asbestos/$asb->id");
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function updateExtra($id)
+    {
+        $asb = SiteAsbestos::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.asbestos', $asb))
+            return view('errors/404');
+
+        $asb_request = request()->all();
+        //dd($asb_request);
+
+        $asb_request['supervisor_at'] = (request('supervisor_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('supervisor_at') . '00:00')->toDateTimeString() : null;
+        $asb_request['neighbours_at'] = (request('neighbours_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('neighbours_at') . '00:00')->toDateTimeString() : null;
+        $asb_request['removal_at'] = (request('removal_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('removal_at') . '00:00')->toDateTimeString() : null;
+        $asb_request['reg_updated_at'] = (request('reg_updated_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('reg_updated_at') . '00:00')->toDateTimeString() : null;
+
+        // Safework Lodged/Pending
+        if (request('safework') == 2 && request('safework') != $asb->safework) {
+            $asb_request['safework_at'] = Carbon::now()->toDateTimeString();
+            Action::create(['action' => "Safe Work Notification lodged", 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+        }
+        // Safework Accepted
+        if (request('safework') == 1 && request('safework') != $asb->safework) {
+            $asb_request['safework_at'] = Carbon::now()->toDateTimeString();
+            Action::create(['action' => "Safe Work Notification accepted", 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+        }
+
+        // Supervisor
+        if ($asb_request['supervisor_at'] && (!$asb->supervisor_at || $asb_request['supervisor_at'] != $asb->supervisor_at))
+            Action::create(['action' => "Supervisor form sent " . request('supervisor_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+
+        // Neighbours_at
+        if ($asb_request['neighbours_at'] && (!$asb->neighbours_at || $asb_request['neighbours_at'] != $asb->neighbours_at->format('d/m/Y')))
+            Action::create(['action' => "Neighbour form sent " .request('neighbours_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+
+        // Removal_at
+        if ($asb_request['removal_at'] && (!$asb->removal_at || $asb_request['removal_at'] != $asb->removal_at->format('d/m/Y')))
+            Action::create(['action' => "Asbestos removed from site " . request('removal_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+
+        // Reg_updated_at
+        if ($asb_request['reg_updated_at'] && (!$asb->reg_updated_at || $asb_request['reg_updated_at'] != $asb->reg_updated_at->format('d/m/Y')))
+            Action::create(['action' => "Asbestos register updated " . request('reg_updated_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+
+        //dd($asb_request);
+        $asb->update($asb_request);
         Toastr::success("Saved changes");
 
         return redirect("site/asbestos/$asb->id");

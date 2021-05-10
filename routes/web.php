@@ -149,6 +149,7 @@ Route::group(['middleware' => 'auth'], function () {
     // User Routes
     Route::get('user/dt/users', 'UserController@getUsers');
     Route::get('user/dt/contractors', 'UserController@getContractors');
+    Route::get('user/data/details/{id}', 'UserController@getUserDetails');
     Route::post('user/{id}/login', 'UserController@updateLogin');
     Route::get('user/{id}/security', 'UserController@showSecurity');
     Route::get('user/{id}/resetpassword', 'UserController@showResetPassword');
@@ -281,6 +282,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Asbestos Register
     Route::get('site/asbestos/dt/list', 'Site\SiteAsbestosController@getReports');
     Route::get('site/asbestos/{id}/status/{status}', 'Site\SiteAsbestosController@updateStatus');
+    Route::any('site/asbestos/{id}/extra', 'Site\SiteAsbestosController@updateExtra');
     Route::resource('site/asbestos', 'Site\SiteAsbestosController');
 
     // Site Inspection Electrical Register
@@ -341,6 +343,7 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::post('site/{slug}/settings/logo', 'Site\SiteController@updateLogo');
     //Route::get('site/{slug}/settings/{tab}', 'Site\SiteController@showSettings');
     Route::get('site/data/details/{id}', 'Site\SiteController@getSiteDetails');
+    Route::get('site/data/supervisor/{id}', 'Site\SiteController@getSiteSuper');
     //Route::get('site/data/owner/{id}', 'Site\SiteController@getSiteOwner');
     Route::resource('site', 'Site\SiteController');
 

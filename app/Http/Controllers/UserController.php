@@ -622,6 +622,14 @@ public function getSecurityPermissions(Request $request, $id)
     }
 
     /**
+     * Get basic User details.
+     */
+    public function getUserDetails($id)
+    {
+        return User::findOrFail($id);
+    }
+
+    /**
      * Get Users current user is authorised to manage + Process datatables ajax request.
      *
      * @return \Illuminate\Http\JsonResponse

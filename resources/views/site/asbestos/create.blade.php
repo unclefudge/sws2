@@ -1,3 +1,4 @@
+@inject('ozstates', 'App\Http\Utilities\OzStates')
 @extends('layout')
 
 @section('breadcrumbs')
@@ -19,7 +20,7 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Create Notification</span>
+                            <span class="caption-subject font-green-haze bold uppercase">Create Asbestos Notification</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
@@ -43,24 +44,119 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Client / Super Details --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{-- Individual Details --}}
+                                    <h4>Individual (Client) Details</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
+                                                {!! Form::label('client_name', 'Primary Contact', ['class' => 'control-label']) !!}
+                                                {!! Form::text('client_name', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('client_name', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
+                                                {!! Form::label('client_phone', 'Phone', ['class' => 'control-label']) !!}
+                                                {!! Form::text('client_phone', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('client_phone', $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Supervisor Details --}}
+                                    <h4>Contact Person (Supervisor) Details</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
+                                                {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'control-label']) !!}
+                                                {{--}}{!! Form::select('supervisor_id', ['' => 'Select supervisor', '5' => 'Dean Beringer', '7' => 'Gary Klomp', '13' => 'John Walton'], null, ['class' => 'form-control bs-select']) !!}--}}
+                                                {!! Form::select('supervisor_id',
+                                                Auth::user()->company->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'id' => 'supervisor_id', 'title' => 'Select supervisor',]) !!}
+                                                {!! fieldErrorMessage('supervisor_id', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 {!! fieldHasError('super_phone', $errors) !!}">
+                                            <div class="form-group">
+                                                {!! Form::label('super_phone', 'Phone', ['class' => 'control-label']) !!}
+                                                {!! Form::text('super_phone', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('super_phone', $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+
+                            {{-- Site Details --}}
+                            <h4>Site Details</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {!! Form::label('code', 'Site No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('code', null, ['class' => 'form-control', 'readonly']) !!}
+                                        {!! Form::label('site_code', 'Site No.', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_code', null, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        {!! Form::label('address', 'Site Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', null, ['class' => 'form-control', 'readonly']) !!}
+                                        {!! Form::label('site_name', 'Site Name', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_name', null, ['class' => 'form-control', 'readonly']) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {!! Form::label('site_address', 'Site Address', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_address', null, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group {!! fieldHasError('workplace', $errors) !!}">
+                                        {!! Form::label('workplace', 'Workplace Type', ['class' => 'control-label']) !!}
+                                        {!! Form::select('workplace', ['' => 'Select type', 'Residental' => 'Residental',
+                                        'Factory' => 'Factory', 'Office' => 'Office'],
+                                             null, ['class' => 'form-control bs-select']) !!}
+                                        {!! fieldErrorMessage('workplace', $errors) !!}
+                                    </div>
+                                </div>
 
+                                {{-- Dates - Open Hours --}}
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('hours_from', $errors) !!} {!! fieldHasError('open_to', $errors) !!}">
+                                        {!! Form::label('hours_from', 'Operating hours of the site', ['class' => 'control-label']) !!}
+                                        <div class="input-group">
+                                            {!! Form::text('hours_from', '7:00 AM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
+                                            <span class="input-group-addon"> to </span>
+                                            {!! Form::text('hours_to', '3:30 PM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
+                                        </div>
+                                        {!! fieldErrorMessage('hours_from', $errors) !!}
+                                        {!! fieldErrorMessage('hours_to', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('date_from', $errors) !!}">
+                                        {!! Form::label('date_from', 'Proposed dates of asbestos removal work', ['class' => 'control-label']) !!}
+                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
+                                            {!! Form::text('date_from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                            <span class="input-group-addon"> to </span>
+                                            {!! Form::text('date_to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                        </div>
+                                        {!! fieldErrorMessage('date_from', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
 
-                            {{-- Individual Details --}}
-                            <h4>Individual (Client) Details</h4>
+                            {{-- Asbestos Details --}}
+                            <h4>Asbestos Details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
 
                             {{-- Amount --}}
@@ -122,32 +218,6 @@
                                 </div>
                             </div>
 
-                            {{-- Dates - Open Hours --}}
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('from', $errors) !!}">
-                                        {!! Form::label('from', 'Proposed dates of asbestos removal work', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
-                                            {!! Form::text('date_from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('date_to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('from', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('hours_from', $errors) !!} {!! fieldHasError('open_to', $errors) !!}">
-                                        {!! Form::label('hours_from', 'Operating hours of the site', ['class' => 'control-label']) !!}
-                                        <div class="input-group">
-                                            {!! Form::text('hours_from', '7:00 AM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('hours_to', '3:30 PM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('hours_from', $errors) !!}
-                                        {!! fieldErrorMessage('hours_to', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
                             {{-- Non Friable Extra Fields --}}
                             <div id="non_friable_fields" style="display: none">
@@ -169,11 +239,103 @@
                                     </div>
                                 </div>
 
+                                {{-- Coal Mine --}}
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('coalmine', $errors) !!}">
+                                            {!! Form::label('coalmine', 'Is this a coal or mining workplace', ['class' => 'control-label']) !!}
+                                            {!! Form::select('coalmine', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('coalmine', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Asbestos Identification --}}
+                                <h4>Asbestos Identification
+                                    <small>(Applicable to Friable / Asbestos in soils)</small>
+                                </h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('hygiene', $errors) !!}">
+                                            {!! Form::label('hygiene', 'Is a hygienist report available', ['class' => 'control-label']) !!}
+                                            {!! Form::select('hygiene', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('hygiene', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" id="hygiene_report_div">
+                                        <div class="form-group {!! fieldHasError('hygiene_report', $errors) !!}">
+                                            {!! Form::label('hygiene_report', 'Report type', ['class' => 'control-label']) !!}
+                                            {!! Form::select('hygiene_report', ['' => 'Select type', 'Online Attachment' => 'Online Attachment', 'Email' => 'Email',
+                                            'Faxed' => 'Faxed', 'Post' => 'Post', 'By Hand' => 'By Hand'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('hygiene_report', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Asbestos Assessment --}}
+                                <h4>Asbestos Assessment</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                {{-- Assessor Contact --}}
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
+                                            {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
+                                            {!! Form::select('assessor_name', ['' => 'Select option', 'Leon Carnevale' => 'Leon Carnevale', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('assessor_phone', $errors) !!}">
+                                            {!! Form::label('assessor_phone', 'Assessor Phone', ['class' => 'control-label']) !!}
+                                            {!! Form::text('assessor_phone', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('assessor_phone', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group {!! fieldHasError('assessor_cert', $errors) !!}">
+                                            {!! Form::label('assessor_cert', 'Assessor Qualification', ['class' => 'control-label']) !!}
+                                            {!! Form::select('assessor_cert', ['' => 'Select option', 'Competent person (VET Course)' => 'Competent person (VET Course)',
+                                            'Competent person (Tertiary qualification)' => 'Competent person (Tertiary qualification)',
+                                            'Licensed Asbestos Assessor' => 'Licensed Asbestos Assessor'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('assessor_cert', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('assessor_lic', $errors) !!}">
+                                            {!! Form::label('assessor_lic', 'Licence No.', ['class' => 'control-label']) !!}
+                                            {!! Form::text('assessor_lic', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('assessor_dept', $errors) !!}">
+                                            {!! Form::label('assessor_dept', 'Department of Issue', ['class' => 'control-label']) !!}
+                                            {!! Form::text('assessor_dept', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('assessor_dept', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group {!! fieldHasError('assessor_state', $errors) !!}">
+                                            {!! Form::label('assessor_state', 'State', ['class' => 'control-label']) !!}
+                                            {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('assessor_state', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 {{-- Protective Equipment --}}
+                                <h4>Personal Protective Equipment &nbsp;
+                                    <small>(Check all that apply)</small>
+                                </h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12 {!! fieldHasError('equip', $errors) !!}">
-                                        Personal Protective Equipment to be used &nbsp; &nbsp; <i>(Check all that apply)</i>
-                                        {!! fieldErrorMessage('equip', $errors) !!}</div>
+                                        {!! fieldErrorMessage('equip', $errors) !!}
+                                    </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <div class="mt-checkbox-list">
@@ -220,9 +382,12 @@
                                 </div>
 
                                 {{-- Isolate Methods --}}
+                                <h4>Methods used to isolate / enclose the removal area &nbsp;
+                                    <small>(Check all that apply)</small>
+                                </h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12 {!! fieldHasError('method', $errors) !!}">
-                                        Methods used to isolate / enclose the removal area &nbsp; &nbsp; <i>(Check all that apply)</i>
                                         {!! fieldErrorMessage('method', $errors) !!}
                                     </div>
                                     <div class="col-md-3">
@@ -360,13 +525,14 @@
                                         </div>
                                     </div>
                                     {{-- Supervisor --}}
+                                    {{--}}
                                     <div class="row" style="padding-top: 10px">
                                         <div class="col-md-3">
                                             {!! Form::label('supervisor_id', 'Asbestos Supervisor', ['class' => 'control-label']) !!}
                                             {!! Form::select('supervisor_id', ['' => 'Select supervisor', '5' => 'Dean Beringer', '7' => 'Gary Klomp', '13' => 'John Walton'], null, ['class' => 'form-control bs-select']) !!}
                                             {!! fieldErrorMessage('supervisor_id', $errors) !!}
                                         </div>
-                                    </div>
+                                    </div>--}}
                                 </div>
                             </div>
                             <br><br>
@@ -404,7 +570,6 @@
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function () {
-
         /* Select2 */
         $("#site_id").select2({
             placeholder: "Select Site",
@@ -420,8 +585,22 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
-                        $("#address").val(data.address + ', ' + data.suburb);
-                        $("#code").val(data.code);
+                        $("#site_name").val(data.name);
+                        $("#site_code").val(data.code);
+                        $("#site_address").val(data.address + ', ' + data.suburb + ' ' + data.state + ' ' + data.postcode);
+                        $("#client_name").val(data.client_phone_desc);
+                        $("#client_phone").val(data.client_phone);
+                    },
+                })
+
+                $.ajax({
+                    url: '/site/data/supervisor/' + site_id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#supervisor_id").val(data.id);
+                        $("#supervisor_id").selectpicker('refresh');
+                        $("#super_phone").val(data.phone);
                     },
                 })
             }
@@ -443,9 +622,15 @@
             if ($("#friable").val() == '0')
                 $("#non_friable_fields").show();
 
-            // Checkbox Equip
-            //alert($("#equip").val());
+            // Hygiene Report
+            $("#hygiene_report_div").hide();
+            if ($("#hygiene").val() == '1')
+                $("#hygiene_report_div").show();
+
+            // Checkbox Other Equip + Method
             $('[name="equip[]"]').eq(5).is(':checked') ? $("#equip_other_div").show() : $("#equip_other_div").hide(); // Equip other
+            $('[name="method[]"]').eq(7).is(':checked') ? $("#method_other_div").show() : $("#method_other_div").hide(); // Method other
+
             $("#type").val() == 'other' ? $("#type_other_div").show() : $("#type_other_div").hide(); // Type
             $("#register").val() == '0' ? $("#register_note").show() : $("#register_note").hide(); // Register
             $("#swms").val() == '0' ? $("#swms_note").show() : $("#swms_note").hide(); // SWMS
@@ -455,6 +640,18 @@
         // On Change Site ID
         $("#site_id").change(function () {
             displayFields();
+        });
+
+        // On Change Supervisor
+        $("#supervisor_id").change(function () {
+            $.ajax({
+                url: '/user/data/details/' + $("#supervisor_id").val(),
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $("#super_phone").val(data.phone);
+                },
+            })
         });
 
         // On Change Amount
@@ -469,6 +666,11 @@
 
         // On Change Type
         $("#type").change(function () {
+            displayFields();
+        });
+
+        // On Change Hygiene Report
+        $("#hygiene").change(function () {
             displayFields();
         });
 
@@ -490,6 +692,26 @@
         // On Change Inspection
         $("#inspection").change(function () {
             displayFields();
+        });
+
+        // On Change Assessor
+        $("#assessor_name").change(function () {
+            if ($("#assessor_name").val() == 'Leon Carnevale') {
+                $("#assessor_phone").val('0451 308 020');
+                $("#assessor_lic").val('1234-567-890');
+                $("#assessor_dept").val('dept 1');
+                $("#assessor_state").val('NSW');
+            } else if ($("#assessor_name").val() == 'Mark Spindler') {
+                $("#assessor_phone").val('0417 064 161');
+                $("#assessor_lic").val('1234-567-890');
+                $("#assessor_dept").val('dept 2');
+                $("#assessor_state").val('NSW');
+            } else {
+                $("#assessor_phone").val('');
+                $("#assessor_lic").val('');
+                $("#assessor_dept").val('');
+                $("#assessor_state").val('');
+            }
         });
     });
 

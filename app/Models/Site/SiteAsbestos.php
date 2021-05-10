@@ -16,14 +16,17 @@ class SiteAsbestos extends Model {
     protected $table = 'site_asbestos';
     protected $fillable = [
         'site_id', 'amount', 'friable', 'type', 'location', 'date_from', 'date_to', 'hours_from', 'hours_to', 'workers',
+        'client_name', 'client_phone', 'super_id', 'super_phone', 'workplace', 'coalmine', 'hygiene', 'hygiene_report',
+        'assessor_name','assessor_phone', 'assessor_cert', 'assessor_lic', 'assessor_dept', 'assessor_state', 'safework', 'safework_ref',
         'equip_overalls', 'equip_mask', 'equip_gloves', 'equip_half_face', 'equip_full_face', 'equip_other',
         'method_fencing', 'method_signage', 'method_water', 'method_pva', 'method_barriers', 'method_plastic', 'method_vacuum', 'method_other',
         'isolation', 'register', 'swms', 'inspection', 'supervisor_id',
+        'safework_at', 'supervisor_at', 'neighbours_at', 'removal_at', 'reg_updated_at',
         'attachment', 'company_id', 'status', 'resolved_at',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
 
-    protected $dates = ['date_from', 'date_to', 'resolved_at'];
+    protected $dates = ['date_from', 'date_to', 'resolved_at', 'safework_at', 'supervisor_at', 'neighbours_at', 'removal_at', 'reg_updated_at'];
 
     /**
      * A SiteAsbestos belongs to a site
@@ -33,6 +36,16 @@ class SiteAsbestos extends Model {
     public function site()
     {
         return $this->belongsTo('App\Models\Site\Site');
+    }
+
+    /**
+     * A SiteAsbestos belongs to a supervisor
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function supervisor()
+    {
+        return $this->belongsTo('App\User', 'supervisor_id');
     }
 
     /**
