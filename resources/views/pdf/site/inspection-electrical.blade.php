@@ -171,7 +171,7 @@
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">
                 Work not essential but strongly recommended to be carried out to prevent the necessity of costly maintenance in the future when access to same:<br>
-                {!! nl2br($report->required) !!}
+                {!! nl2br($report->recommend) !!}
                 @if ($report->recommend_cost)
                     <br>
                     <hr style="margin: 0px"><span style="float: right;"> <b> at a cost of ${{ $report->recommend_cost }} Incl GST</b></span>
