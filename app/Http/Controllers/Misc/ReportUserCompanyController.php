@@ -145,7 +145,7 @@ class ReportUserCompanyController extends Controller {
             if ($company->missingDocs()) {
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
-                    $exp = ($doc != 'N/A') ? $doc->expiry->format('d/m/Y') : 'never';
+                    $exp = ($doc != 'N/A') ? $doc->expiry->format('Y-m-d') : 'never';
                     $csv .= "$company->name, $name, $exp\r\n";
                 }
             }

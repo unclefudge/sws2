@@ -123,6 +123,12 @@
                                     </div>
                                 </div>
                             @endif
+
+                            @if ($item->equipment->parent_category == 3 && $item->location && $item->location->id == 1)
+                                <div id="materials_note" class="note note-warning">
+                                    <p><b>Please Note:</b> Any Materials transferred from the Store to any Site are considered to be 'consumed' and therefore the quantity will be removed from the Store + logged but won't appear on the 'transfer' site as inventory.</p>
+                                </div>
+                            @endif
                             <div class="form-actions right">
                                 <a href="{{ URL::previous() }}" class="btn default"> Back</a>
                                 <button type="submit" name="save" class="btn green">Save</button>

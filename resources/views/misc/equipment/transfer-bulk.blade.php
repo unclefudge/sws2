@@ -221,6 +221,11 @@
                                             </div>
                                             <div id="collapse_3_3" class="panel-collapse collapse" aria-expanded="true" style="">
                                                 <div class="panel-body">
+                                                    @if ($location and $location->id == 1)
+                                                        <div id="materials_note" class="note note-warning">
+                                                            <p><b>Please Note:</b> Any Materials transferred from the Store to any Site are considered to be 'consumed' and therefore the quantity will be removed from the Store + logged but won't appear on the 'transfer' site as inventory.</p>
+                                                        </div>
+                                                    @endif
                                                     <table class="table table-striped table-bordered table-hover order-column" id="table-3">
                                                         <thead>
                                                         <tr class="mytable-header">

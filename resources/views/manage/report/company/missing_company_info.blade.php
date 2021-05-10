@@ -48,7 +48,7 @@
                                         <td>{!! $company->updated_at->format('d/m/Y')!!}</td>
                                     </tr>
                                 @endif
-                                @if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
+                                @if ($company->isMissingDocs() && !preg_match('/cc-/', strtolower($company->name)))
                                     @foreach($company->missingDocs() as $type => $name)
                                         <?php $doc = $company->expiredCompanyDoc($type) ?>
                                         <tr>
