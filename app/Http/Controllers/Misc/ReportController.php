@@ -361,12 +361,12 @@ class ReportController extends Controller {
         $to = Carbon::now();
         $from = Carbon::now()->subDays(90);
 
-        $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
-        $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1,3])->get();
+        $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->where('status', '<>', 2)->get();
+        $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1, 3])->get();
         $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
 
-        $count = $count_allocated = 0;
-        $total_allocated = $total_completed = 0;
+        $count = 0;
+        $total_allocated = $total_completed = $total_contacted = $total_appoint = 0;
         $cats = [];
         $supers = [];
 
@@ -375,15 +375,36 @@ class ReportController extends Controller {
                 $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
                 $total_completed = $total_completed + $days;
 
-                // Assigned Requests
+                // Avg Assigned Days
                 if ($main->assigned_at) {
-                    // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
-                    $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00');
-                    $days = $assigned_at->diffInWeekDays($main->reported);
-                    $total_allocated = $total_allocated + $days;
-                    $count_allocated ++;
-                    //echo "id:$main->id s:$main->status c:$count_main_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . $main->assigned_at->format('d/m/Y g:i') . "<br>";
-                }
+                    $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                    $assigned_days = $assigned_at->diffInWeekDays($main->reported);
+                } elseif ($main->status == 0 || $main->status == 3)
+                    $assigned_days = $main->reported->diffInWeekDays($main->updated_at);
+                elseif ($main->status == 1)
+                    $assigned_days = $main->reported->diffInWeekDays($to);
+
+                //echo "id:$main->id s:$main->status c:$count_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . $main->assigned_at->format('d/m/Y g:i') . "<br>";
+                $total_allocated = $total_allocated + $assigned_days;
+
+                // Avg Client Contacted Days
+                if ($main->client_contacted)
+                    $total_contacted = $total_contacted + $main->client_contacted->diffInWeekDays($main->reported);
+                elseif ($main->status == 0 || $main->status == 3)
+                    $total_contacted = $total_contacted + $main->reported->diffInWeekDays($main->updated_at);
+                elseif ($main->status == 1)
+                    $total_contacted = $total_contacted + $main->reported->diffInWeekDays($to);
+
+                // Avg Appointment to Completion Days
+                $appoint_from = ($main->client_appointment) ? $main->client_appointment : $main->reported;
+                if ($main->status == 0 || $main->status == 3)
+                    $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($main->updated_at);
+                elseif ($main->status == 1)
+                    $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
+
+
+
+
 
                 // Count Categories
                 $name = ($main->category_id) ? SiteMaintenanceCategory::find($main->category_id)->name : 'N/A';
@@ -411,12 +432,16 @@ class ReportController extends Controller {
 
         ksort($cats);
         ksort($supers);
+        //dd($supers);
 
         $avg_completed = ($count) ? round($total_completed / $count) : 0;
-        $avg_allocated = ($count_allocated) ? round($total_allocated / $count_allocated) : 0;
+        $avg_allocated = ($count) ? round($total_allocated / $count) : 0;
+        $avg_contacted = ($count) ? round($total_contacted / $count) : 0;
+        $avg_appoint = ($count) ? round($total_appoint / $count) : 0;
+
         //dd($mains->groupBy('site_id')->count());
 
-        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'cats', 'supers'));
+        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
     }
 
     /****************************************************

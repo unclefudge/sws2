@@ -86,11 +86,23 @@
             <div class="col-xs-2">{{ $mains_created->count() }}</div>
         </div>
         <div class="row">
-            <div class="col-xs-4">Average days for completing Requests</div>
-            <div class="col-xs-4">{{ $avg_completed }}</div>
+            <div class="col-xs-4">Average days for client contacted</div>
+            <div class="col-xs-4">{{ $avg_contacted }}</div>
             <div class="col-xs-2">Unique Sites</div>
             <div class="col-xs-2">{{ ($mains->groupBy('site_id')->count() + $mains_old->groupBy('site_id')->count()) }}</div>
         </div>
+            <div class="row">
+                <div class="col-xs-4">Average days from appointment to completion</div>
+                <div class="col-xs-4">{{ $avg_appoint }}</div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-2"></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4">Average days for completing Requests</div>
+                <div class="col-xs-4">{{ $avg_completed }}</div>
+                <div class="col-xs-2"></div>
+                <div class="col-xs-2"></div>
+            </div>
         <hr style="margin: 5px 0px">
 
         <div class="row">
@@ -109,7 +121,7 @@
                 <table>
                     <tr>
                         <td width="30px"><b>#</b></td>
-                        <td width="150px"><b>Task Owner</b></td>
+                        <td width="150px"><b>Supervisor</b></td>
                         <td width="80px"><b>Active</b></td>
                         <td width="80px"><b>Completed</b></td>
                         <td width="80px"><b>On Hold</b></td>
@@ -124,7 +136,7 @@
                         </tr>
                     @endforeach
                     <hr style="padding: 2px; margin: 2px 0px">
-                    <tr><
+                    <tr><td></td>
                         <td></td>
                         <td>{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</td>
                         <td>{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</td>

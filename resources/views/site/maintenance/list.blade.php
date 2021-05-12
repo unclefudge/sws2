@@ -100,7 +100,7 @@
                                 <th width="10%"> Appointment</th>
                                 <th> Supervisor</th>
                                 <th width="10%"> Updated</th>
-                                <th width="10%"> Completed</th>
+                                {{--}}<th width="10%"> Completed</th>--}}
                                 <th width="5%"></th>
                             </tr>
                             </thead>
@@ -146,7 +146,7 @@
             {data: 'appointment_date', name: 'm.client_appointment'},
             {data: 'super_id', name: 'm.super_id'},
             {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
-            {data: 'completed', name: 'completed', orderable: false, searchable: false},
+            //{data: 'completed', name: 'completed', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         order: [

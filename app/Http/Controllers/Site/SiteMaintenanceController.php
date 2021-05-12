@@ -658,11 +658,12 @@ class SiteMaintenanceController extends Controller {
         $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
 
         $records = DB::table('site_maintenance AS m')
-            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
+            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
                 DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
                 DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
                 DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
                 DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
                 's.code as sitecode', 's.name as sitename'])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
             ->whereIn('m.id', $request_ids)
@@ -687,9 +688,18 @@ class SiteMaintenanceController extends Controller {
             })
             ->addColumn('last_updated', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
+                $total = $main->items()->count();
+                $completed = $main->itemsCompleted()->count();
+                $pending = '';
+                if ($total == $completed && $total != 0) {
+                    if (!$main->supervisor_sign_by)
+                        $pending = '<br><span class="badge badge-info badge-roundless pull-right">Pending Supervisor</span>';
+                    elseif (!$main->manager_sign_by)
+                        $pending = '<br><span class="badge badge-primary badge-roundless pull-right">Pending Manager</span>';
+                }
 
-                return ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
-            })
+                return ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') . $pending : $main->created_at->format('d/m/Y') . $pending;
+            })/*
             ->addColumn('completed', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
                 $total = $main->items()->count();
@@ -711,7 +721,7 @@ class SiteMaintenanceController extends Controller {
                 }
 
                 return '<span class="label pull-right label-success">' . $completed . ' / ' . $total . '</span>';
-            })
+            })*/
             ->addColumn('action', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
                 if (($doc->status && Auth::user()->allowed2('edit.site.maintenance', $main)) || (!$doc->status && Auth::user()->allowed2('sig.site.maintenance', $main)))
@@ -720,7 +730,7 @@ class SiteMaintenanceController extends Controller {
                 return '<a href="/site/maintenance/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action'])
+            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;

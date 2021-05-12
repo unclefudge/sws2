@@ -40,13 +40,31 @@
                             <div class="col-md-2">{{ $mains_created->count() }}</div>
                         </div>
                         <div class="row">
+                            <div class="col-md-4">Average days for client contacted
+                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                   data-content="Calculated 'Working Days' from time request is reported to the date 'first contact' is made with the client"
+                                   data-original-title="Average days for client contacted"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
+                            <div class="col-md-4">{{ $avg_contacted }}</div>
+                            <div class="col-md-2">Unique Sites</div>
+                            <div class="col-md-2">{{ ($mains->groupBy('site_id')->count() + $mains_old->groupBy('site_id')->count()) }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">Average days from appointment to completion
+                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                   data-content="Calculated 'Working Days' to complete from either Client Appointment date or the reported date in cases of no appointment date"
+                                   data-original-title="Average days appointment to completion"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
+                            <div class="col-md-4">{{ $avg_appoint }}</div>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-2"></div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-4">Average days for completing Requests
                                 <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
                                    data-content="Calculated 'Working Days' from time request is reported to either a) Completed b) placed On Hold c) end of date range"
                                    data-original-title="Average days for completing Requests"> <i class="fa fa-question-circle font-grey-silver"></i> </a></div>
                             <div class="col-md-4">{{ $avg_completed }}</div>
-                            <div class="col-md-2">Unique Sites</div>
-                            <div class="col-md-2">{{ ($mains->groupBy('site_id')->count() + $mains_old->groupBy('site_id')->count()) }}</div>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-2"></div>
                         </div>
                         <hr>
                         <div class="row">
@@ -63,7 +81,7 @@
                                 <div class="visible-sm visible-xs"><br></div>
                                 <div class="row">
                                     <div class="col-xs-1"><b>#</b></div>
-                                    <div class="col-xs-5"><b>Task Owner</b></div>
+                                    <div class="col-xs-5"><b>Supervisor</b></div>
                                     <div class="col-xs-2"><b>Active</b></div>
                                     <div class="col-xs-2"><b>Completed</b></div>
                                     <div class="col-xs-2"><b>On Hold</b></div>
@@ -98,7 +116,7 @@
                                 <th>Site</th>
                                 <th>Name</th>
                                 <th>Category</th>
-                                <th>Task Owner</th>
+                                <th>Supervisor</th>
                                 <th width="10%">Reported Date</th>
                                 <th width="10%">Allocated Date</th>
                                 <th width="10%">Completed</th>

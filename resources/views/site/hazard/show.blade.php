@@ -48,6 +48,7 @@
                             <h4 class="font-green-haze">Hazard Details</h4>
                             <div class="row" style="line-height: 1.5em">
                                 <div class="col-md-9">
+                                    <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
                                     <b>Risk Rating: </b>{!! $hazard->ratingTextColoured !!}<br><br>
                                     <b>Location of Hazard:</b><br>{{ $hazard->location }}<br><br>
                                     <b>What is the hazard / safety issue:</b><br>{{ $hazard->reason }}<br><br>
