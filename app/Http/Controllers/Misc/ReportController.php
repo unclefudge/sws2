@@ -403,9 +403,6 @@ class ReportController extends Controller {
                     $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
 
 
-
-
-
                 // Count Categories
                 $name = ($main->category_id) ? SiteMaintenanceCategory::find($main->category_id)->name : 'N/A';
                 if (!array_key_exists($name, $cats))

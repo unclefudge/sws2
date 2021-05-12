@@ -53,10 +53,16 @@
 
                         <div class="form-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         {!! Form::text('site_name', $report->site->name, ['class' => 'form-control', 'readonly']) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        {!! Form::label('site_code', 'Site No.', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_code', $report->site->code, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
