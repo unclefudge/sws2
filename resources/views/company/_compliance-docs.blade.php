@@ -80,6 +80,8 @@ $compliantDocs = $company->compliantDocs();
                                             <a href="/company/{{ $company->id  }}/doc/subcontractor-statement/create"><i class="fa fa-pencil-square-o" style="padding-left: 10px"></i> Create</a>
                                         @elseif ($type == 5)
                                             <a href="/company/{{ $company->id  }}/doc/period-trade-contract/create"><i class="fa fa-pencil-square-o" style="padding-left: 10px"></i> Create</a>
+                                        @elseif ($type == 12 && $company->parent_company == 3)
+                                            <a href="/company/{{ $company->id }}/doc/privacy-policy/create"><i class="fa fa-pencil-square-o" style="padding-left: 10px"></i> Create</a>
                                         @else
                                             <a href="/company/{{ $company->id  }}/doc/create"><i class="fa fa-upload" style="padding-left: 10px"></i> Upload</a>
                                         @endif

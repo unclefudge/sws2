@@ -342,7 +342,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function isCCcompany()
     {
         $cc_companies = Company::find(3)->companies()->pluck('id')->toArray();
-        return ($this->company_id == 3 || in_array($this->id, $cc_companies)) ? true : false;
+        return ($this->company_id == 3 || in_array($this->company_id, $cc_companies)) ? true : false;
     }
 
     /**

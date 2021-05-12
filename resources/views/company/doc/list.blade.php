@@ -26,7 +26,7 @@
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption font-dark">
-                            <span class="caption-subject font-dark bold uppercase"> Company Documents</span>
+                            <span class="caption-subject font-dark bold uppercase"> Company Documents {{ (Auth::user()->isCCcompany()) ? 'y' : 'n' }}</span>
                         </div>
                         <div class="actions">
                             @if((Auth::user()->isCompany($company->id) && Auth::user()->allowed2('add.company.doc')) ||
