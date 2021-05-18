@@ -22,7 +22,7 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasPermission2('add.site.asbestos'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/asbestos/create" data-original-title="Add">Add</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/asbestos/notification/create" data-original-title="Add">Add</a>
                             @endif
                         </div>
                     </div>
@@ -78,7 +78,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-            'url': '{!! url('site/asbestos/dt/list') !!}',
+            'url': '{!! url('site/asbestos/notification/dt/list') !!}',
             'type': 'GET',
             'data': function (d) {
                 d.status = $('#status1').val();

@@ -280,10 +280,18 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     // Site Asbestos Register
-    Route::get('site/asbestos/dt/list', 'Site\SiteAsbestosController@getReports');
-    Route::get('site/asbestos/{id}/status/{status}', 'Site\SiteAsbestosController@updateStatus');
-    Route::any('site/asbestos/{id}/extra', 'Site\SiteAsbestosController@updateExtra');
-    Route::resource('site/asbestos', 'Site\SiteAsbestosController');
+    Route::get('site/asbestos/register/dt/list', 'Site\SiteAsbestosRegisterController@getReports');
+    Route::get('site/asbestos/register/{id}/create', 'Site\SiteAsbestosRegisterController@createItem');
+    Route::get('site/asbestos/register/delete/{id}', 'Site\SiteAsbestosRegisterController@deleteItem');
+    Route::get('site/asbestos/register/{id}/createpdf', 'Site\SiteAsbestosRegisterController@createPDF');
+    Route::resource('site/asbestos/register', 'Site\SiteAsbestosRegisterController');
+
+
+    // Site Asbestos Notification
+    Route::get('site/asbestos/notification/dt/list', 'Site\SiteAsbestosController@getReports');
+    Route::get('site/asbestos/notification/{id}/status/{status}', 'Site\SiteAsbestosController@updateStatus');
+    Route::any('site/asbestos/notification/{id}/extra', 'Site\SiteAsbestosController@updateExtra');
+    Route::resource('site/asbestos/notification', 'Site\SiteAsbestosController');
 
     // Site Inspection Electrical Register
     Route::get('site/inspection/electrical/dt/list', 'Site\SiteInspectionElectricalController@getInspections');
@@ -521,7 +529,9 @@ Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', 'Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance');
-Route::get('manage/export-support', 'Misc\PagesController@exportSupportTickets');
+
+
+Route::get('test/asbestosreg', 'Misc\PagesController@asbestosRegister');
 
 // PHP Info
 Route::get('php-info', function () {

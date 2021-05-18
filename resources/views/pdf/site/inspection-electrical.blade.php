@@ -166,7 +166,7 @@
 
         {{-- Recommended Work --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECOMMEND WORKS</h5></div>
+            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECOMMENDED WORKS</h5></div>
         </div>
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">

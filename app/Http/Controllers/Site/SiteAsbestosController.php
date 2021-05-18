@@ -44,7 +44,7 @@ class SiteAsbestosController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.asbestos'))
             return view('errors/404');
 
-        return view('site/asbestos/list');
+        return view('site/asbestos/notification/list');
     }
 
     /**
@@ -60,7 +60,7 @@ class SiteAsbestosController extends Controller {
 
         $site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
 
-        return view('site/asbestos/create', compact('site_id'));
+        return view('site/asbestos/notification/create', compact('site_id'));
     }
 
     /**
@@ -76,7 +76,7 @@ class SiteAsbestosController extends Controller {
         if (!Auth::user()->allowed2('view.site.asbestos', $asb))
             return view('errors/404');
 
-        return view('site/asbestos/show', compact('asb'));
+        return view('site/asbestos/notification/show', compact('asb'));
     }
 
     /**
@@ -92,7 +92,7 @@ class SiteAsbestosController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.asbestos', $asb)))
             return view('errors/404');
 
-        return view('site/asbestos/edit', compact('asb'));
+        return view('site/asbestos/notification/edit', compact('asb'));
 
     }
 
@@ -115,7 +115,7 @@ class SiteAsbestosController extends Controller {
         });
 
         if ($validator->fails()) {
-            return redirect('site/asbestos/create')->withErrors($validator)->withInput();
+            return redirect('site/asbestos/notification/create')->withErrors($validator)->withInput();
         }
 
         $asb_request = removeNullValues(request()->all());
@@ -166,7 +166,7 @@ class SiteAsbestosController extends Controller {
 
         Toastr::success("Created notification");
 
-        return redirect('/site/asbestos/');
+        return redirect('/site/asbestos/notification/');
     }
 
     /**
@@ -188,7 +188,7 @@ class SiteAsbestosController extends Controller {
         });
 
         if ($validator->fails()) {
-            return redirect("site/asbestos/$asb->id/edit")->withErrors($validator)->withInput();
+            return redirect("site/asbestos/notification/$asb->id/edit")->withErrors($validator)->withInput();
         }
 
         $asb_request = removeNullValues($request->all());
@@ -231,7 +231,7 @@ class SiteAsbestosController extends Controller {
         Action::create(['action' => 'Notification fields updated', 'table' => 'site_asbestos', 'table_id' => $asb->id]);
         Toastr::success("Saved changes");
 
-        return redirect("site/asbestos/$asb->id");
+        return redirect("site/asbestos/notification/$asb->id");
     }
 
     /**
@@ -284,7 +284,7 @@ class SiteAsbestosController extends Controller {
         $asb->update($asb_request);
         Toastr::success("Saved changes");
 
-        return redirect("site/asbestos/$asb->id");
+        return redirect("site/asbestos/notification/$asb->id");
     }
 
 
@@ -303,7 +303,7 @@ class SiteAsbestosController extends Controller {
         if ($status != $old_status)
             $asb->updateStatus($status);
 
-        return redirect('site/asbestos/' . $asb->id);
+        return redirect('site/asbestos/notification/' . $asb->id);
     }
 
 
@@ -321,7 +321,7 @@ class SiteAsbestosController extends Controller {
             ->where('a.status', request('status'));
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/site/asbestos/{{$id}}"><i class="fa fa-search"></i></a></div>')
+            ->editColumn('id', '<div class="text-center"><a href="/site/asbestos/notification/{{$id}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('updated_at', function ($doc) {
                 return (new Carbon($doc->updated_at))->format('d/m/Y');
             })

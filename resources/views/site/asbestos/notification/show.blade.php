@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><a href="/site/asbestos">Asbestos Notifications</a><i class="fa fa-circle"></i></li>
+        <li><a href="/site/asbestos/notification">Asbestos Notifications</a><i class="fa fa-circle"></i></li>
         <li><span>View</span></li>
     </ul>
 @stop
@@ -324,15 +324,15 @@
                             </div>
                         </div>
                         <div class="form-actions right">
-                            <a href="/site/asbestos" class="btn default"> Back</a>
+                            <a href="/site/asbestos/notification" class="btn default"> Back</a>
                             @if(Auth::user()->allowed2('del.site.asbestos', $asb))
                                 @if ($asb->status)
                                     @if(Auth::user()->allowed2('edit.site.asbestos', $asb))
-                                        <a href="/site/asbestos/{{ $asb->id }}/edit" class="btn green"> Edit Notification</a>
+                                        <a href="/site/asbestos/notification/{{ $asb->id }}/edit" class="btn green"> Edit Notification</a>
                                     @endif
-                                    <a href="/site/asbestos/{{ $asb->id }}/status/0" class="btn red"> Close Notification</a>
+                                    <a href="/site/asbestos/notification/{{ $asb->id }}/status/0" class="btn red"> Close Notification</a>
                                 @else
-                                    <a href="/site/asbestos/{{ $asb->id }}/status/1" class="btn green"> Re-open Notification</a>
+                                    <a href="/site/asbestos/notification/{{ $asb->id }}/status/1" class="btn green"> Re-open Notification</a>
                                 @endif
                             @endif
                         </div>
