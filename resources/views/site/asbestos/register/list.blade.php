@@ -27,10 +27,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-2 pull-right">
+                        <div class="col-md-3 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Active/Maintenance</option>
+                                    <option value="1" selected>Active / Maintenance</option>
                                     <option value="0">Completed</option>
                                 </select>
                             </div>
@@ -83,9 +83,9 @@
         },
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'code', name: 's.code', orderable: false, searchable: false},
-            {data: 'sitename', name: 's.name', orderable: false, searchable: false},
-            {data: 'updated_at', name: 'a.updated_at', orderable: false, searchable: false},
+            {data: 'code', name: 's.code',  },
+            {data: 'sitename', name: 's.name', },
+            {data: 'updated_at', name: 'a.updated_at', searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         order: [

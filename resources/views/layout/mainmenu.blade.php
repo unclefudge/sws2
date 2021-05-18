@@ -63,6 +63,7 @@
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3>&nbsp;</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('site.asbestos'))
+                                                            <li><a href="/site/asbestos/register" class="nav-link "> Asbestos Register</a></li>
                                                             <li><a href="/site/asbestos/notification" class="nav-link "> Asbestos Notifications</a></li>
                                                         @endif
                                                     </ul>
