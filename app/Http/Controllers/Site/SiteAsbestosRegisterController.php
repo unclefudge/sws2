@@ -63,7 +63,7 @@ class SiteAsbestosRegisterController extends Controller {
         $sites = Auth::user()->authSites('view.site.asbestos', '1');
         foreach ($sites as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg)
+            if (!$reg && !in_array($site->code,['0002', '0005', '0006', '0007']))
                 $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
 
