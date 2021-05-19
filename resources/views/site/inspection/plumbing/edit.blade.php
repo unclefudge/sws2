@@ -105,7 +105,7 @@
                             <div class="row">
                                 <div class="col-md-12 ">
                                     <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", nl2br($report->info), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
+                                        {!! Form::textarea("info", $report->info, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details",  (Auth::user()->allowed2('add.site.inspection')) ? '' : 'readonly']) !!}
                                         {!! fieldErrorMessage('info', $errors) !!}
                                     </div>
                                 </div>
