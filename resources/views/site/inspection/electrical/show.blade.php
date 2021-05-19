@@ -124,7 +124,7 @@
                                 Work not essential but strongly recommended to be carried out to prevent the necessity of costly maintenance in the future when access to same:
                                 <div class="row">
                                     <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->recommend) !!}</div>
+                                    <div class="col-md-11">{!! $report->recommend !!}</div>
                                 </div>
                                 @if ($report->required_cost)
                                     <br>
