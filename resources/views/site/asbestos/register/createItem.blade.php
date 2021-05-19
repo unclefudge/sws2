@@ -60,7 +60,7 @@
                                     <div class="form-group {!! fieldHasError('date', $errors) !!}">
                                         {!! Form::label('date', 'Date Identified', ['class' => 'control-label']) !!}
                                         <div class="input-group date date-picker">
-                                            {!! Form::text('date', null, ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                            {!! Form::text('date', ($asb->items->sortBy('date')->first()) ? $asb->items->sortBy('date')->first()->date->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
                                             <span class="input-group-btn">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>

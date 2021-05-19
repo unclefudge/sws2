@@ -60,8 +60,16 @@ class SiteAsbestosRegisterController extends Controller {
         $site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
 
         $sitelist = [];
-        $sites = Auth::user()->authSites('view.site.asbestos', '1');
-        foreach ($sites as $site) {
+        $sites_active = Auth::user()->authSites('view.site.asbestos', '1');
+        $sites_maint = Auth::user()->authSites('view.site.asbestos', '2');
+
+        foreach ($sites_active as $site) {
+            $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
+            if (!$reg && !in_array($site->code,['0002', '0005', '0006', '0007']))
+                $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
+        }
+
+        foreach ($sites_maint as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
             if (!$reg && !in_array($site->code,['0002', '0005', '0006', '0007']))
                 $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
