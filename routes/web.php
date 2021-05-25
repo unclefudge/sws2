@@ -227,6 +227,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/file/directory', 'Misc\FileController@fileDirectory');
     Route::get('manage/file/directory/dt/docs', 'Misc\FileController@getDocs');
 
+    // Site Project Supply
+    Route::get('site/supply/dt/list', 'Site\SiteProjectSupplyController@getReports');
+    Route::get('site/supply/{id}/create', 'Site\SiteProjectSupplyController@createItem');
+    Route::get('site/supply/delete/{id}', 'Site\SiteProjectSupplyController@deleteItem');
+    Route::get('site/supply/{id}/createpdf', 'Site\SiteProjectSupplyController@createPDF');
+    Route::resource('site/supply', 'Site\SiteProjectSupplyController');
+
     // Site Hazards
     Route::get('site/hazard/dt/hazards', 'Site\SiteHazardController@getHazards');
     Route::get('site/hazard/{id}/status/{status}', 'Site\SiteHazardController@updateStatus');

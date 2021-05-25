@@ -235,8 +235,14 @@ class CompanyDocController extends Controller {
             $doc->status = 1;
         } else {
             // Create approval ToDoo
-            if ($doc->category->type == 'acc' || $doc->category->type == 'whs')
-                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
+            if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
+                $userlist = $doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
+
+                // For CC specific docs include doc.cc.approval users to ToDoo as well
+                if ($doc->for_company_id == '3')
+                    $userlist = array_merge($userlist, $doc->owned_by->notificationsUsersTypeArray('doc.cc.approval'));
+                $doc->createApprovalToDo($userlist);
+            }
         }
         $doc->save();
 

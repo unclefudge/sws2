@@ -806,37 +806,6 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function createPermission()
-    {
-        //
-        // Creating Permission
-        //
-        $name = 'Site List';
-        $slug = 'site.list';
-        echo "Creating Permission for $name ($slug)<br><br>";
-        // View
-        $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);
-        $p->model = 'c';
-        $p->save();
-        // Edit
-        $p = Permission2::create(['name' => "Edit $name", 'slug' => "edit.$slug"]);
-        $p->model = 'c';
-        $p->save();
-        // Add
-        $p = Permission2::create(['name' => "Add $name", 'slug' => "add.$slug"]);
-        $p->model = 'c';
-        $p->save();
-        // Delete
-        $p = Permission2::create(['name' => "Delete $name", 'slug' => "del.$slug"]);
-        $p->model = 'c';
-        $p->save();
-        // Sig
-        $p = Permission2::create(['name' => "Sign Off $name", 'slug' => "sig.$slug"]);
-        $p->model = 'c';
-        $p->save();
-        echo "<br><br>Completed<br>-------------<br>";
-    }
-
     public function fixplanner()
     {
         set_time_limit(120);
@@ -1339,6 +1308,37 @@ class PagesController extends Controller {
             echo "</td></tr>";
         }
         echo "</table>";
+    }
+
+    public function createPermission()
+    {
+        //
+        // Creating Permission
+        //
+        $name = 'Site Asbestos Register';
+        $slug = 'site.asbestos.register';
+        echo "Creating Permission for $name ($slug)<br><br>";
+        // View
+        $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);
+        $p->model = 'c';
+        $p->save();
+        // Edit
+        $p = Permission2::create(['name' => "Edit $name", 'slug' => "edit.$slug"]);
+        $p->model = 'c';
+        $p->save();
+        // Add
+        $p = Permission2::create(['name' => "Add $name", 'slug' => "add.$slug"]);
+        $p->model = 'c';
+        $p->save();
+        // Delete
+        $p = Permission2::create(['name' => "Delete $name", 'slug' => "del.$slug"]);
+        $p->model = 'c';
+        $p->save();
+        // Sig
+        $p = Permission2::create(['name' => "Sign Off $name", 'slug' => "sig.$slug"]);
+        $p->model = 'c';
+        $p->save();
+        echo "<br><br>Completed<br>-------------<br>";
     }
 
 }

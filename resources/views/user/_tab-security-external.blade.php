@@ -331,12 +331,29 @@ $rec = $user;
                             <td width="15%">{!! permSelect('del.safety.doc', 'del', $rec, $cid) !!}</td>
                             <td width="15%"></td>
                         </tr>
+                        {{--}}
+                        <tr>
+                            <td>Asbestos Register</td>
+                            <td width="15%">{!! permSelect('view.site.asbestos.register', 'super', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('edit.site.asbestos.register', 'super', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('add.site.asbestos.register', 'add', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('del.site.asbestos.register', 'res', $rec, $cid) !!}</td>
+                            <td width="15%"></td>
+                        </tr>--}}
                         <tr>
                             <td>Asbestos Notifications</td>
                             <td width="15%">{!! permSelect('view.site.asbestos', 'super', $rec, $cid) !!}</td>
                             <td width="15%">{!! permSelect('edit.site.asbestos', 'super', $rec, $cid) !!}</td>
                             <td width="15%">{!! permSelect('add.site.asbestos', 'add', $rec, $cid) !!}</td>
                             <td width="15%">{!! permSelect('del.site.asbestos', 'res', $rec, $cid) !!}</td>
+                            <td width="15%"></td>
+                        </tr>
+                        <tr>
+                            <td>Project Supply Information</td>
+                            <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('add.site.project.supply', 'add', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid) !!}</td>
                             <td width="15%"></td>
                         </tr>
                     </table>
