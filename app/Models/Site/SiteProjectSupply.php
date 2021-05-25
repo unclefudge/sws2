@@ -46,8 +46,10 @@ class SiteProjectSupply extends Model {
     public function itemsOrdered()
     {
         $ordered = [];
+        $specials = 0;
         foreach ($this->items as $item) {
-            $order = SiteProjectSupplyProduct::find($item->product_id)->order;
+            $product = SiteProjectSupplyProduct::find($item->product_id);
+            $order = ($product->id == 32) ? "100" . $specials++ : $product->order;
             $ordered[$order] = $item;
         }
 

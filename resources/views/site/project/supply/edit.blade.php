@@ -73,14 +73,16 @@
                                 if ($item->supplier)
                                     $supplier = (in_array($item->supplier, $supplierOpts)) ? $item->supplier : 'other';
                                 ?>
-                                <div class="row">
+                                <div class="row" id="item-{{ $item->id }}">
                                     <div class="col-md-2">
                                         <div class="hidden-sm hidden-xs">
-                                            {{ $item->product }}
+                                            {{ ($item->product_id == 32) ? 'Special Item' : $item->product }}
                                         </div>
                                         <div class="visible-sm visible-xs">
-                                            <br><b>{{ $item->product }}</b>
+                                            <br><b>{{ ($item->product_id == 32) ? 'Special Item' : $item->product }}</b>
                                             <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
+                                            @if ($item->product_id == 32)
+                                                <div>Product</div> @endif
                                         </div>
                                         @if ($item->product_id == 32)
                                             <div class="form-group">
@@ -99,6 +101,7 @@
                                             </div>
                                         @endif
                                         <div id="div-supplier-txt-{{$item->id}}" @if ($supplier != 'other' && $supplierOpts) style="display: none" @endif>
+                                            @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
                                             <div class="form-group">
                                                 {!! Form::text("supplier_txt_$item->id", $item->supplier, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
                                             </div>
@@ -115,6 +118,7 @@
                                             </div>
                                         @endif
                                         <div id="div-type-txt-{{$item->id}}" @if ($type != 'other' && $typeOpts) style="display: none" @endif>
+                                            @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
                                             <div class="form-group">
                                                 {!! Form::text("type_txt_$item->id", $item->type, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
                                             </div>
@@ -122,7 +126,13 @@
                                     </div>
                                     {{-- Colour --}}
                                     <div class="col-md-2">
-                                        <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-$item->id", $item->colour, ['class' => 'form-control']) !!}</div>
+                                        <div class="visible-sm visible-xs">Colour</div>
+                                        @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
+                                        {!! Form::text("colour-$item->id", $item->colour, ['class' => 'form-control']) !!}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <a href="#"><i class="fa fa-times font-red delItem" id="del-{{$item->id}}" name="del-{{$item->product}}"></i></a>
+                                    </div>
                                     {{-- Notes --}}
                                     {{--}}
                                     <div class="col-md-2">
@@ -142,13 +152,22 @@
                             </div>
 
                             <div id="add-items" style="display: none">
+                                <h3>Special Items</h3>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
                                 @for ($i = 1; $i <= 5; $i++)
+                                    {!! Form::hidden("product-s$i", null, ['class' => 'form-control', 'id' => "product-s$i"]) !!}
+                                    {!! Form::hidden("supplier-s$i", null, ['class' => 'form-control', 'id' => "supplier-s$i"]) !!}
+                                    {!! Form::hidden("type-s$i",  null, ['class' => 'form-control', 'id' => "type-s$i"]) !!}
                                     <div class="row">
+                                        {{-- Product --}}
                                         <div class="col-md-2">
-                                            <div class="hidden-sm hidden-xs">Special Item</div>
                                             <div class="visible-sm visible-xs">
-                                                <br><b>Special Item</b>
+                                                <br><b>Special Item }}</b>
                                                 <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
+                                                <div>Product</div>
+                                            </div>
+                                            <div class="form-group">
+                                                {!! Form::text("product_txt_s$i", null, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -171,7 +190,7 @@
                                         </div>
                                         {{-- Colour --}}
                                         <div class="col-md-2">
-                                            <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control']) !!}</div>
+                                            <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control', 'placeholder' => 'Enter colour']) !!}</div>
                                         {{-- Notes --}}
                                         {{--}}
                                         <div class="col-md-2">
@@ -267,6 +286,15 @@
         // Text field updated
         //
 
+        // Product text
+        $(".productText").change(function () {
+            var name = $(this).attr('name');
+            if (name) {
+                var id = name.substr(12);
+                $("#product-" + id).val($(this).val());
+            }
+        });
+
         // Supply text
         $(".supplyText").change(function () {
             var name = $(this).attr('name');
@@ -292,6 +320,30 @@
                 var id = name.substr(11);
                 $("#colour-" + id).val($(this).val());
             }
+        });
+
+        // Delete Item
+        $(".delItem").click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('id');
+            var name = $(this).attr('name');
+            if (id) {
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this item!<br><b>"+name.substr(4)+"</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    var item_id = id.substr(4);
+                    $("#product-" + item_id).val('DELETE-ITEM');
+                    $("#item-" + item_id).hide();
+                });
+            }
+
         });
     });
 </script>

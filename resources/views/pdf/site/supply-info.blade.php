@@ -99,7 +99,7 @@
             <th width="15%" class="pad5">Colour</th>
         </tr>
         </thead>
-        @foreach ($project->items->sortBy('order') as $item)
+        @foreach ($project->itemsOrdered() as $item)
             <tr>
                 <td width="25%" class="pad5">{!! $item->product !!}</td>
                 <td width="25%" class="pad5">{!! $item->supplier !!}</td>

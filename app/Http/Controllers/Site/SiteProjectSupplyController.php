@@ -57,7 +57,7 @@ class SiteProjectSupplyController extends Controller {
         if (!Auth::user()->allowed2('add.site.project.supply'))
             return view('errors/404');
 
-        $sitelist = [];
+        $sitelist = ['' => 'Select site'];
         $sites_active = Auth::user()->authSites('view.site.project.supply', '1');
         $sites_maint = Auth::user()->authSites('view.site.project.supply', '2');
 
@@ -77,7 +77,7 @@ class SiteProjectSupplyController extends Controller {
         $fixout = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
 
         $products = SiteProjectSupplyProduct::where('status', '1')->whereIn('id', $lockup)->get();
-        //$products = SiteProjectSupplyProduct::where('status', '1')->orderBy('order')->get();
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
 
         return view('site/project/supply/create', compact('sitelist', 'products'));
     }
@@ -148,6 +148,7 @@ class SiteProjectSupplyController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $project = SiteProjectSupply::where('site_id', request('site_id'))->first();
+        //dd(request()->all());
 
         // Create Site Project
         if ($project) {
@@ -163,25 +164,31 @@ class SiteProjectSupplyController extends Controller {
             $maxID = SiteProjectSupplyProduct::all()->count();
 
             for ($i = 1; $i <= $maxID; $i ++) {
-                //if (request("supplier-$i") || request("type-$i") || request("colour-$i") || request("notes-$i")) {
-                echo "$i " . request("supplier-$i");
-                $item = SiteProjectSupplyItem::where('supply_id', $project->id)->where('product_id', $i)->first();
-                $product = SiteProjectSupplyProduct::findOrFail($i);
+                if ($i != 32) { // Exclude Special Item 32
+                    $item = SiteProjectSupplyItem::where('supply_id', $project->id)->where('product_id', $i)->first();
+                    $product = SiteProjectSupplyProduct::findOrFail($i);
 
-                if ($item) {
-                    $item->product = $product->name;
-                    $item->supplier = request("supplier-$i");
-                    $item->type = request("type-$i");
-                    $item->colour = request("colour-$i");
-                    $item->save();
-                } else {
-                    $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $i, 'product' => $product->name,
-                                                                       'supplier'  => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
+                    if ($item) {
+                        $item->product = $product->name;
+                        $item->supplier = request("supplier-$i");
+                        $item->type = request("type-$i");
+                        $item->colour = request("colour-$i");
+                        $item->save();
+                    } else {
+                        $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $i, 'product' => $product->name,
+                                                                           'supplier'  => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
+                    }
                 }
-                //}
             }
         }
-        //dd(request()->all());
+
+        // New Special items
+        for ($i = 1; $i <= 5; $i ++) {
+            if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
+                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 32, 'product' => request("product-s$i"),
+                                                                   'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
+            }
+        }
 
         // Create PDF
         $project->attachment = $this->createPDF($project->id);
@@ -218,13 +225,26 @@ class SiteProjectSupplyController extends Controller {
 
         //dd(request()->all());
 
+        // Existing items
         foreach ($project->items as $item) {
             if (request("product-$item->id") || request("supplier-$item->id") || request("type-$item->id") || request("colour-$item->id") || request("notes-$item->id")) {
-                $item->product = request("product-$item->id");
-                $item->supplier = request("supplier-$item->id");
-                $item->type = request("type-$item->id");
-                $item->colour = request("colour-$item->id");
-                $item->save();
+                if (request("product-$item->id") == "DELETE-ITEM")
+                    $item->delete();
+                else {
+                    $item->product = request("product-$item->id");
+                    $item->supplier = request("supplier-$item->id");
+                    $item->type = request("type-$item->id");
+                    $item->colour = request("colour-$item->id");
+                    $item->save();
+                }
+            }
+        }
+
+        // New Special items
+        for ($i = 1; $i <= 5; $i ++) {
+            if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
+                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 32, 'product' => request("product-s$i"),
+                                                                   'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
             }
         }
         //dd(request()->all());
@@ -276,7 +296,7 @@ class SiteProjectSupplyController extends Controller {
         //
         // Generate PDF
         //
-        return view('pdf/site/supply-info', compact('project'));
+        //return view('pdf/site/supply-info', compact('project'));
         //return PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4', 'landscape')->stream();
         $pdf = PDF::loadView('pdf/site/supply-info', compact('project'));
         $pdf->setPaper('A4');
@@ -286,7 +306,7 @@ class SiteProjectSupplyController extends Controller {
     }
 
     /**
-     * Get Asbestos Reports current user is authorised to manage + Process datatables ajax request.
+     * Get Project Supply current user is authorised to manage + Process datatables ajax request.
      */
     public function getReports()
     {
@@ -304,7 +324,6 @@ class SiteProjectSupplyController extends Controller {
                 $pro = SiteProjectSupply::find($project->id);
 
                 return ($pro->attachment_url) ? '<div class="text-center"><a href="' . $pro->attachment_url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>' : '';
-                //return '<div class="text-center"><a href="' . $asb->attachment_url . '"><i class="fa fa-search"></i></a></div>';
             })
             ->editColumn('updated_at', function ($project) {
                 return (new Carbon($project->updated_at))->format('d/m/Y');

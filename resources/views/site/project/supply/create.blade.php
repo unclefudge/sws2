@@ -115,6 +115,65 @@
                                 <div class="visible-sm visible-xs"><br></div>
                             @endforeach
 
+                            {{-- Special Items --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button class="btn blue" id="btn-add-item">Add Special Items</button>
+                                </div>
+                            </div>
+
+                            <div id="add-items" style="display: none">
+                                <h3>Special Items</h3>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    {!! Form::text("product-s$i", null, ['class' => 'form-control', 'id' => "product-s$i"]) !!}
+                                    {!! Form::hidden("supplier-s$i", null, ['class' => 'form-control', 'id' => "supplier-s$i"]) !!}
+                                    {!! Form::hidden("type-s$i",  null, ['class' => 'form-control', 'id' => "type-s$i"]) !!}
+                                    <div class="row">
+                                        {{-- Product --}}
+                                        <div class="col-md-2">
+                                            <div class="visible-sm visible-xs">
+                                                <br><b>Special Item }}</b>
+                                                <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
+                                                <div>Product</div>
+                                            </div>
+                                            <div class="form-group">
+                                                {!! Form::text("product_txt_s$i", null, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            {{-- Supplier --}}
+                                            <div class="visible-sm visible-xs">Supplier</div>
+                                            <div id="div-supplier-txt-s{{$i}}">
+                                                <div class="form-group">
+                                                    {!! Form::text("supplier_txt_s$i", null, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            {{-- Type --}}
+                                            <div class="visible-sm visible-xs">Type</div>
+                                            <div id="div-type-txt-s{{$i}}">
+                                                <div class="form-group">
+                                                    {!! Form::text("type_txt_s$i", null, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{-- Colour --}}
+                                        <div class="col-md-2">
+                                            <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control', 'placeholder' => 'Enter colour']) !!}</div>
+                                        {{-- Notes --}}
+                                        {{--}}
+                                        <div class="col-md-2">
+                                            <div class="visible-sm visible-xs"><br>Notes</div>
+                                            {!! Form::text("notes_s$i", null, ['class' => 'form-control',]) !!}
+                                        </div>--}}
+                                    </div>
+                                    <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                    <div class="visible-sm visible-xs"><br></div>
+                                @endfor
+                            </div>
+
                             <br><br>
                             <div class="form-actions right">
                                 <a href="/site/supply" class="btn default"> Back</a>
@@ -150,6 +209,14 @@
     $(document).ready(function () {
         /* Select2 */
         $("#site_id").select2({placeholder: "Select Site",});
+
+        // Add extra items
+        $("#btn-add-item").click(function (e) {
+            e.preventDefault();
+            $("#add-items").show();
+            $(".add-item").show();
+            $("#btn-add-item").hide();
+        });
 
         function updateField(field, id, val) {
             if (val == 'other') {
@@ -187,6 +254,15 @@
         //
         // Text field updated
         //
+
+        // Product text
+        $(".productText").change(function () {
+            var name = $(this).attr('name');
+            if (name) {
+                var id = name.substr(12);
+                $("#product-" + id).val($(this).val());
+            }
+        });
 
         // Supply text
         $(".supplyText").change(function () {

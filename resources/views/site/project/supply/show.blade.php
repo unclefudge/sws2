@@ -22,6 +22,11 @@
                             <span class="caption-subject font-green-haze bold uppercase">Project Supply Infomation</span>
                             <span class="caption-helper">ID: {{ $project->id }}</span>
                         </div>
+                        <div class="actions">
+                            @if($project->attachment_url)
+                                <a class="btn btn-circle green btn-outline btn-sm" href="{{  $project->attachment_url }}" data-original-title="PDF">View PDF</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="portlet-body form">
                         <div class="form-body">
@@ -60,22 +65,24 @@
                                         <div class="visible-sm visible-xs">
                                             <br><b>{{ $item->product }}</b>
                                             <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
+                                            @if ($item->product_id == 32) Product: {{  $item->product }} @endif
                                         </div>
                                     </div>
                                     {{-- Supplier --}}
                                     <div class="col-md-3">
-                                        <div class="visible-sm visible-xs">Supplier</div>
-                                        {{ ($item->supplier) ? $item->supplier : '-' }}
+                                        <div class="visible-sm visible-xs">Supplier: {{ ($item->supplier) ? $item->supplier : '-' }}</div>
+                                        <div class="hidden-sm hidden-xs">{{ ($item->supplier) ? $item->supplier : '-' }}</div>
                                     </div>
                                     {{-- Type --}}
                                     <div class="col-md-3">
-                                        <div class="visible-sm visible-xs">Type</div>
-                                        {{ ($item->type) ? $item->type : '-' }}
+                                        <div class="visible-sm visible-xs">Type: {{ ($item->type) ? $item->type : '-' }}</div>
+                                        <div class="hidden-sm hidden-xs">{{ ($item->type) ? $item->type : '-' }}</div>
                                     </div>
                                     {{-- Colour --}}
                                     <div class="col-md-2">
-                                        <div class="visible-sm visible-xs">Colour</div>
-                                        {{ ($item->colour) ? $item->colour : '-' }}</div>
+                                        <div class="visible-sm visible-xs">Colour: {{ ($item->colour) ? $item->colour : '-' }}</div>
+                                        <div class="hidden-sm hidden-xs">{{ ($item->colour) ? $item->colour : '-' }}</div>
+                                    </div>
                                     {{-- Notes --}}
                                     {{--}}
                                     <div class="col-md-2">
@@ -84,7 +91,6 @@
                                     </div>--}}
                                 </div>
                                 <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                <div class="visible-sm visible-xs"><br></div>
                             @endforeach
 
 
