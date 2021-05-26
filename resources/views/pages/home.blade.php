@@ -112,7 +112,7 @@
                         @if (Auth::user()->hasPermission2('add.site.asbestos'))
                             <div class="row" style="margin-top: 10px">
                                 <div class="col-md-12">
-                                    <a href="/site/asbestos/create" class="btn btn-lg green center-block"></i> Lodge Asbestos Notification </a>
+                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"></i> Lodge Asbestos Notification </a>
                                 </div>
                             </div>
                         @endif
@@ -125,6 +125,7 @@
                 @if (Session::has('siteID'))
                     <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"></i> Lodge Safety Issue </a>
                 @endif
+                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"></i> Lodge Asbestos Notification </a>
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
             </div>
         @endif
