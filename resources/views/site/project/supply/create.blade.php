@@ -126,7 +126,7 @@
                                 <h3>Special Items</h3>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
                                 @for ($i = 1; $i <= 5; $i++)
-                                    {!! Form::text("product-s$i", null, ['class' => 'form-control', 'id' => "product-s$i"]) !!}
+                                    {!! Form::hidden("product-s$i", null, ['class' => 'form-control', 'id' => "product-s$i"]) !!}
                                     {!! Form::hidden("supplier-s$i", null, ['class' => 'form-control', 'id' => "supplier-s$i"]) !!}
                                     {!! Form::hidden("type-s$i",  null, ['class' => 'form-control', 'id' => "type-s$i"]) !!}
                                     <div class="row">
