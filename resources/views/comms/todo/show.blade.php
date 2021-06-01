@@ -163,6 +163,9 @@
                                 @if($todo->type == 'inspection_plumbing')
                                     <a href="/site/inspection/plumbing/{{ $todo->type_id }}" class="btn dark">View Report</a>
                                 @endif
+                                    @if($todo->type == 'project supply')
+                                        <a href="/site/supply/{{ $todo->type_id }}/edit" class="btn blue">Update Supply Info</a>
+                                    @endif
                                 @if($todo->type == 'company doc')
                                     <?php $doc = \App\Models\Company\CompanyDoc::find($todo->type_id) ?>
                                     <a href="/company/{{ $doc->for_company_id }}/doc/{{ $doc->id }}/edit" class="btn dark">View Document</a>

@@ -252,6 +252,7 @@ class SiteProjectSupplyController extends Controller {
         // Create PDF
         $project->attachment = $this->createPDF($project->id);
         $project->save();
+        $project->closeToDo(Auth::user());
 
 
         Toastr::success("Updated project");

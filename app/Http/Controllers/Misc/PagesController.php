@@ -22,6 +22,9 @@ use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaCategory;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteAsbestosRegister;
+use App\Models\Site\SiteProjectSupply;
+use App\Models\Site\SiteProjectSupplyProduct;
+use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Comms\Todo;
@@ -137,17 +140,20 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        echo "<b>Site Access View</b></br>";
-        $users = User::where('status', 1)->orderBy('company_id')->get();
-        foreach ($users as $user) {
-            if ($user->hasPermission2('view.site') && $user->company_id != 3 && $user->company_id != 210) {
-                if ($user->company->parent_company == 3) echo "[*] &nbsp; ";
-                elseif ($user->company->parent_company == 210) echo "[B] &nbsp; ";
-                else echo "[" . $user->company->parent_company . "] &nbsp; ";
-                echo $user->company->name . " - $user->name " . "<br>";
-            }
-        }
+        echo "<b>Supply testing</b></br>";
+        echo "Creating new project<br>";
 
+        $lockup = [1, 2, 3, 4, 5, 6, 7, 8];
+        $fixout = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
+
+        $project = SiteProjectSupply::create(['site_id' => '25', 'version' => '1.0']);
+        foreach ($lockup as $id) {
+            $product = SiteProjectSupplyProduct::findOrFail($id);
+            $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $id, 'product' => $product->name]));
+        }
+        $project->createToDo([3,7]);
+        //echo "<br><br>$project: ".$project->site->name."<br>";
+        echo "creating ToDo<br>";
 
         /*
         echo "<b>Mail testing</b></br>";

@@ -348,14 +348,6 @@ $rec = $user;
                             <td width="15%">{!! permSelect('del.site.asbestos', 'res', $rec, $cid) !!}</td>
                             <td width="15%"></td>
                         </tr>
-                        <tr>
-                            <td>Project Supply Information</td>
-                            <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid) !!}</td>
-                            <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid) !!}</td>
-                            <td width="15%">{!! permSelect('add.site.project.supply', 'add', $rec, $cid) !!}</td>
-                            <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid) !!}</td>
-                            <td width="15%"></td>
-                        </tr>
                     </table>
 
                     <h5 class="font-green-haze" style="font-size: 16px">Documents</h5>
@@ -404,6 +396,14 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid) !!}</td>
                                 <td width="45%" colspan="3">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>Project Supply Information</td>
+                                <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('add.site.project.supply', 'add', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid) !!}</td>
+                                <td width="15%"></td>
                             </tr>
                         </table>
                     @endif

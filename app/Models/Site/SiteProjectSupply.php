@@ -4,6 +4,7 @@ namespace App\Models\Site;
 
 use URL;
 use Mail;
+use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -55,6 +56,42 @@ class SiteProjectSupply extends Model {
 
         return $ordered;
     }
+
+    /**
+     * Create ToDoo for QA Report and assign to given user(s)
+     */
+    public function createToDo($user_list)
+    {
+        $site = Site::findOrFail($this->site_id);
+        $todo_request = [
+            'type'       => 'project supply',
+            'type_id'    => $this->id,
+            'name'       => 'Project Supply Information - ' . $this->name . ' (' . $site->name . ')',
+            'info'       => 'Please update the supplied products for this site.',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => $this->site->company_id,
+        ];
+
+        // Create ToDoo and assign to Site Supervisors
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
+    }
+
+    /**
+     * Close any outstanding ToDoo for this QA
+     */
+    public function closeToDo($user)
+    {
+        $todos = Todo::where('type', 'project supply')->where('type_id', $this->id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = $user->id;
+            $todo->save();
+        }
+    }
+
 
 
     /**

@@ -487,14 +487,6 @@ $rec = $user;
                             <td width="15%">{!! permSelect('del.site.asbestos', 'res', $rec, $cid, $dis) !!}</td>
                             <td width="15%"></td>
                         </tr>
-                        <tr>
-                            <td>Project Supply Information</td>
-                            <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid, $dis) !!}</td>
-                            <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid, $dis) !!}</td>
-                            <td width="15%">{!! permSelect('add.site.project.supply', 'add', $rec, $cid, $dis) !!}</td>
-                            <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid, $dis) !!}</td>
-                            <td width="15%"></td>
-                        </tr>
                     </table>
 
                     <h5 class="font-green-haze" style="font-size: 16px">Documents</h5>
@@ -555,6 +547,14 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('add.site.inspection', 'add', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('del.site.inspection', 'res', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('sig.site.inspection', 'sig', $rec, $cid, $dis) !!}</td>
+                            </tr>
+                            <tr>
+                                <td>Project Supply Information</td>
+                                <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('add.site.project.supply', 'add', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
                             </tr>
                         </table>
                     @endif
