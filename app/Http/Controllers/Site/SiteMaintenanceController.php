@@ -402,7 +402,10 @@ class SiteMaintenanceController extends Controller {
                 return back()->withErrors(['completed' => "Invalid Prac Completed date. Required format dd/mm/yyyy"]);
         }
         // AC Form sent
-        $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
+        if (request('ac_form_sent') == 'N/A') {
+            $main_request['ac_form_sent'] = "0001-01-01 01:01:01";
+        } else
+            $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
         $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
         $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
         //dd($main_request);
@@ -452,6 +455,7 @@ class SiteMaintenanceController extends Controller {
         //dd($main_request);
         $main->update($main_request);
         Toastr::success("Updated Request");
+        //dd('here');
 
         return redirect('site/maintenance/' . $main->id);
     }

@@ -279,10 +279,10 @@
                                 <div class="col-md-2">
                                     {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
                                     @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                    <div class="input-group" style="width=80%">
-                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                    </div>
-                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
+                                        <div class="input-group" style="width=80%">
+                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted" value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
                                     @else
                                         {!! Form::text('client_contacted', ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                     @endif
@@ -360,13 +360,17 @@
 
                                         @if (Auth::user()->allowed2('add.site.maintenance'))
                                             <div class="input-group">
-                                                <datepicker :value.sync="xx.ac_format_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                                {{--}}<span class="input-group-btn"><button class="btn default" type="button"><i class="fa fa-calendar" style="line-height: 20px"></i></button></span>--}}
+                                                <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
-                                            <input v-model="xx.ac_format_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                            @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
+                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
+                                            @else
+                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                            @endif
                                         @else
                                             {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
+                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
                                     </div>
                                 @endif
                             </div>
@@ -585,7 +589,7 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit maintenance --}}
                         {{--}}@if (Auth::user()->allowed2('edit.site.main', $main)) --}}
-                        <button v-show="xx.record_status == '1'" v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                        <button v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         {{--}}@endif --}}
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
@@ -713,6 +717,10 @@
             $('#photos-edit').hide();
         });
 
+        $("#ac_form_mark_na").click(function (e) {
+            e.preventDefault();
+        });
+
         /* Bootstrap Fileinput */
         $("#multifile").fileinput({
             uploadUrl: "/site/maintenance/upload/", // server upload action
@@ -763,7 +771,7 @@
         done_by: '',
         itemList: [],
         actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
-        ac_format_sent: '', client_contacted: '', client_appointment: ''
+        ac_form_sent: '', client_contacted: '', client_appointment: ''
     };
 
     //
@@ -786,6 +794,9 @@
             'signOff': function (type) {
                 this.xx.main.signoff = type;
                 this.updateReportDB(this.xx.main, true);
+            },
+            'ac_form_na': function (status) {
+                this.xx.ac_form_sent = 'N/A';
             },
         },
         components: {

@@ -135,7 +135,9 @@
                             <td>{!! $count[2] !!}</td>
                         </tr>
                     @endforeach
-                    <hr style="padding: 2px; margin: 2px 0px">
+                    <tr>
+                        <td colspan="5"><hr style="padding: 2px; margin: 2px 0px"></td>
+                    </tr>
                     <tr><td></td>
                         <td></td>
                         <td>{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</td>
