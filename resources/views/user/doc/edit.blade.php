@@ -79,9 +79,19 @@
 
                                     {{-- Name --}}
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
+                                        {!! Form::label('name', (in_array($doc->category_id, [6,7,8])) ? 'Document Type' : 'Name', ['class' => 'control-label']) !!}
                                         {!! Form::text('name', null, ['class' => 'form-control', ($doc->category_id < 9) ? 'readonly' : '']) !!}
+                                        {{-- Ref - Name --}}
+                                        {!! Form::hidden('ref_name', $doc->name, ['class' => 'form-control']) !!}
                                     </div>
+
+                                    {{-- Ref Name --}}
+                                    @if (in_array($doc->category_id, [6,7,8]))
+                                        <div class="form-group {!! fieldHasError('name', $errors) !!}">
+                                            {!! Form::label('ref_name', 'Name', ['class' => 'control-label']) !!}
+                                            {!! Form::text('ref_name', null, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    @endif
                                     {{-- Drivers Lic No + Class--}}
                                     @if ($doc->category_id == 2)
                                         <div class="form-group {!! fieldHasError('lic_no', $errors) !!}">
@@ -109,6 +119,24 @@
                                         <div class="form-group {!! fieldHasError('cl_type', $errors) !!}">
                                             {!! Form::label('cl_type', 'Class(s)', ['class' => 'control-label']) !!}
                                             {!! Form::text('cl_type', $user->contractorLicenceSBC(), ['class' => 'form-control', 'readonly']) !!}
+                                            {{--
+                                            <select id="lic_type" name="lic_type[]" class="form-control select2" width="100%" multiple readonly>
+                                                {!! $user->contractorLicenceOptions() !!}
+                                            </select>--}}
+                                            {!! fieldErrorMessage('lic_type', $errors) !!}
+                                        </div>
+                                    @endif
+
+                                    {{-- Supervisor Lic No + Class--}}
+                                    @if ($doc->category_id == 4)
+                                        <div class="form-group {!! fieldHasError('lic_no', $errors) !!}">
+                                            {!! Form::label('lic_no', 'Licence No.', ['class' => 'control-label']) !!}
+                                            {!! Form::text('lic_no', $doc->ref_no, ['class' => 'form-control', 'readonly']) !!}
+                                            {!! fieldErrorMessage('lic_no', $errors) !!}
+                                        </div>
+                                        <div class="form-group {!! fieldHasError('super_type', $errors) !!}">
+                                            {!! Form::label('super_type', 'Class(s)', ['class' => 'control-label']) !!}
+                                            {!! Form::text('super_type', $user->supervisorLicenceSBC(), ['class' => 'form-control', 'readonly']) !!}
                                             {{--
                                             <select id="lic_type" name="lic_type[]" class="form-control select2" width="100%" multiple readonly>
                                                 {!! $user->contractorLicenceOptions() !!}

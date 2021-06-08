@@ -136,7 +136,7 @@ class UserDocController extends Controller {
         //if (!Auth::user()->allowed2("add.company.doc"))
         //    return view('errors/404');
 
-        $doc_request = request()->all();
+        //$doc_request = request()->all();
         $doc_request['user_id'] = $user->id;
         $doc_request['company_id'] = $user->company_id;
         $doc_request['expiry'] = (request('expiry')) ? Carbon::createFromFormat('d/m/Y H:i', request('expiry') . '00:00')->toDateTimeString() : null;

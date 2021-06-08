@@ -131,6 +131,26 @@ trait UserDocs {
     }
 
     /**
+     * Supervisor Licence Class SBC
+     *
+     * @return string
+     */
+    public function supervisorLicenceSBC()
+    {
+        $str = '';
+        $doc = UserDoc::where('category_id', 4)->where('user_id', $this->id)->where('status', '>', '0')->first();
+        if ($doc) {
+            foreach (explode(',', $doc->ref_type) as $class_id) {
+                $lic = ContractorLicence::find($class_id);
+                if ($lic)
+                    $str .= $lic->name . ', ';
+            }
+        }
+
+        return rtrim($str, ', ');
+    }
+
+    /**
      * A dropdown of Driver Class Options.
      *
      * @return string
