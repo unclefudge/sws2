@@ -29,20 +29,20 @@
                                 </div>
                             </div>
                         @endif
-                            <div class="col-md-2 pull-right">
-                                <div class="form-group">
-                                    <select name="status" id="status" class="form-control bs-select">
-                                        <option value="1" selected>Active</option>
-                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin'))
-                                            <option value="-1">Upcoming</option>
+                        <div class="col-md-2 pull-right">
+                            <div class="form-group">
+                                <select name="status" id="status" class="form-control bs-select">
+                                    <option value="1" selected>Active</option>
+                                    @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin'))
+                                        <option value="-1">Upcoming</option>
                                         @endif
                                         @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin|con-supervisor') || Auth::user()->company_id == 29) <!-- GBT -->
-                                            <option value="0">Completed</option>
-                                            <option value="2">Maintenance</option>
-                                        @endif
-                                    </select>
-                                </div>
+                                        <option value="0">Completed</option>
+                                        <option value="2">Maintenance</option>
+                                    @endif
+                                </select>
                             </div>
+                        </div>
 
                     </div>
                     <div class="portlet-body">
@@ -54,7 +54,7 @@
                                 <th> Name</th>
                                 {{-- CapeCod + JonSpin --}}
                                 @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29])) {{-- CC, JonSpin Building,  GBT Carpentry--}}
-                                    <th width="15%"> Phone</th> @endif
+                                <th width="15%"> Phone</th> @endif
                                 <th> Address</th>
                                 <th> Supervisor</th>
                             </tr>
@@ -94,7 +94,8 @@
             'type': 'GET',
             'data': function (d) {
                 d.site_group = $('#site_group').val();
-                d.status = $('#status').val();;
+                d.status = $('#status').val();
+                ;
             }
         },
         columns: [

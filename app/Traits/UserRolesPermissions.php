@@ -411,11 +411,12 @@ trait UserRolesPermissions {
     public function authSites($permission, $status = '')
     {
         // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
-        if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
-            $permission = 'view.site';
+        //if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
+        //    $permission = 'view.site';
+        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site')) ? 'view.site' : 'view.site.list';
 
         // Company
-        $company_level = $this->permissionLevel($permission, $this->company_id);
+        $company_level = $this->permissionLevel($permission_company, $this->company_id);
         $company_ids = [];
         if ($company_level == '99') $company_ids = $this->company->sites()->pluck('id')->toArray(); // All
         if ($company_level == '50') $company_ids = $this->company->sites()->pluck('id')->toArray(); // Our Company
@@ -432,7 +433,7 @@ trait UserRolesPermissions {
         if ($parent_level == '20') $parent_ids = []; // Own Company
         if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->sites()->pluck('id')->toArray(); // Delete / Sign Off All
 
-        // Parent Company
+        // Parent Parent Company
         $parent_level = $this->permissionLevel($permission, $this->company->reportsTo()->id);
         $parent_parent_ids = [];
         if ($parent_level == '99') $parent_parent_ids = $this->company->reportsTo()->reportsTo()->sites()->pluck('id')->toArray(); // All

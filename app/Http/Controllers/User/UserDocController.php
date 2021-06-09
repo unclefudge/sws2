@@ -136,7 +136,7 @@ class UserDocController extends Controller {
         //if (!Auth::user()->allowed2("add.company.doc"))
         //    return view('errors/404');
 
-        //$doc_request = request()->all();
+        $doc_request = request()->all();
         $doc_request['user_id'] = $user->id;
         $doc_request['company_id'] = $user->company_id;
         $doc_request['expiry'] = (request('expiry')) ? Carbon::createFromFormat('d/m/Y H:i', request('expiry') . '00:00')->toDateTimeString() : null;
@@ -166,8 +166,6 @@ class UserDocController extends Controller {
 
 
         // Create User Doc
-        //dd($doc_request);
-
         $doc = UserDoc::create($doc_request);
 
         // Handle attached file
@@ -195,6 +193,7 @@ class UserDocController extends Controller {
         $doc->status = 2;
         $category = UserDocCategory::find($doc->category_id);
         $pub_pri = ($category->private) ? 'pri' : 'pub';
+        //dd($category->type);
         if (Auth::user()->permissionLevel("sig.docs.$category->type.$pub_pri", $user->company->reportsTo()->id)) {
             $doc->approved_by = Auth::user()->id;
             $doc->approved_at = Carbon::now()->toDateTimeString();
