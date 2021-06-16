@@ -413,7 +413,7 @@ trait UserRolesPermissions {
         // Alter Permission to View Site to supersede the Sitelist permission for employees with View Site but Not View Site.List
         //if ($permission == 'view.site.list' && $this->hasPermission2('view.site'))
         //    $permission = 'view.site';
-        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site')) ? 'view.site' : 'view.site.list';
+        $permission_company = ($permission == 'view.site.list' && $this->hasPermission2('view.site')) ? 'view.site' : $permission;
 
         // Company
         $company_level = $this->permissionLevel($permission_company, $this->company_id);
