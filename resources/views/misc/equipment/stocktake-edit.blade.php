@@ -86,6 +86,9 @@
                                     <table class="table table-striped table-bordered table-hover order-column">
                                         <thead>
                                         <tr class="mytable-header">
+                                            @if ($category == 3)
+                                                <th> Item Category</th>
+                                            @endif
                                             <th> Item Name</th>
                                             <th width="10%"> Expected</th>
                                             @if (Auth::user()->allowed2('edit.equipment.stocktake', $location))
@@ -100,6 +103,9 @@
                                             @foreach($items as $loc)
                                                 <?php $x ++; ?>
                                                 <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
+                                                    @if ($category == 3)
+                                                        <td>{{ $loc->item_category_name }}</td>
+                                                    @endif
                                                     <td>{{ $loc->item_name }}</td>
                                                     <td>{{ $loc->qty }}</td>
                                                     <td>

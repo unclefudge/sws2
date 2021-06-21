@@ -122,12 +122,18 @@ class EquipmentStocktakeController extends Controller {
             $items_count[3] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat3_ids)->get()->count();
         }
 
-        $items = ($items) ? $items->sortBy('item_name') : [];
+        if ($items) {
+            $items->sortBy('item_name');
+            if ($category = 3)
+                $items->sortBy('item_category_name');
+        }
 
         return view('misc/equipment/stocktake-edit', compact('location', 'sites', 'others', 'items', 'category', 'items_count'));
     }
 
-    public function getSites() {
+
+    public function getSites()
+    {
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', '<>', '25')->get() as $loc)
             $sites[$loc->id] = $loc->name;
         // Active Site but current no equipment
@@ -142,14 +148,14 @@ class EquipmentStocktakeController extends Controller {
         return $sites;
     }
 
-    public function getOthers() {
+    public function getOthers()
+    {
         foreach (EquipmentLocation::where('status', 1)->where('notes', null)->where('site_id', null)->get() as $loc)
             $others[$loc->id] = $loc->name;
         asort($others);
 
         return $others;
     }
-
 
 
     /**

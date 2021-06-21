@@ -214,7 +214,7 @@ class SiteInspectionElectricalController extends Controller {
                 //$report->createAssignedToDo($company->staffStatus(1)->pluck('id')->toArray());
 
                 // Email assigned notification
-                $email_list = (\App::environment('prod')) ? ['micelle@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
             }
         }
