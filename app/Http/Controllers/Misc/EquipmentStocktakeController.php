@@ -124,7 +124,7 @@ class EquipmentStocktakeController extends Controller {
 
         if ($items) {
             $items->sortBy('item_name');
-            if ($category = 3)
+            if ($category == 3)
                 $items->sortBy('item_category_name');
         }
 
