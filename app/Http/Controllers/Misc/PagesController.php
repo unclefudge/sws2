@@ -140,6 +140,18 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Equipment last purchased</b></br>";
+        $equipment = Equipment::all();
+
+        foreach ($equipment as $equip) {
+            $log = EquipmentLog::where('equipment_id', $equip->id)->where('action', 'P')->orderBy('created_at', 'DESC')->first();
+            $equip->purchased_last = ($log) ? $log->created_at : $equip->created_at;
+            echo "$equip->name : $equip->purchased_last<br>";
+            $equip->save();
+
+        }
+
+        /*
         echo "<b>Supply testing</b></br>";
         echo "Creating new project<br>";
 
@@ -155,6 +167,7 @@ class PagesController extends Controller {
         //echo "<br><br>$project: ".$project->site->name."<br>";
         echo "creating ToDo<br>";
 
+        */
         /*
         echo "<b>Mail testing</b></br>";
         $todo = ToDo::findOrFail(26492);

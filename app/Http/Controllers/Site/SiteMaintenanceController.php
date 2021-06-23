@@ -311,8 +311,8 @@ class SiteMaintenanceController extends Controller {
             $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             Toastr::success("Assigned Request");
 
-            // Delete Todoo
-            $main->closeToDo();
+            $main->closeToDo();   // Delete Construction Mgr Todoo
+            $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
 
             // Update Site with new Maintenance Supervisor
             $main->site->supervisors()->sync([request('super_id')]);
@@ -414,13 +414,14 @@ class SiteMaintenanceController extends Controller {
         if (request('super_id') && request('super_id') != $main->super_id) {
             $super = User::find($main_request['super_id']);
             $main->emailAssigned($super);
-            $action = Action::create(['action' => "Assigned Task Owner updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
                 $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
 
-            $main->site->supervisors()->sync([request('super_id')]);
+            //$main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor - commented out as if change super but not company then ToDoo wont cancel
+            $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
 
         }
 

@@ -56,7 +56,7 @@
                                     </div>
                                 </div>
                             @endif
-                            
+
                             {{-- Equipment --}}
                             @if ($location)
                                 <div id="equipment_list">

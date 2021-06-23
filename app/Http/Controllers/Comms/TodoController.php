@@ -278,8 +278,9 @@ class TodoController extends Controller {
     /**
      * Get Todoo list current user is authorised to manage + Process datatables ajax request.
      */
-    public function getTodo(Request $request)
+    public function getTodo()
     {
+
         $records = TodoUser::select([
             'todo_user.todo_id', 'todo_user.user_id', 'todo_user.opened',
             'todo.id', 'todo.name', 'todo.info', 'todo.type', 'todo.type_id', 'todo.due_at',
@@ -293,8 +294,9 @@ class TodoController extends Controller {
                 $q->where('todo_user.user_id', Auth::user()->id);
                 /*$q->orWhere('todo.created_by', Auth::user()->id);*/
             })
-            ->where('todo.status', $request->get('status'))
+            ->where('todo.status', request('status'))
             ->orderBy('todo.due_at');
+
 
         $dt = Datatables::of($records)
             ->addColumn('view', function ($todo) {

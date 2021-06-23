@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 class Equipment extends Model {
 
     protected $table = 'equipment';
-    protected $fillable = ['category_id', 'name', 'length', 'purchased', 'disposed', 'attachment', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-
+    protected $fillable = ['category_id', 'name', 'length', 'min_stock', 'purchased_last', 'purchased', 'disposed', 'attachment', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $dates = ['purchased_last'];
     /**
      * A Equipment belongs to a category.
      *

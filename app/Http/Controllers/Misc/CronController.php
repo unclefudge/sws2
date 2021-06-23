@@ -458,7 +458,7 @@ class CronController extends Controller {
                             $doc->closeToDo(User::find(1));
                             // Determine if doc hasn't been replaced with newer version
                             if (!$doc->company->activeCompanyDoc($doc->category_id)) {
-                                if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
+                                if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
                                 if ($date == Carbon::today()->subDays(14)->format('Y-m-d')) {
                                     // Email Parent Company
                                     if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
@@ -523,13 +523,13 @@ class CronController extends Controller {
 
                             if ($date == Carbon::today()->addDays(14)->subYear()->format('Y-m-d')) {
                                 // Due in 2 weeks
-                                if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
+                                if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
                                 $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'), false);
                                 echo "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "<br>";
                                 $log .= "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "\n";
                             } else {
                                 $doc->closeToDo(User::find(1));
-                                if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
+                                if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
                                 echo "Created ToDo for company<br>";
                                 $log .= "Created ToDo for company\n";
                                 if ($date == Carbon::today()->subDays(28)->format('Y-m-d')) {

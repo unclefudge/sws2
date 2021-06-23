@@ -181,6 +181,7 @@ class EquipmentController extends Controller {
 
             // Update Purchased Qty
             $equip->purchased = $equip->purchased + $qty;
+            $equip->purchased_last = Carbon::now()->toDateTimeString();
             $equip->save();
 
             // Update log
@@ -265,6 +266,7 @@ class EquipmentController extends Controller {
 
             // Update Purchased Qty
             $equip->purchased = $equip->purchased + $qty;
+            $equip->purchased_last = Carbon::now()->toDateTimeString();
             $equip->save();
 
             // Update log
@@ -435,9 +437,10 @@ class EquipmentController extends Controller {
      */
     public function getInventory()
     {
-        $cat_ids = array_merge([request('category_id')], EquipmentCategory::where('parent', request('category_id'))->where('status', 1)->pluck('id')->toArray());
+        $category_id = request('category_id');
+        $cat_ids = array_merge([$category_id], EquipmentCategory::where('parent', $category_id)->where('status', 1)->pluck('id')->toArray());
         $equipment = Equipment::select([
-            'equipment.id', 'equipment.category_id', 'equipment.name', 'equipment.length', 'equipment.purchased', 'equipment.disposed', 'equipment.status', 'equipment.company_id',
+            'equipment.id', 'equipment.category_id', 'equipment.name', 'equipment.length', 'equipment.purchased',  'equipment.min_stock', 'equipment.purchased_last', 'equipment.disposed', 'equipment.status', 'equipment.company_id',
             'equipment_categories.name AS catname'
         ])
             ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')
@@ -447,6 +450,15 @@ class EquipmentController extends Controller {
         $dt = Datatables::of($equipment)
             ->editColumn('id', function ($equip) {
                 return '<div class="text-center"><a href="/equipment/' . $equip->id . '"><i class="fa fa-search"></i></a></div>';
+            })
+            ->editColumn('min_stock', function ($equip) {
+                $str = $equip->min_stock;
+                if ($equip->total < $equip->min_stock)
+                    $str = "<span class='font-red'>$str</span>";
+                return $str;
+            })
+            ->editColumn('purchased_last', function ($equip) {
+                return ($equip->purchased_last) ? $equip->purchased_last->format('d/m/Y') : '-';
             })
             ->addColumn('total', function ($equip) {
                 $str = $equip->total;
@@ -463,7 +475,7 @@ class EquipmentController extends Controller {
             ->addColumn('action', function ($equip) {
                 return (Auth::user()->hasPermission2('add.equipment')) ? '<a href="/equipment/' . $equip->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>' : '';
             })
-            ->rawColumns(['id', 'total', 'action'])
+            ->rawColumns(['id', 'total', 'min_stock', 'action'])
             ->make(true);
 
         return $dt;

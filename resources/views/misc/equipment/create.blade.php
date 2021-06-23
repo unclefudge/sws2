@@ -62,6 +62,12 @@
                                         {!! Form::text('length', null, ['class' => 'form-control', 'placeholder' => 'N/A']) !!}
                                     </div>
                                 </div>
+                                <div class="col-md-2" id="field-minstock">
+                                    <div class="form-group">
+                                        {!! Form::label('min_stock', 'Minimum Required Stock', ['class' => 'control-label']) !!}
+                                        {!! Form::text('min_stock', null, ['class' => 'form-control', 'placeholder' => '0']) !!}
+                                    </div>
+                                </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         {!! Form::label('purchase_qty', 'No. of items to purchase', ['class' => 'control-label']) !!}
@@ -125,15 +131,24 @@
             displayFields();
         });
 
+        $('#subcategory_id').change(function () {
+            displayFields();
+        });
+
         displayFields();
 
         function displayFields() {
             $('#field-subcat').hide()
             $('#field-length').hide()
+            $('#field-minstock').hide()
 
             if ($('#category_id').val() == 3) {
                 $('#field-subcat').show();
                 $('#field-length').show();
+            }
+
+            if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
+                $('#field-minstock').show();
             }
         }
     });

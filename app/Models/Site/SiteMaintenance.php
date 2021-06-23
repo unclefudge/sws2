@@ -232,6 +232,28 @@ class SiteMaintenance extends Model {
     }
 
     /**
+     * Create ToDoo for Maintenance Report and assign to given user(s)
+     */
+    public function createSupervisorAssignedToDo($user_list)
+    {
+        $site = Site::findOrFail($this->site_id);
+        $todo_request = [
+            'type'       => 'maintenance',
+            'type_id'    => $this->id,
+            'name'       => 'Maintenance Request Assigned - ' . $this->name . ' (' . $site->name . ')',
+            'info'       => 'Please review request and assign a company to carry out the work',
+            'priority'   => '1',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => '3',
+        ];
+
+        // Create ToDoo and assign to Site Supervisors
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        //$todo->emailToDo();
+    }
+
+    /**
      * Close any outstanding ToDoo for this QA
      */
     public function closeToDo()
