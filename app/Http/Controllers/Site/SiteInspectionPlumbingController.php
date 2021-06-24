@@ -201,6 +201,7 @@ class SiteInspectionPlumbingController extends Controller {
         // Format date from datetime picker to mysql format
         $inspected_at = new Carbon (preg_replace('/-/', '', request('inspected_at')));
         $report_request['inspected_at'] = $inspected_at->toDateTimeString();
+        $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
 
         // On completion close any outstanding ToDoos
         if (request('status') == 0 && $report->status != 0) {

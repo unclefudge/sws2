@@ -21,7 +21,7 @@ class SiteInspectionElectrical extends Model {
         'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['inspected_at', 'assigned_at'];
+    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at'];
 
     /**
      * A SiteInspectionElectrical belongs to a site

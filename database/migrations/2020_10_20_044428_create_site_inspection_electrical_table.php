@@ -20,7 +20,7 @@ class CreateSiteInspectionElectricalTable extends Migration
             // Client
             $table->string('client_name', 150)->nullable();
             $table->string('client_address', 255)->nullable();
-            $table->tinyInteger('client_contacted')->nullable();
+            $table->dateTime('client_contacted')->nullable();
 
             // Inspection
             $table->integer('assigned_to')->unsigned()->nullable();

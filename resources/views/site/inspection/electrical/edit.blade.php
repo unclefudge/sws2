@@ -198,7 +198,10 @@
                                 <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
                                     <div class="form-group {!! fieldHasError('client_contacted', $errors) !!}">
                                         {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
-                                        {!! Form::select('client_contacted', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select']) !!}
+                                        <div class="input-group date date-picker">
+                                            {!! Form::text('client_contacted', ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : '' , ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                        </div>
                                         {!! fieldErrorMessage('client_contacted', $errors) !!}
                                     </div>
                                 </div>
@@ -333,6 +336,7 @@
     <!--<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>-->
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
@@ -341,12 +345,14 @@
     <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/js/moment.min.js" type="text/javascript"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+
 <script type="text/javascript">
     $.ajaxSetup({
         headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
@@ -417,6 +423,12 @@
             data.form.append("site_id", $("#site_id").val());
             data.form.append("report_id", $("#report_id").val());
         });
+    });
+
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
     });
 </script>
 @stop
