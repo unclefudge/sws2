@@ -39,6 +39,7 @@
                             <input v-model="xx.qa.status" type="hidden" id="qa_status" value="{{ $qa->status }}">
                             <input v-model="xx.qa.master" type="hidden" id="qa_master" value="{{ $qa->master }}">
                             <input v-model="xx.qa.signoff" type="hidden" id="qa_signoff" value="{{ ($qa->supervisor_sign_by || $qa->manager_sign_by) ? '1' : '0' }}">
+                            <input v-model="xx.qa.open" type="hidden" id="qa_open" value="{{ ($qa->allDocs(1)->count()) }}">
                             <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $qa->id }}">
                             <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $qa->status }}">
                             <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
@@ -117,43 +118,64 @@
                                 </div>
 
                                 <hr>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h5><b>QUALITY ASSURANCE ELECTRONIC SIGN-OFF</b></h5>
-                                        <p>The above inspection items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
+
+                                {{-- Handover Check to ensure previous QA are completed --}}
+                                @if ($qa->master_id == 2581 && $qa->allDocs(1)->count() > 1)
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="note note-warning">
+                                                <b>Handover Can't be Signed Off</b><br>This Handover QA can't be signed off by Site Supervisor/Manager until all other related Quality Assurnce documents for this site have been completed.
+                                                <br><br>Below are a list of QA's that haven't been signed off yet:<br>
+                                                <ul>
+                                                    @foreach ($qa->allDocs(1) as $q)
+                                                        @if ($qa->id != $q->id)
+                                                            <li><a href="/site/qa/{{$q->id}}" target="_blank">{{ $q->name }}</a></li>
+                                                        @endif
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            <p></p><br>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-3 text-right">Site Supervisor:</div>
-                                    <div class="col-sm-9">
-                                        @if ($qa->supervisor_sign_by)
-                                            {!! \App\User::find($qa->supervisor_sign_by)->full_name !!}, &nbsp;{{ $qa->supervisor_sign_at->format('d/m/Y') }}
-                                        @else
-                                            <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click="$root.$broadcast('signOff', 'super')"
-                                                    class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                            </button>
-                                            <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_supervisor" class="font-red">Pending</span>
-                                            <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>
-                                        @endif
+                                @else
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h5><b>QUALITY ASSURANCE ELECTRONIC SIGN-OFF</b></h5>
+                                            <p>The above inspection items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-3 text-right">Site Manager:</div>
-                                    <div class="col-sm-9">
-                                        @if ($qa->manager_sign_by)
-                                            {!! \App\User::find($qa->manager_sign_by)->full_name !!}, &nbsp;{{ $qa->manager_sign_at->format('d/m/Y') }}
-                                        @else
+                                    <div class="row">
+                                        <div class="col-sm-3 text-right">Site Supervisor:</div>
+                                        <div class="col-sm-9">
                                             @if ($qa->supervisor_sign_by)
-                                                <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                        v-on:click="$root.$broadcast('signOff', 'manager')"
+                                                {!! \App\User::find($qa->supervisor_sign_by)->full_name !!}, &nbsp;{{ $qa->supervisor_sign_at->format('d/m/Y') }}
+                                            @else
+                                                <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click="$root.$broadcast('signOff', 'super')"
                                                         class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                                 </button>
-                                                <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
-                                            @else
-                                                <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total" class="font-red">Waiting for Site Supervisor Sign Off</span>
+                                                <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_supervisor" class="font-red">Pending</span>
                                                 <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                             @endif
-                                        @endif
+                                        </div>
+                                        <div class="col-sm-3 text-right">Site Manager:</div>
+                                        <div class="col-sm-9">
+                                            @if ($qa->manager_sign_by)
+                                                {!! \App\User::find($qa->manager_sign_by)->full_name !!}, &nbsp;{{ $qa->manager_sign_at->format('d/m/Y') }}
+                                            @else
+                                                @if ($qa->supervisor_sign_by)
+                                                    <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && (xx.user_manager == 1 || xx.user_signoff)"
+                                                            v-on:click="$root.$broadcast('signOff', 'manager')"
+                                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
+                                                    </button>
+                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
+                                                @else
+                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total" class="font-red">Waiting for Site Supervisor Sign Off</span>
+                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>
+                                                @endif
+                                            @endif
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
                             <div class="row">
                                 <div class="col-md-6 pull-right text-right" style="margin-top: 15px; padding-right: 20px">
@@ -369,7 +391,7 @@
 <script>
     var xx = {
         dev: dev,
-        qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0, signoff: 0},
+        qa: {id: '', name: '', site_id: '', status: '', items_total: 0, items_done: 0, signoff: 0, open: 0},
         spinner: false, showSignOff: false, showAction: false,
         record: {},
         action: '', loaded: false,

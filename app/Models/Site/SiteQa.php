@@ -123,6 +123,17 @@ class SiteQa extends Model {
         return $count;
     }
 
+
+    /**
+     * A Site QA Doc may have other QA Socs for the same site
+     *
+     * @return collection
+     */
+    public function allDocs ($status = '')
+    {
+        return  ($status == '') ? SiteQa::where('site_id', $this->site_id)->get() : SiteQa::where('site_id', $this->site_id)->where('status', $status)->get();
+    }
+
     /**
      * A Site QA Doc has tasks that 'trigger' it depending on it's items.
      *
