@@ -201,7 +201,7 @@
                                     <div class="form-group {!! fieldHasError('client_contacted', $errors) !!}">
                                         {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
                                         <div class="input-group date date-picker">
-                                            {!! Form::text('client_contacted', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                            {!! Form::text('client_contacted', ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
                                             <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
                                         </div>
                                         {!! fieldErrorMessage('client_contacted', $errors) !!}
@@ -212,7 +212,7 @@
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report))
+                                        @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
                                             {!! Form::select('status', ['1' => 'Active', '0' => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @else
                                             {!! Form::text('status_text', ($report->status == 0) ? 'Completed' : 'Active', ['class' => 'form-control', 'readonly']) !!}

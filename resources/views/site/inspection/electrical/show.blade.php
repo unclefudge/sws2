@@ -149,6 +149,11 @@
                         @if(Auth::user()->allowed2('edit.site.inspection', $report))
                             <div class="form-actions right">
                                 <a href="/site/inspection/electrical" class="btn default"> Back</a>
+                                @if (Auth::user()->allowed2('sig.site.inspection', $report))
+                                    <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn green"> Edit</a>
+                                @elseif (!$report->status)
+                                    <a href="/site/inspection/electrical/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
+                                @endif
                             </div>
                             {!! Form::close() !!}
                         @endif

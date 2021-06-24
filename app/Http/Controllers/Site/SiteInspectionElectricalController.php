@@ -45,7 +45,7 @@ class SiteInspectionElectricalController extends Controller {
         ])
             ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')
             ->where('site_inspection_electrical.status', '=', 2)
-            ->orWhere('site_inspection_electrical.assigned_to', '=', NULL)->get();
+            ->orWhere('site_inspection_electrical.assigned_to', '=', null)->get();
 
         return view('site/inspection/electrical/list', compact('non_assigned'));
     }
@@ -77,7 +77,7 @@ class SiteInspectionElectricalController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        if ($report->status == 1)
+        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/electrical/edit', compact('report'));
         elseif ($report->status == 2)
             return view('/site/inspection/electrical/docs', compact('report'));
@@ -226,9 +226,39 @@ class SiteInspectionElectricalController extends Controller {
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/electrical');
-        else
+        elseif ($report->status)
             return redirect('site/inspection/electrical/' . $report->id . '/edit');
+        else
+            return redirect('site/inspection/electrical/' . $report->id);
     }
+
+    /**
+     * Update Status the specified resource in storage.
+     */
+    public function updateStatus($id, $status)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+        $old_status = $report->status;
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+            return view('errors/404');
+
+        // Update Status
+        if ($status != $old_status) {
+            $report->status = $status;
+            $report->save();
+
+            if ($status == 1) {
+                // Email re-opened notification
+                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReopened($report));
+            }
+        }
+
+        return redirect('site/inspection/electrical/' . $report->id . '/edit');
+    }
+
 
     /**
      * Upload File + Store a newly created resource in storage.
@@ -320,13 +350,13 @@ class SiteInspectionElectricalController extends Controller {
             'site_inspection_electrical.inspected_at', 'site_inspection_electrical.created_at', 'site_inspection_electrical.assigned_at',
             'site_inspection_electrical.status', 'sites.company_id',
             DB::raw('DATE_FORMAT(site_inspection_electrical.created_at, "%d/%m/%y") AS nicedate'),
-            DB::raw('DATE_FORMAT(site_inspection_electrical.inspected_at, "%d/%m/%y") AS nicedate2'),
+            DB::raw('DATE_FORMAT(site_inspection_electrical.inspected_at, "%d/%m/%y") AS inspected_date'),
             DB::raw('DATE_FORMAT(site_inspection_electrical.assigned_at, "%d/%m/%y") AS assigned_date'),
             DB::raw('sites.name AS sitename'), 'sites.code',
         ])
             ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')
             ->where('site_inspection_electrical.status', '=', request('status'))
-            ->where('site_inspection_electrical.assigned_to', '<>', NULL)
+            ->where('site_inspection_electrical.assigned_to', '<>', null)
             ->whereIn('site_inspection_electrical.id', $inpect_ids);
 
         $dt = Datatables::of($inspect_records)

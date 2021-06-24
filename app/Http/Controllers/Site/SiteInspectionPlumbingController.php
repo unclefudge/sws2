@@ -77,7 +77,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        if ($report->status == 1)
+        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
         elseif ($report->status == 2)
             return view('/site/inspection/plumbing/docs', compact('report'));
@@ -237,8 +237,36 @@ class SiteInspectionPlumbingController extends Controller {
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/plumbing');
-        else
+        elseif ($report->status)
             return redirect('site/inspection/plumbing/' . $report->id . '/edit');
+        else
+            return redirect('site/inspection/plumbing/' . $report->id);
+    }
+
+    /**
+     * Update Status the specified resource in storage.
+     */
+    public function updateStatus($id, $status)
+    {
+        $report = SiteInspectionPlumbing::findOrFail($id);
+        $old_status = $report->status;
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+            return view('errors/404');
+
+        // Update Status
+        if ($status != $old_status) {
+            $report->status = $status;
+            $report->save();
+
+            if ($status == 1) {
+                // Email re-opened notification
+                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReopened($report));
+            }
+        }
+        return redirect('site/inspection/plumbing/' . $report->id . '/edit');
     }
 
     /**
@@ -325,7 +353,7 @@ class SiteInspectionPlumbingController extends Controller {
             'site_inspection_plumbing.inspected_at', 'site_inspection_plumbing.created_at', 'site_inspection_plumbing.assigned_at',
             'site_inspection_plumbing.status', 'sites.company_id',
             DB::raw('DATE_FORMAT(site_inspection_plumbing.created_at, "%d/%m/%y") AS nicedate'),
-            DB::raw('DATE_FORMAT(site_inspection_plumbing.inspected_at, "%d/%m/%y") AS nicedate2'),
+            DB::raw('DATE_FORMAT(site_inspection_plumbing.inspected_at, "%d/%m/%y") AS inspected_date'),
             DB::raw('DATE_FORMAT(site_inspection_plumbing.assigned_at, "%d/%m/%y") AS assigned_date'),
             DB::raw('sites.name AS sitename'), 'sites.code',
         ])

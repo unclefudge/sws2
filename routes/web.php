@@ -306,6 +306,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/electrical/upload', 'Site\SiteInspectionElectricalController@uploadAttachment');
     Route::any('site/inspection/electrical/{id}/docs', 'Site\SiteInspectionElectricalController@documents');
     Route::get('site/inspection/electrical/{id}/report', 'Site\SiteInspectionElectricalController@reportPDF');
+    Route::get('site/inspection/electrical/{id}/status/{status}', 'Site\SiteInspectionElectricalController@updateStatus');
     Route::resource('site/inspection/electrical', 'Site\SiteInspectionElectricalController');
 
     // Site Inspection Plumbing Register
@@ -349,15 +350,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/dt/sites', 'Site\SiteController@getSites');
     Route::get('site/dt/sitelist', 'Site\SiteController@getSiteList');
     Route::get('sitelist', 'Site\SiteController@siteList');
-    //Route::get('site/{slug}/checkin', 'Site\SiteController@siteCheckin');
-    //Route::post('site/{slug}/checkin', 'Site\SiteController@processCheckin');
-    //Route::get('site/{slug}/settings', 'Site\SiteController@showSettings');
     Route::post('site/{id}/admin', 'Site\SiteController@updateAdmin');
     Route::post('site/{id}/client', 'Site\SiteController@updateClient');
     Route::get('site/{id}/doc', 'Site\SiteController@showDocs');
     Route::get('site/data/doc/dt', 'Site\SiteController@getSiteDocs');
-    //Route::post('site/{slug}/settings/logo', 'Site\SiteController@updateLogo');
-    //Route::get('site/{slug}/settings/{tab}', 'Site\SiteController@showSettings');
     Route::get('site/data/details/{id}', 'Site\SiteController@getSiteDetails');
     Route::get('site/data/supervisor/{id}', 'Site\SiteController@getSiteSuper');
     //Route::get('site/data/owner/{id}', 'Site\SiteController@getSiteOwner');
@@ -430,6 +426,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('equipment/writeoff', 'Misc\EquipmentController@writeoffItems');
     Route::get('equipment/{id}/delete', 'Misc\EquipmentController@destroy');
     Route::resource('equipment', 'Misc\EquipmentController');
+
     // Stocktake
     Route::get('equipment/stocktake/dt/stocktake', 'Misc\EquipmentStocktakeController@getStocktake');
     Route::get('equipment/stocktake/view/{id}', 'Misc\EquipmentStocktakeController@showStocktake');

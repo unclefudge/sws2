@@ -90,8 +90,9 @@
                                 <th width="10%"> Created</th>
                                 <th width="5%"> Site</th>
                                 <th> Name</th>
+                                <th width="10%"> Assigned</th>
                                 <th> Assigned to</th>
-                                <th width="10%"> Assigned Date</th>
+                                <th width="10%"> Inspected</th>
                             </tr>
                             </thead>
                         </table>
@@ -136,8 +137,9 @@
             {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
             {data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
-            {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
             {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
+            {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
+            {data: 'inspected_date', name: 'site_inspection_electrical.inspected_at'},
         ],
         order: [
             [2, "desc"]
