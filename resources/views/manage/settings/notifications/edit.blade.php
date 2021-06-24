@@ -71,6 +71,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.noaction')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.onhold')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.appointment')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.aftercare')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.executive')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.outstanding')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.onhold')->first()->notificationSelect() !!}

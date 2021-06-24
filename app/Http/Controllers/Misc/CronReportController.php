@@ -72,6 +72,11 @@ class CronReportController extends Controller {
         if (Carbon::today()->isSameDay($third_fri))
             CronReportController::emailOldUsers();
 
+        // Monthly last Friday of the month
+        $last_fri = new Carbon('last friday of this month');
+        if (Carbon::today()->isSameDay($last_fri))
+            CronReportController::emailOutstandingAftercare();
+
         // Quarterly Reports 1th of month
         if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), ['03', '06', '09', '12']))
             CronReportController::emailMaintenanceExecutive();
@@ -385,8 +390,43 @@ class CronReportController extends Controller {
     }
 
     /*
-    * Email Fortnightly Reports
-    */
+   * Email Outstanding After Care
+   */
+    static public function emailOutstandingAftercare()
+    {
+        $log = '';
+        $email_name = "Outstanding After Care";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
+        $data = ['data' => $mains];
+
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-aftercare', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests Without After Care');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+   * Email Fortnightly Reports
+   */
     static public function emailFortnightlyReports()
     {
         $log = '';
@@ -448,6 +488,7 @@ class CronReportController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
 
     /*
     * Email Old Users

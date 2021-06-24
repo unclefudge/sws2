@@ -133,6 +133,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/maintenance_on_hold', 'Misc\ReportController@maintenanceOnHold');
     Route::get('/manage/report/maintenance_executive', 'Misc\ReportController@maintenanceExecutive');
     Route::get('/manage/report/maintenance_appointment', 'Misc\ReportController@maintenanceAppointment');
+    Route::get('/manage/report/maintenance_aftercare', 'Misc\ReportController@maintenanceAftercare');
     Route::get('/manage/report/site_inspections', 'Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', 'Misc\ReportController@getSiteInspections');
 
@@ -529,6 +530,7 @@ Route::get('cron/email-equipment-transfers', 'Misc\CronReportController@emailEqu
 Route::get('cron/email-outstanding-qa', 'Misc\CronReportController@emailOutstandingQA');
 Route::get('cron/email-onhold-qa', 'Misc\CronReportController@emailOnHoldQA');
 Route::get('cron/email-maintenance-executive', 'Misc\CronReportController@emailMaintenanceExecutive');
+Route::get('cron/email-maintenance-aftercare', 'Misc\CronReportController@emailOutstandingAftercare');
 Route::get('cron/email-outstanding-privacy', 'Misc\CronReportController@emailOutstandingPrivacy');
 Route::get('cron/email-oldusers', 'Misc\CronReportController@emailOldUsers');
 

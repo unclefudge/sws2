@@ -339,21 +339,28 @@ class ReportController extends Controller {
                 $mains[] = $main;
         }
 
-        return view('manage/report/maintenance_no_action', compact('mains'));
+        return view('manage/report/site/maintenance_no_action', compact('mains'));
     }
 
     public function maintenanceOnHold()
     {
         $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
 
-        return view('manage/report/maintenance_onhold', compact('mains'));
+        return view('manage/report/site/maintenance_onhold', compact('mains'));
     }
 
     public function maintenanceAppointment()
     {
         $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
 
-        return view('manage/report/maintenance_appointment', compact('mains'));
+        return view('manage/report/site/maintenance_appointment', compact('mains'));
+    }
+
+    public function maintenanceAftercare()
+    {
+        $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
+
+        return view('manage/report/site/maintenance_aftercare', compact('mains'));
     }
 
     public function maintenanceExecutive()
@@ -438,7 +445,7 @@ class ReportController extends Controller {
 
         //dd($mains->groupBy('site_id')->count());
 
-        return view('manage/report/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
+        return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
     }
 
     /****************************************************
