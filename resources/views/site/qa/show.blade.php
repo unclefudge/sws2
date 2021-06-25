@@ -124,8 +124,8 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="note note-warning">
-                                                <b>Handover Can't be Signed Off</b><br>This Handover QA can't be signed off by Site Supervisor/Manager until all other related Quality Assurnce documents for this site have been completed.
-                                                <br><br>Below are a list of QA's that haven't been signed off yet:<br>
+                                                <b>Handover can't be Signed Off</b><br>This Handover QA can't be signed off by Site Supervisor/Manager until all other related Quality Assurnce documents for this site have been completed.
+                                                <br><br>Below are a list of outstanding QA's that haven't been signed off yet:<br>
                                                 <ul>
                                                     @foreach ($qa->allDocs(1) as $q)
                                                         @if ($qa->id != $q->id)

@@ -26,7 +26,7 @@ class CreateSiteMaintenanceTables extends Migration
             $table->tinyInteger('category_id')->unsigned()->nullable();
             $table->integer('supervisor_sign_by')->unsigned()->nullable();
             $table->timestamp('supervisor_sign_at')->nullable();
-            $table->integer('manager_sign_by')->unsigned();
+            $table->integer('manager_sign_by')->unsigned()->nullable();
             $table->timestamp('manager_sign_at')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->text('notes')->nullable();

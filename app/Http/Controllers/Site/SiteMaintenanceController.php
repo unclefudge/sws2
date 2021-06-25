@@ -440,8 +440,13 @@ class SiteMaintenanceController extends Controller {
         // Add note if change of Status
         if (request('status') && $main->status != 3 && request('status') == 3)
             $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        if (request('status') && $main->status != 1 && request('status') == 1)
+        if (request('status') && $main->status != 1 && request('status') == 1) {
             $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $main_request['supervisor_sign_by'] = null;
+            $main_request['supervisor_sign_at'] = null;
+            $main_request['manager_sign_by'] = null;
+            $main_request['manager_sign_at'] = null;
+        }
         if (request('status') && $main->status != - 1 && request('status') == - 1)
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
@@ -456,6 +461,7 @@ class SiteMaintenanceController extends Controller {
         //dd($main_request);
         $main->update($main_request);
         Toastr::success("Updated Request");
+
         //dd('here');
 
         return redirect('site/maintenance/' . $main->id);
