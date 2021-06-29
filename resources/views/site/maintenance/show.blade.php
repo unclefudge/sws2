@@ -278,7 +278,7 @@
                                 {{-- Client Contacted --}}
                                 <div class="col-md-2">
                                     {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main))
                                         <div class="input-group" style="width=80%">
                                             <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>
@@ -291,7 +291,7 @@
                                 {{-- Client Appointment --}}
                                 <div class="col-md-2">
                                     {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main) )
                                         <div class="input-group">
                                             <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>

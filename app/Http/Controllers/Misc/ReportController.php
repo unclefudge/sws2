@@ -352,8 +352,9 @@ class ReportController extends Controller {
     public function maintenanceAppointment()
     {
         $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $mains2 = SiteMaintenance::where('status', 1)->where('client_contacted', null)->orderBy('reported')->get();
 
-        return view('manage/report/site/maintenance_appointment', compact('mains'));
+        return view('manage/report/site/maintenance_appointment', compact('mains', 'mains2'));
     }
 
     public function maintenanceAftercare()

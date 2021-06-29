@@ -50,6 +50,38 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        <br>
+                        <h4 class="bold uppercase font-green-haze">Maintenance Requests Without Client Contacted</h4>
+                        <hr>
+                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th width="5%"> #</th>
+                                <th> Reported</th>
+                                <th> Site</th>
+                                <th> Name</th>
+                                <th width="15%"> Task Owner</th>
+                                <th width="10%"> Updated</th>
+                                <th> Last Note</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($mains2 as $main)
+                                <tr>
+                                    <td>
+                                        <div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div>
+                                    </td>
+                                    <td>{{ $main->reported->format('d/m/Y') }}</td>
+                                    <td>{{ $main->site->code }}</td>
+                                    <td>{{ $main->site->name }}</td>
+                                    <td>{{ $main->taskOwner->name }}</td>
+                                    <td>{{ $main->updated_at->format('d/m/Y') }}</td>
+                                    <td>{{ $main->lastActionNote() }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
