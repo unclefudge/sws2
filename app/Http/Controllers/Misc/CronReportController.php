@@ -371,6 +371,7 @@ class CronReportController extends Controller {
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
         $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $mains2 = SiteMaintenance::where('status', 1)->where('client_contacted', null)->orderBy('reported')->get();
         $data = ['data' => $app_requests];
 
         if ($email_list) {
