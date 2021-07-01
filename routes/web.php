@@ -118,6 +118,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/equipment_transfers', 'Misc\ReportEquipmentController@equipmentTransfers');
     Route::post('/manage/report/equipment_transfers/report', 'Misc\ReportEquipmentController@equipmentTransfersPDF');
     Route::get('/manage/report/equipment/dt/transfers', 'Misc\ReportEquipmentController@getEquipmentTransfers');
+    Route::get('/manage/report/equipment_restock', 'Misc\ReportEquipmentController@equipmentRestock');
     // Reports - Other
     Route::get('/manage/report/licence_override', 'Misc\ReportController@licenceOverride');
     Route::get('/manage/report/attendance', 'Misc\ReportController@attendance');
@@ -524,6 +525,7 @@ Route::get('cron/archive-toolbox', 'Misc\CronController@archiveToolbox');
 Route::get('cron/email-jobstart', 'Misc\CronReportController@emailJobstart');
 Route::get('cron/email-fortnight', 'Misc\CronReportController@emailFortnightlyReports');
 Route::get('cron/email-equipment-transfers', 'Misc\CronReportController@emailEquipmentTransfers');
+Route::get('cron/email-equipment-restock', 'Misc\CronReportController@emailEquipmentRestock');
 Route::get('cron/email-outstanding-qa', 'Misc\CronReportController@emailOutstandingQA');
 Route::get('cron/email-onhold-qa', 'Misc\CronReportController@emailOnHoldQA');
 Route::get('cron/email-maintenance-executive', 'Misc\CronReportController@emailMaintenanceExecutive');

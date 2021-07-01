@@ -404,4 +404,14 @@ class ReportEquipmentController extends Controller {
 
         return $dt;
     }
+
+    /*
+   * Equipment Re-Stockt Report
+   */
+    public function equipmentRestock()
+    {
+        $equipment = Equipment::where('min_stock', '!=', null)->orderBy('name')->get();
+
+        return view('manage/report/equipment/equipment-restock', compact('equipment'));
+    }
 }

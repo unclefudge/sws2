@@ -62,6 +62,10 @@ class CronReportController extends Controller {
             CronReportController::emailOnHoldQA();
         }
 
+        if (Carbon::today()->isFriday())
+            CronReportController::emailEquipmentRestock();
+
+
         // Fortnightly on Mondays starting 26 Oct 2020
         $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
         if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
@@ -535,6 +539,46 @@ class CronReportController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    /*
+    * Email Equipment Restock
+    */
+    static public function emailEquipmentRestock()
+    {
+        $log = '';
+        $email_name = "Equipment Restock";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('equipment.restock');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails";
+        $log .= "Sending $email_name email to $emails";
+
+        $equipment = Equipment::where('min_stock', '!=', null)->orderBy('name')->get();
+        $data = ['data' => $equipment];
+
+        if ($email_list) {
+            Mail::send('emails/misc/equipment-restock', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('SafeWorksite - Equipment Restock');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+
+
+    }
+
+
 
     /*
     * Email Site Maintenance Executive Report

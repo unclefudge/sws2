@@ -123,6 +123,9 @@
                                 <tr>
                                     <td><a href="/manage/report/equipment_stocktake">Equipment Stocktake</a></td>
                                 </tr>
+                                <tr>
+                                    <td><a href="/manage/report/equipment_restock">Equipment Restock Items</a></td>
+                                </tr>
                                 <tr style="background-color: #f0f6fa">
                                     <th> Accounting</th>
                                 </tr>

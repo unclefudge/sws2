@@ -76,10 +76,10 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.outstanding')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.onhold')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.transfers')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.restock')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.missing.info')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.oldusers')->first()->notificationSelect() !!}
                         @endif
-
 
                         <div class="form-actions right">
                             <a href="/settings" class="btn default"> Back</a>
