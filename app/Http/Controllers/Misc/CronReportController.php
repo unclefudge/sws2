@@ -71,10 +71,12 @@ class CronReportController extends Controller {
         if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
             CronReportController::emailFortnightlyReports();
 
-        // Monthly third Friday of the month
-        $third_fri = new Carbon('third friday of this month');
-        if (Carbon::today()->isSameDay($third_fri))
+        // Monthly first Tuesday of the month
+        $third_fri = new Carbon('first tuesday of this month');
+        if (Carbon::today()->isSameDay($third_fri)) {
             CronReportController::emailOldUsers();
+            CronReportController::emailMissingCompanyInfo();
+        }
 
         // Monthly last Friday of the month
         $last_fri = new Carbon('last friday of this month');
@@ -574,8 +576,6 @@ class CronReportController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-
-
     }
 
 

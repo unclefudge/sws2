@@ -532,6 +532,7 @@ Route::get('cron/email-maintenance-executive', 'Misc\CronReportController@emailM
 Route::get('cron/email-maintenance-aftercare', 'Misc\CronReportController@emailOutstandingAftercare');
 Route::get('cron/email-outstanding-privacy', 'Misc\CronReportController@emailOutstandingPrivacy');
 Route::get('cron/email-oldusers', 'Misc\CronReportController@emailOldUsers');
+Route::get('cron/email-missing-company-info', 'Misc\CronReportController@emailMissingCompanyInfo');
 
 Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
