@@ -102,7 +102,7 @@
                                 <td><a href="/manage/report/maintenance_aftercare">Without After Care</a></td>
                             </tr>
                             <tr>
-                                <td><a href="/manage/report/maintenance_executive">Excutive Summary</a></td>
+                                <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                             </tr>
                             @if (Auth::user()->isCC())
                                 <tr style="background-color: #f0f6fa">
