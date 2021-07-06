@@ -97,6 +97,7 @@
                                 <th width="10%"> Reported</th>
                                 <th width="7%"> Site</th>
                                 <th> Name</th>
+                                <th width="10%"> Client Contacted</th>
                                 <th width="10%"> Appointment</th>
                                 <th> Supervisor</th>
                                 <th width="10%"> Updated</th>
@@ -143,6 +144,7 @@
             {data: 'reported_date', name: 'm.reported'},
             {data: 'site_id', name: 's.code'},
             {data: 'sitename', name: 's.name'},
+            {data: 'contacted_date', name: 'm.client_contacted'},
             {data: 'appointment_date', name: 'm.client_appointment'},
             {data: 'super_id', name: 'm.super_id'},
             {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
