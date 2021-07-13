@@ -91,18 +91,21 @@
             <div class="col-xs-2">Unique Sites</div>
             <div class="col-xs-2">{{ ($mains->groupBy('site_id')->count() + $mains_old->groupBy('site_id')->count()) }}</div>
         </div>
-            <div class="row">
-                <div class="col-xs-4">Average days from appointment to completion</div>
-                <div class="col-xs-4">{{ $avg_appoint }}</div>
-                <div class="col-xs-2"></div>
-                <div class="col-xs-2"></div>
-            </div>
-            <div class="row">
-                <div class="col-xs-4">Average days for completing Requests</div>
-                <div class="col-xs-4">{{ $avg_completed }}</div>
-                <div class="col-xs-2"></div>
-                <div class="col-xs-2"></div>
-            </div>
+        <div class="row">
+            <div class="col-xs-4">Average days from appointment to completion</div>
+            <div class="col-xs-4">{{ $avg_appoint }}</div>
+            <div class="col-xs-2"></div>
+            <div class="col-xs-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4">Average days for completing Requests</div>
+            <div class="col-xs-4">{{ $avg_completed }}</div>
+            <div class="col-xs-2"></div>
+            <div class="col-xs-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12"><span class="font-red">Above stats are calculated from requests created after 1st May and exclude {{ $excluded }} earlier requests.</span></div>
+        </div>
         <hr style="margin: 5px 0px">
 
         <div class="row">
@@ -136,9 +139,12 @@
                         </tr>
                     @endforeach
                     <tr>
-                        <td colspan="5"><hr style="padding: 2px; margin: 2px 0px"></td>
+                        <td colspan="5">
+                            <hr style="padding: 2px; margin: 2px 0px">
+                        </td>
                     </tr>
-                    <tr><td></td>
+                    <tr>
+                        <td></td>
                         <td></td>
                         <td>{{ ($mains->where('status', 1)->count() + $mains_old->where('status', 1)->count()) }}</td>
                         <td>{{ ($mains->where('status', 0)->count() + $mains_old->where('status', 0)->count()) }}</td>
@@ -150,9 +156,9 @@
 
         <div class="page"></div>
         <?php $row_count = 6; $page_count ++ ?>
-            {{-- New Page - Show header --}}
-            <h3 style="margin: 0px">Site Maintenance Executive Report</h3>
-            <hr style="margin: 5px 0px">
+        {{-- New Page - Show header --}}
+        <h3 style="margin: 0px">Site Maintenance Executive Report</h3>
+        <hr style="margin: 5px 0px">
 
         {{--Old  Maintenance Requests --}}
         <h4>Open Requests Older than 90 Days &nbsp;

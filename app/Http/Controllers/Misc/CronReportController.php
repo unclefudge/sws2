@@ -523,7 +523,7 @@ class CronReportController extends Controller {
 
         $user_list3 = [];
         foreach ($user_list2 as $user) {
-            if (in_array($user->company->category, [1,2]) && $user->company->status == 1 && $user->hasAnyRole2('ext-leading-hand|tradie|labourers')) { // Onsite Trade + Active Company + appropriate role
+            if (in_array($user->company->category, [1, 2]) && $user->company->status == 1 && $user->hasAnyRole2('ext-leading-hand|tradie|labourers')) { // Onsite Trade + Active Company + appropriate role
                 if (!$user->last_login || ($user->last_login->lt($date_3_month) && $user->last_login->lt($user->company->lastDateOnPlanner()))) { // User not logged in or not logged in last 3 months but company has been on planner
                     $user_list3[] = $user->id;
                 }
@@ -579,7 +579,6 @@ class CronReportController extends Controller {
     }
 
 
-
     /*
     * Email Site Maintenance Executive Report
     */
@@ -604,42 +603,47 @@ class CronReportController extends Controller {
         $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1, 3])->get();
         $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
 
-        $count = $count_allocated = 0;
+        $count = $count_allocated = $excluded = 0;
         $total_allocated = $total_completed = $total_contacted = $total_appoint = 0;
         $cats = [];
         $supers = [];
 
         foreach ([$mains, $mains_old] as $mains_collect) {
             foreach ($mains_collect as $main) {
-                $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
-                $total_completed = $total_completed + $days;
+                if ($main->created_at->gte(Carbon::createFromFormat('Y-m-d', '2021-05-01'))) {
+                    $days = ($main->status == 1) ? $main->reported->diffInWeekDays($to) : $main->reported->diffInWeekDays($main->updated_at);
+                    $total_completed = $total_completed + $days;
 
-                // Avg Assigned Days
-                if ($main->assigned_at) {
-                    $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
-                    $assigned_days = $assigned_at->diffInWeekDays($main->reported);
-                } elseif ($main->status == 0 || $main->status == 3)
-                    $assigned_days = $main->reported->diffInWeekDays($main->updated_at);
-                elseif ($main->status == 1)
-                    $assigned_days = $main->reported->diffInWeekDays($to);
+                    // Avg Assigned Days
+                    if ($main->assigned_at) {
+                        $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                        $assigned_days = $assigned_at->diffInWeekDays($main->reported);
+                    } elseif ($main->status == 0 || $main->status == 3)
+                        $assigned_days = $main->reported->diffInWeekDays($main->updated_at);
+                    elseif ($main->status == 1)
+                        $assigned_days = $main->reported->diffInWeekDays($to);
 
-                $total_allocated = $total_allocated + $assigned_days;
+                    $total_allocated = $total_allocated + $assigned_days;
 
-                // Avg Client Contacted Days
-                if ($main->client_contacted)
-                    $total_contacted = $total_contacted + $main->client_contacted->diffInWeekDays($main->reported);
-                elseif ($main->status == 0 || $main->status == 3)
-                    $total_contacted = $total_contacted + $main->reported->diffInWeekDays($main->updated_at);
-                elseif ($main->status == 1)
-                    $total_contacted = $total_contacted + $main->reported->diffInWeekDays($to);
+                    // Avg Client Contacted Days
+                    if ($main->client_contacted)
+                        $total_contacted = $total_contacted + $main->client_contacted->diffInWeekDays($main->reported);
+                    elseif ($main->status == 0 || $main->status == 3)
+                        $total_contacted = $total_contacted + $main->reported->diffInWeekDays($main->updated_at);
+                    elseif ($main->status == 1)
+                        $total_contacted = $total_contacted + $main->reported->diffInWeekDays($to);
 
-                // Avg Appointment to Completion Days
-                $appoint_from = ($main->client_appointment) ? $main->client_appointment : $main->reported;
-                if ($main->status == 0 || $main->status == 3)
-                    $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($main->updated_at);
-                elseif ($main->status == 1)
-                    $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
+                    // Avg Appointment to Completion Days
+                    $appoint_from = ($main->client_appointment) ? $main->client_appointment : $main->reported;
+                    if ($main->status == 0 || $main->status == 3)
+                        $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($main->updated_at);
+                    elseif ($main->status == 1)
+                        $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
 
+                    $count ++;
+                } else {
+                    $excluded ++;
+                }
 
 
                 // Count Categories
@@ -662,7 +666,7 @@ class CronReportController extends Controller {
                     $onhold = ($main->status == 3) ? $supers[$name][2] + 1 : $supers[$name][2];
                     $supers[$name] = [$active, $completed, $onhold];
                 }
-                $count ++;
+
             }
         }
 
@@ -681,7 +685,7 @@ class CronReportController extends Controller {
         //return view('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
         //return PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'))->setPaper('a4', 'landscape')->stream();
 
-        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
+        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
