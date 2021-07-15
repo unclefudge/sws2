@@ -217,7 +217,7 @@ class Site extends Model {
     public function hasMaintenanceActive()
     {
         return $this->maintenance->filter(function ($record) {
-            return $record->status == 1;
+            return $record->status > 0;
         })->count();
     }
 

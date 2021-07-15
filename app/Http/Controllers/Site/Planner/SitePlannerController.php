@@ -696,6 +696,8 @@ class SitePlannerController extends Controller {
 
         //$site = Site::find($plan->site_id);
         $array['site_name'] = $plan->site->name;
+        //if ($plan->id == 99017)
+        //    dd($plan->site->name);
 
         $array['entity_type'] = $plan->entity_type;
         $array['entity_id'] = $plan->entity_id;
