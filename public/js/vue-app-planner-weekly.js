@@ -72,7 +72,7 @@ Vue.component('app-weekly', {
 });
 
 Vue.component('app-site', {
-    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status'],
+    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status', 'site_preconstruct'],
     template: '#site-template',
 
     data: function () {
@@ -93,6 +93,13 @@ Vue.component('app-site', {
     methods: {
         weekDate: function (date, days) {
             return moment(date).add(days, 'days').format('YYYY-MM-DD');
+        },
+        preConstruct: function (jobstart) {
+            if (moment(jobstart).isSameOrAfter(this.xx.mon_now))
+                return moment(jobstart).format('DD/MM/YYYY');
+            return false;
+            //alert(jobstart + ' : ' + this.xx.mon_now);
+            //return 1;
         },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
