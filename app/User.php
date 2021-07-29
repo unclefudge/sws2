@@ -9,6 +9,7 @@ use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteRoster;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
@@ -265,6 +266,35 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                 })->get();
 
         return SiteAccident::where(function ($q) use ($site_list, $user_list) {
+            $q->whereIn('created_by', $user_list);
+            $q->orWhereIn('site_id', $site_list);
+        })->get();
+    }
+
+    /**
+     * A list of Site Incidents this user is allowed to view
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function siteIncidents($status = '')
+    {
+        $site_list = (Session::has('siteID')) ?[Session::get('siteID')] : [];
+        $user_list = [$this->id];
+        $company_level = $this->permissionLevel('view.site.accident', $this->company_id);
+        $parent_level = $this->permissionLevel('view.site.accident', $this->company->reportsTo()->id);
+        if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40)
+            $site_list = $site_list + $this->authSites('view.site.accident')->pluck('id')->toArray(); // Planned For or Supervisor For so  - check site
+        else
+            $user_list = $user_list + $this->authUsers('view.site.accident')->pluck('id')->toArray(); // Else - check users
+
+        if ($status != '')
+            return SiteIncident::where('status', '=', $status)
+                ->where(function ($q) use ($site_list, $user_list) {
+                    $q->whereIn('created_by', $user_list);
+                    $q->orWhereIn('site_id', $site_list);
+                })->get();
+
+        return SiteIncident::where(function ($q) use ($site_list, $user_list) {
             $q->whereIn('created_by', $user_list);
             $q->orWhereIn('site_id', $site_list);
         })->get();

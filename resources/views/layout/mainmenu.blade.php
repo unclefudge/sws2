@@ -50,6 +50,10 @@
                                                             <li><a href="/site/accident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Accidents</a>
                                                             </li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.incident'))
+                                                            <li><a href="/site/incident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Incidents</a>
+                                                            </li>
+                                                        @endif
 
                                                         @if (Auth::user()->hasAnyPermissionType('safety.doc'))
                                                             <li><a href="/site/doc/type/risk" class="nav-link "> Risk Assessments</a></li>

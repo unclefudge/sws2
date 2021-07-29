@@ -44,21 +44,67 @@
 
                         <p>Please answer the following questions.</p>
                         <div class="form-body">
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group {!! fieldHasError('transient', $errors) !!}">
-                                        {!! Form::checkbox('question18', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                            <div class="note note-success">
+                                <h4><b>COVID - Safety Requirements</b></h4>
+                                <hr style="color: #000">
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            {!! Form::checkbox('question20', '1', false,
+                                             ['class' => 'make-switch', 'data-size' => 'small',
+                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
+                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I have <b>signed in</b> to the NSW service Covid safe check in
                                     </div>
                                 </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    <div style="background-color: #ed6b75; color:#FFF; padding: 5px 10px"><b>I have read, understood and will adhere to the principles required to manage the risk of COVID-19</b> &nbsp; &nbsp; <a
-                                                class="btn default" href="/filebank/doc/COVID-19 Construction Site Risk Management Principles.pdf">view</a></div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            {!! Form::checkbox('question21', '1', false,
+                                             ['class' => 'make-switch', 'data-size' => 'small',
+                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
+                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I will <b>wear a mask</b> indoors and out as required and <b>observe all other Gov directives</b>, such as social distancing
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            {!! Form::checkbox('question22', '1', false,
+                                             ['class' => 'make-switch', 'data-size' => 'small',
+                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
+                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I have been <b>tested</b> as required and have received a <b>negative result</b>
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            {!! Form::checkbox('question18', '1', false,
+                                             ['class' => 'make-switch', 'data-size' => 'small',
+                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
+                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        <div>I have read, understood and will adhere to the principles required to manage the risk of COVID-19 &nbsp; &nbsp; <a
+                                                    class="btn dark" href="/filebank/doc/COVID-19 Construction Site Risk Management Principles.pdf">view</a></div>
+                                    </div>
                                 </div>
                             </div>
-                            <br>
+                            
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">

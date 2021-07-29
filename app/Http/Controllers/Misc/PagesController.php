@@ -36,6 +36,8 @@ use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\FormQuestion;
+use App\Models\Misc\FormResponse;
 use App\Models\Misc\Permission2;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
@@ -1085,6 +1087,41 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
+    public function importQuestions()
+    {
+        echo "Importing Questions<br>---------------------<br><br>";
+        $row = 0;
+        if (($handle = fopen(public_path("resp.csv"), "r")) !== false) {
+            while (($data = fgetcsv($handle, 5000, ",")) !== false) {
+                $row ++;
+                $num = count($data);
+
+                $question = $data[0];
+                $option = $data[1];
+
+                $quest = FormQuestion::where('name', $question)->where('parent', null)->first();
+
+                if ($quest) {
+                    echo " ";
+                    $opt = FormQuestion::where('name', $option)->where('parent', $quest->id)->first();
+                    if (!$opt)
+                        $quest = FormQuestion::create(['name' => $option, 'parent' => $quest->id, 'form' => 'site_incident']);
+                } else {
+                    echo "*  ";
+                    $quest = FormQuestion::create(['name' => $question, 'form' => 'site_incident']);
+                    $option = FormQuestion::create(['name' => $option, 'parent' => $quest->id, 'form' => 'site_incident']);
+                }
+                echo "$question - $option<br>";
+
+                echo "<br>";
+
+
+            }
+            fclose($handle);
+        }
+        echo "<br><br>Completed<br>-------------<br>";
+    }
+
     public function importMaintenance()
     {
         echo "Importing Maintenance<br>---------------------<br><br>";
@@ -1323,8 +1360,8 @@ class PagesController extends Controller {
         //
         // Creating Permission
         //
-        $name = 'Site Asbestos Register';
-        $slug = 'site.asbestos.register';
+        $name = 'Site Incident';
+        $slug = 'site.incident';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

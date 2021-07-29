@@ -543,12 +543,6 @@
 @stop
 
 @section('page-level-plugins')
-    <!--<script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>-->
-
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>

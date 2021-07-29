@@ -651,6 +651,16 @@ class CompanyController extends Controller {
     }
 
     /**
+     * Get Companydetails
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getCompanyDetails($id)
+    {
+        return Company::findOrFail($id);
+    }
+
+    /**
      * Get Companies current user is authorised to manage + Process datatables ajax request.
      */
     public function getCompanies(Request $request)

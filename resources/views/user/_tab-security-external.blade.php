@@ -235,20 +235,20 @@ $rec = $user;
                     </table>
 
                     <h5 class="font-green-haze" style="font-size: 16px">Reports / Exports</h5>
-                        <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <td>Export Site Data</td>
+                            <td width="15%">{!! permSelect('view.site.export', 'super', $rec, $cid) !!}</td>
+                            <td width="60%" colspan="4"></td>
+                        </tr>
+                        @if ($cc)
                             <tr>
-                                <td>Export Site Data</td>
-                                <td width="15%">{!! permSelect('view.site.export', 'super', $rec, $cid) !!}</td>
+                                <td>Management Reports</td>
+                                <td width="15%">{!! permSelect('view.manage.report', 'all', $rec, $cid) !!}</td>
                                 <td width="60%" colspan="4"></td>
                             </tr>
-                            @if ($cc)
-                                <tr>
-                                    <td>Management Reports</td>
-                                    <td width="15%">{!! permSelect('view.manage.report', 'all', $rec, $cid) !!}</td>
-                                    <td width="60%" colspan="4"></td>
-                                </tr>
-                            @endif
-                        </table>
+                        @endif
+                    </table>
 
                     <h5 class="font-green-haze" style="font-size: 16px">Configuration / Settings</h5>
                     <table class="table table-bordered table-striped">
@@ -321,6 +321,19 @@ $rec = $user;
                             @endif
                             <td width="15%">{!! permSelect('add.site.accident', 'add', $rec, $cid) !!}</td>
                             <td width="15%">{!! permSelect('del.site.accident', 'res', $rec, $cid) !!}</td>
+                            <td width="15%"></td>
+                        </tr>
+                        <tr>
+                            <td>Incident Reports</td>
+                            @if ($plan)
+                                <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid) !!}</td>
+                            @else
+                                <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid) !!}</td>
+                            @endif
+                            <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid) !!}</td>
+                            <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid) !!}</td>
                             <td width="15%"></td>
                         </tr>
                         <tr>

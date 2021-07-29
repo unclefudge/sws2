@@ -781,7 +781,7 @@ trait UserRolesPermissions {
             }
 
             // Site Accident + Hazard
-            if ($permissiontype == 'site.accident' || $permissiontype == 'site.hazard') {
+            if ($permissiontype == 'site.accident' || $permissiontype == 'site.incident' || $permissiontype == 'site.hazard') {
                 if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40) {
                     // Planned For '30' or Supervisor For '40' so check site
                     if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
@@ -789,10 +789,10 @@ trait UserRolesPermissions {
                 // check users
                 if ($this->authUsers($permission)->contains('id', $record->created_by)) return true;
 
-                // User always allowed to view on Accident / Hazard
+                // User always allowed to view own Incident / Hazard
                 if ($action == 'view' && $this->id == $record->created_by) return true;
 
-                // User always allowed to view on Hazard of site they currently logged into
+                // User always allowed to view Hazard of site they currently logged into
                 if ($action == 'view' && $permissiontype == 'site.hazard' && Session::has('siteID') && Session::get('siteID') == $record->site_id) return true;
                 return false;
             }

@@ -202,6 +202,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Company Routes
     Route::get('company/dt/companies', 'Company\CompanyController@getCompanies');
     Route::get('company/dt/users', 'Company\CompanyController@getUsers');
+    Route::get('company/data/details/{id}', 'Company\CompanyController@getCompanyDetails');
     Route::get('company/{id}/name', 'Company\CompanyController@getCompanyName');
     Route::get('company/{id}/approve/{type}', 'Company\CompanyController@approveCompany');
     Route::post('company/{id}/business', 'Company\CompanyController@updateBusiness');
@@ -245,6 +246,18 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Accidents
     Route::get('site/accident/dt/accidents', 'Site\SiteAccidentController@getAccidents');
     Route::resource('site/accident', 'Site\SiteAccidentController');
+
+    Route::resource('site/incident/{id}/people', 'Site\Incident\SiteIncidentPeopleController');
+
+    // Site Incidents
+    Route::get('site/incident/dt/incidents', 'Site\Incident\SiteIncidentController@getIncidents');
+    Route::any('site/incident/upload', 'Site\Incident\SiteIncidentController@uploadAttachment');
+    Route::get('site/incident/{id}/docs', 'Site\Incident\SiteIncidentController@docs');
+    Route::any('site/incident/{id}/lodge', 'Site\Incident\SiteIncidentController@lodge');
+    Route::get('site/incident/{id}/involved', 'Site\Incident\SiteIncidentController@showInvolved');
+    Route::get('site/incident/{id}/investigate', 'Site\Incident\SiteIncidentController@showInvestigate');
+    Route::resource('site/incident', 'Site\Incident\SiteIncidentController');
+
 
     // Site Compliance
     Route::resource('site/compliance', 'Site\Planner\SiteComplianceController');
@@ -538,6 +551,7 @@ Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', 'Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance');
+Route::get('manage/import-questions', 'Misc\PagesController@importQuestions');
 
 
 Route::get('test/asbestosreg', 'Misc\PagesController@asbestosRegister');

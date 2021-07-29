@@ -555,6 +555,19 @@ $cc = 1;*/
                                                 <td width="15%"></td>
                                             </tr>
                                             <tr>
+                                                <td>Incident Reports</td>
+                                                @if ($plan)
+                                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                @else
+                                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                @endif
+                                                <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid, $dis) !!}</td>
+                                                <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid, $dis) !!}</td>
+                                                <td width="15%"></td>
+                                            </tr>
+                                            <tr>
                                                 <td>Risk Assessments / Hazardous Materials</td>
                                                 <td width="15%">{!! permSelect('view.safety.doc', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.safety.doc', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>
