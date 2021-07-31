@@ -55,7 +55,7 @@
 
                             <div class="row">
                                 <div class="col-md-12">
-                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site->name }} ({{ $incident->site->full_address }})</b><br><br>
+                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} ({{ $incident->site->full_address }})</b><br><br>
                                 </div>
 
                                 <div class="col-md-12">
@@ -94,9 +94,7 @@
                                         {!! fieldErrorMessage('user_id', $errors) !!}
                                     </div>
                                 </div>
-
                                 <div class="col-md-3"></div>
-
                                 @if (Auth::user()->allowed2('del.site.incident', $incident))
                                     {{-- DOB --}}
                                     <div class="col-md-3">
@@ -161,7 +159,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
                                             {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
-                                            {!! Form::text('engagement', null, ['class' => 'form-control']) !!}
+                                            {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
                                             {!! fieldErrorMessage('engagement', $errors) !!}
                                         </div>
                                     </div>

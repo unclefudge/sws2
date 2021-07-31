@@ -27,7 +27,7 @@
                     @include('site/_edit-site')
                 @endif
 
-                {{-- Site Details --}}
+                {{-- Client Details --}}
                 @if (Auth::user()->allowed2('view.site', $site))
                     @include('site/_show-client')
                     @include('site/_edit-client')

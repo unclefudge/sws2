@@ -280,13 +280,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         $site_list = (Session::has('siteID')) ?[Session::get('siteID')] : [];
         $user_list = [$this->id];
-        $company_level = $this->permissionLevel('view.site.accident', $this->company_id);
-        $parent_level = $this->permissionLevel('view.site.accident', $this->company->reportsTo()->id);
-        if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40)
-            $site_list = $site_list + $this->authSites('view.site.accident')->pluck('id')->toArray(); // Planned For or Supervisor For so  - check site
+        $company_level = $this->permissionLevel('view.site.incident', $this->company_id);
+        $parent_level = $this->permissionLevel('view.site.incident', $this->company->reportsTo()->id);
+        if ($company_level == 99 || $parent_level == 99)
+            $site_list = [0] + Site::where('status', 1)->pluck('id')->toArray();
+        elseif ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40)
+            $site_list = $site_list + $this->authSites('view.site.incident')->pluck('id')->toArray(); // Planned For or Supervisor For so  - check site
         else
-            $user_list = $user_list + $this->authUsers('view.site.accident')->pluck('id')->toArray(); // Else - check users
+            $user_list = $user_list + $this->authUsers('view.site.incident')->pluck('id')->toArray(); // Else - check users
 
+        //dd($site_list);
         if ($status != '')
             return SiteIncident::where('status', '=', $status)
                 ->where(function ($q) use ($site_list, $user_list) {

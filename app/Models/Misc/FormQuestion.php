@@ -83,6 +83,21 @@ class FormQuestion extends Model {
     }
 
     /**
+     * A FormQuestion responses in array format 'option_id' only
+     *
+     * @return string
+     */
+    public function responsesBullet($table = null, $table_id = null)
+    {
+        $str = '<ul style="padding-left: 0">';
+        foreach ($this->responses($table, $table_id) as $response)
+            $str .= "<li>" . $response->optionText . '</li>';
+        $str .= '</ul>';
+
+        return $str;
+    }
+
+    /**
      * A FormQuestion response text for specific option
      *
      * @return string

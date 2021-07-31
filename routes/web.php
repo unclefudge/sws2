@@ -256,6 +256,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/incident/{id}/lodge', 'Site\Incident\SiteIncidentController@lodge');
     Route::get('site/incident/{id}/involved', 'Site\Incident\SiteIncidentController@showInvolved');
     Route::get('site/incident/{id}/investigate', 'Site\Incident\SiteIncidentController@showInvestigate');
+    Route::post('site/incident/{id}/injury', 'Site\Incident\SiteIncidentController@updateInjury');
+    Route::post('site/incident/{id}/damage', 'Site\Incident\SiteIncidentController@updateDamage');
     Route::resource('site/incident', 'Site\Incident\SiteIncidentController');
 
 

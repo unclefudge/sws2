@@ -88,23 +88,8 @@
                                         I have been <b>tested</b> as required and have received a <b>negative result</b>
                                     </div>
                                 </div>
-                                <div class="row visible-xs">&nbsp;</div>
-                                <div class="row">
-                                    <div class="col-sm-2 col-xs-4 text-center">
-                                        <div class="form-group">
-                                            {!! Form::checkbox('question18', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-10 col-xs-8">
-                                        <div>I have read, understood and will adhere to the principles required to manage the risk of COVID-19 &nbsp; &nbsp; <a
-                                                    class="btn dark" href="/filebank/doc/COVID-19 Construction Site Risk Management Principles.pdf">view</a></div>
-                                    </div>
-                                </div>
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">

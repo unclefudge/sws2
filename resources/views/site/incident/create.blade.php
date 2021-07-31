@@ -54,10 +54,21 @@
                         </div>
 
                         <div class="form-body">
-                            <h4 class="font-green-haze">Notification Details</h4>
+                            <h4 class="font-green-haze">Site Details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+
+                            {{-- Site detail --}}
                             <div class="row">
-                                <div class="col-md-6">
+                                {{-- CC Site --}}
+                                <div class="col-md-4 ">
+                                    <div class="form-group {!! fieldHasError('site_cc', $errors) !!}">
+                                        {!! Form::label('site_cc', 'Did the incident occur on a Cape Cod work site?', ['class' => 'control-label']) !!}
+                                        {!! Form::select('site_cc', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select', 'id' => 'site_cc']) !!}
+                                        {!! fieldErrorMessage('site_cc', $errors) !!}
+                                    </div>
+                                </div>
+                                {{-- Site ID --}}
+                                <div class="col-md-6" id="field_site_id">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
@@ -66,8 +77,31 @@
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                {{-- Site Name --}}
+                                <div class="col-md-6" id="field_site_name">
+                                    <div class="form-group {!! fieldHasError('site_name', $errors) !!}">
+                                        {!! Form::label('site_name', 'Place of incident', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_name', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('site_name', $errors) !!}
+                                    </div>
                                 </div>
+                            </div>
+
+                            {{-- Location --}}
+                            <div class="row">
+                                {{-- Location --}}
+                                <div class="col-md-6 ">
+                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
+                                        {!! Form::label('location', 'Location of Incident (be specific)', ['class' => 'control-label']) !!}
+                                        {!! Form::text('location', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('location', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-green-haze">Notification Details</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('date', $errors) !!}">
                                         {!! Form::label('date', 'Date / Time of Incident', ['class' => 'control-label']) !!}
@@ -279,6 +313,11 @@
 
         updateFields();
 
+        // On Change Site CC
+        $("#site_cc").change(function () {
+            updateFields();
+        });
+
         // On Change Site ID
         $("#site_id").change(function () {
             updateFields();
@@ -307,9 +346,13 @@
 
             $("#injury_details").hide()
             $("#damage_details").hide()
+            $("#field_site_id").hide()
+            $("#field_site_name").hide()
             $("#field_treatment_other").hide()
             $("#field_injured_part_other").hide()
 
+            if ($("#site_cc").val() == '1') $("#field_site_id").show() // Site id
+            if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
             if (types != null && types.includes('2')) $("#injury_details").show()
             if (types != null && types.includes('3')) $("#damage_details").show()
             if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show() // Other treatment

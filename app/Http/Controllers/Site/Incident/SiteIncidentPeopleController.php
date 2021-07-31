@@ -116,6 +116,7 @@ class SiteIncidentPeopleController extends Controller {
 
         $people_request = request()->all();
         $people_request['incident_id'] = $incident->id;
+        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident->id)) ? 1 : 2;  // Set to '2' pending until approved
 
         // Format date from datetime picker to mysql format
         $people_request['dob'] = (request('dob')) ? Carbon::createFromFormat('d/m/Y h:m', request('dob') . '00:00')->toDateTimeString() : null;
@@ -130,13 +131,6 @@ class SiteIncidentPeopleController extends Controller {
 
         // Create SiteIncidentPeople
         $people = SiteIncidentPeople::create($people_request);
-
-        //
-        // Form Responses
-        //
-
-        // Type
-        //FormResponse::create(['question_id' => 1, 'option_id' => request('type'), 'table' => 'site_incidents_people', 'table_id' => $people->id, 'info' => (request('type') == 13) ? request('type_other') : null]);
 
         Toastr::success("Added person involved");
 
@@ -168,6 +162,7 @@ class SiteIncidentPeopleController extends Controller {
 
         $people_request = request()->all();
         $people_request['incident_id'] = $incident->id;
+        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident->id)) ? 1 : 2;  // Set to '2' pending until approved
 
         // Format date from datetime picker to mysql format
         $people_request['dob'] = (request('dob')) ? Carbon::createFromFormat('d/m/Y h:m', request('dob') . '00:00')->toDateTimeString() : null;

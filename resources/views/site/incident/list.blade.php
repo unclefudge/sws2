@@ -41,7 +41,7 @@
                                             <div class="text-center"><a href="/site/incident/{{ $p->id }}"><i class="fa fa-search"></i></a></div>
                                         </td>
                                         <td width="15%">{{ $p->date->format('d/m/Y') }}</td>
-                                        <td>{{ $p->site->name }}</td>
+                                        <td>{{ ($p->site) ? $p->site->name : '' }}</td>
                                         <td>{{ $p->createdBy->name }}</td>
                                         <td width="15%">{{ $p->created_at->format('d/m/Y') }}</td>
                                     </tr>
@@ -143,8 +143,8 @@
             {data: 'id', name: 'site_incidents.id', orderable: false, searchable: false},
             {data: 'nicedate', name: 'site_incidents.date'},
             {data: 'nicedate2', name: 'site_incidents.resolved_at', visible: false,},
-            {data: 'sitename', name: 'sites.name'},
-            {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
+            {data: 'site_name', name: 'site_incidents.site_name'},
+            {data: 'site_supervisor', name: 'site_incidents.site_supervisor', orderable: false, searchable: false},
             {data: 'describe', name: 'site_incidents.describe', orderable: false},
         ],
         order: [

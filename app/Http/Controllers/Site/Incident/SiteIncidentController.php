@@ -161,7 +161,8 @@ class SiteIncidentController extends Controller {
         if (!Auth::user()->allowed2('add.site.incident'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'date' => 'required', 'type' => 'required', 'describe' => 'required', 'actions_taken' => 'required'];
+        $rules = ['site_cc'  => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
+                  'describe' => 'required', 'actions_taken' => 'required'];
 
         // Treatment required if type = 2 'injury'
         if (request('type') && in_array('2', request('type'))) {
@@ -172,25 +173,28 @@ class SiteIncidentController extends Controller {
         if (request('injured_part') && in_array('49', request('injured_part'))) $rules['injured_part_other'] = 'required'; // type = 'other treatment'
         if (request('type') && in_array('3', request('type'))) $rules['damage'] = 'required';  // Damage required if type = 3 'damage'
 
-
-        //'treatment_other' => 'required_if:treatment,20', 'damage' => 'required_if:type,3'];
         $mesg = [
-            'site_id.required'            => 'The site field is required.',
+            'site_cc.required'            => 'The incident occur field is required.',
+            'site_id.required_if'         => 'The site field is required.',
+            'site_name.required_if'       => 'The place of incident field is required.',
             'date.required'               => 'The date/time field is required.',
             'type.required'               => 'The type field is required.',
-            'describe.required'           => 'The describe field is required.',
-            'actions_taken.required'      => 'The actions field is required.',
-            'injured_part.required'       => 'The part of body injured field is required',
+            'describe.required'           => 'The what occured field is required.',
+            'actions_taken.required'      => 'The actions taken field is required.',
+            'injured_part.required'       => 'The part(s) of body injured field is required',
             'injured_part_other.required' => 'The other body part field is required',
             'damage.required'             => 'The damage details field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
+        $site = (request('site_id')) ? Site::findOrFail(request('site_id')) : null;
+
         $incident_request = request()->except('type', 'treatment', 'injured_part', 'injured_nature', 'injured_mechanism', 'injured_agency');
 
-        // Format date from datetime picker to mysql format
-        $incident_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date'))->toDateTimeString();
-        $incident_request['supervisor'] = Site::find(request('site_id'))->supervisorsSBC();
+        $incident_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date'))->toDateTimeString();  // Format date from datetime picker to mysql format
+        $incident_request['site_name'] = ($site) ? $site->name : request('site_name');
+        $incident_request['site_supervisor'] = ($site) ? $site->supervisorsSBC() : 'N/A';
+        $incident_request['company_id'] = ($site) ? $site->company_id : Auth::user()->company->reportsTo()->id;
         $incident_request['step'] = 2;
         $incident_request['status'] = 2;
 
@@ -207,55 +211,16 @@ class SiteIncidentController extends Controller {
             if (request($field)) {
                 foreach (request($field) as $option_id) {
                     if (is_array($qid))
-                        FormResponse::create(['question_id' => $qid[0], 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => ($option_id == $qid[1]) ? request($field.'_other') : null]);
+                        FormResponse::create(['question_id' => $qid[0], 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => ($option_id == $qid[1]) ? request($field . '_other') : null]);
                     else
                         FormResponse::create(['question_id' => $qid, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
                 }
             }
         }
-/*
-        // Type
-        foreach (request('type') as $option_id)
-            FormResponse::create(['question_id' => 1, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
-
-        // Treatment
-        if (request('treatment')) {
-
-            foreach (request('treatment') as $option_id)
-                FormResponse::create(['question_id' => 14, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => ($option_id == 20) ? request('treatment_other') : null]);
-        }
-
-        // Injured parts
-        if (request('injured_part')) {
-            foreach (request('injured_part') as $option_id)
-                FormResponse::create(['question_id' => 21, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => ($option_id == 49) ? request('injured_part_other') : null]);
-        }
-
-        // Injured nature
-        if (request('injured_nature')) {
-            foreach (request('injured_nature') as $option_id)
-                FormResponse::create(['question_id' => 50, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
-        }
-
-        // Injured mechanism
-        if (request('injured_mechanism')) {
-            foreach (request('injured_mechanism') as $option_id)
-                FormResponse::create(['question_id' => 69, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
-        }
-
-        // Injured agency
-        if (request('injured_agency')) {
-            foreach (request('injured_agency') as $option_id)
-                FormResponse::create(['question_id' => 92, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
-        }
-*/
-
-
-        //$incident->emailIncident(); // Email incident
 
         Toastr::success("Lodged incident report");
 
-        return redirect('site/incident/' . $incident->id . '/edit');
+        return redirect('site/incident/' . $incident->id);
     }
 
 
@@ -264,34 +229,172 @@ class SiteIncidentController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public
-    function update($id)
+    public function update($id)
     {
-        $incident = SiteAccident::findOrFail($id);
+        $incident = SiteIncident::findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
-        $this->validate(request(), ['notes' => 'required_without:status'], ['notes.required_without' => 'Please provide notes before you close the incident report']);
-
+        $rules = ['site_cc'  => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
+                  'describe' => 'required', 'actions_taken' => 'required'];
+        $mesg = [
+            'site_cc.required'       => 'The incident occur field is required.',
+            'site_id.required_if'    => 'The site field is required.',
+            'site_name.required_if'  => 'The place of incident field is required.',
+            'date.required'          => 'The date/time field is required.',
+            'type.required'          => 'The type field is required.',
+            'describe.required'      => 'The what occured field is required.',
+            'actions_taken.required' => 'The actions taken field is required.',
+        ];
         //dd(request()->all());
-        $incident_request = request()->all();
 
-        // Format date from datetime picker to mysql format
-        $date = new Carbon (preg_replace('/-/', '', request('date')));
-        $incident_request['date'] = $date->toDateTimeString();
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
 
-        // If Status closed 'field not present' set to 0
-        if (!request()->has('status'))
-            $incident_request['status'] = '0';
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'notification');
+
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $site = (request('site_id')) ? Site::findOrFail(request('site_id')) : null;
+        $incident_request = request()->except('type');
+        //dd($incident_request);
+
+
+        $incident_request['site_id'] = (request('site_cc')) ? request('site_id') : null;
+        $incident_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date'))->toDateTimeString();
+        $incident_request['site_name'] = ($site) ? $site->name : request('site_name');
+        $incident_request['site_supervisor'] = ($site) ? $site->supervisorsSBC() : 'N/A';
 
         // If status was modified then update resolved date
-        if ($incident->status != $incident_request['status'])
-            $incident_request['resolved_at'] = ($incident_request['status']) ? null : Carbon::now()->toDateTimeString();
+        //if ($incident_request['status'] && $incident->status != $incident_request['status'])
+        //    $incident_request['resolved_at'] = ($incident_request['status']) ? null : Carbon::now()->toDateTimeString();
 
         //dd($incident_request);
+
         $incident->update($incident_request);
+
+        //
+        // Form Responses - Type only
+        //
+        $options_all = FormQuestion::find(1)->optionsArray();
+        $options_selected = [];
+        foreach (request('type') as $option_id) {
+            $options_selected[] = $option_id;
+            $response = FormResponse::where('question_id', 1)->where('option_id', $option_id)->where('table', 'site_incidents')->where('table_id', $incident->id)->first();
+            if (!$response)
+                FormResponse::create(['question_id' => '1', 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id]);
+        }
+
+        // Delete existing response if not current
+        $delete_type = FormResponse::whereIn('option_id', array_keys($options_all))->whereNotIn('option_id', $options_selected)->where('table', 'site_incidents')->where('table_id', $incident->id)->delete();
+
+        // Delete all existing 'Injury' responses if type != '2' (injury)
+        if (!in_array('2', request('type')))
+            $delete_non_injury = FormResponse::whereIn('question_id', [14, 21, 50, 69, 92])->where('table', 'site_incidents')->where('table_id', $incident->id)->delete();
+
+        Toastr::success("Updated incident report");
+
+        return redirect('site/incident/' . $incident->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateInjury($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $rules = ['treatment' => 'required', 'injured_part' => 'required'];
+
+        if (request('treatment') && in_array('20', request('treatment'))) $rules['treatment_other'] = 'required'; // type = 'other treatment'
+        if (request('injured_part') && in_array('49', request('injured_part'))) $rules['injured_part_other'] = 'required'; // type = 'other treatment'
+        //if (request('type') && in_array('3', request('type'))) $rules['damage'] = 'required';  // Damage required if type = 3 'damage'
+
+        $mesg = [
+            'injured_part.required'       => 'The part(s) of body injured field is required',
+            'injured_part_other.required' => 'The other body part field is required',
+            //'damage.required'             => 'The damage details field is required.',
+        ];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'injury');
+
+            return back()->withErrors($validator)->withInput();
+        }
+
+        //
+        // Form Responses
+        //
+        $options_all = FormQuestion::find(14)->optionsArray() + FormQuestion::find(21)->optionsArray() + FormQuestion::find(50)->optionsArray() + FormQuestion::find(69)->optionsArray() + FormQuestion::find(92)->optionsArray();
+        $options_selected = [];
+        $questions = ['treatment' => [14, 20], 'injured_part' => [21, 49], 'injured_nature' => 50, 'injured_mechanism' => 69, 'injured_agency' => 92];
+        foreach ($questions as $field => $quest_id) {
+            if (request($field)) {
+                foreach (request($field) as $option_id) {
+                    $options_selected[] = $option_id;
+                    $qid = (is_array($quest_id)) ? $quest_id[0] : $quest_id;
+                    $info = (is_array($quest_id) && $option_id == $quest_id[1]) ? request($field . '_other') : null;
+                    $response = FormResponse::where('question_id', $qid)->where('option_id', $option_id)->where('table', 'site_incidents')->where('table_id', $incident->id)->first();
+                    if ($response && $response->info != $info) {
+                        $response->info = $info;
+                        $response->save();
+                    } elseif (!$response)
+                        FormResponse::create(['question_id' => $qid, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $info]);
+                }
+            }
+        }
+
+        // Delete existing response if not current
+        $deleted = FormResponse::whereIn('option_id', array_keys($options_all))->whereNotIn('option_id', $options_selected)->where('table', 'site_incidents')->where('table_id', $incident->id)->delete();
+
+        Toastr::success("Updated incident report");
+
+        return redirect('site/incident/' . $incident->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateDamage($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $rules = ['damage' => 'required'];
+        $mesg = ['damage.required' => 'The damage details field is required.'];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'damage');
+
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $incident_request = request()->all();
+        $incident->update($incident_request);
+
         Toastr::success("Updated incident report");
 
         return redirect('site/incident/' . $incident->id);
@@ -302,8 +405,7 @@ class SiteIncidentController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public
-    function uploadAttachment(Request $request)
+    public function uploadAttachment(Request $request)
     {
         // Check authorisation and throw 404 if not
         //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
@@ -352,29 +454,20 @@ class SiteIncidentController extends Controller {
     /**
      * Get Incidents current user is authorised to manage + Process datatables ajax request.
      */
-    public
-    function getIncidents()
+    public function getIncidents()
     {
-        $company_ids = (request('site_group')) ? [request('site_group')] : [Auth::user()->company_id, Auth::user()->company->reportsTo()->id];
         $incidents_ids = Auth::user()->siteIncidents(request('status'))->pluck('id')->toArray();
         $incident_records = SiteIncident::select([
-            'site_incidents.id', 'site_incidents.site_id', 'site_incidents.describe',
-            'site_incidents.status', 'sites.company_id',
+            'site_incidents.id', 'site_incidents.site_name', 'site_incidents.site_supervisor', 'site_incidents.describe', 'site_incidents.status',
             DB::raw('DATE_FORMAT(site_incidents.date, "%d/%m/%y") AS nicedate'),
             DB::raw('DATE_FORMAT(site_incidents.resolved_at, "%d/%m/%y") AS nicedate2'),
-            DB::raw('sites.name AS sitename'), 'sites.code',
         ])
-            ->join('sites', 'site_incidents.site_id', '=', 'sites.id')
             ->where('site_incidents.status', '=', request('status'))
-            ->whereIn('site_incidents.id', $incidents_ids)
-            ->whereIn('sites.company_id', $company_ids);
+            ->whereIn('site_incidents.id', $incidents_ids);
 
         $dt = Datatables::of($incident_records)
             ->addColumn('view', function ($incident) {
                 return ('<div class="text-center"><a href="/site/incident/' . $incident->id . '"><i class="fa fa-search"></i></a></div>');
-            })
-            ->addColumn('supervisor', function ($incident) {
-                return ($incident->site->supervisorsSBC());
             })
             ->editColumn('nicedate2', function ($incident) {
                 return ($incident->nicedate2 == '00/00/00') ? '' : $incident->nicedate2;

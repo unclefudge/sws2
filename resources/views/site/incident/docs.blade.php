@@ -69,7 +69,7 @@
                                             <li>Scene / area of the incident</li>
                                             <li>Any damage occured to property / equipment as result of incident</li>
                                         </ul>
-                                        Once you have selected your files upload them by clicking <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
+                                        Once you have selected your files upload them by clicking <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button> then finialise the submission of the incident by clicking <button class="btn dark btn-outline btn-xs" href="javascript:;">Complete</button>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">

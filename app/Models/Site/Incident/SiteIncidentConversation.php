@@ -11,18 +11,17 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteIncidentPeople extends Model {
+class SiteIncidentConversation extends Model {
 
-    protected $table = 'site_incidents_people';
+    protected $table = 'site_incidents_conversations';
     protected $fillable = [
-        'incident_id', 'user_id', 'type', 'type_other', 'name', 'address', 'contact', 'dob', 'occupation', 'engagement', 'employer', 'supervisor',
+        'incident_id', 'user_id', 'name', 'witness', 'start', 'end', 'details',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['dob'];
+    protected $dates = ['start', 'end'];
 
     /**
-     * A SiteIncidentPeople belongs to a SiteIncident
+     * A SiteIncidentConversation belongs to a SiteIncident
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -32,17 +31,7 @@ class SiteIncidentPeople extends Model {
     }
 
     /**
-     * A SiteIncidentPeople type response
-     *
-     * @return FormResponse
-     */
-    public function typePPPP()
-    {
-        return FormResponse::where('question_id', '1')->where('table', 'site_incidents_people')->where('table_id', $this->id)->first();
-    }
-
-    /**
-     * A SiteIncidentPeople belongs to a user
+     * A SiteIncidentConversation belongs to a user
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -51,9 +40,8 @@ class SiteIncidentPeople extends Model {
         return $this->belongsTo('App\User', 'user_id');
     }
 
-
     /**
-     * A SiteIncidentPeople belongs to a user
+     * A SiteIncidentConversation belongs to a user
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -63,7 +51,7 @@ class SiteIncidentPeople extends Model {
     }
 
     /**
-     * A SiteIncidentPeople belongs to a user
+     * A SiteIncidentConversation belongs to a user
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -85,27 +73,6 @@ class SiteIncidentPeople extends Model {
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
         '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
-
-    /**
-     * Get the type name  (getter)
-     */
-    public function getTypeNameAttribute()
-    {
-        return ($this->type_other) ? $this->type_other : FormQuestion::find($this->type)->name;
-    }
-
-    /**
-     * Set the resolved_at  (mutator)
-     *
-     *  - Fix for Carbon saving 0000-00-00 00:00:00 format
-     *  - otherwise trys to save as -0001-11-30 06:12:32
-     */
-    /*
-    public function setResolvedDateAttribute($date)
-    {
-        $date == "0000-00-00 00:00:00" ? "0000-00-00 00:00:00" : $date;
-        $this->attributes['resolved_at'] = $date;
-    }*/
 
     /**
      * The "booting" method of the model.

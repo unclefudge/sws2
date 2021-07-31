@@ -57,8 +57,9 @@
                         <div class="form-body">
                             @if ($incident->people->count())
                                 <div class="note note-warning">
-                                    Once you've finished adding all the people invloved continue onto <a href="/site/incident/{{ $incident->id }}/docs" class="btn green btn-outline btn-xs"> Next Step</a> to add Photos / Documents
+                                    Once you've finished adding all the people invloved continue onto <a href="/site/incident/{{ $incident->id }}/docs" class="btn green btn-outline btn-xs"> Next Step</a> to add Photos / Documents of the incident.
                                 </div>
+                                <br>
                                 <h4>Person(s) Involved <span class="pull-right" style="margin-top: -10px;"><a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/{{ $incident->id }}/people/create" data-original-title="Add">Add</a></span></h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <table class="table table-striped table-bordered table-hover order-column" id="table_people">
@@ -83,10 +84,23 @@
                                     @endforeach
                                     </tbody>
                                 </table>
-
                                 <br>
+                                Remember to add the details of everyone involved in the incident including:
+                                <ul>
+                                    <li>Injured person</li>
+                                    <li>Witnesses</li>
+                                    <li>Any person(s) involved in the incident</li>
+                                </ul>
 
                             @else
+                                <div class="note note-warning">
+                                    You need to add the details of everyone involved in the incident including:
+                                    <ul>
+                                        <li>Injured person</li>
+                                        <li>Witnesses</li>
+                                        <li>Any person(s) involved in the incident</li>
+                                    </ul>
+                                </div>
                                 <h4>Person Injured</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
 
@@ -110,17 +124,33 @@
                                     </div>
                                 @endif
 
-                                {{-- User --}}
+                                {{-- User + DOB --}}
                                 <div class="row">
+                                    {{-- User Id --}}
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
                                             {!! Form::label('user_id', 'Injured Person', ['class' => 'control-label']) !!}
-                                            {!! Form::select('user_id', Auth::user()->company->usersSelect('all'),
+                                            {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('prompt', '1'),
                                                  null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
                                             {!! fieldErrorMessage('user_id', $errors) !!}
                                         </div>
                                     </div>
+                                    <div class="col-md-3"></div>
+                                    @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                        {{-- DOB --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('dob', $errors) !!}">
+                                                {!! Form::label('dob', 'Date of Birth', ['class' => 'control-label']) !!}
+                                                <div class="input-group date date-picker">
+                                                    {!! Form::text('dob', ($incident->dob) ? $incident->dob->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                                    <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                                </div>
+                                                {!! fieldErrorMessage('dob', $errors) !!}
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
+
 
                                 {{-- Name + Contact --}}
                                 <div class="row">
@@ -147,8 +177,9 @@
                                     </div>
                                 </div>
 
-                                {{-- Supervisor --}}
+                                {{-- Employment info --}}
                                 <div class="row">
+                                    {{-- Supervisor --}}
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
                                             {!! Form::label('supervisor', 'Supervisor/PCBU', ['class' => 'control-label']) !!}
@@ -156,6 +187,34 @@
                                             {!! fieldErrorMessage('supervisor', $errors) !!}
                                         </div>
                                     </div>
+                                    @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                        {{-- Employer --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('employer', $errors) !!}">
+                                                {!! Form::label('employer', 'Employer', ['class' => 'control-label']) !!}
+                                                {!! Form::text('employer', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('employer', $errors) !!}
+                                            </div>
+                                        </div>
+
+                                        {{-- Engagement --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
+                                                {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
+                                                {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
+                                                {!! fieldErrorMessage('engagement', $errors) !!}
+                                            </div>
+                                        </div>
+
+                                        {{-- Occupation --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('occupation', $errors) !!}">
+                                                {!! Form::label('occupation', 'Occupation', ['class' => 'control-label']) !!}
+                                                {!! Form::text('occupation', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('occupation', $errors) !!}
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
                             <br><br>
@@ -186,17 +245,16 @@
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         /* Select2 */
@@ -212,7 +270,6 @@
 
         function updateFields() {
             var user_id = $("#user_id").select2("val");
-
             if (user_id) {
                 $.ajax({
                     url: '/user/data/details/' + user_id,
@@ -220,18 +277,36 @@
                     dataType: 'json',
                     success: function (data) {
                         var fullname = data.firstname;
+                        var address = data.address;
 
-                        if (data.lastname)
-                            fullname = fullname + ' ' + data.lastname
+                        if (data.lastname) fullname = fullname + ' ' + data.lastname
+                        if (address) address = address + ', ' + data.suburb;
+                        if (address) address = address + ', ' + data.state;
+                        if (address) address = address + ', ' + data.postcode;
 
                         $("#name").val(fullname);
                         $("#contact").val(data.phone);
-                        $("#address").val(data.address + ', ' + data.suburb + ' ' + data.state + ' ' + data.postcode);
+                        $("#address").val(address);
+
+                        // Company Details
+                        $.ajax({
+                            url: '/company/data/details/' + data.company_id,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (data2) {
+                                $("#employer").val(data2.name);
+                            },
+                        })
                     },
                 })
             }
-
         }
+    });
+
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
     });
 </script>
 @stop

@@ -15,12 +15,12 @@ class SiteIncident extends Model {
 
     protected $table = 'site_incidents';
     protected $fillable = [
-        'site_id', 'date', 'type', 'describe', 'actions_taken',
+        'site_id', 'site_name', 'supervisor', 'location', 'date', 'describe', 'actions_taken',
         'risk_potential', 'risk_actual', 'exec_summary', 'exec_describe', 'exec_actions', 'exec_notes',
-        'notifiable', 'notifiable_reason', 'regulator', 'regulator_ref', 'inspector', 'treatment',
-        'injured_part', 'injured_nature', 'injured_mechanism', 'injured_agency', 'damage', 'damage_cost', 'damage_repair',
-        'conditions', 'factors_absent', 'factors_actions', 'factors_workplace', 'factors_human', 'root_cause',
-        'risk_register', 'location', 'supervisor', 'notes', 'status',
+        'notifiable', 'notifiable_reason', 'regulator', 'regulator_ref', 'inspector',
+        //'injured_part', 'injured_nature', 'injured_mechanism', 'injured_agency',
+        //'conditions', 'factors_absent', 'factors_actions', 'factors_workplace', 'factors_human', 'root_cause',
+        'damage', 'damage_cost', 'damage_repair', 'risk_register', 'notes', 'step', 'status', 'company_id',
         'resolved_at', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
@@ -47,6 +47,26 @@ class SiteIncident extends Model {
     }
 
     /**
+     * A SiteIncident has many witness
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function witness()
+    {
+        return $this->hasMany('App\Models\Site\Incident\SiteIncidentWitness', 'incident_id');
+    }
+
+    /**
+     * A SiteIncident has many conversation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function conversations()
+    {
+        return $this->hasMany('App\Models\Site\Incident\SiteIncidentConversation', 'incident_id');
+    }
+
+    /**
      * SiteIncident Responses to questions
      */
     public function formResponse($question_id)
@@ -61,6 +81,23 @@ class SiteIncident extends Model {
     {
         return FormResponse::where('question_id', $question_id)->where('table', $this->table)->where('table_id', $this->id)->get()->pluck('id')->toArray();
     }
+
+    /**
+     * SiteIncident has a 'Injury' response
+     */
+    public function isInjury()
+    {
+        return (FormResponse::where('question_id', 1)->where('option_id', 2)->first()) ? true : false;
+    }
+
+    /**
+     * SiteIncident has a 'Damage' response
+     */
+    public function isDamage()
+    {
+        return (FormResponse::where('question_id', 1)->where('option_id', 3)->first()) ? true : false;
+    }
+
 
 
     /**
@@ -150,13 +187,20 @@ class SiteIncident extends Model {
     }
 
     /**
-     * Get the owner of record   (getter)
-     *
-     * @return string;
+     * Get the Status Text Both  (getter)
      */
-    public function getOwnedByAttribute()
+    public function getStatusTextAttribute()
     {
-        return $this->site->company;
+
+        if ($this->status == 1)
+            return '<span class="font-green">OPEN</span>';
+
+        if ($this->status == 0)
+            return '<span class="font-red">RESOLVED</span>';
+
+        if ($this->status == 2)
+            return '<span class="font-yellow">IN PROGRESS</span>';
+
     }
 
     /**

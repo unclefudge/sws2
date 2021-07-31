@@ -22,8 +22,8 @@ class CreateSiteIncidentssTable extends Migration
 
             // Notification details
             $table->integer('site_id')->unsigned();
-            $table->string('site', 255)->nullable();
-            $table->string('supervisor')->nullable();
+            $table->string('site_name', 266)->nullable();
+            $table->string('site_supervisor', 100)->nullable();
 
             $table->dateTime('date')->nullable();
             //$table->string('type', 255)->nullable();
@@ -85,12 +85,10 @@ class CreateSiteIncidentssTable extends Migration
             $table->tinyInteger('risk_register')->nullable();
 
             $table->text('notes')->nullable();
+            $table->integer('company_id')->unsigned()->nullable();
             $table->tinyInteger('step')->default(2);
             $table->tinyInteger('status')->default(1);
             $table->dateTime('resolved_at')->nullable();
-
-            // Foreign keys
-            $table->foreign('site_id')->references('id')->on('sites')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
