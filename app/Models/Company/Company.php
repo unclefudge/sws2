@@ -153,6 +153,22 @@ class Company extends Model {
     }
 
     /**
+     * A list of trades that company is skilled in separated by ,
+     *
+     * @return string
+     */
+    public function tradesSkilledInSBH()
+    {
+        $string = '';
+        foreach ($this->tradesSkilledIn as $trade) {
+            if ($trade->status)
+                $string .= $trade->name . ' - ';
+        }
+
+        return rtrim($string, ' - ');
+    }
+
+    /**
      * A company has many tasks (list of tasks they use for planner).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

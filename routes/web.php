@@ -98,6 +98,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/missing_company_info_csv', 'Misc\ReportUserCompanyController@missingCompanyInfoCSV');
     Route::get('/manage/report/company_users', 'Misc\ReportUserCompanyController@companyUsers');
     Route::get('/manage/report/company_contactinfo', 'Misc\ReportUserCompanyController@companyContactInfo');
+    Route::get('/manage/report/company_contactinfo_csv', 'Misc\ReportUserCompanyController@companyContactInfoCSV');
     Route::get('/manage/report/company_privacy', 'Misc\ReportUserCompanyController@companyPrivacy');
     Route::get('/manage/report/company_privacy_send/{type}', 'Misc\ReportUserCompanyController@companyPrivacySend');
     Route::get('/manage/report/company_swms', 'Misc\ReportUserCompanyController@companySWMS');

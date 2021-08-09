@@ -119,6 +119,28 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_contactinfo', compact('companies'));
     }
 
+    public function companyContactInfoCSV()
+    {
+        $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
+        $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
+        $csv = "Company, Trades, Phone, Email, Primary Contact\r\n";
+
+        foreach ($companies as $company) {
+            $csv .= "$company->name, " . $company->tradesSkilledInSBH() . ', ';
+            $csv .= ($company->primary_user && $company->primary_contact()->phone) ? $company->primary_contact()->phone . ', ' : $company->phone . ', ';
+            $csv .= ($company->primary_user && $company->primary_contact()->email) ? $company->primary_contact()->email . ', ' : $company->email . ', ';
+            $csv .= ($company->primary_user) ? $company->primary_contact()->fullname . ', ': ', ';
+            $csv .= "\r\n";
+        }
+
+        //echo $csv;
+        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/company_contactinfo.csv';
+        $bytes_written = File::put(public_path($filename), $csv);
+        if ($bytes_written === false) die("Error writing to file");
+
+        return redirect($filename);
+    }
+
     public function companySWMS()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
@@ -155,6 +177,7 @@ class ReportUserCompanyController extends Controller {
         $filename = '/filebank/tmp/' . Auth::user()->company_id . '/missing_company_info.csv';
         $bytes_written = File::put(public_path($filename), $csv);
         if ($bytes_written === false) die("Error writing to file");
+
         return redirect($filename);
     }
 
@@ -338,7 +361,6 @@ class ReportUserCompanyController extends Controller {
     }
 
 
-
     /******************************
      * Security Reports
      *****************************/
@@ -365,7 +387,7 @@ class ReportUserCompanyController extends Controller {
         foreach ($permissions2 as $p) {
             list($action, $rest) = explode('.', $p->slug, 2);
             if (!array_key_exists($rest, $permission_list) && !in_array($rest, $ignore_list))
-                $permission_list[$rest] = str_replace(['View ','Edit ','Add ','Delete '], '', $p->name);
+                $permission_list[$rest] = str_replace(['View ', 'Edit ', 'Add ', 'Delete '], '', $p->name);
         }
         asort($permission_list);
         //dd($permission_list);

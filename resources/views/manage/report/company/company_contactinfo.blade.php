@@ -20,8 +20,10 @@
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption font-dark">
-                            <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Company Contact Info</span>
+                        </div>
+                        <div class="actions">
+                            <a href="/manage/report/company_contactinfo_csv" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download CSV</a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -40,7 +42,9 @@
                             <tbody>
                             @foreach($companies as $company)
                                 <tr>
-                                    <td><div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div></td>
+                                    <td>
+                                        <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
+                                    </td>
                                     <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
                                     {{--}}<td><b>{{ (preg_match('/[0-9]/', $company->category)) ? $companyTypes::name($company->category) : $company->tradesSkilledInSBC() }}</b> {{ $company->tradesSkilledInSBC() }}</td>--}}
                                     <td>{{ $company->tradesSkilledInSBC() }}</td>
@@ -49,7 +53,7 @@
                                     <td>{{ ($company->primary_user && $company->primary_contact()->email) ? $company->primary_contact()->email : $company->email }}</td>
                                     <td>{{ $company->staffSBC() }}</td>
                                 </tr>
-                                @endforeach
+                            @endforeach
                             </tbody>
                         </table>
                     </div>
