@@ -123,13 +123,14 @@ class ReportUserCompanyController extends Controller {
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
-        $csv = "Company, Trades, Phone, Email, Primary Contact\r\n";
+        $csv = "Company, Phone, Email, Primary Contact, Trades\r\n";
 
         foreach ($companies as $company) {
-            $csv .= "$company->name, " . $company->tradesSkilledInSBH() . ', ';
+            $csv .= "$company->name, ";
             $csv .= ($company->primary_user && $company->primary_contact()->phone) ? $company->primary_contact()->phone . ', ' : $company->phone . ', ';
             $csv .= ($company->primary_user && $company->primary_contact()->email) ? $company->primary_contact()->email . ', ' : $company->email . ', ';
             $csv .= ($company->primary_user) ? $company->primary_contact()->fullname . ', ': ', ';
+            $csv .= $company->tradesSkilledInSBH();
             $csv .= "\r\n";
         }
 
