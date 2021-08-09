@@ -105,6 +105,7 @@ class PagesController extends Controller {
             return redirect($url . Auth::user()->company->id);
         }
 
+
         return view('pages/home', compact('worksite'));
     }
 

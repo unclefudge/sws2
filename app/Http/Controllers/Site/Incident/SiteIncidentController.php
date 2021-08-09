@@ -104,7 +104,7 @@ class SiteIncidentController extends Controller {
     /**
      * Add docs/photos Form
      */
-    public function docs($id)
+    public function lodgeDocs($id)
     {
         $incident = SiteIncident::findorFail($id);
 
@@ -391,6 +391,41 @@ class SiteIncidentController extends Controller {
 
             return back()->withErrors($validator)->withInput();
         }
+
+        $incident_request = request()->all();
+        $incident->update($incident_request);
+
+        Toastr::success("Updated incident report");
+
+        return redirect('site/incident/' . $incident->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function addNote($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $rules = ['action' => 'required'];
+        $mesg = ['action.required' => 'The description details field is required.'];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'notes');
+
+            return back()->withErrors($validator)->withInput();
+        }
+        dd(request()->all());
 
         $incident_request = request()->all();
         $incident->update($incident_request);

@@ -86,17 +86,29 @@ class SessionController extends Controller {
             if (Auth::user()->notify()->count()) {
                 $user = Auth::user();
                 $intended_url = redirect()->intended('home')->getTargetUrl();
+
                 return view('comms/notify/alertuser', compact('intended_url', 'user'));
 
                 //foreach (Auth::user()->notify() as $notify) {
-                    //$mesg = ($notify->isOpenedBy($user)) ? '[1]' : '[0]';
-                    //$mesg = $notify->info; // . $mesg;
-                    //alert()->message($mesg, $notify->name)->persistent('Ok')->autoclose(60000);
-                    //if (!$notify->isOpenedBy(Auth::user()))
-                    //    $notify->markOpenedBy(Auth::user());
+                //$mesg = ($notify->isOpenedBy($user)) ? '[1]' : '[0]';
+                //$mesg = $notify->info; // . $mesg;
+                //alert()->message($mesg, $notify->name)->persistent('Ok')->autoclose(60000);
+                //if (!$notify->isOpenedBy(Auth::user()))
+                //    $notify->markOpenedBy(Auth::user());
                 //}
             }
 
+            // If User has outstanding Toolbox Talks - redirect them to complete
+            if (Auth::user()->todoType('toolbox', 1)->count()) {
+                if (Auth::user()->todoType('toolbox', 1)->count() == 1) {
+                    $todo = (Auth::user()->todoType('toolbox', 1)->first());
+                    alert()->message($todo->name, 'You have an outstanding Toolbox Talk')->persistent('Ok');
+                    return redirect($todo->url());
+                } else {
+                    alert()->message('Please complete them before you work on site', 'You have outstanding Toolbox Talks')->persistent('Ok');
+                    return redirect('/safety/doc/toolbox2');
+                }
+            }
 
             if (Auth::user()->password_reset)
                 return redirect('/user/' . Auth::user()->id . '/resetpassword');

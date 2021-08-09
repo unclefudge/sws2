@@ -66,6 +66,17 @@
                 @if (Auth::user()->allowed2('view.site.incident', $incident))
                     @include('site/incident/_show-conversation')
                 @endif
+
+                {{-- Notes --}}
+                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                    @include('site/incident/_show-notes')
+                    @include('site/incident/_add-notes')
+                @endif
+
+                {{-- Actions / ToDoos --}}
+                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                    @include('site/incident/_show-actions')
+                @endif
             </div>
 
         </div>
@@ -194,7 +205,7 @@
 
             @if (count($errors) > 0)
     var errors = {!! $errors !!};
-    if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'attendance' || errors.FORM == 'compliance') {
+    if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
         $('#show_' + errors.FORM).hide();
         $('#edit_' + errors.FORM).show();
     }

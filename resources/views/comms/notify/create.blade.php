@@ -98,7 +98,7 @@
                                 <div class="col-md-10" id="user_div" style="display: none">
                                     <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
                                         {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL'),
+                                        {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL', 1),
                                              null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
                                         {!! fieldErrorMessage('user_list', $errors) !!}
                                     </div>

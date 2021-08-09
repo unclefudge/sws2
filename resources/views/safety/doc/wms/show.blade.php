@@ -366,8 +366,6 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<!--<script src="/assets/pages/scripts/ui-buttons.min.js" type="text/javascript"></script>-->
-
 <script>
     var sendEmailButton = document.getElementById("send_email");
     sendEmailButton.disabled = true

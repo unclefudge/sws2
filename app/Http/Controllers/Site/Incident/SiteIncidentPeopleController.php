@@ -57,27 +57,6 @@ class SiteIncidentPeopleController extends Controller {
     }
 
     /**
-     * Edit the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $incident = SiteIncident::findorFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.incident', $incident))
-            return view('errors/404');
-
-        if ($incident->step == 2)
-            return view('site/incident/people', compact('incident'));
-        elseif ($incident->step == 3)
-            return view('site/incident/photos', compact('incident'));
-        else
-            return view('site/incident/show', compact('incident'));
-    }
-
-    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -116,7 +95,7 @@ class SiteIncidentPeopleController extends Controller {
 
         $people_request = request()->all();
         $people_request['incident_id'] = $incident->id;
-        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident->id)) ? 1 : 2;  // Set to '2' pending until approved
+        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident)) ? 1 : 2;  // Set to '2' pending until approved
 
         // Format date from datetime picker to mysql format
         $people_request['dob'] = (request('dob')) ? Carbon::createFromFormat('d/m/Y h:m', request('dob') . '00:00')->toDateTimeString() : null;
@@ -162,7 +141,7 @@ class SiteIncidentPeopleController extends Controller {
 
         $people_request = request()->all();
         $people_request['incident_id'] = $incident->id;
-        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident->id)) ? 1 : 2;  // Set to '2' pending until approved
+        $people_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident)) ? 1 : 2;  // Set to '2' pending until approved
 
         // Format date from datetime picker to mysql format
         $people_request['dob'] = (request('dob')) ? Carbon::createFromFormat('d/m/Y h:m', request('dob') . '00:00')->toDateTimeString() : null;
@@ -181,40 +160,5 @@ class SiteIncidentPeopleController extends Controller {
         Toastr::success("Updated person involved");
 
         return redirect('site/incident/' . $incident->id);
-    }
-
-    /**
-     * Get Incidents current user is authorised to manage + Process datatables ajax request.
-     */
-    public function getIncidents()
-    {
-        $company_ids = (request('site_group')) ? [request('site_group')] : [Auth::user()->company_id, Auth::user()->company->reportsTo()->id];
-        $incidents_ids = Auth::user()->siteIncidents(request('status'))->pluck('id')->toArray();
-        $incident_records = SiteIncident::select([
-            'site_incidents.id', 'site_incidents.site_id', 'site_incidents.describe',
-            'site_incidents.status', 'sites.company_id',
-            DB::raw('DATE_FORMAT(site_incidents.date, "%d/%m/%y") AS nicedate'),
-            DB::raw('DATE_FORMAT(site_incidents.resolved_at, "%d/%m/%y") AS nicedate2'),
-            DB::raw('sites.name AS sitename'), 'sites.code',
-        ])
-            ->join('sites', 'site_incidents.site_id', '=', 'sites.id')
-            ->where('site_incidents.status', '=', request('status'))
-            ->whereIn('site_incidents.id', $incidents_ids)
-            ->whereIn('sites.company_id', $company_ids);
-
-        $dt = Datatables::of($incident_records)
-            ->addColumn('view', function ($incident) {
-                return ('<div class="text-center"><a href="/site/incident/' . $incident->id . '"><i class="fa fa-search"></i></a></div>');
-            })
-            ->addColumn('supervisor', function ($incident) {
-                return ($incident->site->supervisorsSBC());
-            })
-            ->editColumn('nicedate2', function ($incident) {
-                return ($incident->nicedate2 == '00/00/00') ? '' : $incident->nicedate2;
-            })
-            ->rawColumns(['view', 'action'])
-            ->make(true);
-
-        return $dt;
     }
 }

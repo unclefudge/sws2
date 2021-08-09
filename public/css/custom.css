@@ -733,7 +733,19 @@ Diff Compare
     z-index: 1;
 }
 
-.icon-profile:before, .icon-document:before, .icon-staff:before, .icon-lock:before, .icon-house:before {
+.icon-medkit-member-bar:before {
+    background: url("/img/icon-medkit.png") no-repeat;
+    background-position: 0 0;
+    width: 101px;
+    height: 108px;
+    opacity: 0.4;
+    position: absolute;
+    bottom: -23px;
+    left: -14px;
+    z-index: 1;
+}
+
+.icon-profile:before, .icon-document:before, .icon-staff:before, .icon-lock:before, .icon-house:before, .icon-medkit:before {
     width: 40px;
     height: 40px;
     margin-left: -10px;
@@ -758,6 +770,10 @@ Diff Compare
 
 .icon-house:before {
     background: url("/img/icon-house.png") no-repeat;
+}
+
+.icon-medkit:before {
+    background: url("/img/icon-medkit.png") no-repeat;
 }
 
 .tabs .tabs-item {

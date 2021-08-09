@@ -247,17 +247,21 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/accident/dt/accidents', 'Site\SiteAccidentController@getAccidents');
     Route::resource('site/accident', 'Site\SiteAccidentController');
 
+    // Site Incidents - People/Witness/Conversation
     Route::resource('site/incident/{id}/people', 'Site\Incident\SiteIncidentPeopleController');
+    Route::resource('site/incident/{id}/witness', 'Site\Incident\SiteIncidentWitnessController');
+    Route::resource('site/incident/{id}/conversation', 'Site\Incident\SiteIncidentConversationController');
 
     // Site Incidents
     Route::get('site/incident/dt/incidents', 'Site\Incident\SiteIncidentController@getIncidents');
     Route::any('site/incident/upload', 'Site\Incident\SiteIncidentController@uploadAttachment');
-    Route::get('site/incident/{id}/docs', 'Site\Incident\SiteIncidentController@docs');
+    Route::get('site/incident/{id}/lodgedocs', 'Site\Incident\SiteIncidentController@lodgeDocs');
     Route::any('site/incident/{id}/lodge', 'Site\Incident\SiteIncidentController@lodge');
     Route::get('site/incident/{id}/involved', 'Site\Incident\SiteIncidentController@showInvolved');
     Route::get('site/incident/{id}/investigate', 'Site\Incident\SiteIncidentController@showInvestigate');
     Route::post('site/incident/{id}/injury', 'Site\Incident\SiteIncidentController@updateInjury');
     Route::post('site/incident/{id}/damage', 'Site\Incident\SiteIncidentController@updateDamage');
+    Route::post('site/incident/{id}/add_note', 'Site\Incident\SiteIncidentController@addNote');
     Route::resource('site/incident', 'Site\Incident\SiteIncidentController');
 
 

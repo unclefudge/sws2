@@ -129,7 +129,7 @@
                                 <div class="col-md-3">
                                     <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
                                         {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
-                                        {!! Form::text('engagement', null, ['class' => 'form-control']) !!}
+                                        {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
                                         {!! fieldErrorMessage('engagement', $errors) !!}
                                     </div>
                                 </div>
@@ -195,16 +195,6 @@
 
         // On Change User_id
         $("#user_id").change(function () {
-            updateFields();
-        });
-
-        function updateFields() {
-            $("#field_type_other").hide();
-
-            // Type Other
-            if ($("#type").val() == '13')
-                $("#field_type_other").show();
-
             var user_id = $("#user_id").select2("val");
             if (user_id) {
                 $.ajax({
@@ -236,6 +226,14 @@
                     },
                 })
             }
+        });
+
+        function updateFields() {
+            $("#field_type_other").hide();
+
+            // Type Other
+            if ($("#type").val() == '13')
+                $("#field_type_other").show();
         }
 
     });

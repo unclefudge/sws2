@@ -1,18 +1,17 @@
-{{-- Show Witness --}}
-<div class="portlet light" id="show_witness">
+{{-- Show Tasks --}}
+<div class="portlet light" id="show_tasks">
     <div class="portlet-title">
         <div class="caption">
-            <span class="caption-subject font-dark bold uppercase">Witness Statements</span>
+            <span class="caption-subject font-dark bold uppercase">Assigned Tasks</span>
         </div>
         <div class="actions">
             @if (Auth::user()->allowed2('edit.site.incident', $incident))
-                {{-- <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('people')">Edit</button> --}}
                 <a href="/site/incident/{{ $incident->id }}/witness/create" class="btn btn-circle green btn-outline btn-sm">Add</a>
             @endif
         </div>
     </div>
     <div class="portlet-body">
-        @if ($incident->witness->count())
+        @if ($incident->todos()->count())
             @foreach ($incident->witness as $witness)
                 <div class="row">
                     <div class="col-xs-1"><a href="/site/incident/{{ $incident->id }}/witness/{{ $witness->id  }}"><i class="fa fa-search"></i></a></div>

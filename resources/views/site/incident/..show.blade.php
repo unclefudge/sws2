@@ -63,7 +63,6 @@
                         {{-- Date + Reported by --}}
                         <div class="row">
                             <div class="col-md-3">
-                                {{-- $incident->date->format('d F Y - H:i') --}}
                                 <div class="form-group {!! fieldHasError('date', $errors) !!}">
                                     {!! Form::label('date', 'Date / Time of Incident', ['class' => 'control-label']) !!}
                                     @if (Auth::user()->allowed2('del.site.incident', $incident))

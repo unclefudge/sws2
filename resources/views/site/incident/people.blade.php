@@ -72,7 +72,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach ($incident->people->sortBy('name') as $person)
+                                    @foreach ($incident->people as $person)
                                         <tr>
                                             <td>
                                                 <div class="text-center"><a href="/site/incident/{{ $incident->id }}/people/{{ $person->id  }}"><i class="fa fa-search"></i></a></div>
@@ -221,7 +221,7 @@
                             <div class="form-actions right">
                                 <a href="/site/incident" class="btn default"> Back</a>
                                 @if ($incident->people->count())
-                                    <a href="/site/incident/{{ $incident->id }}/docs" class="btn green"> Next Step</a>
+                                    <a href="/site/incident/{{ $incident->id }}/lodgedocs" class="btn green"> Next Step</a>
                                 @else
                                     <button type="submit" class="btn green"> Save</button>
                                 @endif

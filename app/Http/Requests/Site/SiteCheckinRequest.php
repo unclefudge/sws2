@@ -76,7 +76,7 @@ class SiteCheckinRequest extends Request {
             'question19.required_with' => 'Please acknowledge you will not make changes to any scaffold or Fall Protection',
             'question20.required_with' => 'Please acknowledge you have signed in to the NSW service Covid safe checkin',
             'question21.required_with' => 'Please acknowledge you wear a mask and observe Gov directives',
-            'question22.required_with' => 'Please acknowledge you have been tested as required and have received a negative result',
+            'question22.required_with' => 'Please acknowledge you understand the current NSW Health orders and will comply with its requirements in relation covid',
             'location.required_without'  => 'Please provide the location of hazard.',
             'rating.required_without'  => 'Please provide the risk rating of hazard.',
             'reason.required_without'  => 'Please provide the reason for unsafe worksite.',

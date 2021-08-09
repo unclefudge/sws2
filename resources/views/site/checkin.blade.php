@@ -84,7 +84,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
-                                        I have been <b>tested</b> as required and have received a <b>negative result</b>
+                                        I understand the current NSW Health orders and <b>comply with its requirements</b> in relation to vaccinations and or covid testing.
                                     </div>
                                 </div>
                                 {{--

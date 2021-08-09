@@ -15,7 +15,7 @@ class SiteIncident extends Model {
 
     protected $table = 'site_incidents';
     protected $fillable = [
-        'site_id', 'site_name', 'supervisor', 'location', 'date', 'describe', 'actions_taken',
+        'site_id', 'site_name', 'site_supervisor', 'location', 'date', 'describe', 'actions_taken',
         'risk_potential', 'risk_actual', 'exec_summary', 'exec_describe', 'exec_actions', 'exec_notes',
         'notifiable', 'notifiable_reason', 'regulator', 'regulator_ref', 'inspector',
         //'injured_part', 'injured_nature', 'injured_mechanism', 'injured_agency',
@@ -67,6 +67,29 @@ class SiteIncident extends Model {
     }
 
     /**
+     * A SiteIncident has many Actions
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actions()
+    {
+        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
+    }
+
+    /**
+     * A SiteIncident 'may' have multiple ToDoos
+     *
+     * @return Collection
+     */
+    public function todos($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'incident')->where('type_id', $this->id)->get();
+    }
+
+    /**
      * SiteIncident Responses to questions
      */
     public function formResponse($question_id)
@@ -98,30 +121,6 @@ class SiteIncident extends Model {
         return (FormResponse::where('question_id', 1)->where('option_id', 3)->first()) ? true : false;
     }
 
-
-
-    /**
-     * A SiteIncident has many Actions
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function actions()
-    {
-        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
-    }
-
-    /**
-     * A SiteIncident 'may' have multiple ToDoos
-     *
-     * @return Collection
-     */
-    public function todos($status = '')
-    {
-        if ($status)
-            return Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get();
-
-        return Todo::where('type', 'incident')->where('type_id', $this->id)->get();
-    }
 
     /**
      * A SiteIncident belongs to a user
