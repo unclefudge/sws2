@@ -12,10 +12,14 @@
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
+                @if ($type && $type == 'incident')
+                    <?php $incident = \App\Models\Site\Incident\SiteIncident::find($type_id) ?>
+                    @include('site/incident/_header')
+                @endif
+
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Create Todo</span>
                         </div>
                     </div>
@@ -38,6 +42,9 @@
                                             @endif
                                             @if ($type == 'accident')
                                                 <input type="text" name="name" class="form-control" readonly value="Site Accident Task @ {!! \App\Models\Site\SiteAccident::find($type_id)->site->name !!}">
+                                            @endif
+                                            @if ($type == 'incident')
+                                                <input type="text" name="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
                                             @endif
                                         @else
                                             {!! Form::text('name', null, ['class' => 'form-control']) !!}
@@ -155,7 +162,11 @@
 
 
                             <div class="form-actions right">
-                                <a href="/todo" class="btn default"> Back</a>
+                                @if ($type == 'incident')
+                                    <a href="/site/incident/{{ $type_id }}" class="btn default"> Back</a>
+                                @else
+                                    <a href="/todo" class="btn default"> Back</a>
+                                @endif
                                 <button type="submit" class="btn green">Submit</button>
                             </div>
                         </div> <!--/form-body-->

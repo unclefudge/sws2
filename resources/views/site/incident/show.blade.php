@@ -32,7 +32,7 @@
             @include('site/incident/_show-overview')
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
-                {{-- Site Details --}}
+                {{-- Notification Details --}}
                 @if (Auth::user()->allowed2('view.site.incident', $incident))
                     @include('site/incident/_show-notification')
                     @include('site/incident/_edit-notification')
@@ -57,14 +57,9 @@
                     @include('site/incident/_show-people')
                 @endif
 
-                {{-- Witness Statements --}}
+                {{-- Document --}}
                 @if (Auth::user()->allowed2('view.site.incident', $incident))
-                    @include('site/incident/_show-witness')
-                @endif
-
-                {{-- Conversations --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
-                    @include('site/incident/_show-conversation')
+                    @include('site/incident/_show-docs')
                 @endif
 
                 {{-- Notes --}}
@@ -75,7 +70,7 @@
 
                 {{-- Actions / ToDoos --}}
                 @if (Auth::user()->allowed2('view.site.incident', $incident))
-                    @include('site/incident/_show-actions')
+                    @include('site/incident/_show-tasks')
                 @endif
             </div>
 
@@ -91,32 +86,28 @@
 @stop
 
 @section('page-level-plugins-head')
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" tytype="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    {{--}}<link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />--}}
+    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-styles-head')
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-plugins')
-    <script src="/js/libs/fileinput.min.js"></script>
+    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+<script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script> {{-- using the non minimised version with commented out bits to fix error Uncaught TypeError: $(...).datepicker is not a function}} --}}
 <script type="text/javascript">
     $(document).ready(function () {
         /* Select2 */
@@ -177,9 +168,6 @@
             $("#field_injured_part_other").hide();
             if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
             if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
-
-            // Damage details
-            //$("#damage_details").hide();
         }
 
     });
@@ -213,11 +201,7 @@
     console.log(errors)
     @endif
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
+
 
     // Force datepicker to not be able to select dates after today
     $('.bs-datetime').datetimepicker({

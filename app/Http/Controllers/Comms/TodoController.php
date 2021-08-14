@@ -17,6 +17,7 @@ use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteAccident;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLog;
@@ -67,7 +68,7 @@ class TodoController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function createType(Request $request, $type, $type_id)
+    public function createType($type, $type_id)
     {
         return view('comms/todo/create', compact('type', 'type_id'));
     }
@@ -189,6 +190,15 @@ class TodoController extends Controller {
             return redirect('/site/accident/' . $todo->type_id);
         }
 
+        if ($todo->type == 'incident') {
+            $incident = SiteIncident::find($todo->type_id);
+            $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_incidents', 'table_id' => $todo->type_id]);
+            $incident->touch(); // update timestamp
+            $todo->emailToDo();
+
+            return redirect('/site/incident/' . $todo->type_id);
+        }
+
         return redirect('/todo');
     }
 
@@ -229,18 +239,21 @@ class TodoController extends Controller {
         //dd($todo_request);
         $todo->update($todo_request);
 
-        // Recently closed Hazard/Accident ToDo
-        if (in_array($todo->type, ['hazard', 'accident']) && $old_status && !$todo->status) {
-            $table = ($todo->type == 'hazard') ? 'site_hazards' : 'site_accidents';
+        $table = '';
+        if ($todo->type == 'hazard') $table = 'site_hazards';
+        if ($todo->type == 'accident') $table = 'site_accidents';
+        if ($todo->type == 'incident') $table = 'site_incidents';
+
+        // Recently closed Hazard/Incident ToDoo
+        if (in_array($todo->type, ['hazard', 'accident', 'incident']) && $old_status && !$todo->status) {
             $action = Action::create(['action' => "Completed task: $todo->info", 'table' => $table, 'table_id' => $todo->type_id]);
             $todo->emailToDoCompleted();
             $todo->done_by = Auth::user()->id;
             $todo->done_at = Carbon::now()->toDateTimeString();
             $todo->save();
         }
-        // Re-opened Hazard/Accident ToDo
-        if (in_array($todo->type, ['hazard', 'accident']) && !$old_status && $todo->status) {
-            $table = ($todo->type == 'hazard') ? 'site_hazards' : 'site_accidents';
+        // Re-opened Hazard/Incident ToDoo
+        if (in_array($todo->type, ['hazard', 'accident', 'incident']) && !$old_status && $todo->status) {
             $action = Action::create(['action' => "Re-opened task: $todo->info", 'table' => $table, 'table_id' => $todo->type_id]);
             $todo->emailToDo();
             $todo->done_by = 0;
@@ -271,6 +284,9 @@ class TodoController extends Controller {
         }
 
         Toastr::success("Saved ToDo");
+
+        if ($todo->type == 'incident')
+            return redirect('/site/incident/' . $todo->type_id);
 
         return redirect('todo/' . $todo->id);
     }

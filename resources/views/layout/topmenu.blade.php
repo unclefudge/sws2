@@ -91,7 +91,7 @@
             <!--<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                 <span class="circle">3</span>
                 <span class="corner"></span>
-            </a>-->
+            </a>
             <ul class="dropdown-menu">
                 <li class="external">
                     <h3>You have
@@ -113,7 +113,7 @@
                         </li>
                     </ul>
                 </li>
-            </ul>
+            </ul> -->
         </li>
         <!-- END INBOX DROPDOWN -->
         <!-- BEGIN USER LOGIN DROPDOWN -->

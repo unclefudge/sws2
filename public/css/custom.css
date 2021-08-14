@@ -745,7 +745,7 @@ Diff Compare
     z-index: 1;
 }
 
-.icon-profile:before, .icon-document:before, .icon-staff:before, .icon-lock:before, .icon-house:before, .icon-medkit:before {
+.icon-profile:before, .icon-document:before, .icon-staff:before, .icon-lock:before, .icon-house:before, .icon-medkit:before, .icon-chartarrow:before {
     width: 40px;
     height: 40px;
     margin-left: -10px;
@@ -774,6 +774,10 @@ Diff Compare
 
 .icon-medkit:before {
     background: url("/img/icon-medkit.png") no-repeat;
+}
+
+.icon-chartarrow:before {
+    background: url("/img/icon-chartarrow.png") no-repeat;
 }
 
 .tabs .tabs-item {

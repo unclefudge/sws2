@@ -35,7 +35,7 @@ class SiteIncidentDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/incident/'.$this->id.'/'.$this->attributes['attachment'];
+            return '/filebank/incident/'.$this->incident_id.'/'.$this->attributes['attachment'];
         return '';
     }
 

@@ -20,6 +20,7 @@ class CreateFormQuestionsTable extends Migration
             $table->increments('id');
             $table->string('type', 50)->nullable();
             $table->string('name', 255)->nullable();
+            $table->string('label', 255)->nullable();
             $table->integer('parent')->unsigned()->nullable();
             $table->integer('order')->unsigned()->nullable();
             $table->string('form', 255)->nullable();

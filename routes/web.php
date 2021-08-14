@@ -256,13 +256,23 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Incidents
     Route::get('site/incident/dt/incidents', 'Site\Incident\SiteIncidentController@getIncidents');
     Route::any('site/incident/upload', 'Site\Incident\SiteIncidentController@uploadAttachment');
-    Route::get('site/incident/{id}/lodgedocs', 'Site\Incident\SiteIncidentController@lodgeDocs');
+    Route::get('site/incident/{id}/createdocs', 'Site\Incident\SiteIncidentController@createDocs');
     Route::any('site/incident/{id}/lodge', 'Site\Incident\SiteIncidentController@lodge');
-    Route::get('site/incident/{id}/involved', 'Site\Incident\SiteIncidentController@showInvolved');
-    Route::get('site/incident/{id}/investigate', 'Site\Incident\SiteIncidentController@showInvestigate');
+    //Route::get('site/incident/{id}/involved', 'Site\Incident\SiteIncidentController@showInvolved');
+    Route::get('site/incident/{id}/admin', 'Site\Incident\SiteIncidentController@showAdmin');
     Route::post('site/incident/{id}/injury', 'Site\Incident\SiteIncidentController@updateInjury');
     Route::post('site/incident/{id}/damage', 'Site\Incident\SiteIncidentController@updateDamage');
+    Route::post('site/incident/{id}/details', 'Site\Incident\SiteIncidentController@updateDetails');
+    Route::post('site/incident/{id}/regulator', 'Site\Incident\SiteIncidentController@updateRegulator');
     Route::post('site/incident/{id}/add_note', 'Site\Incident\SiteIncidentController@addNote');
+    Route::get('site/incident/{id}/add_docs', 'Site\Incident\SiteIncidentController@addDocs');
+    Route::post('site/incident/{id}/investigation', 'Site\Incident\SiteIncidentController@updateInvestigation');
+    // Analysis
+    Route::get('site/incident/{id}/analysis', 'Site\Incident\SiteIncidentAnalysisController@show');
+    Route::post('site/incident/{id}/conditions', 'Site\Incident\SiteIncidentAnalysisController@updateConditions');
+    Route::post('site/incident/{id}/confactors', 'Site\Incident\SiteIncidentAnalysisController@updateConfactors');
+    Route::post('site/incident/{id}/rootcause', 'Site\Incident\SiteIncidentAnalysisController@updateRootcause');
+    Route::post('site/incident/{id}/prevent', 'Site\Incident\SiteIncidentAnalysisController@updatePrevent');
     Route::resource('site/incident', 'Site\Incident\SiteIncidentController');
 
 

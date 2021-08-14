@@ -18,6 +18,8 @@
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
+                @include('site/incident/_header')
+
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
@@ -28,19 +30,6 @@
                     <div class="portlet-body form">
                         {!! Form::model($conversation, ['method' => 'PATCH', 'action' => ['Site\Incident\SiteIncidentConversationController@update',$incident->id, $conversation->id], 'class' => 'horizontal-form']) !!}
                         @include('form-error')
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site->name }} ({{ $incident->site->full_address }})</b><br><br>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h4 class="font-green-haze">Record of Conversation</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            </div>
-                        </div>
 
                         {{-- Name + Witness --}}
                         <div class="row">
@@ -112,7 +101,7 @@
                         </div>
 
                         <div class="form-actions right">
-                            <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
+                            <a href="/site/incident/{{ $incident->id }}/admin" class="btn default"> Back</a>
                             @if (Auth::user()->allowed2('edit.site.incident', $incident))
                                 <button id="btn-delete" class="btn red"> Delete</button>
                                 <button type="submit" class="btn green"> Save</button>
@@ -169,7 +158,6 @@
                 allowOutsideClick: true,
                 html: true,
             }, function () {
-                alert('nuked');
                 $.ajax({
                     url: '/site/incident/{{ $incident->id }}/conversation/{{ $conversation->id }}',
                     type: 'DELETE',
@@ -177,7 +165,7 @@
                     data: {method: '_DELETE', submit: true},
                     success: function (data) {
                         toastr.error('Deleted conversation');
-                        window.location.href = "/site/incident/{{ $incident->id }}}";
+                        window.location.href = "/site/incident/{{ $incident->id }}/admin";
                     },
                 });
             });

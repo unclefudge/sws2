@@ -13,201 +13,193 @@
     </ul>
 @stop
 
-<style>
-    a.mytable-header-link {
-        font-size: 14px;
-        font-weight: 600;
-        color: #333 !important;
-    }
-</style>
-
 @section('content')
+    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
+
+        @include('site/incident/_header')
+
         <div class="row">
             <div class="col-md-12">
-                <div class="portlet light bordered">
+                <div class="portlet light ">
                     <div class="portlet-title">
-                        <div class="caption">
-                            <span class="caption-subject font-green-haze bold uppercase">Incident Report</span>
-                            <span class="caption-helper"> ID: {{ $incident->id }}</span>
+                        <div class="caption font-dark">
+                            <span class="caption-subject font-dark bold uppercase"> Company Documents</span>
+                        </div>
+                        <div class="actions">
+                            @if((Auth::user()->allowed2('add.site.incident')))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/company/{{ $incident->id }}/doc/upload" data-original-title="Upload">Upload</a>
+                            @endif
                         </div>
                     </div>
-                    <div class="portlet-body form">
-                        <div class="page-content-inner">
-                            {!! Form::model($incident, ['action' => ['Site\Incident\SiteIncidentController@lodge', $incident->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                            <input type="hidden" name="incident_id" id="incident_id" value="{{ $incident->id }}">
-                            @include('form-error')
-
-                            {{-- Progress Steps --}}
-                            <div class="mt-element-step hidden-sm hidden-xs">
-                                <div class="row step-thin" id="steps">
-                                    <div class="col-md-4 mt-step-col first done">
-                                        <div class="mt-step-number bg-white font-grey">1</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Lodge</div>
-                                        <div class="mt-step-content font-grey-cascade">Lodge notification</div>
-                                    </div>
-                                    <div class="col-md-4 mt-step-col done">
-                                        <div class="mt-step-number bg-white font-grey">2</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">People</div>
-                                        <div class="mt-step-content font-grey-cascade">Add people involved</div>
-                                    </div>
-                                    <div class="col-md-4 mt-step-col last active">
-                                        <div class="mt-step-number bg-white font-grey">3</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Documents</div>
-                                        <div class="mt-step-content font-grey-cascade">Add Photos/Documents</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Multi File upload -->
-                            <div id="multifile-div">
-                                <br>
-                                @if(Auth::user()->allowed2('add.site.incident'))
-                                    <div class="note note-warning">
-                                        Please upload any photos / documents related to the incident. Include photos of:
-                                        <ul>
-                                            <li>Scene / area of the incident</li>
-                                            <li>Any damage occured to property / equipment as result of incident</li>
-                                        </ul>
-                                        Once you have selected your files upload them by clicking <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button> then finialise the submission of the incident by clicking <button class="btn dark btn-outline btn-xs" href="javascript:;">Complete</button>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Select Files</label>
-                                                <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
-                                            </div>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="row">
-                                        <div class="col-md-12">You don't have permission to upload photos
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <hr>
-                            <div class="pull-right" style="min-height: 50px">
-                                <a href="/site/incident" class="btn default"> Back</a>
-                                @if(Auth::user()->allowed2('add.site.incident'))
-                                    <button type="submit" name="save" class="btn green"> Complete</button>
-                                @endif
-                            </div>
-                            <br><br>
-                            {!! Form::close() !!}
+                    <div class="row">
+                        <div class="col-md-2 pull-right">
+                            {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
+                            {!! Form::select('status', ['1' => 'Current', '2' => 'Pending', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
                         </div>
+                    </div>
+                    <div class="portlet-body">
+                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th width="5%"> #</th>
+                                <th> Document</th>
+                                <th> Dept.</th>
+                                <th> Details</th>
+                                <th width="10%"> Expiry</th>
+                                <th width="10%"> Action</th>
+                            </tr>
+                            </thead>
+                        </table>
                     </div>
                 </div>
-            </div>
+            </div> <!-- end portlet -->
+        </div>
+
+    </div>
+
+    <div>
+        <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
+            {!! $incident->displayUpdatedBy() !!}
         </div>
     </div>
-    </div>
+
 @stop
 
-
 @section('page-level-plugins-head')
+    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" tytype="text/css"/>
+@stop
+
+@section('page-level-styles-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/moment.min.js" type="text/javascript"></script>
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
+<script type="text/javascript">
     $(document).ready(function () {
         /* Select2 */
-        $("#company_id").select2({placeholder: "Select Company", width: '100%'});
-        $("#assign").select2({placeholder: "Select User", width: '100%'});
-        $("#super_id").select2({placeholder: "Select Supervisor", width: "100%"});
+        $("#site_id").select2({placeholder: "Select Site", width: "100%"});
+        $("#type").select2({placeholder: "Check all applicable", width: "100%"});
+        $("#treatment").select2({placeholder: "Check all applicable", width: "100%"});
+        $("#injured_part").select2({placeholder: "Check all applicable", width: "100%"});
+        $("#injured_nature").select2({placeholder: "Check all applicable", width: "100%"});
+        $("#injured_mechanism").select2({placeholder: "Check all applicable", width: "100%"});
+        $("#injured_agency").select2({placeholder: "Check all applicable", width: "100%"});
 
-        $("#assign_to").change(function () {
-            $('#super-div').hide();
-            $('#company-div').hide();
+        updateFields();
 
-            if ($("#assign_to").val() == 'super') {
-                $('#super-div').show();
-            }
-
-            if ($("#assign_to").val() == 'company') {
-                $('#company-div').show();
-            }
+        // On Change Site CC
+        $("#site_cc").change(function () {
+            updateFields();
         });
 
-        $("#status").change(function () {
-            //updateFields()
+        // On Change Site ID
+        $("#site_id").change(function () {
+            updateFields();
         });
 
-        $("#more").click(function (e) {
-            e.preventDefault();
-            $('#more').hide();
-            $('#more_items').show();
+        // On Change Type
+        $("#type").change(function () {
+            updateFields();
         });
 
-        //updateFields();
+        // On Change Treatment
+        $("#treatment").change(function () {
+            updateFields();
+        });
 
-        function updateInfo() {
-            $('#super-div').hide();
-            $('#company-div').hide();
+        // On Change Injured Part
+        $("#injured_part").change(function () {
+            updateFields();
+        });
 
-            if ($("#assign_to").val() == 'super') {
-                $('#super-div').show();
-            }
+        function updateFields() {
+            var treatment = $("#treatment").select2("val");
+            var injured_part = $("#injured_part").select2("val");
 
-            if ($("#assign_to").val() == 'company') {
-                $('#company-div').show();
-            }
+            // Type
+            if ($("#type_text").val())
+                var types = $("#type_text").val().split(', ');
+            else
+                var types = $("#type").select2("val");
+
+
+            // Notiification details
+            $("#field_site_id").hide()
+            $("#field_site_name").hide()
+            if ($("#site_cc").val() == '1') $("#field_site_id").show(); // Site id
+            if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
+
+            // Injury details
+            $("#field_treatment_other").hide();
+            $("#field_injured_part_other").hide();
+            if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
+            if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+
+            // Damage details
+            //$("#damage_details").hide();
         }
 
-        /* Bootstrap Fileinput */
-        $("#multifile").fileinput({
-            uploadUrl: "/site/incident/upload/", // server upload action
-            uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn red",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn dark",
-            uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-            uploadExtraData: {
-                "incident_id": incident_id,
-            },
-            layoutTemplates: {
-                main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
-            },
-        });
-
-        $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-            data.form.append("incident_id", $("#incident_id").val());
-        });
     });
+
+    function editForm(name) {
+        $('#show_' + name).hide();
+        $('#edit_' + name).show();
+        $('#add_' + name).hide();
+    }
+
+    function cancelForm(e, name) {
+        e.preventDefault();
+        $('#show_' + name).show();
+        $('#edit_' + name).hide();
+        $('#add_' + name).hide();
+    }
+
+    function addForm(name) {
+        $('#show_' + name).hide();
+        $('#edit_' + name).hide();
+        $('#add_' + name).show();
+    }
+
+            @if (count($errors) > 0)
+    var errors = {!! $errors !!};
+    if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
+        $('#show_' + errors.FORM).hide();
+        $('#edit_' + errors.FORM).show();
+    }
+
+    console.log(errors)
+    @endif
+
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
+    });
+
+    // Force datepicker to not be able to select dates after today
+    $('.bs-datetime').datetimepicker({
+        endDate: new Date(),
+        format: 'dd/mm/yyyy hh:ii',
+    });
+
 </script>
 @stop
-

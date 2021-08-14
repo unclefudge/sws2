@@ -14,8 +14,8 @@ use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentDoc;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
+use App\Models\Misc\Action;
 use App\Http\Requests;
-//use App\Http\Requests\Site\SiteAccidentRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -59,11 +59,28 @@ class SiteIncidentController extends Controller {
             return view('errors/404');
 
         if ($incident->step == 2)
-            return view('site/incident/people', compact('incident'));
+            return view('site/incident/create-people', compact('incident'));
         elseif ($incident->step == 3)
-            return view('site/incident/docs', compact('incident'));
+            return view('site/incident/create-docs', compact('incident'));
         else
             return view('site/incident/show', compact('incident'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showAdmin($id)
+    {
+        $incident = SiteIncident::findorFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('view.site.incident', $incident))
+            return view('errors/404');
+
+
+        return view('site/incident/admin', compact('incident'));
     }
 
     /**
@@ -104,7 +121,7 @@ class SiteIncidentController extends Controller {
     /**
      * Add docs/photos Form
      */
-    public function lodgeDocs($id)
+    public function createDocs($id)
     {
         $incident = SiteIncident::findorFail($id);
 
@@ -115,7 +132,7 @@ class SiteIncidentController extends Controller {
         $incident->step = 3;
         $incident->save();
 
-        return view('site/incident/docs', compact('incident'));
+        return view('site/incident/create-docs', compact('incident'));
     }
 
     /**
@@ -139,7 +156,7 @@ class SiteIncidentController extends Controller {
     /**
      * Show Incident - Involved
      */
-    public function showInvolved($id)
+    /*public function showInvolved($id)
     {
         $incident = SiteIncident::findorFail($id);
 
@@ -148,7 +165,7 @@ class SiteIncidentController extends Controller {
             return view('errors/404');
 
         return view('site/incident/show-involved', compact('incident'));
-    }
+    }*/
 
     /**
      * Store a newly created resource in storage.
@@ -252,7 +269,6 @@ class SiteIncidentController extends Controller {
 
         // Validate
         $validator = Validator::make(request()->all(), $rules, $mesg);
-
         if ($validator->fails()) {
             $validator->errors()->add('FORM', 'notification');
 
@@ -329,7 +345,6 @@ class SiteIncidentController extends Controller {
 
         // Validate
         $validator = Validator::make(request()->all(), $rules, $mesg);
-
         if ($validator->fails()) {
             $validator->errors()->add('FORM', 'injury');
 
@@ -385,7 +400,6 @@ class SiteIncidentController extends Controller {
 
         // Validate
         $validator = Validator::make(request()->all(), $rules, $mesg);
-
         if ($validator->fails()) {
             $validator->errors()->add('FORM', 'damage');
 
@@ -398,6 +412,79 @@ class SiteIncidentController extends Controller {
         Toastr::success("Updated incident report");
 
         return redirect('site/incident/' . $incident->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateDetails($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $incident_request = request()->all();
+        $incident->update($incident_request);
+
+        Toastr::success("Updated incident report");
+
+        return redirect('site/incident/' . $incident->id . '/admin');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateRegulator($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $rules = ['notifiable_reason' => 'required'];
+        $mesg = ['notifiable_reason.required' => 'The context field is required.'];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'regulator');
+
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $incident_request = request()->all();
+        $incident_request['regulator_date'] = (request('regulator_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('regulator_date'))->toDateTimeString() : null;
+
+        //dd($incident_request);
+        $incident->update($incident_request);
+
+        Toastr::success("Updated Regulator Actions");
+
+        return redirect('site/incident/' . $incident->id . '/admin');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function addDocs($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        return view('site/incident/add-docs', compact('incident'));
     }
 
     /**
@@ -419,18 +506,22 @@ class SiteIncidentController extends Controller {
 
         // Validate
         $validator = Validator::make(request()->all(), $rules, $mesg);
-
         if ($validator->fails()) {
             $validator->errors()->add('FORM', 'notes');
 
             return back()->withErrors($validator)->withInput();
         }
-        dd(request()->all());
+        //dd(request()->all());
 
-        $incident_request = request()->all();
-        $incident->update($incident_request);
+        $action_request = request()->all();
+        $action_request['table'] = 'site_incidents';
+        $action_request['table_id'] = $incident->id;
 
-        Toastr::success("Updated incident report");
+        //dd($action_request);
+        $action = Action::create($action_request);
+        //$incident->emailAction($action);
+
+        Toastr::success("Added note");
 
         return redirect('site/incident/' . $incident->id);
     }
@@ -446,7 +537,6 @@ class SiteIncidentController extends Controller {
         //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
         //    return json_encode("failed");
 
-        //dd('here');
         //dd(request()->all());
         // Handle file upload
         $files = request()->file('multifile');
@@ -478,9 +568,6 @@ class SiteIncidentController extends Controller {
 
             // Create SiteIncidentDoc
             $doc = SiteIncidentDoc::create($doc_request);
-            //$doc->incident_id = request('incident_id');
-            //$doc->attachment = $name;
-            //$doc->save();
         }
 
         return json_encode("success");

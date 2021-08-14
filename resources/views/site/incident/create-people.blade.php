@@ -221,7 +221,7 @@
                             <div class="form-actions right">
                                 <a href="/site/incident" class="btn default"> Back</a>
                                 @if ($incident->people->count())
-                                    <a href="/site/incident/{{ $incident->id }}/lodgedocs" class="btn green"> Next Step</a>
+                                    <a href="/site/incident/{{ $incident->id }}/createdocs" class="btn green"> Next Step</a>
                                 @else
                                     <button type="submit" class="btn green"> Save</button>
                                 @endif

@@ -108,7 +108,7 @@ class SiteIncidentConversationController extends Controller {
 
         Toastr::success("Added conversation");
 
-        return redirect('site/incident/' . $incident->id);
+        return redirect('site/incident/' . $incident->id . '/admin');
     }
 
 
@@ -148,7 +148,7 @@ class SiteIncidentConversationController extends Controller {
 
         Toastr::success("Updated conversation");
 
-        return redirect('site/incident/' . $incident->id);
+        return redirect('site/incident/' . $incident->id . '/admin');
     }
 
     /**

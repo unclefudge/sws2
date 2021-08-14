@@ -18,6 +18,10 @@
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
+                @if ($incident->status != 2)
+                    @include('site/incident/_header')
+                @endif
+
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
@@ -53,16 +57,18 @@
                                 <br>
                             @endif
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} ({{ $incident->site->full_address }})</b><br><br>
-                                </div>
+                            @if ($incident->status == 2)
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} @if ($incident->site)({{ $incident->site->full_address }})@endif</b><br><br>
+                                    </div>
 
-                                <div class="col-md-12">
-                                    <h4 class="font-green-haze">Person Involved Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="col-md-12">
+                                        <h4 class="font-green-haze">Person Involved Details</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
 
                             {{-- Involvement Type --}}
                             <div class="row">

@@ -21,7 +21,7 @@ class CreateSiteIncidentssTable extends Migration
             $table->increments('id');
 
             // Notification details
-            $table->integer('site_id')->unsigned();
+            $table->integer('site_id')->unsigned()->nullable();
             $table->string('site_name', 266)->nullable();
             $table->string('site_supervisor', 100)->nullable();
 
@@ -43,6 +43,7 @@ class CreateSiteIncidentssTable extends Migration
             $table->text('notifiable_reason')->nullable();
             $table->string('regulator', 255)->nullable();
             $table->string('regulator_ref', 50)->nullable();
+            $table->dateTime('regulator_date')->nullable();
             $table->string('inspector', 255)->nullable();
 
 

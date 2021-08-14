@@ -18,23 +18,18 @@
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
+                @include('site/incident/_header')
+
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
                             <span class="caption-subject font-green-haze bold uppercase">Witness Statements</span>
-                            <span class="caption-helper"> ID: {{ $incident->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
                         {!! Form::model('SiteIncidentWitness', ['action' => ['Site\Incident\SiteIncidentWitnessController@store', $incident->id], 'class' => 'horizontal-form']) !!}
                         @include('form-error')
                         <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <b>The following person was a witness to an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} ({{ $incident->site->full_address }})</b><br><br>
-                                </div>
-                            </div>
-
                             {{-- User + Name --}}
                             <div class="row">
                                 {{-- User Id --}}

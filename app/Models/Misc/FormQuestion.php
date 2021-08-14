@@ -11,7 +11,7 @@ use Carbon\Carbon;
 class FormQuestion extends Model {
 
     protected $table = 'form_questions';
-    protected $fillable = ['type', 'name', 'parent', 'order', 'form', 'company_id', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $fillable = ['type', 'name', 'label', 'parent', 'order', 'form', 'company_id', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
      * A FormQuestion 'options' have have a 'parent' question
@@ -71,11 +71,13 @@ class FormQuestion extends Model {
      *
      * @return string
      */
-    public function responsesCSV($table = null, $table_id = null)
+    public function responsesCSV($table = null, $table_id = null, $response_name = null)
     {
         $str = '';
-        foreach ($this->responses($table, $table_id) as $response)
-            $str .= $response->optionText . ', ';
+        foreach ($this->responses($table, $table_id) as $response) {
+            $text = ($response_name) ? $response->option->name : $response->optionText;
+            $str .= $text . ', ';
+        }
 
         $str = rtrim($str, ', ');
 

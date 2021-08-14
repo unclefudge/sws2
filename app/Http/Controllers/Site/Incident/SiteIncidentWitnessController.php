@@ -105,7 +105,7 @@ class SiteIncidentWitnessController extends Controller {
 
         Toastr::success("Added witness statment");
 
-        return redirect('site/incident/' . $incident->id);
+        return redirect('site/incident/' . $incident->id . '/admin');
     }
 
 
@@ -142,7 +142,7 @@ class SiteIncidentWitnessController extends Controller {
 
         Toastr::success("Updated witness statement");
 
-        return redirect('site/incident/' . $incident->id);
+        return redirect('site/incident/' . $incident->id . '/admin');
     }
 
     /**

@@ -37,9 +37,19 @@ class SiteIncident extends Model {
     }
 
     /**
+     * A SiteIncident has many docs
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function docs()
+    {
+        return $this->hasMany('App\Models\Site\Incident\SiteIncidentDoc', 'incident_id');
+    }
+
+    /**
      * A SiteIncident has many people
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function people()
     {
@@ -49,7 +59,7 @@ class SiteIncident extends Model {
     /**
      * A SiteIncident has many witness
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function witness()
     {
@@ -59,7 +69,7 @@ class SiteIncident extends Model {
     /**
      * A SiteIncident has many conversation
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function conversations()
     {
@@ -87,6 +97,19 @@ class SiteIncident extends Model {
             return Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get();
 
         return Todo::where('type', 'incident')->where('type_id', $this->id)->get();
+    }
+
+    /**
+     * A SiteIncident 'may' have multiple ToDoos - Preventive Actions
+     *
+     * @return Collection
+     */
+    public function preventActions($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'incident prevent')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'incident prevent')->where('type_id', $this->id)->get();
     }
 
     /**
@@ -119,6 +142,40 @@ class SiteIncident extends Model {
     public function isDamage()
     {
         return (FormResponse::where('question_id', 1)->where('option_id', 3)->first()) ? true : false;
+    }
+
+    /**
+     * Get the Risk Rating Text
+     */
+    public function riskRatingText($field)
+    {
+        if ($this->attributes[$field] == '1')
+            return 'Low';
+        if ($this->attributes[$field] == '2')
+            return 'Medium';
+        if ($this->attributes[$field] == '3')
+            return 'High';
+        if ($this->attributes[$field] == '4')
+            return 'Extreme';
+
+        return '-';
+    }
+
+    /**
+     * Get the Risk Rating Text (setter)
+     */
+    public function riskRatingTextColoured($field)
+    {
+        if ($this->attributes[$field] == '1')
+            return '<span style="background:#00cc99; color:#fff; padding:5px 10px">Low</span>';
+        if ($this->attributes[$field] == '2')
+            return '<span style="background:#ffcc66; color:#fff; padding:5px 10px">Medium</span>';
+        if ($this->attributes[$field] == '3')
+            return '<span style="background:#ff9900; color:#fff; padding:5px 10px">High</span>';
+        if ($this->attributes[$field] == '4')
+            return '<span style="background:#ff0000; color:#fff; padding:5px 10px">Extreme</span>';
+
+        return '-';
     }
 
 
@@ -190,7 +247,6 @@ class SiteIncident extends Model {
      */
     public function getStatusTextAttribute()
     {
-
         if ($this->status == 1)
             return '<span class="font-green">OPEN</span>';
 
@@ -199,7 +255,6 @@ class SiteIncident extends Model {
 
         if ($this->status == 2)
             return '<span class="font-yellow">IN PROGRESS</span>';
-
     }
 
     /**

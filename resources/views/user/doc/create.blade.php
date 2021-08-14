@@ -182,7 +182,6 @@
 
 
     $(document).ready(function () {
-
         /* Select2 */
         $("#drivers_class").select2({placeholder: "Select one or more", width: '100%'});
         $("#cl_type").select2({placeholder: "Select one or more", width: '100%'});

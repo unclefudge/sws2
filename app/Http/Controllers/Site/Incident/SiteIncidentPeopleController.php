@@ -105,12 +105,10 @@ class SiteIncidentPeopleController extends Controller {
             if (!request('employer'))
                 $people_request['employer'] = $user->company->name;
         }
-
         //dd($people_request);
 
         // Create SiteIncidentPeople
         $people = SiteIncidentPeople::create($people_request);
-
         Toastr::success("Added person involved");
 
         return redirect('site/incident/' . $incident->id);
@@ -151,12 +149,10 @@ class SiteIncidentPeopleController extends Controller {
             if (!request('employer'))
                 $people_request['employer'] = $user->company->name;
         }
-
         //dd($people_request);
 
         // Update SiteIncidentPeople
         $people->update($people_request);
-
         Toastr::success("Updated person involved");
 
         return redirect('site/incident/' . $incident->id);

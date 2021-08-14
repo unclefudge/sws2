@@ -14,9 +14,10 @@ var ComponentsDateTimePickers = function () {
         /* Workaround to restrict daterange past date select: http://stackoverflow.com/questions/11933173/how-to-restrict-the-selectable-date-ranges-in-bootstrap-datepicker */
     
         // Workaround to fix datepicker position on window scroll
-        $( document ).scroll(function(){
-            $('#form_modal2 .date-picker').datepicker('place'); //#modal is the id of the modal
-        });
+        // commented out by Fudge 13/8/21 to fix error Uncaught TypeError: $(...).datepicker is not a function
+        //$( document ).scroll(function(){
+        //    $('#form_modal2 .date-picker').datepicker('place'); //#modal is the id of the modal
+        //});
     }
 
     var handleTimePickers = function () {
@@ -186,9 +187,10 @@ var ComponentsDateTimePickers = function () {
         $('body').removeClass("modal-open"); // fix bug when inline picker is used in modal
 
         // Workaround to fix datetimepicker position on window scroll
-        $( document ).scroll(function(){
-            $('#form_modal1 .form_datetime, #form_modal1 .form_advance_datetime, #form_modal1 .form_meridian_datetime').datetimepicker('place'); //#modal is the id of the modal
-        });
+        // commented out by Fudge 13/8/21 to fix error Uncaught TypeError: $(...).datepicker is not a function
+        //$( document ).scroll(function(){
+        //    $('#form_modal1 .form_datetime, #form_modal1 .form_advance_datetime, #form_modal1 .form_meridian_datetime').datetimepicker('place'); //#modal is the id of the modal
+        //});
     }
 
     var handleClockfaceTimePickers = function () {

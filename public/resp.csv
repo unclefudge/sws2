@@ -1,60 +1,125 @@
-﻿Nature of injury,Fractures (excluding of vertebral column)
-Nature of injury,Fracture of vertebral column with or without mention of spinal cord lesion
-Nature of injury,Dislocations
-Nature of injury,Sprains and strains of joints and adjacent muscles (include acute trauma sprains and strains only)
-Nature of injury,"Intracranial injury, including concussion"
-Nature of injury,Internal injury of chest abdomen and pelvis
-Nature of injury,"Traumatic amputation, including enucleation of eye (loss of eyeball)"
-Nature of injury,Open wound not involving traumatic amputation
-Nature of injury,Superficial injury
-Nature of injury,"Contusion with intact skin surface and crushing injury, excluding those with fracture"
-Nature of injury,"Foreign body on external eye, in ear or nose or in respiratory, digestive or reproductive systems (include choking)"
-Nature of injury,Burns
-Nature of injury,Injuries to nerves and spinal cord without evidence of spinal bone injury
-Nature of injury,Poisoning and toxic effects of substances
-Nature of injury,"Effects of weather, exposure, air pressure and other external causes not elsewhere classified (includes bends, drowning, electrocution)"
-Nature of injury,Multiple injuries (only to be used where no principal injury can be identified)
-Nature of injury,Damage to artificial aids
-Nature of injury,Other and unspecified injuries
-Mechanism of injury,Falls from a height
-Mechanism of injury,Falls on the same level (including trips and slips)
-Mechanism of injury,Hitting objects with a part of the body
-Mechanism of injury,Exposure to mechanical vibration
-Mechanism of injury,Being hit by moving objects
-Mechanism of injury,Exposure to sharp sudden sound
-Mechanism of injury,Long term exposure to sounds
-Mechanism of injury,Exposure to variations in pressure (other than sound)
-Mechanism of injury,Repetitive movement with low muscle loading
-Mechanism of injury,Other muscular stress
-Mechanism of injury,Contact with electricity
-Mechanism of injury,Contact or exposure to heat and cold
-Mechanism of injury,Exposure to radiation
-Mechanism of injury,Single contact with chemical or substance (excludes insect and spider bites and stings)
-Mechanism of injury,Other contact with chemical or substance (includes insect and spider bites and stings)
-Mechanism of injury,Long term contact with chemical or substance
-Mechanism of injury,"Contact with, or exposure to, biological factors"
-Mechanism of injury,Exposure to mental stress factors
-Mechanism of injury,Slide or cave-in
-Mechanism of injury,Vehicle accident
-Mechanism of injury,Other and multiple mechanisms of injury
-Mechanism of injury,Unspecified mechanisms of injury
-Agency of injury,Machinery and fixed plant
-Agency of injury,Mobile plant
-Agency of injury,Road transport
-Agency of injury,Other transport
-Agency of injury,"Powered equipment, tools and appliances"
-Agency of injury,Non-powered hand tools
-Agency of injury,Non-powered equipment
-Agency of injury,Chemicals
-Agency of injury,Non-metallic substances
-Agency of injury,"Other materials, substances or objects"
-Agency of injury,Outdoor environment
-Agency of injury,Indoor environment
-Agency of injury,Underground environment
-Agency of injury,Live animals
-Agency of injury,Non-living animals
-Agency of injury,Human agencies
-Agency of injury,Biological agencies
-Agency of injury,Non-physical agencies
-Agency of injury,Other agencies
-Agency of injury,Unspecified agencies
+﻿Incident Conditions,Weather
+Incident Conditions,Environment
+Incident Conditions,Equipment Involved
+Incident Conditions,Testing / Inspection / Maintenance / Modification
+Incident Conditions,Risk Assessments
+Incident Conditions,Physiology
+Incident Conditions,Ability / Training / Experience
+Incident Conditions,Supervision
+Incident Conditions,Communication
+Incident Conditions,Applicable Procedures / Documents
+Incident Conditions,Previous Incidents
+Absent / Failed Defences,Awareness – hazard identification
+Absent / Failed Defences,Awareness – communication
+Absent / Failed Defences,Awareness – competence / knowledge
+Absent / Failed Defences,Awareness – supervision
+Absent / Failed Defences,Awareness – work instruction / procedures
+Absent / Failed Defences,Detection – visual warning systems
+Absent / Failed Defences,Detection – aural warning systems
+Absent / Failed Defences,Detection – speed / movement detectors
+Absent / Failed Defences,Detection – vigilance / fatigue
+Absent / Failed Defences,Detection – gas / substance
+Absent / Failed Defences,Control and Recovery – procedures
+Absent / Failed Defences,Control and Recovery – bypass valves / circuits
+Absent / Failed Defences,Control and Recovery – emergency shut down
+Absent / Failed Defences,Protection and Containment – PPE
+Absent / Failed Defences,Protection and Containment – fire fighting
+Absent / Failed Defences,Protection and Containment – spill response
+Absent / Failed Defences,Protection and Containment – bunding / barricading /
+Absent / Failed Defences,Exclusion zones
+Absent / Failed Defences,Escape and Rescue – safe access / egress
+Absent / Failed Defences,Escape and Rescue – emergency planning / response
+Absent / Failed Defences,Escape and Rescue – emergency communication
+Absent / Failed Defences,Other
+Individual / Team Actions,Supervisory error or violation
+Individual / Team Actions,Operating authority error or violation
+Individual / Team Actions,Operating speed
+Individual / Team Actions,Equipment use error or violation
+Individual / Team Actions,PPE use error or violation
+Individual / Team Actions,Procedural compliance
+Individual / Team Actions,Change management error
+Individual / Team Actions,Equipment / materials handling error or
+Individual / Team Actions,Horseplay / thrill seeking error or violation
+Individual / Team Actions,Hazard recognition / perception
+Individual / Team Actions,Hazard management error or violation
+Individual / Team Actions,Work method error or violation
+Individual / Team Actions,Occupational hygiene practices
+Individual / Team Actions,Slips – Attention Failures / Omissions / Mis ordering
+Individual / Team Actions,Lapse – Memory failure / Losing Place / Omitting Items
+Individual / Team Actions,Mistake – Rule based / Knowledge based
+Individual / Team Actions,Violation – Routine / Situational / Optimising / Exceptional / Acts of Sabotage
+Individual / Team Actions,Other
+Task / Environmental - Workplace Conditions,Task Planning / Preparation / manning
+Task / Environmental - Workplace Conditions,Hazard Analysis 
+Task / Environmental - Workplace Conditions,Work Procedures availability and suitability
+Task / Environmental - Workplace Conditions,Permit to work availability and suitability
+Task / Environmental - Workplace Conditions,Abnormal operational situation / condition
+Task / Environmental - Workplace Conditions,Tools / equipment condition / availability
+Task / Environmental - Workplace Conditions,Materials availability and suitability
+Task / Environmental - Workplace Conditions,Equipment integrity
+Task / Environmental - Workplace Conditions,Housekeeping
+Task / Environmental - Workplace Conditions,Weather conditions
+Task / Environmental - Workplace Conditions,Congestion / restriction / access
+Task / Environmental - Workplace Conditions,Routine / non-routine task
+Task / Environmental - Workplace Conditions,Fire and / or explosion hazard
+Task / Environmental - Workplace Conditions,Lighting
+Task / Environmental - Workplace Conditions,Equipment / material temperature / conditions
+Task / Environmental - Workplace Conditions,Noise
+Task / Environmental - Workplace Conditions,Ventilation
+Task / Environmental - Workplace Conditions,"Gas, dust or fumes"
+Task / Environmental - Workplace Conditions,Radiation
+Task / Environmental - Workplace Conditions,Chemical
+Task / Environmental - Workplace Conditions,Wildlife
+Task / Environmental - Workplace Conditions,Surface Gradient/Conditions
+Task / Environmental - Workplace Conditions,Reduced/restricted visibility
+Task / Environmental - Workplace Conditions,Other
+Task / Environmental Conditions - Human Factors,Complacency / motivation / desensitisation to hazard
+Task / Environmental Conditions - Human Factors,Drugs / Alcohol inﬂuence
+Task / Environmental Conditions - Human Factors,Familiarity with task
+Task / Environmental Conditions - Human Factors,Fatigue
+Task / Environmental Conditions - Human Factors,Situational awareness
+Task / Environmental Conditions - Human Factors,Time / productivity pressures
+Task / Environmental Conditions - Human Factors,Peer pressure / supervisory example
+Task / Environmental Conditions - Human Factors,Physical capabilities
+Task / Environmental Conditions - Human Factors,Mental capabilities
+Task / Environmental Conditions - Human Factors,Physical stress
+Task / Environmental Conditions - Human Factors,Mental stress
+Task / Environmental Conditions - Human Factors,Confidence level
+Task / Environmental Conditions - Human Factors,Secondary goals
+Task / Environmental Conditions - Human Factors,Personal issues
+Task / Environmental Conditions - Human Factors,Distraction / pre-occupation
+Task / Environmental Conditions - Human Factors,Experience / Knowledge / Skill for task
+Task / Environmental Conditions - Human Factors,Competency
+Task / Environmental Conditions - Human Factors,Behavioural beliefs (gains > risks)
+Task / Environmental Conditions - Human Factors,Personality / attitude
+Task / Environmental Conditions - Human Factors,Poor communications
+Task / Environmental Conditions - Human Factors,Poor shift patterns & overtime working
+Task / Environmental Conditions - Human Factors,Passive tolerance of violations
+Task / Environmental Conditions - Human Factors,Perceived licence to bend rules
+Task / Environmental Conditions - Human Factors,Change of routine
+Task / Environmental Conditions - Human Factors,Reliance on undocumented knowledge
+Task / Environmental Conditions - Human Factors,Other
+Root Cause - Organisational Factors,Hardware
+Root Cause - Organisational Factors,Training
+Root Cause - Organisational Factors,Organisation
+Root Cause - Organisational Factors,Communication
+Root Cause - Organisational Factors,Incompatible Goals
+Root Cause - Organisational Factors,Procedures
+Root Cause - Organisational Factors,Maintenance Management
+Root Cause - Organisational Factors,Design
+Root Cause - Organisational Factors,Risk Management
+Root Cause - Organisational Factors,Management of Change
+Root Cause - Organisational Factors,Contractor Management
+Root Cause - Organisational Factors,Organisational Culture
+Root Cause - Organisational Factors,Regulatory Inﬂuence
+Root Cause - Organisational Factors,Organisational Learning
+Root Cause - Organisational Factors,Vehicle Management
+Root Cause - Organisational Factors,Management Systems
+Actions to Prevent Reoccurance,Change to induction training
+Actions to Prevent Reoccurance,Change to ongoing training
+Actions to Prevent Reoccurance,Equipment/machinery modifications
+Actions to Prevent Reoccurance,Change to work procedures
+Actions to Prevent Reoccurance,Change to work environment
+Actions to Prevent Reoccurance,Equipment/machinery maintenance
+Actions to Prevent Reoccurance,Other job redesign
+Actions to Prevent Reoccurance,Other preventive action

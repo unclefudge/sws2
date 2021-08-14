@@ -16,12 +16,12 @@
             </div>
 
             <?php
-            $active_profile = $active_doc = $active_admin = '';
+            $active_profile = $active_analysis = $active_admin = '';
             list($first, $site_url, $rest) = explode('/', Request::path(), 3);
             if (!ctype_digit($rest)) {
                 list($uid, $rest) = explode('/', $rest, 2);
-                $active_doc = (preg_match('/^doc*/', $rest)) ? 'active' : '';
-                $active_admin = (preg_match('/^security*/', $rest)) ? 'active' : '';
+                $active_analysis = (preg_match('/^analysis*/', $rest)) ? 'active' : '';
+                $active_admin = (preg_match('/^admin*/', $rest)) ? 'active' : '';
             } else
                 $active_profile = 'active';
             ?>
@@ -29,12 +29,11 @@
             <ul class="member-bar-menu">
                 <li class="member-bar-item {{ $active_profile }}"><i class="icon-profile"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}" title="Profile">PROFILE</a></li>
 
-                <li class="member-bar-item {{ $active_doc }}"><i class="icon-document"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/doc" title="Documents">
-                        <span class="hidden-xs hidden-sm">DOCUMENTS</span><span class="visible-xs visible-sm">DOCS</span></a></li>
-
                 @if (Auth::user()->allowed2('del.site.incident', $incident))
                     <li class="member-bar-item {{ $active_admin }}"><i class="icon-lock"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/admin" title="Admin">ADMIN</a></li>
                 @endif
+
+                <li class="member-bar-item {{ $active_analysis }}"><i class="icon-chartarrow"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/analysis" title="Investigate">ANALYSIS</a></li>
             </ul>
         </div>
     </div>
