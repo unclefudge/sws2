@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Contributing Factors</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site.incident', $incident))
+            @if ($pEdit && $incident->status)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('confactors')">Edit</button>
             @endif
         </div>
@@ -34,6 +34,12 @@
             <div class="row">
                 <div class="col-md-12">Human Factors:</div>
                 <div class="col-md-12" style="margin-left: 40px">{!! $qConFactorHuman->responsesBullet('site_incidents', $incident->id) !!}</div>
+            </div>
+        @endif
+        @if (!$qConFactorDefences->responsesCSV('site_incidents', $incident->id) && !$qConFactorITactions->responsesCSV('site_incidents', $incident->id) &&
+         !$qConFactorWorkplace->responsesCSV('site_incidents', $incident->id) &&  !$qConFactorHuman->responsesCSV('site_incidents', $incident->id))
+            <div class="row">
+                <div class="col-md-12">No factors specfied</div>
             </div>
         @endif
         <hr class="field-hr">

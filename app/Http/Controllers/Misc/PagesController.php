@@ -22,6 +22,9 @@ use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaCategory;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteAsbestosRegister;
+use App\Models\Site\SiteAccident;
+use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\Incident\SiteIncidentPeople;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteProjectSupplyItem;
@@ -39,6 +42,7 @@ use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
 use App\Models\Misc\Permission2;
+use App\Models\Misc\Action;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
 use App\Http\Requests;
@@ -143,32 +147,59 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        /*
-        echo "<b>Supply testing</b></br>";
-        echo "Creating new project<br>";
+        echo "<b>Importing Accident </b></br>";
+        $accidents = SiteAccident::all();
+        foreach ($accidents as $accident) {
+            echo "id:$accident->id name:$accident->name<br>";
+            $incident_request = [];
+            $incident_request['site_id'] = $accident->site_id;
+            $incident_request['site_name'] = $accident->site->name;
+            $incident_request['site_supervisor'] = $accident->supervisor;
+            $incident_request['date'] = $accident->date;
+            $incident_request['location'] = $accident->location;
+            $incident_request['damage'] = $accident->damage;
+            $incident_request['describe'] = $accident->info;
+            $incident_request['actions_taken'] = $accident->action;
+            $incident_request['resolved_at'] = $accident->resolved_at;
+            $incident_request['notes'] = $accident->notes;
+            $incident_request['status'] = $accident->status;
+            $incident_request['company_id'] = $accident->site->company_id;
+            $incident_request['step'] = '0';
+            $incident_request['created_by'] = $accident->created_by;
+            $incident_request['created_at'] = $accident->created_at;
 
-        $lockup = [1, 2, 3, 4, 5, 6, 7, 8];
-        $fixout = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
 
-        $project = SiteProjectSupply::create(['site_id' => '25', 'version' => '1.0']);
-        foreach ($lockup as $id) {
-            $product = SiteProjectSupplyProduct::findOrFail($id);
-            $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $id, 'product' => $product->name]));
+            $incident = SiteIncident::create($incident_request);
+
+            // Add Injured
+            $people_request = [];
+            $people_request['incident_id'] = $incident->id;
+            $people_request['type'] = '9';
+            $people_request['name'] = $accident->name;
+            $people_request['employer'] = $accident->company;
+            $people_request['occupation'] = $accident->occupation;
+            $person = SiteIncidentPeople::create($people_request);
+
+            // Add responses
+            FormResponse::create(['question_id' => '14', 'option_id' => '20', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->referred]);
+            FormResponse::create(['question_id' => '21', 'option_id' => '49', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->nature]);
+
+            // Add notes
+            $actions = Action::where('table', 'site_accidents')->where('table_id', $accident->id)->get();
+            foreach ($actions as $act) {
+                Action::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'action' => $act->action, 'created_by' => $act->created_by, 'updated_by' => $act->updated_by, 'created_at' => $act->created_at, 'updated_at' => $act->updated_at]);
+            }
+
+            // Add Todoos
+            $todos = Todo::where('type', 'accident')->where('type_id', $accident->id)->get();
+            foreach ($todos as $todo) {
+                $newDo = ToDo::create(['type'       => 'incident', 'type_id' => $todo->id, 'name' => $todo->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
+                                       'done_at'    => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
+                                       'status'     => $todo->status, 'company_id' => $todo->company_id, 'created_by' => $todo->created_by, 'updated_by' => $todo->updated_by, 'created_at' => $todo->created_at,
+                                       'updated_at' => $todo->updated_at]);
+                $newDoUser = ToDoUser::create(['todo_id' => $newDo->id, 'user_id' => $todo->assignedTo()->first()->id]);
+            }
         }
-        $project->createToDo([3,7]);
-        //echo "<br><br>$project: ".$project->site->name."<br>";
-        echo "creating ToDo<br>";
-
-        */
-        /*
-        echo "<b>Mail testing</b></br>";
-        $todo = ToDo::findOrFail(26492);
-        echo "Todo: $todo->name<br>";
-        echo "Todo: ".$todo->assignedToBySBC()."<br>";
-        echo "sending mail ".Carbon::now()->format('g:i:s')."<br>";
-        Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Comms\TodoCreated($todo));
-        echo "mail sent";
-        */
 
         /*
         echo "<b>Active Equipment Locations with no items </b></br>";
@@ -659,7 +690,8 @@ class PagesController extends Controller {
     }
 
 
-    public function completedQA()
+    public
+    function completedQA()
     {
         echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
         $todos = \App\Models\Comms\Todo::all();
@@ -695,7 +727,8 @@ class PagesController extends Controller {
     }
 
 
-    public function refreshQA()
+    public
+    function refreshQA()
     {
         echo "Updating Current QA Reports to match new QA template with Supervisor tick<br><br>";
         $items = SiteQaItem::all();
@@ -730,7 +763,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function importCompany(Request $request)
+    public
+    function importCompany(Request $request)
     {
         echo "Importing Companies<br><br>";
         $row = 0;
@@ -817,7 +851,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function fixplanner()
+    public
+    function fixplanner()
     {
         set_time_limit(120);
 
@@ -924,7 +959,8 @@ class PagesController extends Controller {
 
     }
 
-    public function workDaysBetween($from, $to, $debug = false)
+    public
+    function workDaysBetween($from, $to, $debug = false)
     {
         if ($from == $to)
             return 1;
@@ -952,7 +988,8 @@ class PagesController extends Controller {
     }
 
 
-    public function importMaterials()
+    public
+    function importMaterials()
     {
         echo "Importing Materials<br><br>";
         $row = 0;
@@ -1015,7 +1052,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function importPayroll()
+    public
+    function importPayroll()
     {
         echo "Importing Payroll<br>---------------------<br><br>";
         $row = 0;
@@ -1088,7 +1126,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function importQuestions()
+    public
+    function importQuestions()
     {
         echo "Importing Questions<br>---------------------<br><br>";
         $row = 0;
@@ -1123,7 +1162,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function importMaintenance()
+    public
+    function importMaintenance()
     {
         echo "Importing Maintenance<br>---------------------<br><br>";
         $row = 0;
@@ -1280,7 +1320,8 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public function disabledTasks()
+    public
+    function disabledTasks()
     {
 
         echo "List of Disabled Tasks currently still in use<br>--------------------------------------------------------<br><br>";
@@ -1356,7 +1397,8 @@ class PagesController extends Controller {
         echo "</table>";
     }
 
-    public function createPermission()
+    public
+    function createPermission()
     {
         //
         // Creating Permission

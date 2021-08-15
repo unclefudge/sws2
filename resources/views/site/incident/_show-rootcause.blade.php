@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Root Cause - Organisation Factors</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site.incident', $incident))
+            @if ($pEdit && $incident->status)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('rootcause')">Edit</button>
             @endif
         </div>

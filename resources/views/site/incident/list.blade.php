@@ -61,7 +61,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Site Incidents</span>
                         </div>
                         <div class="actions">
-                            @if(Auth::user()->allowed2('add.site.accident'))
+                            @if(Auth::user()->allowed2('add.site.incident'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/create" data-original-title="Add">Add</a>
                             @endif
                         </div>

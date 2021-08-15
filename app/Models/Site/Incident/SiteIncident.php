@@ -17,14 +17,14 @@ class SiteIncident extends Model {
     protected $fillable = [
         'site_id', 'site_name', 'site_supervisor', 'location', 'date', 'describe', 'actions_taken',
         'risk_potential', 'risk_actual', 'exec_summary', 'exec_describe', 'exec_actions', 'exec_notes',
-        'notifiable', 'notifiable_reason', 'regulator', 'regulator_ref', 'inspector',
+        'notifiable', 'notifiable_reason', 'regulator', 'regulator_ref', 'regulator_date', 'inspector',
         //'injured_part', 'injured_nature', 'injured_mechanism', 'injured_agency',
         //'conditions', 'factors_absent', 'factors_actions', 'factors_workplace', 'factors_human', 'root_cause',
         'damage', 'damage_cost', 'damage_repair', 'risk_register', 'notes', 'step', 'status', 'company_id',
         'resolved_at', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['date', 'resolved_at'];
+    protected $dates = ['date', 'regulator_date', 'resolved_at'];
 
     /**
      * A SiteIncident belongs to a site

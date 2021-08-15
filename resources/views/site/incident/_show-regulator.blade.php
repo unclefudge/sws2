@@ -6,7 +6,7 @@
                 <span class="caption-subject font-dark bold uppercase">Regulator Action Details</span>
             </div>
             <div class="actions">
-                @if (Auth::user()->allowed2('edit.site.incident', $incident))
+                @if ($pEdit)
                     <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('regulator')">Edit</button>
                 @endif
             </div>

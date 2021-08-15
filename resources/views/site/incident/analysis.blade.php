@@ -14,31 +14,35 @@
     </ul>
 @stop
 
+<?php
+$pView = Auth::user()->allowed2('view.site.incident', $incident);
+$pEdit = Auth::user()->allowed2('edit.site.incident', $incident);
+$pAdd = Auth::user()->allowed2('add.site.incident');
+$pDel = Auth::user()->allowed2('del.site.incident', $incident);
+$qConditions = App\Models\Misc\FormQuestion::find(113);
+$qConFactorDefences = App\Models\Misc\FormQuestion::find(125);
+$qConFactorITactions = App\Models\Misc\FormQuestion::find(148);
+$qConFactorWorkplace = App\Models\Misc\FormQuestion::find(167);
+$qConFactorHuman = App\Models\Misc\FormQuestion::find(192);
+$qRootCause = App\Models\Misc\FormQuestion::find(219);
+$qPreventive = App\Models\Misc\FormQuestion::find(236);
+?>
 @section('content')
     {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')
-        <?php
-        $qConditions = App\Models\Misc\FormQuestion::find(113);
-        $qConFactorDefences = App\Models\Misc\FormQuestion::find(125);
-        $qConFactorITactions = App\Models\Misc\FormQuestion::find(148);
-        $qConFactorWorkplace = App\Models\Misc\FormQuestion::find(167);
-        $qConFactorHuman = App\Models\Misc\FormQuestion::find(192);
-        $qRootCause = App\Models\Misc\FormQuestion::find(219);
-        $qPreventive = App\Models\Misc\FormQuestion::find(236);
-        ?>
 
         <div class="row">
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Conditions --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-conditions')
                     @include('site/incident/_edit-conditions')
                 @endif
 
                 {{-- Con Factors --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-confactors')
                     @include('site/incident/_edit-confactors')
                 @endif
@@ -46,7 +50,7 @@
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Root Cause --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-rootcause')
                     @include('site/incident/_edit-rootcause')
                 @endif
@@ -56,7 +60,7 @@
         <div class="row">
             <div class="col-md-12">
                 {{-- Prevent Reoccuurence --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-prevent')
                     @include('site/incident/_edit-prevent')
                 @endif
@@ -208,13 +212,6 @@
 
     console.log(errors)
     @endif
-
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-
 
 </script>
 @stop

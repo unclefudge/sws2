@@ -54,7 +54,7 @@
                             <!-- Multi File upload -->
                             <div id="multifile-div">
                                 <br>
-                                @if(Auth::user()->allowed2('add.site.incident'))
+                                @if(Auth::user()->allowed2('add.site.incident', $incident))
                                     <div class="note note-warning">
                                         Please upload any photos / documents related to the incident. Include photos of:
                                         <ul>

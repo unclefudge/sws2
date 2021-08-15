@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Photos / Documents</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site.incident', $incident))
+            @if ($pEdit)
                 <a href="/site/incident/{{ $incident->id }}/add_docs" class="btn btn-circle green btn-outline btn-sm">Add</a>
             @endif
         </div>

@@ -5,13 +5,12 @@
             <span class="caption-subject font-dark bold uppercase">Notes</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site.incident', $incident))
+            @if ($pEdit)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="addForm('notes')">Add</button>
             @endif
         </div>
     </div>
     <div class="portlet-body">
-        {{--}}
        @if ($incident->actions->count())
           @foreach ($incident->actions as $action)
               <div class="row">
@@ -25,6 +24,5 @@
                 <div class="col-md-12">No notes</div>
             </div>
         @endif
-        --}}
     </div>
 </div>

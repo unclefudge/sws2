@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Actions to Prevent Reoccurence</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site.incident', $incident))
+            @if ($pEdit && $incident->status)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('prevent')">Edit</button>
             @endif
         </div>

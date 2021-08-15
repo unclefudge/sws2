@@ -27,7 +27,7 @@
                             <span class="caption-subject font-dark bold uppercase"> Company Documents</span>
                         </div>
                         <div class="actions">
-                            @if((Auth::user()->allowed2('add.site.incident')))
+                            @if(Auth::user()->allowed2('add.site.incident'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/company/{{ $incident->id }}/doc/upload" data-original-title="Upload">Upload</a>
                             @endif
                         </div>

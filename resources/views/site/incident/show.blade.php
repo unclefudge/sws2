@@ -14,38 +14,44 @@
     </ul>
 @stop
 
+<?php
+$pView = Auth::user()->allowed2('view.site.incident', $incident);
+$pEdit = Auth::user()->allowed2('edit.site.incident', $incident);
+$pAdd = Auth::user()->allowed2('add.site.incident');
+$pDel = Auth::user()->allowed2('del.site.incident', $incident);
+
+$qType = App\Models\Misc\FormQuestion::find(1);
+$qTreatment = App\Models\Misc\FormQuestion::find(14);
+$qInjuredPart = App\Models\Misc\FormQuestion::find(21);
+$qInjuredNature = App\Models\Misc\FormQuestion::find(50);
+$qInjuredMechanism = App\Models\Misc\FormQuestion::find(69);
+$qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
+?>
+
 @section('content')
     {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')
-        <?php
-        $qType = App\Models\Misc\FormQuestion::find(1);
-        $qTreatment = App\Models\Misc\FormQuestion::find(14);
-        $qInjuredPart = App\Models\Misc\FormQuestion::find(21);
-        $qInjuredNature = App\Models\Misc\FormQuestion::find(50);
-        $qInjuredMechanism = App\Models\Misc\FormQuestion::find(69);
-        $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
-        ?>
 
         <div class="row">
             @include('site/incident/_show-overview')
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Notification Details --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-notification')
                     @include('site/incident/_edit-notification')
                 @endif
 
                 {{-- Injury Details --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident) && $incident->isInjury())
+                @if ($pView && $incident->isInjury())
                     @include('site/incident/_show-injury')
                     @include('site/incident/_edit-injury')
                 @endif
 
                 {{-- Damage Details --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident) && $incident->isDamage())
+                @if ($pView && $incident->isDamage())
                     @include('site/incident/_show-damage')
                     @include('site/incident/_edit-damage')
                 @endif
@@ -53,23 +59,23 @@
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Person Involved --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-people')
                 @endif
 
                 {{-- Document --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-docs')
                 @endif
 
                 {{-- Notes --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-notes')
                     @include('site/incident/_add-notes')
                 @endif
 
                 {{-- Actions / ToDoos --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-tasks')
                 @endif
             </div>
@@ -147,15 +153,11 @@
         });
 
         function updateFields() {
-            var treatment = $("#treatment").select2("val");
-            var injured_part = $("#injured_part").select2("val");
-
             // Type
             if ($("#type_text").val())
-                var types = $("#type_text").val().split(', ');
+                types = $("#type_text").val().split(', ');
             else
                 var types = $("#type").select2("val");
-
 
             // Notiification details
             $("#field_site_id").hide()
@@ -166,8 +168,12 @@
             // Injury details
             $("#field_treatment_other").hide();
             $("#field_injured_part_other").hide();
-            if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
-            if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+            if ($("#type").val()) {
+                var treatment = $("#treatment").select2("val");
+                var injured_part = $("#injured_part").select2("val");
+                if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
+                if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+            }
         }
 
     });

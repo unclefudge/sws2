@@ -13,31 +13,35 @@
         <li><span>Incident Report</span></li>
     </ul>
 @stop
+<?php
+$pView = Auth::user()->allowed2('view.site.incident', $incident);
+$pEdit = Auth::user()->allowed2('edit.site.incident', $incident);
+$pAdd = Auth::user()->allowed2('add.site.incident');
+$pDel = Auth::user()->allowed2('del.site.incident', $incident);
+$qConditions = App\Models\Misc\FormQuestion::find(113);
+$qConFactorDefences = App\Models\Misc\FormQuestion::find(125);
+$qConFactorITactions = App\Models\Misc\FormQuestion::find(148);
+$qConFactorWorkplace = App\Models\Misc\FormQuestion::find(167);
+$qConFactorHuman = App\Models\Misc\FormQuestion::find(192);
+$qRootCause = App\Models\Misc\FormQuestion::find(219);
+?>
 
 @section('content')
     {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
 
         @include('site/incident/_header')
-        <?php
-        $qConditions = App\Models\Misc\FormQuestion::find(113);
-        $qConFactorDefences = App\Models\Misc\FormQuestion::find(125);
-        $qConFactorITactions = App\Models\Misc\FormQuestion::find(148);
-        $qConFactorWorkplace = App\Models\Misc\FormQuestion::find(167);
-        $qConFactorHuman = App\Models\Misc\FormQuestion::find(192);
-        $qRootCause = App\Models\Misc\FormQuestion::find(219);
-        ?>
 
         <div class="row">
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Details --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-details')
                     @include('site/incident/_edit-details')
                 @endif
 
                 {{-- Regulator --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-regulator')
                     @include('site/incident/_edit-regulator')
                 @endif
@@ -45,12 +49,12 @@
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Witness Statements --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-witness')
                 @endif
 
                 {{-- Conversations --}}
-                @if (Auth::user()->allowed2('view.site.incident', $incident))
+                @if ($pView)
                     @include('site/incident/_show-conversation')
                 @endif
             </div>
