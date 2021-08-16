@@ -150,54 +150,56 @@ class PagesController extends Controller {
         echo "<b>Importing Accident </b></br>";
         $accidents = SiteAccident::all();
         foreach ($accidents as $accident) {
-            echo "id:$accident->id name:$accident->name<br>";
-            $incident_request = [];
-            $incident_request['site_id'] = $accident->site_id;
-            $incident_request['site_name'] = $accident->site->name;
-            $incident_request['site_supervisor'] = $accident->supervisor;
-            $incident_request['date'] = $accident->date;
-            $incident_request['location'] = $accident->location;
-            $incident_request['damage'] = $accident->damage;
-            $incident_request['describe'] = $accident->info;
-            $incident_request['actions_taken'] = $accident->action;
-            $incident_request['resolved_at'] = $accident->resolved_at;
-            $incident_request['notes'] = $accident->notes;
-            $incident_request['status'] = $accident->status;
-            $incident_request['company_id'] = $accident->site->company_id;
-            $incident_request['step'] = '0';
-            $incident_request['created_by'] = $accident->created_by;
-            $incident_request['created_at'] = $accident->created_at;
+            if ($accident->site->company_id == 3) {
+                echo "id:$accident->id name:$accident->name<br>";
+                $incident_request = [];
+                $incident_request['site_id'] = $accident->site_id;
+                $incident_request['site_name'] = $accident->site->name;
+                $incident_request['site_supervisor'] = $accident->supervisor;
+                $incident_request['date'] = $accident->date;
+                $incident_request['location'] = $accident->location;
+                $incident_request['damage'] = $accident->damage;
+                $incident_request['describe'] = $accident->info;
+                $incident_request['actions_taken'] = $accident->action;
+                $incident_request['resolved_at'] = $accident->resolved_at;
+                $incident_request['notes'] = $accident->notes;
+                $incident_request['status'] = $accident->status;
+                $incident_request['company_id'] = $accident->site->company_id;
+                $incident_request['step'] = '0';
+                $incident_request['created_by'] = $accident->created_by;
+                $incident_request['created_at'] = $accident->created_at;
 
 
-            $incident = SiteIncident::create($incident_request);
+                $incident = SiteIncident::create($incident_request);
 
-            // Add Injured
-            $people_request = [];
-            $people_request['incident_id'] = $incident->id;
-            $people_request['type'] = '9';
-            $people_request['name'] = $accident->name;
-            $people_request['employer'] = $accident->company;
-            $people_request['occupation'] = $accident->occupation;
-            $person = SiteIncidentPeople::create($people_request);
+                // Add Injured
+                $people_request = [];
+                $people_request['incident_id'] = $incident->id;
+                $people_request['type'] = '9';
+                $people_request['name'] = $accident->name;
+                $people_request['employer'] = $accident->company;
+                $people_request['occupation'] = $accident->occupation;
+                $person = SiteIncidentPeople::create($people_request);
 
-            // Add responses
-            FormResponse::create(['question_id' => '14', 'option_id' => '20', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->referred]);
-            FormResponse::create(['question_id' => '21', 'option_id' => '49', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->nature]);
+                // Add responses
+                FormResponse::create(['question_id' => '14', 'option_id' => '20', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->referred]);
+                FormResponse::create(['question_id' => '21', 'option_id' => '49', 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $accident->nature]);
 
-            // Add notes
-            $actions = Action::where('table', 'site_accidents')->where('table_id', $accident->id)->get();
-            foreach ($actions as $act) {
-                Action::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'action' => $act->action, 'created_by' => $act->created_by, 'updated_by' => $act->updated_by, 'created_at' => $act->created_at, 'updated_at' => $act->updated_at]);
-            }
+                // Add notes
+                $actions = Action::where('table', 'site_accidents')->where('table_id', $accident->id)->get();
+                foreach ($actions as $act) {
+                    Action::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'action' => $act->action, 'created_by' => $act->created_by, 'updated_by' => $act->updated_by, 'created_at' => $act->created_at, 'updated_at' => $act->updated_at]);
+                }
 
-            // Add Todoos
-            $todos = Todo::where('type', 'accident')->where('type_id', $accident->id)->get();
-            foreach ($todos as $todo) {
-                $newDo = ToDo::create(['type'       => 'incident', 'type_id' => $todo->id, 'name' => $todo->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
-                                       'done_at'    => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
-                                       'status'     => $todo->status, 'company_id' => $todo->company_id, 'created_by' => $todo->created_by, 'updated_by' => $todo->updated_by, 'created_at' => $todo->created_at,
-                                       'updated_at' => $todo->updated_at]);
-                $newDoUser = ToDoUser::create(['todo_id' => $newDo->id, 'user_id' => $todo->assignedTo()->first()->id]);
+                // Add Todoos
+                $todos = Todo::where('type', 'accident')->where('type_id', $accident->id)->get();
+                foreach ($todos as $todo) {
+                    $newDo = ToDo::create(['type'       => 'incident', 'type_id' => $todo->id, 'name' => $todo->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
+                                           'done_at'    => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
+                                           'status'     => $todo->status, 'company_id' => $todo->company_id, 'created_by' => $todo->created_by, 'updated_by' => $todo->updated_by, 'created_at' => $todo->created_at,
+                                           'updated_at' => $todo->updated_at]);
+                    $newDoUser = ToDoUser::create(['todo_id' => $newDo->id, 'user_id' => $todo->assignedTo()->first()->id]);
+                }
             }
         }
 
