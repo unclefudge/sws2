@@ -33,11 +33,6 @@
                         <button type="submit" name="save" class="btn green">Login</button>
                     </div>
                     {!! Form::close() !!}
-
-                    <div>
-                        {{ env('APP_ENV') }}
-
-                    </div>
                 </div>
             </div>
         </div>

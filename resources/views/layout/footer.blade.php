@@ -47,7 +47,7 @@
                 @else
                     <h2>Cape Cod Australia Pty Ltd</h2>
                     <p>ABN 54 000 605 407<br>
-                        Builders Lic. No 5519  {{ env('APP_ENV') }}</p>
+                        Builders Lic. No 5519</p>
                 @endif
             </div>
         </div>

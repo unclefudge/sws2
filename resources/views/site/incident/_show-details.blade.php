@@ -18,12 +18,12 @@
         <hr class="field-hr">
         <div class="row">
             <div class="col-md-3">Risk Potential:</div>
-            <div class="col-xs-9">{!! $incident->riskRatingText('risk_potential') !!}</div>
+            <div class="col-xs-9">{!! $incident->riskRatingTextColoured('risk_potential') !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">
             <div class="col-md-3">Risk Actual:</div>
-            <div class="col-xs-9">{!! $incident->riskRatingText('risk_actual') !!}</div>
+            <div class="col-xs-9">{!! $incident->riskRatingTextColoured('risk_actual') !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">

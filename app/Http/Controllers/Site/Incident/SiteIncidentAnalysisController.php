@@ -14,8 +14,8 @@ use App\Models\Site\Incident\SiteIncident;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
 use App\Models\Misc\Action;
-use App\Models\Comms\ToDo;
-use App\Models\Comms\ToDoUser;
+use App\Models\Comms\Todo;
+use App\Models\Comms\TodoUser;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -275,7 +275,7 @@ class SiteIncidentAnalysisController extends Controller {
                 $name = "Site Incident Preventive Task ($id)";
                 $action = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
                 if (!$action)
-                    ToDo::create(['name' => "$name : $cause", 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
+                    Todo::create(['name' => "$name : $cause", 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
             }
         }
         // Delete existing actions if not current + not completed
