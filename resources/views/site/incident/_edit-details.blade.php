@@ -20,8 +20,8 @@
                 </div>
             </div>
         </div>
-        <hr class="field-hr">
         @if ($incident->status != 0)
+            <hr class="field-hr">
             {{-- Risk Potential --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('risk_potential', $errors) !!}">

@@ -155,7 +155,7 @@ $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
         function updateFields() {
             // Type
             if ($("#type_text").val())
-                types = $("#type_text").val().split(', ');
+                var types = $("#type_text").val().split(', ');
             else
                 var types = $("#type").select2("val");
 
