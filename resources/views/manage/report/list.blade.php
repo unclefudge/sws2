@@ -41,11 +41,14 @@
                             </tr>
                             <tr>
                                 <td><a href="/manage/report/users_noemail">Users without emails</a></td>
-                            <tr>
+                            </tr>
                             <tr>
                                 <td><a href="/manage/report/users_nowhitecard">Users without white card</a></td>
                             <tr>
                                 <td><a href="/manage/report/users_lastlogin">Users Last Login</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="/manage/report/users_contactinfo">Users Contact Info</a></td>
                             </tr>
                             <tr style="background-color: #f0f6fa">
                                 <th> Company</th>

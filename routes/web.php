@@ -91,6 +91,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/users_noemail', 'Misc\ReportUserCompanyController@users_noemail');
     Route::get('/manage/report/users_nowhitecard', 'Misc\ReportUserCompanyController@users_nowhitecard');
     Route::get('/manage/report/users_lastlogin', 'Misc\ReportUserCompanyController@usersLastLogin');
+    Route::get('/manage/report/users_contactinfo', 'Misc\ReportUserCompanyController@usersContactInfo');
+    Route::get('/manage/report/users_contactinfo_csv', 'Misc\ReportUserCompanyController@usersContactInfoCSV');
     Route::get('/manage/report/roleusers', 'Misc\ReportUserCompanyController@roleusers');
     Route::get('/manage/report/users_extra_permissions', 'Misc\ReportUserCompanyController@usersExtraPermissions');
     Route::get('/manage/report/users_with_permission/{type}', 'Misc\ReportUserCompanyController@usersWithPermission');

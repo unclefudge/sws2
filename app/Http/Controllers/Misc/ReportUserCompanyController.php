@@ -99,6 +99,36 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/users_lastlogin', compact('users', 'over_1_week', 'over_2_week', 'over_3_week', 'over_4_week', 'over_3_month'));
     }
 
+    public function usersContactInfo()
+    {
+        $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
+        $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
+
+        return view('manage/report/user/users_contactinfo', compact('users'));
+    }
+
+    public function usersContactInfoCSV()
+    {
+        $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
+        $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
+        $csv = "User, Company, Email, Phone\r\n";
+
+        foreach ($users as $user) {
+            $csv .= "$user->full_name, ";
+            $csv .= $user->company->name . ", ";
+            $csv .= "$user->email, ";
+            $csv .= "$user->phone, ";
+            $csv .= "\r\n";
+        }
+
+        //echo $csv;
+        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_contactinfo.csv';
+        $bytes_written = File::put(public_path($filename), $csv);
+        if ($bytes_written === false) die("Error writing to file");
+
+        return redirect($filename);
+    }
+
     /******************************
      * Company Reports
      *****************************/
