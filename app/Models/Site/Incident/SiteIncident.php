@@ -167,7 +167,7 @@ class SiteIncident extends Model {
     public function riskRatingTextColoured($field)
     {
         if ($this->attributes[$field] == '1')
-            return '<span style="background:#00cc99; color:#fff; padding:5px 10px">Low</span>';
+            return '<span style="background:#32c5d2; color:#fff; padding:5px 10px">Low</span>';
         if ($this->attributes[$field] == '2')
             return '<span style="background:#ffcc66; color:#fff; padding:5px 10px">Medium</span>';
         if ($this->attributes[$field] == '3')
@@ -209,7 +209,7 @@ class SiteIncident extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.incident');
+            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
             $email_supers = $this->site->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
@@ -230,7 +230,7 @@ class SiteIncident extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.incident');
+            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
             $email_supers = $this->site->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';

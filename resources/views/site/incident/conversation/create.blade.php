@@ -56,9 +56,9 @@
                             {{-- Start / End --}}
                             <div class="row">
                                 {{-- Start --}}
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group {!! fieldHasError('start', $errors) !!}">
-                                        {!! Form::label('start', 'Conversation started', ['class' => 'control-label']) !!}
+                                        {!! Form::label('start', 'Conversation date', ['class' => 'control-label']) !!}
                                         <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
                                             {!! Form::text('start', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
                                             <span class="input-group-addon">
@@ -67,9 +67,18 @@
                                         </div>
                                         {!! fieldErrorMessage('start', $errors) !!}
                                     </div>
+                                    {{--}}
+                                    <div class="form-group {!! fieldHasError('start', $errors) !!}">
+                                        {!! Form::label('start', 'Conversation date', ['class' => 'control-label']) !!}
+                                        <div class="input-group date date-picker">
+                                            {!! Form::text('start', ($incident->dob) ? $incident->dob->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                        </div>
+                                        {!! fieldErrorMessage('start', $errors) !!}
+                                    </div>--}}
                                 </div>
                                 {{-- End --}}
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="form-group {!! fieldHasError('end', $errors) !!}">
                                         {!! Form::label('end', 'Conversation ended', ['class' => 'control-label']) !!}
                                         <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
@@ -118,6 +127,7 @@
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
@@ -125,6 +135,7 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
@@ -155,6 +166,11 @@
         });
     });
 
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
+    });
 
     // Force datepicker to not be able to select dates after today
     $('.bs-datetime').datetimepicker({

@@ -149,6 +149,7 @@ class SiteIncidentController extends Controller {
         $incident->step = 0;
         $incident->status = 1;
         $incident->save();
+        //$incident->emailIncident(); // Email incident
 
         return redirect('site/incident/');
     }
@@ -234,7 +235,6 @@ class SiteIncidentController extends Controller {
                 }
             }
         }
-
         Toastr::success("Lodged incident report");
 
         return redirect('site/incident/' . $incident->id);
@@ -428,6 +428,11 @@ class SiteIncidentController extends Controller {
             return view('errors/404');
 
         $incident_request = request()->all();
+
+        // If status was modified then update resolved date
+        if ($incident->status != $incident['status'])
+            $incident_request['resolved_at'] = ($incident_request['status']) ? null : Carbon::now()->toDateTimeString();
+
         $incident->update($incident_request);
 
         Toastr::success("Updated incident report");
@@ -580,7 +585,7 @@ class SiteIncidentController extends Controller {
     {
         $incidents_ids = Auth::user()->siteIncidents(request('status'))->pluck('id')->toArray();
         $incident_records = SiteIncident::select([
-            'site_incidents.id', 'site_incidents.site_name', 'site_incidents.site_supervisor', 'site_incidents.describe', 'site_incidents.status',
+            'site_incidents.id', 'site_incidents.site_name', 'site_incidents.site_supervisor', 'site_incidents.describe', 'site_incidents.exec_summary', 'site_incidents.status',
             DB::raw('DATE_FORMAT(site_incidents.date, "%d/%m/%y") AS nicedate'),
             DB::raw('DATE_FORMAT(site_incidents.resolved_at, "%d/%m/%y") AS nicedate2'),
         ])
@@ -590,6 +595,9 @@ class SiteIncidentController extends Controller {
         $dt = Datatables::of($incident_records)
             ->addColumn('view', function ($incident) {
                 return ('<div class="text-center"><a href="/site/incident/' . $incident->id . '"><i class="fa fa-search"></i></a></div>');
+            })
+            ->addColumn('description', function ($incident) {
+                return ($incident->exec_summary) ? $incident->exec_summary : $incident->describe;
             })
             ->editColumn('nicedate2', function ($incident) {
                 return ($incident->nicedate2 == '00/00/00') ? '' : $incident->nicedate2;

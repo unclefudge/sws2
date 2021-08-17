@@ -13,7 +13,7 @@
     <div class="portlet-body">
         <div class="row">
             <div class="col-md-3">Status:</div>
-            <div class="col-xs-9">{!! $incident->status_text !!}</div>
+            <div class="col-xs-9">{!! $incident->status_text !!} @if (!$incident->status) {!! ($incident->resolved_at) ? "<span class='font-red'>".$incident->resolved_at->format('d/m/Y')."</span>" : '' !!} @endif</div>
         </div>
         <hr class="field-hr">
         <div class="row">

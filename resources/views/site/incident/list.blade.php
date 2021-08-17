@@ -145,7 +145,7 @@
             {data: 'nicedate2', name: 'site_incidents.resolved_at', visible: false,},
             {data: 'site_name', name: 'site_incidents.site_name'},
             {data: 'site_supervisor', name: 'site_incidents.site_supervisor', orderable: false, searchable: false},
-            {data: 'describe', name: 'site_incidents.describe', orderable: false},
+            {data: 'description', name: 'description', orderable: false},
         ],
         order: [
             [2, "desc"]
