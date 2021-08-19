@@ -31,7 +31,6 @@ class CreateSiteIncidentssTable extends Migration
             $table->text('describe')->nullable();
             $table->text('actions_taken')->nullable();
 
-
             // Details of Incident completed by WHS
             $table->tinyInteger('risk_potential')->nullable();
             $table->tinyInteger('risk_actual')->nullable();
@@ -46,41 +45,10 @@ class CreateSiteIncidentssTable extends Migration
             $table->dateTime('regulator_date')->nullable();
             $table->string('inspector', 255)->nullable();
 
-
-            // Details of Injury
-            //$table->string('treatment', 50)->nullable();
-            //$table->string('treatment_other', 255)->nullable();
-            //$table->string('injured_part')->nullable();
-            //$table->string('injured_part_other')->nullable();
-            //$table->string('injured_nature')->nullable();
-            //$table->string('injured_mechanism')->nullable();
-            //$table->string('injured_agency')->nullable();
-
             // Details of Damage
             $table->text('damage')->nullable();
             $table->string('damage_cost', 50)->nullable();
             $table->text('damage_repair')->nullable();
-
-            // Investigation
-            //$table->string('conditions')->nullable();
-            //$table->string('con_weather')->nullable();
-            //$table->string('con_environment')->nullable();
-            //$table->string('con_equipment')->nullable();
-            //$table->string('con_testing')->nullable();
-            //$table->string('con_risk')->nullable();
-            //$table->string('con_physiology')->nullable();
-            //$table->string('con_training')->nullable();
-            //$table->string('con_supervision')->nullable();
-            //$table->string('con_communication')->nullable();
-            //$table->string('con_procedures')->nullable();
-            //$table->string('con_previous')->nullable();
-
-            // Contributing factors
-            //$table->string('factors_absent')->nullable();
-            //$table->string('factors_actions')->nullable();
-            //$table->string('factors_workplace')->nullable();
-            //$table->string('factors_human')->nullable();
-            //$table->string('root_cause')->nullable();
 
             // Review
             $table->tinyInteger('risk_register')->nullable();
@@ -157,6 +125,7 @@ class CreateSiteIncidentssTable extends Migration
             $table->increments('id');
             $table->integer('incident_id')->unsigned()->nullable();
             $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('todo_id')->unsigned()->nullable();
             $table->string('name', 100)->nullable();
             $table->text('event')->nullable();
             $table->text('event_before')->nullable();
@@ -220,7 +189,7 @@ class CreateSiteIncidentssTable extends Migration
         });
 
         //
-        // Incident Review Actions
+        // Incident Review
         //
         Schema::create('site_incidents_review', function (Blueprint $table) {
             $table->increments('id');

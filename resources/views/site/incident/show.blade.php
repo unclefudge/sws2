@@ -15,9 +15,9 @@
 @stop
 
 <?php
+$pAdd = Auth::user()->allowed2('add.site.incident');
 $pView = Auth::user()->allowed2('view.site.incident', $incident);
 $pEdit = Auth::user()->allowed2('edit.site.incident', $incident);
-$pAdd = Auth::user()->allowed2('add.site.incident');
 $pDel = Auth::user()->allowed2('del.site.incident', $incident);
 
 $qType = App\Models\Misc\FormQuestion::find(1);

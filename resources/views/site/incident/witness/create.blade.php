@@ -41,7 +41,6 @@
                                         {!! fieldErrorMessage('user_id', $errors) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-1"></div>
                                 {{-- Name --}}
                                 <div class="col-md-3">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
@@ -50,43 +49,53 @@
                                         {!! fieldErrorMessage('name', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h4 class="font-green-haze">Witness Statement</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                </div>
-                            </div>
-                            {{-- Event Before --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('event_before', $errors) !!}">
-                                        {!! Form::label('event_befor', 'In your own words describe the events leading up to the incident', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('event_before', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('event_before', $errors) !!}
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('assign_task', $errors) !!}">
+                                        {!! Form::label('assign_task', 'Assign task for user to complete statement', ['class' => 'control-label']) !!}
+                                        {!! Form::select('assign_task', ['1' => 'Yes - assign to user', '0' => 'No - complete on their behalf'],
+                                             null, ['class' => 'form-control bs-select', 'name' => 'assign_task', 'id'  => 'assign_task',]) !!}
+                                        {!! fieldErrorMessage('assign_task', $errors) !!}
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Event --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('event', $errors) !!}">
-                                        {!! Form::label('event', 'In your own words describe the incident', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('event', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('event', $errors) !!}
+                            <div id="statement_fields">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-green-haze">Witness Statement</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                     </div>
                                 </div>
-                            </div>
+                                {{-- Event Before --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('event_before', $errors) !!}">
+                                            {!! Form::label('event_befor', 'In your own words describe the events leading up to the incident', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('event_before', null, ['rows' => '3', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('event_before', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
 
-                            {{-- Event After --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('event_after', $errors) !!}">
-                                        {!! Form::label('event_after', 'In your own words describe what happened after the incident', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('event_after', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('event_after', $errors) !!}
+                                {{-- Event --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('event', $errors) !!}">
+                                            {!! Form::label('event', 'In your own words describe the incident', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('event', null, ['rows' => '3', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('event', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Event After --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('event_after', $errors) !!}">
+                                            {!! Form::label('event_after', 'In your own words describe what happened after the incident', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('event_after', null, ['rows' => '3', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('event_after', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -129,14 +138,11 @@
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
@@ -163,12 +169,19 @@
                 })
             }
         });
-    });
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
+        $("#assign_task").change(function () {
+            updateFields();
+        });
+
+        updateFields();
+
+        function updateFields() {
+            $("#statement_fields").hide();
+            if ($("#assign_task").val() == '0') {
+                $("#statement_fields").show();
+            }
+        }
     });
 </script>
 @stop

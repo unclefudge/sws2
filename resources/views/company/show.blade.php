@@ -7,7 +7,6 @@
 @inject('overrideTypes', 'App\Http\Utilities\OverrideTypes')
 @extends('layout')
 
-
 @if (Auth::user()->company->status != 2)
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">

@@ -9,17 +9,12 @@ use DB;
 use PDF;
 use Mail;
 use Session;
-use App\User;
-use App\Models\Site\Site;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentWitness;
-use App\Models\Misc\FormQuestion;
-use App\Models\Misc\FormResponse;
+use App\Models\Comms\Todo;
 use App\Http\Requests;
-//use App\Http\Requests\Site\SiteAccidentRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 
@@ -86,22 +81,28 @@ class SiteIncidentWitnessController extends Controller {
         if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
-        $rules = ['name' => 'required', 'event_before' => 'required', 'event' => 'required', 'event_after' => 'required'];
+        $rules = ['name' => 'required', 'event_before' => 'required_if:assign_task,0', 'event' => 'required_if:assign_task,0', 'event_after' => 'required_if:assign_task,0'];
         $mesg = [
-            'name.required' => 'The name field is required.',
-            'event_before.required' => 'The events leading up field is required.',
-            'event.required' => 'The describe incident field is required.',
-            'event_after.required' => 'The what happened after field is required.',
+            'name.required'            => 'The name field is required.',
+            'event_before_if.required' => 'The events leading up field is required.',
+            'event.required_if'        => 'The describe incident field is required.',
+            'event_after_if.required'  => 'The what happened after field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
         $witness_request = request()->all();
         $witness_request['incident_id'] = $incident->id;
-        $witness_request['status'] = (Auth::user()->allowed2('del.site.incident', $incident)) ? 1 : 2;  // Set to '2' pending until approved
-
+        $witness_request['status'] = (request('assign_task') == 1) ? 2 : 1;  // Set to '2' pending until approved
         //dd($witness_request);
+
         // Create SiteIncidentWitness
         $witness = SiteIncidentWitness::create($witness_request);
+
+        // Create ToDoo - if required
+        if (request('assign_task')) {
+            $todo = Todo::create(['name' => "Witness Statement", 'info' => 'Please complete a Witness Statement for an incident that you witnessed', 'type' => 'incident witness', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
+            $todo->assignUsers(request('user_id'));
+        }
 
         Toastr::success("Added witness statment");
 
@@ -125,10 +126,10 @@ class SiteIncidentWitnessController extends Controller {
 
         $rules = ['name' => 'required', 'event_before' => 'required', 'event' => 'required', 'event_after' => 'required'];
         $mesg = [
-            'name.required' => 'The name field is required.',
+            'name.required'         => 'The name field is required.',
             'event_before.required' => 'The events leading up field is required.',
-            'event.required' => 'The describe incident field is required.',
-            'event_after.required' => 'The what happened after field is required.',
+            'event.required'        => 'The describe incident field is required.',
+            'event_after.required'  => 'The what happened after field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -139,6 +140,8 @@ class SiteIncidentWitnessController extends Controller {
 
         // Update SiteIncidentWitness
         $witness->update($witness_request);
+
+        //$todo = ToDo::where('todo_id', $witness->todo_id)->where('type_id', $incident->id)->where('user_id', 'LIKE', "%$name%")->first();
 
         Toastr::success("Updated witness statement");
 
