@@ -92,7 +92,7 @@
                                 <th> Name</th>
                                 <th width="10%"> Assigned</th>
                                 <th> Assigned to</th>
-                                <th width="10%"> Inspected</th>
+                                <th width="10%"> Client Contacted</th>
                             </tr>
                             </thead>
                         </table>
@@ -139,7 +139,7 @@
             {data: 'sitename', name: 'sites.name'},
             {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
             {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
-            {data: 'inspected_date', name: 'site_inspection_electrical.inspected_at'},
+            {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
         ],
         order: [
             [2, "desc"]
