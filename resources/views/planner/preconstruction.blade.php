@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><span>Site Planner</span></li>
+        <li><span>Pre-construction Planner</span></li>
     </ul>
 @stop
 
@@ -20,19 +20,19 @@
                     <div class="portlet-title tabbable-line">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Site Planner</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Pre-construction Planner</span>
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <a href="javascript: postAndRedirect('/planner/transient', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</a>
                             @endif
-                            @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                                <a href="javascript: postAndRedirect('/planner/preconstruction', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</a>
-                            @endif
+                            <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">P</button>
                             @if (Auth::user()->hasPermission2('view.roster'))
                                 <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</a>
                             @endif
-                            <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">S</button>
+                            @if (Auth::user()->hasPermission2('view.site.planner'))
+                                    <a href="javascript: postAndRedirect('/planner/site', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</a>
+                            @endif
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</a>
                             @endif
@@ -47,11 +47,7 @@
                                 <div class="form-group">
                                     <select id="site_id" name="site_id" class="form-control select2" width="100%">
                                         <option></option>
-                                        @foreach (Auth::user()->authSitesSelect('view.site.planner', 1, 'prompt', 'started') as $id => $name)
-                                            <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
-                                        @endforeach
-                                        <optgroup label="Maintenance"></optgroup>
-                                        @foreach (Auth::user()->authSitesSelect('view.site.planner', 2, 'prompt') as $id => $name)
+                                        @foreach (Auth::user()->authSitesSelect('view.preconstruction.planner', '-1', 'prompt') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                         @endforeach
                                     </select>
@@ -559,10 +555,10 @@
                 xx.params.site_id = $(this).val();
                 if ($('#site_start').val() == 'start') {
                     xx.params.site_start = 'start';
-                    postAndRedirect('/planner/site', xx.params);
+                    postAndRedirect('/planner/preconstruction', xx.params);
                 } else {
                     xx.params.site_start = 'week';
-                    postAndRedirect('/planner/site', xx.params);
+                    postAndRedirect('/planner/preconstruction', xx.params);
                 }
             });
         });

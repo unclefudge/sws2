@@ -843,6 +843,12 @@ $cc = 1;*/
                                                 <td width="45%" colspan="3"></td>
                                             </tr>
                                             <tr>
+                                                <td>Pre-constuction</td>
+                                                <td width="15%">{!! permSelect('view.preconstruction.planner', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                <td width="15%">{!! permSelect('edit.preconstruction.planner', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                <td width="45%" colspan="3"></td>
+                                            </tr>
+                                            <tr>
                                                 <td>Roster</td>
                                                 <td width="15%">{!! permSelect('view.roster', ($sub1) ? 'super.company' : 'super.individual', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.roster', ($sub1) ? 'super.company' : 'super.individual', $rec, $cid, $dis) !!}</td>

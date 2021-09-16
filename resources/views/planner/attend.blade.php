@@ -43,6 +43,9 @@
                                     @if (Auth::user()->hasPermission2('view.trade.planner'))
                                         <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
                                     @endif
+                                    @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
+                                        <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</button>
+                                    @endif
                                     <button class="btn btn-circle btn-icon-only btn-default grey-steel disabled" style="margin: 3px">R</button>
                                     @if (Auth::user()->hasPermission2('view.site.planner'))
                                         <button v-on:click="gotoURL('/planner/site')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</button>
@@ -76,7 +79,7 @@
                                         <thead>
                                         <tr class="mytable-header">
                                             <th width="5%"></th>
-                                            <th width="50%"> Name </th>
+                                            <th width="50%"> Name</th>
                                             <th> Task(s)</th>
                                         </tr>
                                         </thead>

@@ -803,7 +803,7 @@ class Company extends Model {
         foreach ($this->sites($status) as $site) {
             //$record = Site::findOrFail($site->id);
             //if ($record->status)
-            $array[$site->id] = "$site->suburb - $site->address ($site->name)";
+            $array[$site->id] = "$site->suburb - $site->address ($site->code-$site->name)";
         }
         asort($array);
 

@@ -37,6 +37,9 @@
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
                             @endif
+                            @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
+                                <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</button>
+                            @endif
                             @if (Auth::user()->hasPermission2('view.roster'))
                                 <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</button>
                             @endif

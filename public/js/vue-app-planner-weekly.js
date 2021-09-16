@@ -103,20 +103,19 @@ Vue.component('app-site', {
         },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
-            //var allowed_site_status = [1, 2];
-            //if (this.xx.user_company_id == 3)
-            //    allowed_site_status = [1];
-
             var obj = objectFindByKey(this.xx.sites, 'id', site_id);
             //if (allowed_site_status.includes(obj.status)) {
             if (this.xx.user_company_id == 3) {
-                if (this.xx.params.supervisor_id === 'all' && obj.status != 2)
+                if (this.xx.params.supervisor_id === 'all' && obj.status == 1)
                     return true;
             }
             else if (this.xx.params.supervisor_id === 'all')
                 return true;
 
             if (this.xx.params.supervisor_id === 'maint' && obj.status == 2)
+                return true;
+
+            if (this.xx.params.supervisor_id === 'preconstruct' && obj.status == -1)
                 return true;
 
             var show = false;
@@ -162,7 +161,11 @@ Vue.component('app-dayplan', {
         },
         viewSitePlan: function (site) {
             this.xx.params.site_id = site;
-            postAndRedirect('/planner/site', this.xx.params);
+            var selected_site = objectFindByKey(this.xx.sites, 'id', site);
+            if (selected_site.status == -1)
+                postAndRedirect('/planner/preconstruction', this.xx.params);
+            else
+                postAndRedirect('/planner/site', this.xx.params);
         },
         getDayPlan: function () {
             // Get plan for current Entity

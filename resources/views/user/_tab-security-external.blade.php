@@ -570,6 +570,12 @@ $rec = $user;
                                 <td width="45%" colspan="3"></td>
                             </tr>
                             <tr>
+                                <td>Pre-contruction</td>
+                                <td width="15%">{!! permSelect('view.preconstruction.planner', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.preconstruction.planner', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="45%" colspan="3"></td>
+                            </tr>
+                            <tr>
                                 <td>Roster</td>
                                 <td width="15%">{!! permSelect('view.roster', ($sub1) ? 'super.company' : 'super.individual', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.roster', ($sub1) ? 'super.company' : 'super.individual', $rec, $cid) !!}</td>

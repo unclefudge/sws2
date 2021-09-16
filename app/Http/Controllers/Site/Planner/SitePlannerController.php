@@ -185,9 +185,12 @@ class SitePlannerController extends Controller {
             } else
                 $supervisors = Auth::user()->company->supervisorsSelect();
         }
-        if (Auth::user()->isCC())
-            $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
-        else
+        if (Auth::user()->isCC()) {
+            if (Auth::user()->hasPermission2('view.preconstruction.planner'))
+                $supervisors = ['all' => 'Active Sites', 'preconstruct' => 'Pre-construction Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+            else
+                $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+        } else
             $supervisors = ['all' => 'All Sites'] + $supervisors;
 
         return view('planner/weekly', compact('date', 'site_id', 'supervisor_id', 'site_start', 'supervisors'));
@@ -285,6 +288,28 @@ class SitePlannerController extends Controller {
     }
 
     /**
+     * Show Pre-construction Planner
+     */
+    public function showPreconstruction($site_id = null)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('preconstruction.planner'))
+            return view('errors/404');
+
+        $date = request('date');
+        $supervisor_id = request('supervisor_id');
+        $site_id = ($site_id) ? $site_id : request('site_id');
+        if (request('site_start'))
+            $site_start = request('site_start');
+        else
+            $site_start = 'week';
+
+        $site = Site::find($site_id);
+
+        return view('planner/preconstruction', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+    }
+
+    /**
      * Get Weekly Planner for date
      */
     public function getWeeklyPlan(Request $request, $date, $super_id)
@@ -302,6 +327,8 @@ class SitePlannerController extends Controller {
                 $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
             elseif ($super_id == 'maint')
                 $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
+            elseif ($super_id == 'preconstruct')
+                $allowedSites = Auth::user()->company->reportsTo()->sites([-1])->pluck('id')->toArray();
             else
                 $allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
         } else {
@@ -326,6 +353,8 @@ class SitePlannerController extends Controller {
 
         $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
         $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00')->addDays(7);
+
+        //dd($allowedSites);
 
         //
         // Full Plan
@@ -861,7 +890,7 @@ class SitePlannerController extends Controller {
     public function getSites()
     {
         if (Auth::user()->company->addon('planner'))
-            $allowedSites = Auth::user()->company->sites([1, 2])->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sites([1, 2, -1])->pluck('id')->toArray();
         else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
@@ -876,12 +905,12 @@ class SitePlannerController extends Controller {
             }
         }
 
-        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->orderBy('name')->get();
+        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2, -1])->whereIn('id', $allowedSites)->orderBy('name')->get();
 
         $site_details = [];
         foreach ($sites as $site) {
             $site_record = Site::find($site->id);
-            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive())) {
+            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive()) || $site_record->status == -1) {
                 $array = [];
                 $array['id'] = $site->id;
                 $array['value'] = $site->id;

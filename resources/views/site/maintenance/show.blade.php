@@ -526,7 +526,7 @@
                         <div v-if="item.done_by">l
                             @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }} <a v-if="xx.main.status != 0 && xx.main.signed != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
                         </div>
-                        <div v-else>k
+                        <div v-else>
                             <select v-if="!item.done_by && xx.user_edit == 1 && xx.main.signed == 0" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
                                 <option v-for="option in xx.sel_checked" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
                             </select>

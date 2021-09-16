@@ -52,6 +52,9 @@
                                 @if (Auth::user()->hasPermission2('view.trade.planner'))
                                     <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
                                 @endif
+                                @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
+                                    <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</button>
+                                @endif
                                 @if (Auth::user()->hasPermission2('view.roster'))
                                     <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</button>
                                 @endif
@@ -196,13 +199,15 @@
                         <div class="col-xs-7"><h4>Days: @{{ xx.day_upcoming.days }}</h4></div>
                         <div v-if="xx.enableActions" class="col-xs-5">
                             <button class="btn btn-sm default" :class="{'grey-cararra': xx.day_upcoming.days == 1 }" v-on:click="subTaskDays(xx.day_upcoming)">
-                                <i class="fa fa-minus"></i></button> &nbsp;
+                                <i class="fa fa-minus"></i></button>
+                            &nbsp;
                             <button class="btn btn-sm default" v-on:click="addTaskDays(xx.day_upcoming)"><i class="fa fa-plus"></i></button>
                         </div>
                         <!-- disabled Day buttons -->
                         <div v-else class="col-xs-5">
                             <button class="btn btn-sm default disabled" :class="{'grey-cararra': xx.day_upcoming.days == 1 }">
-                                <i class="fa fa-minus"></i></button> &nbsp;
+                                <i class="fa fa-minus"></i></button>
+                            &nbsp;
                             <button class="btn btn-sm default disabled"><i class="fa fa-plus"></i></button>
                         </div>
                     </div>

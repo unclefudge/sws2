@@ -196,7 +196,7 @@
                     {{-----------------------------------------------------------------------------------
                        Planners
                      -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster'))
+                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster|preconstruction'))
                         <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
                             <a href="javascript:;"><i class="fa fa-calendar"></i> Planners
                                 <span class="arrow"></span>
@@ -228,6 +228,9 @@
                                                     <li><h3 class="h3-submenu">&nbsp;</h3></li>
                                                     @if (Auth::user()->hasAnyPermissionType('trade.planner'))
                                                         <li><a href="/planner/transient" class="nav-link"> Labourer Planner </a></li>
+                                                    @endif
+                                                    @if (Auth::user()->hasAnyPermissionType('preconstruction.planner'))
+                                                        <li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>
                                                     @endif
                                                 </ul>
                                             </div>

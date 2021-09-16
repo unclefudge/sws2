@@ -771,7 +771,7 @@ trait UserRolesPermissions {
             }
 
             // Sites + Planners (Weekly/Site/Trade)
-            if ($permissiontype == 'site' || $permissiontype == 'site.admin' || $permissiontype == 'site.attendance' || $permissiontype == 'weekly.planner' || $permissiontype == 'site.planner' || $permissiontype == 'trade.planner') {
+            if ($permissiontype == 'site' || $permissiontype == 'site.admin' || $permissiontype == 'site.attendance' || $permissiontype == 'weekly.planner' || $permissiontype == 'site.planner' || $permissiontype == 'trade.planner' || $permissiontype == 'preconstruction.planner') {
                 if ($this->authSites($permission)->contains('id', $record->id)) return true;
             }
 

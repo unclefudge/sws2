@@ -1,14 +1,3 @@
-$('#site_id').change(function () {
-    xx.params.site_id = $(this).val();
-    if ($('#site_start').val() == 'start') {
-        xx.params.site_start = 'start';
-        postAndRedirect('/planner/site', xx.params);
-    } else {
-        xx.params.site_start = 'week';
-        postAndRedirect('/planner/site', xx.params);
-    }
-});
-
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
@@ -289,6 +278,8 @@ Vue.component('app-siteplan', {
             var validTask = true;
 
             // Don't allow any task to be added prior to 'START' task (except Pre-Construction meeting)
+            // - since adding Pre-construction planner we'll allow task to be added before START task
+            /*
             if (this.xx.start_date && moment(this.xx.day_date).isBefore(this.xx.start_date)) {
                 validTask = false;
                 toastr.error('Unable to add tasks before "Start Job"');
@@ -297,6 +288,10 @@ Vue.component('app-siteplan', {
                 validTask = false;
             } else if (this.xx.start_date == '' && this.xx.status != 2) {
                 toastr.error("You can't add a task to the planner until it has a START Job");
+                validTask = false;
+            }*/
+            if (newtask.task_code === 'START') {
+                toastr.error("This task can only be added by the Trade Planner Actions button");
                 validTask = false;
             }
             if (newtask.task_code === 'STARTCarp') {   // Check for 'STARTCarp' tasks
