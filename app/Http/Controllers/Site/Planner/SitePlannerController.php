@@ -961,7 +961,7 @@ class SitePlannerController extends Controller {
         $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
         $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
         $date_from->addDays(7);
-        $date_to->addDays(49);
+        $date_to->addDays(77);
 
         $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
             ->where('from', '>=', $date_from->format('Y-m-d'))->where('from', '<=', $date_to->format('Y-m-d'))
