@@ -55,6 +55,7 @@ class CronController extends Controller {
         CronController::archiveToolbox();
         CronController::completedQA();
         CronController::brokenQaItem();
+        CronController::emailPlannerKeyTasks();
 
         // Only run on week days otherwise get same email multiple times over weekend
         if (Carbon::today()->isMonday())
@@ -794,6 +795,7 @@ class CronController extends Controller {
     /*
     * Email Jobstart
     */
+    /*
     static public function emailJobstart()
     {
         $log = '';
@@ -865,11 +867,12 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-    }
+    } */
 
     /*
     * Email Equipment Transfers
     */
+    /*
     static public function emailEquipmentTransfers()
     {
         $log = '';
@@ -907,11 +910,12 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-    }
+    } */
 
     /*
    * Email Outstanding QA checklists
    */
+    /*
     static public function emailOutstandingQA()
     {
         $log = '';
@@ -949,11 +953,12 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-    }
+    } */
 
     /*
   * Email OnHold QA checklists
   */
+    /*
     static public function emailOnHoldQA()
     {
         $log = '';
@@ -991,11 +996,12 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-    }
+    } */
 
     /*
     * Email Fortnightly Reports
     */
+    /*
     static public function emailFortnightlyReports()
     {
         $log = '';
@@ -1058,5 +1064,39 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    } */
+
+    /*
+    * Email Planner Key Tasks
+    */
+    static public function emailPlannerKeyTasks()
+    {
+        $date = Carbon::now()->format('Y-m-d');
+        $keytasks = [4, 11]; // Lay Floor, Start Job
+        $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $keytasks)->orderBy('site_id')->get();
+
+        if ($tasks) {
+            $log = '';
+            $email_name = "Email Key Tasks on Planner";
+            echo "<h2>Email $email_name</h2>";
+            $log .= "Email $email_name\n";
+            $log .= "------------------------------------------------------------------------\n\n";
+
+            $cc = Company::find(3);
+            $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
+            $emails = implode("; ", $email_list);
+            echo "Sending email to $emails";
+            $log .= "Sending email to $emails";
+
+            if ($email_list) {
+                Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTasks($tasks));
+            }
+
+            echo "<h4>Completed</h4>";
+            $log .= "\nCompleted\n\n\n";
+
+            $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+            if ($bytes_written === false) die("Error writing to file");
+        }
     }
 }

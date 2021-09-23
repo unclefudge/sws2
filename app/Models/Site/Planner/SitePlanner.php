@@ -33,6 +33,16 @@ class SitePlanner extends Model {
     }
 
     /**
+     * A SitePlanner belongs to a task
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function task()
+    {
+        return $this->belongsTo('App\Models\Site\Planner\Task');
+    }
+
+    /**
      * A SitePlanner belongs to a user
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
