@@ -1075,28 +1075,30 @@ class CronController extends Controller {
         $keytasks = [4, 11]; // Lay Floor, Start Job
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $keytasks)->orderBy('site_id')->get();
 
-        if ($tasks) {
-            $log = '';
-            $email_name = "Email Key Tasks on Planner";
-            echo "<h2>Email $email_name</h2>";
-            $log .= "Email $email_name\n";
-            $log .= "------------------------------------------------------------------------\n\n";
+        $log = '';
+        $email_name = "Email Key Tasks on Planner";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
 
+        if ($tasks->count()) {
             $cc = Company::find(3);
             $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
             $emails = implode("; ", $email_list);
             echo "Sending email to $emails";
             $log .= "Sending email to $emails";
 
-            if ($email_list) {
+            if ($email_list)
                 Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTasks($tasks));
-            }
-
-            echo "<h4>Completed</h4>";
-            $log .= "\nCompleted\n\n\n";
-
-            $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-            if ($bytes_written === false) die("Error writing to file");
+        } else {
+            echo "No key tasks today";
+            $log .= "No key tasks today";
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 }
