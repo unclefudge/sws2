@@ -62,16 +62,23 @@ class SiteAsbestosRegisterController extends Controller {
         $sitelist = [];
         $sites_active = Auth::user()->authSites('view.site.asbestos', '1');
         $sites_maint = Auth::user()->authSites('view.site.asbestos', '2');
+        $sites_upcom = Auth::user()->authSites('view.site.asbestos', '-1');
 
         foreach ($sites_active as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg && !in_array($site->code,['0002', '0005', '0006', '0007']))
+            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
                 $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
 
         foreach ($sites_maint as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg && !in_array($site->code,['0002', '0005', '0006', '0007']))
+            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
+                $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
+        }
+
+        foreach ($sites_upcom as $site) {
+            $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
+            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
                 $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
         }
 
@@ -154,7 +161,7 @@ class SiteAsbestosRegisterController extends Controller {
         if ($asb) {
             // Increment major version
             list($major, $minor) = explode('.', $asb->version);
-            $major++;
+            $major ++;
             $asb->version = $major . '.0';
         } else
             $asb = SiteAsbestosRegister::create(['site_id' => request('site_id'), 'version' => '1.0']);
@@ -237,7 +244,7 @@ class SiteAsbestosRegisterController extends Controller {
 
         // Increment major version
         list($major, $minor) = explode('.', $asb->version);
-        $major++;
+        $major ++;
         $asb->version = $major . '.0';
         $asb->save();
 
@@ -253,7 +260,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (!file_exists($path))
             mkdir($path, 0777, true);
 
-        $filename = "Asbestos-Register-".$asb->site->code.".pdf";
+        $filename = "Asbestos-Register-" . $asb->site->code . ".pdf";
 
         //
         // Generate PDF
@@ -273,7 +280,12 @@ class SiteAsbestosRegisterController extends Controller {
     public function getReports()
     {
         $site_list = Auth::user()->authSites('view.site.asbestos')->pluck('id')->toArray();
-        $status = (request('status') == 0) ? [0] : [1, 2];
+        if (request('status') == 0)
+            $status = [0];
+        elseif (request('status') == '-1')
+            $status = [- 1];
+        else
+            $status = [1, 2];
         $records = DB::table('site_asbestos_register AS a')
             ->select(['a.id', 'a.site_id', 'a.attachment', 'a.status', 'a.updated_at',
                 's.name as sitename', 's.code'])

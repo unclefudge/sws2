@@ -207,12 +207,15 @@
                                             </div>
                                         </div>
                                     @endif
-                                    {{-- Asbestos Class --}}
-                                    <div class="form-group {!! fieldHasError('asb_type', $errors) !!}" style="display: none" id="fields_asb_class">
-                                        {!! Form::label('asb_type', 'Class(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('asb_type', ['' => 'Select class', 'A' => 'Class A', 'B' => 'Class B'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('asb_type', $errors) !!}
-                                    </div>
+
+                                    @if ($doc->category_id == 8)
+                                        {{-- Asbestos Class --}}
+                                        <div class="form-group {!! fieldHasError('asb_type', $errors) !!}" style="display: none" id="fields_asb_class">
+                                            {!! Form::label('asb_type', 'Class(s)', ['class' => 'control-label']) !!}
+                                            {!! Form::select('asb_type', ['' => 'Select class', 'A' => 'Class A', 'B' => 'Class B'], $doc->ref_type, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('asb_type', $errors) !!}
+                                        </div>
+                                    @endif
 
                                     @if ($doc->category_id == 6)
                                         {{-- Test Expire Type --}}
@@ -302,11 +305,11 @@
                                                 Document approved by {{ $doc->approvedBy->name }} on {{ $doc->approved_at->format('d/m/Y') }}
                                             </div>
                                         @endif
-                                            @if ($doc->status == 0)
-                                                <div style="padding-left: 20px">
-                                                    {{--}}Document archived by {{ $doc->updatedBy->name }} on {{ $doc->updated_at->format('d/m/Y') }} --}}
-                                                </div>
-                                            @endif
+                                        @if ($doc->status == 0)
+                                            <div style="padding-left: 20px">
+                                                {{--}}Document archived by {{ $doc->updatedBy->name }} on {{ $doc->updated_at->format('d/m/Y') }} --}}
+                                            </div>
+                                        @endif
                                     @endif
                                 </div>
 
@@ -472,6 +475,9 @@
                 if ($("#supervisor_no").val() > 2)
                     $('#fields_supervisor_id3').show();
             }
+
+            if (cat == 8)  // Asbestos
+                $('#fields_asb_class').show();
         }
 
         function cl_supervisors() {

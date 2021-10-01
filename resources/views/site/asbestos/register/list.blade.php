@@ -31,6 +31,7 @@
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
                                     <option value="1" selected>Active / Maintenance</option>
+                                    <option value="-1" selected>Upcoming</option>
                                     <option value="0">Completed</option>
                                 </select>
                             </div>

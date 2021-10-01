@@ -1076,7 +1076,7 @@ class CronController extends Controller {
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $keytasks)->orderBy('site_id')->get();
 
         $log = '';
-        $email_name = "Email Key Tasks on Planner";
+        $email_name = "Key Tasks on Planner";
         echo "<h2>Email $email_name</h2>";
         $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
