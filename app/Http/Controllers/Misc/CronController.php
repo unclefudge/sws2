@@ -1071,26 +1071,43 @@ class CronController extends Controller {
     */
     static public function emailPlannerKeyTasks()
     {
-        $date = Carbon::now()->format('Y-m-d');
-        $keytasks = [4, 11]; // Lay Floor, Start Job
-        $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $keytasks)->orderBy('site_id')->get();
-
         $log = '';
         $email_name = "Key Tasks on Planner";
         echo "<h2>Email $email_name</h2>";
         $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
+        $emails = implode("; ", $email_list);
 
-        if ($tasks->count()) {
-            $cc = Company::find(3);
-            $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
-            $emails = implode("; ", $email_list);
-            echo "Sending email to $emails";
-            $log .= "Sending email to $emails";
+        $date = Carbon::now()->format('Y-m-d');
+        $date = '2021-10-18';
+        $keytasks = [
+            4  => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
+            7  => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
+            11 => 'is begining Start Job today']; // Start Job,
 
-            if ($email_list)
-                Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTasks($tasks));
-        } else {
+        $email_sent = 0;
+        foreach ($keytasks as $task_id => $mesg) {
+            $tasks = SitePlanner::whereDate('from', '=', $date)->where('task_id', $task_id)->orderBy('site_id')->get();
+
+            // Log email being sent only once
+            if ($tasks->count() && !$email_sent) {
+                echo "Sending email to $emails<br>";
+                $log .= "Sending email to $emails\n";
+                $email_sent = 1;
+            }
+
+            foreach ($tasks as $task) {
+                $mesg = 'Site '.$task->site->code.'-'.$task->site->name.' '.$mesg;
+                echo "&nbsp; * $mesg<br>";
+                $log .= "&nbsp; * $mesg\n";
+                if ($email_list)
+                    Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+            }
+        }
+
+        if (!$email_sent) {
             echo "No key tasks today";
             $log .= "No key tasks today";
         }
