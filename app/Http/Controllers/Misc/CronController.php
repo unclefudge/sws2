@@ -1081,7 +1081,6 @@ class CronController extends Controller {
         $emails = implode("; ", $email_list);
 
         $date = Carbon::now()->format('Y-m-d');
-        $date = '2021-10-18';
         $keytasks = [
             4  => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
             7  => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
