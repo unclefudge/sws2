@@ -491,6 +491,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('planner/roster', 'Site\Planner\SitePlannerController@showAttendance');
     Route::any('planner/transient', 'Site\Planner\SitePlannerController@showTransient');
     Route::any('planner/preconstruction', 'Site\Planner\SitePlannerController@showPreconstruction');
+    Route::any('planner/preconstruction/{site_id}', 'Site\Planner\SitePlannerController@showPreconstruction');
+    Route::any('planner/site/{site_id}/status/{status}', 'Site\Planner\SitePlannerController@updateSiteStatus');
     Route::get('planner/data/sites', 'Site\Planner\SitePlannerController@getSites');
     Route::get('planner/data/site/{site_id}', 'Site\Planner\SitePlannerController@getSitePlan');
     Route::get('planner/data/site/{site_id}/attendance/{date}', 'Site\Planner\SitePlannerController@getSiteAttendance');

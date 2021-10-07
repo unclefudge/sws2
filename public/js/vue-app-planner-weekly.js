@@ -101,6 +101,14 @@ Vue.component('app-site', {
             //alert(jobstart + ' : ' + this.xx.mon_now);
             //return 1;
         },
+        viewSitePlan: function (site) {
+            this.xx.params.site_id = site;
+            var selected_site = objectFindByKey(this.xx.sites, 'id', site);
+            if (selected_site.status == -1)
+                postAndRedirect('/planner/preconstruction', this.xx.params);
+            else
+                postAndRedirect('/planner/site', this.xx.params);
+        },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
             var obj = objectFindByKey(this.xx.sites, 'id', site_id);

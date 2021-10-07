@@ -31,7 +31,7 @@
                                 <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.site.planner'))
-                                    <a href="javascript: postAndRedirect('/planner/site', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</a>
+                                <a href="javascript: postAndRedirect('/planner/site', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</a>
@@ -61,9 +61,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 pull-right">
-                                @if ($site && $site->status == 2)
-                                    <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Maintenance</h3>
+                            <div class="col-md-2 pull-right">
+                                @if ($site && $site->status == -1)
+                                    <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
                                 @endif
                             </div>
                         </div>

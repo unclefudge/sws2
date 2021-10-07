@@ -280,19 +280,54 @@ Vue.component('app-siteplan', {
             // Don't allow any task to be added prior to 'START' task (except Pre-Construction meeting)
             // - since adding Pre-construction planner we'll allow task to be added before START task
             /*
-            if (this.xx.start_date && moment(this.xx.day_date).isBefore(this.xx.start_date)) {
-                validTask = false;
-                toastr.error('Unable to add tasks before "Start Job"');
-            } else if (newtask.task_code === 'START') {
-                toastr.error("This task can only be added by the Trade Planner Actions button");
-                validTask = false;
-            } else if (this.xx.start_date == '' && this.xx.status != 2) {
-                toastr.error("You can't add a task to the planner until it has a START Job");
-                validTask = false;
-            }*/
+             if (this.xx.start_date && moment(this.xx.day_date).isBefore(this.xx.start_date)) {
+             validTask = false;
+             toastr.error('Unable to add tasks before "Start Job"');
+             } else if (newtask.task_code === 'START') {
+             toastr.error("This task can only be added by the Trade Planner Actions button");
+             validTask = false;
+             } else if (this.xx.start_date == '' && this.xx.status != 2) {
+             toastr.error("You can't add a task to the planner until it has a START Job");
+             validTask = false;
+             }*/
             if (newtask.task_code === 'START') {
-                toastr.error("This task can only be added by the Trade Planner Actions button");
-                validTask = false;
+                if (this.xx.status == 1) {
+                    toastr.error("This task can only be added by the Trade Planner Actions button");
+                    validTask = false;
+                } else if (this.xx.start_date === '') { // Check for 'START' tasks
+                    this.xx.start_date = moment(this.xx.day_date).format('YYYY-MM-DD');
+                    //validTask = false; // Task is vaild but we set to false to prevent it being added twice
+
+                    // Hide Sidebars
+                    this.xx.showSidebar = false;
+                    this.xx.showSidebarHeader = false;
+
+                    // Delay adding of job just a sec to enable us to display loading spinner first
+                    this.xx.load_plan = true;
+                    setTimeout(function () {
+                        //alert('date:'+date+' '+direction+days+' days');
+                        addStartTaskToPlanner2(this.xx.plan, this.xx.params.site_id, this.xx.day_date)
+                            .then(function (result) {
+                                if (result) {
+                                    //this.xx.load_plan = false;
+                                    //this.$broadcast('refreshWeekPlanEvent');
+                                }
+                            }.bind(this));
+                    }.bind(this), 100);
+
+                    // Lock Planner + Show loading Spinner to allow for all the tasksto be added
+                    setTimeout(function () {
+                        //this.getPlan();
+                        this.xx.load_plan = false;
+                        console.log('delayed reloading of page for just a moment')
+                        this.$broadcast('refreshWeekPlanEvent');
+                        postAndRedirect('/planner/preconstruction', this.xx.params);
+                    }.bind(this), 5000);
+
+                } else {
+                    toastr.error("'" + newtask.task_name + "' already exists on planner " + moment(this.xx.start_date).format('DD/MM/YYYY'));
+                    validTask = false;
+                }
             }
             if (newtask.task_code === 'STARTCarp') {   // Check for 'STARTCarp' tasks
                 if (this.xx.start_carp === '') {
@@ -311,7 +346,7 @@ Vue.component('app-siteplan', {
                 }
             }
 
-            if (validTask) {
+            if (validTask && newtask.task_code != 'START') {
                 // Add new task to DB 'then' if successful add to planner
                 addTaskDB(newtask).then(function (result) {
                     if (result) {
@@ -763,4 +798,15 @@ Vue.component('app-dayplan', {
 var myApp = new Vue({
     el: 'body',
     data: {xx: xx},
+    methods: {
+        formatDate: function (date) {
+            return moment(date).format('DD/MM/YYYY');
+        },
+        pastDate: function (date) {
+            // determine if given date is same or before today
+            if (moment(date).isSameOrBefore(moment(), 'day'))
+                return true;
+            return false;
+        },
+    },
 });

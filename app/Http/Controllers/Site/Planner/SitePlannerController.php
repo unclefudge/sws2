@@ -187,7 +187,7 @@ class SitePlannerController extends Controller {
         }
         if (Auth::user()->isCC()) {
             if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                $supervisors = ['all' => 'Active Sites', 'preconstruct' => 'Pre-construction Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+                $supervisors = ['all' => 'Active Sites', 'preconstruct' => 'Up & Coming Projects', 'maint' => 'Maintenance Sites'] + $supervisors;
             else
                 $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
         } else
@@ -1400,6 +1400,30 @@ class SitePlannerController extends Controller {
 
         if ($site->company->notificationsUsersType('site.jobstart'))
             Mail::to($site->company->notificationsUsersType('site.jobstart'))->send(new \App\Mail\Site\Jobstart($site, $newdate, $olddate, $supers));
+
+    }
+
+    /**
+     * Update Site Status
+     */
+    public function updateSiteStatus($site_id, $status)
+    {
+        $site = Site::find($site_id);
+
+        // Move from Pre-construction to Active
+        if ($site->status == -1 && $status == 1) {
+            $site->status = 1;
+            $site->save();
+            return redirect("/planner/site/$site->id");
+        }
+
+        // Move from Active (prior Jobstart) to Pre-construction
+        if ($site->status == 1 && $status == 0) {
+            $site->status = -1;
+            $site->save();
+            return redirect("/planner/preconstruction/$site->id");
+        }
+
 
     }
 

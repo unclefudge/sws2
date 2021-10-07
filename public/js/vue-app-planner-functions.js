@@ -551,6 +551,150 @@ function addStartTaskToPlanner(plan, site_id, date) {
     });
 }
 
+// Add Start task to planner + all the associated tasks with it
+function addStartTaskToPlanner2(plan, site_id, date) {
+
+    return new Promise(function (resolve, reject) {
+        console.log('adding Job START + associated tasks to planner')
+
+        // 5 days prior
+        var preConst_date = nextWorkDate(date, '-', 5);
+        if (moment(preConst_date).isSameOrBefore(moment(), 'day'))
+            var preConst_date = nextWorkDate(moment().format('YYYY-MM-DD'), '+', 1);
+        var preConst = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 31, entity_name: 'Supervisors', task_id: 264, task_code: 'Pre',
+            task_name: 'Pre Construction', from: preConst_date, to: preConst_date, days: 1
+        };
+
+        // Same Day
+        var startJob = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
+        };
+        var loadJob = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 21, entity_name: 'Labourer', task_id: 200, task_code: 'Load', task_name: 'Load Job', from: date, to: date, days: 1
+        };
+        var errectScaff = {
+            id: '', site_id: site_id, entity_type: 'c', entity_id: 9, entity_name: 'Ashbys Scaffolding', task_id: 116, task_code: 'E', task_name: 'Erect Scaffold', from: date, to: date, days: 1
+        };
+        var roofMaint = {
+            id: '', site_id: site_id, entity_type: 'c', entity_id: 118, entity_name: 'Roofworx', task_id: 107, task_code: 'Maint', task_name: 'Roof Maintenance', from: date, to: date, days: 1
+        };
+
+        // 1 day after
+        var startCarp = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 22, task_code: 'STARTCarp',
+            task_name: 'Start Carpentry', from: nextWorkDate(date, '+', 1), to: nextWorkDate(date, '+', 1), days: 1
+        };
+        // 2 days after
+        var layFloor = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 4, task_code: 'LF',
+            task_name: 'Lay Floor', from: nextWorkDate(date, '+', 2), to: nextWorkDate(date, '+', 5), days: 4
+        };
+        var electDriveby = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 4, entity_name: 'Electrician', task_id: 51, task_code: 'DB',
+            task_name: 'Drive By', from: nextWorkDate(date, '+', 2), to: nextWorkDate(date, '+', 2), days: 1
+        };
+        var plumbDriveby = {
+            id: '', site_id: site_id, entity_type: 't', entity_id: 8, entity_name: 'Plumber', task_id: 86, task_code: 'DB',
+            task_name: 'Drive By', from: nextWorkDate(date, '+', 2), to: nextWorkDate(date, '+', 2), days: 1
+        };
+        // 4 days after
+        var floorInspect = {
+            id: '', site_id: site_id, entity_type: 'c', entity_id: 23, entity_name: 'Essential Certifiers', task_id: 183, task_code: 'Fl',
+            task_name: 'Floor Inspection', from: nextWorkDate(date, '+', 4), to: nextWorkDate(date, '+', 4), days: 1
+        };
+        // 5 days after
+        var frameRoof = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 7, from: nextWorkDate(date, '+', 5), to: nextWorkDate(date, '+', 8), days: 4};
+        // 7 days after
+        var loadPlatform = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 224, from: nextWorkDate(date, '+', 7), to: nextWorkDate(date, '+', 7), days: 1};
+        // 8 days after
+        var platformUpLab = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 220, from: nextWorkDate(date, '+', 8), to: nextWorkDate(date, '+', 8), days: 1};
+        var platformUpCarp = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 24, from: nextWorkDate(date, '+', 8), to: nextWorkDate(date, '+', 8), days: 1};
+        // 9 days after
+        var fasciaGutter = {site_id: site_id, entity_type: 't', entity_id: 20, task_id: 191, from: nextWorkDate(date, '+', 9), to: nextWorkDate(date, '+', 9), days: 1};
+        // 10 days after
+        var floorCover = {site_id: site_id, entity_type: 't', entity_id: 9, task_id: 100, from: nextWorkDate(date, '+', 10), to: nextWorkDate(date, '+', 10), days: 1};
+        // 11 days after
+        var pointing = {site_id: site_id, entity_type: 't', entity_id: 9, task_id: 108, from: nextWorkDate(date, '+', 11), to: nextWorkDate(date, '+', 11), days: 1};
+        // 12 days after
+        var platformDnLab = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 221, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 12), days: 1};
+        var platformDnCarp = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 25, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 12), days: 1};
+        var polEaves = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 10, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 13), days: 2};
+        var catwalkUp = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 27, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 12), days: 1};
+        // 13 days after
+        var frameInspect = {site_id: site_id, entity_type: 'c', entity_id: 23, task_id: 184, from: nextWorkDate(date, '+', 13), to: nextWorkDate(date, '+', 13), days: 1};
+        // 14 days after
+        var genClean = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 198, from: nextWorkDate(date, '+', 14), to: nextWorkDate(date, '+', 14), days: 1};
+
+
+        // Create Promise array then excute
+        var promises = [];
+
+        var promise = addTaskToPlanner(plan, preConst);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, startJob);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, loadJob);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, errectScaff);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, roofMaint);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, startCarp);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, layFloor);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, electDriveby);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, plumbDriveby);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, floorInspect);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, frameRoof);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, loadPlatform);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, platformUpLab);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, platformUpCarp);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, fasciaGutter);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, floorCover);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, pointing);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, platformDnLab);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, platformDnCarp);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, polEaves);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, catwalkUp);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, frameInspect);
+        promises.push(promise);
+        var promise = addTaskToPlanner(plan, genClean);
+
+        Promise.all(promises).then(resolve);
+
+        // Email Jobstart
+        var data = {site_id: site_id, newdate: date};
+        $.ajax({
+            url: '/planner/data/trade/email-jobstart',
+            type: 'POST',
+            data: data,
+            success: function (result) {
+                console.log('Emailed Jobstart');
+            },
+            error: function (result) {
+                alert("Failed to email Job Start");
+                console.log('Email of Job Start FAILED');
+            }
+        });
+    });
+}
+
 // Add Start task to planner. Only if added to DB successfully
 function addTaskToPlanner(plan, task) {
     addTaskDB(task).then(function (result) {
