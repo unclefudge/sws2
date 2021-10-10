@@ -179,6 +179,12 @@
         return true;
     }
 
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
+    });
+
 </script>
 @stop
 

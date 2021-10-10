@@ -148,7 +148,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (!Auth::user()->allowed2('add.site.asbestos'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'date' => 'required', 'amount' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
+        $rules = ['site_id' => 'required', 'date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
         $mesg = ['site_id.required' => 'The site field is required.', 'amount.required' => 'The quantity field is required.', 'friable.required' => 'The asbestos class field is required.'];
         request()->validate($rules, $mesg); // Validate
 
@@ -202,7 +202,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.asbestos', $asb)))
             return view('errors/404');
 
-        $rules = ['date' => 'required', 'amount' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
+        $rules = ['date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
         $mesg = ['amount.required' => 'The quantity field is required.', 'friable.required' => 'The asbestos class field is required.'];
         request()->validate($rules, $mesg); // Validate
 
