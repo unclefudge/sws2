@@ -306,7 +306,26 @@ class SitePlannerController extends Controller {
 
         $site = Site::find($site_id);
 
-        return view('planner/preconstruction', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+        // Site Dropdown
+        $site_list = [];
+        $pre_sites = Site::where('status', '-1')->pluck('id')->toArray();;
+        $pre_sites_array = Auth::user()->authSitesSelect('view.preconstruction.planner', '-1');
+        //dd($pre_sites);
+        $pre_planner = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
+        // Add Sites that have START JOB to list in date order
+        foreach ($pre_planner as $plan) {
+            //$site_list[count($site_list) . ":" . $plan->site_id] = $pre_sites_array[$plan->site_id];
+            $site_list[$plan->site_id] = $pre_sites_array[$plan->site_id];
+        }
+
+        // Add Remaining Pre-contruct jobs to the list
+        foreach ($pre_sites_array as $site_id => $name) {
+            if (!array_key_exists($site_id, $site_list))
+                $site_list[$site_id] = $pre_sites_array[$site_id];
+        }
+        //dd($site_list);
+
+        return view('planner/preconstruction', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'site_list'));
     }
 
     /**
@@ -1415,6 +1434,14 @@ class SitePlannerController extends Controller {
             $site->status = 1;
             $site->save();
             return redirect("/planner/site/$site->id");
+        }
+
+        // Move from Pre-construction to Cancelled
+        if ($site->status == -1 && $status == -2) {
+            $site->status = -2;
+            $site->save();
+            Toastr::error("Site Cancelled");
+            return redirect("/planner/preconstruction");
         }
 
         // Move from Active (prior Jobstart) to Pre-construction

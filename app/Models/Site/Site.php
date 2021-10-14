@@ -546,7 +546,7 @@ class Site extends Model {
      */
     public function statusText($colour = '')
     {
-        $status_text = ['0' => 'Completed', '1' => "Active", '-1' => "Upcoming"];
+        $status_text = ['0' => 'Completed', '1' => "Active", '-1' => "Upcoming", '-2' => "Cancelled"];
 
         if ($colour) {
             switch ($this->status) {
@@ -556,6 +556,8 @@ class Site extends Model {
                     return '<span class="label label-sm label-success">' . $status_text[$this->status] . '</span>';
                 case '-1':
                     return '<span class="label label-sm label-warning">' . $status_text[$this->status] . '</span>';
+                case '-2':
+                    return '<span class="label label-sm label-danger">' . $status_text[$this->status] . '</span>';
             }
 
         }
@@ -770,6 +772,9 @@ class Site extends Model {
 
         if ($this->status == 2)
             return '<span class="font-yellow">MAINTENANCE</span>';
+
+        if ($this->status == -2)
+            return '<span class="font-red">CANCELLED</span>';
 
     }
 

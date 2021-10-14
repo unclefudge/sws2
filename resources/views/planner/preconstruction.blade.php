@@ -47,7 +47,7 @@
                                 <div class="form-group">
                                     <select id="site_id" name="site_id" class="form-control select2" width="100%">
                                         <option></option>
-                                        @foreach (Auth::user()->authSitesSelect('view.preconstruction.planner', '-1', 'prompt') as $id => $name)
+                                        @foreach ($site_list as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                         @endforeach
                                     </select>
@@ -61,11 +61,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-2 pull-right">
-                                @if ($site && $site->status == -1)
-                                    <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
-                                @endif
+                            @if ($site && $site->status == -1)
+                            <div class="col-md-3 pull-right">
+                                <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
+                                <a href="/planner/site/{{$site->id}}/status/-2" class="btn red" style="margin: 3px">Cancel Site</a>
                             </div>
+                            @endif
                         </div>
 
                         @if($site)
@@ -415,29 +416,19 @@
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="color: #999">Week @{{ calcWeekNumber(x) }}</div>
                     <div v-else class="col-xs-2">Week @{{ calcWeekNumber(x) }}</div>
                     <!-- Monday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}</div>
-                    <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
+                    <div  class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}</div>
                     <!-- Tuesday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+1))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}</div>
-                    <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
+                    <div class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}</div>
                     <!-- Wednesday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+2))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}</div>
-                    <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
+                    <div class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}</div>
                     <!-- Thursday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+3))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}</div>
-                    <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
+                    <div class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}</div>
                     <!-- Friday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+4))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
-                    <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
+                    <div class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
                 </div>
 
@@ -492,6 +483,7 @@
     <!-- Day plan for each entity on planner -->
     <template id="dayplan-template">
         <!-- Past Events - disable sidebar and dim entry -->
+        {{--}}
         <div v-show="pastDate(date) == true" style="padding: 10px; opacity: 0.4">
             <template v-for="task in entity_plan">
                 <div class="@{{ taskNameClass(task) }}"><b>@{{ task.task_name }}</b></div>
@@ -499,9 +491,9 @@
             <div v-if="entity_plan.length" :class="{ 'font-yellow-gold': etype == 't' }">
                 <small>@{{ ename }}</small>
             </div>
-        </div>
+        </div> --}}
         <!-- Current Events -->
-        <div v-else class="hoverDiv" v-on:click="openSidebar(date)">
+        <div class="hoverDiv" v-on:click="openSidebar(date)">
             <div v-if="entity_plan.length">
                 <template v-for="task in entity_plan">
                     <div class="@{{ taskNameClass(task) }}"><b>@{{ task.task_name }}</b></div>

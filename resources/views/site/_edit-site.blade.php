@@ -16,7 +16,7 @@
                 <div class="form-group {!! fieldHasError('status', $errors) !!}">
                     {!! Form::label('status', 'Status:', ['class' => 'col-md-3 control-label']) !!}
                     <div class="col-md-9">
-                        {!! Form::select('status', ['-1' => 'Upcoming', '1' => 'Active', '2' => 'Maintenance', '0' => 'Completed'], $site->status, ['class' => 'form-control bs-select']) !!}
+                        {!! Form::select('status', ['-1' => 'Upcoming', '1' => 'Active', '2' => 'Maintenance', '0' => 'Completed', '-2' => 'Cancelled'], $site->status, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('status', $errors) !!}
                     </div>
                 </div>

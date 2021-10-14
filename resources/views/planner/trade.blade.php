@@ -162,7 +162,7 @@
                         </div>
                     </div>
 
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    <pre v-if="xx.dev">@{{ $data | json }}</pre>
                     -->
 
                 </div>

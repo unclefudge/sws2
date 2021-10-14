@@ -717,23 +717,25 @@ class SitePlannerExportController extends Controller {
         $startdata = [];
         foreach ($planner as $plan) {
             $site = Site::findOrFail($plan->site_id);
-            $entity_name = "Carpenter";
-            if ($plan->entity_type == 'c')
-                $entity_name = Company::find($plan->entity_id)->name;
-            $startdata[] = [
-                'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
-                'code'            => $site->code,
-                'name'            => $site->name,
-                'company'         => $entity_name,
-                'supervisor'      => $site->supervisorsSBC(),
-                'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
-                'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
-                'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
-                'eng'             => ($site->engineering) ? 'Y' : '-',
-                'cc'              => ($site->construction) ? 'Y' : '-',
-                'hbcf'            => ($site->hbcf) ? 'Y' : '-',
-                'consultant'      => $site->consultant_name,
-            ];
+            if ($site->status == 1) {
+                $entity_name = "Carpenter";
+                if ($plan->entity_type == 'c')
+                    $entity_name = Company::find($plan->entity_id)->name;
+                $startdata[] = [
+                    'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
+                    'code'            => $site->code,
+                    'name'            => $site->name,
+                    'company'         => $entity_name,
+                    'supervisor'      => $site->supervisorsSBC(),
+                    'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
+                    'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
+                    'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
+                    'eng'             => ($site->engineering) ? 'Y' : '-',
+                    'cc'              => ($site->construction) ? 'Y' : '-',
+                    'hbcf'            => ($site->hbcf) ? 'Y' : '-',
+                    'consultant'      => $site->consultant_name,
+                ];
+            }
         }
 
         /*
