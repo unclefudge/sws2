@@ -168,7 +168,7 @@ class SiteMaintenance extends Model {
     }
 
     /**
-     * Determine if a report has been signed by 1 or 2
+     * Determine Next Client Visit
      *
      * @return integer
      */

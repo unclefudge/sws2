@@ -152,7 +152,7 @@
                                         @if ($main->contact_phone) {{ $main->contact_phone }}<br> @endif
                                         @if ($main->contact_email) {{ $main->contact_email }}<br> @endif
                                         @if($main->nextClientVisit())
-                                            <br><b>Scheduled Visit:</b> {{ $main->nextClientVisit()->company->name }} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
+                                            <br><b>Scheduled Visit:</b> {{ ($main->nextClientVisit()->entity_type == 'c' && $main->nextClientVisit()->company ) ? $main->nextClientVisit()->company->name : 'Unassigned Company'}} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
                                         @endif
                                     </div>
                                     <div id="client-edit">
