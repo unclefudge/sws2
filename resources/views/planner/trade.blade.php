@@ -123,8 +123,7 @@
                                                 <div v-if="xx.permission == 'edit'">
                                                     <div v-if="task.task_id == upcoming.id" class="hoverDiv0" v-on:click="openSidebarUpcoming(task)">
                                                         <small v-if="task.entity_type == 't'" class="font-yellow-gold">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }}
-                                                            (@{{ task.days }}
-                                                            )
+                                                            (@{{ task.days }})
                                                         </small>
                                                         <small v-else class="font-grey-silver">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }} (@{{ task.days }})</small>
                                                     </div>
@@ -132,8 +131,7 @@
                                                 <div v-if="xx.permission == 'view'">
                                                     <div v-if="task.task_id == upcoming.id">
                                                         <small v-if="task.entity_type == 't'" class="font-yellow-gold">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }}
-                                                            (@{{ task.days }}
-                                                            )
+                                                            (@{{ task.days }})
                                                         </small>
                                                         <small v-else class="font-grey-silver">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }} (@{{ task.days }})</small>
                                                     </div>

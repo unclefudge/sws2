@@ -1098,11 +1098,13 @@ class CronController extends Controller {
             }
 
             foreach ($tasks as $task) {
-                $mesg = 'Site '.$task->site->code.'-'.$task->site->name.' '.$subject;
-                echo "&nbsp; * $mesg<br>";
-                $log .= "&nbsp; * $mesg\n";
-                if ($email_list)
-                    Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+                if ($task->site->status == 1) {
+                    $mesg = 'Site '.$task->site->code.'-'.$task->site->name.' '.$subject;
+                    echo "&nbsp; * $mesg<br>";
+                    $log .= "&nbsp; * $mesg\n";
+                    if ($email_list)
+                        Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+                }
             }
         }
 

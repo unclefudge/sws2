@@ -71,7 +71,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
-                                        I will <b>wear a mask</b> indoors and out as required and <b>observe all other Gov directives</b>, such as social distancing
+                                        I will <b>wear a mask</b> as required and <b>observe all other Gov directives</b>.
                                     </div>
                                 </div>
                                 <div class="row visible-xs">&nbsp;</div>
