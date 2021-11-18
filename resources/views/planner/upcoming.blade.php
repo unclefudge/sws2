@@ -30,10 +30,11 @@
                                 <th width="5%"> #</th>
                                 <th width="5%"> Site</th>
                                 <th> Name</th>
-                                <th width="10%"> Job Start</th>
-                                <th width="15%"> Council Approval</th>
-                                <th width="20%"> Construction Certificate</th>
-                                <th width="15%"> Pre Contruction</th>
+                                <th width="12%"> Job Start</th>
+                                <th width="12%"> Council Approval</th>
+                                <th width="12%"> Construction Certificate</th>
+                                <th width="12%"> Pre Contruction</th>
+                                <th width="12%"> Contracts Sent</th>
                             </tr>
                             </thead>
 
@@ -48,6 +49,7 @@
                                     <td>{{ ($site->JobFirstTaskOfType(576)) ? $site->JobFirstTaskOfType(576)->format('d/m/Y') : ''  }}</td>
                                     <td>{{ ($site->JobFirstTaskOfType(582)) ? $site->JobFirstTaskOfType(582)->format('d/m/Y') : ''  }}</td>
                                     <td>{{ ($site->JobFirstTaskOfType(264)) ? $site->JobFirstTaskOfType(264)->format('d/m/Y') : ''  }}</td>
+                                    <td>{{ ($site->JobFirstTaskOfType(578)) ? $site->JobFirstTaskOfType(578)->format('d/m/Y') : ''  }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
