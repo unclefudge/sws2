@@ -1087,7 +1087,7 @@ class CronController extends Controller {
             11 => 'is begining Start Job today']; // Start Job,
 
         $email_sent = 0;
-        foreach ($keytasks as $task_id => $mesg) {
+        foreach ($keytasks as $task_id => $subject) {
             $tasks = SitePlanner::whereDate('from', '=', $date)->where('task_id', $task_id)->orderBy('site_id')->get();
 
             // Log email being sent only once
@@ -1098,7 +1098,7 @@ class CronController extends Controller {
             }
 
             foreach ($tasks as $task) {
-                $mesg = 'Site '.$task->site->code.'-'.$task->site->name.' '.$mesg;
+                $mesg = 'Site '.$task->site->code.'-'.$task->site->name.' '.$subject;
                 echo "&nbsp; * $mesg<br>";
                 $log .= "&nbsp; * $mesg\n";
                 if ($email_list)

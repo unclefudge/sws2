@@ -230,6 +230,7 @@
                                                         <li><a href="/planner/transient" class="nav-link"> Labourer Planner </a></li>
                                                     @endif
                                                     @if (Auth::user()->hasAnyPermissionType('preconstruction.planner'))
+                                                        <li><a href="/planner/upcoming" class="nav-link"> Upcoming Projects </a></li>
                                                         <li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>
                                                     @endif
                                                 </ul>

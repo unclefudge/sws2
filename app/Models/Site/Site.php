@@ -583,6 +583,18 @@ class Site extends Model {
     }
 
     /**
+     * Get the first task date if it exists
+     *
+     * @return string;
+     */
+    public function JobFirstTaskOfType($task_id)
+    {
+        $firstTask = SitePlanner::where('site_id', $this->id)->where('task_id', $task_id)->orderBy('from')->first();
+
+        return ($firstTask) ? $firstTask->from : null;
+    }
+
+    /**
      * Get the 'START' job task date if it exists  (getter)
      *
      * @return string;
@@ -605,6 +617,7 @@ class Site extends Model {
 
         return ($firstTask) ? $firstTask->from : null;
     }
+
 
     /**
      * Get the owner of record  (getter)

@@ -492,6 +492,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('planner/transient', 'Site\Planner\SitePlannerController@showTransient');
     Route::any('planner/preconstruction', 'Site\Planner\SitePlannerController@showPreconstruction');
     Route::any('planner/preconstruction/{site_id}', 'Site\Planner\SitePlannerController@showPreconstruction');
+    Route::any('planner/upcoming', 'Site\Planner\SitePlannerController@showUpcoming');
     Route::any('planner/site/{site_id}/status/{status}', 'Site\Planner\SitePlannerController@updateSiteStatus');
     Route::get('planner/data/sites', 'Site\Planner\SitePlannerController@getSites');
     Route::get('planner/data/site/{site_id}', 'Site\Planner\SitePlannerController@getSitePlan');
@@ -514,6 +515,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('planner/data/trade/jobstarts/{exists}', 'Site\Planner\SitePlannerController@getJobStarts');
     Route::get('planner/data/trade/joballocate', 'Site\Planner\SitePlannerController@getSitesWithoutSuper');
     Route::any('planner/data/trade/email-jobstart', 'Site\Planner\SitePlannerController@emailJobstart');
+    Route::any('planner/data/upcoming', 'Site\Planner\SitePlannerController@getUpcoming');
     Route::resource('planner', 'Site\Planner\SitePlannerController');
 
     // Support Tickets

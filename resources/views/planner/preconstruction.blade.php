@@ -45,9 +45,16 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
+                                    {{--}}
                                     <select id="site_id" name="site_id" class="form-control select2" width="100%">
                                         <option></option>
                                         @foreach ($site_list as $id => $name)
+                                            <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
+                                        @endforeach
+                                    </select>--}}
+                                    <select id="site_id" name="site_id" class="form-control select2" width="100%">
+                                        <option></option>
+                                        @foreach (Auth::user()->authSitesSelect('view.site.planner', '-1', 'prompt', 'started') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
                                         @endforeach
                                     </select>
