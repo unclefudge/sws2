@@ -234,6 +234,16 @@ class CompanyController extends Controller {
             $primary_user = User::find($company->primary_user);
             if ($primary_user) {
                 $primary_user->status = 1;
+
+                // Re-enable email if possible
+                $pattern = "/^archived-$primary_user->id-/";
+                if (preg_match($pattern,$primary_user->email)) {
+                    $len = strlen($pattern)-3;
+                    $new_email = substr($primary_user->email,$len);
+                    $existing_email = User::where('email', $new_email)->first();
+                    if (!$existing_email)
+                        $primary_user->email = $new_email;
+                }
                 $primary_user->save();
                 Toastr::success("Reactivated Primary User");
             }

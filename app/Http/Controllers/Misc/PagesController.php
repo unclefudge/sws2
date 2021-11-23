@@ -147,6 +147,25 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Updating Active Users with Archived emails </b></br>";
+        $active_users = User::where('status', 1)->get();
+        foreach ($active_users as $user) {
+
+            // Re-enable email if possible
+            $pattern = "/^archived-$user->id-/";
+            if (preg_match($pattern,$user->email)) {
+                $len = strlen($pattern)-3;
+                $new_email = substr($user->email,$len);
+                $existing_email = User::where('email', $new_email)->first();
+                if (!$existing_email) {
+                    echo "old:$user->email *** new:$new_email<br>";
+                    $user->email = $new_email;
+                    //$user->save();
+                }
+            }
+        }
+
+        /*
         echo "<b>Importing Accident </b></br>";
         $accidents = SiteAccident::all();
         foreach ($accidents as $accident) {
@@ -202,6 +221,7 @@ class PagesController extends Controller {
                 }
             }
         }
+        */
 
         /*
         echo "<b>Active Equipment Locations with no items </b></br>";
