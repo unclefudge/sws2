@@ -122,18 +122,42 @@
                                             <template v-for="task in xx.upcoming_plan">
                                                 <div v-if="xx.permission == 'edit'">
                                                     <div v-if="task.task_id == upcoming.id" class="hoverDiv0" v-on:click="openSidebarUpcoming(task)">
-                                                        <small v-if="task.entity_type == 't'" class="font-yellow-gold">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }}
-                                                            (@{{ task.days }})
+                                                        <small v-if="task.entity_type == 't'" class="font-yellow-gold">
+                                                            <span v-if="task.site_status == '-1'">{{-- change date to blue for Upcoming sites --}}
+                                                                 <span style="color:#659be0">@{{ task.from | formatDate3 }}</span>  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                            <span v-else>
+                                                                @{{ task.from | formatDate3 }}  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
                                                         </small>
-                                                        <small v-else class="font-grey-silver">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }} (@{{ task.days }})</small>
+                                                        <small v-else class="font-grey-silver">
+                                                            <span v-if="task.site_status == '-1'">{{-- change date to blue for Upcoming sites --}}
+                                                                 <span style="color:#659be0">@{{ task.from | formatDate3 }}</span>  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                            <span v-else>
+                                                                @{{ task.from | formatDate3 }}  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                        </small>
                                                     </div>
                                                 </div>
                                                 <div v-if="xx.permission == 'view'">
                                                     <div v-if="task.task_id == upcoming.id">
-                                                        <small v-if="task.entity_type == 't'" class="font-yellow-gold">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }}
-                                                            (@{{ task.days }})
+                                                        <small v-if="task.entity_type == 't'" class="font-yellow-gold">
+                                                            <span v-if="task.site_status == '-1'">{{-- change date to blue for Upcoming sites --}}
+                                                                 <span style="color:#659be0">@{{ task.from | formatDate3 }}</span>  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                            <span v-else>
+                                                                @{{ task.from | formatDate3 }}  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
                                                         </small>
-                                                        <small v-else class="font-grey-silver">@{{ task.from | formatDate3 }} @{{ task.site_name | max10chars }} (@{{ task.days }})</small>
+                                                        <small v-else class="font-grey-silver">
+                                                             <span v-if="task.site_status == '-1'">{{-- change date to blue for Upcoming sites --}}
+                                                                 <span style="color:#659be0">@{{ task.from | formatDate3 }}</span>  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                            <span v-else>
+                                                                @{{ task.from | formatDate3 }}  @{{ task.site_name | max10chars }} (@{{ task.days }})
+                                                            </span>
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </template>
@@ -160,7 +184,7 @@
                         </div>
                     </div>
 
-                    <pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
                     -->
 
                 </div>

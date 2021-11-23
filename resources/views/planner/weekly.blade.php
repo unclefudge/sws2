@@ -31,10 +31,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">
-                                <span v-if="xx.params.supervisor_id == 'preconstruct'">Up and Coming Projects</span>
-                                <span v-else>Weekly Planner</span>
-                            </span>
+                            <span class="caption-subject bold uppercase font-green-haze">Weekly Planner</span>
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
@@ -74,26 +71,11 @@
                         <div v-show="xx.sites.length">
                             <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                                 <div class="col-xs-2">Site</div>
-                                <div class="col-xs-2">
-                                    <span v-if="xx.params.supervisor_id == 'preconstruct'"></span>
-                                    <span v-else>Mon @{{ weekDateHeader(xx.mon_now, 0) }}</span>
-                                </div>
-                                <div class="col-xs-2">
-                                    <span v-if="xx.params.supervisor_id == 'preconstruct'"></span>
-                                    <span v-else>Tue @{{ weekDateHeader(xx.mon_now, 1) }}</span>
-                                </div>
-                                <div class="col-xs-2">
-                                    <span v-if="xx.params.supervisor_id == 'preconstruct'"></span>
-                                    <span v-else>Wed @{{ weekDateHeader(xx.mon_now, 2) }}</span>
-                                </div>
-                                <div class="col-xs-2">
-                                    <span v-if="xx.params.supervisor_id == 'preconstruct'"></span>
-                                    <span v-else>Thu @{{ weekDateHeader(xx.mon_now, 3) }}</span>
-                                </div>
-                                <div class="col-xs-2">
-                                    <span v-if="xx.params.supervisor_id == 'preconstruct'"></span>
-                                    <span v-else>Fri @{{ weekDateHeader(xx.mon_now, 4) }}</span>
-                                </div>
+                                <div class="col-xs-2">Mon @{{ weekDateHeader(xx.mon_now, 0) }}</div>
+                                <div class="col-xs-2">Tue @{{ weekDateHeader(xx.mon_now, 1) }}</div>
+                                <div class="col-xs-2">Wed @{{ weekDateHeader(xx.mon_now, 2) }}</div>
+                                <div class="col-xs-2">Thu @{{ weekDateHeader(xx.mon_now, 3) }}</div>
+                                <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
                             </div>
                             <template v-for="site in xx.sites">
                                 <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start"></app-site>
@@ -135,28 +117,27 @@
             </div>
 
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 0 ) == xx.today }">
-                <div v-if="xx.params.supervisor_id == 'preconstruct'" class="hoverDiv" v-on:click="viewSitePlan(site_id)">view planner</div>
-                <div v-else>
+                <div class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 1 ) == xx.today }">
-                <div v-if="xx.params.supervisor_id != 'preconstruct'" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
+                <div class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 2 ) == xx.today }">
-                <div v-if="xx.params.supervisor_id != 'preconstruct'" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
+                <div class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 3 ) == xx.today }">
-                <div v-if="xx.params.supervisor_id != 'preconstruct'" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
+                <div class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
             <div class="col-xs-2" v-bind:class="{ 'todayBG': weekDate(xx.mon_now, 4 ) == xx.today }">
-                <div v-if="xx.params.supervisor_id != 'preconstruct'" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
+                <div class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>

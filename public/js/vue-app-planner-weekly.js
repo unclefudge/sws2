@@ -103,10 +103,10 @@ Vue.component('app-site', {
         },
         viewSitePlan: function (site) {
             this.xx.params.site_id = site;
-            var selected_site = objectFindByKey(this.xx.sites, 'id', site);
-            if (selected_site.status == -1)
-                postAndRedirect('/planner/preconstruction', this.xx.params);
-            else
+            //var selected_site = objectFindByKey(this.xx.sites, 'id', site);
+            //if (selected_site.status == -1)
+            //    postAndRedirect('/planner/preconstruction', this.xx.params);
+            //else
                 postAndRedirect('/planner/site', this.xx.params);
         },
         showSite: function (site_id) {
@@ -121,9 +121,6 @@ Vue.component('app-site', {
                 return true;
 
             if (this.xx.params.supervisor_id === 'maint' && obj.status == 2)
-                return true;
-
-            if (this.xx.params.supervisor_id === 'preconstruct' && obj.status == -1)
                 return true;
 
             var show = false;
@@ -169,10 +166,10 @@ Vue.component('app-dayplan', {
         },
         viewSitePlan: function (site) {
             this.xx.params.site_id = site;
-            var selected_site = objectFindByKey(this.xx.sites, 'id', site);
-            if (selected_site.status == -1)
-                postAndRedirect('/planner/preconstruction', this.xx.params);
-            else
+            //var selected_site = objectFindByKey(this.xx.sites, 'id', site);
+            //if (selected_site.status == -1)
+            //    postAndRedirect('/planner/preconstruction', this.xx.params);
+            //else
                 postAndRedirect('/planner/site', this.xx.params);
         },
         getDayPlan: function () {

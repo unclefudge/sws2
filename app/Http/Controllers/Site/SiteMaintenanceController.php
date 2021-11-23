@@ -420,9 +420,14 @@ class SiteMaintenanceController extends Controller {
             if (!$main->assigned_super_at)
                 $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
 
-            //$main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor - commented out as if change super but not company then ToDoo wont cancel
+            if (!$main->assigned_to) {
+                $main->closeToDo(); // Delete previous Supervisor Todoo
+                $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
+            }
             $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
 
+
+            $main->closeToDo();   // Delete Construction Mgr Todoo
         }
 
         // Email if Company Assigned is updated

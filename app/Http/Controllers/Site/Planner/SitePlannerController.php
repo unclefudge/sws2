@@ -187,10 +187,7 @@ class SitePlannerController extends Controller {
                 $supervisors = Auth::user()->company->supervisorsSelect();
         }
         if (Auth::user()->isCC()) {
-            if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                $supervisors = ['all' => 'Active Sites', 'preconstruct' => 'Up & Coming Projects', 'maint' => 'Maintenance Sites'] + $supervisors;
-            else
-                $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+            $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
         } else
             $supervisors = ['all' => 'All Sites'] + $supervisors;
 
@@ -346,6 +343,7 @@ class SitePlannerController extends Controller {
             if (!in_array($site_id, $site_list))
                 $site_list[] = $site_id;
         }
+
         //dd($site_list);
 
         return view('planner/upcoming', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'site_list'));
@@ -369,8 +367,6 @@ class SitePlannerController extends Controller {
                 $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
             elseif ($super_id == 'maint')
                 $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
-            elseif ($super_id == 'preconstruct')
-                $allowedSites = Auth::user()->company->reportsTo()->sites([-1])->pluck('id')->toArray();
             else
                 $allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
         } else {
@@ -767,6 +763,7 @@ class SitePlannerController extends Controller {
 
         //$site = Site::find($plan->site_id);
         $array['site_name'] = $plan->site->name;
+        $array['site_status'] = $plan->site->status;
         //if ($plan->id == 99017)
         //    dd($plan->site->name);
 
@@ -932,7 +929,7 @@ class SitePlannerController extends Controller {
     public function getSites()
     {
         if (Auth::user()->company->addon('planner'))
-            $allowedSites = Auth::user()->company->sites([1, 2, -1])->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sites([1, 2, - 1])->pluck('id')->toArray();
         else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
@@ -947,12 +944,12 @@ class SitePlannerController extends Controller {
             }
         }
 
-        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2, -1])->whereIn('id', $allowedSites)->orderBy('name')->get();
+        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2, - 1])->whereIn('id', $allowedSites)->orderBy('name')->get();
 
         $site_details = [];
         foreach ($sites as $site) {
             $site_record = Site::find($site->id);
-            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive()) || $site_record->status == -1) {
+            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive()) || $site_record->status == - 1) {
                 $array = [];
                 $array['id'] = $site->id;
                 $array['value'] = $site->id;
@@ -1453,24 +1450,27 @@ class SitePlannerController extends Controller {
         $site = Site::find($site_id);
 
         // Move from Pre-construction to Active
-        if ($site->status == -1 && $status == 1) {
+        if ($site->status == - 1 && $status == 1) {
             $site->status = 1;
             $site->save();
+
             return redirect("/planner/site/$site->id");
         }
 
         // Move from Pre-construction to Cancelled
-        if ($site->status == -1 && $status == -2) {
-            $site->status = -2;
+        if ($site->status == - 1 && $status == - 2) {
+            $site->status = - 2;
             $site->save();
             Toastr::error("Site Cancelled");
+
             return redirect("/planner/preconstruction");
         }
 
         // Move from Active (prior Jobstart) to Pre-construction
         if ($site->status == 1 && $status == 0) {
-            $site->status = -1;
+            $site->status = - 1;
             $site->save();
+
             return redirect("/planner/preconstruction/$site->id");
         }
     }

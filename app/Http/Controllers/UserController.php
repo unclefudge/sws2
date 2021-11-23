@@ -272,6 +272,7 @@ class UserController extends Controller {
             return back()->withErrors($validator)->withInput();
         }
 
+        $old_status = $user->status;
         $user_request = removeNullValues(request()->all());
         //dd(request('$user_request'));
 
@@ -305,6 +306,16 @@ class UserController extends Controller {
             }
 
 
+        } else {
+            // User is being re-activated so re-enable email if possible
+            $pattern = "/^archived-$user->id-/";
+            if (preg_match($pattern,$user->email)) {
+                $len = strlen($pattern)-3;
+                $new_email = substr($user->email,$len);
+                $existing_email = User::where('email', $new_email)->first();
+                if (!$existing_email)
+                    $user->email = $new_email;
+            }
         }
 
         // Encrypt password
