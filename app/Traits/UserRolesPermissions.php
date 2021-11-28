@@ -8,6 +8,7 @@ use App\User;
 use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Misc\Role2;
 use App\Models\Misc\Permission2;
@@ -646,6 +647,10 @@ trait UserRolesPermissions {
                 if ($this->hasPermission2('view.equipment')) return true; // User has the permission to view
             if ($record->type == 'equipment' && $action == 'edit')
                 if ($this->hasPermission2('edit.equipment') && $this->id == $record->created_by) return true; // User created equipment ToDoo
+            if ($record->type == 'incident prevent') {
+                $incident = SiteIncident::find($record->type_id);
+                if ($this->allowed2('edit.site.incident', $incident)) return true; // User is allowed to view Site Hazard
+            }
 
             return false;
         }

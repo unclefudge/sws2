@@ -29,9 +29,10 @@
                     <tr class="mytable-header">
                         <th width="5%"> #</th>
                         <th width="30%"> Contributing Factor(s) / Root cause(s)</th>
-                        <th> Action)s) Taken / Recommended</th>
+                        <th> Action(s) Taken / Recommended</th>
                         <th> By Whom</th>
-                        <th> Date</th>
+                        <th> Due</th>
+                        <th> Completed</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -42,9 +43,10 @@
                                 <div class="text-center"><a href="/todo/{{ $action->id  }}"><i class="fa fa-search"></i></a></div>
                             </td>
                             <td>{{ $action_name }}</td>
-                            <td>{{ ($action->info) ? $action->info : '' }}</td>
-                            <td>{!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : "<span class='font-red'>Unassigned</span>" !!}</td>
+                            <td>{!! ($action->info) ? $action->info."<br>" : '' !!}{!! ($action->comments) ? "<b>Notes:</b> $action->comments<br>" : '' !!}</td>
+                            <td>{!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : "<a href='/todo/".$action->id."/edit/' class='font-red'>Unassigned</span>" !!}</td>
                             <td>{{ ($action->due_at) ? $action->due_at->format('d/m/Y') : '' }}</td>
+                            <td>{{ ($action->done_at) ? $action->done_at->format('d/m/Y') : '' }}</td>
                         </tr>
                     @endforeach
                     </tbody>

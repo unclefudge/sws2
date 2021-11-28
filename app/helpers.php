@@ -13,6 +13,8 @@ define('TODO_TYPES', ['swms'                  => 'Safe Work Method Statements',
                       'maintenance'           => 'Site Maintenance Requests',
                       'inspection_electrical' => 'Electrical Inspection Reports',
                       'inspection_plumbing'   => 'Plumbing Inspection Reports',
+                      'incident'              => "Incident Report",
+                      'incident prevent'      => "Incident Preventative Action",
                       'user doc'              => 'User Documents']);
 
 function validEmail($email)

@@ -115,7 +115,7 @@
                             @endif
 
                             {{-- List of Users Task assigned to--}}
-                            @if($todo->assignedTo()->count() > 1)
+                            @if($todo->assignedTo()->count())
                                 <div class="row">
                                     <div class="col-md-12">
                                         <p><b>ToDo task can be completed by any of the following user(s):</b></p>
@@ -153,11 +153,19 @@
                                         <a href="/site/accident/{{$todo->type_id}}" class="btn dark">View Site Accident</a>
                                     @endif
                                 @endif
-
-                                    @if($todo->type == 'incident')
-                                        <?php $hazard = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
-                                        @if (Auth::user()->allowed2('view.site.incident', $hazard))
-                                            <a href="/site/incident/{{$todo->type_id}}" class="btn dark">View Site Incident</a>
+                                @if($todo->type == 'incident')
+                                    <?php $incident = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
+                                    @if (Auth::user()->allowed2('view.site.incident', $incident))
+                                        <a href="/site/incident/{{$todo->type_id}}" class="btn dark">View Site Incident</a>
+                                    @endif
+                                @endif
+                                    @if($todo->type == 'incident prevent')
+                                        <?php $incident = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
+                                            @if (Auth::user()->allowed2('view.site.incident', $incident))
+                                                <a href="/site/incident/{{$todo->type_id}}/analysis" class="btn dark">View Site Incident</a>
+                                            @endif
+                                        @if ($todo->staus && Auth::user()->allowed2('edit.site.incident', $incident))
+                                            <a href="/todo/{{$todo->id}}/edit" class="btn red">Edit Task</a>
                                         @endif
                                     @endif
                                 @if($todo->type == 'swms')
@@ -170,9 +178,9 @@
                                 @if($todo->type == 'inspection_plumbing')
                                     <a href="/site/inspection/plumbing/{{ $todo->type_id }}" class="btn dark">View Report</a>
                                 @endif
-                                    @if($todo->type == 'project supply')
-                                        <a href="/site/supply/{{ $todo->type_id }}/edit" class="btn blue">Update Supply Info</a>
-                                    @endif
+                                @if($todo->type == 'project supply')
+                                    <a href="/site/supply/{{ $todo->type_id }}/edit" class="btn blue">Update Supply Info</a>
+                                @endif
                                 @if($todo->type == 'company doc')
                                     <?php $doc = \App\Models\Company\CompanyDoc::find($todo->type_id) ?>
                                     <a href="/company/{{ $doc->for_company_id }}/doc/{{ $doc->id }}/edit" class="btn dark">View Document</a>
@@ -200,11 +208,11 @@
                                         <a href="/equipment/{{ $todo->type_id }}/transfer-verify" class="btn blue"> Verify Transfer</a>
                                     @endif
                                 @endif
-                                @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident']))
+                                @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident', 'incident prevent']))
                                     <button class="btn green" id="save">Save</button>
                                     <button class="btn blue" id="close">Mark Complete</button>
                                 @endif
-                                @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident']) && Auth::user()->allowed2('edit.todo', $todo))))
+                                @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident', 'incident prevent']) && Auth::user()->allowed2('edit.todo', $todo))))
                                     <button class="btn green" id="open">Re-open Task</button>
                                 @endif
                             </div>

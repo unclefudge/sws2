@@ -73,6 +73,7 @@ class TodoController extends Controller {
         return view('comms/todo/create', compact('type', 'type_id'));
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -84,15 +85,15 @@ class TodoController extends Controller {
         if (!Auth::user()->allowed2('add.todo'))
             return view('errors/404');
 
-        $todo_request = $request->all();
-        $todo_request['due_at'] = ($request->get('due_at')) ? Carbon::createFromFormat('d/m/Y H:i', $request->get('due_at') . '00:00')->toDateTimeString() : null;
+        $todo_request = request()->all();
+        $todo_request['due_at'] = (request('due_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('due_at') . '00:00')->toDateTimeString() : null;
 
-        $assign_to = $request->get('assign_to');
+        $assign_to = request('assign_to');
         $assign_list = [];
 
         // Users
         if ($assign_to == 'user') {
-            foreach ($request->get('user_list') as $id) {
+            foreach (request('user_list') as $id) {
                 if ($id == 'all') {
                     $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
                     break;
@@ -100,7 +101,7 @@ class TodoController extends Controller {
                     $assign_list[] = $id;
             }
 
-            if ($request->get('assign_multi')) {
+            if (request('assign_multi')) {
                 foreach ($assign_list as $id) {
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($id);
@@ -113,7 +114,7 @@ class TodoController extends Controller {
 
         // Companies
         if ($assign_to == 'company') {
-            foreach ($request->get('company_list') as $id) {
+            foreach (request('company_list') as $id) {
                 if ($id == 'all') {
                     $assign_list = Auth::user()->company->companies(1)->pluck('id')->toArray();
                     break;
@@ -121,7 +122,7 @@ class TodoController extends Controller {
                     $assign_list[] = $id;
             }
 
-            if ($request->get('assign_multi')) {
+            if (request('assign_multi')) {
                 foreach ($assign_list as $id) {
                     $company = Company::findOrFail($id);
                     foreach ($company->staffStatus(1) as $staff) {
@@ -135,15 +136,14 @@ class TodoController extends Controller {
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($company->staffStatus(1)->pluck('id')->toArray());
                 }
-
             }
         }
 
         // Roles
         if ($assign_to == 'role') {
-            $assign_list = $request->get('role_list');
+            $assign_list = request('role_list');
 
-            if ($request->get('assign_multi')) {
+            if (request('assign_multi')) {
                 $user_list = [];
                 $users = DB::table('role_user')->select('user_id')->whereIn('role_id', $assign_list)->distinct('user_id')->orderBy('user_id')->get();
                 foreach ($users as $u) {
@@ -165,7 +165,6 @@ class TodoController extends Controller {
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($user_list);
                 }
-
             }
         }
 
@@ -213,12 +212,29 @@ class TodoController extends Controller {
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.todo', $todo))
-           return view('errors/404');
+            return view('errors/404');
 
         if (!$todo->isOpenedBy(Auth::user()))
             $todo->markOpenedBy(Auth::user());
 
         return view('comms/todo/show', compact('todo'));
+    }
+
+    /**
+     * Edit the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $todo = Todo::findorFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.todo', $todo))
+            return view('errors/404');
+
+        return view('comms/todo/edit', compact('todo'));
+
     }
 
     /**
@@ -229,39 +245,73 @@ class TodoController extends Controller {
     public function update(Request $request, $id)
     {
         $todo = Todo::findorFail($id);
-        $old_status = $todo->status;
-        $todo_request = $request->all();
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.todo', $todo))
             return view('errors/404');
 
+        $old_status = $todo->status;
+        $todo_request = request()->all();
+        $todo_request['due_at'] = (request('due_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('due_at') . '00:00')->toDateTimeString() : null;
+
+        // Recently closed ToDoo
+        if ($todo->status && request('status') == 0) {
+            $todo_request['done_by'] = Auth::user()->id;
+            $todo_request['done_at'] = Carbon::now()->toDateTimeString();
+        }
+        // Recently re-opened ToDoo
+        if (!$todo->status && request('status') == 1) {
+            $todo_request['done_by'] = 0;
+            $todo_request['done_at'] = null;
+        }
         //dd($todo_request);
         $todo->update($todo_request);
+
+
+        // Update Assigned Users
+        $current_users =  $user_list = $todo->users->pluck('user_id')->toArray();
+        $assign_list = [];
+        $newly_assigned = [];
+        if (request('user_list')) {
+            foreach (request('user_list') as $id) {
+                if ($id == 'all') {
+                    $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
+                    break;
+                } else
+                    $assign_list[] = $id;
+            }
+
+            foreach ($assign_list as $user_id) {
+                if (!in_array($user_id, $current_users)) {
+                    TodoUser::create(['todo_id' => $todo->id, 'user_id' => $user_id]); // Assign new user
+                    $newly_assigned[] = $user_id;
+                }
+            }
+        }
+        // Delete existing Assigned Users if not current
+        $deleted = TodoUser::where('todo_id', $todo->id)->whereNotIn('user_id', $assign_list)->delete();
+
+        // Email newly assigned users
+        if ($newly_assigned)
+            $todo->emailToDo($newly_assigned);
 
         $table = '';
         if ($todo->type == 'hazard') $table = 'site_hazards';
         if ($todo->type == 'accident') $table = 'site_accidents';
         if ($todo->type == 'incident') $table = 'site_incidents';
 
-        // Recently closed Hazard/Incident ToDoo
-        if (in_array($todo->type, ['hazard', 'accident', 'incident']) && $old_status && !$todo->status) {
+        // Recently closed Hazard ToDoo
+        if (in_array($todo->type, ['hazard']) && $old_status && !$todo->status) {
             $action = Action::create(['action' => "Completed task: $todo->info", 'table' => $table, 'table_id' => $todo->type_id]);
             $todo->emailToDoCompleted();
-            $todo->done_by = Auth::user()->id;
-            $todo->done_at = Carbon::now()->toDateTimeString();
-            $todo->save();
         }
-        // Re-opened Hazard/Incident ToDoo
-        if (in_array($todo->type, ['hazard', 'accident', 'incident']) && !$old_status && $todo->status) {
+        // Re-opened Hazard ToDoo
+        if (in_array($todo->type, ['hazard',]) && !$old_status && $todo->status) {
             $action = Action::create(['action' => "Re-opened task: $todo->info", 'table' => $table, 'table_id' => $todo->type_id]);
             $todo->emailToDo();
-            $todo->done_by = 0;
-            $todo->done_at = null;
-            $todo->save();
         }
 
-        if ($request->get('delete_attachment') && $todo->attachment) {
+        if (request('delete_attachment') && $todo->attachment) {
             if (file_exists(public_path($todo->attachment_url)))
                 unlink(public_path($todo->attachment_url));
             $todo->attachment = '';

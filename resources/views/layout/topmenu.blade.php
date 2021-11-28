@@ -16,6 +16,7 @@
                 </li>
                 <li>
                     <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283">
+                        {{-- Outstanding ToDoo Type for Users --}}
                         @foreach (TODO_TYPES as $type => $name)
                             @foreach(Auth::user()->todoType($type, 1) as $todo)
                                 <li>

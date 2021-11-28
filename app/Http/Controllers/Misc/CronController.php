@@ -1083,8 +1083,7 @@ class CronController extends Controller {
         $date = Carbon::now()->format('Y-m-d');
         $keytasks = [
             4  => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
-            7  => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
-            11 => 'is begining Start Job today']; // Start Job,
+            7  => 'is now ready to inspect and review the Frame and Roof']; // Frame & Roof FF (FR/FF)
 
         $email_sent = 0;
         foreach ($keytasks as $task_id => $subject) {
