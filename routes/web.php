@@ -325,6 +325,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/asbestos/register/{id}/create', 'Site\SiteAsbestosRegisterController@createItem');
     Route::get('site/asbestos/register/delete/{id}', 'Site\SiteAsbestosRegisterController@deleteItem');
     Route::get('site/asbestos/register/{id}/createpdf', 'Site\SiteAsbestosRegisterController@createPDF');
+    Route::get('site/asbestos/register/{id}/destroy', 'Site\SiteAsbestosRegisterController@destroy');
     Route::resource('site/asbestos/register', 'Site\SiteAsbestosRegisterController');
 
 

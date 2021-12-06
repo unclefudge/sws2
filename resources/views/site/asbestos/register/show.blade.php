@@ -95,6 +95,7 @@
 
                         <div class="form-actions right">
                             <a href="/site/asbestos/register" class="btn default"> Back</a>
+                            <a id="delete" class="btn red">Delete</a></li>
                         </div>
                     </div>
                 </div>
@@ -114,5 +115,26 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script>
+
+    $(document).ready(function () {
+        $('#delete').on('click', function () {
+            var id = "{{ $asb->id }}";
+            var name = "{{ $asb->site->name }}";
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to restore this asbestos record!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                window.location = "/site/asbestos/register/" + id + '/destroy';
+            });
+        });
+    });
+</script>
 @stop
 

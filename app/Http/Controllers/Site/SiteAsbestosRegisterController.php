@@ -251,6 +251,29 @@ class SiteAsbestosRegisterController extends Controller {
         return redirect("/site/asbestos/register/$asb->id");
     }
 
+    /**
+     * Delete the specified resource in storage.
+     */
+    public function destroy($id)
+    {
+        $asb = SiteAsbestosRegister::findOrFail($id);
+        if (!(Auth::user()->allowed2('del.site.asbestos', $asb)))
+            return view('errors/404');
+
+        // Delete attached file
+        if ($asb->attachment && file_exists(public_path('/filebank/site/' . $asb->site_id . '/docs/' . $asb->attachment)))
+            unlink(public_path('/filebank/site/' . $asb->site_id . '/docs/' . $asb->attachment));
+
+
+        $asb->delete();
+        Toastr::error("Asbestos register deleted");
+
+        if (request()->ajax())
+            return json_encode('success');
+        else
+            return redirect('/site/asbestos/register');
+    }
+
     public function createPDF($id)
     {
         $asb = SiteAsbestosRegister::findOrFail($id);
