@@ -191,11 +191,31 @@
 
                             <!-- Unsafe Site Fields -->
                             <div id="unsafe-site">
+                                <hr>
+                                <h4 class="font-green-haze">Hazard Details</h4>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('location', $errors) !!}">
+                                            {!! Form::label('location', 'Location of hazard (eg. bathroom, first floor addition, kitchen, backyard)', ['class' => 'control-label']) !!}
+                                            {!! Form::text('location', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('location', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('rating', $errors) !!}">
+                                            {!! Form::label('rating', 'Risk Rating', ['class' => 'control-label']) !!}
+                                            {!! Form::select('rating', ['' => 'Select rating', '1' => "Low", '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('rating', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group {!! fieldHasError('reason', $errors) !!}">
-                                            {!! Form::label('reason', 'Please provide details on the reason for the unsafe vehicle.', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('reason', null, ['rows' => '2', 'class' => 'form-control']) !!}
+                                            {!! Form::label('reason', 'What is the hazard / safety issue?', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('reason', null, ['rows' => '3', 'class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('reason', $errors) !!}
                                         </div>
                                     </div>
@@ -203,31 +223,29 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                            {!! Form::label('action', 'What action if any have you taken to make the vehicle safe', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('action', null, ['rows' => '2', 'class' => 'form-control']) !!}
+                                            {!! Form::label('action', 'What action/s (if any) have you taken to resolve the issue?', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('action', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <form action="#" role="form">
-                                            <div class="form-group">
-                                                <div class="fileinput fileinput-new" data-provides="fileinput">
-                                                    <div class="fileinput-preview fileinput-exists thumbnail"
-                                                         style="max-width: 200px; max-height: 150px;"></div>
-                                                    <div>
+                                        <div class="form-group">
+                                            <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                <div class="fileinput-preview fileinput-exists thumbnail"
+                                                     style="max-width: 200px; max-height: 150px;"></div>
+                                                <div>
                                                         <span class="btn default btn-file">
                                                             <span class="fileinput-new"> Upload Photo/Video of issue</span>
                                                             <span class="fileinput-exists"> Change </span>
                                                             <input type="file" name="media">
                                                         </span>
-                                                        <a href="javascript:;" class="btn default fileinput-exists"
-                                                           data-dismiss="fileinput">Remove </a>
-                                                    </div>
+                                                    <a href="javascript:;" class="btn default fileinput-exists"
+                                                       data-dismiss="fileinput">Remove </a>
                                                 </div>
                                             </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                                 <!--

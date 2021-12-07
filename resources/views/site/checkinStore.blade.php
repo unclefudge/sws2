@@ -202,61 +202,6 @@
                                 </div>
                             </div>
 
-                            <!-- Unsafe Site Fields -->
-                            <!--<div id="unsafe-site-old">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('reason', $errors) !!}">
-                                            {!! Form::label('reason', 'Please provide details on the reason for the unsafe site.', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('reason', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('reason', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                            {!! Form::label('action', 'What action if any have you taken to make the site safe', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('action', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('action', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <form action="#" role="form">
-                                            <div class="form-group">
-                                                <div class="fileinput fileinput-new" data-provides="fileinput">
-                                                    <div class="fileinput-preview fileinput-exists thumbnail"
-                                                         style="max-width: 200px; max-height: 150px;"></div>
-                                                    <div>
-                                                        <span class="btn default btn-file">
-                                                            <span class="fileinput-new"> Upload Photo/Video of issue</span>
-                                                            <span class="fileinput-exists"> Change </span>
-                                                            <input type="file" name="media">
-                                                        </span>
-                                                        <a href="javascript:;" class="btn default fileinput-exists"
-                                                           data-dismiss="fileinput">Remove </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-2 col-xs-4 text-center">
-                                        <div class="form-group">
-                                            {!! Form::checkbox('action_required', '1', null,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-10 col-xs-8">
-                                        Does {{ $worksite->company->name }} need to take any action?
-                                    </div>
-                                </div>
-                            </div> -->
                             <div id="unsafe-site">
                                 <hr>
                                 <h4 class="font-green-haze">Hazard Details</h4>
