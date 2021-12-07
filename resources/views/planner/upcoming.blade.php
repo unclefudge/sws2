@@ -34,7 +34,8 @@
                                 <th width="12%"> Council Approval</th>
                                 <th width="12%"> Construction Certificate</th>
                                 <th width="12%"> Pre Contruction</th>
-                                <th width="12%"> Contracts Sent</th>
+                                <th width="12%"> Contracts Sent<br><span class="font-red">(Admin Data)</span></th>
+                                <th width="12%"><span class="font-red">Deposit Paid</span></th>
                             </tr>
                             </thead>
 
@@ -49,7 +50,13 @@
                                     <td>{{ ($site->JobFirstTaskOfType(576)) ? $site->JobFirstTaskOfType(576)->format('d/m/Y') : ''  }}</td>
                                     <td>{{ ($site->JobFirstTaskOfType(582)) ? $site->JobFirstTaskOfType(582)->format('d/m/Y') : ''  }}</td>
                                     <td>{{ ($site->JobFirstTaskOfType(264)) ? $site->JobFirstTaskOfType(264)->format('d/m/Y') : ''  }}</td>
-                                    <td>{{ ($site->JobFirstTaskOfType(578)) ? $site->JobFirstTaskOfType(578)->format('d/m/Y') : ''  }}</td>
+                                    <td>
+                                        {{ ($site->JobFirstTaskOfType(578)) ? $site->JobFirstTaskOfType(578)->format('d/m/Y') : ''  }}
+                                        {!! ($site->contract_sent) ? "<br><span class='font-red'>".$site->contract_sent->format('d/m/Y')."</span>" : '' !!}
+                                    </td>
+                                    <td>
+                                        {!! ($site->deposit_paid) ? "<span class='font-red'>".$site->deposit_paid->format('d/m/Y')."</span>" : '' !!}
+                                    </td>
                                 </tr>
                                 @endforeach
                             </tbody>

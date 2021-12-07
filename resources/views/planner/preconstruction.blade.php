@@ -71,7 +71,7 @@
                             @if ($site && $site->status == -1)
                             <div class="col-md-3 pull-right">
                                 <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
-                                <a href="/planner/site/{{$site->id}}/status/-2" class="btn red" style="margin: 3px">Cancel Site</a>
+                                <a id="delete" class="btn red" style="margin: 3px">Cancel Site</a>
                             </div>
                             @endif
                         </div>
@@ -559,6 +559,23 @@
                     xx.params.site_start = 'week';
                     postAndRedirect('/planner/preconstruction', xx.params);
                 }
+            });
+
+            $('#delete').on('click', function () {
+                var id = "{{ $site_id }}";
+                var name = "{{ ($site) ? $site->name : '' }}";
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to restore this site!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location = "/planner/site/" + id + '/status/-2';
+                });
             });
         });
     </script>
