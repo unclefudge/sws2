@@ -504,8 +504,18 @@ Vue.component('app-siteplan', {
                     moveJobFromDate(this.xx.plan, this.xx.params.site_id, date, direction, days)
                         .then(function (result) {
                             if (result) {
-                                this.xx.load_plan = false;
-                                this.$broadcast('refreshWeekPlanEvent');
+                                setTimeout(function () {
+                                    //this.xx.load_plan = false;
+                                    //this.$broadcast('refreshWeekPlanEvent');
+                                    //console.log('delayed refreshed planner');
+                                    console.log('reload planner');
+                                    if (this.xx.status == '-1')
+                                        var url = "/planner/preconstruction";
+                                    else
+                                        var url = "/planner/site";
+                                    postAndRedirect(url, this.xx.params);
+                                    //this.getPlan();
+                                }.bind(this), 3000);
                             }
                         }.bind(this));
                 }.bind(this), 100);
@@ -559,6 +569,12 @@ Vue.component('app-siteplan', {
             this.xx.showClearModal = false;
             this.xx.showSidebarHeader = false;
             toastr.success('Cleared Site from ' + moment(this.xx.day_date).format('DD/MM/YYYY'));
+            console.log('reload planner');
+            if (this.xx.status == '-1')
+                var url = "/planner/preconstruction";
+            else
+                var url = "/planner/site";
+            postAndRedirect(url, this.xx.params);
         },
         deleteConnectedTasks: function () {
             // Delete all connected tasks from a given date

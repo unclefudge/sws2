@@ -303,9 +303,9 @@ function moveTaskFromDate(plan, task, date, direction, days) {
             var newDate = nextWorkDate(task.from, direction, days);
             var oldDate = task.from;
 
-            // Prevent task being moved to or before today
-            if (moment(newDate).isSameOrBefore(moment(), 'day')) {
-                toastr.error('Unable to move task to or before today');
+            // Prevent task being moved to or before today for Active/Maintenance sites
+            if (moment(newDate).isSameOrBefore(moment(), 'day') && task.site_status > 0) {
+                toastr.error('Unable to move task to or before today.');
                 reject(false);
             } else {
                 task.from = newDate;
@@ -362,8 +362,8 @@ function moveEntityFromDate(plan, connected_tasks, date, direction, days) {
 function moveTasktoDate(plan, task, date) {
     return new Promise(function (resolve, reject) {
         console.log('moving task:' + task.task_name + ' to D:' + date);
-        // Prevent task being moved to or before today
-        if (moment(date).isSameOrBefore(moment(), 'day')) {
+        // Prevent task being moved to or before today for Active/Maintenance sites
+        if (moment(date).isSameOrBefore(moment(), 'day') && task.site_status > 0) {
             toastr.error('Unable to move task "' + task.task_name + '" to or before today.');
             reject(false);
         } else {

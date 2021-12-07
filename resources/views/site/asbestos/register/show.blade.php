@@ -95,7 +95,9 @@
 
                         <div class="form-actions right">
                             <a href="/site/asbestos/register" class="btn default"> Back</a>
-                            <a id="delete" class="btn red">Delete</a></li>
+                            @if (Auth::user()->allowed2('del.site.asbestos', $asb))
+                                <a id="delete" class="btn red">Delete</a></li>
+                            @endif
                         </div>
                     </div>
                 </div>
