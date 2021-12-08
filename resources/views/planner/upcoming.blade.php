@@ -52,7 +52,7 @@
                                     <td>{{ ($site->JobFirstTaskOfType(582)) ? $site->JobFirstTaskOfType(582)->format('d/m/Y') : ''  }}</td>
                                     <td>{{ ($site->JobFirstTaskOfType(264)) ? $site->JobFirstTaskOfType(264)->format('d/m/Y') : ''  }}</td>
                                     <td>
-                                        {{ ($site->JobFirstTaskOfType(578)) ? $site->JobFirstTaskOfType(578)->format('d/m/Y')."<br>" : ''  }}
+                                        {!! ($site->JobFirstTaskOfType(578)) ? $site->JobFirstTaskOfType(578)->format('d/m/Y')."<br>" : ''  !!}
                                         {!! ($site->contract_sent) ? "<span class='font-red'>".$site->contract_sent->format('d/m/Y')."</span>" : '' !!}
                                     </td>
                                     <td>
