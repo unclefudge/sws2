@@ -27,6 +27,11 @@
         </div>
         <hr class="field-hr">
         <div class="row">
+            <div class="col-md-6">Council Approval:</div>
+            <div class="col-xs-6">{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
             <div class="col-md-6">Prac Papers Signed:</div>
             <div class="col-xs-6">{!! ($site->completion_signed) ? $site->completion_signed->format('d/m/Y') : '-' !!}</div>
         </div>

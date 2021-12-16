@@ -220,6 +220,7 @@ class SiteController extends Controller {
         $site_request['contract_signed'] = (request('contract_signed')) ? Carbon::createFromFormat('d/m/Y H:i', request('contract_signed') . '00:00')->toDateTimeString() : null;
         $site_request['deposit_paid'] = (request('deposit_paid')) ? Carbon::createFromFormat('d/m/Y H:i', request('deposit_paid') . '00:00')->toDateTimeString() : null;
         $site_request['completion_signed'] = (request('completion_signed')) ? Carbon::createFromFormat('d/m/Y H:i', request('completion_signed') . '00:00')->toDateTimeString() : null;
+        $site_request['council_approval'] = (request('council_approval')) ? Carbon::createFromFormat('d/m/Y H:i', request('council_approval') . '00:00')->toDateTimeString() : null;
         $site->update($site_request);
 
         Toastr::success("Saved changes");
@@ -254,6 +255,27 @@ class SiteController extends Controller {
         Toastr::success("Saved changes");
 
         return redirect('/site/' . $site->slug . '/settings/photo');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updatesupervisor($site_id, $super_id)
+    {
+        $site = Site::findOrFail($site_id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
+            return view('errors/404');
+
+        $site->supervisors()->sync([$super_id]);
+
+        Toastr::success("Updated Supervisor");
+        if (request()->ajax())
+            return response()->json(['success'=> '1']);
+        return redirect('/site/' . $site->id);
     }
 
     /**

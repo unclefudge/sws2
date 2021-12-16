@@ -339,10 +339,26 @@ class SitePlannerController extends Controller {
 
         // Add Remaining Pre-contruct jobs to the list
         $pre_sites = Auth::user()->company->sites('-1')->sortBy('code')->pluck('id')->toArray();
+        $non_start_sites = [];
         foreach ($pre_sites as $site_id) {
-            if (!in_array($site_id, $site_list))
-                $site_list[] = $site_id;
+            if (!in_array($site_id, $site_list)) {
+                $site = Site::find($site_id);
+                //$site_list[] = $site_id;
+                if ($site->contract_sent && $site->contract_sent) {
+                    $non_start_sites[$site_id] = ($site->contract_sent->lte($site->contract_sent)) ? $site->contract_sent->format('Ymd') : $site->contract_sent->format('Ymd');
+                } elseif ($site->contract_sent) {
+                    $non_start_sites[$site_id] = $site->contract_sent->format('Ymd');
+                } elseif ($site->contract_sent) {
+                    $non_start_sites[$site_id] = $site->contract_sent->format('Ymd');
+                } else {
+                    $non_start_sites[$site_id] = '99999999';
+                }
+            }
         }
+        asort($non_start_sites);
+        //dd($non_start_sites);
+        foreach ($non_start_sites as $site_id => $date)
+            $site_list[] = $site_id;
 
         //dd($site_list);
 

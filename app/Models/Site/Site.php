@@ -22,9 +22,9 @@ class Site extends Model {
         'name', 'code', 'slug',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country',
         'photo', 'notes', 'client_id', 'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc',
-        'contract_sent', 'contract_signed', 'deposit_paid', 'engineering', 'construction', 'hbcf', 'consultant_name',
+        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering', 'construction', 'hbcf', 'consultant_name',
         'completion_signed', 'completed', 'status', 'company_id', 'created_by', 'updated_by'];
-    protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
+    protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed'];
 
     /**
      * A Site belongs to a company

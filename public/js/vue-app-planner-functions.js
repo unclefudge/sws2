@@ -438,6 +438,7 @@ function assignTasksFromDate(plan, site_id, etype, eid, ename, task_amount, trad
 }
 
 // Add Start task to planner + all the associated tasks with it
+//  called by Trade Planner
 function addStartTaskToPlanner(plan, site_id, date) {
     console.log('adding Job START + associated tasks to planner')
 
@@ -552,6 +553,7 @@ function addStartTaskToPlanner(plan, site_id, date) {
 }
 
 // Add Start task to planner + all the associated tasks with it
+//   called by ConstructionPlanner when START task added
 function addStartTaskToPlanner2(plan, site_id, date) {
 
     return new Promise(function (resolve, reject) {
@@ -678,20 +680,22 @@ function addStartTaskToPlanner2(plan, site_id, date) {
 
         Promise.all(promises).then(resolve);
 
-        // Email Jobstart
-        var data = {site_id: site_id, newdate: date};
-        $.ajax({
-            url: '/planner/data/trade/email-jobstart',
-            type: 'POST',
-            data: data,
-            success: function (result) {
-                console.log('Emailed Jobstart');
-            },
-            error: function (result) {
-                alert("Failed to email Job Start");
-                console.log('Email of Job Start FAILED');
-            }
-        });
+        if (plan.status > 0) {
+            // Email Jobstart
+            var data = {site_id: site_id, newdate: date};
+            $.ajax({
+                url: '/planner/data/trade/email-jobstart',
+                type: 'POST',
+                data: data,
+                success: function (result) {
+                    console.log('Emailed Jobstart');
+                },
+                error: function (result) {
+                    alert("Failed to email Job Start");
+                    console.log('Email of Job Start FAILED');
+                }
+            });
+        }
     });
 }
 

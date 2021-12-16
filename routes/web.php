@@ -387,6 +387,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/{id}/admin', 'Site\SiteController@updateAdmin');
     Route::post('site/{id}/client', 'Site\SiteController@updateClient');
     Route::get('site/{id}/doc', 'Site\SiteController@showDocs');
+    Route::get('site/{site_id}/supervisor/{super_id}', 'Site\SiteController@updateSupervisor');
     Route::get('site/data/doc/dt', 'Site\SiteController@getSiteDocs');
     Route::get('site/data/details/{id}', 'Site\SiteController@getSiteDetails');
     Route::get('site/data/supervisor/{id}', 'Site\SiteController@getSiteSuper');
