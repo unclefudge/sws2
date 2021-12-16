@@ -2,6 +2,7 @@ var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
     status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '',
+    council_approval: '', contract_sent: '', contract_signed: '', deposit_paid: '',
     first_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
     total_weeks: '', first_week: 1, current_week: 1,
     showSidebar: false, showSidebarHeader: false, showNewTask: false, showAssign: false, showClearModal: false,
@@ -77,6 +78,24 @@ Vue.component('app-siteplan', {
         showWeek: function (date) {
             // determine if given date is before this monday
             return !(this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'));
+        },
+        showAdminDate: function (date) {
+            // determin of current week has site admin event
+            var admin_event = false;
+            var admin_mon = this.adminDate(moment(date).format('YYYY-MM-DD'));
+            var admin_tue = this.adminDate(moment(date).add(1, 'days').format('YYYY-MM-DD'));
+            var admin_wed = this.adminDate(moment(date).add(2, 'days').format('YYYY-MM-DD'));
+            var admin_thu = this.adminDate(moment(date).add(3, 'days').format('YYYY-MM-DD'));
+            var admin_fri = this.adminDate(moment(date).add(4, 'days').format('YYYY-MM-DD'));
+            if (admin_mon || admin_tue || admin_wed || admin_thu || admin_fri)
+                admin_event = true;
+
+            console.log(date + '**' + admin_mon + ':' + admin_tue + ':' + admin_wed + ':' + admin_thu + ':' + admin_fri);
+            // determine if given date is before this monday
+            if (this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'))
+                return false;
+
+            return admin_event;
         },
         pastDate: function (date) {
             // determine if given date is same or before today
@@ -597,6 +616,20 @@ Vue.component('app-siteplan', {
             this.xx.showSidebar = false;
             toastr.success('Deleted Connected Tasks');
         },
+        adminDate: function (date) {
+            var string = ''; //<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>" + date +"</div><br>";
+            if (date == this.xx.council_approval) {   // Council Approval
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Council Approval</div><br>";
+            }
+            if (date == this.xx.contract_sent) {   // Contract Sent
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Contract Sent</div><br>";
+            }
+            if (date == this.xx.contract_signed) {   // Contract Sent
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Contract Signed</div><br>";
+            }
+
+            return string;
+        },
     },
 });
 
@@ -663,6 +696,20 @@ Vue.component('app-weekof', {
             this.wed = moment(this.mon).add(2, 'days').format('YYYY-MM-DD');
             this.thu = moment(this.mon).add(3, 'days').format('YYYY-MM-DD');
             this.fri = moment(this.mon).add(4, 'days').format('YYYY-MM-DD');
+        },
+        adminDate: function (date) {
+            var string = "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>" + date +"</div><br>"
+            if (date == this.xx.council_approval) {   // Council Approval
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Council Approval</div><br>";
+            }
+            if (date == this.xx.contract_sent) {   // Contract Sent
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Contract Sent</div><br>";
+            }
+            if (date == this.xx.contract_signed) {   // Contract Sent
+                string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Contract Signed</div><br>";
+            }
+
+            return string;
         },
     },
 });
@@ -748,7 +795,7 @@ Vue.component('app-dayplan', {
             }
 
             // Determine if Company has a 'string' of tasks
-            // - a string defined as multiple tasks same day or tasks that are back to back from oone another
+            // - a string defined as multiple tasks same day or tasks that are back to back from one another
 
 
         },

@@ -552,11 +552,22 @@ class SitePlannerController extends Controller {
         $vars = ['first_date' => '', 'start_date' => '', 'start_carp' => '', 'carp_prac' => ''];
         $fullplan = [];
 
+        $site = Site::find($site_id);
+        $first_date = Carbon::now()->addDays(9999);
+        if ($site->status < 0) {
+            if ($site->council_approval) $first_date = $site->council_approval;
+            if ($site->contract_sent && $site->contract_sent->lt($first_date)) $first_date = $site->contract_sent;
+            if ($site->contract_signed && $site->contract_signed->lt($first_date)) $first_date = $site->contract_signed;
+            if ($site->deposit_paid && $site->deposit_paid->lt($first_date)) $first_date = $site->deposit_paid;
+        }
         foreach ($planner as $plan) {
             $array = $this->getPlanData($plan);
 
             // Determine start dates
-            if (!$vars['first_date']) $vars['first_date'] = $array['from'];
+            if (!$vars['first_date']) {
+                $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $array['from'] . ' 00:00:00');
+                $vars['first_date'] = ($date_from->lt($first_date)) ?  $array['from'] : $first_date->format('Y-m-d');
+            }
             if (!$vars['start_date'] && $array['task_code'] == 'START') $vars['start_date'] = $array['from'];
             if (!$vars['start_carp'] && $array['task_code'] == 'STARTCarp') $vars['start_carp'] = $array['from'];
             if (!$vars['carp_prac'] && $array['task_id'] == '5') $vars['carp_prac'] = $array['from'];

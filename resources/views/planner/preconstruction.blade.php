@@ -13,6 +13,10 @@
         <input v-model="xx.params.supervisor_id" type="hidden" value="{{ $supervisor_id }}">
         <input v-model="xx.params.site_id" type="hidden" value="{{ $site_id }}">
         <input v-model="xx.params.site_start" type="hidden" value="{{ $site_start }}">
+        <input v-model="xx.council_approval" type="hidden" value="{{ ($site && $site->council_approval) ? $site->council_approval->format('Y-m-d') : 0 }}">
+        <input v-model="xx.contract_sent" type="hidden" value="{{ ($site && $site->contract_sent) ? $site->contract_sent->format('Y-m-d') : 0 }}">
+        <input v-model="xx.contract_signed" type="hidden" value="{{ ($site && $site->contract_signed) ? $site->contract_signed->format('Y-m-d') : 0 }}">
+        <input v-model="xx.deposit_paid" type="hidden" value="{{ ($site && $site->deposit_paid) ? $site->deposit_paid->format('Y-m-d') : 0 }}">
         <input v-model="xx.status" type="hidden" value="{{ ($site) ? $site->status : 0 }}">
         <div class="row">
             <div class="col-md-12">
@@ -417,8 +421,7 @@
         -->
         <div :show.sync="xx.plan.length">
             <template v-for="x in xx.total_weeks">
-                <div v-if="showWeek(weekDate(xx.first_mon, x*7+0))" class="row"
-                     style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
+                <div v-if="showWeek(weekDate(xx.first_mon, x*7+0))" class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                     <!-- Week No. -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="color: #999">Week @{{ calcWeekNumber(x) }}</div>
                     <div v-else class="col-xs-2">Week @{{ calcWeekNumber(x) }}</div>
@@ -439,13 +442,49 @@
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
                 </div>
 
+                <!--  Special Dates from Site Admin Profile  -->
+                <div v-if="showAdminDate(weekDate(xx.first_mon, x*7+0))" class="row row-striped" style="border-bottom: 1px solid lightgrey; padding: 0px; overflow: hidden; ">
+                    <!-- display: flex; align-items: center; -->
+                    <div class="col-xs-2 sideColBG">&nbsp;</div>
+                    <div class="col-xs-2">
+                        <div>@{{ mon }}</div>
+                        <div v-if="adminDate(weekDate(xx.first_mon, x*7+0))" style="padding: 5px; margin:5px">
+                            <div v-html="adminDate(weekDate(xx.first_mon, x*7+0))"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2" >
+                        <div>@{{ tue }}</div>
+                        <div v-if="adminDate(weekDate(xx.first_mon, x*7+1))" style="padding: 5px; margin:5px">
+                            <div v-html="adminDate(weekDate(xx.first_mon, x*7+1))"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div>@{{ wed }}</div>
+                        <div v-if="adminDate(weekDate(xx.first_mon, x*7+2))" style="padding: 5px; margin:5px">
+                            <div v-html="adminDate(weekDate(xx.first_mon, x*7+2))"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div>@{{ thu }}</div>
+                        <div v-if="adminDate(weekDate(xx.first_mon, x*7+3))" style="padding: 5px; margin:5px">
+                            <div v-html="adminDate(weekDate(xx.first_mon, x*7+3))"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div>@{{ fri }}</div>
+                        <div v-if="adminDate(weekDate(xx.first_mon, x*7+4))" style="padding: 5px; margin:5px">
+                            <div v-html="adminDate(weekDate(xx.first_mon, x*7+4))"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Show Site Plan for each Entity on given week -->
                 <div v-if="showWeek(weekDate(xx.first_mon, x*7+0))" class="row">
                     <app-weekof :mon="weekDate(xx.first_mon, x*7+0)"></app-weekof>
                 </div>
             </template>
         </div>
-        <pre v-if="xx.dev">@{{ $data | json }}</pre>
+        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
         -->
     </template>
 
@@ -458,7 +497,7 @@
             <template v-for="entity in entities">
                 <div class="row row-striped" style="border-bottom: 1px solid lightgrey; padding: 0px; margin: 0px; overflow: hidden; ">
                     <!-- display: flex; align-items: center; -->
-                    <div class="col-xs-2 sideColBG"><!--@{{ entity }}-->&nbsp;</div>
+                    <div class="col-xs-2 sideColBG">&nbsp;</div>
                     <div class="col-xs-2" v-bind:class="{ 'todayBG': mon == xx.today }">
                         <app-dayplan :date="mon" :entity="entity"></app-dayplan>
                     </div>
