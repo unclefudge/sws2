@@ -149,7 +149,15 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        echo "<b>Converting SDS </b></br>";
+        echo "<b>SDS files verify</b></br>";
+        $sds_docs = SafetyDataSheet::all();
+        foreach ($sds_docs as $sds) {
+            if (!file_exists(public_path('/filebank/whs/sds/' . $sds->attachment))) {
+                echo "[$sds->id] Missing file - $sds->attachment<br>";
+            }
+        }
+
+        /*echo "<b>Converting SDS </b></br>";
         $sds_docs = SafetyDoc::where('type', 'SDS')->get();
         foreach ($sds_docs as $sds) {
             $sds_request['name'] = $sds->name;
@@ -174,7 +182,7 @@ class PagesController extends Controller {
 
             $doc->categories()->attach([$sds->category_id]);
             echo "[$doc->id] $sds->name <br>";
-        }
+        }*/
 
 
 
