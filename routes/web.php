@@ -268,6 +268,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/incident/{id}/regulator', 'Site\Incident\SiteIncidentController@updateRegulator');
     Route::post('site/incident/{id}/add_note', 'Site\Incident\SiteIncidentController@addNote');
     Route::get('site/incident/{id}/add_docs', 'Site\Incident\SiteIncidentController@addDocs');
+    Route::post('site/incident/{id}/add_review', 'Site\Incident\SiteIncidentController@addReview');
+    Route::post('site/incident/{id}/signoff', 'Site\Incident\SiteIncidentController@signoff');
     Route::post('site/incident/{id}/investigation', 'Site\Incident\SiteIncidentController@updateInvestigation');
     // Analysis
     Route::get('site/incident/{id}/analysis', 'Site\Incident\SiteIncidentAnalysisController@show');

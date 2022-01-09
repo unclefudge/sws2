@@ -100,6 +100,25 @@ class SiteIncident extends Model {
     }
 
     /**
+     * Check if a user is a assigned a ToDoo
+     *
+     * @return Collection
+     */
+    public function hasAssignedTask($user_id, $status = '')
+    {
+        $todos = ($status) ? Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get() : Todo::where('type', 'incident')->where('type_id', $this->id)->get();
+
+        if ($todos) {
+            foreach($todos as $todo) {
+                foreach ($todo->assignedTo() as $user)
+                    if ($user->id == $user_id)
+                        return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * A SiteIncident 'may' have multiple ToDoos - Preventive Actions
      *
      * @return Collection
@@ -110,6 +129,33 @@ class SiteIncident extends Model {
             return Todo::where('status', $status)->where('type', 'incident prevent')->where('type_id', $this->id)->get();
 
         return Todo::where('type', 'incident prevent')->where('type_id', $this->id)->get();
+    }
+
+    /**
+     * A SiteIncident 'may' have multiple ToDoos - Reviews
+     *
+     * @return Collection
+     */
+    public function reviews($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'incident review')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'incident review')->where('type_id', $this->id)->get();
+    }
+
+    /**
+     * A SiteIncident Reviews Users List
+     */
+    public function reviewsBy($status = '')
+    {
+        $reviews = [];
+        $Todos =  ($status) ? Todo::where('status', $status)->where('type', 'incident review')->where('type_id', $this->id)->get() : Todo::where('type', 'incident review')->where('type_id', $this->id)->get();
+
+        foreach ($Todos as $todo)
+            $reviews[$todo->users()->first()->user_id] = ($todo->done_at) ? $todo->done_at->format('d/m/Y') : '';
+
+        return $reviews;
     }
 
     /**

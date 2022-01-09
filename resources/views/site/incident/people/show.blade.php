@@ -152,7 +152,9 @@
 
                         <div class="form-actions right">
                             <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> Save</button>
+                            @if (Auth::user()->allowed2('edit.site.incident', $incident) || $person->user_id == Auth::user()->id)
+                                <button type="submit" class="btn green"> Save</button>
+                            @endif
                         </div>
                         {!! Form::close() !!} <!-- END FORM-->
                     </div>

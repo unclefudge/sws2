@@ -5,7 +5,8 @@
             <span class="caption-subject font-dark bold uppercase">Photos / Documents</span>
         </div>
         <div class="actions">
-            @if ($pEdit)
+            {{-- Users with 'Edit access' / Involved Person / Assigned Task / Reviewable are allowed to add Docs--}}
+            @if ($pEdit || $incident->people->where('user_id', Auth::user()->id) || $incident->hasAssignedTask(Auth::user()->id) || isset($reviewsBy[Auth::user()->id]))
                 <a href="/site/incident/{{ $incident->id }}/add_docs" class="btn btn-circle green btn-outline btn-sm">Add</a>
             @endif
         </div>

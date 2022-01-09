@@ -26,6 +26,8 @@ $qInjuredPart = App\Models\Misc\FormQuestion::find(21);
 $qInjuredNature = App\Models\Misc\FormQuestion::find(50);
 $qInjuredMechanism = App\Models\Misc\FormQuestion::find(69);
 $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
+
+$reviewsBy = $incident->reviewsBy();
 ?>
 
 @section('content')
@@ -54,6 +56,11 @@ $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
                 @if ($pView && $incident->isDamage())
                     @include('site/incident/_show-damage')
                     @include('site/incident/_edit-damage')
+                @endif
+
+                {{-- Sign Off Review --}}
+                @if (isset($reviewsBy[Auth::user()->id]))
+                    @include('site/incident/_show-reviewsign')
                 @endif
             </div>
 
@@ -98,10 +105,6 @@ $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     {{--}}<link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css" />--}}
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
-@stop
-
-@section('page-level-styles-head')
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-plugins')
@@ -176,6 +179,29 @@ $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
             }
         }
 
+        if ($("#show_signoff").val() == '1') {
+            swal('Incident Review', 'Please review and sign off your acceptance of this incident report');
+        }
+
+        // On Click Review Sign Off
+        $("#signoff_review").click(function (e) {
+            e.preventDefault();
+            swal({
+                title: "Incident Reviwed",
+                text: "I have reviewed and sign off my acceptance of this incident report.<br>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Sign Off",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $("#done_at").val(1);
+                $('#form_reviewed').submit();
+            });
+
+        });
+
     });
 
     function editForm(name) {
@@ -210,10 +236,11 @@ $qInjuredAgency = App\Models\Misc\FormQuestion::find(92);
 
 
     // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
+    /*$('.bs-datetime').datetimepicker({
         endDate: new Date(),
         format: 'dd/mm/yyyy hh:ii',
-    });
+    });*/
 
 </script>
+<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop

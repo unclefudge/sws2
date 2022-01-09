@@ -15,6 +15,7 @@ use App\Models\Site\Incident\SiteIncidentDoc;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
 use App\Models\Misc\Action;
+use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -76,7 +77,7 @@ class SiteIncidentController extends Controller {
         $incident = SiteIncident::findorFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.incident', $incident))
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
 
@@ -149,6 +150,7 @@ class SiteIncidentController extends Controller {
         $incident->step = 0;
         $incident->status = 1;
         $incident->save();
+
         //$incident->emailIncident(); // Email incident
 
         return redirect('site/incident/');
@@ -484,9 +486,15 @@ class SiteIncidentController extends Controller {
     public function addDocs($id)
     {
         $incident = SiteIncident::findOrFail($id);
+        $allowed = false;
+        $reviewsBy = $incident->reviewsBy();
+        if (Auth::user()->allowed2('edit.site.incident', $incident)) $allowed = true; // Edit incident
+        if ($incident->people->where('user_id', Auth::user()->id)) $allowed = true;  // Involved Person
+        if ($incident->hasAssignedTask(Auth::user()->id)) $allowed = true; // Assigned task
+        if (isset($reviewsBy[Auth::user()->id])) $allowed = true; // Reviewed by
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+        if (!$allowed)
             return view('errors/404');
 
         return view('site/incident/add-docs', compact('incident'));
@@ -502,7 +510,7 @@ class SiteIncidentController extends Controller {
         $incident = SiteIncident::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+        if (!Auth::user()->allowed2('view.site.incident', $incident))
             return view('errors/404');
 
         $rules = ['action' => 'required'];
@@ -530,6 +538,77 @@ class SiteIncidentController extends Controller {
 
         return redirect('site/incident/' . $incident->id);
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function addReview($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $rules = ['assign_review' => 'required', 'review_role' => 'required'];
+        $mesg = ['assign_review.required' => 'The assigned to field is required.', 'review_role.required' => 'The role field is required.'];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'review');
+
+            return back()->withErrors($validator)->withInput();
+        }
+        //dd(request()->all());
+
+        // Create Todoo Review
+        $name = "Site Incident Review : " . request('review_role');
+        $todo = Todo::create(['name' => $name, 'info' => 'Please review and sign off your acceptance of this incident report', 'type' => 'incident review', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
+        $todo->assignUsers(request('assign_review'));
+        $todo->emailToDo();
+
+        Toastr::success("Assigned review");
+
+        return redirect('site/incident/' . $incident->id . '/admin');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function signoff($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+        $reviewsBy = $incident->reviewsBy();
+
+        // Check authorisation and throw 404 if not
+        if (!isset($reviewsBy[Auth::user()->id]))
+            return view('errors/404');
+
+        //dd(request()->all());
+
+        // Get relevant Todoo Review task
+        $todo = Auth::user()->todoType('incident review')->where('type_id', $incident->id)->first();
+        $todo->comments = request('comments');
+
+        if (request('done_at') == 1) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            Toastr::success("Sign Off Acceptance");
+        } else
+            Toastr::success("Comments added");
+
+        $todo->save();
+
+        return redirect('site/incident/' . $incident->id);
+    }
+
 
     /**
      * Upload File + Store a newly created resource in storage.

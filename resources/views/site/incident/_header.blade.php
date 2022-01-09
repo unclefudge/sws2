@@ -29,11 +29,11 @@
             <ul class="member-bar-menu">
                 <li class="member-bar-item {{ $active_profile }}"><i class="icon-profile"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}" title="Profile">PROFILE</a></li>
 
-                @if (Auth::user()->allowed2('del.site.incident', $incident))
+                @if (Auth::user()->allowed2('edit.site.incident', $incident))
                     <li class="member-bar-item {{ $active_admin }}"><i class="icon-lock"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/admin" title="Admin">ADMIN</a></li>
+                    <li class="member-bar-item {{ $active_analysis }}"><i class="icon-chartarrow"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/analysis" title="Investigate">ANALYSIS</a></li>
                 @endif
 
-                <li class="member-bar-item {{ $active_analysis }}"><i class="icon-chartarrow"></i><a class="member-bar-link" href="/site/incident/{{ $incident->id }}/analysis" title="Investigate">ANALYSIS</a></li>
             </ul>
         </div>
     </div>

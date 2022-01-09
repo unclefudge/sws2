@@ -60,7 +60,8 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 
                 {{-- Sign Offs --}}
                 @if ($pView)
-                    @include('site/incident/_show-signoff')
+                    @include('site/incident/_show-review')
+                    @include('site/incident/_add-review')
                 @endif
             </div>
 
@@ -96,6 +97,8 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        $("#assign_review").select2({placeholder: "Select User", width: "100%"});
+
         // On Change Notifiable
         $("#notifiable").change(function () {
             $("#edit_regulator").hide();
@@ -127,9 +130,9 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 
             @if (count($errors) > 0)
     var errors = {!! $errors !!};
-    if (errors.FORM == 'details' || errors.FORM == 'regulator') {
+    if (errors.FORM == 'review') {
         $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
+        $('#add_' + errors.FORM).show();
     }
 
     console.log(errors)

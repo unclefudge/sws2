@@ -135,6 +135,8 @@ class Todo extends Model {
                 return '/site/qa/' . $this->type_id;
             case 'maintenance':
                 return '/site/maintenance/' . $this->type_id;
+            case 'incident review':
+                return '/site/incident/' . $this->type_id;
             case 'company doc':
                 $doc = CompanyDoc::find($this->type_id);
                 if ($doc)

@@ -8,6 +8,7 @@ use Validator;
 use DB;
 use Session;
 use App\Models\Safety\SafetyDoc;
+use App\Models\Safety\SafetyDataSheet;
 use App\Models\Safety\SafetyDocCategory;
 use App\Http\Requests;
 use App\Http\Requests\Safety\SdsRequest;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 
 /**
  * Class SdsController
@@ -71,13 +73,13 @@ class SdsController extends Controller {
      */
     public function edit($id)
     {
-        $doc = SafetyDoc::findOrFail($id);
+        $sds = SafetyDataSheet::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.sds', $doc))
+        if (!Auth::user()->allowed2('edit.sds', $sds))
             return view('errors/404');
 
-        return view('safety/doc/sds/edit', compact('doc'));
+        return view('safety/doc/sds/edit', compact('sds'));
     }
 
     /**
@@ -87,16 +89,16 @@ class SdsController extends Controller {
      */
     public function destroy($id)
     {
-        $doc = SafetyDoc::findOrFail($id);
+        $sds = SafetyDataSheet::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('del.sds', $doc))
+        if (!Auth::user()->allowed2('del.sds', $sds))
             return json_encode("failed");
 
         // Delete attached file
-        if (file_exists(public_path('/filebank/whs/sds/' . $doc->attachment)))
-            unlink(public_path('/filebank/whs/sds/' . $doc->attachment));
-        $doc->delete();
+        if (file_exists(public_path('/filebank/whs/sds/' . $sds->attachment)))
+            unlink(public_path('/filebank/whs/sds/' . $sds->attachment));
+        $sds->delete();
 
         return json_encode('success');
     }
@@ -106,26 +108,47 @@ class SdsController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(SdsRequest $request)
+    public function store()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.sds'))
             return view('errors/404');
 
-        $category_id = $request->get('category_id');
+        $rules = ['name' => 'required', 'categories' => 'required', 'singlefile' => 'required'];
+        $mesg = [
+            'name.required'       => 'The name field is required.',
+            'categories.required' => 'The category field is required.',
+            'singlefile.required' => 'The file field is required.',
+        ];
+        request()->validate($rules, $mesg); // Validate
 
-        // Redirect on 'back' button
-        if ($request->has('back'))
-            return view('/safety/doc/sds/list', compact('category_id'));
+        // Verify date
+        if (request('date')) {
+            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
+                list($dd, $mm, $yyyy) = explode('/', request('date'));
+                if (!checkdate($mm, $dd, $yyyy))
+                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+            } else
+                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+        }
 
-        $doc_request = $request->all();
+        //dd(request()->all());
+        $sds_request = request()->all();
+        $sds_request['company_id'] = Auth::user()->company_id;
+        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
 
-        // Create SDS Doc
-        $doc = SafetyDoc::create($doc_request);
+        //dd($sds_request);
+
+        // Create SDS
+        $sds = SafetyDataSheet::create($sds_request);
+
+        // Add categories
+        if (request('categories'))
+            $sds->categories()->sync(request('categories'));
 
         // Handle attached file
-        if ($request->hasFile('singlefile')) {
-            $file = $request->file('singlefile');
+        if (request()->hasFile('singlefile')) {
+            $file = request()->file('singlefile');
 
             $path = "filebank/whs/sds";
             $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
@@ -134,100 +157,74 @@ class SdsController extends Controller {
             while (file_exists(public_path("$path/$name")))
                 $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
-            $doc->attachment = $name;
-            $doc->save();
+            $sds->attachment = $name;
+            $sds->save();
         }
-        Toastr::success("Created document");
+        Toastr::success("Created SDS");
 
-        return view('safety/doc/sds/list', compact('category_id'));
+        return view('safety/doc/sds/list');
     }
 
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function upload(Request $request)
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.sds'))
-            return json_encode("failed");
-
-        // Handle file upload
-        if ($request->hasFile('multifile')) {
-            $files = $request->file('multifile');
-            foreach ($files as $file) {
-                $path = "filebank/whs/sds";
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$path/$name")))
-                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-                $file->move($path, $name);
-
-                $doc_request['type'] = 'SDS';
-                $doc_request['category_id'] = $request->get('category_id');
-                $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $doc_request['company_id'] = Auth::user()->company_id;
-
-                // Create Site Doc
-                $doc = SafetyDoc::create($doc_request);
-                $doc->attachment = $name;
-                $doc->save();
-            }
-        }
-
-        return json_encode("success");
-    }
 
     /**
      * Update the specified resource in storage.
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(SdsRequest $request, $id)
+    public function update($id)
     {
-        $category_id = $request->get('category_id');
-
-        // Redirect on 'back' button
-        if ($request->has('back'))
-            return view('/safety/doc/sds/list', compact('category_id'));
-
-        $doc = SafetyDoc::findOrFail($id);
+        $sds = SafetyDataSheet::findOrFail($id);
+        //dd(request()->all());
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.sds', $doc))
+        if (!Auth::user()->allowed2('edit.sds', $sds))
             return view('errors/404');
 
-        //dd($request->all());
-        $doc_request = $request->only('name', 'category_id', 'notes');
-        $doc->update($doc_request);
+        $rules = ['name' => 'required', 'categories' => 'required'];
+        $mesg = [
+            'name.required'       => 'The name field is required.',
+            'categories.required' => 'The category field is required.',
+        ];
+        request()->validate($rules, $mesg); // Validate
+
+        // Verify date
+        if (request('date')) {
+            if (preg_match("/(\d{2})\/(\d{2})\/(\d{4})$/", request('date'), $matches)) {
+                list($dd, $mm, $yyyy) = explode('/', request('date'));
+                if (!checkdate($mm, $dd, $yyyy))
+                    return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+            } else
+                return back()->withErrors(['date' => "Invalid date. Required format dd/mm/yyyy"]);
+        }
+
+        //dd(request()->all());
+        $sds_request = request()->all();
+        $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
+        $sds->update($sds_request);
 
         // Handle attached file
-        if ($request->hasFile('uploadfile')) {
-            $file = $request->file('uploadfile');
-            $orig_attachment = "filebank/whs/sds/" . $doc->attachment;
+        if (request()->hasFile('singlefile')) {
+            $file = request()->file('singlefile');
 
             $path = "filebank/whs/sds";
             $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
 
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-
-            $file->move($path, $name);
-            $doc->attachment = $name;
-            $doc->save();
-
+            $orig_attachment = "$path/" . $sds->attachment;
             // Delete previous file
             if (file_exists(public_path($orig_attachment)))
                 unlink(public_path($orig_attachment));
-        }
-        Toastr::success("Updated document");
 
-        return view('safety/doc/sds/edit', compact('doc'));
+            // Ensure filename is unique by adding counter to similiar filenames
+            $count = 1;
+            while (file_exists(public_path("$path/$name")))
+                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+            $file->move($path, $name);
+            $sds->attachment = $name;
+            $sds->save();
+        }
+        Toastr::success("Updated SDS");
+
+        return view('safety/doc/sds/edit', compact('sds'));
     }
 
 
@@ -241,26 +238,29 @@ class SdsController extends Controller {
         else
             $category_list = SafetyDocCategory::pluck('id')->toArray();
 
+        $sds_list = DB::table('safety_sds_cats')->whereIn('safety_sds_cats.cat_id', $category_list)->pluck('sds_id')->toArray();
         //$company_list = [Auth::user()->company_id, Auth::user()->company->reportsTo()->id];
-        $records = DB::table('safety_docs as d')
-            ->select(['d.id', 'd.type', 'd.category_id', 'd.attachment', 'd.name', 'c.id as cid', 'c.name as cat_name'])
-            ->join('safety_docs_categories as c', 'd.category_id', '=', 'c.id')
-            ->where('d.type', 'SDS')
-            ->whereIn('d.category_id', $category_list)
-            //->whereIn('d.company_id', $company_list)
+        $records = DB::table('safety_sds_docs as d')
+            ->select(['d.id', 'd.attachment', 'd.name'])
+            ->whereIn('d.id', $sds_list)
             ->where('d.status', '1');
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/filebank/whs/sds/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->addColumn('categories', function ($sds) {
+                $record = SafetyDataSheet::find($sds->id);
+
+                return $record->categoriesSBC();
+            })
             ->addColumn('action', function ($doc) {
                 $record = SafetyDoc::find($doc->id);
                 $actions = '';
 
                 if (Auth::user()->allowed2('edit.sds', $record))
-                //if (Auth::user()->hasPermission2('edit.sds'))
+                    //if (Auth::user()->hasPermission2('edit.sds'))
                     $actions .= '<a href="/safety/doc/sds/' . $doc->id . '/edit' . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 if (Auth::user()->allowed2('del.sds', $record))
-                //if (Auth::user()->hasPermission2('del.sds'))
+                    //if (Auth::user()->hasPermission2('del.sds'))
                     $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/safety/doc/sds/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
 
                 return $actions;

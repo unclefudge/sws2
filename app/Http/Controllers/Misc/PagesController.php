@@ -30,6 +30,8 @@ use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
+use App\Models\Safety\SafetyDoc;
+use App\Models\Safety\SafetyDataSheet;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Comms\SafetyTip;
@@ -147,6 +149,35 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Converting SDS </b></br>";
+        $sds_docs = SafetyDoc::where('type', 'SDS')->get();
+        foreach ($sds_docs as $sds) {
+            $sds_request['name'] = $sds->name;
+            $sds_request['attachment'] = $sds->attachment;
+            $sds_request['company_id'] = $sds->company_id;
+            $sds_request['status'] = $sds->status;
+
+            $doc = SafetyDataSheet::where('name', $sds->name)->first();
+
+            $doubles = 1;
+
+            if (!$doc && $doubles ) {
+                $doc = SafetyDataSheet::create($sds_request);
+                $doc->created_by = $sds->created_by;
+                $doc->created_at = $sds->created_at;
+                $doc->save();
+                echo "created ";
+                if ($doc->name == 'Styroboard And Expanded Polystyrene _ Foamex _ Issued March 2019')
+                    $doubles = 0;
+            } else
+                echo "add [$sds->category_id] ";
+
+            $doc->categories()->attach([$sds->category_id]);
+            echo "[$doc->id] $sds->name <br>";
+        }
+
+
+
         /*
         echo "<b>Importing Accident </b></br>";
         $accidents = SiteAccident::all();
@@ -694,8 +725,7 @@ class PagesController extends Controller {
     }
 
 
-    public
-    function completedQA()
+    public function completedQA()
     {
         echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
         $todos = \App\Models\Comms\Todo::all();
@@ -731,8 +761,7 @@ class PagesController extends Controller {
     }
 
 
-    public
-    function refreshQA()
+    public function refreshQA()
     {
         echo "Updating Current QA Reports to match new QA template with Supervisor tick<br><br>";
         $items = SiteQaItem::all();
@@ -767,8 +796,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importCompany(Request $request)
+    public function importCompany(Request $request)
     {
         echo "Importing Companies<br><br>";
         $row = 0;
@@ -855,8 +883,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function fixplanner()
+    public function fixplanner()
     {
         set_time_limit(120);
 
@@ -963,8 +990,7 @@ class PagesController extends Controller {
 
     }
 
-    public
-    function workDaysBetween($from, $to, $debug = false)
+    public function workDaysBetween($from, $to, $debug = false)
     {
         if ($from == $to)
             return 1;
@@ -992,8 +1018,7 @@ class PagesController extends Controller {
     }
 
 
-    public
-    function importMaterials()
+    public function importMaterials()
     {
         echo "Importing Materials<br><br>";
         $row = 0;
@@ -1056,8 +1081,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importPayroll()
+    public function importPayroll()
     {
         echo "Importing Payroll<br>---------------------<br><br>";
         $row = 0;
@@ -1130,8 +1154,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importQuestions()
+    public function importQuestions()
     {
         echo "Importing Questions<br>---------------------<br><br>";
         $row = 0;
@@ -1166,8 +1189,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importMaintenance()
+    public function importMaintenance()
     {
         echo "Importing Maintenance<br>---------------------<br><br>";
         $row = 0;
@@ -1324,8 +1346,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function disabledTasks()
+    public function disabledTasks()
     {
 
         echo "List of Disabled Tasks currently still in use<br>--------------------------------------------------------<br><br>";
@@ -1401,8 +1422,7 @@ class PagesController extends Controller {
         echo "</table>";
     }
 
-    public
-    function createPermission()
+    public function createPermission()
     {
         //
         // Creating Permission

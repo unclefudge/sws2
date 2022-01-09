@@ -95,7 +95,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
                                         {!! Form::label('user_id', 'Person Involved', ['class' => 'control-label']) !!}
-                                        {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('select'),
+                                        {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('select', '1'),
                                              null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
                                         {!! fieldErrorMessage('user_id', $errors) !!}
                                     </div>

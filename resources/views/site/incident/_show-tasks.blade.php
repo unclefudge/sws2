@@ -21,7 +21,13 @@
 
             @foreach ($incident->todos() as $todo)
                 <div class="row">
-                    <div class="col-xs-1"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                    <div class="col-xs-1">
+                        @if ($pEdit || $todo->users->where('user_id', Auth::user()->id)->first())
+                            <a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a>
+                        @else
+                            <i class="fa fa-minus-circle"></i>
+                        @endif
+                    </div>
                     <div class="col-xs-8">
                         {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
                         @if ($todo->comments)

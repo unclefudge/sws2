@@ -287,13 +287,14 @@ class TodoController extends Controller {
                     $newly_assigned[] = $user_id;
                 }
             }
-        }
-        // Delete existing Assigned Users if not current
-        $deleted = TodoUser::where('todo_id', $todo->id)->whereNotIn('user_id', $assign_list)->delete();
 
-        // Email newly assigned users
-        if ($newly_assigned)
-            $todo->emailToDo($newly_assigned);
+            // Delete existing Assigned Users if not current
+            $deleted = TodoUser::where('todo_id', $todo->id)->whereNotIn('user_id', $assign_list)->delete();
+
+            // Email newly assigned users
+            if ($newly_assigned)
+                $todo->emailToDo($newly_assigned);
+        }
 
         $table = '';
         if ($todo->type == 'hazard') $table = 'site_hazards';

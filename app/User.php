@@ -418,7 +418,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
 
-        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('type', $type)->where('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->orderBy('due_at')->get();
+        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('type', $type)->where('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->where('type', $type)->orderBy('due_at')->get();
     }
 
     /**

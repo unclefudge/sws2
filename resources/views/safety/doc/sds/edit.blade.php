@@ -22,113 +22,183 @@
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model('safetydoc', ['method' => 'PATCH', 'action' => ['Safety\SdsController@update', $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        {!! Form::model($sds, ['method' => 'PATCH', 'action' => ['Safety\SdsController@update', $sds->id], 'class' => 'horizontal-form', 'files' => true]) !!}
                         @include('form-error')
 
                         <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', App\Models\Safety\SafetyDocCategory::sdsCats(),
-                                             $doc->category_id, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-1 pull-right hidden-sm hidden-xs">
-                                    <a href="/filebank/whs/sds/{{ $doc->attachment }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
-                                </div>
-                            </div>
+                            {{-- Name + Category --}}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
                                         {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $doc->name, ['class' => 'form-control']) !!}
+                                        {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
+                                        {!! fieldErrorMessage('name', $errors) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-4 pull-right">
-                                    <button type="button" class="btn blue pull-right" style="margin-top: 25px" id="change_file"> Change File</button>
-                                </div>
-                                <div class="col-xs-2 pull-right visible-sm visible-xs">
-                                    <a href="/filebank/whs/sds/{{ $doc->attachment }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
-                                </div>
-                            </div>
-                            <!-- File upload -->
-                            <div class="row" style="display: none" id="uploadfile-div">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('uploadfile', $errors) !!}">
-                                        <label class="control-label">Select File</label>
-                                        <input id="uploadfile" name="uploadfile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('uploadfile', $errors) !!}
+                                    <div class="form-group {!! fieldHasError('categories', $errors) !!}">
+                                        {!! Form::label('categories', 'Category', ['class' => 'control-label']) !!}
+                                        {!! Form::select('categories', App\Models\Safety\SafetyDocCategory::sdsCats('all'), null, ['class' => 'form-control select2', 'multiple', 'required', 'title' => 'Check all applicable categories',  'name' => 'categories[]', 'id' => 'categories']) !!}
+                                        {!! fieldErrorMessage('categories', $errors) !!}
                                     </div>
                                 </div>
                             </div>
-                            <h3 class="form-section"></h3>
-                            <!-- Notes -->
+
+                            {{-- Manufacturer + Date --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('manufacturer', $errors) !!}">
+                                        {!! Form::label('manufacturer', 'Manufacturer', ['class' => 'control-label']) !!}
+                                        {!! Form::text('manufacturer', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('manufacturer', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('date', $errors) !!}">
+                                        {!! Form::label('date', 'Date', ['class' => 'control-label']) !!}
+                                        <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-reset>
+                                            <input type="text" value="{{ ($sds->date) ? $sds->date->format('d/m/Y') : '' }}" class="form-control" style="background:#FFF" id="date" name="date">
+                                            <span class="input-group-btn">
+                                                <button class="btn default" type="button">
+                                                    <i class="fa fa-calendar"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        {!! fieldErrorMessage('date', $errors) !!}
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {{-- Application --}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', $doc->notes, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                        <span class="help-block"> For internal use only </span>
+                                    <div class="form-group {!! fieldHasError('application', $errors) !!}">
+                                        {!! Form::label('application', 'Application:', ['class' => 'control-label']) !!}
+                                        {!! Form::textarea('application', null, ['rows' => 3, 'class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('application', $errors) !!}
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-actions right">
-                                <button type="submit" name="back" value="back" class="btn default"> Back</button>
-                                <button type="submit" name="save" value="save" class="btn green">Save</button>
+                            {{-- Hazardous + Dangerous --}}
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('hazardous', $errors) !!}">
+                                        {!! Form::label('hazardous', 'Hazardous', ['class' => 'control-label']) !!}
+                                        {!! Form::select('hazardous', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                                        {!! fieldErrorMessage('hazardous', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('dangerous', $errors) !!}">
+                                        {!! Form::label('dangerous', 'Dangerous', ['class' => 'control-label']) !!}
+                                        {!! Form::select('dangerous', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                                        {!! fieldErrorMessage('dangerous', $errors) !!}
+                                    </div>
+                                </div>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                                <!-- END FORM-->
-                    </div>
+
+                            {{-- SingleFile Upload --}} {{--}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                        <label class="control-label">Select File</label>
+                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                        {!! fieldErrorMessage('singlefile', $errors) !!}
+                                    </div>
+                                </div>
+                            </div> --}}
+
+                            @if ($sds->attachment)
+                                <div class="row" id="attachment_div">
+                                    <div class="col-md-12">
+                                            <b>SDS File</b><br> <a href="{{ $sds->attachment_url }}">{{ $sds->attachment }} </a>
+                                        @if ($sds->status && $sds->attachment)
+                                            &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                            @if ($sds->status)
+                                <div class="row" id="uploadfile_div" style="@if ($sds->status && $sds->attachment) display:none @endif">
+                                    <div class="col-md-6">
+                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                            <label class="control-label">Select File</label>
+                                            <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                            {!! fieldErrorMessage('singlefile', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+
+                            <div class="form-actions right">
+                                <a href="/safety/doc/sds" class="btn default"> Back</a>
+                                <button type="submit" class="btn green">Save</button>
+                            </div>
+                        </div>
+                    </div> <!--/form-body-->
+                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
-        <div>
-            <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
-                {!! $doc->displayUpdatedBy() !!}
-            </div>
-        </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
-    @stop
+    <div>
+        <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
+            {!! $sds->displayUpdatedBy() !!}
+        </div>
+    </div>
+    <!-- END PAGE CONTENT INNER -->
+    </div>
+@stop
 
-    @section('page-level-plugins-head')
+@section('page-level-plugins-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
-    @stop
+@stop
 
-    @section('page-level-plugins')
+@section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
-    @stop
+@stop
 
-    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-    <script>
-        $(document).ready(function () {
-            /* Bootstrap Fileinput */
-            $("#uploadfile").fileinput({
-                showUpload: false,
-                allowedFileExtensions: ["pdf"],
-                browseClass: "btn blue",
-                browseLabel: "Browse",
-                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-                //removeClass: "btn btn-danger",
-                removeLabel: "",
-                removeIcon: "<i class=\"fa fa-trash\"></i> ",
-                uploadClass: "btn btn-info",
-            });
+@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+<script>
+    $.ajaxSetup({
+        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+    });
 
-            $("#change_file").click(function (){
-                $('#attachment-div').hide();
-                $('#uploadfile-div').show();
-            });
-
+    $(document).ready(function () {
+        /* Bootstrap Fileinput */
+        $("#singlefile").fileinput({
+            showUpload: false,
+            allowedFileExtensions: ["pdf"],
+            browseClass: "btn blue",
+            browseLabel: "Browse",
+            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+            //removeClass: "btn btn-danger",
+            removeLabel: "",
+            removeIcon: "<i class=\"fa fa-trash\"></i> ",
+            uploadClass: "btn btn-info",
         });
 
-    </script>
+        $("#change_file").click(function () {
+            $('#attachment-div').hide();
+            $('#uploadfile-div').show();
+        });
+
+        $("#delete").click(function (e) {
+            e.preventDefault();
+            $('#delete_attachment').val(1);
+            $('#uploadfile_div').show();
+            $('#attachment_div').hide();
+        });
+    });
+
+</script>
 @stop
