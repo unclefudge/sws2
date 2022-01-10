@@ -10,6 +10,7 @@ use App\Models\Misc\Action;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
+use App\Models\Site\Incident\SiteIncidentWitness;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -137,6 +138,9 @@ class Todo extends Model {
                 return '/site/maintenance/' . $this->type_id;
             case 'incident review':
                 return '/site/incident/' . $this->type_id;
+            case 'incident witness':
+                $witness = SiteIncidentWitness::find($this->type_id);
+                return '/site/incident/' . $witness->incident->id .'/witness/' . $this->type_id;
             case 'company doc':
                 $doc = CompanyDoc::find($this->type_id);
                 if ($doc)

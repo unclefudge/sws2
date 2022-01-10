@@ -15,6 +15,7 @@ define('TODO_TYPES', ['swms'                  => 'Safe Work Method Statements',
                       'inspection_plumbing'   => 'Plumbing Inspection Reports',
                       'incident'              => "Incident Report",
                       'incident prevent'      => "Incident Preventative Action",
+                      'incident witness'       => "Incident Witness",
                       'incident review'       => "Incident Review",
                       'user doc'              => 'User Documents']);
 

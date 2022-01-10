@@ -343,6 +343,25 @@ class TodoController extends Controller {
     }
 
     /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $todo = Todo::findorFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.todo', $todo))
+            return view('errors/404');
+
+        //dd("nukem: $id");
+        $todo->delete();
+
+        return json_encode('success');
+    }
+
+    /**
      * Get Todoo list current user is authorised to manage + Process datatables ajax request.
      */
     public function getTodo()

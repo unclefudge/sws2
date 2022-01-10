@@ -537,6 +537,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Comms
     Route::get('todo/dt/todo', 'Comms\TodoController@getTodo');
     Route::get('todo/create/{type}/{type_id}', 'Comms\TodoController@createType');
+    Route::get('todo/{id}/delete', 'Comms\TodoController@destroy');
     Route::resource('todo', 'Comms\TodoController');
     Route::get('comms/notify/dt/notify', 'Comms\NotifyController@getNotify');
     Route::resource('comms/notify', 'Comms\NotifyController');

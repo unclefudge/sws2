@@ -48,7 +48,7 @@
                             <div class="col-md-3">
                                 <div class="form-group {!! fieldHasError('name', $errors) !!}">
                                     {!! Form::label('name', 'Full name', ['class' => 'control-label']) !!}
-                                    {!! Form::text('name', null, ['class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly' ]) !!}
+                                    {!! Form::text('name', null, ['class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id) ? '' : 'readonly' ]) !!}
                                     {!! fieldErrorMessage('name', $errors) !!}
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                             <div class="col-md-12">
                                 <div class="form-group {!! fieldHasError('event_before', $errors) !!}">
                                     {!! Form::label('event_befor', 'In your own words describe the events leading up to the incident', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea('event_before', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
+                                    {!! Form::textarea('event_before', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id) ? '' : 'readonly']) !!}
                                     {!! fieldErrorMessage('event_before', $errors) !!}
                                 </div>
                             </div>
@@ -76,7 +76,7 @@
                             <div class="col-md-12">
                                 <div class="form-group {!! fieldHasError('event', $errors) !!}">
                                     {!! Form::label('event', 'In your own words describe the incident', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea('event', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
+                                    {!! Form::textarea('event', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id) ? '' : 'readonly']) !!}
                                     {!! fieldErrorMessage('event', $errors) !!}
                                 </div>
                             </div>
@@ -87,13 +87,13 @@
                             <div class="col-md-12">
                                 <div class="form-group {!! fieldHasError('event_after', $errors) !!}">
                                     {!! Form::label('event_after', 'In your own words describe what happened after the incident', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea('event_after', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident)) ? '' : 'readonly']) !!}
+                                    {!! Form::textarea('event_after', null, ['rows' => '3', 'class' => 'form-control', (Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id) ? '' : 'readonly']) !!}
                                     {!! fieldErrorMessage('event_after', $errors) !!}
                                 </div>
                             </div>
                         </div>
 
-                        @if (Auth::user()->allowed2('del.site.incident', $incident))
+                        @if (Auth::user()->allowed2('edit.site.incident', $incident))
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             {{-- Notes --}}
                             <div class="row">
@@ -109,9 +109,11 @@
 
 
                         <div class="form-actions right">
-                            <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
+                            <a href="/site/incident/{{ $incident->id }}/admin" class="btn default"> Back</a>
                             @if (Auth::user()->allowed2('edit.site.incident', $incident))
                                 <button id="btn-delete" class="btn red"> Delete</button>
+                            @endif
+                            @if (Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id)
                                 <button type="submit" class="btn green"> Save</button>
                             @endif
                         </div>

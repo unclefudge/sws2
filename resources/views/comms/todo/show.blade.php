@@ -159,15 +159,16 @@
                                         <a href="/site/incident/{{$todo->type_id}}" class="btn dark">View Site Incident</a>
                                     @endif
                                 @endif
-                                    @if($todo->type == 'incident prevent')
-                                        <?php $incident = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
-                                            @if (Auth::user()->allowed2('view.site.incident', $incident))
-                                                <a href="/site/incident/{{$todo->type_id}}/analysis" class="btn dark">View Site Incident</a>
-                                            @endif
-                                        @if ($todo->staus && Auth::user()->allowed2('edit.site.incident', $incident))
-                                            <a href="/todo/{{$todo->id}}/edit" class="btn red">Edit Task</a>
-                                        @endif
+                                @if($todo->type == 'incident prevent')
+                                    <?php $incident = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
+                                    @if (Auth::user()->allowed2('view.site.incident', $incident))
+                                        <a href="/site/incident/{{$todo->type_id}}" class="btn dark">View Site Incident</a>
                                     @endif
+                                    @if ($todo->status && Auth::user()->allowed2('edit.site.incident', $incident))
+                                        <a href="/todo/{{$todo->id}}/edit" class="btn red">Edit Task</a>
+                                    @endif
+                                @endif
+
                                 @if($todo->type == 'swms')
                                     <a href="/safety/doc/wms/{{ $todo->type_id }}" class="btn dark">View expired SWMS</a>
                                     <a href="/safety/doc/wms/{{ $todo->type_id }}/replace" class="btn blue">Make new SWMS</a>
@@ -208,7 +209,7 @@
                                         <a href="/equipment/{{ $todo->type_id }}/transfer-verify" class="btn blue"> Verify Transfer</a>
                                     @endif
                                 @endif
-                                @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident', 'incident prevent']))
+                                @if($todo->status && Auth::user()->allowed2('edit.todo', $todo) && in_array($todo->type, ['general', 'hazard', 'accident', 'incident', 'incident prevent', 'incident review']))
                                     <button class="btn green" id="save">Save</button>
                                     <button class="btn blue" id="close">Mark Complete</button>
                                 @endif

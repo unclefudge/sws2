@@ -57,7 +57,7 @@ class SiteIncident extends Model {
     }
 
     /**
-     * A SiteIncident has many witness
+     * A SiteIncident has many witness statements
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -157,6 +157,7 @@ class SiteIncident extends Model {
 
         return $reviews;
     }
+
 
     /**
      * SiteIncident Responses to questions

@@ -647,7 +647,7 @@ trait UserRolesPermissions {
                 if ($this->hasPermission2('view.equipment')) return true; // User has the permission to view
             if ($record->type == 'equipment' && $action == 'edit')
                 if ($this->hasPermission2('edit.equipment') && $this->id == $record->created_by) return true; // User created equipment ToDoo
-            if ($record->type == 'incident prevent' || $record->type == 'incident') {
+            if ($record->type == 'incident prevent' || $record->type == 'incident' || $record->type == 'incident review') {
                 $incident = SiteIncident::find($record->type_id);
                 if ($this->allowed2('edit.site.incident', $incident)) return true; // User is allowed to view Site Incident ToDoo
             }
@@ -729,6 +729,17 @@ trait UserRolesPermissions {
             return false;
         }
 
+        // Site Incident
+        // - User allowed to view Incident if they are involved in it, witness or assigned a task or review
+        if ($action == 'view' && $permissiontype == 'site.incident') {
+            if ($record->people->where('user_id', $this->id)->first()) return true;  // Involved Person
+            if ($record->witness->where('user_id', $this->id)->first()) return true;  // Witness Statement
+            if ($record->hasAssignedTask($this->id)) return true; // Assigned task
+            $reviewsBy = $record->reviewsBy();
+            if (isset($reviewsBy[$this->id])) return true; // Reviewed by
+        }
+
+
         // SDS add - Only Fudge, Jo, Tara, Rob, Demi
         if (in_array($permission, ['add.sds', 'edit.sds', 'del.sds']) && in_array($this->id, ['3', '109', '351', '6', '424'])) return true;
 
@@ -791,7 +802,7 @@ trait UserRolesPermissions {
                 if ($action == 'edit' && $this->permissionLevel($permission, 3) == 40 && $record->status == 2 && $record->company_id == $this->company_id) return true; // Allow supervisors edit access to all maintenance sites
             }
 
-            // Site Accident + Hazard
+            // Site Incident + Accident + Hazard
             if ($permissiontype == 'site.accident' || $permissiontype == 'site.incident' || $permissiontype == 'site.hazard') {
                 if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40) {
                     // Planned For '30' or Supervisor For '40' so check site

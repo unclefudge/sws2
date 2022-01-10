@@ -96,6 +96,10 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script type="text/javascript">
+    $.ajaxSetup({
+        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+    });
+
     $(document).ready(function () {
         $("#assign_review").select2({placeholder: "Select User", width: "100%"});
 
@@ -106,6 +110,35 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
                 $("#show_regulator").show();
             } else
                 $("#show_regulator").hide();
+        });
+    });
+
+    $(".btn-delete[data-remote]").click(function (e) {
+    //table1.on('click', '.btn-delete[data-remote]', function (e) {
+        e.preventDefault();
+        var url = $(this).data('remote');
+        var name = $(this).data('name');
+
+        swal({
+            title: "Are you sure?",
+            text: "Delete incident review for<br><b>" + name + "</b>",
+            showCancelButton: true,
+            cancelButtonColor: "#555555",
+            confirmButtonColor: "#E7505A",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: true,
+            html: true,
+        }, function () {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                dataType: 'json',
+                data: {method: '_DELETE', submit: true},
+                success: function (data) {
+                    toastr.error('Deleted request');
+                    window.location.href = "/site/incident/{{ $incident->id }}/admin";
+                },
+            });
         });
     });
 

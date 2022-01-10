@@ -17,7 +17,7 @@
                 <div class="row">
                     <div class="col-xs-1"><a href="/site/incident/{{ $incident->id }}/witness/{{ $witness->id  }}"><i class="fa fa-search"></i></a></div>
                     <div class="col-xs-10">{{ $witness->name }} @if ($witness->user) ({{ $witness->user->company->name }}) @endif </div>
-                    <div class="col-xs-1">@if ($witness->status == 2) <i class="fa fa-check font-green"></i> @endif</div>
+                    <div class="col-xs-1">@if ($witness->status == 1) <i class="fa fa-check font-green"></i> @endif</div>
                 </div>
                 <hr class="field-hr">
             @endforeach

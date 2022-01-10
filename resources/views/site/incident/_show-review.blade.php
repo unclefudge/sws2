@@ -17,11 +17,11 @@
                     <table class="table table-striped table-bordered table-hover order-column" id="table_prevent">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="5%"> #</th>
                             <th> Role</th>
                             <th> By Whom</th>
                             <th> Comments</th>
                             <th> Date Signed</th>
+                            <th width="5%"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -29,18 +29,21 @@
                             <?php
                             list($crap, $review_role) = explode(' : ', $review->name);
                             $done_at = ($review->done_at) ? $review->done_at->format('d/m/Y') : '';
+                            $delete = ($done_at) ? false : true;
                             if (!$done_at && $review->openedBy()->count())
                                 $done_at = "<span class='font-red'>Seen by user</span>";
 
                             ?>
                             <tr>
-                                <td>
-                                    <div class="text-center"><a href="/todo/{{ $review->id  }}"><i class="fa fa-search"></i></a></div>
-                                </td>
                                 <td>{{ $review_role }}</td>
                                 <td>{!! ($review->assignedToBySBC()) ? $review->assignedToBySBC() : "<a href='/todo/".$review->id."/edit/' class='font-red'>Unassigned</span>" !!}</td>
                                 <td>{!! ($review->comments) ? $review->comments : '' !!}</td>
                                 <td>{!! $done_at !!}</td>
+                                <td>
+                                    @if ($delete)
+                                        <button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/todo/{{ $review->id }}" data-name="{{ $review->assignedToBySBC() }}"><i class="fa fa-trash"></i></button>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

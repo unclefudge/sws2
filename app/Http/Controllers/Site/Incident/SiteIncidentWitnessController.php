@@ -45,7 +45,7 @@ class SiteIncidentWitnessController extends Controller {
         $witness = SiteIncidentWitness::findorFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.incident', $incident))
+        if (!(Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id))
             return view('errors/404');
 
         return view('site/incident/witness/show', compact('witness', 'incident'));
@@ -100,7 +100,7 @@ class SiteIncidentWitnessController extends Controller {
 
         // Create ToDoo - if required
         if (request('assign_task')) {
-            $todo = Todo::create(['name' => "Witness Statement", 'info' => 'Please complete a Witness Statement for an incident that you witnessed', 'type' => 'incident witness', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
+            $todo = Todo::create(['name' => "Witness Statement for Incident @ $incident->site_name", 'info' => 'Please complete a Witness Statement for an incident that you witnessed', 'type' => 'incident witness', 'type_id' => $witness->id, 'company_id' => Auth::user()->company_id]);
             $todo->assignUsers(request('user_id'));
         }
 
@@ -121,7 +121,7 @@ class SiteIncidentWitnessController extends Controller {
         $witness = SiteIncidentWitness::findorFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+        if (!(Auth::user()->allowed2('edit.site.incident', $incident) || $witness->user_id == Auth::user()->id))
             return view('errors/404');
 
         $rules = ['name' => 'required', 'event_before' => 'required', 'event' => 'required', 'event_after' => 'required'];
@@ -141,9 +141,18 @@ class SiteIncidentWitnessController extends Controller {
         // Update SiteIncidentWitness
         $witness->update($witness_request);
 
-        //$todo = ToDo::where('todo_id', $witness->todo_id)->where('type_id', $incident->id)->where('user_id', 'LIKE', "%$name%")->first();
+        $todo = ToDo::where('type', 'incident witness')->where('type_id', $witness->id)->first();
+        if ($todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
 
         Toastr::success("Updated witness statement");
+
+        if ($witness->user_id == Auth::user()->id)
+            return redirect('site/incident/' . $incident->id);
 
         return redirect('site/incident/' . $incident->id . '/admin');
     }

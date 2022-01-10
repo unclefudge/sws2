@@ -82,7 +82,7 @@ class SiteIncidentPeopleController extends Controller {
         $incident = SiteIncident::findorFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+        if (!(Auth::user()->allowed2('edit.site.incident', $incident) || Auth::user()->allowed2('add.site.incident', $incident)))
             return view('errors/404');
 
         $rules = ['type' => 'required', 'name' => 'required'];
