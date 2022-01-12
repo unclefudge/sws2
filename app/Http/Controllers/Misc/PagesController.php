@@ -163,7 +163,7 @@ class PagesController extends Controller {
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
         $today = Carbon::now();
-        $subyears = Carbon::now()->subYears(2);
+        $subyears = Carbon::now()->subYears(1);
         $site_list = [];
         foreach ($sites as $site) {
             if ($site->completed && $site->completed->lt($subyears) && $site->updated_at->lt($subyears) && $site->code > 1000)
