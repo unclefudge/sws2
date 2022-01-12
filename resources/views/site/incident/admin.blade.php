@@ -61,6 +61,7 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
                 {{-- Sign Offs --}}
                 @if ($pView)
                     @include('site/incident/_show-review')
+                    @include('site/incident/_edit-review')
                     @include('site/incident/_add-review')
                 @endif
             </div>

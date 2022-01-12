@@ -146,15 +146,43 @@ class PagesController extends Controller {
         return view('manage/settings/list');
     }
 
+    public function GetDirectorySize($path){
+        $bytestotal = 0;
+        $path = realpath($path);
+        if($path!==false && $path!='' && file_exists($path)){
+            foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
+                $bytestotal += $object->getSize();
+            }
+        }
+        return $bytestotal;
+    }
+
 
     public function quick()
     {
-        echo "<b>SDS files verify</b></br>";
-        $sds_docs = SafetyDataSheet::all();
-        foreach ($sds_docs as $sds) {
-            if (!file_exists(public_path('/filebank/whs/sds/' . $sds->attachment))) {
-                echo "[$sds->id] Missing file - $sds->attachment<br>";
-            }
+        echo "<b>Old Sites</b></br>";
+        $sites = Site::all();
+        $today = Carbon::now();
+        $years2 = Carbon::now()->subYears(2);
+        $years3 = Carbon::now()->subYears(3);
+        $site_list = [];
+        foreach ($sites as $site) {
+            if ($site->completed && $site->completed->lt($years3) && $site->updated_at->lt($years3) && $site->code > 1000)
+                $site_list[] = $site->id;
+        }
+
+        $sites = Site::whereIn('id', $site_list)->orderBy('completed')->get();
+
+        echo "<br>Count: " . $site->count() . " - " . $years3->format('d/m/Y') . "<br>";
+        foreach ($sites as $site) {
+            //$dir_size = $this->GetDirectorySize();
+            $f = public_path("/filebank/site/".$site->id);
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            echo "[$site->id] [$size] - " . $site->completed->format('d/m/Y') . ' - ' . $site->updated_at->format('d/m/Y') . "<br>";
         }
 
         /*echo "<b>Converting SDS </b></br>";

@@ -266,6 +266,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/incident/{id}/damage', 'Site\Incident\SiteIncidentController@updateDamage');
     Route::post('site/incident/{id}/details', 'Site\Incident\SiteIncidentController@updateDetails');
     Route::post('site/incident/{id}/regulator', 'Site\Incident\SiteIncidentController@updateRegulator');
+    Route::post('site/incident/{id}/review', 'Site\Incident\SiteIncidentController@updateReview');
     Route::post('site/incident/{id}/add_note', 'Site\Incident\SiteIncidentController@addNote');
     Route::get('site/incident/{id}/add_docs', 'Site\Incident\SiteIncidentController@addDocs');
     Route::post('site/incident/{id}/add_review', 'Site\Incident\SiteIncidentController@addReview');

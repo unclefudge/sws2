@@ -484,6 +484,29 @@ class SiteIncidentController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    public function updateReview($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.incident', $incident))
+            return view('errors/404');
+
+        $incident_request = request()->all();
+
+        //dd($incident_request);
+        $incident->update($incident_request);
+
+        Toastr::success("Updated Review");
+
+        return redirect('site/incident/' . $incident->id . '/admin');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function addDocs($id)
     {
         $incident = SiteIncident::findOrFail($id);

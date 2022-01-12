@@ -7,10 +7,16 @@
         <div class="actions">
             @if ($pEdit && $incident->status)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="addForm('review')">Add</button>
+                <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('review')">Edit</button>
             @endif
         </div>
     </div>
     <div class="portlet-body">
+        <div class="row">
+            <div class="col-md-5">Risk Registered reviewed:</div>
+            <div class="col-md-7">{{ ($incident->risk_register) ? 'Yes' : 'No' }}</div>
+            </div>
+        <hr class="field-hr">
         @if ($incident->reviews()->count())
             <div class="row">
                 <div class="col-md-12">
