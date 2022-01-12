@@ -174,6 +174,7 @@ class PagesController extends Controller {
         $sites = Site::whereIn('id', $site_list)->orderBy('completed')->get();
 
         echo "<br>Count: " . $site->count() . " - " . $years3->format('d/m/Y') . "<br>";
+        $total_size = 0;
         foreach ($sites as $site) {
             //$dir_size = $this->GetDirectorySize();
             $f = public_path("/filebank/site/".$site->id);
@@ -181,9 +182,13 @@ class PagesController extends Controller {
             $size = fgets ( $io, 4096);
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
             pclose ( $io );
-            echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
             echo "[$site->id] [$size] - " . $site->completed->format('d/m/Y') . ' - ' . $site->updated_at->format('d/m/Y') . "<br>";
+            if ($size)
+                $total_size = $total_size + $size;
         }
+
+        echo "---------------<br>Total: $total_size<br>";
 
         /*echo "<b>Converting SDS </b></br>";
         $sds_docs = SafetyDoc::where('type', 'SDS')->get();
