@@ -189,7 +189,7 @@ class PagesController extends Controller {
                 $total_size = $total_size + $size;
         }
 
-        echo "---------------<br>Total: $total_size<br>";
+        echo "---------------<br>Total: $total_size kb  ".($total_size/1024)." mb  <br>";
 
         /*echo "<b>Converting SDS </b></br>";
         $sds_docs = SafetyDoc::where('type', 'SDS')->get();
