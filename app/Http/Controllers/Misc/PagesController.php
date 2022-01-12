@@ -163,17 +163,16 @@ class PagesController extends Controller {
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
         $today = Carbon::now();
-        $years2 = Carbon::now()->subYears(2);
-        $years3 = Carbon::now()->subYears(3);
+        $subyears = Carbon::now()->subYears(2);
         $site_list = [];
         foreach ($sites as $site) {
-            if ($site->completed && $site->completed->lt($years3) && $site->updated_at->lt($years3) && $site->code > 1000)
+            if ($site->completed && $site->completed->lt($subyears) && $site->updated_at->lt($subyears) && $site->code > 1000)
                 $site_list[] = $site->id;
         }
 
         $sites = Site::whereIn('id', $site_list)->orderBy('completed')->get();
 
-        echo "<br>Count: " . $site->count() . " - " . $years3->format('d/m/Y') . "<br>";
+        echo "<br>Count: " . $site->count() . " - " . $subyears->format('d/m/Y') . "<br>";
         $total_size = 0;
         foreach ($sites as $site) {
             //$dir_size = $this->GetDirectorySize();
