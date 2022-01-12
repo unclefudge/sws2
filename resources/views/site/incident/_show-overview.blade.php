@@ -8,6 +8,8 @@
             <div class="actions">
                 @if ($pEdit)
                     <a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/{{ $incident->id }}/report" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
+                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/{{ $incident->id }}/zip" data-original-title="PDF"><i class="fa fa-file-zip-o"></i> Zip </a>
+
                 @endif
             </div>
         </div>

@@ -23,6 +23,7 @@ use Intervention\Image\Facades\Image;
 use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use ZipArchive;
 
 /**
  * Class SiteIncidentController
@@ -662,26 +663,65 @@ class SiteIncidentController extends Controller {
         $incident = SiteIncident::findOrFail($id);
 
         if ($incident) {
-            $completed = 1;
-            $data = [];
-            $users = [];
-            $companies = [];
+            //return view('pdf/site/incident', compact('incident'));
+            return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
+            // Queue the job to generate PDF
+            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
 
+            $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
+            $file = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');
+            if (file_exists($file))
+                unlink($file);
+            $pdf->save($file);
+            return $pdf->stream();
+        }
+    }
 
-            //dd($data);
-            /*
+    public function reportZIP($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        if ($incident) {
             $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
             // Create directory if required
             if (!is_dir(public_path($dir)))
                 mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            */
+            $report_file = public_path($dir . "/Incident Report $incident->id.pdf");
 
-            //return view('pdf/site/inspection-plumbing', compact('report', 'site'));
-            return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
+            //return view('pdf/site/incident', compact('incident'));
+            $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4');
+            if (file_exists($report_file))
+                unlink($report_file);
+            $pdf->save($report_file);
+
+
+            // Generate ZIP
+            $zip_file = public_path($dir . "/Incident Report $incident->id.zip");
+            if (file_exists($zip_file))
+                unlink($zip_file);
+
+            $zip = new ZipArchive();
+            if ($zip->open($zip_file, ZipArchive::CREATE) === TRUE)
+            {
+                $zip->addFile($report_file, "Incident Report $incident->id.pdf"); // Incident Report
+
+                // Photos / Docs
+                foreach ($incident->docs as $doc) {
+                    $file =  public_path('/filebank/incident/'.$doc->incident_id.'/'.$doc->attachment);
+                    if (file_exists($file))
+                        $zip->addFile($file, $doc->attachment);
+                }
+
+                // Assigned Tasks
+                foreach ($incident->todos() as $todo) {
+                    if ($todo->attachment && file_exists(public_path($todo->attachmentUrl)))
+                        $zip->addFile(public_path($todo->attachmentUrl), $todo->attachment);
+
+                }
+                $zip->close();
+
+                return redirect($dir . "/Incident Report $incident->id.zip");
+            }
         }
     }
 
