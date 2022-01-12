@@ -40,7 +40,7 @@ class FormQuestion extends Model {
      */
     public function optionsArray()
     {
-        return (!$this->parent) ? $this->hasMany('App\Models\Misc\FormQuestion', 'parent')->orderBy('order')->pluck('name', 'id')->toArray() : [];
+        return (!$this->parent) ? $this->hasMany('App\Models\Misc\FormQuestion', 'parent')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray() : [];
     }
 
     /**
@@ -95,6 +95,21 @@ class FormQuestion extends Model {
         foreach ($this->responses($table, $table_id) as $response)
             $str .= "<li>" . $response->optionText . '</li>';
         $str .= '</ul>';
+
+        return $str;
+    }
+
+    /**
+     * A FormQuestion responses in array format 'option_id' only
+     *
+     * @return string
+     */
+    public function responsesBullet2($table = null, $table_id = null)
+    {
+        $str = '';
+        foreach ($this->responses($table, $table_id) as $response)
+            $str .= "&#8226; " . $response->optionText . '<br>';
+        $str = rtrim($str, '<br>');
 
         return $str;
     }

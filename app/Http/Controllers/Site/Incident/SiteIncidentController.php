@@ -657,6 +657,35 @@ class SiteIncidentController extends Controller {
         return json_encode("success");
     }
 
+    public function reportPDF($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        if ($incident) {
+            $completed = 1;
+            $data = [];
+            $users = [];
+            $companies = [];
+
+
+            //dd($data);
+            /*
+            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+            // Create directory if required
+            if (!is_dir(public_path($dir)))
+                mkdir(public_path($dir), 0777, true);
+            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
+            touch($output_file);
+            */
+
+            //return view('pdf/site/inspection-plumbing', compact('report', 'site'));
+            return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
+            // Queue the job to generate PDF
+            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
+        }
+    }
+
+
     /**
      * Get Incidents current user is authorised to manage + Process datatables ajax request.
      */

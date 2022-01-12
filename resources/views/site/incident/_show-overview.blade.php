@@ -6,6 +6,9 @@
                 <span class="caption-subject font-dark bold uppercase">Incident Lodgement</span>
             </div>
             <div class="actions">
+                @if ($pEdit)
+                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/{{ $incident->id }}/report" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
+                @endif
             </div>
         </div>
         <div class="portlet-body">

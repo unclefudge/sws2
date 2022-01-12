@@ -271,6 +271,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/incident/{id}/add_review', 'Site\Incident\SiteIncidentController@addReview');
     Route::post('site/incident/{id}/signoff', 'Site\Incident\SiteIncidentController@signoff');
     Route::post('site/incident/{id}/investigation', 'Site\Incident\SiteIncidentController@updateInvestigation');
+    Route::get('site/incident/{id}/report', 'Site\Incident\SiteIncidentController@reportPDF');
     // Analysis
     Route::get('site/incident/{id}/analysis', 'Site\Incident\SiteIncidentAnalysisController@show');
     Route::post('site/incident/{id}/conditions', 'Site\Incident\SiteIncidentAnalysisController@updateConditions');
