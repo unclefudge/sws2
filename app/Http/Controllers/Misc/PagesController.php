@@ -183,7 +183,8 @@ class PagesController extends Controller {
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
             pclose ( $io );
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            echo "[$site->id] [$size] - " . $site->completed->format('d/m/Y') . ' - ' . $site->updated_at->format('d/m/Y') . "<br>";
+            $diff_dates = ($site->completed->format('d/m/Y') != $site->updated_at->format('d/m/Y')) ? '*' : '-';
+            echo "[$site->id] [$size] $diff_dates " . $site->completed->format('d/m/Y') . ' - ' . $site->updated_at->format('d/m/Y') . "<br>";
             if ($size)
                 $total_size = $total_size + $size;
         }
