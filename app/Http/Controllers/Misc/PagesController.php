@@ -163,11 +163,15 @@ class PagesController extends Controller {
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
         $today = Carbon::now();
-        $subyears = Carbon::now()->subYears(1);
+        $subyears = Carbon::now()->subYears(2);
         $site_list = [];
         foreach ($sites as $site) {
-            if ($site->completed && $site->completed->lt($subyears) && $site->updated_at->lt($subyears) && $site->code > 1000)
+            if ($site->completed && $site->completed->lt($subyears) && $site->updated_at->lt($subyears) && $site->code > 1000) {
                 $site_list[] = $site->id;
+                $site->archived_files = 1;
+                $site->timestamps = false;
+                $site->save();
+            }
         }
 
         $sites = Site::whereIn('id', $site_list)->orderBy('completed')->get();
