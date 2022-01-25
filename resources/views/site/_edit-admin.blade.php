@@ -10,6 +10,23 @@
     </div>
     <div class="portlet-body form">
         {!! Form::model($site, ['method' => 'POST', 'action' => ['Site\SiteController@updateAdmin', $site->id]]) !!}
+        {{--Council Appoval Signed --}}
+        <div class="row">
+            <div class="form-group {!! fieldHasError('council_approval', $errors) !!}">
+                {!! Form::label('council_approval', 'Council Approval:', ['class' => 'col-md-6 control-label']) !!}
+                <div class="col-md-6">
+                    <div class="input-group date date-picker">
+                        {!! Form::text('council_approval', ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                        <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                        {!! fieldErrorMessage('council_approval', $errors) !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="field-hr">
         {{-- Contract Sent --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('contract_sent', $errors) !!}">
@@ -56,23 +73,6 @@
                             <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                         </span>
                         {!! fieldErrorMessage('deposit_paid', $errors) !!}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <hr class="field-hr">
-        {{--Council Appoval Signed --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('council_approval', $errors) !!}">
-                {!! Form::label('council_approval', 'Council Approval:', ['class' => 'col-md-6 control-label']) !!}
-                <div class="col-md-6">
-                    <div class="input-group date date-picker">
-                        {!! Form::text('council_approval', ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
-                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                        <span class="input-group-btn">
-                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                        </span>
-                        {!! fieldErrorMessage('council_approval', $errors) !!}
                     </div>
                 </div>
             </div>

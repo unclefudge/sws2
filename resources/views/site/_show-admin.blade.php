@@ -12,6 +12,11 @@
     </div>
     <div class="portlet-body">
         <div class="row">
+            <div class="col-md-6">Council Approval:</div>
+            <div class="col-xs-6">{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
             <div class="col-md-6">Contract Sent:</div>
             <div class="col-xs-6">{!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-' !!}</div>
         </div>
@@ -24,11 +29,6 @@
         <div class="row">
             <div class="col-md-6">Deposit Paid:</div>
             <div class="col-xs-6">{!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-' !!}</div>
-        </div>
-        <hr class="field-hr">
-        <div class="row">
-            <div class="col-md-6">Council Approval:</div>
-            <div class="col-xs-6">{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">

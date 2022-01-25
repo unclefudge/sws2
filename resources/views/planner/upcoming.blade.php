@@ -57,20 +57,11 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>{{ ($site->JobFirstTaskOfType(576)) ? $site->JobFirstTaskOfType(576)->format('d/m/Y') : ''  }}</td>
-                                    <td>
-                                        {!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '' !!}
-                                    </td>
-                                    <td>
-                                        {!! ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '' !!}
-                                    </td>
-                                    <td>
-                                        {!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '' !!}
-                                    </td>
-                                    <td>
-                                        {!! ($site->construction) ? 'Yes' : '' !!}
-                                        {{--}}{{ ($site->JobFirstTaskOfType(582)) ? $site->JobFirstTaskOfType(582)->format('d/m/Y') : ''  }} --}}
-                                    </td>
+                                    <td>{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '' !!}</td>
+                                    <td>{!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '' !!}</td>
+                                    <td>{!! ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '' !!}</td>
+                                    <td>{!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '' !!}</td>
+                                    <td>{!! ($site->construction) ? 'Yes' : '' !!}</td>
                                 </tr>
                             @endforeach
                             </tbody>

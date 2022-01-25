@@ -26,7 +26,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th> Miscelleous</th>
+                                <th> Miscellaneous</th>
                             </tr>
                             </thead>
                             <tbody>
