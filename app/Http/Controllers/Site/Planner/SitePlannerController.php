@@ -326,10 +326,9 @@ class SitePlannerController extends Controller {
 
         $site = Site::find($site_id);
 
-        // Sites ordered
+        // Sites ordered - Jobstart/Council Approval/Contracts Sent
 
         $site_list = [];
-
         $pre_sites = Auth::user()->company->sites('-1')->pluck('id')->toArray();
         $pre_planner = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
         // Add Sites that have START JOB to list in date order
@@ -344,10 +343,10 @@ class SitePlannerController extends Controller {
             if (!in_array($site_id, $site_list)) {
                 $site = Site::find($site_id);
                 //$site_list[] = $site_id;
-                if ($site->contract_sent && $site->contract_sent) {
-                    $non_start_sites[$site_id] = ($site->contract_sent->lte($site->contract_sent)) ? $site->contract_sent->format('Ymd') : $site->contract_sent->format('Ymd');
-                } elseif ($site->contract_sent) {
-                    $non_start_sites[$site_id] = $site->contract_sent->format('Ymd');
+                if ($site->council_approval && $site->contract_sent) {
+                    $non_start_sites[$site_id] = ($site->council_approval->lte($site->contract_sent)) ? $site->council_approval->format('Ymd') : $site->contract_sent->format('Ymd');
+                } elseif ($site->council_approval) {
+                    $non_start_sites[$site_id] = $site->council_approval->format('Ymd');
                 } elseif ($site->contract_sent) {
                     $non_start_sites[$site_id] = $site->contract_sent->format('Ymd');
                 } else {

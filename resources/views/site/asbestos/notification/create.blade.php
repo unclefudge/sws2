@@ -273,60 +273,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Asbestos Assessment --}}
-                                <h4>Asbestos Assessment</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                {{-- Assessor Contact --}}
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
-                                            {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
-                                            {!! Form::select('assessor_name', ['' => 'Select option', 'Leon Carnevale' => 'Leon Carnevale', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('assessor_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('assessor_phone', $errors) !!}">
-                                            {!! Form::label('assessor_phone', 'Assessor Phone', ['class' => 'control-label']) !!}
-                                            {!! Form::text('assessor_phone', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('assessor_phone', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('assessor_cert', $errors) !!}">
-                                            {!! Form::label('assessor_cert', 'Assessor Qualification', ['class' => 'control-label']) !!}
-                                            {!! Form::select('assessor_cert', ['' => 'Select option', 'Competent person (VET Course)' => 'Competent person (VET Course)',
-                                            'Competent person (Tertiary qualification)' => 'Competent person (Tertiary qualification)',
-                                            'Licensed Asbestos Assessor' => 'Licensed Asbestos Assessor'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('assessor_cert', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('assessor_lic', $errors) !!}">
-                                            {!! Form::label('assessor_lic', 'Licence No.', ['class' => 'control-label']) !!}
-                                            {!! Form::text('assessor_lic', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('assessor_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('assessor_dept', $errors) !!}">
-                                            {!! Form::label('assessor_dept', 'Department of Issue', ['class' => 'control-label']) !!}
-                                            {!! Form::text('assessor_dept', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('assessor_dept', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('assessor_state', $errors) !!}">
-                                            {!! Form::label('assessor_state', 'State', ['class' => 'control-label']) !!}
-                                            {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('assessor_state', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-
                                 {{-- Protective Equipment --}}
                                 <h4>Personal Protective Equipment &nbsp;
                                     <small>(Check all that apply)</small>
@@ -533,6 +479,59 @@
                                             {!! fieldErrorMessage('supervisor_id', $errors) !!}
                                         </div>
                                     </div>--}}
+
+                                    {{-- Asbestos Assessment --}}
+                                    <h4>Asbestos Assessment</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    {{-- Assessor Contact --}}
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
+                                                {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
+                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Leon Carnevale' => 'Leon Carnevale', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
+                                                {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('assessor_phone', $errors) !!}">
+                                                {!! Form::label('assessor_phone', 'Assessor Phone', ['class' => 'control-label']) !!}
+                                                {!! Form::text('assessor_phone', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('assessor_phone', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group {!! fieldHasError('assessor_cert', $errors) !!}">
+                                                {!! Form::label('assessor_cert', 'Assessor Qualification', ['class' => 'control-label']) !!}
+                                                {!! Form::select('assessor_cert', ['' => 'Select option', 'Competent person (VET Course)' => 'Competent person (VET Course)',
+                                                'Competent person (Tertiary qualification)' => 'Competent person (Tertiary qualification)',
+                                                'Licensed Asbestos Assessor' => 'Licensed Asbestos Assessor'], null, ['class' => 'form-control bs-select']) !!}
+                                                {!! fieldErrorMessage('assessor_cert', $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('assessor_lic', $errors) !!}">
+                                                {!! Form::label('assessor_lic', 'Licence No.', ['class' => 'control-label']) !!}
+                                                {!! Form::text('assessor_lic', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('assessor_dept', $errors) !!}">
+                                                {!! Form::label('assessor_dept', 'Department of Issue', ['class' => 'control-label']) !!}
+                                                {!! Form::text('assessor_dept', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('assessor_dept', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group {!! fieldHasError('assessor_state', $errors) !!}">
+                                                {!! Form::label('assessor_state', 'State', ['class' => 'control-label']) !!}
+                                                {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select']) !!}
+                                                {!! fieldErrorMessage('assessor_state', $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <br><br>
