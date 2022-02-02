@@ -1480,6 +1480,15 @@ class SitePlannerController extends Controller {
             $site->status = 1;
             $site->save();
 
+            // Email JobStart if it has one
+            if ($site->job_start) {
+                $supers = $site->supervisorsSBC();
+                $date = $site->job_start->format('d/m/Y');
+
+                if ($site->company->notificationsUsersType('site.jobstart'))
+                    Mail::to($site->company->notificationsUsersType('site.jobstart'))->send(new \App\Mail\Site\Jobstart($site, $date, null, $supers));
+            }
+
             return redirect("/planner/site/$site->id");
         }
 
