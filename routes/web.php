@@ -333,7 +333,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/asbestos/register/{id}/destroy', 'Site\SiteAsbestosRegisterController@destroy');
     Route::resource('site/asbestos/register', 'Site\SiteAsbestosRegisterController');
 
-
     // Site Asbestos Notification
     Route::get('site/asbestos/notification/dt/list', 'Site\SiteAsbestosController@getReports');
     Route::get('site/asbestos/notification/{id}/status/{status}', 'Site\SiteAsbestosController@updateStatus');
@@ -354,6 +353,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/plumbing/{id}/docs', 'Site\SiteInspectionPlumbingController@documents');
     Route::get('site/inspection/plumbing/{id}/report', 'Site\SiteInspectionPlumbingController@reportPDF');
     Route::resource('site/inspection/plumbing', 'Site\SiteInspectionPlumbingController');
+
+    // Site Scaffold Handover
+    Route::get('site/scaffold/handover/dt/list', 'Site\SiteScaffoldHandoverController@getCertificates');
+    Route::any('site/scaffold/handover/upload', 'Site\SiteScaffoldHandoverController@uploadAttachment');
+    Route::any('site/scaffold/handover/{id}/docs', 'Site\SiteScaffoldHandoverController@documents');
+    Route::get('site/scaffold/handover/{id}/report', 'Site\SiteScaffoldHandoverController@reportPDF');
+    Route::resource('site/scaffold/handover', 'Site\SiteScaffoldHandoverController');
 
     // Report Actions
     Route::get('report/actions/{type}/{id}', 'Misc\ReportActionController@index');

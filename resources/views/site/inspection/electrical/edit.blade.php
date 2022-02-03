@@ -3,7 +3,9 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><a href="/site/inspection/electrical">Electrical Inspection Reports</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site.inspection'))
+            <li><a href="/site/inspection/electrical">Electrical Inspection Reports</a><i class="fa fa-circle"></i></li>
+        @endif
         <li><span>Edit Report</span></li>
     </ul>
 @stop

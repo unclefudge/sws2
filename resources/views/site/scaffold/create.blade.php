@@ -3,10 +3,10 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('site.inspection'))
-            <li><a href="/site/inspection/electrical">Electrical Inspection</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
+        <li><a href="/site/scaffold/handover">Scaffold Handover Certificate</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Create Report</span></li>
+        <li><span>Create Certificate</span></li>
     </ul>
 @stop
 
@@ -17,12 +17,12 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <span class="caption-subject font-green-haze bold uppercase">Create Electrical Inspection Report</span>
+                            <span class="caption-subject font-green-haze bold uppercase">Create Scaffold Handover Certificate</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model('SiteInspectionElectrical', ['action' => 'Site\SiteInspectionElectricalController@store', 'class' => 'horizontal-form']) !!}
+                        {!! Form::model('SiteScaffoldHandover', ['action' => 'Site\SiteScaffoldHandoverController@store', 'class' => 'horizontal-form']) !!}
 
                         @include('form-error')
 
@@ -32,7 +32,7 @@
                                 <div class="col-md-4 mt-step-col first active">
                                     <div class="mt-step-number bg-white font-grey">1</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                    <div class="mt-step-content font-grey-cascade">Create report</div>
+                                    <div class="mt-step-content font-grey-cascade">Create certificate</div>
                                 </div>
                                 <div class="col-md-4 mt-step-col">
                                     <div class="mt-step-number bg-white font-grey">2</div>
@@ -41,8 +41,8 @@
                                 </div>
                                 <div class="col-md-4 mt-step-col last">
                                     <div class="mt-step-number bg-white font-grey">3</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
-                                    <div class="mt-step-content font-grey-cascade">Assign company</div>
+                                    <div class="mt-step-title uppercase font-grey-cascade">Sign Off</div>
+                                    <div class="mt-step-content font-grey-cascade">Certificate Sign Off</div>
                                 </div>
                             </div>
                         </div>
@@ -54,30 +54,48 @@
                                 {{-- Site --}}
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site (Upcoming)', ['class' => 'control-label']) !!}
+                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id'), -1) !!}
+                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                         </select>
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
                             </div>
 
-                            <h4 class="font-green-haze">Client details</h4>
+                            <h4 class="font-green-haze">Scaffold details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
-                                        {!! Form::label('client_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_name', $errors) !!}
+                                <div class="col-md-12 ">
+                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
+                                        {!! Form::label('location', 'Description and location of area handed over', ['class' => 'control-label']) !!}
+                                        {!! Form::textarea("location", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
+                                        {!! fieldErrorMessage('location', $errors) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('client_address', $errors) !!}">
-                                        {!! Form::label('client_address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_address', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_address', $errors) !!}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 ">
+                                    <div class="form-group {!! fieldHasError('use', $errors) !!}">
+                                        {!! Form::label('use', 'Intended use of the scaffold', ['class' => 'control-label']) !!}
+                                        {!! Form::textarea("use", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
+                                        {!! fieldErrorMessage('use', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('duty_class', $errors) !!}">
+                                        {!! Form::label('duty_class', 'Duty Classification', ['class' => 'control-label']) !!}
+                                        {!! Form::text('duty_class', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('duty_class', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('decks', $errors) !!}">
+                                        {!! Form::label('decks', 'No. of working decks', ['class' => 'control-label']) !!}
+                                        {!! Form::text('decks', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('decks', $errors) !!}
                                     </div>
                                 </div>
                             </div>

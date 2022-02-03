@@ -70,6 +70,9 @@
                                                             <li><a href="/site/asbestos/register" class="nav-link "> Asbestos Register</a></li>
                                                             <li><a href="/site/asbestos/notification" class="nav-link "> Asbestos Notifications</a></li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
+                                                            <li><a href="/site/scaffold/handover" class="nav-link "> Scaffold Handover</a></li>
+                                                        @endif
                                                     </ul>
                                                 </div>
                                             @endif
@@ -231,7 +234,7 @@
                                                     @endif
                                                     @if (Auth::user()->hasAnyPermissionType('preconstruction.planner'))
                                                         <li><a href="/planner/upcoming" class="nav-link"> Upcoming Projects </a></li>
-                                                        <li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>
+                                                        {{--<li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>--}}
                                                     @endif
                                                 </ul>
                                             </div>

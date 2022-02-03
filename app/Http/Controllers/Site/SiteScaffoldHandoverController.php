@@ -1,0 +1,354 @@
+<?php
+
+namespace App\Http\Controllers\Site;
+
+use Illuminate\Http\Request;
+use Validator;
+
+use DB;
+use PDF;
+use Mail;
+use Session;
+use App\Models\Company\Company;
+use App\Models\Site\Site;
+use App\Models\Site\SiteScaffoldHandover;
+use App\Models\Site\SiteScaffoldHandoverDoc;
+use App\Models\Comms\Todo;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Yajra\Datatables\Datatables;
+use nilsenj\Toastr\Facades\Toastr;
+use Carbon\Carbon;
+
+/**
+ * Class SiteScaffoldHandoverController
+ * @package App\Http\Controllers
+ */
+class SiteScaffoldHandoverController extends Controller {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
+            return view('errors/404');
+
+        return view('site/scaffold/list');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.scaffold.handover'))
+            return view('errors/404');
+
+        return view('site/scaffold/create');
+    }
+
+    /**
+     * Edit the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $report = SiteScaffoldHandover::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+            return view('errors/404');
+
+        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.scaffold.handover', $report)))
+            return view('/site/scaffold/edit', compact('report'));
+        elseif ($report->status == 2)
+            return view('/site/scaffold/docs', compact('report'));
+        elseif ($report->status == 3)
+            return view('/site/scaffold/signoff', compact('report'));
+        else
+            return redirect('/site/scaffold/handover/' . $report->id);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.scaffold.handover'))
+            return view('errors/404');
+
+        $rules = ['site_id' => 'required', 'location' => 'required', 'use' => 'required', 'duty_class' => 'required', 'decks' => 'required'];
+        $mesg = [
+            'site_id.required'  => 'The site field is required.',
+            'location.required' => 'The location field is required.',
+            'use.required'      => 'The intended use field is required.',
+            'duty.required'     => 'The duty classification field is required.',
+            'decks.required'    => 'The no. of decks field is required.',
+        ];
+        request()->validate($rules, $mesg); // Validate
+
+        $report_request = request()->all();
+        $report_request['status'] = 2;
+        //dd($report_request);
+
+        // Create Report
+        $report = SiteScaffoldHandover::create($report_request);
+        Toastr::success("Created certificate");
+
+        return redirect('/site/scaffold/handover/' . $report->id . '/edit');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('view.site.inspection', $report))
+            return view('errors/404');
+
+        if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report))
+            return redirect('/site/inspection/electrical/' . $report->id . '/edit');
+
+        return view('/site/inspection/electrical/show', compact('report'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function documents($id)
+    {
+        $report = SiteScaffoldHandover::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.scaffold.handover'))
+            return view('errors/404');
+
+        $report->status = 3;
+        $report->save();
+        Toastr::success("Updated Certificate");
+
+        return redirect('site/scaffold/handover/' . $report->id. '/edit');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function update($id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+        $assigned_to_previous = $report->assigned_to;
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+            return view('errors/404');
+
+        $rules = ['client_name'    => 'required',
+                  'client_address' => 'required',
+                  'inspected_name' => 'required_if:status,0',
+                  'inspected_lic'  => 'required_if:status,0'];
+        $mesg = ['client_name.required'       => 'The client name field is required.',
+                 'client_address.required'    => 'The client address field is required.',
+                 'inspected_name.required_if' => 'The inspection carried out by field is required.',
+                 'inspected_lic.required_if'  => 'The licence no. field is required.'];
+
+        if (in_array(Auth::user()->id, DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray())) {
+            $rules = $rules + ['assigned_to' => 'required'];
+            $mesg = $mesg + ['assigned_to.required' => 'The assigned to company field is required.'];
+        }
+
+        request()->validate($rules, $mesg); // Validate
+
+        //dd(request()->all());
+        $report_request = request()->all();
+
+        // Format date from datetime picker to mysql format
+        $inspected_at = new Carbon (preg_replace('/-/', '', request('inspected_at')));
+        $report_request['inspected_at'] = $inspected_at->toDateTimeString();
+        $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
+
+        // On completion close any outstanding ToDoos
+        if (request('status') == 0 && $report->status != 0) {
+            $report->closeToDo();
+            $report_request['inspected_by'] = Auth::user()->id;
+
+            // Email completed notification
+            $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
+
+        } elseif (request('status') == 1) {
+            $report_request['inspected_name'] = null;
+            $report_request['inspected_lic'] = null;
+        }
+
+        // Create ToDoo for change of assigned company
+        if (request('assigned_to') != $report->assigned_to) {
+            $report->closeToDo();
+            $report_request['assigned_at'] = Carbon::now()->toDateTimeString();
+            $company = Company::find(request('assigned_to'));
+            if ($company && $company->primary_user) {
+                $report->createAssignedToDo([$company->primary_user]);
+                //$report->createAssignedToDo($company->staffStatus(1)->pluck('id')->toArray());
+
+                // Email assigned notification
+                $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
+            }
+        }
+
+        //dd($report_request);
+        $report->update($report_request);
+        Toastr::success("Updated inspection report");
+
+        if (request('assigned_to') && $assigned_to_previous == null)
+            return redirect('site/inspection/electrical');
+        elseif ($report->status)
+            return redirect('site/inspection/electrical/' . $report->id . '/edit');
+        else
+            return redirect('site/inspection/electrical/' . $report->id);
+    }
+
+    /**
+     * Update Status the specified resource in storage.
+     */
+    public function updateStatus($id, $status)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+        $old_status = $report->status;
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+            return view('errors/404');
+
+        // Update Status
+        if ($status != $old_status) {
+            $report->status = $status;
+            $report->save();
+
+            if ($status == 1) {
+                // Email re-opened notification
+                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReopened($report));
+            }
+        }
+
+        return redirect('site/inspection/electrical/' . $report->id . '/edit');
+    }
+
+
+    /**
+     * Upload File + Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function uploadAttachment()
+    {
+        // Check authorisation and throw 404 if not
+        //if (!(Auth::user()->allowed2('add.site.scaffold.handover') || Auth::user()->allowed2('edit.site.scaffold.handover', $report)))
+        //    return json_encode("failed");
+
+        //dd('here');
+        //dd(request()->all());
+        // Handle file upload
+        $files = request()->file('multifile');
+        foreach ($files as $file) {
+            $path = "filebank/site/" . request('site_id') . '/scaffold';
+            $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+
+            // Ensure filename is unique by adding counter to similiar filenames
+            $count = 1;
+            while (file_exists(public_path("$path/$name")))
+                $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+            $file->move($path, $name);
+
+            $doc_request['scaffold_id'] = request('report_id');
+            $doc_request['category'] = request('category');
+            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $doc_request['attachment'] = $name;
+            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
+
+            // Create SiteScaffoldHandoverDoc
+            $doc = SiteScaffoldHandoverDoc::create($doc_request);
+        }
+
+        return json_encode("success");
+    }
+
+    /**
+     * Generate PDF report
+     *
+     * @return PDF
+     */
+    public function reportPDF($id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+
+        if ($report) {
+            $completed = 1;
+            $data = [];
+            $users = [];
+            $companies = [];
+            $site = Site::findOrFail($report->site_id);
+
+            //dd($data);
+            /*
+            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+            // Create directory if required
+            if (!is_dir(public_path($dir)))
+                mkdir(public_path($dir), 0777, true);
+            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
+            touch($output_file);
+            */
+
+            //return view('pdf/site/inspection-electrical', compact('report', 'site'));
+            return PDF::loadView('pdf/site/inspection-electrical', compact('report', 'site'))->setPaper('a4')->stream();
+            // Queue the job to generate PDF
+            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
+        }
+    }
+
+    /**
+     * Get Accidents current user is authorised to manage + Process datatables ajax request.
+     */
+    public function getCertificates()
+    {
+        $scaff_ids = SiteScaffoldHandover::where('status', request('status'))->pluck('id')->toArray();
+
+        $scaff_records = SiteScaffoldHandover::select([
+            'site_scaffold_handover.id', 'site_scaffold_handover.site_id', 'site_scaffold_handover.inspector_name',
+            'site_scaffold_handover.handover_date', 'site_scaffold_handover.status', 'sites.company_id',
+            DB::raw('DATE_FORMAT(site_scaffold_handover.handover_date, "%d/%m/%y") AS handover_date'),
+            DB::raw('sites.name AS sitename'), 'sites.code',
+        ])
+            ->join('sites', 'site_scaffold_handover.site_id', '=', 'sites.id')
+            ->where('site_scaffold_handover.status', '=', request('status'))
+            ->whereIn('site_scaffold_handover.id', $scaff_ids);
+
+        $dt = Datatables::of($scaff_records)
+            ->addColumn('view', function ($inspect) {
+                return ('<div class="text-center"><a href="/site/inspection/electrical/' . $inspect->id . '"><i class="fa fa-search"></i></a></div>');
+            })
+            ->rawColumns(['view', 'action'])
+            ->make(true);
+
+        return $dt;
+    }
+}

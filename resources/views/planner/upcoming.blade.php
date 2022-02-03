@@ -45,7 +45,7 @@
                                 <?php $site = \App\Models\Site\Site::find($site_id) ?>
                                 <tr>
                                     <td>
-                                        <div class="text-center"><a href="/planner/preconstruction/{{ $site->id }}"><i class="fa fa-search"></i></a></div>
+                                        <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i class="fa fa-search"></i></a></div>
                                     </td>
                                     <td>{{ $site->code }}</td>
                                     <td>{{ $site->name }}</td>
@@ -100,6 +100,36 @@
                 },
             })
         });
+
+        //$("button").click(function(){
+            // /planner/preconstruction/{{ $site->id }}
+
+            //$.post("demo_test_post.asp",
+             //       {
+             //           name: "Donald Duck",
+              //          city: "Duckburg"
+              //      },
+              //      function(data,status){
+              //          alert("Data: " + data + "\nStatus: " + status);
+              //      });
+
+        //});
     });
+
+    function go2preconstruction(site_id) {
+        var postData = {site_start: 'start', _token: $('meta[name=token]').attr('value')};
+        var postFormStr = "<form method='POST' action='/planner/preconstruction/" + site_id + "'>\n";
+
+        for (var key in postData) {
+            if (postData.hasOwnProperty(key))
+                postFormStr += "<input type='hidden' name='" + key + "' value='" + postData[key] + "'></input>";
+        }
+
+        postFormStr += "</form>";
+        var formElement = $(postFormStr);
+
+        $('body').append(formElement);
+        $(formElement).submit();
+    }
 </script>
 @stop

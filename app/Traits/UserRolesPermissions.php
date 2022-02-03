@@ -837,6 +837,14 @@ trait UserRolesPermissions {
                 return false;
             }
 
+            // Site Scaffold Handover
+            if ($permissiontype == 'site.scaffold.handover') {
+                if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
+                if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
+
+                return false;
+            }
+
             // Site QA Templates
             if ($permissiontype == 'site.qa.templates') {
                 if ($this->hasPermission2($permission) && $record->company_id == $this->company_id) return true; // User belong to same company record

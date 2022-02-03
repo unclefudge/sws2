@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->company->subscription)
+        @if (Auth::user()->hasAnyPermissionType('site.inspection'))
             <li><a href="/site/inspection/electrical">Electrical Inspection Report</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Edit Report</span></li>
@@ -27,7 +27,7 @@
                         <div class="caption">
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze">Electrical Inspection Report</span>
-                            <span class="caption-helper">ID: {{ $report->code }}</span>
+                            <span class="caption-helper">ID: {{ $report->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">

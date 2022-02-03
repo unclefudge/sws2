@@ -411,6 +411,14 @@ $rec = $user;
                                 <td width="45%" colspan="3">&nbsp;</td>
                             </tr>
                             <tr>
+                                <td>Scaffold Handover Certificate<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                <td width="15%">{!! permSelect('view.site.scaffold.handover', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.scaffold.handover', 'super', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('add.site.scaffold.handover', 'add', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('del.site.scaffold.handover', 'res', $rec, $cid) !!}</td>
+                                <td width="15%"></td>
+                            </tr>
+                            <tr>
                                 <td>Project Supply Information</td>
                                 <td width="15%">{!! permSelect('view.site.project.supply', 'super', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.project.supply', 'super', $rec, $cid) !!}</td>
