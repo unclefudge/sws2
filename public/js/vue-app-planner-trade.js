@@ -1,7 +1,7 @@
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    mon_now: '', mon_this: '', mon_prev: '', mon_next: '', today: moment().format('YYYY-MM-DD'), jobstart: moment().format('DD/MM/YYYY'),
+    mon_now: '', mon_this: '', mon_prev: '', mon_next: '', today: moment().format('YYYY-MM-DD'), jobstart: moment().format('DD/MM/YYYY'), week_selected: '',
     showSidebar: false, showSidebarUpcoming: false, showSidebarAddstart: false, showSidebarMovestart: false, showSidebarAllocate: false, showNewTask: false, showAssign: false, showClearModal: false,
     enableActions: false, load_plan: false, trade_name: '',
     day_date: '', day_etype: '', day_eid: '', day_eid2: '', day_ename: '', day_site_id: '',
@@ -99,11 +99,20 @@ Vue.component('app-weekly', {
             this.xx.params.date = date;
             postAndRedirect('/planner/transient', this.xx.params);
         },
+        changeWeekSelected: function () {
+            //alert(this.xx.week_selected);
+            this.xx.params.date = moment(this.xx.mon_now).add(this.xx.week_selected, 'days').format('YYYY-MM-DD');
+            postAndRedirect('/planner/trade', this.xx.params);
+        },
         weeklyHeader: function (date, days) {
+            console.log('hh');
+            /*
             if (moment(date).month() == moment(date).days(5).month())
                 return moment(date).format('MMMM DD') + ' - ' + moment(date).days(5).format('DD') + moment(date).format(', YYYY');
             else
                 return moment(date).format('MMM DD') + ' - ' + moment(date).days(5).format('MMM DD') + moment(date).format(', YYYY');
+                */
+            return moment(date).add(days, 'days').format('MMM DD') + ' - ' + moment(date).add(days, 'days').days(5).format('MMM DD') + moment(date).add(days, 'days').format(', YYYY');
         },
         weekDateHeader: function (date, days) {
             return moment(date).add(days, 'days').format('DD/MM');
