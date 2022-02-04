@@ -3,7 +3,7 @@ var xx = {
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
     status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '',
     council_approval: '', contract_sent: '', contract_signed: '', deposit_paid: '',
-    first_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
+    first_mon: '', start_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
     total_weeks: '', first_week: 1, current_week: 1,
     showSidebar: false, showSidebarHeader: false, showNewTask: false, showAssign: false, showClearModal: false,
     enableActions: false, load_plan: false,
@@ -76,11 +76,17 @@ Vue.component('app-siteplan', {
             return y;
         },
         showWeek: function (date) {
-            // determine if given date is before this monday
-            return !(this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'));
+            // determine if given date is before this monday - used for displaying First Task / Start of Job / This Week
+            //return !(this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'));
+            if (this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'))
+                return false;
+            if (this.xx.params.site_start === 'start' && moment(date).isBefore(moment(this.xx.start_mon), 'day'))
+                return false;
+
+            return true;
         },
         showAdminDate: function (date) {
-            // determin of current week has site admin event
+            // determine if current week has site admin event
             var admin_event = false;
             var admin_mon = this.adminDate(moment(date).format('YYYY-MM-DD'));
             var admin_tue = this.adminDate(moment(date).add(1, 'days').format('YYYY-MM-DD'));
@@ -90,9 +96,12 @@ Vue.component('app-siteplan', {
             if (admin_mon || admin_tue || admin_wed || admin_thu || admin_fri)
                 admin_event = true;
 
-            console.log(date + '**' + admin_mon + ':' + admin_tue + ':' + admin_wed + ':' + admin_thu + ':' + admin_fri);
-            // determine if given date is before this monday
+            //console.log(date + '**' + admin_mon + ':' + admin_tue + ':' + admin_wed + ':' + admin_thu + ':' + admin_fri);
+
+            // determine if given date is before this monday - used for displaying First Task / Start of Job / This Week
             if (this.xx.params.site_start === 'week' && moment(date).isBefore(moment(this.xx.this_mon), 'day'))
+                return false;
+            if (this.xx.params.site_start === 'start' && moment(date).isBefore(moment(this.xx.start_mon), 'day'))
                 return false;
 
             return admin_event;
@@ -133,6 +142,7 @@ Vue.component('app-siteplan', {
                         this.xx.first_mon = moment(this.xx.first_date).day(1).format('YYYY-MM-DD');
                         this.xx.final_date = plan[0]['final_date'];
                         this.xx.start_date = plan[0]['start_date'];
+                        this.xx.start_mon = moment(this.xx.start_date).day(1).format('YYYY-MM-DD');
                         this.xx.start_carp = plan[0]['start_carp'];
                         this.xx.carp_prac = plan[0]['carp_prac'];
                         if (this.xx.start_date) {

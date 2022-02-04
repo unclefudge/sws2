@@ -61,6 +61,7 @@
                                 <div class="form-group">
                                     <select v-model="xx.params.site_start" class="form-control bs-select" id="site_start">
                                         <option value="week" @if($site_start == 'week') selected @endif>This Week</option>
+                                        <option value="first" @if($site_start == 'first') selected @endif>First Task</option>
                                         <option value="start" @if($site_start == 'start') selected @endif>Start of Job</option>
                                     </select>
                                 </div>
