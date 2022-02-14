@@ -21,8 +21,8 @@ class SiteScaffoldHandover extends Model {
     protected $table = 'site_scaffold_handover';
     protected $fillable = [
         'site_id', 'location', 'use', 'duty', 'decks', 'inspector_name', 'inspector_licence', 'handover_date',
-        'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['handover_date'];
+        'signed_by', 'signed_at', 'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
+    protected $dates = ['handover_date', 'signed_at'];
 
 
     /**
@@ -48,9 +48,9 @@ class SiteScaffoldHandover extends Model {
 
 
     /**
-     * Email Assigned
+     * Email Report
      */
-    public function emailAssigned($user)
+    public function emailReport($user)
     {
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
@@ -60,12 +60,12 @@ class SiteScaffoldHandover extends Model {
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
-        // Gary didn't want to be email when assigning - so comment out email_user :)
-        //
-        //if ($email_to && $email_user)
-        //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
-        //elseif ($email_to)
-        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
+        elseif ($email_user)
+            Mail::to($email_user)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
 
     }
 
@@ -80,6 +80,17 @@ class SiteScaffoldHandover extends Model {
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
         '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+    }
+
+    /**
+     * Get the Licence URL (setter)
+     */
+    public function getInspectorLicenceUrlAttribute()
+    {
+        if ($this->attributes['inspector_licence'])
+            return '/filebank/site/' . $this->attributes['site_id'] . "/scaffold/" . $this->attributes['inspector_licence'];
+
+        return '';
     }
 
     /**

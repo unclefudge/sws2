@@ -31,8 +31,8 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
+                                    <option value="2">In Progress</option>
+                                    <option value="0" selected>Completed</option>
                                 </select>
                             </div>
                         </div>
@@ -89,8 +89,10 @@
             {data: 'view', name: 'view', orderable: false, searchable: false},
             {data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
+            //{data: 'sitename', name: 'sites.name'},
+            //{data: 'sitename', name: 'sites.name'},
             {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
-            {data: 'handover_date', name: 'site_scaffold_handover.handover_date'},
+            {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
         ],
         order: [
             [2, "desc"]

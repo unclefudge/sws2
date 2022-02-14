@@ -32,7 +32,7 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteScaffoldHandoverController@update', $report->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                            {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteScaffoldHandoverController@update', $report->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'form_signed']) !!}
                             <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
                             <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
 
@@ -58,48 +58,111 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr>
+                            <br>
+                            <h4>Scaffold Details</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
-                                <div class="col-md-2"><b>Site</b></div>
-                                <div class="col-md-10">{{ $report->site->name }} (#{{ $report->site->code }})</div>
-                                </div>
+                                <div class="col-md-2"><b>Site:</b></div>
+                                <div class="col-md-10">{{ $report->site->code }}-{{ $report->site->name }}</div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-2"><b>Description/Location:</b></div>
+                                <div class="col-md-10">{!! nl2br($report->location) !!}</div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-2"><b>Intended use:</b></div>
+                                <div class="col-md-10">{!! nl2br($report->use) !!}</div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-2"><b>Duty Classification:</b></div>
+                                <div class="col-md-10">{{ $report->duty }}</div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-2"><b>No. of working decks:</b></div>
+                                <div class="col-md-10">{{ $report->decks }}</div>
+                            </div>
+                            <hr class="field-hr">
                             <br>
 
+                            {{-- Photos --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Photos</h4>
+                                    <hr class="field-hr">
+                                    @if ($report->docs->count())
+                                        <?php $doc_count = 0; ?>
+                                        <div style="width: 100%; overflow: hidden;">
+                                            @foreach ($report->docs as $doc)
+                                                @if ($doc->type == 'photo')
+                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                                        <a href="{{ $doc->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $doc->name }}" data-lityXXX>
+                                                            <img src="{{ $doc->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                    </div>
+                                                    <?php $doc_count ++; ?>
+                                                    @if ($doc_count == 10)
+                                                        <br>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div>No photos found<br><br></div>
+                                    @endif
+                                </div>
+                            </div>
 
-                            <!-- Multi File upload -->
-                            <div id="multifile-div">
-                                <h4>Sign Off</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                @if(Auth::user()->allowed2('add.site.inspection'))
-                                    <div class="note note-warning">
-                                        Multiple documents/photos/images can be uploaded with this scaffold certificate.
-                                        <ul>
-                                            <li>Once you have selected your files upload them by clicking
-                                                <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
-                                            </li>
-                                        </ul>
+                            {{-- Sign Off --}}
+                            <h4>Handover Inspection of Scaffold</h4>
+                            <hr class="field-hr">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    This scaffold detailed above has been erected in accordance with the attached drawings, the WHS Regulations and the General Guide for scaffolds and scaffolding work; is informed by relevant technical standards and is suitable for its intended purpose.<br><br>
+                                </div>
+                            </div>
+
+                            {{-- Name + Date --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('inspector_name', $errors) !!}">
+                                        {!! Form::label('inspector_name', 'Name of licensed scaffolder performing handover inspection', ['class' => 'control-label']) !!}
+                                        {!! Form::text('inspector_name', null, ['class' => 'form-control', 'required']) !!}
+                                        {!! fieldErrorMessage('inspector_name', $errors) !!}
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label">Select Files</label>
-                                                <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
-                                            </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('handover_date', $errors) !!}">
+                                        {!! Form::label('handover_date', 'Date & Time of Handover', ['class' => 'control-label']) !!}
+                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
+                                            {!! Form::text('handover_date', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                            <span class="input-group-addon">
+                                                <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                                            </span>
                                         </div>
+                                        {!! fieldErrorMessage('handover_date', $errors) !!}
                                     </div>
-                                @else
-                                    <div class="row">
-                                        <div class="col-md-12">You don't have permission to upload photos
-                                        </div>
+                                </div>
+                            </div>
+
+                            {{-- SingleFile Upload --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                        <label class="control-label">Photo of High Risk Work Licence</label>
+                                        <input id="singlefile" name="singlefile" type="file" class="file-loading">
+                                        {!! fieldErrorMessage('singlefile', $errors) !!}
                                     </div>
-                                @endif
+                                </div>
                             </div>
 
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
                                 <a href="/site/scaffold/handover" class="btn default"> Back</a>
                                 @if(Auth::user()->allowed2('add.site.scaffold.handover'))
-                                    <button type="submit" name="save" class="btn blue"> Next Step</button>
+                                    <button id="signoff_button" type="submit" name="save" class="btn green"> Submit</button>
                                 @endif
                             </div>
                             <br><br>
@@ -116,19 +179,15 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/moment.min.js" type="text/javascript"></script>
-    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
@@ -138,45 +197,42 @@
         headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
     });
 
+
     $(document).ready(function () {
         /* Bootstrap Fileinput */
-        $("#multifile").fileinput({
-            uploadUrl: "/site/scaffold/handover/upload/", // server upload action
-            uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
+        $("#singlefile").fileinput({
+            showUpload: false,
+            allowedFileExtensions: ["jpg", "png", "gif", "jpeg"],
             browseClass: "btn blue",
             browseLabel: "Browse",
             browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn red",
+            //removeClass: "btn btn-danger",
             removeLabel: "",
             removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn dark",
-            uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-            uploadExtraData: {
-                "site_id": site_id,
-                "report_id": report_id,
-                "category": 'setup',
-            },
-            layoutTemplates: {
-                main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
-            },
+            uploadClass: "btn btn-info",
         });
 
-        $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-            data.form.append("site_id", $("#site_id").val());
-            data.form.append("report_id", $("#report_id").val());
+        // On Click Review Sign Off
+        $("#signoff_button").click(function (e) {
+            e.preventDefault();
+            swal({
+                title: "Incident Reviwed",
+                text: "I have reviewed and sign off on this Scaffold Handover Certificate.<br>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Sign Off",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $("#done_at").val(1);
+                $('#form_signed').submit();
+            });
+
         });
+
     });
 </script>
+<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 

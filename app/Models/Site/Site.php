@@ -21,7 +21,7 @@ class Site extends Model {
     protected $fillable = [
         'name', 'code', 'slug',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country',
-        'photo', 'notes', 'client_id', 'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc',
+        'photo', 'notes', 'client_id', 'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
         'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering', 'construction', 'hbcf', 'consultant_name',
         'completion_signed', 'completed', 'status', 'company_id', 'created_by', 'updated_by'];
     protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed'];

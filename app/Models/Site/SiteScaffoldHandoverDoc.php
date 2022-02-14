@@ -29,7 +29,7 @@ class SiteScaffoldHandoverDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/site/'.$this->maintenance->site_id."/scaffold/".$this->attributes['attachment'];
+            return '/filebank/site/'.$this->scaffold_handover->site_id."/scaffold/".$this->attributes['attachment'];
         return '';
     }
 

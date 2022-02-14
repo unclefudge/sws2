@@ -4,12 +4,20 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         @if (Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
-        <li><a href="/site/scaffold/handover">Scaffold Handover Certificate</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/scaffold/handover">Scaffold Handover Certificate</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Create Certificate</span></li>
     </ul>
 @stop
 
+<?php
+$duty_class = [
+        ''        => 'Select type',
+        'Light'   => 'Light Duty - up to 225 kg per platform per bay including a concentrated load of 120 kg',
+        'Medium'  => 'Medium Duty – up to 450 kg per platform per bay including a concentrated load of 150 kg',
+        'Heavy'   => 'Heavy Duty – up to 675 kg per platform per bay including a concentrated load of 200 kg',
+        'Special' => 'Special Duty – designated allowable load as designed'];
+?>
 @section('content')
     <div class="page-content-inner">
         <div class="row">
@@ -84,11 +92,11 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('duty_class', $errors) !!}">
-                                        {!! Form::label('duty_class', 'Duty Classification', ['class' => 'control-label']) !!}
-                                        {!! Form::text('duty_class', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('duty_class', $errors) !!}
+                                <div class="col-md-7">
+                                    <div class="form-group {!! fieldHasError('duty', $errors) !!}">
+                                        {!! Form::label('duty', 'Duty Classification', ['class' => 'control-label']) !!}
+                                        {!! Form::select('duty', $duty_class, null, ['class' => 'form-control bs-select', 'name' => 'duty', 'title' => 'Select class']) !!}
+                                        {!! fieldErrorMessage('duty', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -112,7 +120,7 @@
                             </div>
 
                             <div class="form-actions right">
-                                <a href="/site/inspection/electrical" class="btn default"> Back</a>
+                                <a href="/site/scaffold/handover" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
                         </div>

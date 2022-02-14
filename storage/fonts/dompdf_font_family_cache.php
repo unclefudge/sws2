@@ -84,7 +84,7 @@
     'normal' => $fontDir . '/glyphicons_halflings_normal_3666f2c75721d5d4133b57247675becf',
   ),
   'pt sans' => array(
-    'normal' => $fontDir . '/pt_sans_normal_2f87acd24298c359b1e2998de487613b',
+    'normal' => $fontDir . '/pt_sans_normal_45829ed65f3e6792128a93fcd24b183f',
   ),
   'martel sans' => array(
     'normal' => $fontDir . '/1968e2aa7a241d74a376e858af398b02',

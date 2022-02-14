@@ -2,12 +2,6 @@
 
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-building"></i> Site Management</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -35,6 +29,13 @@
                         @include('form-error')
 
                         <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Site Details</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                </div>
+                            </div>
+
                             @if (Auth::user()->permissionLevel('add.site', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('add.site', Auth::user()->company->reportsTo()->id)))
                                 <div class="row">
                                     <div class="col-md-4">
@@ -74,7 +75,7 @@
                                 </div>
                             </div>
 
-                            <!-- Address -->
+                            {{-- Address --}}
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('address', $errors) !!}">
@@ -111,51 +112,7 @@
                                 </div>
                             </div>
 
-                            <hr>
-
-                            <!-- Client + Supervisor(s) -->
-                            <div class="row">
-                                <!--
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_id', $errors) !!}">
-                                        {!! Form::label('client_id', 'Client', ['class' => 'control-label']) !!}
-                                {!! Form::select('client_id', Auth::user()->company->clientSelect('prompt'),
-                                 '', ['class' => 'form-control bs-select']) !!}
-                                {!! fieldErrorMessage('client_id', $errors) !!}
-                                        </div>
-                                    </div>
-                                    -->
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
-                                        {!! Form::label('client_phone', 'Client Phone No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
-                                        {!! Form::label('client_phone_desc', 'Phone Description', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone_desc', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone_desc', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone2', $errors) !!}">
-                                        {!! Form::label('client_phone2', 'Client Second Phone No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone2', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone2', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
-                                        {!! Form::label('client_phone2_desc', 'Second Phone Description', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone2_desc', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone2_desc', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
+                            {{-- Supervisors --}}
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group {!! fieldHasError('supervisors', $errors) !!}" id="super-div">
@@ -168,9 +125,74 @@
                                 </div>
                             </div>
 
+
+                            <!-- Client + Supervisor(s) -->
+                            <br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Client Details</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!--
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('client_id', $errors) !!}">
+                                        {!! Form::label('client_id', 'Client', ['class' => 'control-label']) !!}
+                                {!! Form::select('client_id', Auth::user()->company->clientSelect('prompt'),
+                                 '', ['class' => 'form-control bs-select']) !!}
+                                {!! fieldErrorMessage('client_id', $errors) !!}
+                                        </div>
+                                    </div>
+                                    -->
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
+                                        {!! Form::label('client_phone_desc', 'Primary Contact Name', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_phone_desc', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_phone_desc', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
+                                        {!! Form::label('client_phone', 'Primary Phone No.', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_phone', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_phone', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group {!! fieldHasError('client_email', $errors) !!}">
+                                        {!! Form::label('client_email', 'Primary Email', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_email', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_email', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
+                                        {!! Form::label('client_phone2_desc', 'Second Contact Name', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_phone2_desc', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_phone2_desc', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('client_phone2', $errors) !!}">
+                                        {!! Form::label('client_phone2', 'Secondary Phone No.', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_phone2', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_phone2', $errors) !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group {!! fieldHasError('client_email2', $errors) !!}">
+                                        {!! Form::label('client_email2', 'Secondary Email', ['class' => 'control-label']) !!}
+                                        {!! Form::text('client_email2', null, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('client_email2', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
                             <h3 class="form-section"></h3>
 
-                            <!-- Notes -->
+                            {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group {!! fieldHasError('notes', $errors) !!}">
@@ -185,9 +207,8 @@
                                 <a href="/site" class="btn default"> Back</a>
                                 <button type="submit" class="btn green">Save</button>
                             </div>
-                        </div> <!--/form-body-->
+                        </div>
                         {!! Form::close() !!}
-                                <!-- END FORM-->
                     </div>
                 </div>
             </div>

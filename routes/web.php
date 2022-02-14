@@ -359,6 +359,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/scaffold/handover/upload', 'Site\SiteScaffoldHandoverController@uploadAttachment');
     Route::any('site/scaffold/handover/{id}/docs', 'Site\SiteScaffoldHandoverController@documents');
     Route::get('site/scaffold/handover/{id}/report', 'Site\SiteScaffoldHandoverController@reportPDF');
+    Route::post('site/scaffold/handover/{id}/report', 'Site\SiteScaffoldHandoverController@emailPDF');
     Route::resource('site/scaffold/handover', 'Site\SiteScaffoldHandoverController');
 
     // Report Actions

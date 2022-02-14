@@ -61,7 +61,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-md-2"><b>Site</b></div>
-                                <div class="col-md-10">{{ $report->site->name }} (#{{ $report->site->code }})</div>
+                                <div class="col-md-10">{{ $report->site->code }}-{{ $report->site->name }}</div>
                                 </div>
                             <br>
 
@@ -143,8 +143,8 @@
         $("#multifile").fileinput({
             uploadUrl: "/site/scaffold/handover/upload/", // server upload action
             uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
+            allowedFileExtensions: ["image"],
+            allowedFileTypes: ["image"],
             browseClass: "btn blue",
             browseLabel: "Browse",
             browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
