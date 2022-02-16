@@ -461,7 +461,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function notify()
     {
         $today = Carbon::today();
-        $notifys = Notify::where('from', '<=', $today)->where('to', '>=', $today)->get();
+        $notifys = Notify::where('type', 'user')->where('from', '<=', $today)->where('to', '>=', $today)->get();
 
         $notify_ids = [];
         foreach ($notifys as $notify) {
