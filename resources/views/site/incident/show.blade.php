@@ -187,7 +187,7 @@ $reviewsBy = $incident->reviewsBy();
         $("#signoff_review").click(function (e) {
             e.preventDefault();
             swal({
-                title: "Incident Reviwed",
+                title: "Incident Reviewed",
                 text: "I have reviewed and sign off my acceptance of this incident report.<br>",
                 showCancelButton: true,
                 cancelButtonColor: "#555555",

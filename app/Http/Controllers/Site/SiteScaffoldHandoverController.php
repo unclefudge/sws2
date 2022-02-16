@@ -157,9 +157,10 @@ class SiteScaffoldHandoverController extends Controller {
         if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
             return view('errors/404');
 
-        $rules = ['inspector_name' => 'required', 'handover_date' => 'required',];
+        $rules = ['inspector_name' => 'required', 'handover_date' => 'required', 'singlefile' => 'required'];
         $mesg = ['client_name.required'   => 'The name field is required.',
-                 'handover_date.required' => 'The date/time field is required.'];
+                 'handover_date.required' => 'The date/time field is required.',
+                 'singlefile.required' => 'The licence field is required.'];
 
         request()->validate($rules, $mesg); // Validate
 

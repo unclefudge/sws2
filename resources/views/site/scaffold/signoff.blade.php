@@ -215,7 +215,7 @@
         $("#signoff_button").click(function (e) {
             e.preventDefault();
             swal({
-                title: "Incident Reviwed",
+                title: "Confirm Sign Off",
                 text: "I have reviewed and sign off on this Scaffold Handover Certificate.<br>",
                 showCancelButton: true,
                 cancelButtonColor: "#555555",
