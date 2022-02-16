@@ -159,39 +159,6 @@ $duty_class = [
     $(document).ready(function () {
         /* Select2 */
         $("#site_id").select2({placeholder: "Select Site"});
-        $("#assigned_to").select2({placeholder: "Select Company"});
-
-        updateFields();
-
-        // On Change Site ID
-        $("#site_id").change(function () {
-            updateFields();
-        });
-
-        function updateFields() {
-            var site_id = $("#site_id").select2("val");
-
-            if (site_id != '') {
-                $.ajax({
-                    url: '/site/data/details/' + site_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        var address = '';
-                        address = data.address;
-                        if (data.address != '') address = address + ', ';
-                        if (data.suburb != '') address = address + data.suburb + ', ';
-                        if (data.state != '') address = address + data.state + ' ';
-                        if (data.postcode != '') address = address + data.postcode + ' ';
-
-                        $("#client_address").val(address);
-                        $("#client_name").val(data.name);
-                        //console.log(address);
-                    },
-                })
-            }
-        }
-
     });
 
     // Force datepicker to not be able to select dates after today

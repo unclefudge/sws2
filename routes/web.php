@@ -222,11 +222,18 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::post('company/{id}/edit/logo', 'Company\CompanyController@updateLogo');
     Route::resource('company', 'Company\CompanyController');
 
+
+    // Client Planner Email
+    Route::get('client/planner/email/dt/list', 'Client\ClientPlannerEmailController@getEmails');
+    Route::get('client/planner/email/{id}/status/{status}', 'Client\ClientPlannerEmailController@updateStatus');
+    Route::get('client/planner/email/createfields/{site_id}', 'Client\ClientPlannerEmailController@getCreatefields');
+    Route::resource('client/planner/email', 'Client\ClientPlannerEmailController');
+
     // Client Routes
-    Route::get('client/dt/clients', 'Misc\ClientController@getClients');
-    Route::get('client/{slug}/settings', 'Misc\ClientController@showSettings');
-    Route::get('client/{slug}/settings/{tab}', 'Misc\ClientController@showSettings');
-    Route::resource('client', 'Misc\ClientController');
+    Route::get('client/dt/clients', 'Client\ClientController@getClients');
+    Route::get('client/{slug}/settings', 'Client\ClientController@showSettings');
+    Route::get('client/{slug}/settings/{tab}', 'Client\ClientController@showSettings');
+    Route::resource('client', 'Client\ClientController');
 
     // File Manager
     Route::get('/manage/file', 'Misc\FileController@index');

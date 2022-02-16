@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Site;
+namespace App\Models\Client;
 
 use URL;
 use Mail;
@@ -10,17 +10,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteScaffoldHandover extends Model {
+class ClientPlannerEmail extends Model {
 
-    protected $table = 'site_scaffold_handover';
+    protected $table = 'client_planner_emails';
     protected $fillable = [
-        'site_id', 'location', 'use', 'duty', 'decks', 'inspector_name', 'inspector_licence', 'handover_date',
-        'signed_by', 'signed_at', 'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['handover_date', 'signed_at'];
+        'client_id', 'site_id', 'type', 'name', 'email1', 'email2', 'intro', 'sent_to', 'sent_cc', 'sent_bcc', 'subject', 'body',
+        'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
+    protected $dates = [];
 
 
     /**
-     * A Site ScaffoldHandover belongs to a Site
+     * A Client Planner Email belongs to a Site
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -31,13 +31,13 @@ class SiteScaffoldHandover extends Model {
 
 
     /**
-     * A Site ScaffoldHandover has many Docs.
+     * A Client Planner Email has many Docs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
     public function docs()
     {
-        return $this->hasMany('App\Models\Site\SiteScaffoldHandoverDoc', 'scaffold_id');
+        return $this->hasMany('App\Models\Client\ClientPlannerEmailDoc', 'email_id');
     }
 
 

@@ -862,6 +862,13 @@ $cc = 1;*/
                                                 <td width="15%">{!! permSelect('edit.roster', ($sub1) ? 'super.company' : 'super.individual', $rec, $cid, $dis) !!}</td>
                                                 <td width="45%" colspan="3"></td>
                                             </tr>
+                                            <tr>
+                                                <td>Client Planner Email</td>
+                                                <td width="15%">{!! permSelect('view.client.planner.email','super', $rec, $cid, $dis) !!}</td>
+                                                <td width="15%">{!! permSelect('edit.client.planner.email', 'super', $rec, $cid, $dis) !!}</td>
+                                                <td width="15%">{!! permSelect('add.client.planner.email', 'add', $rec, $cid, $dis) !!}</td>
+                                                <td width="30%" colspan="2"></td>
+                                            </tr>
                                         </table>
                                     </div>
                                 </div>

@@ -1472,8 +1472,8 @@ class PagesController extends Controller {
         //
         // Creating Permission
         //
-        $name = 'Scaffold Handover';
-        $slug = 'site.scaffold.handover';
+        $name = 'Site Client Planner';
+        $slug = 'site.client.planner';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

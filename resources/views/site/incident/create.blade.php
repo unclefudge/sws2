@@ -68,7 +68,7 @@
                                     </div>
                                 </div>
                                 {{-- Site ID --}}
-                                <div class="col-md-6" id="field_site_id">
+                                <div class="col-md-8" id="field_site_id">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
@@ -78,7 +78,7 @@
                                     </div>
                                 </div>
                                 {{-- Site Name --}}
-                                <div class="col-md-6" id="field_site_name">
+                                <div class="col-md-8" id="field_site_name">
                                     <div class="form-group {!! fieldHasError('site_name', $errors) !!}">
                                         {!! Form::label('site_name', 'Place of incident', ['class' => 'control-label']) !!}
                                         {!! Form::text('site_name', null, ['class' => 'form-control']) !!}

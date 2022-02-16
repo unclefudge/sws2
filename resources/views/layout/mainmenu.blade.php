@@ -238,7 +238,15 @@
                                                     @endif
                                                 </ul>
                                             </div>
-                                            <div class="col-md-4 hidden-sm hidden-xs"></div>
+                                            <div class="col-md-2">
+                                                <ul class="mega-menu-submenu">
+                                                    <li><h3 class="h3-submenu">Client</h3></li>
+                                                    @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                                                        <li><a href="/client/planner/email" class="nav-link"> Email Planner </a></li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-2 hidden-sm hidden-xs"></div>
                                             <div class="col-md-3 hidden-sm hidden-xs"><img src="/img/think-safety.png"></div>
                                         </div>
                                         <div class="row hidden-sm hidden-xs"

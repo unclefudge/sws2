@@ -1,26 +1,24 @@
 <?php
 
-namespace App\Models\Site;
+namespace App\Models\Client;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteScaffoldHandoverDoc extends Model {
+class ClientPlannerEmailDoc extends Model {
 
-    protected $table = 'site_scaffold_handover_docs';
-    protected $fillable = [
-        'scaffold_id', 'type', 'category', 'name', 'attachment',
-        'notes', 'status', 'created_by', 'updated_by'];
+    protected $table = 'client_planner_emails_docs';
+    protected $fillable = ['email_id', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
 
     /**
-     * A Site Scaffold Handover Doc belongs to a Site Maintenance
+     * A ClientPlannerEmailDoc belongs to a ClientPlannerEmail
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function scaffold_handover()
+    public function email()
     {
-        return $this->belongsTo('App\Models\Site\SiteScaffoldHandover', 'scaffold_id');
+        return $this->belongsTo('App\Models\Client\ClientPlannerEmail', 'email_id');
     }
 
     /**
@@ -29,7 +27,7 @@ class SiteScaffoldHandoverDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/site/'.$this->scaffold_handover->site_id."/scaffold/".$this->attributes['attachment'];
+            return '/filebank/site/'.$this->email->site_id."/emails/client/".$this->attributes['attachment'];
         return '';
     }
 
