@@ -9,6 +9,8 @@ use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
+use App\Models\Comms\Notify;
+use App\Models\Comms\NotifyUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -537,6 +539,25 @@ class Site extends Model {
             ->first();
 
         return ($planner) ? true : false;
+    }
+
+    /**
+     * A Site has multiple Notify Alerts
+     */
+    public function notify()
+    {
+        $today = Carbon::today();
+        $notifys = Notify::where('type', 'site')->where('type_id', $this->id)->where('from', '<=', $today)->where('to', '>=', $today)->get();
+
+        $notify_ids = [];
+        foreach ($notifys as $notify) {
+            if ($notify->action == 'many')
+                $notify_ids[] = $notify->id;
+            else if (!$notify->isOpenedBy(Auth::user()))
+                $notify_ids[] = $notify->id;
+        }
+
+        return Notify::find($notify_ids);
     }
 
     /**

@@ -81,6 +81,7 @@ class SessionController extends Controller {
                 }
             }*/
 
+            //alert()->message('login', 'here')->persistent('Ok');
             ///dd(redirect()->intended('home')->getTargetUrl());
             // Display User Specific Alerts
             if (Auth::user()->notify()->count()) {

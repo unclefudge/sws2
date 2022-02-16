@@ -73,28 +73,6 @@
                                 </div>
                             </div>
                             <br>
-                            {{-- CC --}}
-                            <div class="row">
-                                <div class="form-group">
-                                    {!! Form::label('sent_cc', 'Cc:', ['class' => 'col-md-1 control-label']) !!}
-                                    <div class="col-md-11">
-                                        {!! Form::text('sent_cc', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-                            {{-- BCC --}}
-                            @if ((Auth::user()->email))
-                                <div class="row">
-                                    <div class="form-group">
-                                        {!! Form::label('sent_bcc', 'Bcc:', ['class' => 'col-md-1 control-label']) !!}
-                                        <div class="col-md-11">
-                                            {!! Form::text('sent_bcc', null, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <br>
-                            @endif
                             {{-- Subject --}}
                             <div class="row">
                                 <div class="form-group">
@@ -111,39 +89,13 @@
                                     <div><textarea name="ck_body" id="ck_body" rows="25" cols="80">{{ nl2br($email->body) }}</textarea></div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div>{{ $email->body }}</div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div>{{ nl2br($email->body) }}</div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <?php $html_special = htmlspecialchars($email->body, ENT_QUOTES); ?>
-                                    <div>{{ print_r($html_special) }}</div>
-                                </div>
-                            </div>
-
-                            {{--}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {!! Form::textarea("body", null, ['rows' => '15', 'class' => 'form-control', ]) !!}
-                                    {!! fieldErrorMessage('body', $errors) !!}
-                                </div>
-                            </div>
-                            <br>--}}
 
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
                                 <a href="/client/planner/email" class="btn default"> Back</a>
+                                <button id="preview" name="preview" class="btn dark"> Preview</button>
                                 @if(Auth::user()->allowed2('edit.client.planner.email', $email))
-                                    <button id="signoff_button" type="submit" name="save" class="btn green"> Submit</button>
+                                    <button id="signoff_button" type="submit" name="save" class="btn green"> Send</button>
                                 @endif
                             </div>
                             <br><br>
@@ -152,9 +104,32 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
+
+    {{-- Preview Modal --}}
+    <div id="modal_preview" class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content form">
+                 <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-center"><b>Email Preview</b></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="email_body_preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn green" data-dismiss="modal" id="send_preview">Send</button>
+                </div>
+            </div>
+        </div>
     </div>
 @stop
 
@@ -178,6 +153,21 @@
         customConfig: '/js/libs/ckeditor/customConfig.js',
     });
 
+    // Preview
+    $('#preview').click(function (e) {
+        e.preventDefault(e);
+        $('#email_body_preview').html(CKEDITOR.instances.ck_body.getData());
+        $('#modal_preview').modal('show');
+    });
+
+    // Send Email
+    $('#send_preview').click(function (e) {
+        e.preventDefault(e);
+        alert('sending');
+        submit_form();
+    });
+
+
     $('#email_form').on('submit', function (e) {
         e.preventDefault(e);
         alert('subbing');
@@ -193,13 +183,14 @@
             data: $("#email_form").serialize(),
             dataType: 'json',
             success: function (data) {
-                window.location = "/client/planner/email/" + $('#email_id').val() + '/edit';
+                //window.location = "/client/planner/email/" + $('#email_id').val() + '/edit';
+                window.location = "/client/planner/email";
             },
             error: function (data) {
                 ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
                 swal({
                     title: 'Failed to save Email Draft',
-                    text: "We apologise but we were unable to save your Email draft (id:"+$('#email_id').val()+")<br><br>Please try again but if the problem persists let us know.",
+                    text: "We apologise but we were unable to save your Email draft (id:" + $('#email_id').val() + ")<br><br>Please try again but if the problem persists let us know.",
                     html: true
                 });
             }

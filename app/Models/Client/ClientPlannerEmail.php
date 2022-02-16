@@ -5,6 +5,7 @@ namespace App\Models\Client;
 use URL;
 use Mail;
 use App\User;
+use App\Mail\Client\ClientPlanner;
 use App\Http\Controllers\CronCrontroller;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -42,26 +43,29 @@ class ClientPlannerEmail extends Model {
 
 
     /**
-     * Email Report
+     * Email Planner
      */
-    public function emailReport($user)
+    public function emailPlanner()
     {
         $email_to = [env('EMAIL_DEV')];
-        $email_user = '';
+        $email_cc = '';
+        $email_bcc = '';
+        $files = [];
 
         if (\App::environment('prod')) {
-            $email_to = (validEmail($user->email)) ? $user->email : '';
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+            $email_to = explode(';', $this->sent_to);
+            $email_cc = explode(';', $this->sent_cc);
+            $email_bcc = explode(';', $this->sent_bcc);
         }
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
+        if ($email_to && $email_cc && $email_bcc)
+            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this, $files));
+        elseif ($email_to && $email_cc)
+            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this, $files));
         elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
-        elseif ($email_user)
-            Mail::to($email_user)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($this));
-
+            Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this, $files));
     }
+
 
     /**
      * Display records last update_by + date

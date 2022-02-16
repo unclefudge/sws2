@@ -259,12 +259,14 @@ class ClientPlannerEmailController extends Controller {
             //$body = preg_replace('/\\\\[t]/', '', $body);
             $body = str_replace(array("\t"), '', $body);
             $email_request['body'] = $body;
-            $email_request['status'] = 2;
+            $email_request['status'] = 0;
             //dd(htmlspecialchars($email_request['body'], ENT_QUOTES, 'UTF-8'));
             //dd($email_request['body']);
 
             $email->update($email_request);
-            Toastr::success("Updated email");
+
+            $email->emailPlanner();
+            Toastr::success("Email sent");
 
             return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
         }

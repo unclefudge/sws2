@@ -149,6 +149,15 @@ class SiteCheckinController extends Controller {
 
         //$worksite = $site;
         //dd($site);
+
+        // Display Site Specific Alerts
+        if ($site->notify()->count()) {
+            $intended_url = '/dashboard';
+
+            return view('comms/notify/alertsite', compact('intended_url', 'site'));
+        }
+
+
         return redirect('/dashboard');
     }
 

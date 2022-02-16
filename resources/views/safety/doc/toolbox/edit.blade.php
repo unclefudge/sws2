@@ -177,8 +177,8 @@
     </div>
 
     <!-- Upload Photo Modal -->
-    <div id="modal_upload" class="modal fade" tabindex="-1" role="basic" aria-hidden="true">
-        <div class="modal-dialog">
+    <div id="modal_upload" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content form">
                 {!! Form::model($talk, ['method' => 'POST', 'action' => ['Safety\ToolboxTalkController@uploadMedia', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'upload_form']) !!}
                 <div class="modal-header">
