@@ -82,36 +82,47 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr class="field-hr">
-                            {{-- Body --}}
+                            <br>
+                            {{-- Attachments --}}
                             <div class="row">
-                                <div class="col-md-12">
-                                    <div><textarea name="ck_body" id="ck_body" rows="25" cols="80">{{ nl2br($email->body) }}</textarea></div>
+                                <div class="col-md-1">Attachments:</div>
+                                <div class="col-md-11">
+                                    @foreach ($email->docs as $doc)
+                                        <span><i class="fa fa-file-pdf-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a>, &nbsp;</span>
+                                    @endforeach
                                 </div>
                             </div>
-
-                            <hr>
-                            <div class="pull-right" style="min-height: 50px">
-                                <a href="/client/planner/email" class="btn default"> Back</a>
-                                <button id="preview" name="preview" class="btn dark"> Preview</button>
-                                @if(Auth::user()->allowed2('edit.client.planner.email', $email))
-                                    <button id="signoff_button" type="submit" name="save" class="btn green"> Send</button>
-                                @endif
-                            </div>
-                            <br><br>
-                            {!! Form::close() !!}
                         </div>
+                        <hr class="field-hr">
+                        {{-- Body --}}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div><textarea name="ck_body" id="ck_body" rows="25" cols="80">{{ nl2br($email->body) }}</textarea></div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="pull-right" style="min-height: 50px">
+                            <a href="/client/planner/email" class="btn default"> Back</a>
+                            <button id="preview" name="preview" class="btn dark"> Preview</button>
+                            @if(Auth::user()->allowed2('edit.client.planner.email', $email))
+                                <button id="signoff_button" type="submit" name="save" class="btn green"> Send</button>
+                            @endif
+                        </div>
+                        <br><br>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     {{-- Preview Modal --}}
     <div id="modal_preview" class="modal fade bs-modal-lg" tabindex="-1" role="basic" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content form">
-                 <div class="modal-header">
+                <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
                     <h4 class="modal-title text-center"><b>Email Preview</b></h4>
                 </div>
@@ -184,7 +195,8 @@
             dataType: 'json',
             success: function (data) {
                 //window.location = "/client/planner/email/" + $('#email_id').val() + '/edit';
-                window.location = "/client/planner/email";
+                //window.location = "/client/planner/email";
+                alert('email sent');
             },
             error: function (data) {
                 ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class ClientPlannerEmailDoc extends Model {
 
     protected $table = 'client_planner_emails_docs';
-    protected $fillable = ['email_id', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
+    protected $fillable = ['email_id', 'name', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
 
     /**
      * A ClientPlannerEmailDoc belongs to a ClientPlannerEmail

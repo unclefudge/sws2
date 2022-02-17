@@ -13,7 +13,7 @@ class ClientPlanner extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $client_email, $file_attachment;
+    public $client_planner, $file_attachment;
 
     /**
      * Create a new message instance.
@@ -36,6 +36,6 @@ class ClientPlanner extends Mailable implements ShouldQueue {
         if ($this->file_attachment && file_exists($this->file_attachment))
             return $this->markdown('emails/site/maintenance-executive')->subject('SafeWorksite - Site Maintenance Executive Report')->attach($this->file_attachment);
 
-        return $this->markdown('emails/client/planner')->subject('SafeWorksite - Site Maintenance Executive Report');
+        return $this->markdown('emails/client/planner')->subject($this->client_planner->subject);
     }
 }

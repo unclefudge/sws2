@@ -51,6 +51,7 @@ class CreateSiteClientEmailTable extends Migration
         Schema::create('client_planner_emails_docs', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('email_id')->unsigned()->nullable();
+            $table->string('name', 255)->nullable();
             $table->string('attachment', 255)->nullable();
 
             // Foreign keys

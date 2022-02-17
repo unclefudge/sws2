@@ -15,7 +15,6 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Trade;
 use App\Models\Client\ClientPlannerEmail;
 use App\Models\Client\ClientPlannerEmailDoc;
-use App\Jobs\SitePlannerPdf;
 use App\Http\Utilities\ClientPlannerActionItems;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -139,7 +138,10 @@ class ClientPlannerEmailController extends Controller {
         $email_request['sent_cc'] = "construct@capecod.com.au";
         $email_request['sent_bcc'] = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         $email_request['subject'] = $site->code . '-' . $site->name . ' Weekly Planner';
+        $email_request['status'] = 1;
 
+        // Create Email
+        $email = ClientPlannerEmail::create($email_request);
 
         // Client Planner
         $data = $this->clientPlanner($site->id);
@@ -171,7 +173,6 @@ class ClientPlannerEmailController extends Controller {
                 $actions .= "</tr>";
             }
             $actions .= "</table>";
-
             //print_r($actions);
         }
 
@@ -188,33 +189,38 @@ class ClientPlannerEmailController extends Controller {
         //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         $body .= "<p>Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me</p>";
         $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "<p>Have a great weekend.</p>" : "<p>Have a great afternoon.</p>";
-
-        $email_request['body'] = $body;
-
-
-        $email_request['status'] = 1;
-
         //print_r(nl2br($body));
         //dd($email_request);
 
-        // Create Email
-        $email = ClientPlannerEmail::create($email_request);
-        Toastr::success("Email created");
+        // Save body of email
+        $email->body = $body;
+        $email->save();
 
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+        //
+        // Attachments
+        //
+
+        $dir = '/filebank/site/' . $email->site_id . '/emails/client';
         // Create directory if required
         if (!is_dir(public_path($dir)))
             mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/Client Site Plan ($site->code) " . Carbon::now()->format('YmdHis') . '.pdf');
 
-        //touch($output_file);
+        // Create planner PDF
+        $data = $this->clientPlanner($email->site_id);
+        $filename = "Client Site Plan ($email->site_id) " . Carbon::now()->format('YmdHis') . '.pdf';
+        $output_file = public_path("$dir/$filename");
+        touch($output_file);
 
         //return view('pdf/plan-site-client', compact('data'));
-        //$pdf = PDF::loadView($view, compact('data'));
-        //$pdf->setPaper('a4', 'landscape');//->setOrientation('landscape');
-        //return $pdf->stream();
-        //SitePlannerPdf::dispatch($view, $data, $output_file);
+        $pdf = PDF::loadView('pdf/plan-site-client', compact('data'));
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->save($output_file);
 
+        $doc = ClientPlannerEmailDoc::create(['email_id' => $email->id, 'name' => 'Client Planner', 'attachment' => $filename]);
+
+        // Check for recent QAs
+
+        Toastr::success("Email draft created");
 
         return redirect('/client/planner/email/' . $email->id . '/edit');
     }
@@ -259,7 +265,7 @@ class ClientPlannerEmailController extends Controller {
             //$body = preg_replace('/\\\\[t]/', '', $body);
             $body = str_replace(array("\t"), '', $body);
             $email_request['body'] = $body;
-            $email_request['status'] = 0;
+            //$email_request['status'] = 0;
             //dd(htmlspecialchars($email_request['body'], ENT_QUOTES, 'UTF-8'));
             //dd($email_request['body']);
 
@@ -474,71 +480,6 @@ class ClientPlannerEmailController extends Controller {
 
 
     /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function uploadAttachment()
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.scaffold.handover') || Auth::user()->allowed2('edit.site.scaffold.handover', $report)))
-        //    return json_encode("failed");
-
-        //dd(request()->all());
-        // Handle file upload
-        $files = request()->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank / site / " . request('site_id') . '/scaffold';
-            $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path / $name")))
-                $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-
-            $doc_request['scaffold_id'] = request('report_id');
-            $doc_request['category'] = request('category');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['attachment'] = $name;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteScaffoldHandoverDoc
-            $doc = SiteScaffoldHandoverDoc::create($doc_request);
-        }
-
-        return json_encode("success");
-    }
-
-    /**
-     * Generate PDF report
-     *
-     * @return PDF
-     */
-    public function reportPDF($id)
-    {
-        $report = SiteScaffoldHandover::findOrFail($id);
-
-        if ($report) {
-            $site = Site::findOrFail($report->site_id);
-
-            /*
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            */
-
-            //return view('pdf/site/scaffold-handover', compact('report', 'site'));
-            return PDF::loadView('pdf/site/scaffold-handover', compact('report', 'site'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
-        }
-    }
-
-    /**
      * Generate + Email PDF report
      *
      * @return PDF
@@ -609,7 +550,7 @@ class ClientPlannerEmailController extends Controller {
 
         $email_records = DB::table('client_planner_emails AS cpm')
             ->select(['cpm.id', 'cpm.site_id', 'cpm.type', 'cpm.updated_at', 'cpm.status',
-                DB::raw('DATE_FORMAT(cpm.updated_at, " % d /%m /%y") AS updated'),
+                DB::raw('DATE_FORMAT(cpm.updated_at, "%d/%m/%y") AS updated'),
                 DB::raw('sites.name AS sitename'), 'sites.code'])
             ->join('sites', 'cpm.site_id', '=', 'sites.id')
             ->whereIn('cpm.id', $email_ids);
