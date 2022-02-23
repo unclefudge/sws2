@@ -116,7 +116,8 @@ class ClientPlannerEmailController extends Controller {
         //
         // Check valid emails
         //
-        $email1 = $email2 = '';
+        $email1 = trim(request('email1'));
+        $email2 = trim(request('email2'));
         if (request('email1') && validEmail(request('email1')))
             $email1 = request('email1');
         else
