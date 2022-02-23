@@ -54,7 +54,7 @@ class ClientPlannerEmail extends Model {
 
         if (\App::environment('prod')) {
             $email_to = explode(';', $this->sent_to);
-            $email_cc = explode(';', $this->sent_cc);
+            //$email_cc = explode(';', $this->sent_cc);
             $email_bcc = explode(';', $this->sent_bcc);
         }
 
