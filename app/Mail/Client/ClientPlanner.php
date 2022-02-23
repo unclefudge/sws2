@@ -13,17 +13,16 @@ class ClientPlanner extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $client_planner, $file_attachment;
+    public $client_planner;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(ClientPlannerEmail $client_planner, $file_attachment)
+    public function __construct(ClientPlannerEmail $client_planner)
     {
         $this->client_planner = $client_planner;
-        $this->file_attachment = $file_attachment;
     }
 
     /**

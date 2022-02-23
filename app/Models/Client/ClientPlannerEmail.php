@@ -59,11 +59,11 @@ class ClientPlannerEmail extends Model {
         }
 
         if ($email_to && $email_cc && $email_bcc)
-            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this, $files));
+            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
         elseif ($email_to && $email_cc)
-            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this, $files));
+            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
         elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this, $files));
+            Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this));
     }
 
 
