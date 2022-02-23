@@ -226,6 +226,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Client Planner Email
     Route::get('client/planner/email/dt/list', 'Client\ClientPlannerEmailController@getEmails');
     Route::get('client/planner/email/{id}/status/{status}', 'Client\ClientPlannerEmailController@updateStatus');
+    Route::get('client/planner/email/{id}/check_docs', 'Client\ClientPlannerEmailController@checkDocs');
     Route::get('client/planner/email/createfields/{site_id}', 'Client\ClientPlannerEmailController@getCreatefields');
     Route::resource('client/planner/email', 'Client\ClientPlannerEmailController');
 

@@ -20,6 +20,8 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Company\Company;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
+use App\Models\Client\ClientPlannerEmail;
+use App\Models\Client\ClientPlannerEmailDoc;
 use App\Jobs\SiteQaPdf;
 use App\Http\Requests;
 use App\Http\Requests\Site\SiteQaRequest;
@@ -185,13 +187,13 @@ class SiteQaController extends Controller {
                 $super = ($request->has("super$i")) ? '1' : '0';
                 $cert = ($request->has("cert$i")) ? '1' : '0';
                 $newItem = SiteQaItem::create(
-                    ['doc_id'  => $qa->id,
-                     'task_id' => $request->get("task$i"),
-                     'name'    => $request->get("item$i"),
-                     'super'   => $super,
+                    ['doc_id'        => $qa->id,
+                     'task_id'       => $request->get("task$i"),
+                     'name'          => $request->get("item$i"),
+                     'super'         => $super,
                      'certification' => $cert,
-                     'order'   => $order ++,
-                     'master'  => '1',
+                     'order'         => $order ++,
+                     'master'        => '1',
                     ]);
             }
         }
@@ -448,15 +450,28 @@ class SiteQaController extends Controller {
         return view('site/export/qa');
     }
 
-    public function qaPDF(Request $request)
+    public function qaPDF($client_planner_data = null)
     {
+
+        // Determine if function called by ExportQA or ClientPlannerEmail
+        if ($client_planner_data) {
+            $client_planner_id = $client_planner_data['email_id'];
+            $date_from = $client_planner_data['date_from'];
+        }
+
+        //dd(request()->all());
         $site = Site::find(request('site_id'));
         if ($site) {
             $completed = 1;
             $data = [];
             $users = [];
             $companies = [];
-            $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->where('company_id', '3')->get();
+
+            if ($client_planner_id)
+                $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>', $date_from)->get();
+            else
+                $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->get();
+
             foreach ($site_qa as $qa) {
                 $obj_qa = (object) [];
                 $obj_qa->id = $qa->id;
@@ -524,18 +539,27 @@ class SiteQaController extends Controller {
                 $data[] = $obj_qa;
             }
 
-            //dd($data);
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+
+            if ($client_planner_id) {
+                $dir = "/filebank/site/$site->id/emails/client";
+                $filename = "QA ($site->code-$site->name) " . Carbon::now()->format('YmdHis') . '.pdf';
+                $doc = ClientPlannerEmailDoc::create(['email_id' => $client_planner_id, 'name' => "Quality Assurance", 'attachment' => $filename]);
+            } else {
+                $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+                $filename = 'QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf';
+            }
+
             // Create directory if required
             if (!is_dir(public_path($dir)))
                 mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
+
+            $output_file = public_path("$dir/$filename");
+            //if (!$client_planner_id)
             touch($output_file);
 
             //return view('pdf/site-qa', compact('site', 'data'));
             //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
+            SiteQaPdf::dispatch(request('site_id'), $data, $output_file); // Queue the job to generate PDF
         }
 
         return redirect('/manage/report/recent');

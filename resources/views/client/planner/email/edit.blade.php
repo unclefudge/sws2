@@ -33,33 +33,12 @@
                     <div class="portlet-body form">
                         <div class="page-content-inner">
                             {!! Form::model($email, ['method' => 'PATCH', 'action' => ['Client\ClientPlannerEmailController@update', $email->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'email_form']) !!}
-                            <input type="hidden" name="email_id" id="email_id" value="{{ $email->id }}">
-                            <input type="hidden" name="site_id" id="site_id" value="{{ $email->site_id }}">
-                            <input type="hidden" name="email_body" id='email_body' value="{{ $email->body }}">
+                            <input v-model="xx.email_id" type="hidden" name="email_id" id="email_id" value="{{ $email->id }}">
+                            <input v-model="xx.site_id" type="hidden" name="site_id" id="site_id" value="{{ $email->site_id }}">
+                            <input v-model="xx.email_body" type="hidden" name="email_body" id='email_body' value="{{ $email->body }}">
 
                             @include('form-error')
 
-                            {{-- Progress Steps --}}
-                            <div class="mt-element-step hidden-sm hidden-xs">
-                                <div class="row step-thin" id="steps">
-                                    <div class="col-md-4 mt-step-col first done">
-                                        <div class="mt-step-number bg-white font-grey">1</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                        <div class="mt-step-content font-grey-cascade">Create email</div>
-                                    </div>
-                                    <div class="col-md-4 mt-step-col active">
-                                        <div class="mt-step-number bg-white font-grey">2</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Customise</div>
-                                        <div class="mt-step-content font-grey-cascade">Customise email</div>
-                                    </div>
-                                    <div class="col-md-4 mt-step-col last">
-                                        <div class="mt-step-number bg-white font-grey">3</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Review</div>
-                                        <div class="mt-step-content font-grey-cascade">Review email</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
                             <h4>Email Draft</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             {{-- To --}}
@@ -84,12 +63,16 @@
                             </div>
                             <br>
                             {{-- Attachments --}}
-                            <div class="row">
-                                <div class="col-md-1">Attachments:</div>
-                                <div class="col-md-11">
-                                    @foreach ($email->docs as $doc)
-                                        <span><i class="fa fa-file-pdf-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a>, &nbsp;</span>
-                                    @endforeach
+                            <div v-if="xx.attachments">
+                                <div class="row">
+                                    <div class="col-md-1">Attachments:</div>
+                                    <div class="col-md-11">
+                                        <span v-for="doc in xx.attachments">
+                                        <span v-if="doc.status == 1"><i class="fa fa-file-pdf-o"></i> <a href="@{{ doc.url }}" target="_blank" title="@{{ doc.name }}">@{{ doc.name }}</a>,</span>
+                                        <span v-if="doc.status == 2"><span class="font-red"><i class="fa fa-spin fa-spinner"> </i> @{{ doc.name }}</span>,</span>
+                                        <span v-if="doc.status == 0"><span class="font-red"><i class="fa fa-triangle-exclamation"> @{{ doc.name }}(Failed to generate)</span>,</span>
+                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -115,7 +98,15 @@
                 </div>
             </div>
         </div>
+
+        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>-->
     </div>
+
+    <!-- loading Spinner -->
+    <div v-show="xx.loading" style="background-color: #FFF; padding: 20px;">
+        <div class="loadSpinnerOverlay">
+            <div class="loadSpinner"><i class="fa fa-spinner fa-pulse fa-2x fa-fw margin-bottom"></i> Loading...</div>
+        </div>
     </div>
 
     {{-- Preview Modal --}}
@@ -155,6 +146,9 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
+<script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
+<script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
 <script>
     $.ajaxSetup({
         headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
@@ -174,14 +168,14 @@
     // Send Email
     $('#send_preview').click(function (e) {
         e.preventDefault(e);
-        alert('sending');
+        //alert('sending');
         submit_form();
     });
 
 
     $('#email_form').on('submit', function (e) {
         e.preventDefault(e);
-        alert('subbing');
+        //alert('subbing');
         submit_form();
     });
 
@@ -194,20 +188,58 @@
             data: $("#email_form").serialize(),
             dataType: 'json',
             success: function (data) {
-                //window.location = "/client/planner/email/" + $('#email_id').val() + '/edit';
-                //window.location = "/client/planner/email";
-                alert('email sent');
+                window.location = "/client/planner/email";
+                //alert('email sent');
             },
             error: function (data) {
-                ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
                 swal({
                     title: 'Failed to save Email Draft',
-                    text: "We apologise but we were unable to save your Email draft (id:" + $('#email_id').val() + ")<br><br>Please try again but if the problem persists let us know.",
+                    text: "We apologise but we were unable to save/send your Email draft (id:" + $('#email_id').val() + ")<br><br>Please try again but if the problem persists let us know.",
                     html: true
                 });
             }
         })
     }
+
+    var dev = true;
+    if (window.location.hostname == 'safeworksite.com.au')
+        dev = false;
+
+    var xx = {
+        dev: dev, loading: true, incomplete: true, email_id: '', site_id: '', attachments: '',
+    };
+
+    new Vue({
+        el: 'body',
+        data: function () {
+            //items: []
+            return {xx: xx};
+        },
+        methods: {
+            loadData: function () {
+                $.get('/client/planner/email/' + this.xx.email_id + '/check_docs', function (response) {
+                    console.log(response);
+                    this.xx.attachments = response;
+                    this.reportsCompleted();
+                }.bind(this));
+            },
+            reportsCompleted: function () {
+                this.xx.incomplete = false;
+                for (var i = 0; i < this.xx.attachments.length; i++) {
+                    if (this.xx.attachments[i]['status'] != '1')
+                        this.xx.incomplete = true;
+                }
+                this.xx.loading = this.xx.incomplete;
+            },
+        },
+        ready: function () {
+            this.loadData();
+
+            setInterval(function () {
+                this.loadData();
+            }.bind(this), 3000);
+        }
+    });
 
 </script>
 @stop

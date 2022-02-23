@@ -33,9 +33,16 @@ class ClientPlanner extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        if ($this->file_attachment && file_exists($this->file_attachment))
-            return $this->markdown('emails/site/maintenance-executive')->subject('SafeWorksite - Site Maintenance Executive Report')->attach($this->file_attachment);
+        $email = $this->markdown('emails/client/planner')->subject($this->client_planner->subject);
 
-        return $this->markdown('emails/client/planner')->subject($this->client_planner->subject);
+        // Attachments
+        if ($this->client_planner->docs->count()) {
+            foreach ($this->client_planner->docs as $doc) {
+                if (file_exists(public_path($doc->attachment_url)))
+                    $email->attach(public_path($doc->attachment_url));
+            }
+        }
+
+        return $email;
     }
 }

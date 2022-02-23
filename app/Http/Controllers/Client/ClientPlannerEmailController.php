@@ -9,10 +9,12 @@ use DB;
 use PDF;
 use Mail;
 use Session;
+use App\User;
 use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Trade;
+use App\Models\Site\SiteQa;
 use App\Models\Client\ClientPlannerEmail;
 use App\Models\Client\ClientPlannerEmailDoc;
 use App\Http\Utilities\ClientPlannerActionItems;
@@ -70,12 +72,10 @@ class ClientPlannerEmailController extends Controller {
         if (!Auth::user()->allowed2('edit.client.planner.email', $email))
             return view('errors/404');
 
-        if ($email->status == 1)
-            return view('/client/planner/email/edit', compact('email'));
-        elseif ($email->status == 2)
-            return view('/client/planner/email/review', compact('email'));
-        else
-            return redirect('/client/planner/email/' . $email->id);
+        //if ($email->status == 1)
+        return view('/client/planner/email/edit', compact('email'));
+        //else
+        //    return redirect('/client/planner/email/' . $email->id);
     }
 
     /**
@@ -148,18 +148,17 @@ class ClientPlannerEmailController extends Controller {
         $clientplan = $this->clientPlannerTable($data);
 
         // Actions template
-        $action = '';
         $actions = '';
         if (request('type') == 'Action') {
-            $actions = "As discussed in our Pre Construction Meeting, I need you to start thinking about or to finalise for me, the following items:\r\n\r\n";
+            $actions = "<br>As discussed in our Pre Construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
             //$actions .= "<table style='padding: 0px; margin: 0px; border: 1px solid black; border-collapse: collapse'>";
-            $actions .= "<table>";
+            $actions .= "<table style='border: 1px solid black;'>";
             $actions .= "<thead>";
             //$actions .= "<tr style='background-color: #f0f6fa; font-weight: bold;  border: 1px solid black; border-collapse: collapse'>";
             //$actions .= "<th width='80%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; Action item &nbsp;</th>";
             //$actions .= "<th width='20%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; Date Required &nbsp;</th>";
             $actions .= "<tr>";
-            $actions .= "<th></th>";
+            $actions .= "<th>Item</th>";
             $actions .= "<th>&nbsp; Date Required &nbsp;</th>";
             $actions .= "</tr></thead>";
             //print_r(ClientPlannerActionItems::all());
@@ -173,6 +172,10 @@ class ClientPlannerEmailController extends Controller {
                 $actions .= "</tr>";
             }
             $actions .= "</table>";
+
+            if (request('further_notes'))
+                $actions .= "<br><p>Further Notes as discussed:<br>" . request('further_notes') . "</p>";
+
             //print_r($actions);
         }
 
@@ -184,10 +187,10 @@ class ClientPlannerEmailController extends Controller {
 
         $body .= "$clientplan";
         if ($actions)
-            $body .= "$actions\r\n\r\n";
+            $body .= "$actions";
         //$body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me\r\n\r\n";
         //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
-        $body .= "<p>Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me</p>";
+        $body .= "<br><p>Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me</p>";
         $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "<p>Have a great weekend.</p>" : "<p>Have a great afternoon.</p>";
         //print_r(nl2br($body));
         //dd($email_request);
@@ -207,18 +210,25 @@ class ClientPlannerEmailController extends Controller {
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id);
-        $filename = "Client Site Plan ($email->site_id) " . Carbon::now()->format('YmdHis') . '.pdf';
+        $filename = "Client Site Plan ($site->code-$site->name) " . Carbon::now()->format('YmdHis') . '.pdf';
         $output_file = public_path("$dir/$filename");
         touch($output_file);
 
         //return view('pdf/plan-site-client', compact('data'));
-        $pdf = PDF::loadView('pdf/plan-site-client', compact('data'));
-        $pdf->setPaper('A4', 'portrait');
+        $pdf = PDF::loadView('pdf/plan-site-client', compact('data'))->setPaper('A4', 'portrait');
         $pdf->save($output_file);
-
         $doc = ClientPlannerEmailDoc::create(['email_id' => $email->id, 'name' => 'Client Planner', 'attachment' => $filename]);
 
+        //
         // Check for recent QAs
+        //
+        $last_client_email = ClientPlannerEmail::where('status', 0)->where('site_id', $site->id)->orderBy('updated_at', 'DESC')->first();
+        $date_from = ($last_client_email) ? $last_client_email->updated_at->format('Y-m-d') : $site->created_at->format('Y-m-d');
+
+        $qas = $site->qaReports->where('status', 0);
+        $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>', $date_from)->first();
+        if ($site_qa)  // Call qaPDF and queue PDF to be created + attach doc to record
+            app('App\Http\Controllers\Site\SiteQaController')->qaPDF(['email_id' => $email->id, 'date_from' => $date_from]);
 
         Toastr::success("Email draft created");
 
@@ -265,7 +275,7 @@ class ClientPlannerEmailController extends Controller {
             //$body = preg_replace('/\\\\[t]/', '', $body);
             $body = str_replace(array("\t"), '', $body);
             $email_request['body'] = $body;
-            //$email_request['status'] = 0;
+            $email_request['status'] = 0;
             //dd(htmlspecialchars($email_request['body'], ENT_QUOTES, 'UTF-8'));
             //dd($email_request['body']);
 
@@ -444,79 +454,33 @@ class ClientPlannerEmailController extends Controller {
             $output .= "</table>";
         }
 
-        /*
-                foreach ($data[0]->weeks as $week_num => $week_data) {
-                    $output .= "<b>Week $week_num</b>";
-                    $output .= "<table style='padding: 0px; margin: 0px; border: 1px solid black; border-collapse: collapse'>";
-                    foreach ($week_data as $row) {
-                        $cell_array = explode(' ', trim($row[1]));
-                        if ($cell_array[0] == 'MONDAY' || $cell_array[0] == 'TUESDAY' || $cell_array[0] == 'WEDNESDAY' || $cell_array[0] == 'THURSDAY' || $cell_array[0] == 'FRIDAY') {
-                            $output .= "<thead>";
-                            $output .= "<tr style='background-color: #f0f6fa; font-weight: bold;  border: 1px solid black; border-collapse: collapse'>";
-                            $output .= "<th width='16%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;" . $row[1] . " &nbsp;</th>";
-                            $output .= "<th width='16%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;" . $row[2] . " &nbsp;</th>";
-                            $output .= "<th width='16%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;" . $row[3] . " &nbsp;</th>";
-                            $output .= "<th width='16%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;" . $row[4] . " &nbsp;</th>";
-                            $output .= "<th width='16%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;" . $row[5] . " &nbsp;</th>";
-                            $output .= "</tr></thead>";
-                        } else {
-                            $output .= "<tr style='border: 1px solid black; border-collapse: collapse'>";
-                            if($row[1] == 'NOTHING-ON-PLAN') {
-                                $output .= "<td colspan='5' style='padding: 5px; border: 1px solid black; border-collapse: collapse'>No tasks for this week</td>";
-                            } else {
-                                $output .= "<td width='16%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;".$row[1]." &nbsp;</td>";
-                                $output .= "<td width='16%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;".$row[2]." &nbsp;</td>";
-                                $output .= "<td width='16%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;".$row[3]." &nbsp;</td>";
-                                $output .= "<td width='16%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;".$row[4]." &nbsp;</td>";
-                                $output .= "<td width='16%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'> &nbsp;".$row[5]." &nbsp;</td>";
-                            }
-                        }
-                    }
-                    $output .= "</table>\r\n";
-                }*/
-
         return $output;
     }
 
-
-    /**
-     * Generate + Email PDF report
-     *
-     * @return PDF
-     */
-    public function emailPDF($id)
+    public function clientActionsTable($data)
     {
-        $report = SiteScaffoldHandover::findOrFail($id);
 
-        if ($report) {
-            $site = Site::findOrFail($report->site_id);
+    }
 
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/ScaffoldHandoverCertificate ' . $site->id . '-' . sanitizeFilename($site->name) . '-' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
+    public function checkDocs($id)
+    {
+        $email = ClientPlannerEmail::findOrFail($id);
 
-            //return view('pdf/site/scaffold-handover', compact('report', 'site'));
-            $pdf = PDF::loadView('pdf/site/scaffold-handover', compact('report', 'site'))->setPaper('a4');
-            $pdf->save($output_file);
-
-            // Email certificate
-            $email_to = (validEmail(request('email'))) ? request('email') : '';
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-
-            if ($email_to && $email_user)
-                Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
-            elseif ($email_to)
-                Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
-            elseif ($email_user)
-                Mail::to($email_user)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
-
-            Toastr::success("Emailed certificate");
+        $attachments = [];
+        $docs = $email->docs;
+        if ($docs) {
+            foreach ($docs as $doc) {
+                if ($doc->attachment && file_exists(public_path($doc->attachment_url))) {
+                    if (filesize(public_path($doc->attachment_url)) > 0)
+                        $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 1];
+                    else
+                        $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 2];
+                } else
+                    $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 0];
+            }
         }
 
-        return redirect("site / scaffold / handover / $report->id");
+        return $attachments;
     }
 
     /**
@@ -557,7 +521,7 @@ class ClientPlannerEmailController extends Controller {
 
         $dt = Datatables::of($email_records)
             ->addColumn('view', function ($record) {
-                return ('<div class="text - center"><a href=" / client / planner / email / ' . $record->id . '"><i class="fa fa - search"></i></a></div>');
+                return ('<div class="text-center"><a href="/client/planner/email/' . $record->id . '"><i class="fa fa-search"></i></a></div>');
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

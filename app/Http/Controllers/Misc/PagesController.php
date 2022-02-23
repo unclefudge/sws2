@@ -160,6 +160,11 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        // test accessing another controller
+        //app('App\Http\Controllers\Site\SiteQaController')->qaPDF(['site_id' => '542', 'save_file' => 1]);
+        app('App\Http\Controllers\Client\ClientPlannerEmailController')->tester('542');
+
+        /*
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
         $today = Carbon::now();
@@ -193,6 +198,7 @@ class PagesController extends Controller {
         }
 
         echo "---------------<br>Total: $total_size kb  ".($total_size/1000)." mb ".($total_size/1000000)." gb <br>";
+        */
 
         /*echo "<b>Converting SDS </b></br>";
         $sds_docs = SafetyDoc::where('type', 'SDS')->get();

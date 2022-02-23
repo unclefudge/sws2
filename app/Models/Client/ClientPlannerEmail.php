@@ -81,14 +81,24 @@ class ClientPlannerEmail extends Model {
     }
 
     /**
-     * Get the Licence URL (setter)
+     * Get the Last Email (setter)
      */
-    public function getInspectorLicenceUrlAttribute()
+    public function getLastEmailAttribute()
     {
-        if ($this->attributes['inspector_licence'])
-            return '/filebank/site/' . $this->attributes['site_id'] . "/scaffold/" . $this->attributes['inspector_licence'];
+        $last_email = ClientPlannerEmail::where('status', 0)->where('site_id', $this->site_id)->orderBy('updated_at', 'DESC')->first();
+
+        if ($last_email)
+            return $last_email->updated_at->format('d/m/Y');
 
         return '';
+    }
+
+    /**
+     * Get the Licence URL (setter)
+     */
+    public function getSentByAttribute()
+    {
+        return User::findOrFail($this->updated_by);
     }
 
     /**

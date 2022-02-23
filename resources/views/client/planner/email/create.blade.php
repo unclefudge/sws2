@@ -26,27 +26,6 @@
                         {!! Form::model('ClientPlannerEmail', ['action' => 'Client\ClientPlannerEmailController@store', 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 
-                        {{-- Progress Steps --}}
-                        <div class="mt-element-step hidden-sm hidden-xs">
-                            <div class="row step-thin" id="steps">
-                                <div class="col-md-4 mt-step-col first active">
-                                    <div class="mt-step-number bg-white font-grey">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                    <div class="mt-step-content font-grey-cascade">Create email</div>
-                                </div>
-                                <div class="col-md-4 mt-step-col">
-                                    <div class="mt-step-number bg-white font-grey">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Customise</div>
-                                    <div class="mt-step-content font-grey-cascade">Customise email</div>
-                                </div>
-                                <div class="col-md-4 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">3</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Review</div>
-                                    <div class="mt-step-content font-grey-cascade">Review email</div>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
                         <div class="form-body">
                             <h4 class="font-green-haze">Site details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -69,14 +48,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email1', $errors) !!}">
                                         {!! Form::label('email1', 'Email 1', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email1', "test@cc.com", ['class' => 'form-control']) !!}
+                                        {!! Form::text('email1', "kirstie@capecod.com.au", ['class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('email1', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email2', $errors) !!}">
                                         {!! Form::label('email2', 'Email 2', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email2', null, ['class' => 'form-control']) !!}
+                                        {!! Form::text('email2', "rob@capecod.com.au", ['class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('email2', $errors) !!}
                                     </div>
                                 </div>
@@ -163,18 +142,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            {{--}}
-                            <h4 class="font-green-haze">Notes</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
-                                    </div>
-                                </div>
-                            </div> --}}
 
                             <div class="form-actions right">
                                 <a href="/client/planner/email" class="btn default"> Back</a>
