@@ -53,9 +53,9 @@ class ClientPlannerEmail extends Model {
         $files = [];
 
         if (\App::environment('prod')) {
-            $email_to = explode(';', $this->sent_to);
-            //$email_cc = explode(';', $this->sent_cc);
-            $email_bcc = explode(';', $this->sent_bcc);
+            $email_to = explode('; ', $this->sent_to);
+            //$email_cc = explode('; ', $this->sent_cc);
+            $email_bcc = explode('; ', $this->sent_bcc);
         }
 
         if ($email_to && $email_cc && $email_bcc)

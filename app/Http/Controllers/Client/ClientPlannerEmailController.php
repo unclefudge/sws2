@@ -123,7 +123,7 @@ class ClientPlannerEmailController extends Controller {
 
         if (request('email2') && !validEmail($email2))
             return back()->withErrors(['email2' => "Invalid email format"]);
-        
+
 
         $email_request = request()->all();
         $site = Site::findOrFail(request('site_id'));
