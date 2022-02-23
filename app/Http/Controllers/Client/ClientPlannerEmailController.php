@@ -118,17 +118,12 @@ class ClientPlannerEmailController extends Controller {
         //
         $email1 = trim(request('email1'));
         $email2 = trim(request('email2'));
-        if (request('email1') && validEmail(request('email1')))
-            $email1 = request('email1');
-        else
+        if (request('email1') && !validEmail($email1))
             return back()->withErrors(['email1' => "Invalid email format"]);
 
-        if (request('email2')) {
-            if (validEmail(request('email2')))
-                $email2 = request('email2');
-            else
-                return back()->withErrors(['email2' => "Invalid email format"]);
-        }
+        if (request('email2') && !validEmail($email2))
+            return back()->withErrors(['email2' => "Invalid email format"]);
+        
 
         $email_request = request()->all();
         $site = Site::findOrFail(request('site_id'));
