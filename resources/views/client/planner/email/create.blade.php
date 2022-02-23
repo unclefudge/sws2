@@ -64,7 +64,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('intro', $errors) !!}">
                                         {!! Form::label('intro', 'Letter introdution', ['class' => 'control-label']) !!}
-                                        {!! Form::text('intro', "Jop", ['class' => 'form-control', 'placeholder' => "Name of client to address email to"]) !!}
+                                        {!! Form::text('intro', null, ['class' => 'form-control', 'placeholder' => "Name of client to address email to"]) !!}
                                         {!! fieldErrorMessage('intro', $errors) !!}
                                     </div>
                                 </div>
