@@ -92,7 +92,7 @@
                                         <input type="hidden" name="super_class3[]" id="super_class3" value="{{ $val }}">
                                     @endforeach
 
-                                    @if ($doc->category_id > 8 && $doc->category_id != 22)
+                                    @if ($doc->category_id > 8 && $doc->category_id != 22 && $doc->category->parent != 22)
                                         <div class="form-group">
                                             {!! Form::label('category_id_text', 'Category', ['class' => 'control-label']) !!}
                                             {!! Form::text('category_id_text', $CompanyDocCategory::find($doc->category_id)->name, ['class' => 'form-control bs-select', 'disabled']) !!}
@@ -244,7 +244,7 @@
                                     @else
                                         {{-- Expiry --}}
                                         <div class="form-group {!! fieldHasError('expiry', $errors) !!}">
-                                            {!! Form::label('expiry', 'Expiry', ['class' => 'control-label']) !!}
+                                            {!! Form::label('expiry', ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renewal' : 'Expiry', ['class' => 'control-label', 'id' => 'expiry_label']) !!}
                                             @if ($doc->category_id == 4)
                                                 {!! Form::text('expiry', ($doc->expiry) ? $doc->expiry->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                             @else

@@ -159,7 +159,7 @@
                                     </div>
                                     {{-- Expiry --}}
                                     <div class="form-group {!! fieldHasError('expiry', $errors) !!}" style="display: none" id="fields_expiry">
-                                        {!! Form::label('expiry', 'Expiry', ['class' => 'control-label']) !!}
+                                        {!! Form::label('expiry', 'Expiry', ['class' => 'control-label', 'id' => 'expiry_label']) !!}
                                         <div class="input-group date date-picker">
                                             {!! Form::text('expiry', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'readonly']) !!}
                                             <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
@@ -368,8 +368,12 @@
             if (cat == 8)  // Asbestos
                 $('#fields_asb_class').show();
 
-            if (cat == 22)  // Standard Details
+            if (cat == 22) {  // Standard Details
                 $('#fields_subcategory').show();
+                $('#expiry_label').html('Renewal');
+            } else {
+                $('#expiry_label').html('Expiry');
+            }
         }
 
         display_fields();
