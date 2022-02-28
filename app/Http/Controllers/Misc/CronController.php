@@ -416,17 +416,26 @@ class CronController extends Controller {
             $week4_ago->format('Y-m-d')    => "Expired 4 weeks ago on " . $week4_ago->format('d/m/Y'),
         ];
 
-        echo "<b>Docs being marked as expired</b></br>";
+        echo "<b>Docs being marked as expired/renewal due</b></br>";
         $docs = CompanyDoc::where('status', 1)->whereDate('expiry', '<', $today->format('Y-m-d'))->get();
         if ($docs->count()) {
             foreach ($docs as $doc) {
                 $company = Company::find($doc->for_company_id);
-                echo "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]<br>";
-                $log .= "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]\n";
-                $doc->updated_by = 1;
-                $doc->updated_at = Carbon::now()->toDateTimeString();
-                $doc->status = 0;
-                $doc->save();
+                $renew = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
+                echo "id[$doc->id] $company->name_alias ($doc->name) $renew [" . $doc->expiry->format('d/m/Y') . "]<br>";
+                $log .= "id[$doc->id] $company->name_alias ($doc->name) $renew [" . $doc->expiry->format('d/m/Y') . "]\n";
+
+                if ($renew) {
+                    $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
+                    $doc->emailRenewal($email_to);
+                    echo "Emailed " . implode("; ", $email_to) . "<br>";
+                    $log .= "Emailed " . implode("; ", $email_to) . "\n";
+                } else {
+                    $doc->updated_by = 1;
+                    $doc->updated_at = Carbon::now()->toDateTimeString();
+                    $doc->status = 0;
+                    $doc->save();
+                }
             }
         } else {
             echo "No expired docs<br><br>";

@@ -160,10 +160,8 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        // test accessing another controller
-        //app('App\Http\Controllers\Site\SiteQaController')->qaPDF(['site_id' => '542', 'save_file' => 1]);
-        app('App\Http\Controllers\Client\ClientPlannerEmailController')->tester('542');
-
+       $doc = CompanyDoc::find(113);
+        $doc->emailRenewal(['fudge@jordan.net.au']);
         /*
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
