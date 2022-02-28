@@ -25,7 +25,7 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Client List</span>
                         </div>
-                        <div class="actions">
+                        <div class="actions">  {{-- jj --}}
                             <a class="btn btn-circle green btn-outline btn-sm" href="/client/create" data-original-title="Add">Add</a>
                             <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
                         </div>
