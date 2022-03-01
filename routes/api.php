@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+// Mailgun Routes
+Route::group([
+    'prefix' => 'mailgun',
+    'middleware' => ['mailgun.webhook'],
+],function () {
+    Route::post('zoho', 'Api\MailgunZohoController@store');
+});
+
+/*Route::group([
+    'prefix' => 'mailgun',
+],function () {
+    Route::post('zoho', 'Api\MailgunZohoController@store');
+});*/

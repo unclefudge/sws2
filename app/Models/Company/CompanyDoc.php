@@ -241,14 +241,10 @@ class CompanyDoc extends Model {
      */
     public function emailRenewal($email_to = '')
     {
-        if (!\App::environment('prod')) {
+        if (!\App::environment('prod'))
             $email_to = [env('EMAIL_DEV')];
-            $email_user = '';
-        }
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Company\CompanyDocRenewal($this));
-        elseif ($email_to)
+        if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocRenewal($this));
     }
 

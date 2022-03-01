@@ -49,7 +49,20 @@
                             <div class="row" style="line-height: 1.5em">
                                 <div class="col-md-9">
                                     <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
-                                    <b>Risk Rating: </b>{!! $hazard->ratingTextColoured !!}<br><br>
+                                    @if ($hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
+                                        <div class="row" style="padding-left: 15px">
+                                            <div class="col-md-3" style="padding-left: 0px">
+                                                <b>Risk Rating</b><br>
+                                                <div class="form-group {!! fieldHasError('rating', $errors) !!}">
+                                                    {!! Form::select('rating', ['' => 'Select rating', '1' => "Low", '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
+                                                    {!! fieldErrorMessage('rating', $errors) !!}
+                                                </div>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    @else
+                                        <b>Risk Rating: </b>{!! $hazard->ratingTextColoured !!}<br><br>
+                                    @endif
                                     <b>Location of Hazard:</b><br>{{ $hazard->location }}<br><br>
                                     <b>What is the hazard / safety issue:</b><br>{{ $hazard->reason }}<br><br>
                                     @if (!$hazard->status || !Auth::user()->allowed2('del.site.hazard', $hazard))
