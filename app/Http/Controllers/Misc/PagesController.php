@@ -146,22 +146,24 @@ class PagesController extends Controller {
         return view('manage/settings/list');
     }
 
-    public function GetDirectorySize($path){
+    public function GetDirectorySize($path)
+    {
         $bytestotal = 0;
         $path = realpath($path);
-        if($path!==false && $path!='' && file_exists($path)){
-            foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
+        if ($path !== false && $path != '' && file_exists($path)) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object) {
                 $bytestotal += $object->getSize();
             }
         }
+
         return $bytestotal;
     }
 
 
     public function quick()
     {
-       $doc = CompanyDoc::find(113);
-        $doc->emailRenewal(['fudge@jordan.net.au']);
+        //$doc = CompanyDoc::find(113);
+        //$doc->emailRenewal(['fudge@jordan.net.au']);
         /*
         echo "<b>Old Sites</b></br>";
         $sites = Site::all();
@@ -226,8 +228,6 @@ class PagesController extends Controller {
         }*/
 
 
-
-        /*
         echo "<b>Importing Accident </b></br>";
         $accidents = SiteAccident::all();
         foreach ($accidents as $accident) {
@@ -241,7 +241,7 @@ class PagesController extends Controller {
                 $incident_request['location'] = $accident->location;
                 $incident_request['damage'] = $accident->damage;
                 $incident_request['describe'] = $accident->info;
-                $incident_request['actions_taken'] = $accident->action;
+                $incident_request['exec_actions'] = $accident->action;
                 $incident_request['resolved_at'] = $accident->resolved_at;
                 $incident_request['notes'] = $accident->notes;
                 $incident_request['status'] = $accident->status;
@@ -252,6 +252,13 @@ class PagesController extends Controller {
 
 
                 $incident = SiteIncident::create($incident_request);
+                $incident->created_by = $accident->created_by;
+                $incident->created_at = $accident->created_at;
+                $incident->updated_at = $accident->updated_at;
+                $incident->updated_by = $accident->updated_by;
+                $incident->timestamps = false;
+                $incident->save();
+
 
                 // Add Injured
                 $people_request = [];
@@ -269,21 +276,33 @@ class PagesController extends Controller {
                 // Add notes
                 $actions = Action::where('table', 'site_accidents')->where('table_id', $accident->id)->get();
                 foreach ($actions as $act) {
-                    Action::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'action' => $act->action, 'created_by' => $act->created_by, 'updated_by' => $act->updated_by, 'created_at' => $act->created_at, 'updated_at' => $act->updated_at]);
+                    $newAct = Action::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'action' => $act->action]);
+                    $newAct->created_by = $act->created_by;
+                    $newAct->updated_by = $act->updated_by;
+                    $newAct->created_at = $act->created_at;
+                    $newAct->updated_at = $act->updated_at;
+                    $newAct->timestamps = false;
+                    $newAct->save();
                 }
+
 
                 // Add Todoos
                 $todos = Todo::where('type', 'accident')->where('type_id', $accident->id)->get();
                 foreach ($todos as $todo) {
-                    $newDo = ToDo::create(['type'       => 'incident', 'type_id' => $todo->id, 'name' => $todo->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
-                                           'done_at'    => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
-                                           'status'     => $todo->status, 'company_id' => $todo->company_id, 'created_by' => $todo->created_by, 'updated_by' => $todo->updated_by, 'created_at' => $todo->created_at,
-                                           'updated_at' => $todo->updated_at]);
-                    $newDoUser = ToDoUser::create(['todo_id' => $newDo->id, 'user_id' => $todo->assignedTo()->first()->id]);
+                    $newToDo = ToDo::create(['type'    => 'incident', 'type_id' => $incident->id, 'name' => "Site Incident Task @ " . $incident->site->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
+                                             'done_at' => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
+                                             'status'  => $todo->status, 'company_id' => $todo->company_id]);
+                    $newToDo->created_by = $todo->created_by;
+                    $newToDo->updated_by = $todo->updated_by;
+                    $newToDo->created_at = $todo->created_at;
+                    $newToDo->updated_at = $todo->updated_at;
+                    $newToDo->timestamps = false;
+                    $newToDo->save();
+                    $newToDoUser = ToDoUser::create(['todo_id' => $newToDo->id, 'user_id' => $todo->assignedTo()->first()->id]);
                 }
             }
         }
-        */
+
 
         /*
         echo "<b>Active Equipment Locations with no items </b></br>";

@@ -562,6 +562,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('safety/tip/active', 'Comms\TipController@getActive');
     Route::resource('safety/tip', 'Comms\TipController');
 
+    // Mailgun Zoho Import
+    Route::get('/zoho/import', 'Api\MailgunZohoController@parseFile');
+
     // PDF
     Route::get('pdf/test', 'Misc\PdfController@test');
     Route::get('pdf/workmethod/{id}', 'Misc\PdfController@workmethod');
