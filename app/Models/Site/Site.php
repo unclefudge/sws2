@@ -670,6 +670,16 @@ class Site extends Model {
     }
 
     /**
+     * Determine if Model has a $attr defined ie it exists
+     * @param $attr
+     * @return bool
+     */
+    public function hasAttribute($attr)
+    {
+        return array_key_exists($attr, $this->attributes);
+    }
+
+    /**
      * Set the resolved_date  (mutator)
      *
      *  - Fix for Carbon saving 0000-00-00 00:00:00 format
