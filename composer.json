@@ -21,7 +21,7 @@
         "nilsenj/toastr-5.1-laravel": "dev-master",
         "spatie/laravel-backup": "6.*",
         "uxweb/sweet-alert": "~2.0",
-        "yajra/laravel-datatables-oracle": "~9.0",
+        "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
