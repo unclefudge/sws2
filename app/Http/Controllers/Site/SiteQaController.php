@@ -457,7 +457,8 @@ class SiteQaController extends Controller {
         if ($client_planner_data) {
             $client_planner_id = $client_planner_data['email_id'];
             $date_from = $client_planner_data['date_from'];
-        }
+        } else
+            $client_planner_id = null;
 
         //dd(request()->all());
         $site = Site::find(request('site_id'));

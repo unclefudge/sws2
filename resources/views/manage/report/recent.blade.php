@@ -53,7 +53,7 @@
                             <a href="/manage/report" class="btn default"> Back</a>
                         </div>
                     </div>
-                    <pre v-if="xx.dev">@{{ $data | json }}</pre>-->
+                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>-->
                 </div>
             </div>
         </div>
