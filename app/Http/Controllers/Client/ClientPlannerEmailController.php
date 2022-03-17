@@ -141,7 +141,7 @@ class ClientPlannerEmailController extends Controller {
 
         // Client Planner
         $data = $this->clientPlanner($site->id);
-        $clientplan = $this->clientPlannerTable($data);
+        //$clientplan = $this->clientPlannerTable($data);
 
         // Actions template
         $actions = '';
@@ -179,9 +179,9 @@ class ClientPlannerEmailController extends Controller {
         //$body = "Hi " . request('intro') . ",\r\n\r\n";
         //$body .= "Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks:\r\n";
         $body = "<p>Hi " . request('intro') . ",</p>";
-        $body .= "<p>Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks:</p>";
+        $body .= "<p>Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks.</p>";
 
-        $body .= "$clientplan";
+        //$body .= "$clientplan";
         if ($actions)
             $body .= "$actions";
         //$body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me\r\n\r\n";

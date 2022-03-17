@@ -555,8 +555,8 @@ class SiteQaController extends Controller {
                 mkdir(public_path($dir), 0777, true);
 
             $output_file = public_path("$dir/$filename");
-            //if (!$client_planner_id)
-            touch($output_file);
+            if (!$client_planner_id)
+                touch($output_file);
 
             //return view('pdf/site-qa', compact('site', 'data'));
             //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();

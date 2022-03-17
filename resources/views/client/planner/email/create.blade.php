@@ -121,11 +121,16 @@
                                             </td>
                                             <td>{{ $action_name }} {{ $checked }}</td>
                                             <td>
-                                                <div class="form-group {!! fieldHasError("itemdate-$action_id", $errors) !!}">
+                                                {{--}}<div class="form-group {!! fieldHasError("itemdate-$action_id", $errors) !!}">
                                                     <input type="text" value="{{ old("itemdate-$action_id") }}" class="form-control" placeholder="dd/mm/yy" name="itemdate-{{ $action_id }}" id="itemdate-{{ $action_id }}" @if (!$checked) style="display: none" @endif>
                                                     {!! fieldErrorMessage("itemdate-$action_id", $errors) !!}
+                                                </div> --}}
+                                                <div class="input-group date date-picker" id="itemdatediv-{{$action_id}}"  @if (!$checked) style="display: none" @endif>
+                                                    {!! Form::text('date', old("itemdate-$action_id"), ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'name' => "itemdate-$action_id",  'id' => "itemdate-$action_id"]) !!}
+                                                    <span class="input-group-btn">
+                                                        <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                                                    </span>
                                                 </div>
-
                                             </td>
                                         </tr>
                                     @endforeach
@@ -161,17 +166,20 @@
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+<!--<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>-->
+<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         /* Select2 */
@@ -226,13 +234,21 @@
                 $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
                 $("#itemactual-" + $(this).val()).show();
                 $("#itemdate-" + $(this).val()).show();
+                $("#itemdatediv-" + $(this).val()).show();
             } else {
                 $("#itemactual-" + $(this).val()).hide();
                 $("#itemdate-" + $(this).val()).hide();
+                $("#itemdatediv-" + $(this).val()).hide();
                 $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
             }
         });
 
+    });
+
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
     });
 </script>
 @stop
