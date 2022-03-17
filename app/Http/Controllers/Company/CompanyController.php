@@ -115,6 +115,22 @@ class CompanyController extends Controller {
         return view('company/show', compact('company'));
     }
 
+    public function demo1($id)
+    {
+        $company = Company::findorFail($id);
+        return view('company/demo1', compact('company'));
+    }
+    public function demo2($id)
+    {
+        $company = Company::findorFail($id);
+        return view('company/demo2', compact('company'));
+    }
+    public function demo3($id)
+    {
+        $company = Company::findorFail($id);
+        return view('company/demo3', compact('company'));
+    }
+
     /**
      * Display the specified resource.
      *

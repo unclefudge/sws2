@@ -220,6 +220,10 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::get('company/{id}/edit/trade', 'Company\CompanyController@editTrade');
     //Route::post('company/{id}/settings/logo', 'Company\CompanyController@updateLogo');
     //Route::post('company/{id}/edit/logo', 'Company\CompanyController@updateLogo');
+    Route::get('company/{id}/demo1', 'Company\CompanyController@demo1');
+    Route::get('company/{id}/demo2', 'Company\CompanyController@demo2');
+    Route::get('company/{id}/demo3', 'Company\CompanyController@demo3');
+    Route::get('company/{id}/demo4', 'Company\CompanyController@demo4');
     Route::resource('company', 'Company\CompanyController');
 
 
