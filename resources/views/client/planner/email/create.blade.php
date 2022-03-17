@@ -125,11 +125,14 @@
                                                     <input type="text" value="{{ old("itemdate-$action_id") }}" class="form-control" placeholder="dd/mm/yy" name="itemdate-{{ $action_id }}" id="itemdate-{{ $action_id }}" @if (!$checked) style="display: none" @endif>
                                                     {!! fieldErrorMessage("itemdate-$action_id", $errors) !!}
                                                 </div> --}}
-                                                <div class="input-group date date-picker" id="itemdatediv-{{$action_id}}"  @if (!$checked) style="display: none" @endif>
-                                                    {!! Form::text('date', old("itemdate-$action_id"), ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'name' => "itemdate-$action_id",  'id' => "itemdate-$action_id"]) !!}
-                                                    <span class="input-group-btn">
+                                                <div class="form-group {!! fieldHasError("itemdate-$action_id", $errors) !!}">
+                                                    <div class="input-group date date-picker" id="itemdatediv-{{$action_id}}" @if (!$checked) style="display: none" @endif>
+                                                        {!! Form::text('date', old("itemdate-$action_id"), ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'name' => "itemdate-$action_id",  'id' => "itemdate-$action_id"]) !!}
+                                                        <span class="input-group-btn">
                                                         <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                                     </span>
+                                                    </div>
+                                                    {!! fieldErrorMessage("itemdate-$action_id", $errors) !!}
                                                 </div>
                                             </td>
                                         </tr>
@@ -174,83 +177,83 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-@stop
+    @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<!--<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+            <!--<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>-->
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
 
-        updateFields();
-
-        // On Change Site ID
-        $("#site_id").change(function () {
             updateFields();
-        });
 
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
-        });
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
 
-        function updateFields() {
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
 
-            if ($("#type").val() == 'Action') {
-                $("#action_template").show();
-            } else {
-                $("#action_template").hide();
+            function updateFields() {
+
+                if ($("#type").val() == 'Action') {
+                    $("#action_template").show();
+                } else {
+                    $("#action_template").hide();
+                }
+
+                var site_id = $("#site_id").select2("val");
+
+                /*
+                 if (site_id != '') {
+                 $.ajax({
+                 url: '/client/planner/email/createfields/' + site_id,
+                 type: 'GET',
+                 dataType: 'json',
+                 success: function (data) {
+                 var address = '';
+                 address = data.address;
+                 if (data.address != '') address = address + ', ';
+                 if (data.suburb != '') address = address + data.suburb + ', ';
+                 if (data.state != '') address = address + data.state + ' ';
+                 if (data.postcode != '') address = address + data.postcode + ' ';
+
+                 $("#client_address").val(address);
+                 $("#client_name").val(data.name);
+                 //console.log(address);
+                 },
+                 })
+                 }*/
             }
 
-            var site_id = $("#site_id").select2("val");
+            $(".stockitem").click(function (e) {
+                if ($("#itemcheck-" + $(this).val()).prop('checked')) {
+                    $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
+                    $("#itemactual-" + $(this).val()).show();
+                    $("#itemdate-" + $(this).val()).show();
+                    $("#itemdatediv-" + $(this).val()).show();
+                } else {
+                    $("#itemactual-" + $(this).val()).hide();
+                    $("#itemdate-" + $(this).val()).hide();
+                    $("#itemdatediv-" + $(this).val()).hide();
+                    $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
+                }
+            });
 
-            /*
-             if (site_id != '') {
-             $.ajax({
-             url: '/client/planner/email/createfields/' + site_id,
-             type: 'GET',
-             dataType: 'json',
-             success: function (data) {
-             var address = '';
-             address = data.address;
-             if (data.address != '') address = address + ', ';
-             if (data.suburb != '') address = address + data.suburb + ', ';
-             if (data.state != '') address = address + data.state + ' ';
-             if (data.postcode != '') address = address + data.postcode + ' ';
-
-             $("#client_address").val(address);
-             $("#client_name").val(data.name);
-             //console.log(address);
-             },
-             })
-             }*/
-        }
-
-        $(".stockitem").click(function (e) {
-            if ($("#itemcheck-" + $(this).val()).prop('checked')) {
-                $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
-                $("#itemactual-" + $(this).val()).show();
-                $("#itemdate-" + $(this).val()).show();
-                $("#itemdatediv-" + $(this).val()).show();
-            } else {
-                $("#itemactual-" + $(this).val()).hide();
-                $("#itemdate-" + $(this).val()).hide();
-                $("#itemdatediv-" + $(this).val()).hide();
-                $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
-            }
         });
 
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop
 
 
