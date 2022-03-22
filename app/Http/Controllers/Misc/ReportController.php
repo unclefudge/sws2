@@ -452,7 +452,17 @@ class ReportController extends Controller {
 
         //dd($mains->groupBy('site_id')->count());
 
+        // Create PDF
+        $file = public_path('filebank/tmp/maintenace-executive-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
         return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
+
     }
 
     /****************************************************

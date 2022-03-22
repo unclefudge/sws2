@@ -584,7 +584,7 @@ class CronReportController extends Controller {
     /*
     * Email Site Maintenance Executive Report
     */
-    static public function emailMaintenanceExecutive()
+    static public function emailMaintenanceExecutive($email_list = null)
     {
         $log = '';
         $email_name = "Site Maintenance Executive Report";

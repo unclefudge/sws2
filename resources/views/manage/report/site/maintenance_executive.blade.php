@@ -22,6 +22,9 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Maintenance Executive Summary</span>
                         </div>
+                        <div class="actions">
+                            <a href="/filebank/tmp/maintenace-executive-cron.pdf" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download PDF</a>
+                        </div>
                     </div>
                     <div class="portlet-body">
                         <div class="row">
