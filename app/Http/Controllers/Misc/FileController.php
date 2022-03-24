@@ -30,7 +30,7 @@ class FileController extends Controller {
      */
     public function index(Request $request)
     {
-        if (!(Auth::user()->company->subscription && Auth::user()->hasAnyPermission2('add.site.doc|edit.site.doc|del.site.doc|add.safety.doc|edit.safety.doc|del.safety.doc')))
+        if (!(Auth::user()->hasAnyPermission2('add.site.doc|edit.site.doc|del.site.doc|add.safety.doc|edit.safety.doc|del.safety.doc')))
             return view('errors/404');
 
         $site_id = $type = '';

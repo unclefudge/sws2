@@ -31,7 +31,7 @@ class SiteDocController extends Controller {
      */
     public function index(Request $request)
     {
-        if (!Auth::user()->company->subscription || !Auth::user()->hasAnyPermissionType('site.doc'))
+        if (!Auth::user()->hasAnyPermissionType('site.doc'))
             return view('errors/404');
 
         $site_id = $type = '';

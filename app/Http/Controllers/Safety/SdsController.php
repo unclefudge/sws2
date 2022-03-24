@@ -241,7 +241,7 @@ class SdsController extends Controller {
         $sds_list = DB::table('safety_sds_cats')->whereIn('safety_sds_cats.cat_id', $category_list)->pluck('sds_id')->toArray();
         //$company_list = [Auth::user()->company_id, Auth::user()->company->reportsTo()->id];
         $records = DB::table('safety_sds_docs as d')
-            ->select(['d.id', 'd.attachment', 'd.name'])
+            ->select(['d.id', 'd.attachment', 'd.name', 'd.application', 'd.manufacturer', 'd.hazardous', 'd.dangerous'])
             ->whereIn('d.id', $sds_list)
             ->where('d.status', '1');
 
@@ -251,6 +251,11 @@ class SdsController extends Controller {
                 $record = SafetyDataSheet::find($sds->id);
 
                 return $record->categoriesSBC();
+            })
+            ->addColumn('hazdanger', function ($doc) {
+                //$record = SafetyDoc::find($doc->id);
+
+                return ($doc->hazardous || $doc->dangerous) ? '<span class="font-red">Y</span>' : 'N';
             })
             ->addColumn('action', function ($doc) {
                 $record = SafetyDoc::find($doc->id);
@@ -265,7 +270,7 @@ class SdsController extends Controller {
 
                 return $actions;
             })
-            ->rawColumns(['id', 'action'])
+            ->rawColumns(['id', 'action', 'hazdanger'])
             ->make(true);
 
         return $dt;

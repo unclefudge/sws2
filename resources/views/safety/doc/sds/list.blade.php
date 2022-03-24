@@ -39,7 +39,9 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Document</th>
-                                <th width="20%"> Category(s)</th>
+                                <th> Manufacturer</th>
+                                <th> Hazardous/Dangerous</th>
+                                <th> Application</th>
                                 <th width="10%"> Action</th>
                             </tr>
                             </thead>
@@ -97,7 +99,10 @@
         columns: [
             {data: 'id', name: 'd.id', orderable: false, searchable: false},
             {data: 'name', name: 'd.name'},
-            {data: 'categories', name: 'categories', orderable: false, searchable: false},
+            {data: 'manufacturer', name: 'd.manufacturer'},
+            {data: 'hazdanger', name: 'hazdanger'},
+            {data: 'application', name: 'd.application'},
+            //{data: 'categories', name: 'categories', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         order: [

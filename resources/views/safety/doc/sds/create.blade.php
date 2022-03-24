@@ -110,7 +110,7 @@
 
 
                             <div class="form-actions right">
-                                <a href="/safety/doc/sds/list" class="btn default"> Back</a>
+                                <a href="/safety/doc/sds" class="btn default"> Back</a>
                                 <button type="submit" class="btn green">Save</button>
                             </div>
                         </div>

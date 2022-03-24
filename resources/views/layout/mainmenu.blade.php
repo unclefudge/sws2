@@ -62,7 +62,7 @@
                                                     </ul>
                                                 </div>
                                             @endif
-                                            @if (Auth::user()->hasAnyPermissionType('site.asbestos'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.asbestos|site.scaffold.handover'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3>&nbsp;</h3></li>
