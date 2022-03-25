@@ -19,7 +19,7 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Create Document </span>
+                            <span class="caption-subject font-green-haze bold uppercase">Create Site Plan </span>
                         </div>
                     </div>
                     <div class="portlet-body form">
@@ -28,6 +28,7 @@
                         @include('form-error')
                         {!! Form::hidden('create', 'true') !!}
                         {!! Form::hidden('company_id', Auth::user()->company_id) !!}
+                        {!! Form::hidden('type', 'PLAN', ['class' => 'form-control', 'id' => 'type']) !!}
 
                         <div class="alert alert-danger alert-dismissable" style="display: none;" id="multifile-error">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
@@ -43,19 +44,11 @@
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}" id="site_id_form">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         @if (in_array(Auth::user()->id, ['1032'])) {{-- Ian Ewin --}}
-                                            {!! Form::select('site_id', Auth::user()->company->reportsTo()->sitesSelect('prompt'), $site_id, ['class' => 'form-control select2']) !!}
+                                            {!! Form::select('site_id', Auth::user()->company->reportsTo()->sitesSelect('prompt', '1'), $site_id, ['class' => 'form-control select2']) !!}
                                         @else
                                             {!! Form::select('site_id', Auth::user()->company->sitesSelect('prompt'), $site_id, ['class' => 'form-control select2']) !!}
                                         @endif
                                         {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}" id="type_form">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type',Auth::user()->siteDocTypeSelect('add', 'prompt'),
-                                             $type, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-2 pull-right">

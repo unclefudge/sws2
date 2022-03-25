@@ -300,6 +300,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Docs
     Route::get('site/doc/type/{type}', 'Site\SiteDocController@listDocs');
+    Route::any('site/doc/plan/create', 'Site\SiteDocController@createPlan');
     Route::get('site/doc/type/dt/{type}', 'Site\SiteDocController@getDocsType');
     Route::get('site/doc/dt/docs', 'Site\SiteDocController@getDocs');
     Route::any('site/doc/create', 'Site\SiteDocController@create');

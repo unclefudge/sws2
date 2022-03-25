@@ -22,9 +22,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Site Plans</span>
                         </div>
                         <div class="actions">
-                            @if(false && Auth::user()->hasPermission2('add.site.doc'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/user/create" data-original-title="Add">Add</a>
-                            @endif
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/doc/plan/create" data-original-title="Add">Add</a>
                         </div>
                     </div>
                     <div class="row">

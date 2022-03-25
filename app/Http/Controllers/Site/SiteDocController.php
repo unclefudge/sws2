@@ -31,7 +31,7 @@ class SiteDocController extends Controller {
      */
     public function index(Request $request)
     {
-        if (!Auth::user()->hasAnyPermissionType('site.doc'))
+        if ( !Auth::user()->hasAnyPermissionType('site.doc'))
             return view('errors/404');
 
         $site_id = $type = '';
@@ -65,18 +65,33 @@ class SiteDocController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
         // Check authorisation and throw 404 if not
         if (!(Auth::user()->allowed2('add.safety.doc') || Auth::user()->allowed2('add.site.doc')))
             return view('errors/404');
 
-        $site_id = $request->get('site_id');
-        $type = $request->get('type');
+        $site_id = request('site_id');
+        $type = request('type');
 
         return view('site/doc/create', compact('site_id', 'type'));
+    }
 
-        return view('errors/404');
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createPlan()
+    {
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('add.safety.doc') || Auth::user()->allowed2('add.site.doc')))
+            return view('errors/404');
+
+        $site_id = request('site_id');
+        $type = 'plan';
+
+        return view('site/doc/plan/create', compact('site_id', 'type'));
     }
 
     /**
@@ -122,8 +137,8 @@ class SiteDocController extends Controller {
         if (!(Auth::user()->allowed2('add.safety.doc') || Auth::user()->allowed2('add.site.doc')))
             return view('errors/404');
 
-        $site_id = $request->get('site_id');
-        $type = $request->get('type');
+        $site_id = request('site_id');
+        $type = request('type');
 
         // Redirect on 'back' button
         if ($request->has('back'))
@@ -149,6 +164,10 @@ class SiteDocController extends Controller {
             $doc->save();
         }
         Toastr::success("Created document");
+
+        $previous_url = parse_url(url()->previous());
+        if ($previous_url['path'] == '/site/doc/plan/create')
+            return view('site/doc/plan/list', compact('site_id', 'type'));
 
         return view('site/doc/list', compact('site_id', 'type'));
     }
@@ -321,7 +340,7 @@ class SiteDocController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function listDocs(Request $request, $type)
+    public function listDocs($type)
     {
         if (!Auth::user()->hasPermission2('view.safety.doc') && !Auth::user()->hasPermission2('view.site.doc'))
             return view('errors/404');
