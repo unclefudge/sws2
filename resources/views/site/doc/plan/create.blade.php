@@ -43,7 +43,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}" id="site_id_form">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        @if (in_array(Auth::user()->id, ['1032'])) {{-- Ian Ewin --}}
+                                        @if (!Auth::user()->company->subscription && Auth::user()->company->parent_company == '3')
                                             {!! Form::select('site_id', Auth::user()->company->reportsTo()->sitesSelect('prompt', '1'), $site_id, ['class' => 'form-control select2']) !!}
                                         @else
                                             {!! Form::select('site_id', Auth::user()->company->sitesSelect('prompt'), $site_id, ['class' => 'form-control select2']) !!}
