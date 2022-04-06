@@ -164,7 +164,7 @@
                                                     </ul>
                                                 </div>
                                             @endif
-                                            @if (Auth::user()->isCC() || Auth::user()->parent_compant == 3)
+                                            @if (Auth::user()->isCC() || Auth::user()->company->parent_company == 3)
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Documents</h3></li>

@@ -70,7 +70,7 @@
                                         <span v-for="doc in xx.attachments">
                                         <span v-if="doc.status == 1"><i class="fa fa-file-pdf-o"></i> <a href="@{{ doc.url }}" target="_blank" title="@{{ doc.name }}">@{{ doc.name }}</a>,</span>
                                         <span v-if="doc.status == 2"><span class="font-red"><i class="fa fa-spin fa-spinner"> </i> @{{ doc.name }}</span>,</span>
-                                        <span v-if="doc.status == 0"><span class="font-red"><i class="fa fa-triangle-exclamation"> @{{ doc.name }}(Failed to generate)</span>,</span>
+                                        <span v-if="doc.status == 0"><span class="font-red"><i class="fa fa-triangle-exclamation"></i> @{{ doc.name }}</span>,</span>
                                     </span>
                                     </div>
                                 </div>

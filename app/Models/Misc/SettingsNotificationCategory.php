@@ -32,7 +32,8 @@ class SettingsNotificationCategory extends Model {
      */
     public function notificationSelect()
     {
-        $str = '<div class="row"><div class="col-md-12"><div class="form-group"><div class="col-md-3">';
+        $opacity = ($this->status) ? '' : 'style="opacity: 0.5"';
+        $str = '<div class="row"><div class="col-md-11" '.$opacity.'><div class="form-group"><div class="col-md-3">';
         $str .= '<label for="type1" class="control-label">' . $this->name;
         if ($this->title) {
             $str .= ' <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
@@ -52,7 +53,13 @@ class SettingsNotificationCategory extends Model {
         $str .= '</select>';
         if ($this->brief)
             $str .= '<span class="help-block">' . $this->brief . '</span>';
-        $str .= '</div></div></div></div><br>';
+        //$str .= '</div></div></div></div><br>';
+        $str .= '</div></div></div>';
+
+        // Disable option
+        $newStatus = ($this->status) ? 0 : 1;
+        $newStatusName = ($this->status) ? '<i class="fa fa-bell font-green"></i>' : '<i class="fa fa-bell-slash font-red"></i>';
+        $str .= '<div class="col-md-1" style="margin-top:5px"><a href="/settings/notifications/'.$this->id.'/status/'.$newStatus.'">'.$newStatusName.'</a></div></div><br>';
 
         return $str;
     }

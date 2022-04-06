@@ -1203,14 +1203,17 @@ class Company extends Model {
      */
     public function notificationsUsersType($type)
     {
-        if (\App::environment('prod', 'dev')) {
-            if (!is_int($type))
-                $type = SettingsNotificationCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
-
-            $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
-
-            return ($users) ? User::find($users) : null;
+        //if (\App::environment('prod', 'dev')) {
+        if (!is_int($type)) {
+            $cat = SettingsNotificationCategory::where('slug', $type)->where('status', 1)->first(); //SettingsNotificationTypes::type($type);
+            if ($cat)
+                $type = $cat->id;
         }
+        $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
+
+        return ($users) ? User::find($users) : null;
+
+        //}
 
         return User::find([3]); // Fudge
     }
@@ -1223,8 +1226,11 @@ class Company extends Model {
     public function notificationsUsersTypeArray($type)
     {
         //if (\App::environment('prod', 'dev')) {
-        if (!is_int($type))
-            $type = SettingsNotificationCategory::where('slug', $type)->first()->id; //SettingsNotificationTypes::type($type);
+        if (!is_int($type)) {
+            $cat = SettingsNotificationCategory::where('slug', $type)->where('status', 1)->first(); //SettingsNotificationTypes::type($type);
+            if ($cat)
+                $type = $cat->id;
+        }
 
         $users = $this->notifications->where('type', $type)->pluck('user_id')->toArray();
 

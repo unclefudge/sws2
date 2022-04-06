@@ -58,12 +58,36 @@ class ClientPlannerEmail extends Model {
             $email_bcc = explode('; ', $this->sent_bcc);
         }
 
+        /*
         if ($email_to && $email_cc && $email_bcc)
             Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
         elseif ($email_to && $email_cc)
             Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
         elseif ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this));
+         */
+        $data = [
+            'client_planner' => $this,
+        ];
+        $client_planner = $this;
+        $subject = $this->subject;
+        $files = $this->docs;
+
+
+        Mail::send('emails/client/planner', $data, function ($m) use ($email_to, $email_cc, $data, $client_planner, $files) {
+            $send_from = 'do-not-reply@safeworksite.com.au';
+            $m->from($send_from, 'Safe Worksite');
+            $m->to($email_to);
+            if ($email_cc)
+                $m->cc($email_cc);
+            $m->subject($client_planner->subject);
+            if ($files->count()) {
+                foreach ($files as $doc) {
+                    if (file_exists(public_path($doc->attachment_url)))
+                        $m->attach(public_path($doc->attachment_url));
+                }
+            }
+        });
     }
 
 

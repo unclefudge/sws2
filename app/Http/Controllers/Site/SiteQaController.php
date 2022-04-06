@@ -216,10 +216,10 @@ class SiteQaController extends Controller {
 
         // Only Allow Ajax requests
         if ($request->ajax()) {
-            $qa_request = $request->all();
+            $qa_request = request()->all();
 
             // Determine if report being signed off
-            $signoff = $request->get('signoff');
+            $signoff = request('signoff');
             if ($signoff == 'super') {
                 $qa_request['supervisor_sign_by'] = Auth::user()->id;
                 $qa_request['supervisor_sign_at'] = Carbon::now();
@@ -239,15 +239,15 @@ class SiteQaController extends Controller {
             }
 
             // If report was placed On Hold then auto add an Action + close ToDoo
-            if ($request->get('status') == 2 && $qa->status != 2)
+            if (request('status') == 2 && $qa->status != 2)
                 $qa->moveToHold(Auth::user());
 
             // If report was reactived then auto add an Action + create ToDoo
-            if ($request->get('status') == 1 && $qa->status != 1)
+            if (request('status') == 1 && $qa->status != 1)
                 $qa->moveToActive(Auth::user());
 
             // If report was marked Not Required then close ToDoo
-            if ($request->get('status') == - 1)
+            if (request('status') == - 1)
                 $qa->closeToDo(Auth::user());
 
             $qa->update($qa_request);

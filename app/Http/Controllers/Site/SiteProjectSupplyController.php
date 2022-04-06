@@ -116,6 +116,22 @@ class SiteProjectSupplyController extends Controller {
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function settings()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+            return view('errors/404');
+
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
+
+        return view('site/project/supply/settings', compact('products'));
+    }
+
+    /**
      * Edit the resource.
      *
      * @return \Illuminate\Http\Response
@@ -283,6 +299,31 @@ class SiteProjectSupplyController extends Controller {
         return redirect("/site/project/supply/$asb->id");
     }
 
+    /**
+     * Update a resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSettings()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+            return view('errors/404');
+
+        //dd(request()->all());
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
+        foreach ($products as $product) {
+            $product->supplier = request("supplier-$product->id");
+            $product->type = request("type-$product->id");
+            $product->colour = request("colour-$product->id");
+            $product->save();
+        }
+
+        Toastr::success("Updated settings");
+
+        return view('site/project/supply/settings', compact('products'));
+    }
+
     public function createPDF($id)
     {
         $project = SiteProjectSupply::findOrFail($id);
@@ -313,9 +354,9 @@ class SiteProjectSupplyController extends Controller {
     {
         $site_list = Auth::user()->authSites('view.site.project.supply')->pluck('id')->toArray();
         $status = (request('status') == 0) ? [0] : [1, 2];
+        //dd(request('status'));
         $records = DB::table('project_supply AS p')
-            ->select(['p.id', 'p.site_id', 'p.attachment', 'p.status', 'p.updated_at',
-                's.name as sitename', 's.code'])
+            ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 's.name as sitename', 's.code', 's.status'])
             ->join('sites AS s', 'p.site_id', '=', 's.id')
             ->whereIn('p.site_id', $site_list)
             ->whereIn('s.status', $status);

@@ -146,7 +146,7 @@ class ClientPlannerEmailController extends Controller {
         // Actions template
         $actions = '';
         if (request('type') == 'Action') {
-            $actions = "<br>As discussed in our Pre Construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
+            $actions = "As discussed in our Pre Construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
             //$actions .= "<table style='padding: 0px; margin: 0px; border: 1px solid black; border-collapse: collapse'>";
             $actions .= "<table style='border: 1px solid black;'>";
             $actions .= "<thead>";
@@ -170,7 +170,7 @@ class ClientPlannerEmailController extends Controller {
             $actions .= "</table>";
 
             if (request('further_notes'))
-                $actions .= "<br><p>Further Notes as discussed:<br>" . request('further_notes') . "</p>";
+                $actions .= "<br>Further Notes as discussed:<br>" . request('further_notes') . "<br><br>";
 
             //print_r($actions);
         }
@@ -178,16 +178,16 @@ class ClientPlannerEmailController extends Controller {
         // Generate body
         //$body = "Hi " . request('intro') . ",\r\n\r\n";
         //$body .= "Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks:\r\n";
-        $body = "<p>Hi " . request('intro') . ",</p>";
-        $body .= "<p>Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks.</p>";
+        $body = "Hi " . request('intro') . ",<br><br>";
+        $body .= "Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks.<br><br>";
 
         //$body .= "$clientplan";
         if ($actions)
             $body .= "$actions";
         //$body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me\r\n\r\n";
         //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
-        $body .= "<br><p>Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me</p>";
-        $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "<p>Have a great weekend.</p>" : "<p>Have a great afternoon.</p>";
+        $body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me.<br><br>";
+        $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         //print_r(nl2br($body));
         //dd($email_request);
 

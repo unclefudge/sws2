@@ -51,6 +51,24 @@ class SettingsNotificationController extends Controller {
         return view('manage/settings/notifications/edit');
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus($cid, $status)
+    {
+        $cat = SettingsNotificationCategory::findOrFail($cid);
+        $cat->status = $status;
+        $cat->save();
+        if ($status)
+            Toastr::success('Enabled Notifcation');
+        else
+            Toastr::success('Disabled Notifcation');
+
+        return view('manage/settings/notifications/edit');
+    }
+
     public function show()
     {
         //

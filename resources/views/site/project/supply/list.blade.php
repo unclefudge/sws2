@@ -21,6 +21,9 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Project Supply Info</span>
                         </div>
                         <div class="actions">
+                            @if(Auth::user()->hasPermission2('del.site.project.supply'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/supply/settings" data-original-title="Ssetting">Settings</a>
+                            @endif
                             @if(Auth::user()->hasPermission2('add.site.project.supply'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/supply/create" data-original-title="Add">Add</a>
                             @endif
@@ -29,7 +32,7 @@
                     <div class="row">
                         <div class="col-md-3 pull-right">
                             <div class="form-group">
-                                <select name="status1" id="status1" class="form-control bs-select">
+                                <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active / Maintenance</option>
                                     <option value="0">Completed</option>
                                 </select>
@@ -69,7 +72,7 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script type="text/javascript">
-    var status1 = $('#status1').val();
+    var status = $('#status').val();
     var table1 = $('#table1').DataTable({
         pageLength: 100,
         processing: true,
@@ -78,7 +81,7 @@
             'url': '{!! url('site/supply/dt/list') !!}',
             'type': 'GET',
             'data': function (d) {
-                d.status = $('#status1').val();
+                d.status = $('#status').val();
             }
         },
         columns: [
@@ -93,7 +96,7 @@
         ]
     });
 
-    $('select#status1').change(function () {
+    $('select#status').change(function () {
         table1.ajax.reload();
     });
 </script>

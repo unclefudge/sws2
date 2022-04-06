@@ -247,6 +247,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Project Supply
     Route::get('site/supply/dt/list', 'Site\SiteProjectSupplyController@getReports');
+    Route::get('site/supply/settings', 'Site\SiteProjectSupplyController@settings');
+    Route::post('site/supply/settings', 'Site\SiteProjectSupplyController@updateSettings');
     Route::get('site/supply/{id}/create', 'Site\SiteProjectSupplyController@createItem');
     Route::get('site/supply/delete/{id}', 'Site\SiteProjectSupplyController@deleteItem');
     Route::get('site/supply/{id}/createpdf', 'Site\SiteProjectSupplyController@createPDF');
@@ -497,6 +499,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Configuration
     Route::get('settings', 'Misc\PagesController@settings');
+    Route::get('settings/notifications/{id}/status/{status}', 'Misc\SettingsNotificationController@updateStatus');
     Route::resource('settings/notifications', 'Misc\SettingsNotificationController');
 
     // Roles / Permission
