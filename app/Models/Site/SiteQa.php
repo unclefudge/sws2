@@ -55,7 +55,7 @@ class SiteQa extends Model {
     }
 
     /**
-     * Determine if a user has read 'completed' the Toolbox Talk and return date
+     *  A list of 'Completed' Items.
      */
     public function itemsCompleted()
     {
