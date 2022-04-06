@@ -417,7 +417,7 @@ class CronController extends Controller {
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-        
+
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
