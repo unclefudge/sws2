@@ -407,7 +407,7 @@ class CronController extends Controller {
 
         $on_hold = SiteQa::where('master', '0')->where('status', '2')->where('company_id', '3')->get();
         foreach ($on_hold as $qa) {
-            if ($qa->itemsCompleted->count() == $qa->itemsCompleted()->count()) {
+            if ($qa->items->count() == $qa->itemsCompleted()->count()) {
                 $qa->status = 1;
                 $qa->save();
                 echo "Moved [$qa->id] $qa->name to Active<br>";
