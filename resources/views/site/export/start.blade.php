@@ -33,9 +33,9 @@
                             <div class="col-md-12">
                                 <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
                                     {!! Form::label('email_list', 'Email List', ['class' => 'control-label']) !!}
-                                    {{--}}{!! Form::text('email_list', 'scott@capecod.com.au; nadia@capecod.com.au; nicole@capecod.com.au; kirstie@capecod.com.au; abarden@capecod.com.au; robert@capecod.com.au; kylie@capecod.com.au; alethea@capecod.com.au; julien@capecod.com.au; george@capecod.com.au', ['class' => 'form-control']) !!}
-                                    --}}{!! Form::text('email_list', implode("; ", Auth::user()->company->notificationsUsersEmailType('site.jobstartexport')), ['class' => 'form-control']) !!}
-
+                                    {{--{!! Form::text('email_list', 'scott@capecod.com.au; nadia@capecod.com.au; nicole@capecod.com.au; kirstie@capecod.com.au; abarden@capecod.com.au; robert@capecod.com.au; kylie@capecod.com.au; alethea@capecod.com.au; julien@capecod.com.au; george@capecod.com.au', ['class' => 'form-control']) !!}
+                                    {!! Form::text('email_list', implode("; ", Auth::user()->company->notificationsUsersEmailType('site.jobstartexport')), ['class' => 'form-control']) !!}
+                                    --}}{!! Form::select('email_list', ['' => 'Select user(s)'] + Auth::user()->company->usersSelect('select', '1'), Auth::user()->company->notificationsUsersTypeArray('site.jobstartexport'), ['class' => 'form-control select2', 'name' => 'email_list[]', 'id'  => 'email_list', 'title' => 'Select one or more users', 'multiple']) !!}
                                     {!! fieldErrorMessage('email_list', $errors) !!}
                                 </div>
                             </div>
@@ -62,11 +62,14 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
@@ -74,6 +77,10 @@
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
+    $(document).ready(function () {
+        /* Select2 */
+        $("#email_list").select2({placeholder: "Select one or more", width: '100%'});
+    });
     $('.date-picker').datepicker({
         autoclose: true,
         format: 'dd/mm/yyyy',

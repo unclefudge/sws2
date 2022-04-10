@@ -771,20 +771,28 @@ class SitePlannerExportController extends Controller {
             $pdf->save($file);
 
             if ($request->get('email_list')) {
-                $email_list = explode(';', $request->get('email_list'));
-                $email_list = array_map('trim', $email_list); // trim white spaces
+                //$email_list = explode(';', $request->get('email_list'));
+                //$email_list = array_map('trim', $email_list); // trim white spaces
+                $email_to = [];
+                foreach($request->get('email_list') as $user_id) {
+                    $user = User::findOrFail($user_id);
+                    if ($user && validEmail($user->email)) {
+                        $email_to[] .= $user->email;
+                    }
+                }
+                //dd($email_to);
 
                 $data = [
                     'user_fullname'     => Auth::user()->fullname,
                     'user_company_name' => Auth::user()->company->name,
                     'startdata'         => $startdata
                 ];
-                Mail::send('emails/jobstart', $data, function ($m) use ($email_list, $data, $file) {
+                Mail::send('emails/jobstart', $data, function ($m) use ($email_to, $data, $file) {
                     $user_email = Auth::user()->email;
                     ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
 
                     $m->from($send_from, Auth::user()->fullname);
-                    $m->to($email_list);
+                    $m->to($email_to);
                     $m->subject('Upcoming Job Start Dates');
                     $m->attach($file);
                 });
