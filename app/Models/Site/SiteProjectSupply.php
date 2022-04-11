@@ -57,6 +57,23 @@ class SiteProjectSupply extends Model {
         return $ordered;
     }
 
+    /*
+    * Initialise Project Supply record  - add default items
+    */
+    public function initialise()
+    {
+        $maxID = SiteProjectSupplyProduct::all()->count();
+
+        for ($i = 1; $i <= $maxID; $i ++) {
+            if ($i != 32) { // Exclude Special Item 32
+                $product = SiteProjectSupplyProduct::findOrFail($i);
+                $item = SiteProjectSupplyItem::create(['supply_id' => $this->id, 'product_id' => $product->id, 'product' => $product->name]);
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Create ToDoo for QA Report and assign to given user(s)
      */

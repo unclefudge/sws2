@@ -37,7 +37,7 @@ class SiteProjectSupplyProduct extends Model {
 
         if (count($array)) {
             $array = array('' => 'Select option') + $array;
-            $array = $array + array('other' => 'Other');
+            $array = $array + array('other' => 'Other'); //, 'n/a' => 'N/A');
         }
 
         return $array;

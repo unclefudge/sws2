@@ -12,6 +12,7 @@ use App\Models\Site\Site;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\SiteProjectSupply;
 use App\User;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
@@ -1487,6 +1488,14 @@ class SitePlannerController extends Controller {
 
                 if ($site->company->notificationsUsersType('site.jobstart'))
                     Mail::to($site->company->notificationsUsersType('site.jobstart'))->send(new \App\Mail\Site\Jobstart($site, $date, null, $supers));
+            }
+
+            // Create New Project Supply
+
+            $project = SiteProjectSupply::where('site_id', $site->id)->first();
+            if (!$project) {
+                $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
+                $project->initialise();
             }
 
             return redirect("/planner/site/$site->id");

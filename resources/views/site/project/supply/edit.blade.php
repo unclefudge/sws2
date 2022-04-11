@@ -170,16 +170,16 @@
                                                 {!! Form::text("product_txt_s$i", null, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" id="div-supplier-txt-s{{$i}}">
                                             {{-- Supplier --}}
                                             <div class="visible-sm visible-xs">Supplier</div>
-                                            <div id="div-supplier-txt-s{{$i}}">
+                                            <div>
                                                 <div class="form-group">
                                                     {!! Form::text("supplier_txt_s$i", null, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" id="div-type-s{{$i}}">
                                             {{-- Type --}}
                                             <div class="visible-sm visible-xs">Type</div>
                                             <div id="div-type-txt-s{{$i}}">
@@ -189,7 +189,7 @@
                                             </div>
                                         </div>
                                         {{-- Colour --}}
-                                        <div class="col-md-2">
+                                        <div class="col-md-2"  id="div-colour-s{{$i}}">
                                             <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control', 'placeholder' => 'Enter colour']) !!}</div>
                                         {{-- Notes --}}
                                         {{--}}
@@ -256,6 +256,10 @@
             } else {
                 $("#" + field + "-" + id).val(val);
                 $("#div-" + field + "-txt-" + id).hide();
+                alert(val);
+                if (val == 'n/a') {
+                    $("#div-type-s" + id).hide();
+                }
             }
         }
 
@@ -330,7 +334,7 @@
             if (id) {
                 swal({
                     title: "Are you sure?",
-                    text: "You will not be able to recover this item!<br><b>"+name.substr(4)+"</b>",
+                    text: "You will not be able to recover this item!<br><b>" + name.substr(4) + "</b>",
                     showCancelButton: true,
                     cancelButtonColor: "#555555",
                     confirmButtonColor: "#E7505A",
