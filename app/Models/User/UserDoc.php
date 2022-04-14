@@ -124,7 +124,6 @@ class UserDoc extends Model {
      */
     public function closeToDo($user = '')
     {
-
         if (!$user)
             $user = Auth::user();
 

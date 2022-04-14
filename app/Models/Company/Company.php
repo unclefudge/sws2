@@ -922,7 +922,7 @@ class Company extends Model {
      */
     public function workersCompCategorySelect($prompt = '')
     {
-        if ($this->business_entity == '1' || $this->business_entity == '4') // Company or Trading Trust
+        if ($this->business_entity == '1' || $this->business_entity == '4' || $this->business_entity == '5') // Company or Trading Trust or Sole Trader with employees
             $array = [
                 'a. Is a Propriety Limited Company (Pty Ltd)'                  => 'a. Is a Propriety Limited Company (Pty Ltd)',
                 'b. Had a Workers Compensation Policy'                         => 'b. Had a Workers Compensation Policy',

@@ -34,6 +34,7 @@ class MailgunZohoController extends Controller {
 
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', '<systemgenerated@zohocrm.com>'];
+        $valid_senders = ['<fudge@jordan.net.au>'];
         if (!in_array(request('X-Envelope-From'), $valid_senders))
             return response()->json([
                 'status'  => 'error',
