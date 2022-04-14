@@ -104,12 +104,13 @@ class MailgunZohoController extends Controller {
     public function parseFile($parsefile = null)
     {
         $file = $parsefile;
-        $file = public_path('filebank/tmp/zoho/Jobs_modified_today.csv');
+        $file = public_path('filebank/tmp/zoho/Jobs_for_Fudge.csv');
         //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
 
         $overwrite_with_blank = true;
         $report_type = '';
         $sites_imported = [];
+        $sales_dropouts = 0;
         $differences = '';
         $blankZohoFields = [];
         $newSites = [];
@@ -135,17 +136,28 @@ class MailgunZohoController extends Controller {
                         return false;
                     }
                     $log .= "Report type: $report_type\n";
+                    continue;
                 }
-                if ($row == 2)
+                if ($row == 2) {
                     $head = $this->reportHeaders($report_type, $data);
+                    continue;
+                }
 
 
                 //
                 // Data Row
                 //
-                if (stripos($data[0], "zcrm_") === 0) {
-                    $this->countSites ++;
+                //if (stripos($data[0], "zcrm_") === 0) {
+                if ($data[$head['code']]) {
+                    $this->countSites++;
                     $site = Site::where('code', $data[$head['code']])->first();
+                    $job_stage = $data[$head['job_stage']];
+
+                    if ($job_stage == '950 Sales Dropout') { // Don't import Sales Dropouts
+                        $sales_dropouts++;
+                        continue;
+                    }
+                    $job_precontruction = '';
 
                     if (!$site && $report_type == 'Jobs') {
                         // Create Site + Equipment Location
@@ -165,13 +177,13 @@ class MailgunZohoController extends Controller {
                         // update Site record
                         $fields = [
                             'name', 'address', 'suburb', 'postcode', 'consultant_name',
-                            'client_phone_desc', 'client_phone', 'client_email', 'client_phone2_desc', 'client_phone2', 'client_email2'];
+                            'client_phone_desc', 'client_phone', 'client_email', 'client_phone2_desc', 'client_phone2', 'client_email2', 'client_intro'];
                         $datefields = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
 
                         //echo "--------------------------------<br>[$site->id] $site->name  <br>";
 
                         foreach ($head as $field => $col) {
-                            if ($field == 'Super Name') {
+                            if ($field == 'super_name' || $field == 'super_initials') {
                                 // Maybe sync Supers
                                 // $site->supervisors()->sync(request('supervisors'));
                             } else {
@@ -212,15 +224,15 @@ class MailgunZohoController extends Controller {
 
             // Output Report
             $log .= "\nRead $this->countSites jobs and found " . count($this->siteDiffs) . " with differences\n";
-            //echo "<br>------------------------------------------------------<br>";
-            //echo "Conflicting Job Names: $this->countDiffSname</br>";
-            //echo "Conflicting Addresses: $this->countDiffAddr</br>";
-            //echo "Conflicting Dates: $this->countDiffDates</br>";
-            //echo "Conflicting Consultants: $this->countDiffCons</br>";
-            //echo "SWS Blank dates: $this->countBlankSwsDates</br>";
-            //echo "Zoho Blank dates: $this->countBlankZohoDates</br>";
-            //echo "New Jobs: " . count($newSites) . "<br>";
-            //echo "<br>------------------------------------------------------<br>";
+            echo "<br>------------------------------------------------------<br>";
+            echo "Conflicting Job Names: $this->countDiffSname</br>";
+            echo "Conflicting Addresses: $this->countDiffAddr</br>";
+            echo "Conflicting Dates: $this->countDiffDates</br>";
+            echo "Conflicting Consultants: $this->countDiffCons</br>";
+            echo "SWS Blank dates: $this->countBlankSwsDates</br>";
+            echo "Zoho Blank dates: $this->countBlankZohoDates</br>";
+            echo "New Jobs: " . count($newSites) . "<br>";
+            echo "<br>------------------------------------------------------<br>";
 
             //echo "<br>Site Differences<br>";
             $log .= $differences;
@@ -292,9 +304,9 @@ class MailgunZohoController extends Controller {
             'CX Sign Date'       => 'contract_signed',
             'CX Deposit Date'    => 'deposit_paid',
             'Prac Signed'        => 'completion_signed',
-            //'' => 'engineering',
-            'CC Rcvd Date'       => 'construction',
-            'HBCF Start Date'    => 'hbcf',
+            'Eng Certified'      => 'engineering_cert',
+            'CC Rcvd Date'       => 'construction_rcvd',
+            'HBCF Start Date'    => 'hbcf_start',
             'Design Cons'        => 'consultant_initials',
             'Design Cons (user)' => 'consultant_name',
             'Job Stage'          => 'job_stage',
