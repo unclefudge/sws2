@@ -142,8 +142,8 @@ trait CompanyDocs {
 
         // Determine WC or SA
         if (in_array($this->category, [1, 2, 3, 4, 6, 7])) {  // All but 'Supply Only'
-            if ($type == 2 && in_array($this->business_entity, ['1', 'Company', '4', 'Trading Trust'])) return true;
-            if ($type == 3 && in_array($this->business_entity, ['2', 'Partnership', '3', 'Sole Trader'])) return true;
+            if ($type == 2 && in_array($this->business_entity, ['1', 'Company', '4', 'Trading Trust', '5', 'Sole Trader - with employees'])) return true;  // WC required
+            if ($type == 3 && in_array($this->business_entity, ['2', 'Partnership', '3', 'Sole Trader', '5', 'Sole Trader - with employees'])) return true; // SA required
         }
 
         // Subcontractor (On Site Trade)

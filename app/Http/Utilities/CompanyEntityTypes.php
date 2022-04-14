@@ -9,6 +9,7 @@ class CompanyEntityTypes {
         '1' => 'Company',
         '2' => 'Partnership',
         '3' => 'Sole Trader',
+        '5' => 'Sole Trader - with employees',
         '4' => 'Trading Trust',
     ];
 
