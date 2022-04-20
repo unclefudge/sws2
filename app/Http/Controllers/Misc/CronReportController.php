@@ -50,8 +50,10 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
 
         // Weekly Reports
-        if (Carbon::today()->isMonday())
+        if (Carbon::today()->isMonday()) {
+            CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
+        }
 
         if (Carbon::today()->isTuesday())
             CronReportController::emailOutstandingQA();

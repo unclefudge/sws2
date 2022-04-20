@@ -342,20 +342,21 @@ class MailgunZohoController extends Controller {
         $diff = "[$site->id] $site->code-$site->name\n";
 
         $fields = ['name', 'address', 'suburb', 'postcode', 'consultant_name', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
+        $fields = ['address', 'suburb', 'postcode', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
         $dates = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
 
         foreach ($fields as $field) {
             if (isset($head[$field])) {
                 // both SWS + Zoho have data
                 if ($site->{$field} && $data[$head[$field]] && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
-                    $diff .= " &nbsp; $field:" . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
+                    $diff .= " &nbsp; $field: " . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
                 } // only SWS has data
                 else if ($site->{$field} && !$data[$head[$field]]) {
-                    $diff .= "* $field:" . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
+                    //$diff .= "* $field: " . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
                     $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    $diff .= " &nbsp; $field:{empty} [" . $data[$head[$field]] . "]\n";
+                    //$diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
                 }
             }
         }
@@ -364,14 +365,14 @@ class MailgunZohoController extends Controller {
             if (isset($head[$field])) {
                 // both SWS + Zoho have data   // j/n/y
                 if ($site->{$field} && $data[$head[$field]] && $site->{$field}->format('d/m/Y') != $data[$head[$field]]) {
-                    $diff .= "* $field:" . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
+                    $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
                 } // only SWS has data
                 else if ($site->{$field} && $site->{$field}->format('d/m/Y') != $data[$head[$field]]) {
-                    $diff .= "* $field:" . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
+                    //$diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
                     $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    $diff .= " &nbsp; $field:{empty} [" . $data[$head[$field]] . "]\n";
+                    //$diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
                 }
             }
         }
