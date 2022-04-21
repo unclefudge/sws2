@@ -61,10 +61,10 @@
                         </div>
                         <div class="portlet-body">
                             <div class="row" style="padding-bottom: 5px">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <select-picker :name.sync="xx.params.site_id" :options.sync="xx.sel_site" :function="getDayPlan"></select-picker>
                                 </div>
-                                <div class="col-md-5 text-center"><h4 class="bold font-green-haze">@{{ xx.current_date | formatDateFull }}</h4></div>
+                                <div class="col-md-4 text-center"><h4 class="bold font-green-haze">@{{ xx.current_date | formatDateFull }}</h4></div>
                                 <div class="col-md-4 pull-right">
                                     <div class="btn-group btn-group-circle pull-right">
                                         <button v-on:click="changeDay('-')" class="btn blue-hoki">Prev Day</button>

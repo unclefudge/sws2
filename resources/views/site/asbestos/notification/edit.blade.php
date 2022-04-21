@@ -42,7 +42,7 @@
                                     @if (!$asb->status)
                                         <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
                                     @endif
-                                    <b>Site No:</b> {{ $asb->site->code }}<br>
+                                    <b>Job #:</b> {{ $asb->site->code }}<br>
                                     <b>Supervisor(s):</b> {{ $asb->site->supervisorsSBC() }}<br>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {!! Form::label('site_code', 'Site No.', ['class' => 'control-label']) !!}
+                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
                                         {!! Form::text('site_code', $asb->site->code , ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>

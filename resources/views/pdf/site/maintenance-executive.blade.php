@@ -167,8 +167,8 @@
         <hr style="margin: 5px 0px">
         <div class="row">
             <div class="col-xs-1">#</div>
-            <div class="col-xs-1">Site</div>
-            <div class="col-xs-2">Name</div>
+            <div class="col-xs-1">Job #</div>
+            <div class="col-xs-2">Site Name</div>
             <div class="col-xs-2">Category</div>
             <div class="col-xs-1">Task Owner</div>
             <div class="col-xs-1">Reported Date</div>
@@ -227,8 +227,8 @@
                 <hr style="margin: 5px 0px">
                 <div class="row">
                     <div class="col-xs-1">#</div>
-                    <div class="col-xs-1">Site</div>
-                    <div class="col-xs-2">Name</div>
+                    <div class="col-xs-1">Job #</div>
+                    <div class="col-xs-2">Site Name</div>
                     <div class="col-xs-2">Category</div>
                     <div class="col-xs-1">Task Owner</div>
                     <div class="col-xs-1">Reported Date</div>

@@ -12,9 +12,9 @@
 |                       |        |
 | ---------------------:|--------|
 | **ID**  | {{ $site->id  }} |
+| **Job #**  | {{ $site->code  }} |
 | **Site Name**  | {{ $site->name  }} |
-| **Site No.**  | {{ $site->code  }} |
-| **Site Address**  | {{ $site->address }}, {{ $site->SuburbStatePostcode }} |
+| **Address**  | {{ $site->address }}, {{ $site->SuburbStatePostcode }} |
 | **Supervisor**  | {{ $site->supervisorsSBC() }} |
 | **Status**  | {!! $site->statusText() !!} |
 | **Updated by**  | {!! \App\User::find($site->updated_by)->name !!} |

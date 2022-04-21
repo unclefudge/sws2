@@ -106,6 +106,8 @@ class MailgunZohoController extends Controller {
         $file = $parsefile;
         $file = public_path('filebank/tmp/zoho/Jobs_for_Fudge.csv');
         //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
+        //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
+
 
         $overwrite_with_blank = true;
         $report_type = '';
@@ -148,10 +150,10 @@ class MailgunZohoController extends Controller {
                 // Data Row
                 //
                 //if (stripos($data[0], "zcrm_") === 0) {
-                if ($data[$head['code']]) {
+                if ($data[$head['code']] && $data[$head['name']]) {
                     $this->countSites++;
                     $site = Site::where('code', $data[$head['code']])->first();
-                    $job_stage = $data[$head['job_stage']];
+                    $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
 
                     if ($job_stage == '950 Sales Dropout') { // Don't import Sales Dropouts
                         $sales_dropouts++;
@@ -161,9 +163,11 @@ class MailgunZohoController extends Controller {
 
                     if (!$site && $report_type == 'Jobs') {
                         // Create Site + Equipment Location
-                        $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
-                        $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1]);
+                        //$site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
+                        //$location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1]);
                         $newSites[$data[$head['name']]] = (isset($data[$head['job_stage']])) ? $data[$head['job_stage']] : $data[$head['address']];
+                        echo "New: ". $data[$head['name']] . " <br>";
+                        print_r($data);
                     }
 
                     if ($site) {
@@ -205,9 +209,13 @@ class MailgunZohoController extends Controller {
                                             //$site->save();  // Save imported data
                                         }
 
-                                    } elseif (!empty($data[$col])) {
+                                    } elseif ($site->{$field} && !empty($data[$col])) {
                                         if (in_array($field, $datefields)) {
-                                            $site->{$field} = Carbon::createFromFormat('d/m/Y H:i', $data[$col] . '00:00')->toDateTimeString();
+                                            list($d, $m, $y) = explode('/', $data[$col]);
+                                            $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
+                                            //echo "*******. " . $data[$col] . " - $date_with_leading_zeros " . '********<br>';
+                                            //$site->{$field} = "$date_with_leading_zeros 00:00:00";
+                                            $site->{$field} = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
                                             //if ($site->{$field})
                                             //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [" . Carbon::createFromFormat('d/m/Y H:i', $data[$col] . '00:00')->format('j/n/y') . "]<br>";
                                         } else
@@ -264,7 +272,7 @@ class MailgunZohoController extends Controller {
                 //$log .= "\n\n$emptyZohoLog";
 
                 // Email report to Zoho data person
-                Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
+                //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
             }
         }
 

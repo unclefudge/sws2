@@ -6,7 +6,6 @@ use URL;
 use Mail;
 use App\User;
 use App\Mail\Client\ClientPlanner;
-use App\Models\Client\ClientPlannerEmail;
 use App\Http\Controllers\CronCrontroller;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;

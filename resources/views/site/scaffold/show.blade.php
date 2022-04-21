@@ -30,7 +30,7 @@
                     <div class="portlet-body form">
                         <div class="form-body">
                             <div class="row">
-                                <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->code }} - {{ $report->site->name }}</h3></div>
+                                <div class="col-md-6"><h3 style="margin: 0px">{{ $report->site->name }}</h3></div>
                                 <div class="col-md-6">
                                     <h2 style="margin: 0px; padding-right: 20px">
                                         @if($report->status == '0')
@@ -48,7 +48,7 @@
                             <hr class="field-hr">
                             <div class="row">
                                 <div class="col-md-2"><b>Site:</b></div>
-                                <div class="col-md-10">{{ $report->site->code }}-{{ $report->site->name }}</div>
+                                <div class="col-md-10">{{ $report->site->name }}</div>
                             </div>
                             <br>
                             <div class="row">

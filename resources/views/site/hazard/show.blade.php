@@ -39,7 +39,7 @@
                                     @if (!$hazard->status)
                                         <h2 class="font-red pull-right" style="margin-top: 0px">RESOLVED</h2>
                                     @endif
-                                    <b>Site No:</b> {{ $hazard->site->code }}<br>
+                                    <b>Job #:</b> {{ $hazard->site->code }}<br>
                                     <b>Supervisor(s):</b> {{ $hazard->site->supervisorsSBC() }}<br>
                                 </div>
                             </div>

@@ -68,7 +68,7 @@
 <footer>
     <div class="pagenum-container">
         <hr style="margin: 0px">
-        {{ $project->site->name }} ({{ $project->site->code }})<span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span><br>{{ $project->site->address }}, {{  $project->site->suburb_state_postcode }}
+        {{ $project->site->name }} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span><br>{{ $project->site->address }}, {{  $project->site->suburb_state_postcode }}
     </div>
 </footer>
 <div class="container">

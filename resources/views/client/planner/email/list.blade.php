@@ -43,9 +43,9 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th width="10%"> Date</th>
-                                <th width="5%"> Site</th>
+                                <th width="5%"> Job #</th>
                                 <th> Name</th>
-                                <th> Type</th>
+                                {{--}}<th> Type</th>--}}
                             </tr>
                             </thead>
                         </table>
@@ -90,7 +90,7 @@
             {data: 'updated', name: 'client_planner_emails.updated_at'},
             {data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
-            {data: 'sitename', name: 'sites.name'},
+            //{data: 'sitename', name: 'sites.name'},
             //{data: 'sitename', name: 'sites.name'},
             //{data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
         ],

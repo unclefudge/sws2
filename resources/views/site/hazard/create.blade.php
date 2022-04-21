@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {!! Form::label('code', 'Site No.', ['class' => 'control-label']) !!}
+                                        {!! Form::label('code', 'Job #', ['class' => 'control-label']) !!}
                                         {!! Form::text('code', null, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>

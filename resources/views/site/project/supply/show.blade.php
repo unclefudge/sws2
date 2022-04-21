@@ -40,7 +40,7 @@
                                     @if (!$project->status)
                                         <h2 class="font-red pull-right" style="margin-top: 0px">COMPLETED</h2>
                                     @endif
-                                    <b>Site No:</b> {{ $project->site->code }}<br>
+                                    <b>Job #:</b> {{ $project->site->code }}<br>
                                     <b>Supervisor(s):</b> {{ $project->site->supervisorsSBC() }}<br>
                                 </div>
                             </div>

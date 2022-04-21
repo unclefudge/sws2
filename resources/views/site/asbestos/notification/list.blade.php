@@ -41,7 +41,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th> Site No.</th>
+                                <th> Job #</th>
                                 <th> Site Name</th>
                                 <th> Proposed Removal Dates</th>
                                 <th> Amount</th>

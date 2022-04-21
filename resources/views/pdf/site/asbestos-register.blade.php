@@ -87,9 +87,7 @@
 
     <div class="row">
         <div class="col-xs-10">
-            <h4 style="margin: 0px">{{ $asb->site->name }}
-                <small>site: {{ $asb->site->code }}</small>
-            </h4>{{ $asb->site->address }}, {{  $asb->site->suburb_state_postcode }}
+            <h4 style="margin: 0px">{{ $asb->site->name }}</h4>{{ $asb->site->address }}, {{  $asb->site->suburb_state_postcode }}
         </div>
         <div class="col-xs-2">Last Updated: {{ $asb->updated_at->format('d/m/Y') }}</div>
     </div><br><br>

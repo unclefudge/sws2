@@ -47,9 +47,9 @@
                                 @if (Auth::user()->company->subscription ||  Auth::user()->company_id == '96')
                                     <th width="5%"> #</th>
                                 @endif
-                                <th width="5%"> No.</th>
-                                <th> Suburb</th>
-                                <th> Name</th>
+                                <th width="5%"> Job #</th>
+                                {{--}}<th> Suburb</th> --}}
+                                <th> Site Name</th>
                                 {{-- CapeCod + JonSpin --}}
                                 @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96')
                                     <th width="15%"> Phone</th> @endif
@@ -96,10 +96,8 @@
         },
         columns: [
                 @if (Auth::user()->company->subscription ||  Auth::user()->company_id == '96'){data: 'id', name: 'sites.id', orderable: false, searchable: false}, @endif
-            {
-                data: 'code', name: 'code'
-            },
-            {data: 'suburb', name: 'suburb'},
+            {data: 'code', name: 'code'},
+            //{data: 'suburb', name: 'suburb'},
             {data: 'name', name: 'name'},
                 @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96') {data: 'client_phone', name: 'client_phone'}, @endif
             {
@@ -108,7 +106,7 @@
             {data: 'supervisor', name: 'supervisor'},
         ],
         order: [
-                @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96') [2, "asc"], [3, 'asc']  @else [1, "asc"], [2, 'asc'] @endif
+                @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96') [1, "asc"],  @else [1, "asc"], @endif
         ]
     });
 

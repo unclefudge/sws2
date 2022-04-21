@@ -162,6 +162,23 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        $sites = Site::where('company_id', 3)->get();
+        foreach ($sites as $site) {
+            $name = $site->code . '-' . ucwords(strtolower($site->name)) . '-' . ucwords(strtolower($site->suburb));
+            $name = preg_replace_callback('/\.\s*\K\w/',
+                function($m) {
+                    return strtoupper($m[0]);
+                },
+                $name);
+            echo "$site->name  =>  $name<br>";
+            echo "$site->suburb  =>  ". ucwords(strtolower($site->suburb)) ."<br>";
+            echo "$site->address  =>  ". ucwords(strtolower($site->address)) ."<br>";
+            $site->name = $name;
+            $site->suburb = ucwords(strtolower($site->suburb));
+            $site->address = ucwords(strtolower($site->address));
+            $site->save();
+        }
+
         //$doc = CompanyDoc::find(113);
         //$doc->emailRenewal(['fudge@jordan.net.au']);
         /*
@@ -228,6 +245,7 @@ class PagesController extends Controller {
         }*/
 
 
+        /*
         echo "<b>Importing Accident </b></br>";
         $accidents = SiteAccident::all();
         foreach ($accidents as $accident) {
@@ -302,6 +320,7 @@ class PagesController extends Controller {
                 }
             }
         }
+        */
 
 
         /*

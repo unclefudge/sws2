@@ -9,8 +9,8 @@
                 <tr style="border: 1px solid; background-color: #f0f6fa; font-weight: bold;">
                     <td width="60" style="border: 1px solid">#</td>
                     <td width="80" style="border: 1px solid">Reported</td>
-                    <td width="60" style="border: 1px solid">Site</td>
-                    <td width="200" style="border: 1px solid">Name</td>
+                    <td width="60" style="border: 1px solid">Job #</td>
+                    <td width="200" style="border: 1px solid">Site Name</td>
                     <td width="150" style="border: 1px solid">Task Owner</td>
                     <td width="80" style="border: 1px solid">Hold Date</td>
                     <td style="border: 1px solid">Last Note</td>

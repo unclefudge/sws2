@@ -472,7 +472,7 @@ trait UserRolesPermissions {
             // Determine if Job Started is required or not
             $start = ($started) ? SitePlanner::where('site_id', $site->id)->first() : true;
             if ($start)
-                $array[$site->id] = "$site->code:$site->name";
+                $array[$site->id] = $site->name; //"$site->code:$site->name";
         }
         asort($array);
 
@@ -501,7 +501,7 @@ trait UserRolesPermissions {
                 foreach ($this->company->sitesPlannedFor(1, Carbon::today(), Carbon::today()) as $site) {
                     $site = Site::findOrFail($site->id);
                     if ($site->status == 1 && $site->show_checkin)
-                        $sites_planned[$site->id] = "$site->code:$site->name ($site->address, $site->suburb)";
+                        $sites_planned[$site->id] = $site->name; //"$site->code:$site->name ($site->address, $site->suburb)";
                     //$sites_planned[$site->id] = "$site->suburb - $site->address ($site->code:$site->name)";
                 }
                 asort($sites_planned);
@@ -520,7 +520,8 @@ trait UserRolesPermissions {
             $options .= '<optgroup label="Current Site Logged In">';
             $sel_tag = ($selected == $site->id) ? ' selected ' : '';
             //$options .= "<option value='$site->id' $sel_tag>$site->suburb - $site->address ($site->code:$site->name)</option>";
-            $options .= "<option value='$site->id' $sel_tag>$site->code:$site->name ($site->address, $site->suburb)</option>";
+            //$options .= "<option value='$site->id' $sel_tag>$site->code:$site->name ($site->address, $site->suburb)</option>";
+            $options .= "<option value='$site->id' $sel_tag>$site->name</option>";
             $options .= '</optgroup>';
             $headers = true;
         }
@@ -541,7 +542,7 @@ trait UserRolesPermissions {
 
         $sites_company_array = [];
         foreach ($sites_company as $site)
-            $sites_company_array[$site->id] = "$site->code:$site->name ($site->address, $site->suburb)";
+            $sites_company_array[$site->id] = $site->name; //"$site->code:$site->name ($site->address, $site->suburb)";
         //$sites_company_array[$site->id] = "$site->suburb - $site->address ($site->code:$site->name)";
         asort($sites_company_array);
 
@@ -570,7 +571,7 @@ trait UserRolesPermissions {
             $sites_parent_array = [];
             if ($sites_parent) {
                 foreach ($sites_parent as $site)
-                    $sites_parent_array[$site->id] = "$site->suburb - $site->address ($site->code:$site->name)";
+                    $sites_parent_array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
             }
             asort($sites_parent_array);
 
@@ -600,7 +601,7 @@ trait UserRolesPermissions {
             $sites_parent_array = [];
             if ($sites_parent) {
                 foreach ($sites_parent as $site)
-                    $sites_parent_array[$site->id] = "$site->suburb - $site->address ($site->code:$site->name)";
+                    $sites_parent_array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
             }
             asort($sites_parent_array);
 

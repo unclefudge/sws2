@@ -91,7 +91,7 @@
                                         </div>
                                     </div>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->site) <b>{{ $main->site->name }} (#{{ $main->site->code }})</b> @endif<br>
+                                    @if ($main->site) <b>{{ $main->site->name }}</b> @endif<br>
                                     @if ($main->site) {{ $main->site->full_address }}<br> @endif
                                     <br>
                                     @if ($main->completed)<b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br> @endif

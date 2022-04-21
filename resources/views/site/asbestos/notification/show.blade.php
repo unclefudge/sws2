@@ -54,7 +54,7 @@
                                     @if (!$asb->status)
                                         <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
                                     @endif
-                                    <b>Site No:</b> {{ $asb->site->code }}<br>
+                                    <b>Job #:</b> {{ $asb->site->code }}<br>
                                     <b>Supervisor(s):</b> {{ $asb->site->supervisorsSBC() }}<br>
                                 </div>
                             </div>

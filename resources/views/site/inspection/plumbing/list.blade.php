@@ -30,7 +30,7 @@
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
-                                    <th width="7%"> Site</th>
+                                    <th width="7%"> Job #</th>
                                     <th> Name</th>
                                     <th width="5%"></th>
                                 </tr>
@@ -88,7 +88,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th width="10%"> Created</th>
-                                <th width="5%"> Site</th>
+                                <th width="5%"> Job #</th>
                                 <th> Name</th>
                                 <th width="10%"> Assigned</th>
                                 <th> Assigned to</th>

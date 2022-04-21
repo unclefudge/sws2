@@ -109,7 +109,7 @@
                 <small>@{{ site_name | max20chars }}<br>
                     <small>
                         <span v-if="xx.show_contact == 1"><br><span v-html="site_address"></span><br>@{{ site_contact }}</span>
-                        <span v-else>@{{ site_code }}</span>
+                        {{--}}<span v-else>@{{ site_code }}</span>--}}
                         <span v-if="site_status == 2" style="color: red"><br>*** Maintenance ***</span>
                         <span v-if="xx.user_company_id == 3 && preConstruct(site_preconstruct)" style="color: blue"><br>*** Pre-construction ***<br>Jobstart: @{{ preConstruct(site_preconstruct) }}</span>
                     </small>

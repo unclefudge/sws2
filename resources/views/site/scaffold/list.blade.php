@@ -42,7 +42,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th width="5%"> Site</th>
+                                <th width="5%"> Job #</th>
                                 <th> Name</th>
                                 <th> Scaffolder</th>
                                 <th width="10%"> Handover Date</th>

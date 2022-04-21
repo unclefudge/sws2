@@ -54,9 +54,7 @@
             <?php $site = App\Models\Site\Site::find($siteplan->site_id) ?>
             <div class="row">
                 <div class="col-xs-8">
-                    <h3 style="margin: 0px">{{ $site->name }}
-                        <small>site: {{ $site->code }}</small>
-                    </h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
+                    <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
                 <div class="col-xs-4">
                     <h6>
                         <b>Supervisor:</b> {{ $site->supervisorsSBC() }}

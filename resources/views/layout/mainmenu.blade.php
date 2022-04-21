@@ -46,7 +46,7 @@
                                                             <li><a href="/site/hazard" class="nav-link @if (Auth::user()->siteHazards('1')->count()) font-yellow-lemon @endif">Hazards</a></li>
                                                         @endif
 
-                                                        @if (Auth::user()->hasAnyPermissionType('site.accident'))
+                                                        @if (Auth::user()->hasAnyPermissionType('site.accident') && !Auth::user()->isCC())
                                                             <li><a href="/site/accident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Accidents</a>
                                                             </li>
                                                         @endif

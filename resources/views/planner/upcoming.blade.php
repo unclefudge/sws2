@@ -28,8 +28,8 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th width="5%"> Site</th>
-                                <th> Name</th>
+                                {{--}}<th width="5%"> Job#</th>--}}
+                                <th> Site Name</th>
                                 <th> Job Start</th>
                                 <th> Supervisor</th>
                                 <th> Council Approval</th>
@@ -47,7 +47,7 @@
                                     <td>
                                         <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i class="fa fa-search"></i></a></div>
                                     </td>
-                                    <td>{{ $site->code }}</td>
+                                    {{--}}<td>{{ $site->code }}</td>--}}
                                     <td>{{ $site->name }}</td>
                                     <td>{{ ($site->JobStart) ? $site->JobStart->format('d/m/Y') : '' }}</td>
                                     <td>

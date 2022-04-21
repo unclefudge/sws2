@@ -59,7 +59,6 @@ class CronReportController extends Controller {
             CronReportController::emailOutstandingQA();
 
         if (Carbon::today()->isThursday()) {
-            CronReportController::emailJobstart();
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailOnHoldQA();
         }

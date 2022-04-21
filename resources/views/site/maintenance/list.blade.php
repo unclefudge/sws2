@@ -29,7 +29,7 @@
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
                                     <th width="10%"> Reported</th>
-                                    <th width="7%"> Site</th>
+                                    <th width="7%"> Job #</th>
                                     <th> Name</th>
                                     <th> Supervisor</th>
                                     <th width="10%"> Updated</th>
@@ -95,7 +95,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th width="10%"> Reported</th>
-                                <th width="7%"> Site</th>
+                                <th width="7%"> Job #</th>
                                 <th> Name</th>
                                 <th width="10%"> Client Contacted</th>
                                 <th width="10%"> Appointment</th>

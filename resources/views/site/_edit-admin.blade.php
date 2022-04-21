@@ -99,9 +99,19 @@
         <div class="row">
             <div class="form-group {!! fieldHasError('engineering', $errors) !!}">
                 {!! Form::label('engineering', 'Engineering Certificate:', ['class' => 'col-md-6 control-label']) !!}
-                <div class="col-md-6">
+                {{--}}<div class="col-md-6">
                     {!! Form::select('engineering', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                     {!! fieldErrorMessage('engineering', $errors) !!}
+                </div>--}}
+                <div class="col-md-6">
+                    <div class="input-group date date-picker">
+                        {!! Form::text('engineering_cert', ($site->engineering_cert) ? $site->engineering_cert->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                        <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                        {!! fieldErrorMessage('engineering_cert', $errors) !!}
+                    </div>
                 </div>
             </div>
         </div>
@@ -110,9 +120,19 @@
         <div class="row">
             <div class="form-group {!! fieldHasError('construction', $errors) !!}">
                 {!! Form::label('construction', 'Construction Certificate:', ['class' => 'col-md-6 control-label']) !!}
-                <div class="col-md-6">
+                {{--}}<div class="col-md-6">
                     {!! Form::select('construction', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                     {!! fieldErrorMessage('construction', $errors) !!}
+                </div>--}}
+                <div class="col-md-6">
+                    <div class="input-group date date-picker">
+                        {!! Form::text('construction_rcvd', ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                        <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                        {!! fieldErrorMessage('construction_rcvd', $errors) !!}
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,9 +141,19 @@
         <div class="row">
             <div class="form-group {!! fieldHasError('hbcf', $errors) !!}">
                 {!! Form::label('hbcf', 'Home Builder Compensation Fund:', ['class' => 'col-md-6 control-label']) !!}
-                <div class="col-md-6">
+                {{--}}<div class="col-md-6">
                     {!! Form::select('hbcf', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                     {!! fieldErrorMessage('hbcf', $errors) !!}
+                </div>--}}
+                <div class="col-md-6">
+                    <div class="input-group date date-picker">
+                        {!! Form::text('hbcf_start', ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                        <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                        {!! fieldErrorMessage('hbcf_start', $errors) !!}
+                    </div>
                 </div>
             </div>
         </div>

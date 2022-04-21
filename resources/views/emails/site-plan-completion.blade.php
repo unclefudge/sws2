@@ -2,7 +2,7 @@
 <table style="border: 1px solid; border-collapse: collapse">
     <tr style="border: 1px solid; background-color: #f0f6fa; font-weight: bold;">
         <td width="80" style="border: 1px solid">Date</td>
-        <td width="60" style="border: 1px solid">Code</td>
+        <td width="60" style="border: 1px solid">Job #</td>
         <td width="200" style="border: 1px solid">Site</td>
         <td width="120" style="border: 1px solid">Supervisor</td>
         <td width="200" style="border: 1px solid">Company</td>

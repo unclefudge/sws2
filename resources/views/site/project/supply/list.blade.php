@@ -44,7 +44,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th width="10%"> Site No.</th>
+                                <th width="10%"> Job #</th>
                                 <th> Site Name</th>
                                 <th width="10%"> Updated</th>
                                 <th width="5%"></th>

@@ -47,7 +47,7 @@
                     </div>
                     <div class="portlet-body">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     {{--}}
                                     <select id="site_id" name="site_id" class="form-control select2" width="100%">

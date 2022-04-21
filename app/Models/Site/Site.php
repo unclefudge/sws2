@@ -24,9 +24,9 @@ class Site extends Model {
         'name', 'code', 'slug',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country',
         'photo', 'notes', 'client_id', 'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
-        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering', 'construction', 'hbcf', 'consultant_name',
+        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'construction_rcvd', 'hbcf_start', 'consultant_name',
         'completion_signed', 'completed', 'status', 'company_id', 'created_by', 'updated_by'];
-    protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed'];
+    protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start',];
 
     /**
      * A Site belongs to a company
@@ -694,19 +694,20 @@ class Site extends Model {
     /**
      * Set the name + create slug attributes  (mutator)
      */
-    public function setNameAttribute($value)
+    /*public function setNameAttribute($value)
     {
         $this->attributes['name'] = trim(strtoupper($value));
         //$this->attributes['slug'] = getUniqueSlug($this, $value);
-    }
+    }*/
 
     /**
      * Set the suburb to uppercase format  (mutator)
      */
+    /*
     public function setSuburbAttribute($value)
     {
         $this->attributes['suburb'] = strtoupper($value);
-    }
+    }*/
 
     /**
      * Set the phone number to AU format  (mutator)
@@ -755,7 +756,8 @@ class Site extends Model {
      */
     public function getSuburbStatePostcodeAttribute()
     {
-        $string = strtoupper($this->attributes['suburb']);
+        //$string = strtoupper($this->attributes['suburb']);
+        $string = $this->attributes['suburb'];
         if ($this->attributes['suburb'] && $this->attributes['state'])
             $string .= ', ';
         if ($this->attributes['state'])
@@ -786,9 +788,11 @@ class Site extends Model {
         $string = '';
 
         if ($this->attributes['address'])
-            $string = strtoupper($this->attributes['address']) . '<br>';
+            $string = $this->attributes['address'] . '<br>';
+            //$string = strtoupper($this->attributes['address']) . '<br>';
 
-        $string .= strtoupper($this->attributes['suburb']);
+        $string .= $this->attributes['suburb'];
+        //$string .= strtoupper($this->attributes['suburb']);
         if ($this->attributes['suburb'] && $this->attributes['state'])
             $string .= ', ';
         if ($this->attributes['state'])
@@ -830,9 +834,10 @@ class Site extends Model {
         $string = '';
 
         if ($this->attributes['address'])
-            $string = strtoupper($this->attributes['address']) . ', ';
+            $string = $this->attributes['address'] . ', '; //strtoupper($this->attributes['address']) . ', ';
 
-        $string .= strtoupper($this->attributes['suburb']);
+        //$string .= strtoupper($this->attributes['suburb']);
+        $string .= $this->attributes['suburb'];
         if ($this->attributes['suburb'] && $this->attributes['state'])
             $string .= ', ';
         if ($this->attributes['state'])
@@ -851,9 +856,10 @@ class Site extends Model {
         $string = '';
 
         if ($this->attributes['address'])
-            $string = strtoupper($this->attributes['address']) . ', ';
+            $string = $this->attributes['address'] . ', '; //strtoupper($this->attributes['address']) . ', ';
 
-        $string .= strtoupper($this->attributes['suburb']);
+        //$string .= strtoupper($this->attributes['suburb']);
+        $string .= $this->attributes['suburb'];
         if ($this->attributes['suburb'] && $this->attributes['state'])
             $string .= ', ';
         if ($this->attributes['state'])

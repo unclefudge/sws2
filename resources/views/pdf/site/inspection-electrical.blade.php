@@ -91,7 +91,7 @@
         </div>
         {{-- Job Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->code }}-{{ $report->site->name }}</h5></div>
+            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Date</div>

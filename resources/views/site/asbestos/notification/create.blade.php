@@ -100,7 +100,7 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        {!! Form::label('site_code', 'Site No.', ['class' => 'control-label']) !!}
+                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
                                         {!! Form::text('site_code', null, ['class' => 'form-control', 'readonly']) !!}
                                     </div>
                                 </div>

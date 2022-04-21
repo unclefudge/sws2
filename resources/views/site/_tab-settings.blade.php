@@ -55,7 +55,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group {!! fieldHasError('code', $errors) !!}">
-                                    {!! Form::label('code', 'Site No.', ['class' => 'control-label']) !!}
+                                    {!! Form::label('code', 'Job #', ['class' => 'control-label']) !!}
                                     {!! Form::text('code', null, ['class' => 'form-control']) !!}
                                     {!! fieldErrorMessage('code', $errors) !!}
                                 </div>

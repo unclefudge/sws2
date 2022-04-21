@@ -803,7 +803,7 @@ class Company extends Model {
         foreach ($this->sites($status) as $site) {
             //$record = Site::findOrFail($site->id);
             //if ($record->status)
-            $array[$site->id] = "$site->suburb - $site->address ($site->code-$site->name)";
+            $array[$site->id] =  $site->name; //"$site->suburb - $site->address ($site->code-$site->name)";
         }
         asort($array);
 
@@ -885,7 +885,7 @@ class Company extends Model {
         foreach ($this->sitesPlannedFor([1, 2], Carbon::today(), Carbon::today()) as $site) {
             $site = Site::findOrFail($site->id);
             if (in_array($site->status, [1, 2]) && $site->show_checkin)
-                $sites_planned[$site->id] = "$site->suburb - $site->address ($site->name)";
+                $sites_planned[$site->id] = $site->name; //"$site->suburb - $site->address ($site->name)";
         }
         asort($sites_planned);
 
@@ -901,7 +901,7 @@ class Company extends Model {
         foreach (Auth::user()->authSitesSelect('view.site', [1, 2]) as $site_id => $name) {
             $site = Site::findOrFail($site_id);
             if (in_array($site->status, [1, 2]) && $site->show_checkin)
-                $sites_all[$site->id] = "$site->suburb - $site->address ($site->name)";
+                $sites_all[$site->id] = $site->name; //"$site->suburb - $site->address ($site->name)";
         }
         asort($sites_all);
 
