@@ -109,7 +109,7 @@ class MailgunZohoController extends Controller {
         //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
 
 
-        $overwrite_with_blank = true;
+        $overwrite_with_blank = false;
         $report_type = '';
         $sites_imported = [];
         $sales_dropouts = 0;
@@ -151,12 +151,12 @@ class MailgunZohoController extends Controller {
                 //
                 //if (stripos($data[0], "zcrm_") === 0) {
                 if ($data[$head['code']] && $data[$head['name']]) {
-                    $this->countSites++;
+                    $this->countSites ++;
                     $site = Site::where('code', $data[$head['code']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
 
                     if ($job_stage == '950 Sales Dropout') { // Don't import Sales Dropouts
-                        $sales_dropouts++;
+                        $sales_dropouts ++;
                         continue;
                     }
                     $job_precontruction = '';
@@ -166,7 +166,7 @@ class MailgunZohoController extends Controller {
                         //$site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
                         //$location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1]);
                         $newSites[$data[$head['name']]] = (isset($data[$head['job_stage']])) ? $data[$head['job_stage']] : $data[$head['address']];
-                        echo "New: ". $data[$head['name']] . " <br>";
+                        echo "New: " . $data[$head['name']] . " <br>";
                         print_r($data);
                     }
 
@@ -187,42 +187,36 @@ class MailgunZohoController extends Controller {
                         //echo "--------------------------------<br>[$site->id] $site->name  <br>";
 
                         foreach ($head as $field => $col) {
-                            if ($field == 'super_name' || $field == 'super_initials') {
-                                // Maybe sync Supers
-                                // $site->supervisors()->sync(request('supervisors'));
-                            } else {
-                                // ensure Site record has the given field as Zoho uses extra
-                                if ($site->hasAttribute($field)) {
-                                    //echo "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [" . $data[$col] . "]<br>";
-                                    if ($site->{$field} && empty($data[$col])) {
-                                        // Data present so don't override with blank Zoho data (unless overwrite set)
-                                        //echo "*$field: [" . $site->{$field} . "] [" . $data[$col] . "]<br>";
-                                        if ($field == 'consultant_name') { // Convert consultant name to initials for blank checking
-                                            if (empty($data[$head['consultant_initials']]))
-                                                $blankZohoFields["$site->id:$field"] = $site->{$field};
-                                        } else
+                            // ensure Site record has the given field as Zoho uses extra
+                            if ($site->hasAttribute($field)) {
+                                //echo "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [" . $data[$col] . "]<br>";
+                                if ($site->{$field} && empty($data[$col])) {
+                                    // Data present so don't override with blank Zoho data (unless overwrite set)
+                                    //echo "*$field: [" . $site->{$field} . "] [" . $data[$col] . "]<br>";
+                                    if ($field == 'consultant_name') { // Convert consultant name to initials for blank checking
+                                        if (empty($data[$head['consultant_initials']]))
                                             $blankZohoFields["$site->id:$field"] = $site->{$field};
+                                    } else
+                                        $blankZohoFields["$site->id:$field"] = $site->{$field};
 
-                                        // Overwite SWS with blank data from Zoho
-                                        if ($overwrite_with_blank) {
-                                            $site->{$field} = null;
-                                            //$site->save();  // Save imported data
-                                        }
-
-                                    } elseif ($site->{$field} && !empty($data[$col])) {
-                                        if (in_array($field, $datefields)) {
-                                            list($d, $m, $y) = explode('/', $data[$col]);
-                                            $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
-                                            //echo "*******. " . $data[$col] . " - $date_with_leading_zeros " . '********<br>';
-                                            //$site->{$field} = "$date_with_leading_zeros 00:00:00";
-                                            $site->{$field} = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
-                                            //if ($site->{$field})
-                                            //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [" . Carbon::createFromFormat('d/m/Y H:i', $data[$col] . '00:00')->format('j/n/y') . "]<br>";
-                                        } else
-                                            $site->{$field} = $data[$col];
-
+                                    // Overwite SWS with blank data from Zoho
+                                    if ($overwrite_with_blank) {
+                                        $site->{$field} = null;
                                         //$site->save();  // Save imported data
                                     }
+
+                                } elseif ($site->{$field} && !empty($data[$col])) {
+                                    if (in_array($field, $datefields)) {
+                                        list($d, $m, $y) = explode('/', $data[$col]);
+                                        $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
+                                        //if ($site->{$field})
+                                        //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
+                                        $site->{$field} = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
+
+                                    } else
+                                        $site->{$field} = $data[$col];
+
+                                    //$site->save();  // Save imported data
                                 }
                             }
                         }
@@ -360,11 +354,11 @@ class MailgunZohoController extends Controller {
                     $diff .= " &nbsp; $field: " . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
                 } // only SWS has data
                 else if ($site->{$field} && !$data[$head[$field]]) {
-                    //$diff .= "* $field: " . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
+                    $diff .= "* $field: " . $site->{$field} . " [" . $data[$head[$field]] . "]\n";
                     $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    //$diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
+                    $diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
                 }
             }
         }
@@ -376,11 +370,11 @@ class MailgunZohoController extends Controller {
                     $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
                 } // only SWS has data
                 else if ($site->{$field} && $site->{$field}->format('d/m/Y') != $data[$head[$field]]) {
-                    //$diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
+                    $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " [" . $data[$head[$field]] . "]\n";
                     $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    //$diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
+                    $diff .= " &nbsp; $field: {empty} [" . $data[$head[$field]] . "]\n";
                 }
             }
         }
