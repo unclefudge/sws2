@@ -37,12 +37,6 @@
         </div>
         <hr class="field-hr">
         <div class="row">
-            <div class="col-md-6">Engineering Certificate:</div>
-            <div class="col-xs-6">{!! ($site->engineering_cert) ? $site->engineering_cert->format('d/m/Y') : '-' !!}</div>
-            {{--}}<div class="col-xs-6">{!! ($site->engineering) ? 'Yes' : 'No' !!}</div>--}}
-        </div>
-        <hr class="field-hr">
-        <div class="row">
             <div class="col-md-6">Construction Certificate:</div>
             <div class="col-xs-6">{!! ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-' !!}</div>
             {{--}}<div class="col-xs-6">{!! ($site->construction) ? 'Yes' : 'No' !!}</div>--}}
@@ -52,6 +46,12 @@
             <div class="col-md-6">Home Builder Compensation Fund:</div>
             <div class="col-xs-6">{!! ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-' !!}</div>
             {{--}}<div class="col-xs-6">{!! ($site->hbcf) ? 'Yes' : 'No' !!}</div>--}}
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6">Engineering Certificate:</div>
+            {{--}}<div class="col-xs-6">{!! ($site->engineering_cert) ? $site->engineering_cert->format('d/m/Y') : '-' !!}</div>--}}
+            <div class="col-xs-6">{!! ($site->engineering) ? 'Yes' : 'No' !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">

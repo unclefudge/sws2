@@ -27,73 +27,74 @@
         </div>
         <hr class="field-hr">
         @if ($site->status != 0)
-            {{-- Job --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                    {!! Form::label('code', 'Job:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::text('code', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('code', $errors) !!}
+            @if (Auth::user()->allowed2('edit.site.zoho.fields', $site))
+                {{-- Job --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
+                        {!! Form::label('code', 'Job:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('code', null, ['class' => 'form-control', 'required']) !!}
+                            {!! fieldErrorMessage('code', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Name --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                    {!! Form::label('name', 'Name:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('name', $errors) !!}
+                <hr class="field-hr">
+                {{-- Name --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
+                        {!! Form::label('name', 'Name:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
+                            {!! fieldErrorMessage('name', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Adddress --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                    {!! Form::label('address', 'Address:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::text('address', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('address', $errors) !!}
+                <hr class="field-hr">
+                {{-- Adddress --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('address', $errors) !!}">
+                        {!! Form::label('address', 'Address:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('address', null, ['class' => 'form-control', 'required']) !!}
+                            {!! fieldErrorMessage('address', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Suburb --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                    {!! Form::label('suburb', 'Suburb:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::text('suburb', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('suburb', $errors) !!}
+                <hr class="field-hr">
+                {{-- Suburb --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
+                        {!! Form::label('suburb', 'Suburb:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('suburb', null, ['class' => 'form-control', 'required']) !!}
+                            {!! fieldErrorMessage('suburb', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- State --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                    {!! Form::label('state', 'State:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::select('state', $ozstates::all(), null, ['class' => 'form-control bs-select', 'required']) !!}
-                        {!! fieldErrorMessage('state', $errors) !!}
+                <hr class="field-hr">
+                {{-- State --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('state', $errors) !!}">
+                        {!! Form::label('state', 'State:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::select('state', $ozstates::all(), null, ['class' => 'form-control bs-select', 'required']) !!}
+                            {!! fieldErrorMessage('state', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-            {{-- Postcode --}}
-            <div class="row">
-                <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                    {!! Form::label('postcode', 'Postcode:', ['class' => 'col-md-3 control-label']) !!}
-                    <div class="col-md-9">
-                        {!! Form::text('postcode', null, ['class' => 'form-control', 'required']) !!}
-                        {!! fieldErrorMessage('postcode', $errors) !!}
+                <hr class="field-hr">
+                {{-- Postcode --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
+                        {!! Form::label('postcode', 'Postcode:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('postcode', null, ['class' => 'form-control', 'required']) !!}
+                            {!! fieldErrorMessage('postcode', $errors) !!}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <hr class="field-hr">
-
+                <hr class="field-hr">
+            @endif
             {{-- Supervisor--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('supervisors', $errors) !!}">
