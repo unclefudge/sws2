@@ -64,7 +64,6 @@
         <thead>
         <tr style="background-color: #f0f6fa; font-weight: bold; overflow: hidden;">
             <th width="5%" class="pad5">Start Date</th>
-            <th width="5%" class="pad5">Job #</th>
             <th width="15%" class="pad5">Site</th>
             <th width="15%" class="pad5">Supervisor</th>
             <th class="pad5">Company Allocated</th>
@@ -81,7 +80,6 @@
         @foreach($startdata as $row)
             <tr>
                 <td class="pad5">{!! $row['date'] !!}</td>
-                <td class="pad5">{!! $row['code'] !!}</td>
                 <td class="pad5">{!! $row['name'] !!}</td>
                 <td class="pad5">{!! $row['supervisor'] !!}</td>
                 <td class="pad5">{!! $row['company'] !!}</td>
