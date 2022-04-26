@@ -6,7 +6,7 @@ $('#supervisor_id').change(function () {
 var xx = {
     dev: dev, permission: '', user_company_id: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'),
+    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'),
     mon_now: '', mon_this: '', mon_prev: '', mon_next: '',
     sel_super: [], maxjobs: [], leave: [], sites: [],
     plan: [], non_rostered: [], entity_all_onsite: [],
@@ -111,24 +111,35 @@ Vue.component('app-site', {
         },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
-            var obj = objectFindByKey(this.xx.sites, 'id', site_id);
+            var site = objectFindByKey(this.xx.sites, 'id', site_id);
             //if (allowed_site_status.includes(obj.status)) {
             if (this.xx.user_company_id == 3) {
-                if (this.xx.params.supervisor_id === 'all' && obj.status == 1)
-                    return true;
+                if (this.xx.params.supervisor_id === 'all' && site.status == 1)
+                    return this.siteSearch(site); //return true;
             }
             else if (this.xx.params.supervisor_id === 'all')
-                return true;
+                return this.siteSearch(site); //return true;
 
-            if (this.xx.params.supervisor_id === 'maint' && obj.status == 2)
-                return true;
+            if (this.xx.params.supervisor_id === 'maint' && site.status == 2)
+                return this.siteSearch(site); //return true;
 
             var show = false;
-            if (obj.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
+            if (site.supervisors.hasOwnProperty(this.xx.params.supervisor_id))
                 show = true;
 
-            return show;
+            if (show)
+                return this.siteSearch(site); //return true;
+
+            return false;
             //}
+        },
+        siteSearch: function (site) {
+            if (this.xx.search != '') {
+                if (site.name.toLowerCase().includes(this.xx.search.toLowerCase()))
+                    return true;
+                return false;
+            } else
+                return true;
         },
     },
 

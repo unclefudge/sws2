@@ -34,7 +34,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Planner</span>
                         </div>
                         <div class="actions">
-                            @if (Auth::user()->hasPermission2('view.trade.planner'))
+                        @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
@@ -50,6 +50,11 @@
                                 <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</button>
                             @endif
                             <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">W</button>
+                            @if (Auth::user()->isCC())
+                            <div>
+                                <input v-model="xx.search" type="text" class="form-control" placeholder="Search Site Names" />
+                            </div>
+                                @endif
                         </div>
                     </div>
                     <div class="portlet-body">
