@@ -1514,8 +1514,8 @@ class PagesController extends Controller {
         //
         // Creating Permission
         //
-        $name = 'Site Client Planner';
-        $slug = 'site.client.planner';
+        $name = 'Site Zoho Fields';
+        $slug = 'site.zoho.fields';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);
