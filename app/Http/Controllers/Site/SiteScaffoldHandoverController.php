@@ -323,10 +323,10 @@ class SiteScaffoldHandoverController extends Controller {
             ->addColumn('view', function ($report) {
                 return ('<div class="text-center"><a href="/site/scaffold/handover/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            ->editColumn('sitename', function ($doc) {
-                $s = Site::find($doc->site_id);
-                return $s->nameClient;
-            })
+            //->editColumn('sitename', function ($doc) {
+            //    $s = Site::find($doc->site_id);
+            //    return $s->nameClient;
+            //})
             ->rawColumns(['view', 'action'])
             ->make(true);
 

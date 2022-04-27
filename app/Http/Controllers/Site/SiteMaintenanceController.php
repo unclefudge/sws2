@@ -694,10 +694,10 @@ class SiteMaintenanceController extends Controller {
             ->editColumn('site_id', function ($doc) {
                 return $doc->sitecode;
             })
-            ->editColumn('sitename', function ($doc) {
-                $s = Site::find($doc->site_id);
-                return $s->nameClient;
-            })
+            //->editColumn('sitename', function ($doc) {
+            //    $s = Site::find($doc->site_id);
+            //    return $s->nameClient;
+            //})
             ->editColumn('super_id', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 

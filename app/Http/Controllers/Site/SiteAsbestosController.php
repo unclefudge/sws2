@@ -322,10 +322,10 @@ class SiteAsbestosController extends Controller {
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/asbestos/notification/{{$id}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('sitename', function ($doc) {
-                $s = Site::find($doc->site_id);
-                return $s->nameClient;
-            })
+            //->editColumn('sitename', function ($doc) {
+            //    $s = Site::find($doc->site_id);
+            //    return $s->nameClient;
+            //})
             ->editColumn('updated_at', function ($doc) {
                 return (new Carbon($doc->updated_at))->format('d/m/Y');
             })

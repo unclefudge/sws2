@@ -334,9 +334,9 @@ class SiteController extends Controller {
         }
 
         $dt = Datatables::of($site_records)
-            ->editColumn('name', function ($site) {
-                return $site->nameClient;
-            })
+            //->editColumn('name', function ($site) {
+            //    return $site->nameClient;
+            //})
             ->editColumn('client_phone', function ($site) {
                 $string = '';
                 if ($site->client_phone) {

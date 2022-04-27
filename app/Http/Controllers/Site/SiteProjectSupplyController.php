@@ -64,13 +64,13 @@ class SiteProjectSupplyController extends Controller {
         foreach ($sites_active as $site) {
             $reg = SiteProjectSupply::where('site_id', $site->id)->first();
             if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
-                $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
+                $sitelist[$site->id] = "$site->name";
         }
 
         foreach ($sites_maint as $site) {
             $reg = SiteProjectSupply::where('site_id', $site->id)->first();
             if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
-                $sitelist[$site->id] = "$site->suburb - $site->address ($site->name)";
+                $sitelist[$site->id] = "$site->name";
         }
 
         $lockup = [1, 2, 3, 4, 5, 6, 7, 8];
