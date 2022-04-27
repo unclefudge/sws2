@@ -29,8 +29,7 @@
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
                                     <th width="10%"> Reported</th>
-                                    <th width="7%"> Job #</th>
-                                    <th> Name</th>
+                                    <th> Site</th>
                                     <th> Supervisor</th>
                                     <th width="10%"> Updated</th>
                                     <th width="5%"></th>
@@ -43,7 +42,6 @@
                                             <div class="text-center"><a href="/site/maintenance/{{ $rec->id }}">M{{$rec->code}}</a></div>
                                         </td>
                                         <td> {{ $rec->created_date }}</td>
-                                        <td> {{ $rec->sitecode }}</td>
                                         <td> {{ $rec->sitename }}</td>
                                         <td> {{ $rec->supervisor }}</td>
                                         <td> {{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</td>
@@ -95,8 +93,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th width="10%"> Reported</th>
-                                <th width="7%"> Job #</th>
-                                <th> Name</th>
+                                <th> Site</th>
                                 <th width="10%"> Client Contacted</th>
                                 <th width="10%"> Appointment</th>
                                 <th> Supervisor</th>
@@ -142,8 +139,8 @@
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
             {data: 'reported_date', name: 'm.reported'},
-            {data: 'site_id', name: 's.code'},
-            {data: 'sitename', name: 's.name'},
+            //{data: 'site_id', name: 's.code'},
+            {data: 'sitename', name: 's.name', orderable: false},
             {data: 'contacted_date', name: 'm.client_contacted'},
             {data: 'appointment_date', name: 'm.client_appointment'},
             {data: 'super_id', name: 'm.super_id'},

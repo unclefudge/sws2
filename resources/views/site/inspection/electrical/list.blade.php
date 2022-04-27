@@ -30,8 +30,7 @@
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
-                                    <th width="7%"> Job #</th>
-                                    <th> Name</th>
+                                    <th> Site</th>
                                     <th width="5%"></th>
                                 </tr>
                                 </thead>
@@ -88,8 +87,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th width="10%"> Created</th>
-                                <th width="5%"> Job #</th>
-                                <th> Name</th>
+                                <th> Site</th>
                                 <th width="10%"> Assigned</th>
                                 <th> Assigned to</th>
                                 <th width="10%"> Client Contacted</th>
@@ -135,7 +133,6 @@
         columns: [
             {data: 'view', name: 'view', orderable: false, searchable: false},
             {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
-            {data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
             {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
             {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},

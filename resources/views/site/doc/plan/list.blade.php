@@ -47,7 +47,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2 pull-right">
                                 <div class="form-group">
                                     {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                     <select name="status" id="status" class="form-control bs-select">

@@ -44,7 +44,6 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th width="10%"> Job #</th>
                                 <th> Site Name</th>
                                 <th width="10%"> Updated</th>
                                 <th width="5%"></th>
@@ -86,7 +85,6 @@
         },
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'code', name: 's.code',  },
             {data: 'sitename', name: 's.name', },
             {data: 'updated_at', name: 'p.updated_at', searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},

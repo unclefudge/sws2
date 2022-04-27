@@ -42,8 +42,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th width="5%"> Job #</th>
-                                <th> Name</th>
+                                <th> Site</th>
                                 <th> Scaffolder</th>
                                 <th width="10%"> Handover Date</th>
                             </tr>
@@ -87,7 +86,7 @@
         },
         columns: [
             {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'code', name: 'sites.code'},
+            //{data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
             //{data: 'sitename', name: 'sites.name'},
             //{data: 'sitename', name: 'sites.name'},

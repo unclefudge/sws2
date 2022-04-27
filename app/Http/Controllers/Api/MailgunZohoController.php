@@ -31,8 +31,8 @@ class MailgunZohoController extends Controller {
 
     public function store(Request $request)
     {
-        //app('log')->debug("===================================================");
-        //app('log')->debug(request()->all());
+        app('log')->debug("===================================================");
+        app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', '<systemgenerated@zohocrm.com>'];
@@ -82,10 +82,8 @@ class MailgunZohoController extends Controller {
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
 
-                $result = $this->parseFile($saved_file);
+                //$result = $this->parseFile($saved_file);
             }
-
-            //dispatch(new ProcessWidgetFiles($files));
         }
 
         return response()->json(['status' => 'ok'], 200);
@@ -106,9 +104,9 @@ class MailgunZohoController extends Controller {
     public function parseFile($parsefile = null)
     {
         $file = $parsefile;
-        $file = public_path('filebank/tmp/zoho/Jobs_for_Fudge.csv');
-        $file = public_path('filebank/tmp/zoho/Jobs_modified_today 14.csv');
-        $file = public_path('filebank/tmp/zoho/Jobs_modified_today 24.csv');
+        //$file = public_path('filebank/tmp/zoho/Jobs_for_Fudge.csv');
+        //$file = public_path('filebank/tmp/zoho/Jobs_modified_today 14.csv');
+        //$file = public_path('filebank/tmp/zoho/Jobs_modified_today 24.csv');
         //$file = public_path('filebank/tmp/zoho/Contacts_for_Fudge.csv');
         //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
         //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
@@ -224,19 +222,22 @@ class MailgunZohoController extends Controller {
                                     }
 
                                 } elseif (!empty($data[$col])) {
+                                    $newData = '';
                                     if (in_array($field, $datefields)) {
                                         list($d, $m, $y) = explode('/', $data[$col]);
                                         $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                                         //if ($site->{$field})
                                         //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
-                                        $site->{$field} = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
+                                        $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
 
                                     } else
-                                        $site->{$field} = $data[$col];
+                                        $newData = $data[$col];
 
                                     // Save imported data
-                                    if ($save_enabled && !in_array($field, $exclude_update))
+                                    if ($save_enabled && !in_array($field, $exclude_update) && $site->{$field} != $newData) {
+                                        $site->{$field} = $newData;
                                         $site->save();
+                                    }
                                 }
                             }
                         }
@@ -247,19 +248,11 @@ class MailgunZohoController extends Controller {
             // Output Report
             $log .= "\nRead $this->countSites jobs and found " . count($this->siteDiffs) . " with differences\n";
             $log .= "\nSummary\n------------\n";
-            //echo "Conflicting Job Names: $this->countDiffSname</br>";
-            //echo "Conflicting Addresses: $this->countDiffAddr</br>";
-            //echo "Conflicting Dates: $this->countDiffDates</br>";
-            //echo "Conflicting Consultants: $this->countDiffCons</br>";
-            //echo "SWS Blank dates: $this->countBlankSwsDates</br>";
-            //echo "Zoho Blank dates: $this->countBlankZohoDates</br>";
             $log .= "SWS Blank fields: " . count($this->blankSWSFields) . "\n";
             $log .= "Zoho Blank fields: " . count($this->blankZohoFields) . "\n";
             $log .= "Different fields: " . count($this->diffFields) . "\n";
             $log .= "New Jobs: " . count($newSites) . "\n\n";
             $log .= "\nThe following differences were found:\n";
-
-            //echo "<br>Site Differences<br>";
             $log .= $differences;
 
             // New Sites
@@ -286,7 +279,7 @@ class MailgunZohoController extends Controller {
                     } else
                         $emptyZohoLog .= " - $zoho_field:  $value\n";
                 }
-                //$log .= "\n\n$emptyZohoLog";
+                $log .= "\n\n$emptyZohoLog";
 
                 // Email report to Zoho data person
                 //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));

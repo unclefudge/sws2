@@ -695,7 +695,8 @@ class SiteMaintenanceController extends Controller {
                 return $doc->sitecode;
             })
             ->editColumn('sitename', function ($doc) {
-                return $doc->sitename;
+                $s = Site::find($doc->site_id);
+                return $s->nameClient;
             })
             ->editColumn('super_id', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);

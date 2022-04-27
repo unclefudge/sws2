@@ -323,6 +323,10 @@ class SiteAsbestosRegisterController extends Controller {
                 return ($asb->attachment_url) ? '<div class="text-center"><a href="' . $asb->attachment_url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>' : '';
                 //return '<div class="text-center"><a href="' . $asb->attachment_url . '"><i class="fa fa-search"></i></a></div>';
             })
+            ->editColumn('sitename', function ($doc) {
+                $s = Site::find($doc->site_id);
+                return $s->nameClient;
+            })
             ->editColumn('updated_at', function ($doc) {
                 return (new Carbon($doc->updated_at))->format('d/m/Y');
             })

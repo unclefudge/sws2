@@ -49,9 +49,9 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="10%"> Job #</th>
+                                {{--}}<th width="10%"> Job #</th>--}}
                                 {{--}}<th> Suburb</th>--}}
-                                <th> Name</th>
+                                <th> Site</th>
                                 {{-- CapeCod + JonSpin --}}
                                 @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29])) {{-- CC, JonSpin Building,  GBT Carpentry--}}
                                 <th width="15%"> Phone</th> @endif
@@ -99,7 +99,7 @@
             }
         },
         columns: [
-            {data: 'code', name: 'code'},
+            //{data: 'code', name: 'code'},
             //{data: 'suburb', name: 'suburb'},
             {data: 'name', name: 'name'},
                 @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29])) {data: 'client_phone', name: 'client_phone'}, @endif
@@ -109,7 +109,7 @@
             {data: 'supervisor', name: 'supervisor'},
         ],
         order: [
-            [1, "asc"], [2, 'asc']
+            [0, "asc"], [1, 'asc']
         ]
     });
 

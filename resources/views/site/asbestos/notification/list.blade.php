@@ -41,7 +41,6 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                <th> Job #</th>
                                 <th> Site Name</th>
                                 <th> Proposed Removal Dates</th>
                                 <th> Amount</th>
@@ -86,7 +85,7 @@
         },
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'code', name: 's.code', orderable: false, searchable: false},
+            //{data: 'code', name: 's.code', orderable: false, searchable: false},
             {data: 'sitename', name: 's.name', orderable: false, searchable: false},
             {data: 'proposed_dates', name: 'proposed_dates', orderable: false, searchable: false},
             {data: 'amount', name: 'amount', orderable: false, searchable: false},

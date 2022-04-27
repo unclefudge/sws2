@@ -31,7 +31,7 @@
 
                         <div class="form-body">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
@@ -40,7 +40,7 @@
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         {!! Form::label('address', 'Site Address', ['class' => 'control-label']) !!}
                                         {!! Form::text('address', null, ['class' => 'form-control', 'readonly']) !!}

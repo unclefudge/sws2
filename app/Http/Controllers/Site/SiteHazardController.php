@@ -180,6 +180,9 @@ class SiteHazardController extends Controller {
             ->addColumn('view', function ($issue) {
                 return ('<div class="text-center"><a href="/site/hazard/' . $issue->id . '"><i class="fa fa-search"></i></a></div>');
             })
+            ->editColumn('name', function ($issue) {
+                return $issue->site->nameClient;
+            })
             ->addColumn('supervisor', function ($issue) {
                 return ($issue->site->supervisorsSBC());
             })

@@ -730,6 +730,38 @@ class Site extends Model {
     }
 
     /**
+     * Get Site Name (Client only)   (getter)
+     *
+     * @return string;
+     */
+
+    public function getNameClientAttribute()
+    {
+        if ($this->company_id == 3) {
+            list($code, $client, $suburb) = explode('-', $this->name);
+
+            return $client;
+        }
+        return $this->name;
+    }
+
+    /**
+     * Get Site Name (Client+Suburb only)   (getter)
+     *
+     * @return string;
+     */
+
+    public function getNameClientSuburbAttribute()
+    {
+        if ($this->company_id == 3) {
+            list($code, $client, $suburb) = explode('-', $this->name);
+
+            return "$client-$suburb";
+        }
+        return $this->name;
+    }
+
+    /**
      * Get Shorten Name   (getter)
      *
      * @return string;

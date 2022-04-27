@@ -338,6 +338,7 @@ class SiteQaController extends Controller {
                     if ($doc->updated_at <= $weekago)
                         return "<span class='font-red'>$site->name</span>";
                 }*/
+                //$site = Site::find($doc->site_id);
                 return $doc->sitename;
             })
             ->editColumn('name', function ($doc) {
