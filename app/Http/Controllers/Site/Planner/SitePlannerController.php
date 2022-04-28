@@ -1297,17 +1297,6 @@ class SitePlannerController extends Controller {
         $without[] = ['value' => '', 'text' => 'Select site'];
         // Create array in specific Vuejs 'select' format.
         foreach ($sites as $site) {
-            /*$planner = SitePlanner::where('site_id', $site->id)->orderBy('from')->get();
-
-            $found = false;
-            foreach ($planner as $plan) {
-                if (in_array($plan->task_id, $startJobIDs)) {
-                    $found = true;
-                    //echo "$plan->site_id<br>";
-                    break;
-                }
-            }*/
-
             if (!$site->job_start)
                 $without[] = ['value' => $site->id, 'text' => $site->name, 'name' => $site->name];
             else if ($site->job_start->gt($today))

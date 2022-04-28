@@ -118,16 +118,21 @@ class CompanyController extends Controller {
     public function demo1($id)
     {
         $company = Company::findorFail($id);
+
         return view('company/demo1', compact('company'));
     }
+
     public function demo2($id)
     {
         $company = Company::findorFail($id);
+
         return view('company/demo2', compact('company'));
     }
+
     public function demo3($id)
     {
         $company = Company::findorFail($id);
+
         return view('company/demo3', compact('company'));
     }
 
@@ -253,9 +258,9 @@ class CompanyController extends Controller {
 
                 // Re-enable email if possible
                 $pattern = "/^archived-$primary_user->id-/";
-                if (preg_match($pattern,$primary_user->email)) {
-                    $len = strlen($pattern)-3;
-                    $new_email = substr($primary_user->email,$len);
+                if (preg_match($pattern, $primary_user->email)) {
+                    $len = strlen($pattern) - 3;
+                    $new_email = substr($primary_user->email, $len);
                     $existing_email = User::where('email', $new_email)->first();
                     if (!$existing_email)
                         $primary_user->email = $new_email;
@@ -496,6 +501,7 @@ class CompanyController extends Controller {
         }
 
         Toastr::success("Saved changes");
+
         return redirect("company/$company->id");
     }
 
@@ -720,6 +726,7 @@ class CompanyController extends Controller {
                     $name .= "<br><a href='/signup/cancel/$company->id' class='btn btn-xs dark'>Cancel Sign Up & Delete Company</a>";
 
                 }
+
                 /*if ($company->transient)
                     $name .= ' &nbsp; <span class="label label-sm label-info">' . $company->supervisedBySBC() . '</span>';
                 if (!$company->isCompliant() && $company->status == 1)
@@ -727,6 +734,7 @@ class CompanyController extends Controller {
                 if ($company->status == 1 && $company->reportsTo()->id == Auth::user()->company_id && (!$company->approved_by || CompanyDoc::where('for_company_id', $company->id)->where('status', 2)->count()))
                     $name .= ' &nbsp; <span class="label label-sm label-warning">Pending Approval</span>';
 */
+
                 return $name;
             })
             ->addColumn('trade', function ($company) {
@@ -736,8 +744,10 @@ class CompanyController extends Controller {
                 return "<b>" . $company->category . ":</b></span> " . $company->tradesSkilledInSBC();
             })
             ->addColumn('manager', function ($company) {
-                //return '';
-                return $company->seniorUsersSBC();
+                if (count($company->seniorUsers()))
+                    return $company->seniorUsersSBC();
+
+                return 'N/A';
             })
             ->rawColumns(['id', 'name', 'trade', 'manager'])
             ->make(true);
