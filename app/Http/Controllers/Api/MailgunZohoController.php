@@ -33,7 +33,7 @@ class MailgunZohoController extends Controller {
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au'];
         if (!in_array(request('X-Envelope-From'), $valid_senders))
             app('log')->debug("========= Import Failed ==========");
-            app('log')->debug("Invalid Sender: ".request('X-Envelope-From'));
+            app('log')->debug("Invalid Sender: [".request('X-Envelope-From')."]");
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Invalid email'
