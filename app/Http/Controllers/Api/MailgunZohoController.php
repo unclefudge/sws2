@@ -25,13 +25,15 @@ class MailgunZohoController extends Controller {
 
     public function store(Request $request)
     {
-        app('log')->debug("===================================================");
+        app('log')->debug("========= Zoho Import ==========");
         app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au'];
         if (!in_array(request('X-Envelope-From'), $valid_senders))
+            app('log')->debug("========= Import Failed ==========");
+            app('log')->debug("Invalid Sender: ".request('X-Envelope-From'));
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Invalid email'
@@ -45,12 +47,14 @@ class MailgunZohoController extends Controller {
 
         // If no attachment return 406 (Not Acceptable) to Mailgun to prevent retries
         if ($files->count() === 0) {
+            app('log')->debug("========= Import Failed ==========");
+            app('log')->debug("Missing expected CSV attachment");
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Missing expected CSV attachment'
             ], 406);
         } else {
-            //app('log')->debug($files);
+            app('log')->debug("========= Begin Import ==========");
 
             // Zoho Daily log
             $this->logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
@@ -67,7 +71,6 @@ class MailgunZohoController extends Controller {
             if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 
             foreach ($files as $file) {
-                //app('log')->debug($file);
                 //$mailgun_file = $this->retrieveMailgunFile($file['url']);  // Get file from Mailgun storage
 
                 // Save the file
@@ -75,6 +78,7 @@ class MailgunZohoController extends Controller {
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
+                app('log')->debug("Saving file: $saved_file");
 
                 $result = $this->parseFile($saved_file);
             }
@@ -104,6 +108,7 @@ class MailgunZohoController extends Controller {
         //$file = public_path('filebank/tmp/zoho/Contacts_for_Fudge.csv');
         //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
         //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
+        app('log')->debug("Parsing file: $file");
 
 
         $save_enabled = true;
