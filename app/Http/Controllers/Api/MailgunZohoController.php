@@ -15,12 +15,6 @@ use App\Http\Controllers\Controller;
 
 class MailgunZohoController extends Controller {
 
-    //public $countBlankZohoDates = 0;
-    //public $countBlankSwsDates = 0;
-    //public $countDiffDates = 0;
-    //public $countDiffCons = 0;
-    //public $countDiffAddr = 0;
-    //public $countDiffSname = 0;
     public $countSites = 0;
     public $siteDiffs = [];
     public $blankZohoFields = [];
@@ -35,8 +29,8 @@ class MailgunZohoController extends Controller {
         app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
-        $valid_senders = ['<fudge@jordan.net.au>', '<systemgenerated@zohocrm.com>'];
-        $valid_senders = ['<fudge@jordan.net.au>'];
+        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
+        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au'];
         if (!in_array(request('X-Envelope-From'), $valid_senders))
             return response()->json([
                 'status'  => 'error',
@@ -82,7 +76,7 @@ class MailgunZohoController extends Controller {
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
 
-                //$result = $this->parseFile($saved_file);
+                $result = $this->parseFile($saved_file);
             }
         }
 
@@ -112,7 +106,7 @@ class MailgunZohoController extends Controller {
         //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
 
 
-        $save_enabled = false;
+        $save_enabled = true;
         $overwrite_with_blank = false;
         $report_type = '';
         $sites_imported = [];
@@ -123,7 +117,9 @@ class MailgunZohoController extends Controller {
         $head = [];
         $row = 0;
         if (($handle = fopen($file, "r")) !== false) {
-            $log = "Zoho File Import : $file\n";
+            $log = "Zoho File Import: $file\n";
+            if (!$save_enabled) $log .= "Save: DISABLED\n";
+            if ($overwrite_with_blank) $log .= "Save: Overwrite With Blank\n";
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row ++;
 
@@ -150,7 +146,7 @@ class MailgunZohoController extends Controller {
                     continue;
                 }
                 if ($row == 2) {
-                    $head = $this->reportHeaders($report_type, $data);
+                    $head = $this->reportHeaders($data);
                     continue;
                 }
 
@@ -170,28 +166,23 @@ class MailgunZohoController extends Controller {
                     }
                     $job_precontruction = '';
 
+                    $new_site = '';
                     if (!$site && $report_type == 'Jobs') {
                         // Create Site + Equipment Location
-                        $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
-                        $location = EquipmentLocation::where('site_id', $site->id)->first();
-                        if (!$location)
-                            $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1]);
-                        $newSites[$data[$head['name']]] = (isset($data[$head['job_stage']])) ? $data[$head['job_stage']] : $data[$head['address']];
-                        //echo "New: " . $data[$head['name']] . " <br>";
-                        //print_r($data);
+                        if ($save_enabled) {
+                            $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
+                            $location = EquipmentLocation::where('site_id', $site->id)->first();
+                            if (!$location)
+                                $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1, 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
+                        }
+                        $newSites[$data[$head['name']]] = ($job_stage) ? $job_stage : $data[$head['address']];
+                        //$log .= "New: " . $data[$head['name']] . " (" . $data[$head['address']] . ", " . $data[$head['suburb']] .")\n";
+                        $new_site = ' ** New Site **';
                     }
 
                     if ($site && $report_type == 'Jobs') {
                         $sites_imported[] = $site->id;
 
-                        $diffs = $this->compareSiteData($site, $data, $head);
-                        if ($diffs)
-                            $differences .= $diffs;
-
-
-                        //
-                        // update Site record
-                        //
                         $fields = [
                             'name', 'address', 'suburb', 'postcode', 'consultant_name',
                             'client_phone_desc', 'client_phone', 'client_email', 'client_phone2_desc', 'client_phone2', 'client_email2', 'client_intro'];
@@ -199,16 +190,26 @@ class MailgunZohoController extends Controller {
                             'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
                             'engineering_cert', 'construction_rcvd', 'hbcf_start'];
                         $exclude_update = ['completion_signed'];
+                        $all_fields = array_merge($fields, $datefields, $exclude_update);
 
-                        //echo "--------------------------------<br>[$site->id] $site->name  <br>";
 
+                        $diffs = $this->compareSiteData($site, $data, $head, $fields, $datefields, $exclude_update, $new_site);
+                        if ($diffs)
+                            $differences .= $diffs;
+
+
+                        //
+                        // update Site record
+                        //
                         foreach ($head as $field => $col) {
+                            //$log .= "f[$field] c[$col]\n";
                             // ensure Site record has the given field as Zoho uses extra
-                            if ($site->hasAttribute($field)) {
-                                //echo "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [" . $data[$col] . "]<br>";
+                            //if ($site->hasAttribute($field)) {
+                            if (in_array($field, $all_fields)) {
+                                //$log .= "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [" . $data[$col] . "]\n";
                                 if ($site->{$field} && empty($data[$col])) {
                                     // Data present so don't override with blank Zoho data (unless overwrite set)
-                                    //echo "*$field: [" . $site->{$field} . "] [" . $data[$col] . "]<br>";
+                                    //$log .= "*$field: [" . $site->{$field} . "] [" . $data[$col] . "]\n";
                                     if ($field == 'consultant_name') { // Convert consultant name to initials for blank checking
                                         if (empty($data[$head['consultant_initials']]))
                                             $blankZohoFields["$site->id:$field"] = $site->{$field};
@@ -216,7 +217,7 @@ class MailgunZohoController extends Controller {
                                         $blankZohoFields["$site->id:$field"] = $site->{$field};
 
                                     // Overwite SWS with blank data from Zoho
-                                    if ($save_enabled && $overwrite_with_blank) {
+                                    if ($save_enabled && $overwrite_with_blank && !in_array($field, $exclude_update)) {
                                         $site->{$field} = null;
                                         $site->save();  // Save imported data
                                     }
@@ -234,11 +235,17 @@ class MailgunZohoController extends Controller {
                                         $newData = $data[$col];
 
                                     // Save imported data
-                                    if ($save_enabled && !in_array($field, $exclude_update) && $site->{$field} != $newData) {
-                                        $site->{$field} = $newData;
-                                        $site->save();
+                                    if ($save_enabled && !in_array($field, $exclude_update)) {
+                                        if ($site->{$field} != $newData) {
+                                            //$log .= "save [$site->id] $field:".$site->{$field}." <= [$newData]\n";
+                                            $site->{$field} = $newData;
+                                            $site->save();
+                                        } //else
+                                            //$log .= "---- [$site->id] $field:".$site->{$field}." <= [$newData]\n";
                                     }
                                 }
+                            } else {
+                                //$log .= "**No Attribute [$field]\n";
                             }
                         }
                     }
@@ -262,13 +269,20 @@ class MailgunZohoController extends Controller {
                     $log .= "$key : $val\n";
             }
 
+            // Blank Zoho
+            //if (count($this->blankZohoFields)) {
+            //    $log .= "\n\nBlank " . count($this->blankZohoFields) . " Zoho fields\n------------------------------------------------------\n";
+            //    foreach ($this->blankZohoFields as $key => $val)
+            //        $log .= "* $key : $val\n";
+            //}
+
             //
             // Zoho Missing Data Fields
             //
             $last_site = '';
-            if (count($blankZohoFields)) {
-                $emptyZohoLog = "The Zoho import into SafeWorksite found missing data in (" . count($blankZohoFields) . ") Zoho Jobs.\n\n---";
-                foreach ($blankZohoFields as $key => $val) {
+            if (count($this->blankZohoFields)) {
+                $emptyZohoLog = "The Zoho import into SafeWorksite found missing data in (" . count($this->blankZohoFields) . ") Zoho Jobs.\n\n---";
+                foreach ($this->blankZohoFields as $key => $val) {
                     list($site_id, $field) = explode(':', $key);
                     $site = Site::findOrFail($site_id);
                     $value = (in_array($field, $datefields)) ? Carbon::createFromFormat('Y-m-d H:i:s', $val)->format('d/m/Y') : $val;   // Convert to date if datefield
@@ -279,7 +293,7 @@ class MailgunZohoController extends Controller {
                     } else
                         $emptyZohoLog .= " - $zoho_field:  $value\n";
                 }
-                $log .= "\n\n$emptyZohoLog";
+                $log .= "\n\n\n======================================================\n$emptyZohoLog";
 
                 // Email report to Zoho data person
                 //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
@@ -300,7 +314,7 @@ class MailgunZohoController extends Controller {
      * Get Report Headers
      * - the headers array records the column in the CSV the field is found
      */
-    public function reportHeaders($report_type, $data)
+    public function reportHeaders($data)
     {
         $this->convertHeaderFields = [
             // Jobs Module
@@ -355,38 +369,40 @@ class MailgunZohoController extends Controller {
     /**
      * Compare Site Data
      */
-    public function compareSiteData($site, $data, $head)
+    public function compareSiteData($site, $data, $head, $fields, $datefields, $exclude_update, $new_site)
     {
-        $diff = "[$site->id] $site->name\n";
+        $diff = "[$site->id] $site->name $new_site\n";
 
-        $fields = ['name', 'address', 'suburb', 'postcode', 'consultant_name', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
-        $fields = ['address', 'suburb', 'postcode', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
-        $dates = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
+        //$fields = ['address', 'suburb', 'postcode', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
+        //$dates = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
 
 
         foreach ($fields as $field) {
+            $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
                 // Convert Client Phones into AU phone format + remove A-Z chars
                 if (in_array($field, ['client_phone', 'client_phone2']) && $data[$head[$field]]) {
                     $data[$head[$field]] = format_phone('au', $data[$head[$field]]);
                 }
+
                 // both SWS + Zoho have data
                 if ($site->{$field} && $data[$head[$field]] && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
-                    $diff .= " &nbsp; $field: " . $site->{$field} . " <= " . $data[$head[$field]] . "\n";
-                    $this->diffFields[$site->id] = "$field: $site->{$field} <- " . $data[$head[$field]];
+                    $diff .= "  $field: " . $site->{$field} . " <= " . $data[$head[$field]] . "$excluded\n";
+                    $this->diffFields["$site->id:$field"] = $site->{$field}." <= " . $data[$head[$field]];
                 } // only SWS has data
                 else if ($site->{$field} && !$data[$head[$field]]) {
-                    $diff .= " &nbsp; $field: " . $site->{$field} . " -- {empty}\n";
-                    $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
+                    //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
+                    $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    $diff .= " &nbsp; $field: {empty} <=" . $data[$head[$field]] . "\n";
-                    $this->blankSWSFields[$site->id] = "$field: " . $data[$head[$field]];
+                    $diff .= "  $field: {empty} <= " . $data[$head[$field]] . "$excluded\n";
+                    $this->blankSWSFields["$site->id:$field"] = $data[$head[$field]];
                 }
             }
         }
 
-        foreach ($dates as $field) {
+        foreach ($datefields as $field) {
+            $excluded = (in_array($field, $exclude_update)) ? ' ** Excluded Field - NOT IMPORTED **' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
                 if ($data[$head[$field]]) {
                     list($d, $m, $y) = explode('/', $data[$head[$field]]);
@@ -396,28 +412,26 @@ class MailgunZohoController extends Controller {
 
                 // both SWS + Zoho have data   // j/n/y
                 if ($site->{$field} && $data[$head[$field]] && $site->{$field}->format('d/m/Y') != $date_with_leading_zeros) {
-                    $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " <= $date_with_leading_zeros\n";
-                    $this->diffFields[$site->id] = "$field: $site->{$field} <= $date_with_leading_zeros";
+                    $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " <= $date_with_leading_zeros $excluded\n";
+                    $this->diffFields["$site->id:$field"] = "$site->{$field} <= $date_with_leading_zeros";
                 } // only SWS has data
                 else if ($site->{$field} && $site->{$field}->format('d/m/Y') != $date_with_leading_zeros) {
-                    $diff .= " &nbsp; $field: " . $site->{$field}->format('d/m/Y') . " -- {empty}\n";
-                    $this->blankZohoFields[$site->id] = "$field: $site->{$field}";
+                    //$diff .= "  $field: " . $site->{$field}->format('d/m/Y') . " -- {empty}\n";
+                    $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
                 else if (!$site->{$field} && $data[$head[$field]]) {
-                    $diff .= " &nbsp; $field: {empty}  <= $date_with_leading_zeros\n";
-                    $this->blankSWSFields[$site->id] = "$field: " . $data[$head[$field]];
+                    $diff .= "  $field: {empty}  <= $date_with_leading_zeros $excluded\n";
+                    $this->blankSWSFields["$site->id:$field"] = $data[$head[$field]];
                 }
             }
         }
 
         /*
         // Y / N
-        $site->construction = $data[$head['construction']];
-        $site->hbcf = $data[$head['hbcf']];
         $site->engineering = $data[$head['engineering']];
         */
 
-        if ($diff != "[$site->id] $site->name\n") {
+        if ($diff != "[$site->id] $site->name $new_site\n") {
             $this->siteDiffs[$site->id] = "$site->name";
 
             return "------------------------------------------------------\n$diff";
@@ -425,60 +439,6 @@ class MailgunZohoController extends Controller {
 
         return '';
     }
-
-    /**
-     * Compare Site Data
-     */
-    /*
-    public function compareSiteDataOld($comparion, $site, $data, $head)
-    {
-        $diff = "[$site->id] $site->code-$site->name<br>";
-
-        $fields = ['name', 'address', 'suburb', 'postcode', 'consultant_name', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
-        $dates = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
-
-        foreach ($fields as $field) {
-            if ($field == 'name') {
-                $name = "$site->code-$site->name-$site->suburb";
-                if (isset($head[$field]) && strtoupper($name) != strtoupper($data[$head[$field]])) {
-                    $this->countDiffSname ++;
-                    $diff .= " &nbsp; $field:" . $site->code . "-" . $site->{$field} . " [" . $data[$head[$field]] . "]<br>";
-                }
-            } else if ($field == 'address' && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
-                $this->countDiffAddr ++;
-                $diff .= " &nbsp; $field:" . $site->{$field} . " [" . $data[$head[$field]] . "]<br>";
-            } else if ($field == 'consultant_name' && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
-                $this->countDiffCons ++;
-                //$diff .= " &nbsp; $field:" . $site->{$field} . " [" . $data[$head[$field]] . "]<br>";
-            } else if (isset($head[$field]) && strtoupper($site->{$field}) != strtoupper($data[$head[$field]]))
-                $diff .= " &nbsp; $field:" . $site->{$field} . " [" . $data[$head[$field]] . "]<br>";
-
-        }
-
-        foreach ($dates as $field) {
-            if (isset($head[$field])) {
-                if ($site->{$field} && $data[$head[$field]] && $site->{$field}->format('j/n/y') != $data[$head[$field]]) {  // both SWS + Zoho have data
-                    $diff .= "<b> &nbsp; $field:" . $site->{$field}->format('j/n/y') . " [" . $data[$head[$field]] . "]</b><br>";
-                    $this->countDiffDates ++;
-                } else if ($site->{$field} && $site->{$field}->format('j/n/y') != $data[$head[$field]]) {  // only SWS has data
-                    $diff .= " &nbsp; $field:" . $site->{$field}->format('j/n/y') . " [" . $data[$head[$field]] . "]<br>";
-                    $this->countBlankZohoDates ++;
-                } else if (!$site->{$field} && $data[$head[$field]]) { // only Zoho has data
-                    //$diff .= " &nbsp; $field:{empty} [".$data[$head[$field]]."]<br>";
-                    $this->countBlankSwsDates ++;
-                }
-            }
-        }
-
-        if ($diff != "[$site->id] $site->code-$site->name<br>") {
-            $this->siteDiffs[$site->id] = "$site->code-$site->name";
-
-            return "------------------------------------------------------<br>$diff";
-        }
-
-        return '';
-    }*/
-
 
     /**
      * Retrieve file from Mailgun Storage

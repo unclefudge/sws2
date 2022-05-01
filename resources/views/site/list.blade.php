@@ -47,7 +47,6 @@
                                 @if (Auth::user()->company->subscription ||  Auth::user()->company_id == '96')
                                     <th width="5%"> #</th>
                                 @endif
-                                <th width="5%"> Job #</th>
                                 {{--}}<th> Suburb</th> --}}
                                 <th> Site Name</th>
                                 {{-- CapeCod + JonSpin --}}
@@ -96,8 +95,6 @@
         },
         columns: [
                 @if (Auth::user()->company->subscription ||  Auth::user()->company_id == '96'){data: 'id', name: 'sites.id', orderable: false, searchable: false}, @endif
-            {data: 'code', name: 'code'},
-            //{data: 'suburb', name: 'suburb'},
             {data: 'name', name: 'name'},
                 @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96') {data: 'client_phone', name: 'client_phone'}, @endif
             {

@@ -133,7 +133,7 @@ class ClientPlannerEmailController extends Controller {
         $email_request['sent_to'] = ($email2) ? "$email1; $email2" : $email1;
         $email_request['sent_cc'] = "construct@capecod.com.au";
         $email_request['sent_bcc'] = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        $email_request['subject'] = $site->code . '-' . $site->name . ' Weekly Planner';
+        $email_request['subject'] = $site->name . ': Weekly Planner';
         $email_request['status'] = 1;
 
         // Create Email
@@ -206,7 +206,7 @@ class ClientPlannerEmailController extends Controller {
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id);
-        $filename = "Client Site Plan ($site->code-$site->name) " . Carbon::now()->format('YmdHis') . '.pdf';
+        $filename = "$site->name: Weekly Planner " . Carbon::now()->format('YmdHis') . '.pdf';
         $output_file = public_path("$dir/$filename");
         touch($output_file);
 

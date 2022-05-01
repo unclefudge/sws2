@@ -228,9 +228,19 @@ class CompanySignUpController extends Controller {
         if (!(Auth::user()->allowed2('edit.company', $company) && $company->status == 2))
             return view('errors/404');
 
+        // Delete all users + uploaded user docs linked to company
         if (count($company->staff))
-            foreach ($company->staff as $user)
+            foreach ($company->staff as $user) {
+                foreach($user->userDocs() as $doc) {
+                    // Delete any User Docs
+                    if ($doc->attachment && file_exists(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment)))
+                        unlink(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment));
+
+                    $doc->closeToDo();
+                    $doc->delete();
+                }
                 $user->delete();
+            }
 
         $company->delete();
 

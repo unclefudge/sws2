@@ -496,7 +496,7 @@ trait UserRolesPermissions {
         if ($permission == 'checkin') {
             $permission = 'view.site.list';
             if ($this->company->parent_company && $this->company->reportsTo()->addon('planner')) {
-                app('log')->debug("=== AuthSites ===");
+                //app('log')->debug("=== AuthSites ===");
                 // Site Checkin and either Company or Parent Company has Planner
                 $sites_planned = [];
                 foreach ($this->company->sitesPlannedFor(1, Carbon::today(), Carbon::today()) as $site) {

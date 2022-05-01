@@ -676,6 +676,7 @@ class Site extends Model {
      */
     public function hasAttribute($attr)
     {
+        return property_exists($this, $attr);
         return array_key_exists($attr, $this->attributes);
     }
 
