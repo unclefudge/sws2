@@ -61,6 +61,8 @@ class MailgunZohoController extends Controller {
             app('log')->debug("========= Begin Import ==========");
 
             // Zoho Daily log
+            $dir = '/filebank/log/zoho';
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
             $this->logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
 
             // Delay Queued Job to Verify Import Success/Fail
