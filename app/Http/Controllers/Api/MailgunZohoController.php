@@ -29,15 +29,18 @@ class MailgunZohoController extends Controller {
         app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
-        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
-        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au'];
-        if (!in_array(request('X-Envelope-From'), $valid_senders))
+        //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
+        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
+        if (!in_array(request('X-Envelope-From'), $valid_senders)) {
             app('log')->debug("========= Import Failed ==========");
-            app('log')->debug("Invalid Sender: [".request('X-Envelope-From')."]");
+            app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
+            app('log')->debug($valid_senders);
+
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Invalid email'
             ], 406);
+        }
 
         // Accept only CSV files
         $files = collect(json_decode(request()->input('attachments'), true))
@@ -49,6 +52,7 @@ class MailgunZohoController extends Controller {
         if ($files->count() === 0) {
             app('log')->debug("========= Import Failed ==========");
             app('log')->debug("Missing expected CSV attachment");
+
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Missing expected CSV attachment'
@@ -246,7 +250,7 @@ class MailgunZohoController extends Controller {
                                             $site->{$field} = $newData;
                                             $site->save();
                                         } //else
-                                            //$log .= "---- [$site->id] $field:".$site->{$field}." <= [$newData]\n";
+                                        //$log .= "---- [$site->id] $field:".$site->{$field}." <= [$newData]\n";
                                     }
                                 }
                             } else {
@@ -393,7 +397,7 @@ class MailgunZohoController extends Controller {
                 // both SWS + Zoho have data
                 if ($site->{$field} && $data[$head[$field]] && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
                     $diff .= "  $field: " . $site->{$field} . " <= " . $data[$head[$field]] . "$excluded\n";
-                    $this->diffFields["$site->id:$field"] = $site->{$field}." <= " . $data[$head[$field]];
+                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= " . $data[$head[$field]];
                 } // only SWS has data
                 else if ($site->{$field} && !$data[$head[$field]]) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
