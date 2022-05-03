@@ -674,11 +674,11 @@ class Site extends Model {
      * @param $attr
      * @return bool
      */
-    public function hasAttribute($attr)
+    /*public function hasAttribute($attr)
     {
         return property_exists($this, $attr);
         return array_key_exists($attr, $this->attributes);
-    }
+    }*/
 
     /**
      * Set the resolved_date  (mutator)

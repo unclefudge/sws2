@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 
 class MailgunZohoController extends Controller {
 
+    public $debug = true;
     public $countSites = 0;
     public $siteDiffs = [];
     public $blankZohoFields = [];
@@ -25,16 +26,16 @@ class MailgunZohoController extends Controller {
 
     public function store(Request $request)
     {
-        app('log')->debug("========= Zoho Import ==========");
-        app('log')->debug(request()->all());
+        if ($this->debug) app('log')->debug("========= Zoho Import ==========");
+        if ($this->debug)app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
         if (!in_array(request('X-Envelope-From'), $valid_senders)) {
-            app('log')->debug("========= Import Failed ==========");
-            app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
-            app('log')->debug($valid_senders);
+            if ($this->debug) app('log')->debug("========= Import Failed ==========");
+            if ($this->debug) app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
+            if ($this->debug) app('log')->debug($valid_senders);
 
             return response()->json([
                 'status'  => 'error',
@@ -50,15 +51,15 @@ class MailgunZohoController extends Controller {
 
         // If no attachment return 406 (Not Acceptable) to Mailgun to prevent retries
         if ($files->count() === 0) {
-            app('log')->debug("========= Import Failed ==========");
-            app('log')->debug("Missing expected CSV attachment");
+            if ($this->debug) app('log')->debug("========= Import Failed ==========");
+            if ($this->debug) app('log')->debug("Missing expected CSV attachment");
 
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Missing expected CSV attachment'
             ], 406);
         } else {
-            app('log')->debug("========= Begin Import ==========");
+            if ($this->debug) app('log')->debug("========= Begin Import ==========");
 
             // Zoho Daily log
             $dir = '/filebank/log/zoho';
@@ -84,7 +85,7 @@ class MailgunZohoController extends Controller {
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
-                app('log')->debug("Saving file: $saved_file");
+                if ($this->debug) app('log')->debug("Saving file: $saved_file");
 
                 $result = $this->parseFile($saved_file);
             }
@@ -114,7 +115,7 @@ class MailgunZohoController extends Controller {
         //$file = public_path('filebank/tmp/zoho/Contacts_for_Fudge.csv');
         //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
         //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
-        app('log')->debug("Parsing file: $file");
+        if ($this->debug) app('log')->debug("Parsing file: $file");
 
 
         $save_enabled = true;
@@ -181,10 +182,10 @@ class MailgunZohoController extends Controller {
                     if (!$site && $report_type == 'Jobs') {
                         // Create Site + Equipment Location
                         if ($save_enabled) {
-                            $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']]]);
+                            $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
                             $location = EquipmentLocation::where('site_id', $site->id)->first();
                             if (!$location)
-                                $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => 1, 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
+                                $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => "1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
                         }
                         $newSites[$data[$head['name']]] = ($job_stage) ? $job_stage : $data[$head['address']];
                         //$log .= "New: " . $data[$head['name']] . " (" . $data[$head['address']] . ", " . $data[$head['suburb']] .")\n";

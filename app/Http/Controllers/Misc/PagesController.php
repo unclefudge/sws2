@@ -162,21 +162,78 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        $titles = ['MR', 'MRS', 'DR', 'MS'];
         $sites = Site::where('company_id', 3)->get();
         foreach ($sites as $site) {
-            $name = $site->code . '-' . ucwords(strtolower($site->name)) . '-' . ucwords(strtolower($site->suburb));
-            $name = preg_replace_callback('/\.\s*\K\w/',
-                function($m) {
-                    return strtoupper($m[0]);
-                },
-                $name);
-            echo "$site->name  =>  $name<br>";
-            echo "$site->suburb  =>  ". ucwords(strtolower($site->suburb)) ."<br>";
-            echo "$site->address  =>  ". ucwords(strtolower($site->address)) ."<br>";
-            $site->name = $name;
-            $site->suburb = ucwords(strtolower($site->suburb));
-            $site->address = ucwords(strtolower($site->address));
-            $site->save();
+            $one = $two = $rest1 = $rest =null;
+
+            $desc = $site->client_phone_desc;
+            if ($desc) {
+                $str = trim($desc);
+                if (strpos($str, ' ') !== false) {
+                    // Multi word
+                    list($one, $rest) = explode(' ', $desc, 2);
+                    if (strpos($rest, ' ') !== false) {
+                        list($two, $rest2) = explode(' ', $rest, 2);
+                        $rest = $rest2;
+                    } else
+                        $two = $rest1;
+                } else {
+                    // Single word
+                    $one = $str;
+                }
+                if (in_array(strtoupper($one), $titles)) {
+                    $title = ucfirst(strtolower($one));;
+                    $first = $two;
+                    $last = $rest;
+                } else {
+                    $title = null;
+                    $first = $one;
+                    $last = $two;
+                }
+                echo "[$site->id] 1:$site->client_phone_desc  => [$title] [$first] [$last]<br>";
+                $site->client1_title = $title;
+                $site->client1_firstname = $first;
+                $site->client1_lastname = $last;
+                $site->client1_lastname = $last;
+                $site->timestamps = false;
+                $site->save();
+            }
+
+            $desc = $site->client_phone2_desc;
+            if ($desc) {
+                $str = trim($desc);
+                if (strpos($str, ' ') !== false) {
+                    // Multi word
+                    list($one, $rest) = explode(' ', $desc, 2);
+                    if (strpos($rest, ' ') !== false) {
+                        list($two, $rest2) = explode(' ', $rest, 2);
+                        $rest = $rest2;
+                    } else
+                        $two = $rest1;
+                } else {
+                    // Single word
+                    $one = $str;
+                }
+                if (in_array(strtoupper($one), $titles)) {
+                    $title = ucfirst(strtolower($one));;
+                    $first = $two;
+                    $last = $rest;
+                } else {
+                    $title = null;
+                    $first = $one;
+                    $last = $two;
+                }
+                echo "[$site->id] 2:$site->client_phone2_desc  => [$title] [$first] [$last]<br>";
+                $site->client2_title = $title;
+                $site->client2_firstname = $first;
+                $site->client2_lastname = $last;
+                $site->timestamps = false;
+                $site->save();
+            }
+
+
+
         }
 
         //$doc = CompanyDoc::find(113);
