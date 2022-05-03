@@ -196,8 +196,6 @@ class PagesController extends Controller {
                 $site->client1_firstname = $first;
                 $site->client1_lastname = $last;
                 $site->client1_lastname = $last;
-                $site->timestamps = false;
-                $site->save();
             }
 
             $desc = $site->client_phone2_desc;
@@ -228,12 +226,14 @@ class PagesController extends Controller {
                 $site->client2_title = $title;
                 $site->client2_firstname = $first;
                 $site->client2_lastname = $last;
-                $site->timestamps = false;
-                $site->save();
             }
 
-
-
+            $site->client1_mobile = $site->client_phone;
+            $site->client2_mobile = $site->client_phone2;
+            $site->client1_email = $site->client_email;
+            $site->client2_email = $site->client_email2;
+            $site->timestamps = false;
+            $site->save();
         }
 
         //$doc = CompanyDoc::find(113);
