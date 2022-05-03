@@ -705,7 +705,7 @@ class SiteIncidentController extends Controller {
         $incident = SiteIncident::findOrFail($id);
 
         if ($incident) {
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+            $dir = '/filebank/tmp/incident/' . Auth::user()->company_id;
             // Create directory if required
             if (!is_dir(public_path($dir)))
                 mkdir(public_path($dir), 0777, true);
