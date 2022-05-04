@@ -118,7 +118,7 @@ class MailgunZohoController extends Controller {
         if ($this->debug) app('log')->debug("Parsing file: $file");
 
 
-        $save_enabled = false;
+        $save_enabled = true;
         $overwrite_with_blank = false;
         $report_type = '';
         $sites_imported = [];
