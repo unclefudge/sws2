@@ -29,5 +29,12 @@
             </div>
         </div>
         <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-3">Letter intro:</div>
+            <div class="col-xs-9">
+                {!! $site->client_intro !!}
+            </div>
+        </div>
+        <hr class="field-hr">
     </div>
 </div>

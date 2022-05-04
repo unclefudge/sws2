@@ -70,7 +70,8 @@ class MailgunZohoController extends Controller {
             ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(1));
 
             $log = "Zoho Import - " . Carbon::now()->format('d/m/Y') . "\n------------------------------------------\n\n";
-            $bytes_written = File::put($this->logfile, $log);
+            $bytes_written = File::append($this->logfile, $log);
+            //$bytes_written = File::put($this->logfile, $log);
             if ($bytes_written === false) die("Error writing to file");
 
             // Get the attachments
@@ -184,6 +185,7 @@ class MailgunZohoController extends Controller {
                         // Create Site + Equipment Location
                         if ($save_enabled) {
                             $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
+                            $site->supervisors()->sync([136]); // Assigned TO BE ALLOCATED as Supervisor;
                             $location = EquipmentLocation::where('site_id', $site->id)->first();
                             if (!$location)
                                 $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => "1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
