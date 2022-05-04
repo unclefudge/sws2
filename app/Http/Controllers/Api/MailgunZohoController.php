@@ -27,7 +27,7 @@ class MailgunZohoController extends Controller {
     public function store(Request $request)
     {
         if ($this->debug) app('log')->debug("========= Zoho Import ==========");
-        if ($this->debug)app('log')->debug(request()->all());
+        if ($this->debug) app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
@@ -118,7 +118,7 @@ class MailgunZohoController extends Controller {
         if ($this->debug) app('log')->debug("Parsing file: $file");
 
 
-        $save_enabled = true;
+        $save_enabled = false;
         $overwrite_with_blank = false;
         $report_type = '';
         $sites_imported = [];
@@ -138,7 +138,8 @@ class MailgunZohoController extends Controller {
                 //
                 // Headers
                 //
-                if ($row == 1) {
+                if (in_array($row, ['1', '3', '4', '5', '6'])) continue; // Non required header lines
+                if ($row == 2) {
                     list($report_type, $crap) = explode(' ', $data[0]);
                     if (!$report_type) {
                         $log .= "Invalid format line 1 for Zoho import file $file\n";
@@ -149,15 +150,15 @@ class MailgunZohoController extends Controller {
 
                         return false;
                     }
-                    if ($report_type != 'Jobs') {
-                        echo "Report type not Jobs<br>";
-                        break;
-                    }
+                    //if ($report_type != 'Jobs') {
+                    //    echo "Report type not Jobs<br>";
+                    //    break;
+                    //}
 
                     $log .= "Report type: $report_type\n";
                     continue;
                 }
-                if ($row == 2) {
+                if ($row == 7) {
                     $head = $this->reportHeaders($data);
                     continue;
                 }
@@ -192,20 +193,23 @@ class MailgunZohoController extends Controller {
                         $new_site = ' ** New Site **';
                     }
 
-                    if ($site && $report_type == 'Jobs') {
+
+                    if ($site) {
                         $sites_imported[] = $site->id;
 
                         $fields = [
                             'name', 'address', 'suburb', 'postcode', 'consultant_name',
-                            'client_phone_desc', 'client_phone', 'client_email', 'client_phone2_desc', 'client_phone2', 'client_email2', 'client_intro'];
+                            'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
+                            'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                         $datefields = [
                             'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
                             'engineering_cert', 'construction_rcvd', 'hbcf_start'];
+                        $yesno_fields = ['Eng FJ Certified?'];
                         $exclude_update = ['completion_signed'];
-                        $all_fields = array_merge($fields, $datefields, $exclude_update);
+                        $all_fields = array_merge($fields, $datefields, $yesno_fields, $exclude_update);
 
 
-                        $diffs = $this->compareSiteData($site, $data, $head, $fields, $datefields, $exclude_update, $new_site);
+                        $diffs = $this->compareSiteData($site, $data, $head, $fields, $datefields, $yesno_fields, $exclude_update, $new_site);
                         if ($diffs)
                             $differences .= $diffs;
 
@@ -214,14 +218,14 @@ class MailgunZohoController extends Controller {
                         // update Site record
                         //
                         foreach ($head as $field => $col) {
-                            //$log .= "f[$field] c[$col]\n";
                             // ensure Site record has the given field as Zoho uses extra
                             //if ($site->hasAttribute($field)) {
                             if (in_array($field, $all_fields)) {
-                                //$log .= "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [" . $data[$col] . "]\n";
-                                if ($site->{$field} && empty($data[$col])) {
+                                $zoho_data = ($data[$col] == '-') ? '' : $data[$col]; // Exclude '-' blank data
+                                //$log .= "[$site->id] $site->name :$field: [" . $site->{$field} . "] -  [$zoho_data]\n";
+                                if ($site->{$field} && empty($zoho_data)) {
                                     // Data present so don't override with blank Zoho data (unless overwrite set)
-                                    //$log .= "*$field: [" . $site->{$field} . "] [" . $data[$col] . "]\n";
+                                    //$log .= "*$field: [" . $site->{$field} . "] [$zoho_data]\n";
                                     if ($field == 'consultant_name') { // Convert consultant name to initials for blank checking
                                         if (empty($data[$head['consultant_initials']]))
                                             $blankZohoFields["$site->id:$field"] = $site->{$field};
@@ -234,17 +238,17 @@ class MailgunZohoController extends Controller {
                                         $site->save();  // Save imported data
                                     }
 
-                                } elseif (!empty($data[$col])) {
+                                } elseif (!empty($zoho_data)) {
                                     $newData = '';
                                     if (in_array($field, $datefields)) {
-                                        list($d, $m, $y) = explode('/', $data[$col]);
+                                        list($d, $m, $y) = explode('/', $zoho_data);
                                         $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                                         //if ($site->{$field})
                                         //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
                                         $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
 
                                     } else
-                                        $newData = $data[$col];
+                                        $newData = $zoho_data;
 
                                     // Save imported data
                                     if ($save_enabled && !in_array($field, $exclude_update)) {
@@ -330,39 +334,43 @@ class MailgunZohoController extends Controller {
     {
         $this->convertHeaderFields = [
             // Jobs Module
-            'ACCOUNTID'          => 'zoho_id',
-            'Job Number'         => 'code',
-            'ASC:Job Number'     => 'code',
-            'Job Name'           => 'name',
+            'Record id'           => 'zoho_id',
+            'Job Number'          => 'code',
+            'ASC:Job Number'      => 'code',
+            'Job Name'            => 'name',
             // Address
-            'Street'             => 'address',
-            'Suburb'             => 'suburb',
-            'Post Code'          => 'postcode',
+            'Street'              => 'address',
+            'Suburb'              => 'suburb',
+            'Post Code'           => 'postcode',
             // Supervisor
-            'Super'              => 'super_initials',
-            'Super Name'         => 'super_name',
+            'Super'               => 'super_initials',
+            'Super Name'          => 'super_name',
             // Dates
-            'Approval Date'      => 'council_approval',
-            'CX Sent Date'       => 'contract_sent',
-            'CX Rcvd Date'       => 'contract_received',
-            'CX Sign Date'       => 'contract_signed',
-            'CX Deposit Date'    => 'deposit_paid',
-            'Prac Signed'        => 'completion_signed',
-            'Eng Certified'      => 'engineering_cert',
-            'CC Rcvd Date'       => 'construction_rcvd',
-            'HBCF Start Date'    => 'hbcf_start',
-            'Design Cons'        => 'consultant_initials',
-            'Design Cons (user)' => 'consultant_name',
-            'Job Stage'          => 'job_stage',
+            'Approval Date'       => 'council_approval',
+            'CX Sent Date'        => 'contract_sent',
+            'CX Rcvd Date'        => 'contract_received',
+            'CX Sign Date'        => 'contract_signed',
+            'CX Deposit Date'     => 'deposit_paid',
+            'Prac Signed'         => 'completion_signed',
+            'Eng Certified'       => 'engineering_cert',
+            'CC Rcvd Date'        => 'construction_rcvd',
+            'HBCF Start Date'     => 'hbcf_start',
+            'Design Cons'         => 'consultant_initials',
+            'Design Cons (user)'  => 'consultant_name',
+            'Job Stage'           => 'job_stage',
+            'Eng FJ Certified?'   => 'engineering',
 
             // Contacts Module
-            'CONTACTID'          => 'contact_id',
-            'First Name 1'       => 'client_phone_desc',
-            'Mobile'             => 'client_phone',
-            'Email'              => 'client_email',
-            'First Name 2'       => 'client_phone2_desc',
-            'Mobile 2'           => 'client_phone2',
-            'Email 2'            => 'client_email2'
+            'Job Name (Job Name)' => 'name',
+            'First Name 1'        => 'client1_firstname',
+            'Last Name 1'         => 'client1_lastname',
+            'Mobile'              => 'client1_mobile',
+            'Email'               => 'client1_email',
+            'First Name 2'        => 'client2_firstname',
+            'Last Name 2'         => 'client2_lastname',
+            'Mobile 2'            => 'client2_mobile',
+            'Email 2'             => 'client2_email',
+            'Letter Intro'        => 'client_intro'
         ];
 
         $headers = [];
@@ -381,7 +389,7 @@ class MailgunZohoController extends Controller {
     /**
      * Compare Site Data
      */
-    public function compareSiteData($site, $data, $head, $fields, $datefields, $exclude_update, $new_site)
+    public function compareSiteData($site, $data, $head, $fields, $datefields, $yesno_fields, $exclude_update, $new_site)
     {
         $diff = "[$site->id] $site->name $new_site\n";
 
@@ -392,23 +400,20 @@ class MailgunZohoController extends Controller {
         foreach ($fields as $field) {
             $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
-                // Convert Client Phones into AU phone format + remove A-Z chars
-                if (in_array($field, ['client_phone', 'client_phone2']) && $data[$head[$field]]) {
-                    $data[$head[$field]] = format_phone('au', $data[$head[$field]]);
-                }
+                $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
 
                 // both SWS + Zoho have data
-                if ($site->{$field} && $data[$head[$field]] && strtoupper($site->{$field}) != strtoupper($data[$head[$field]])) {
-                    $diff .= "  $field: " . $site->{$field} . " <= " . $data[$head[$field]] . "$excluded\n";
-                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= " . $data[$head[$field]];
+                if ($site->{$field} && $zoho_data && strtoupper($site->{$field}) != strtoupper($zoho_data)) {
+                    $diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
+                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
                 } // only SWS has data
-                else if ($site->{$field} && !$data[$head[$field]]) {
+                else if ($site->{$field} && !$zoho_data) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
-                else if (!$site->{$field} && $data[$head[$field]]) {
-                    $diff .= "  $field: {empty} <= " . $data[$head[$field]] . "$excluded\n";
-                    $this->blankSWSFields["$site->id:$field"] = $data[$head[$field]];
+                else if (!$site->{$field} && $zoho_data) {
+                    $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
+                    $this->blankSWSFields["$site->id:$field"] = $zoho_data;
                 }
             }
         }
@@ -416,14 +421,16 @@ class MailgunZohoController extends Controller {
         foreach ($datefields as $field) {
             $excluded = (in_array($field, $exclude_update)) ? ' ** Excluded Field - NOT IMPORTED **' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
-                if ($data[$head[$field]]) {
-                    list($d, $m, $y) = explode('/', $data[$head[$field]]);
+                $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
+
+                if ($zoho_data) {
+                    list($d, $m, $y) = explode('/', $zoho_data);
                     $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                 } else
                     $date_with_leading_zeros = '';
 
                 // both SWS + Zoho have data   // j/n/y
-                if ($site->{$field} && $data[$head[$field]] && $site->{$field}->format('d/m/Y') != $date_with_leading_zeros) {
+                if ($site->{$field} && $zoho_data && $site->{$field}->format('d/m/Y') != $date_with_leading_zeros) {
                     $diff .= "* $field: " . $site->{$field}->format('d/m/Y') . " <= $date_with_leading_zeros $excluded\n";
                     $this->diffFields["$site->id:$field"] = "$site->{$field} <= $date_with_leading_zeros";
                 } // only SWS has data
@@ -431,9 +438,9 @@ class MailgunZohoController extends Controller {
                     //$diff .= "  $field: " . $site->{$field}->format('d/m/Y') . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
-                else if (!$site->{$field} && $data[$head[$field]]) {
+                else if (!$site->{$field} && $zoho_data) {
                     $diff .= "  $field: {empty}  <= $date_with_leading_zeros $excluded\n";
-                    $this->blankSWSFields["$site->id:$field"] = $data[$head[$field]];
+                    $this->blankSWSFields["$site->id:$field"] = $zoho_data;
                 }
             }
         }

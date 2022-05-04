@@ -23,7 +23,10 @@ class Site extends Model {
     protected $fillable = [
         'name', 'code', 'slug',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country',
-        'photo', 'notes', 'client_id', 'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
+        'photo', 'notes', 'client_id', 'client_intro',
+        'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
+        'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email',
+        'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
         'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'construction_rcvd', 'hbcf_start', 'consultant_name',
         'completion_signed', 'completed', 'status', 'company_id', 'created_by', 'updated_by'];
     protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start',];
@@ -743,6 +746,7 @@ class Site extends Model {
 
             return $client;
         }
+
         return $this->name;
     }
 
@@ -759,6 +763,7 @@ class Site extends Model {
 
             return "$client-$suburb";
         }
+
         return $this->name;
     }
 
@@ -822,7 +827,7 @@ class Site extends Model {
 
         if ($this->attributes['address'])
             $string = $this->attributes['address'] . '<br>';
-            //$string = strtoupper($this->attributes['address']) . '<br>';
+        //$string = strtoupper($this->attributes['address']) . '<br>';
 
         $string .= $this->attributes['suburb'];
         //$string .= strtoupper($this->attributes['suburb']);
@@ -837,6 +842,44 @@ class Site extends Model {
     }
 
     /**
+     * Get the Client 1 Full Name with title  (getter)
+     */
+    public function getClient1NameAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['client1_title'])
+            $string .= $this->attributes['client1_title'] . ' ';
+
+        if ($this->attributes['client1_firstname'])
+            $string .= $this->attributes['client1_firstname'] . ' ';
+
+        if ($this->attributes['client1_lastname'])
+            $string .= $this->attributes['client1_lastname'];
+
+        return trim($string);
+    }
+
+    /**
+     * Get the Client 2 Full Name with title  (getter)
+     */
+    public function getClient2NameAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['client2_title'])
+            $string .= $this->attributes['client2_title'] . ' ';
+
+        if ($this->attributes['client2_firstname'])
+            $string .= $this->attributes['client2_firstname'] . ' ';
+
+        if ($this->attributes['client2_lastname'])
+            $string .= $this->attributes['client2_lastname'];
+
+        return trim($string);
+    }
+
+    /**
      * Get the Status Text Both  (getter)
      */
     public function getStatusTextAttribute()
@@ -848,13 +891,13 @@ class Site extends Model {
         if ($this->status == 0)
             return '<span class="font-red">COMPLETED</span>';
 
-        if ($this->status == -1)
+        if ($this->status == - 1)
             return '<span class="font-yellow">UPCOMING</span>';
 
         if ($this->status == 2)
             return '<span class="font-yellow">MAINTENANCE</span>';
 
-        if ($this->status == -2)
+        if ($this->status == - 2)
             return '<span class="font-red">CANCELLED</span>';
 
     }

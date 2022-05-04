@@ -19,16 +19,19 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 // Mailgun Routes
-/*Route::group([
+/*
+Route::group([
     'prefix' => 'mailgun',
     'middleware' => ['mailgun.webhook'],
 ],function () {
     Route::post('zoho', 'Api\MailgunZohoController@store');
 });*/
 
+
 Route::group([
     'prefix' => 'mailgun',
 ],function () {
     Route::post('zoho', 'Api\MailgunZohoController@store');
 });
+
 

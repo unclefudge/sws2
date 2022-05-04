@@ -162,6 +162,10 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        /*
+
+        // Update Old Single Line Client Name into Title-First-Last fields
+
         $titles = ['MR', 'MRS', 'DR', 'MS'];
         $sites = Site::where('company_id', 3)->get();
         foreach ($sites as $site) {
@@ -235,6 +239,7 @@ class PagesController extends Controller {
             $site->timestamps = false;
             $site->save();
         }
+        */
 
         //$doc = CompanyDoc::find(113);
         //$doc->emailRenewal(['fudge@jordan.net.au']);
