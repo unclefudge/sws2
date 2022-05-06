@@ -70,7 +70,7 @@
                             <div id="multifile-div">
                                 <h4>Photos / Documents</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                @if(Auth::user()->allowed2('add.site.inspection'))
+                                @if(Auth::user()->allowed2('add.site.scaffold.handover'))
                                     <div class="note note-warning">
                                         Multiple documents/photos/images can be uploaded with this scaffold certificate.
                                         <ul>

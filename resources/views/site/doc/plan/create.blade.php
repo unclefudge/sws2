@@ -153,7 +153,7 @@
         /* Bootstrap Fileinput */
         $("#singlefile").fileinput({
             showUpload: false,
-            allowedFileExtensions: ["pdf"],
+            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
             browseClass: "btn blue",
             browseLabel: "Browse",
             browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
@@ -167,7 +167,7 @@
         $("#multifile").fileinput({
             uploadUrl: "/site/doc/upload/", // server upload action
             uploadAsync: true,
-            allowedFileExtensions: ["pdf"],
+            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
             browseClass: "btn blue",
             browseLabel: "Browse",
             browseIcon: "<i class=\"fa fa-folder-open\"></i> ",

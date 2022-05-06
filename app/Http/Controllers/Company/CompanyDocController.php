@@ -711,7 +711,7 @@ class CompanyDocController extends Controller {
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/risk/{{$attachment}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('id', function ($doc) {
-                return '<div class="text-center"><a href="/filebank/site/' . $doc->site_id . '/plan/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>';
+                return '<div class="text-center"><a href="/filebank/site/' . $doc->site_id . '/plan/' . $doc->attachment . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
             })
             ->make(true);
 

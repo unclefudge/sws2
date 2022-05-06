@@ -192,7 +192,7 @@ class SiteController extends Controller {
         $site = Site::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site', $site))
+        if (!Auth::user()->allowed2('edit.site.zoho.fields', $site))
             return view('errors/404');
 
         $site_request = request()->all();

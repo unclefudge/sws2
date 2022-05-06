@@ -364,7 +364,7 @@ class SiteDocController extends Controller {
             ->where('status', 1);
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>')
             ->rawColumns(['id', 'action'])
             ->make(true);
 

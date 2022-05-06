@@ -143,7 +143,7 @@ class MailgunZohoController extends Controller {
                 if ($row == 2) {
                     list($report_type, $crap) = explode(' ', $data[0]);
                     if (!$report_type) {
-                        $log .= "Invalid format line 1 for Zoho import file $file\n";
+                        $log .= "Invalid format line 2 for Zoho import file $file\n";
                         $bytes_written = File::append($this->logfile, $log);
                         if ($bytes_written === false) die("Error writing to file");
 

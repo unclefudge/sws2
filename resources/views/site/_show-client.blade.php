@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Client Details</span>
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.site', $site))
+            @if (Auth::user()->allowed2('edit.site.zoho.fields', $site))
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('client')">Edit</button>
             @endif
         </div>
