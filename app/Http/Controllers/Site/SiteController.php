@@ -295,17 +295,16 @@ class SiteController extends Controller {
             })
             ->editColumn('client_phone', function ($site) {
                 $string = '';
-                if ($site->client_phone) {
-                    $string = $site->client_phone;
-                    if ($site->client_phone_desc)
-                        $string = $site->client_phone . ' ' . $site->client_phone_desc;
+                if ($site->client1_mobile) {
+                    $string = $site->client1_mobile;
+                    if ($site->client1_firstname)
+                        $string = $site->client1_mobile . ' ' . $site->client1_firstname;
                 }
-                if ($site->client_phone2) {
-                    $string .= '<br>' . $site->client_phone2;
-                    if ($site->client_phone2_desc)
-                        $string .= ' ' . $site->client_phone2_desc;
+                if ($site->client2_mobile) {
+                    $string = $site->client2_mobile;
+                    if ($site->client2_firstname)
+                        $string = $site->client2_mobile . ' ' . $site->client2_firstname;
                 }
-
                 return $string;
             })
             ->addColumn('supervisor', function ($site) {
@@ -339,15 +338,15 @@ class SiteController extends Controller {
             //})
             ->editColumn('client_phone', function ($site) {
                 $string = '';
-                if ($site->client_phone) {
-                    $string = $site->client_phone;
-                    if ($site->client_phone_desc)
-                        $string = $site->client_phone . ' ' . $site->client_phone_desc;
+                if ($site->client1_mobile) {
+                    $string = $site->client1_mobile;
+                    if ($site->client1_firstname)
+                        $string = $site->client1_mobile . ' ' . $site->client1_firstname;
                 }
-                if ($site->client_phone2) {
-                    $string .= '<br>' . $site->client_phone2;
-                    if ($site->client_phone2_desc)
-                        $string .= ' ' . $site->client_phone2_desc;
+                if ($site->client2_mobile) {
+                    $string = $site->client2_mobile;
+                    if ($site->client2_firstname)
+                        $string = $site->client2_mobile . ' ' . $site->client2_firstname;
                 }
 
                 return $string;

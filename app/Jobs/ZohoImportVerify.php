@@ -21,16 +21,17 @@ class ZohoImportVerify implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $logfile;
+    protected $logfile, $report_type;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($logfile)
+    public function __construct($logfile, $report_type)
     {
         $this->logfile = $logfile;
+        $this->report_type = $report_type;
     }
 
     /**
@@ -41,7 +42,7 @@ class ZohoImportVerify implements ShouldQueue
     public function handle()
     {
         //app('log')->debug("Log:$this->logfile");
-        if (strpos(file_get_contents($this->logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false) {
+        if (strpos(file_get_contents($this->logfile), "ALL DONE - ZOHO IMPORT ".strtoupper($this->report_type)." COMPLETE") !== false) {
             //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         } else {
             Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed(''));
