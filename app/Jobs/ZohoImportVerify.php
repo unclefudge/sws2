@@ -45,7 +45,7 @@ class ZohoImportVerify implements ShouldQueue
         if (strpos(file_get_contents($this->logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false) {
             //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         } else {
-            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed(''));
+            //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed(''));
         }
     }
 }

@@ -67,7 +67,7 @@ class MailgunZohoController extends Controller {
             $this->logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
 
             // Delay Queued Job to Verify Import Success/Fail
-            ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(5));
+            ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
 
             $log = "Zoho Import - " . Carbon::now()->format('d/m/Y') . "\n------------------------------------------\n\n";
             $bytes_written = File::append($this->logfile, $log);
