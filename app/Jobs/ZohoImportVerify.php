@@ -28,10 +28,10 @@ class ZohoImportVerify implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($logfile, $report_type)
+    public function __construct($logfile)
     {
         $this->logfile = $logfile;
-        $this->report_type = $report_type;
+        //$this->report_type = $report_type;
     }
 
     /**
@@ -42,7 +42,7 @@ class ZohoImportVerify implements ShouldQueue
     public function handle()
     {
         //app('log')->debug("Log:$this->logfile");
-        if (strpos(file_get_contents($this->logfile), "ALL DONE - ZOHO IMPORT ".strtoupper($this->report_type)." COMPLETE") !== false) {
+        if (strpos(file_get_contents($this->logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false) {
             //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         } else {
             Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed(''));
