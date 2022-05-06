@@ -272,6 +272,15 @@
                                         keep all costs to a minimum.</h6>
                                 </div>
                             </div>
+
+                            @if ($report->trade_notes)
+                                <h4 class="font-green-haze">Cape Code Notes</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
+                                    <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
+                                </div>
+                            @endif
                         </div>
 
                         @if(Auth::user()->allowed2('edit.site.inspection', $report))

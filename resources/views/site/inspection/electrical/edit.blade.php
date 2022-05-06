@@ -100,7 +100,7 @@
                                 </div>
                             </div>
 
-                            <h4 class="font-green-haze">Notes</h4>
+                            <h4 class="font-green-haze">Admin Notes</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
@@ -304,14 +304,27 @@
                                 </div>
 
                                 <!-- Additional -->
-                                <h4 class="font-green-haze">Additional Notes</h4>
+                                <h4 class="font-green-haze">Additional Notes for Client</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
+                                            {!! Form::label('notes', 'Client Notes', ['class' => 'control-label']) !!}
                                             {!! Form::textarea('notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('notes', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional -->
+                                <h4 class="font-green-haze">Additional Notes for Cape Cod</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('trade_notes', $errors) !!}">
+                                            {!! Form::label('trade_notes', 'Cape Cod Notes (private)', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('trade_notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('trade_notes', $errors) !!}
                                         </div>
                                     </div>
                                 </div>

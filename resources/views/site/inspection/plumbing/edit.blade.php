@@ -100,7 +100,7 @@
                                 </div>
                             </div>
 
-                            <h4 class="font-green-haze">Notes</h4>
+                            <h4 class="font-green-haze">Admin Notes</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
@@ -345,12 +345,12 @@
                                 </div>
 
                                 <!-- Comments -->
-                                <h4 class="font-green-haze">Comments</h4>
+                                <h4 class="font-green-haze">Additional Notes for Client</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Additional notes', ['class' => 'control-label']) !!}
+                                            {!! Form::label('notes', 'Client notes', ['class' => 'control-label']) !!}
                                             {!! Form::textarea('notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('notes', $errors) !!}
                                         </div>
@@ -516,6 +516,20 @@
                                     <div class="col-md-12">
                                         <h6>Please note that these remain best estimate until the final position and depth of services are located. Final estimates will be relayed to you at that time for your approval. <br><br>Thank you for your acknowledgment of the above and we will do our best to keep all costs to a minimum.</h6><br></div>
                                 </div>
+
+                                <!-- Additional -->
+                                <h4 class="font-green-haze">Additional Notes for Cape Cod</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('trade_notes', $errors) !!}">
+                                            {!! Form::label('trade_notes', 'Cape Cod Notes (private)', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('trade_notes', null, ['rows' => '10', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('trade_notes', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             </div>
 
                             <div class="form-actions right">

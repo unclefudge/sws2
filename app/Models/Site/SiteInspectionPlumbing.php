@@ -20,7 +20,7 @@ class SiteInspectionPlumbing extends Model {
         'pressure', 'pressure_reduction', 'pressure_cost', 'pressure_notes', 'hammer', 'hammer_notes', 'hotwater_type', 'hotwater_lowered',
         'fuel_type', 'gas_position', 'gas_pipes', 'gas_lines', 'gas_notes', 'existing', 'existing_notes',
         'sewer_cost', 'sewer_allowance', 'sewer_extra', 'sewer_notes',
-        'stormwater_cost', 'stormwater_allowance', 'stormwater_extra', 'stormwater_notes', 'stormwater_detention_type', 'stormwater_detention_notes',
+        'stormwater_cost', 'stormwater_allowance', 'stormwater_extra', 'stormwater_notes', 'stormwater_detention_type', 'stormwater_detention_notes', 'trade_notes',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
