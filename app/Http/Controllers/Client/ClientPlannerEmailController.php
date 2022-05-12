@@ -487,16 +487,10 @@ class ClientPlannerEmailController extends Controller {
         $site = Site::findOrFail($site_id);
 
         if ($site) {
-            // Get last email sent to client for given site
-            $email = ClientPlannerEmail::where('site_id', $site_id)->orderby('updated_at')->first();
-
-            if ($email) {
-                // get details
-            } else {
-                // get details from Site
-
-            }
+            return $site;
         }
+
+        return null;
     }
 
     /**

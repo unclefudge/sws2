@@ -48,14 +48,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email1', $errors) !!}">
                                         {!! Form::label('email1', 'Email 1', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email1', "kirstie@capecod.com.au", ['class' => 'form-control']) !!}
+                                        {!! Form::text('email1', null, ['class' => 'form-control', 'id' => 'email1']) !!}
                                         {!! fieldErrorMessage('email1', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email2', $errors) !!}">
                                         {!! Form::label('email2', 'Email 2', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email2', "rob@capecod.com.au", ['class' => 'form-control']) !!}
+                                        {!! Form::text('email2', null, ['class' => 'form-control', 'id' => 'email2']) !!}
                                         {!! fieldErrorMessage('email2', $errors) !!}
                                     </div>
                                 </div>
@@ -64,7 +64,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('intro', $errors) !!}">
                                         {!! Form::label('intro', 'Letter introdution', ['class' => 'control-label']) !!}
-                                        {!! Form::text('intro', null, ['class' => 'form-control', 'placeholder' => "Name of client to address email to"]) !!}
+                                        {!! Form::text('intro', null, ['class' => 'form-control', 'placeholder' => "Name of client to address email to", 'id' => 'intro']) !!}
                                         {!! fieldErrorMessage('intro', $errors) !!}
                                     </div>
                                 </div>
@@ -210,26 +210,26 @@
 
                 var site_id = $("#site_id").select2("val");
 
-                /*
-                 if (site_id != '') {
-                 $.ajax({
-                 url: '/client/planner/email/createfields/' + site_id,
-                 type: 'GET',
-                 dataType: 'json',
-                 success: function (data) {
-                 var address = '';
-                 address = data.address;
-                 if (data.address != '') address = address + ', ';
-                 if (data.suburb != '') address = address + data.suburb + ', ';
-                 if (data.state != '') address = address + data.state + ' ';
-                 if (data.postcode != '') address = address + data.postcode + ' ';
+                if (site_id != '') {
+                    $.ajax({
+                        url: '/client/planner/email/createfields/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
 
-                 $("#client_address").val(address);
-                 $("#client_name").val(data.name);
-                 //console.log(address);
-                 },
-                 })
-                 }*/
+                            if (data.client1_email != '')
+                                $("#email1").val(data.client1_email);
+
+                            if (data.client2_email != '')
+                                $("#email2").val(data.client2_email);
+
+                            if (data.client_intro != '')
+                                $("#intro").val(data.client_intro);
+
+                            //console.log(data);
+                        },
+                    })
+                }
             }
 
             $(".stockitem").click(function (e) {

@@ -87,7 +87,7 @@
                             </div>
                             <hr>
                             @if ($report->info)
-                                <h4 class="font-green-haze">Notes</h4>
+                                <h4 class="font-green-haze">Admin Notes</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12 ">{!! nl2br($report->info) !!}</div>

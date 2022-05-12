@@ -731,8 +731,8 @@ class SitePlannerExportController extends Controller {
                     'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
                     'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
                     'eng'             => ($site->engineering) ? 'Y' : '-',
-                    'cc'              => ($site->construction) ? 'Y' : '-',
-                    'hbcf'            => ($site->hbcf) ? 'Y' : '-',
+                    'cc'              => ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-',
+                    'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-',
                     'consultant'      => $site->consultant_name,
                 ];
             }
