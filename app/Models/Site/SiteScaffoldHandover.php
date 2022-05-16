@@ -64,6 +64,42 @@ class SiteScaffoldHandover extends Model {
     }
 
     /**
+     * Create ToDoo for Report and assign to given user(s)
+     *//*
+    public function createCertificateToDo($user_list)
+    {
+        $site = Site::findOrFail($this->site_id);
+        $todo_request = [
+            'type'       => 'scaffold handover',
+            'type_id'    => $this->site_id,
+            'name'       => 'Scaffold Handover Certificate for ' . $site->name,
+            'info'       => 'Please complete the Scaffold Handover Certificate for '.$site->name,
+            'priority'   => '1',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => '3',
+        ];
+
+        // Create ToDoo and assign to Site Supervisors
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
+    }*/
+
+    /**
+     * Close any outstanding ToDoo for this Certificate
+     */
+    public function closeToDo()
+    {
+        $todos = Todo::where('type', 'scaffold handover')->where('type_id', $this->id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
+    }
+
+    /**
      * Display records last update_by + date
      *
      * @return string

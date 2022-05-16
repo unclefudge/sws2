@@ -910,17 +910,34 @@ class CronController extends Controller {
         $cc = Company::find(3);
 
         $date = Carbon::now()->format('Y-m-d');
+        $date = "2022-05-18";
         $found_tasks = 0;
 
         // Scafold Up - taskid: 297
-        $tasks = SitePlanner::whereDate('from', '=', $date)->where('task_id', 297)->orderBy('site_id')->get();
+        $platform_up_ids = [24, 220, 297];
+        $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
 
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {
-                $mesg = 'Creating Scaffold Handover Certificate for ' . $task->site->name . "\n" ;
+                if ($task->entity_type == 'c' && $task->company->seniorUsers())
+                $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
+                $mesg .= " - email sent to " . implode("; ", $task->company->seniorUsersEmail()) . "\n" ;
                 echo "$mesg<br>";
                 $log .= "$mesg\n";
-                $report = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
+                $todo_request = [
+                    'type'       => 'scaffold handover',
+                    'type_id'    => $task->site->id,
+                    'name'       => 'Scaffold Handover Certificate for ' . $task->site->name,
+                    'info'       => 'Please complete the Scaffold Handover Certificate for '.$task->site->name,
+                    'priority'   => '1',
+                    'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                    'company_id' => '3',
+                ];
+
+                // Create ToDoo and assign to Site Supervisors
+                $todo = Todo::create($todo_request);
+                $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
+                $todo->emailToDo();
             }
         }
 

@@ -13,9 +13,10 @@ define('TODO_TYPES', ['swms'                  => 'Safe Work Method Statements',
                       'maintenance'           => 'Site Maintenance Requests',
                       'inspection_electrical' => 'Electrical Inspection Reports',
                       'inspection_plumbing'   => 'Plumbing Inspection Reports',
+                      'scaffold handover'     => 'Scaffold Handover Certificate',
                       'incident'              => "Incident Report",
                       'incident prevent'      => "Incident Preventative Action",
-                      'incident witness'       => "Incident Witness",
+                      'incident witness'      => "Incident Witness",
                       'incident review'       => "Incident Review",
                       'user doc'              => 'User Documents']);
 

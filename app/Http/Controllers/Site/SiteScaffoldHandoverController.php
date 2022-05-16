@@ -46,13 +46,15 @@ class SiteScaffoldHandoverController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($site_id = null)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.site.scaffold.handover'))
             return view('errors/404');
 
-        return view('site/scaffold/create');
+        $site = ($site_id) ? Site::findOrFail($site_id) : null;
+
+        return view('site/scaffold/create', compact('site'));
     }
 
     /**

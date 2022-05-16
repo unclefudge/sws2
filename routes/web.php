@@ -372,6 +372,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Scaffold Handover
     Route::get('site/scaffold/handover/dt/list', 'Site\SiteScaffoldHandoverController@getCertificates');
     Route::any('site/scaffold/handover/upload', 'Site\SiteScaffoldHandoverController@uploadAttachment');
+    Route::get('site/scaffold/handover/create/{site_id}', 'Site\SiteScaffoldHandoverController@create');
     Route::any('site/scaffold/handover/{id}/docs', 'Site\SiteScaffoldHandoverController@documents');
     Route::get('site/scaffold/handover/{id}/report', 'Site\SiteScaffoldHandoverController@reportPDF');
     Route::post('site/scaffold/handover/{id}/report', 'Site\SiteScaffoldHandoverController@emailPDF');
@@ -605,6 +606,7 @@ Route::get('cron/email-outstanding-privacy', 'Misc\CronReportController@emailOut
 Route::get('cron/email-oldusers', 'Misc\CronReportController@emailOldUsers');
 Route::get('cron/email-missing-company-info', 'Misc\CronReportController@emailMissingCompanyInfo');
 Route::get('cron/email-planner-key-tasks', 'Misc\CronController@emailPlannerKeyTasks');
+Route::get('cron/action-planner-key-tasks', 'Misc\CronController@actionPlannerKeyTasks');
 
 Route::get('test/cal', 'Misc\PagesController@testcal');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');

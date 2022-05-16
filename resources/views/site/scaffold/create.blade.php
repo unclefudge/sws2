@@ -64,7 +64,11 @@ $duty_class = [
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
+                                            @if ($site)
+                                                <option value="{{ $site->id }}">{{ $site->name }}</option>
+                                            @else
+                                                {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
+                                            @endif
                                         </select>
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
