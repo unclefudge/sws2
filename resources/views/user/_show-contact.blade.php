@@ -46,14 +46,21 @@
                 @else
                     {!!  $user->company->name !!}
                 @endif
-                    @if ($user->id == $user->company->primary_user )
-                        <span class='label label-sm label-info'>Primary Contact</span>
-                    @endif
-                    @if ($user->id == $user->company->secondary_user )
-                        <span class='label label-sm label-info'>Secondary Contact</span>
-                    @endif
+                @if ($user->id == $user->company->primary_user )
+                    <span class='label label-sm label-info'>Primary Contact</span>
+                @endif
+                @if ($user->id == $user->company->secondary_user )
+                    <span class='label label-sm label-info'>Secondary Contact</span>
+                @endif
             </div>
         </div>
+        @if ($user->jobtitle)
+            <hr class="field-hr">
+            <div class="row">
+                <div class="col-md-3">Job Title:</div>
+                <div class="col-xs-9">{!! $user->jobtitle !!}</div>
+            </div>
+        @endif
 
         <hr class="field-hr">
         @if (Auth::user()->isCompany($user->company->reportsTo()->id))

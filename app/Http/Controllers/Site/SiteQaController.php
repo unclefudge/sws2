@@ -545,7 +545,7 @@ class SiteQaController extends Controller {
 
                 // Client Planner Email have only 1 QA per pdf without cover page
                 if ($client_planner_id) {
-                    $cover_page = true;
+                    $cover_page = false;
                     $dir = "/filebank/site/$site->id/emails/client";
 
                     // Clean up QA name to be filename Safe

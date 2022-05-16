@@ -99,6 +99,19 @@
                     </div>
                 </div>
             </div>
+            @if ($user->company_id == 3)
+                <hr class="field-hr">
+                {{-- Job Title --}}
+                <div class="row">
+                    <div class="form-group {!! fieldHasError('jobtitle', $errors) !!}">
+                        {!! Form::label('jobtitle', 'Job Title:', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="col-md-9">
+                            {!! Form::text('jobtitle', null, ['class' => 'form-control']) !!}
+                            {!! fieldErrorMessage('jobtitle', $errors) !!}
+                        </div>
+                    </div>
+                </div>
+            @endif
         @else
             {{-- Pass Required Fields as hidden --}}
             {!! Form::hidden('firstname', null, ['class' => 'form-control']) !!}
@@ -109,6 +122,7 @@
             {!! Form::hidden('suburb', null, ['class' => 'form-control']) !!}
             {!! Form::hidden('state', null, ['class' => 'form-control']) !!}
             {!! Form::hidden('postcode', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('jobtitle', null, ['class' => 'form-control']) !!}
         @endif
         {{-- Notes --}}
         @if ((Auth::user()->isCompany($user->company_id) && Auth::user()->hasPermission2('view.user.security')) || ($user->company->parent_company && Auth::user()->isCompany($user->company->reportsTo()->id)))

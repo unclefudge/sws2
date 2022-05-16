@@ -188,6 +188,10 @@ class ClientPlannerEmailController extends Controller {
         //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         $body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me.<br><br>";
         $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
+        $body .= "<br><br>".Auth::user()->fullname;
+        if (Auth::user()->jobtitle)
+            $body .= "<br>".strtoupper(Auth::user()->jobtitle);
+
         //print_r(nl2br($body));
         //dd($email_request);
 

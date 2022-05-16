@@ -49,7 +49,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     // The attributes that are mass assignable.
     protected $fillable = [
         'username', 'email', 'password', 'phone', 'firstname', 'lastname',
-        'address', 'address2', 'suburb', 'state', 'postcode', 'country',
+        'address', 'address2', 'suburb', 'state', 'postcode', 'country', 'jobtitle',
         'employment_type', 'subcontractor_type', 'onsite', 'apprentice', 'apprentice_start',
         'approved_by', 'approved_at', 'photo', 'notes', 'company_id', 'client_id',
         'last_ip', 'last_login', 'password_reset', 'security',
