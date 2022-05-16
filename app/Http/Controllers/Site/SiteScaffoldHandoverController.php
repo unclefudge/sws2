@@ -257,8 +257,6 @@ class SiteScaffoldHandoverController extends Controller {
 
             //return view('pdf/site/scaffold-handover', compact('report', 'site'));
             return PDF::loadView('pdf/site/scaffold-handover', compact('report', 'site'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
         }
     }
 

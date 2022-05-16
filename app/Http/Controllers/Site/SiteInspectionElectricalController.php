@@ -329,8 +329,6 @@ class SiteInspectionElectricalController extends Controller {
 
             //return view('pdf/site/inspection-electrical', compact('report', 'site'));
             return PDF::loadView('pdf/site/inspection-electrical', compact('report', 'site'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
         }
     }
 

@@ -539,29 +539,49 @@ class SiteQaController extends Controller {
                     }
                 }
                 $data[] = $obj_qa;
+                $client_data = [];
+                $client_data[] = $obj_qa;
+
+
+                // Client Planner Email have only 1 QA per pdf without cover page
+                if ($client_planner_id) {
+                    $cover_page = true;
+                    $dir = "/filebank/site/$site->id/emails/client";
+
+                    // Clean up QA name to be filename Safe
+                    $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
+                        "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
+                        "â€”", "â€“", ",", "<", ".", ">", "/", "?");
+                    $clean = trim(str_replace($strip, "", strip_tags($qa->name)));
+                    //$clean = preg_replace('/\s+/', "-", $clean);
+                    $qa_name = $clean." QA Checklist";
+                    $filename = "$site->name $qa_name.pdf";
+                    $doc = ClientPlannerEmailDoc::create(['email_id' => $client_planner_id, 'name' => $qa_name, 'attachment' => $filename]);
+
+                    // Create directory if required
+                    if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
+                    $output_file = public_path("$dir/$filename");
+
+                    SiteQaPdf::dispatch(request('site_id'), $client_data, $output_file, $cover_page); // Queue the job to generate PDF
+                }
             }
 
 
-            if ($client_planner_id) {
-                $dir = "/filebank/site/$site->id/emails/client";
-                $filename = "QA ($site->code-$site->name) " . Carbon::now()->format('YmdHis') . '.pdf';
-                $doc = ClientPlannerEmailDoc::create(['email_id' => $client_planner_id, 'name' => "Quality Assurance", 'attachment' => $filename]);
-            } else {
+            if (!$client_planner_id) {
+                $cover_page = true;
                 $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
                 $filename = 'QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf';
+
+                // Create directory if required
+                if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
+
+                $output_file = public_path("$dir/$filename");
+                if (!$client_planner_id) touch($output_file);
+
+                //return view('pdf/site-qa', compact('site', 'data'));
+                //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
+                SiteQaPdf::dispatch(request('site_id'), $data, $output_file, $cover_page); // Queue the job to generate PDF
             }
-
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-
-            $output_file = public_path("$dir/$filename");
-            if (!$client_planner_id)
-                touch($output_file);
-
-            //return view('pdf/site-qa', compact('site', 'data'));
-            //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
-            SiteQaPdf::dispatch(request('site_id'), $data, $output_file); // Queue the job to generate PDF
         }
 
         return redirect('/manage/report/recent');

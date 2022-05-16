@@ -206,7 +206,8 @@ class ClientPlannerEmailController extends Controller {
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id);
-        $filename = "$site->name: Weekly Planner " . Carbon::now()->format('YmdHis') . '.pdf';
+        //$filename = "$site->name: Weekly Planner " . Carbon::now()->format('YmdHis') . '.pdf';
+        $filename = "$site->name Weekly Planner.pdf";
         $output_file = public_path("$dir/$filename");
         touch($output_file);
 

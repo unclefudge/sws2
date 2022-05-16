@@ -23,6 +23,7 @@ use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaAction;
+use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Misc\Equipment\Equipment;
@@ -57,6 +58,7 @@ class CronController extends Controller {
         CronController::archiveToolbox();
         CronController::brokenQaItem();
         CronController::emailPlannerKeyTasks();
+        //CronController::actionPlannerKeyTasks();
 
         // Only run on week days otherwise get same email multiple times over weekend
         if (Carbon::today()->isMonday())
@@ -874,7 +876,7 @@ class CronController extends Controller {
 
             foreach ($tasks as $task) {
                 if ($task->site->status == 1) {
-                    $mesg = 'Site ' . $task->site->code . '-' . $task->site->name . ' ' . $subject;
+                    $mesg = 'Site ' . $task->site->name . ' ' . $subject;
                     echo "&nbsp; * $mesg<br>";
                     $log .= "&nbsp; * $mesg\n";
                     if ($email_list)
@@ -884,6 +886,46 @@ class CronController extends Controller {
         }
 
         if (!$email_sent) {
+            echo "No key tasks today";
+            $log .= "No key tasks today";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+   * Action Planner Key Tasks
+   */
+    static public function actionPlannerKeyTasks()
+    {
+        $log = '';
+        $email_name = "Action Tasks on Planner";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+        $cc = Company::find(3);
+
+        $date = Carbon::now()->format('Y-m-d');
+        $found_tasks = 0;
+
+        // Scafold Up - taskid: 297
+        $tasks = SitePlanner::whereDate('from', '=', $date)->where('task_id', 297)->orderBy('site_id')->get();
+
+        foreach ($tasks as $task) {
+            if ($task->site->status == 1) {
+                $mesg = 'Creating Scaffold Handover Certificate for ' . $task->site->name . "\n" ;
+                echo "$mesg<br>";
+                $log .= "$mesg\n";
+                $report = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
+            }
+        }
+
+
+        if (!$found_tasks) {
             echo "No key tasks today";
             $log .= "No key tasks today";
         }

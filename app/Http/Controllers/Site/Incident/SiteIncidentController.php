@@ -688,8 +688,6 @@ class SiteIncidentController extends Controller {
         if ($incident) {
             //return view('pdf/site/incident', compact('incident'));
             return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
-            // Queue the job to generate PDF
-            //SiteQaPdf::dispatch(request('site_id'), $data, $output_file);
 
             $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
             $file = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');

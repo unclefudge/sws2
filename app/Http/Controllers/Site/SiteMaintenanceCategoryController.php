@@ -20,7 +20,6 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Company\Company;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
-use App\Jobs\SiteQaPdf;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;

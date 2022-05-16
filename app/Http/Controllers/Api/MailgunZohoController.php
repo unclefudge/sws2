@@ -184,7 +184,7 @@ class MailgunZohoController extends Controller {
                     if (!$site && $report_type == 'Jobs') {
                         // Create Site + Equipment Location
                         if ($save_enabled) {
-                            $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
+                            $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'state' => 'NSW', 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
                             $site->supervisors()->sync([136]); // Assigned TO BE ALLOCATED as Supervisor;
                             $location = EquipmentLocation::where('site_id', $site->id)->first();
                             if (!$location)
