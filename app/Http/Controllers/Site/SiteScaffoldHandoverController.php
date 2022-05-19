@@ -178,6 +178,7 @@ class SiteScaffoldHandoverController extends Controller {
 
         //dd($report_request);
         $report->update($report_request);
+        $report->closeToDo();
 
         // Handle attached file
         if (request()->hasFile('singlefile')) {
