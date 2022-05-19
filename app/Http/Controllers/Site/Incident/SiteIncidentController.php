@@ -238,6 +238,8 @@ class SiteIncidentController extends Controller {
                 }
             }
         }
+
+        $incident->emailIncident(); // Email incident
         Toastr::success("Lodged incident report");
 
         return redirect('site/incident/' . $incident->id);

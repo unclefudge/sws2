@@ -148,7 +148,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (!Auth::user()->allowed2('add.site.asbestos'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
+        $rules = (request('no-asbestos')) ? ['site_id' => 'required'] :  ['site_id' => 'required', 'date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
         $mesg = ['site_id.required' => 'The site field is required.', 'amount.required' => 'The quantity field is required.', 'friable.required' => 'The asbestos class field is required.'];
         request()->validate($rules, $mesg); // Validate
 
@@ -167,7 +167,7 @@ class SiteAsbestosRegisterController extends Controller {
             $asb = SiteAsbestosRegister::create(['site_id' => request('site_id'), 'version' => '1.0']);
 
         // Create Item
-        if ($asb) {
+        if ($asb && !request('no-asbestos')) {
             $item_request['register_id'] = $asb->id;
             $item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();
 
@@ -175,12 +175,11 @@ class SiteAsbestosRegisterController extends Controller {
             if (request('type') == 'other')
                 $item_request['type'] = request('type_other');
             $asb->items()->save(new SiteAsbestosRegisterItem($item_request));
+
+            // Create PDF
+            $asb->attachment = $this->createPDF($asb->id);
+            $asb->save();
         }
-
-        // Create PDF
-        $asb->attachment = $this->createPDF($asb->id);
-        $asb->save();
-
 
         Toastr::success("Created register");
 

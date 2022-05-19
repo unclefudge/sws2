@@ -27,6 +27,7 @@
                         <!-- BEGIN FORM-->
                         {!! Form::model('SiteAsbestosRegister', ['action' => 'Site\SiteAsbestosRegisterController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
                         @include('form-error')
+                        {!! Form::hidden('no-asbestos', '0', ['class' => 'form-control', 'id' => 'no-asbestos']) !!}
 
                         <div class="form-body">
                             {{-- Site --}}
@@ -38,97 +39,104 @@
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
+
+                                {{-- No Asbestos --}}
+                                <div class="col-md-3 pull-right">
+                                    <button class="btn red" style="margin-top: 20px" id="btn-no-asbestos" name="btn-no-asbestos"> Mark No Asbestos Found</button>
+                                </div>
                             </div>
+                            <div id="asbestos-div">
 
-                            {{-- Asbestos Details --}}
-                            <h4>Asbestos Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                {{-- Asbestos Details --}}
+                                <h4>Asbestos Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
 
-                            {{-- Amount --}}
-                            <div class="row">
-                                {{--  Date --}}
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('date', $errors) !!}">
-                                        {!! Form::label('date', 'Date Identified', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('date', null, ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                            <span class="input-group-btn">
+                                {{-- Amount --}}
+                                <div class="row">
+                                    {{--  Date --}}
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('date', $errors) !!}">
+                                            {!! Form::label('date', 'Date Identified', ['class' => 'control-label']) !!}
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('date', null, ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                                <span class="input-group-btn">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
+                                            </div>
+                                            {!! fieldErrorMessage('date', $errors) !!}
                                         </div>
-                                        {!! fieldErrorMessage('date', $errors) !!}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group {!! fieldHasError('amount', $errors) !!}">
+                                            {!! Form::label('amount', 'Quantity (m2)', ['class' => 'control-label']) !!}
+                                            <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount" onkeypress="return isNumber(event)">
+                                            {!! fieldErrorMessage('amount', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('friable', $errors) !!}">
+                                            {!! Form::label('friable', 'Asbestos Class', ['class' => 'control-label']) !!}
+                                            {!! Form::select('friable', ['' => 'Select class', '1' => 'Class A (Friable)', '0' => 'Class B (Non-Friable)'],
+                                                 null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('friable', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('amount', $errors) !!}">
-                                        {!! Form::label('amount', 'Quantity (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount" onkeypress="return isNumber(event)">
-                                        {!! fieldErrorMessage('amount', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('friable', $errors) !!}">
-                                        {!! Form::label('friable', 'Asbestos Class', ['class' => 'control-label']) !!}
-                                        {!! Form::select('friable', ['' => 'Select class', '1' => 'Class A (Friable)', '0' => 'Class B (Non-Friable)'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('friable', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Type --}}
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type', ['' => 'Select type', 'Asbestos Cement Sheets/Products' => 'Asbestos Cement Sheets/Products',
-                                        'Vinyl floor covering' => 'Vinyl floor covering', 'other' => 'Other'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
+                                {{-- Type --}}
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group {!! fieldHasError('type', $errors) !!}">
+                                            {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
+                                            {!! Form::select('type', ['' => 'Select type', 'Asbestos Cement Sheets/Products' => 'Asbestos Cement Sheets/Products',
+                                            'Vinyl floor covering' => 'Vinyl floor covering', 'other' => 'Other'],
+                                                 null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('type', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7" style="display: none" id="type_other_div">
+                                        <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
+                                            {!! Form::label('type_other', 'Other type', ['class' => 'control-label']) !!}
+                                            {!! Form::text('type_other', null, ['class' => 'form-control', 'placeholder' => 'Please specify other']) !!}
+                                            {!! fieldErrorMessage('type_other', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-7" style="display: none" id="type_other_div">
-                                    <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
-                                        {!! Form::label('type_other', 'Other type', ['class' => 'control-label']) !!}
-                                        {!! Form::text('type_other', null, ['class' => 'form-control', 'placeholder' => 'Please specify other']) !!}
-                                        {!! fieldErrorMessage('type_other', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Location --}}
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Location of Asbestos', ['class' => 'control-label']) !!}
-                                        {!! Form::text('location', null, ['class' => 'form-control', 'placeholder' => 'Location of asbestos']) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
+                                {{-- Location --}}
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group {!! fieldHasError('location', $errors) !!}">
+                                            {!! Form::label('location', 'Location of Asbestos', ['class' => 'control-label']) !!}
+                                            {!! Form::text('location', null, ['class' => 'form-control', 'placeholder' => 'Location of asbestos']) !!}
+                                            {!! fieldErrorMessage('location', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Condition --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('condition', $errors) !!}">
-                                        {!! Form::label('condition', 'Condition', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('condition', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'Condition of asbestos']) !!}
-                                        {!! fieldErrorMessage('condition', $errors) !!}
+                                {{-- Condition --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('condition', $errors) !!}">
+                                            {!! Form::label('condition', 'Condition', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('condition', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'Condition of asbestos']) !!}
+                                            {!! fieldErrorMessage('condition', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Assessment --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('assessment', $errors) !!}">
-                                        {!! Form::label('assessment', 'Assessment', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('assessment', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'Assessment of asbestos']) !!}
-                                        {!! fieldErrorMessage('assessment', $errors) !!}
+                                {{-- Assessment --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('assessment', $errors) !!}">
+                                            {!! Form::label('assessment', 'Assessment', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('assessment', null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => 'Assessment of asbestos']) !!}
+                                            {!! fieldErrorMessage('assessment', $errors) !!}
+                                        </div>
                                     </div>
                                 </div>
+                                <br><br>
                             </div>
-                            <br><br>
                             <div class="form-actions right">
                                 <a href="/site/asbestos/register" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
@@ -167,6 +175,13 @@
         // On Change Type
         $("#type").change(function () {
             $("#type").val() == 'other' ? $("#type_other_div").show() : $("#type_other_div").hide(); // Type
+        });
+
+        // On Click No Asbestos
+        $("#btn-no-asbestos").click(function (e) {
+            e.preventDefault(e);
+            $("#no-asbestos").val('1');
+            $("#asbestos-div").hide();
         });
     });
 
