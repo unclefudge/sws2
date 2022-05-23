@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
+use App\Models\Company\CompanyDocReview;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
@@ -456,12 +457,12 @@ class CronController extends Controller {
         if ($docs->count()) {
             foreach ($docs as $doc) {
                 $company = Company::find($doc->for_company_id);
-                $renew = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
-                echo "id[$doc->id] $company->name_alias ($doc->name) $renew [" . $doc->expiry->format('d/m/Y') . "]<br>";
-                $log .= "id[$doc->id] $company->name_alias ($doc->name) $renew [" . $doc->expiry->format('d/m/Y') . "]\n";
+                $standard_details = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
+                echo "id[$doc->id] $company->name_alias ($doc->name) $standard_details [" . $doc->expiry->format('d/m/Y') . "]<br>";
+                $log .= "id[$doc->id] $company->name_alias ($doc->name) $standard_details [" . $doc->expiry->format('d/m/Y') . "]\n";
 
                 // Expire document unless it's a Standard Details doc
-                if (!$renew) {
+                if (!$standard_details) {
                     $doc->updated_by = 1;
                     $doc->updated_at = Carbon::now()->toDateTimeString();
                     $doc->status = 0;
@@ -485,9 +486,11 @@ class CronController extends Controller {
                         echo "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]<br>";
                         $log .= "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]\n";
 
-                        $renew = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
-                        if ($renew) {
+                        $standard_details = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
+                        if ($standard_details) {
                             // Standard Details Documents
+
+                            // Check if allready under review else add it
                             $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
                             $doc->emailRenewal($email_to);
                             echo "Emailed " . implode("; ", $email_to) . "<br>";

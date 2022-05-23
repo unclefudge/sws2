@@ -171,6 +171,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/company/leave/dt/leave', 'Company\CompanyLeaveController@getCompanyLeave');
     Route::resource('/company/leave', 'Company\CompanyLeaveController');
 
+    // Company Standard Documents Review
+    Route::get('company/doc/standard/review/dt/docs', 'Company\CompanyDocReviewController@getStandard');
+    Route::resource('company/doc/standard/review', 'Company\CompanyDocReviewController');
+
     // Company Standard Documents
     Route::get('company/doc/standard', 'Company\CompanyDocController@showStandard');
     Route::get('company/doc/standard/dt/docs', 'Company\CompanyDocController@getStandard');

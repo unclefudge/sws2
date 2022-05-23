@@ -9,6 +9,8 @@ use Session;
 use App\User;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
+use App\Models\Company\CompanyDocReview;
+use App\Models\Company\CompanyDocReviewFile;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
@@ -162,8 +164,24 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        /*
+        $today = Carbon::today();
+        $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
 
+        echo "<b>Creating Standard Details for Review $one_year</b></br>";
+        $cat_ids = ['22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 35];
+        $doc_ids = ['77', '78', '79'];
+        $docs = CompanyDoc::whereIn('category_id', $cat_ids)->whereDate('updated_at', '<', $one_year)->get();
+        $docs = CompanyDoc::whereIn('id', $doc_ids)->get();
+        foreach ($docs as $doc) {
+            echo "[$doc->id] $doc->name<br>";
+            $review_doc = CompanyDocReview::where('doc_id', $doc->id)->first();
+
+            if (!$review_doc)
+                $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => 'Initial review by Contruction Mgr', 'original_doc' => $doc->attachmentUrl, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
+
+
+        }
+        /*
         // Update Old Single Line Client Name into Title-First-Last fields
 
         $titles = ['MR', 'MRS', 'DR', 'MS'];
@@ -1576,8 +1594,8 @@ class PagesController extends Controller {
         //
         // Creating Permission
         //
-        $name = 'Site Zoho Fields';
-        $slug = 'site.zoho.fields';
+        $name = 'Company Doc Review';
+        $slug = 'company.doc.review';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

@@ -35,7 +35,7 @@ class AddUserDocsTables extends Migration
             $table->dateTime('approved_at')->nullable();
 
             // Foreign keys
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('company_id')->references('id')->on('companys');
 
             // Modify info

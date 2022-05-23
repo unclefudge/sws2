@@ -43,6 +43,7 @@
 
                         <p>Please answer the following questions.</p>
                         <div class="form-body">
+                            {{--}}
                             <div class="note note-success">
                                 <h4><b>COVID - Safety Requirements</b></h4>
                                 <hr style="color: #000">
@@ -87,7 +88,7 @@
                                         I understand the current NSW Health orders and <b>comply with its requirements</b> in relation to vaccinations and or covid testing.
                                     </div>
                                 </div>
-                                {{--
+                                <!--
                                 <div class="row visible-xs">&nbsp;</div>
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
@@ -102,8 +103,8 @@
                                         <div>I have read, understood and will adhere to the principles required to manage the risk of COVID-19 &nbsp; &nbsp; <a
                                                     class="btn dark" href="/filebank/doc/COVID-19 Construction Site Risk Management Principles.pdf">view</a></div>
                                     </div>
-                                </div>--}}
-                            </div>
+                                </div>-->
+                            </div> --}}
 
                             <br>
                             <div class="row">

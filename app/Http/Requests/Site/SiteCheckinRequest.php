@@ -38,11 +38,11 @@ class SiteCheckinRequest extends Request {
             'question12' => 'required_with:checkinStore',
             'question13' => 'required_with:checkinStore',
             'question14' => 'required_with:checkinTruck',
-            //'question18'  => 'required_with:checkin,checkinStore,checkinTruck',
+            //'question18'  => 'required_with:checkin,checkinStore,checkinTruck',  // Covid
             'question19'  => 'required_with:checkin',
-            'question20'  => 'required_with:checkin,checkinStore,checkinTruck',
-            'question21'  => 'required_with:checkin,checkinStore,checkinTruck',
-            'question22'  => 'required_with:checkin,checkinStore,checkinTruck',
+            //'question20'  => 'required_with:checkin,checkinStore,checkinTruck',  // Covid
+            //'question21'  => 'required_with:checkin,checkinStore,checkinTruck',  // Covid
+            //'question22'  => 'required_with:checkin,checkinStore,checkinTruck',  // Covid
             'location'   => 'required_without:safe_site',
             'rating'     => 'required_without:safe_site',
             'reason'     => 'required_without:safe_site',

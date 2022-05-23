@@ -514,6 +514,23 @@ $rec = $user;
                                 <td width="45%" colspan="3"></td>
                             </tr>
                         </table>
+
+
+                        <h5 class="font-green-haze" style="font-size: 16px">Documents
+                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                               data-content="Grants ability to view or edit general documents ie Standard Details"
+                               data-original-title="Documents"> <i class="fa fa-question-circle font-grey-silver"></i>
+                            </a>
+                        </h5>
+
+                        <table class="table table-bordered table-striped">
+                            <tr>
+                                <td>Standard Details Review<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                <td width="15%">{!! permSelect('view.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
+                                <td width="45%" colspan="4"></td>
+                            </tr>
+                        </table>
                     @endif
                 </div>
             </div>
