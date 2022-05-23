@@ -139,8 +139,8 @@ class MailgunZohoController extends Controller {
                 //
                 // Headers
                 //
-                if (in_array($row, ['1', '3', '4', '5', '6'])) continue; // Non required header lines
-                if ($row == 2) {
+                //if (in_array($row, ['1', '3', '4', '5', '6'])) continue; // Non required header lines
+                if ($row == 1) {
                     list($report_type, $crap) = explode(' ', $data[0]);
                     if (!$report_type) {
                         $log .= "Invalid format line 2 for Zoho import file $file\n";
@@ -159,7 +159,7 @@ class MailgunZohoController extends Controller {
                     $log .= "Report type: $report_type\n";
                     continue;
                 }
-                if ($row == 7) {
+                if ($row == 2) {
                     $head = $this->reportHeaders($data);
                     continue;
                 }
