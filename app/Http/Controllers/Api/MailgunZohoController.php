@@ -129,6 +129,9 @@ class MailgunZohoController extends Controller {
         $newSites = [];
         $head = [];
         $row = 0;
+        $row_report_type = 0;
+        $row_header = 0;
+        $row_data = 0;
         if (($handle = fopen($file, "r")) !== false) {
             $log = "Zoho File Import: $file\n";
             if (!$save_enabled) $log .= "Save: DISABLED\n";
@@ -137,29 +140,31 @@ class MailgunZohoController extends Controller {
                 $row ++;
 
                 //
-                // Headers
+                // Report Type Row
                 //
-                //if (in_array($row, ['1', '3', '4', '5', '6'])) continue; // Non required header lines
-                if ($row == 1) {
+                if (!$row_report_type && (stripos($data[0], "Jobs modified") || stripos($data[0], "Jobs modified"))) {
+                    $row_report_type = $row;
+
                     list($report_type, $crap) = explode(' ', $data[0]);
-                    if (!$report_type) {
-                        $log .= "Invalid format line 2 for Zoho import file $file\n";
+                    if (!in_array($report_type, ['Jobs', 'Contacts'])) {
+                        $log .= "Invalid format line $row for Zoho import file $file\n";
                         $bytes_written = File::append($this->logfile, $log);
                         if ($bytes_written === false) die("Error writing to file");
 
-                        Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed("Reason: Invalid format line 1 for Zoho import file $file"));
+                        Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed("Reason: Invalid format line $row for Zoho import file $file"));
 
                         return false;
                     }
-                    //if ($report_type != 'Jobs') {
-                    //    echo "Report type not Jobs<br>";
-                    //    break;
-                    //}
 
                     $log .= "Report type: $report_type\n";
                     continue;
                 }
-                if ($row == 2) {
+
+                //
+                // Headers Row
+                //
+                if (!$row_header && in_array('Job Name', $data) && in_array('Modified Time', $data) && (in_array('CX Sent Date', $data) || in_array('First Name 1', $data))) {
+                    $row_header = $row;
                     $head = $this->reportHeaders($data);
                     continue;
                 }
@@ -169,7 +174,8 @@ class MailgunZohoController extends Controller {
                 // Data Row
                 //
                 //if (stripos($data[0], "zcrm_") === 0) {
-                if (stripos($data[0], "zcrm_") === 0) {  // || $data[$head['code']] && $data[$head['name']]
+                if ($row_report_type && $row_header && stripos($data[0], "zcrm_") === 0) {  // || $data[$head['code']] && $data[$head['name']]
+                    $row_data++;
                     $this->countSites ++;
                     $site = ($report_type == 'Jobs') ? Site::where('code', $data[$head['code']])->first() : Site::where('name', $data[$head['name']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
@@ -271,50 +277,57 @@ class MailgunZohoController extends Controller {
             }
 
             // Output Report
-            $log .= "\nRead $this->countSites jobs and found " . count($this->siteDiffs) . " with differences\n";
-            $log .= "\nSummary\n------------\n";
-            $log .= "SWS Blank fields: " . count($this->blankSWSFields) . "\n";
-            $log .= "Zoho Blank fields: " . count($this->blankZohoFields) . "\n";
-            $log .= "Different fields: " . count($this->diffFields) . "\n";
-            $log .= "New Jobs: " . count($newSites) . "\n\n";
-            $log .= "\nThe following differences were found:\n";
-            $log .= $differences;
+            if ($row_report_type && $row_header) {
+                $log .= "\nRead $this->countSites jobs and found " . count($this->siteDiffs) . " with differences\n";
+                $log .= "\nSummary\n------------\n";
+                $log .= "SWS Blank fields: " . count($this->blankSWSFields) . "\n";
+                $log .= "Zoho Blank fields: " . count($this->blankZohoFields) . "\n";
+                $log .= "Different fields: " . count($this->diffFields) . "\n";
+                $log .= "New Jobs: " . count($newSites) . "\n\n";
+                $log .= "\nThe following differences were found:\n";
+                $log .= $differences;
 
-            // New Sites
-            if (count($newSites)) {
-                $log .= "\n\nAdded " . count($newSites) . " new sites\n------------------------------------------------------\n";
-                foreach ($newSites as $key => $val)
-                    $log .= "$key : $val\n";
-            }
-
-            // Blank Zoho
-            //if (count($this->blankZohoFields)) {
-            //    $log .= "\n\nBlank " . count($this->blankZohoFields) . " Zoho fields\n------------------------------------------------------\n";
-            //    foreach ($this->blankZohoFields as $key => $val)
-            //        $log .= "* $key : $val\n";
-            //}
-
-            //
-            // Zoho Missing Data Fields
-            //
-            $last_site = '';
-            if (count($this->blankZohoFields)) {
-                $emptyZohoLog = "The Zoho import into SafeWorksite found missing data in (" . count($this->blankZohoFields) . ") Zoho Jobs.\n\n---";
-                foreach ($this->blankZohoFields as $key => $val) {
-                    list($site_id, $field) = explode(':', $key);
-                    $site = Site::findOrFail($site_id);
-                    $value = (in_array($field, $datefields)) ? Carbon::createFromFormat('Y-m-d H:i:s', $val)->format('d/m/Y') : $val;   // Convert to date if datefield
-                    $zoho_field = array_search($field, $this->convertHeaderFields);
-                    if ($site->id != $last_site) {
-                        $emptyZohoLog .= "\n$site->name\n - $zoho_field:  $value\n";
-                        $last_site = $site->id;
-                    } else
-                        $emptyZohoLog .= " - $zoho_field:  $value\n";
+                // New Sites
+                if (count($newSites)) {
+                    $log .= "\n\nAdded " . count($newSites) . " new sites\n------------------------------------------------------\n";
+                    foreach ($newSites as $key => $val)
+                        $log .= "$key : $val\n";
                 }
-                $log .= "\n\n\n======================================================\n$emptyZohoLog";
 
-                // Email report to Zoho data person
-                //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
+                // Blank Zoho
+                //if (count($this->blankZohoFields)) {
+                //    $log .= "\n\nBlank " . count($this->blankZohoFields) . " Zoho fields\n------------------------------------------------------\n";
+                //    foreach ($this->blankZohoFields as $key => $val)
+                //        $log .= "* $key : $val\n";
+                //}
+
+                //
+                // Zoho Missing Data Fields
+                //
+                $last_site = '';
+                if (count($this->blankZohoFields)) {
+                    $emptyZohoLog = "The Zoho import into SafeWorksite found missing data in (" . count($this->blankZohoFields) . ") Zoho Jobs.\n\n---";
+                    foreach ($this->blankZohoFields as $key => $val) {
+                        list($site_id, $field) = explode(':', $key);
+                        $site = Site::findOrFail($site_id);
+                        $value = (in_array($field, $datefields)) ? Carbon::createFromFormat('Y-m-d H:i:s', $val)->format('d/m/Y') : $val;   // Convert to date if datefield
+                        $zoho_field = array_search($field, $this->convertHeaderFields);
+                        if ($site->id != $last_site) {
+                            $emptyZohoLog .= "\n$site->name\n - $zoho_field:  $value\n";
+                            $last_site = $site->id;
+                        } else
+                            $emptyZohoLog .= " - $zoho_field:  $value\n";
+                    }
+                    $log .= "\n\n\n======================================================\n$emptyZohoLog";
+
+                    // Email report to Zoho data person
+                    //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
+                }
+            } else {
+                $log .= "\nFailed to import any records:\n";
+                $log .= ($row_report_type) ? " - Report type line: $row_report_type\n" : 'Report type line: FAILED\n';
+                $log .= ($row_header) ? " - Header line: $row_header\n" : 'Header line: FAILED\n';
+                $log .= ($row_data) ? " - Data lines: $row_data\n" : 'Data lines: FAILED\n';
             }
         }
 
