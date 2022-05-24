@@ -142,7 +142,7 @@ class MailgunZohoController extends Controller {
                 //
                 // Report Type Row
                 //
-                if (!$row_report_type && (stripos($data[0], "Jobs modified") || stripos($data[0], "Jobs modified"))) {
+                if (!$row_report_type && (stripos($data[0], "Jobs modified") === 0 || stripos($data[0], "Contacts modified") === 0)) {
                     $row_report_type = $row;
 
                     list($report_type, $crap) = explode(' ', $data[0]);
@@ -325,9 +325,9 @@ class MailgunZohoController extends Controller {
                 }
             } else {
                 $log .= "\nFailed to import any records:\n";
-                $log .= ($row_report_type) ? " - Report type line: $row_report_type\n" : 'Report type line: FAILED\n';
-                $log .= ($row_header) ? " - Header line: $row_header\n" : 'Header line: FAILED\n';
-                $log .= ($row_data) ? " - Data lines: $row_data\n" : 'Data lines: FAILED\n';
+                $log .= ($row_report_type) ? " - Report type line: $row_report_type\n" : "Report type line: FAILED\n";
+                $log .= ($row_header) ? " - Header line: $row_header\n" : "Header line: FAILED\n";
+                $log .= ($row_data) ? " - Data lines: $row_data\n" : "Data lines: FAILED\n";
             }
         }
 
