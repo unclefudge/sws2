@@ -30,8 +30,8 @@ class MailgunZohoController extends Controller {
         if ($this->debug) app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
-        //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
-        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
+        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
+        //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
         if (!in_array(request('X-Envelope-From'), $valid_senders)) {
             if ($this->debug) app('log')->debug("========= Import Failed ==========");
             if ($this->debug) app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
