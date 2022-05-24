@@ -69,7 +69,7 @@ class MailgunZohoController extends Controller {
             // Delay Queued Job to Verify Import Success/Fail
             ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
 
-            $log = "Zoho Import - " . Carbon::now()->format('d/m/Y') . "\n------------------------------------------\n\n";
+            $log = "Zoho Import - " . Carbon::now()->format('d/m/Y g:i a') . "\n------------------------------------------\n\n";
             $bytes_written = File::append($this->logfile, $log);
             //$bytes_written = File::put($this->logfile, $log);
             if ($bytes_written === false) die("Error writing to file");
