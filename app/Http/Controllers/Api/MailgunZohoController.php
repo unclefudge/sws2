@@ -157,14 +157,14 @@ class MailgunZohoController extends Controller {
                         return false;
                     }
 
-                    $log .= "Report type: [$report_type]\n";
+                    $log .= "Report type: $report_type\n";
                     continue;
                 }
 
                 //
                 // Headers Row
                 //
-                if (!$row_header && in_array('Job Name', $data) && in_array('Modified Time', $data) && (in_array('CX Sent Date', $data) || in_array('First Name 1', $data))) {
+                if (!$row_header && in_array('Modified Time', $data) && (in_array('Job Name', $data) || in_array('Job Name (Job Name)', $data)) && (in_array('CX Sent Date', $data) || in_array('First Name 1', $data))) {
                     $row_header = $row;
                     $head = $this->reportHeaders($data);
                     continue;
