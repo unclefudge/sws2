@@ -177,7 +177,7 @@ class SiteIncidentAnalysisController extends Controller {
                         $response = FormResponse::create(['question_id' => $qid, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $info]);
                         // Todoo Actions to Prevent Reoccurance
                         $name = "Site Incident Preventive Task ($option_id)";
-                        $action = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
+                        $action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
                         $action_name = "$name : ".$response->question->name." - $response->optionText";
                         if (!$action)
                             Todo::create(['name' => $action_name, 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
@@ -192,7 +192,7 @@ class SiteIncidentAnalysisController extends Controller {
 
         // Delete existing Todoo actions if not current + not completed
         foreach ($options_all as $option_id => $option_name) {
-            $todo_action = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%Site Incident Preventive Task ($option_id)%")->first();
+            $todo_action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%Site Incident Preventive Task ($option_id)%")->first();
             if ($todo_action && $todo_action->status && !in_array($option_id, $options_selected))
                 $todo_action->delete();
         }
@@ -268,7 +268,7 @@ class SiteIncidentAnalysisController extends Controller {
                         $response = FormResponse::create(['question_id' => $qid, 'option_id' => $option_id, 'table' => 'site_incidents', 'table_id' => $incident->id, 'info' => $info]);
                         // Todoo Actions to Prevent Reoccurance
                         $name = "Site Incident Preventive Task ($option_id)";
-                        $todo_action = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
+                        $todo_action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
                         $action_name = "$name : Root Cause - $response->optionText";
                         if (!$todo_action)
                             Todo::create(['name' => $action_name, 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
@@ -283,7 +283,7 @@ class SiteIncidentAnalysisController extends Controller {
 
         // Delete existing Todoo actions if not current + not completed
         foreach ($options_all as $option_id => $option_name) {
-            $todo_action = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%Site Incident Preventive Task ($option_id)%")->first();
+            $todo_action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%Site Incident Preventive Task ($option_id)%")->first();
             if ($todo_action && $todo_action->status && !in_array($option_id, $options_selected))
                 $todo_action->delete();
         }

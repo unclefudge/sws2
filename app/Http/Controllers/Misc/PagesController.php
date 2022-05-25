@@ -387,7 +387,7 @@ class PagesController extends Controller {
                 // Add Todoos
                 $todos = Todo::where('type', 'accident')->where('type_id', $accident->id)->get();
                 foreach ($todos as $todo) {
-                    $newToDo = ToDo::create(['type'    => 'incident', 'type_id' => $incident->id, 'name' => "Site Incident Task @ " . $incident->site->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
+                    $newToDo = Todo::create(['type'    => 'incident', 'type_id' => $incident->id, 'name' => "Site Incident Task @ " . $incident->site->name, 'info' => $todo->info, 'due_at' => $todo->due_at,
                                              'done_at' => $todo->done_at, 'done_by' => $todo->done_by, 'attachment' => $todo->attachment, 'comments' => $todo->comments,
                                              'status'  => $todo->status, 'company_id' => $todo->company_id]);
                     $newToDo->created_by = $todo->created_by;

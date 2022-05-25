@@ -32,7 +32,7 @@ class MailgunZohoController extends Controller {
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
         //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
-        if (!in_array(request('X-Envelope-From'), $valid_senders)) {
+        if (!in_array(request('From'), $valid_senders)) {  // X-Envelope-From
             if ($this->debug) app('log')->debug("========= Import Failed ==========");
             if ($this->debug) app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
             if ($this->debug) app('log')->debug($valid_senders);
@@ -67,9 +67,9 @@ class MailgunZohoController extends Controller {
             $this->logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
 
             // Delay Queued Job to Verify Import Success/Fail
-            ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
+            //ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
 
-            $log = "Zoho Import - " . Carbon::now()->format('d/m/Y g:i a') . "\n------------------------------------------\n\n";
+            $log = "------------------------------------------\nZoho Import - " . Carbon::now()->format('d/m/Y g:i a') . "\n------------------------------------------\n\n";
             $bytes_written = File::append($this->logfile, $log);
             //$bytes_written = File::put($this->logfile, $log);
             if ($bytes_written === false) die("Error writing to file");

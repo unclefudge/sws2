@@ -141,7 +141,7 @@ class SiteIncidentWitnessController extends Controller {
         // Update SiteIncidentWitness
         $witness->update($witness_request);
 
-        $todo = ToDo::where('type', 'incident witness')->where('type_id', $witness->id)->first();
+        $todo = Todo::where('type', 'incident witness')->where('type_id', $witness->id)->first();
         if ($todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();

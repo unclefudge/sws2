@@ -101,7 +101,7 @@ class ReportController extends Controller {
                 $task_ids[] = $item->task_id;
         }
         $planner = SitePlanner::where('site_id', $qa->site_id)->whereIn('task_id', $task_ids)->get();
-        $todos = ToDo::where('type', 'qa')->where('type_id', $id)->get();
+        $todos = Todo::where('type', 'qa')->where('type_id', $id)->get();
 
         return view('manage/report/qa_debug', compact('qa', 'planner', 'todos'));
     }
