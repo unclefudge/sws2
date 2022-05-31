@@ -463,7 +463,7 @@ class MailgunZohoController extends Controller {
             if (isset($head[$field])) {
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
 
-                if ($zoho_data) {
+                if ($zoho_data && preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
                     list($d, $m, $y) = explode('/', $zoho_data);
                     $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                 } else
