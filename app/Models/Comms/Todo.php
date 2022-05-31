@@ -9,6 +9,7 @@ use App\User;
 use App\Models\Misc\Action;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
+use App\Models\Company\CompanyDocReview;
 use App\Models\Company\CompanyDocPeriodTrade;
 use App\Models\Site\Incident\SiteIncidentWitness;
 use Illuminate\Database\Eloquent\Model;

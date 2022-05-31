@@ -250,17 +250,19 @@ class MailgunZohoController extends Controller {
                                 } elseif (!empty($zoho_data)) {
                                     $newData = '';
                                     if (in_array($field, $datefields)) {
-                                        //if (preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
+                                        // Date fields
+                                        if (preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
                                             list($d, $m, $y) = explode('/', $zoho_data);
                                             $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                                             //if ($site->{$field})
                                             //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
                                             $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
-                                        //}
+                                        }
 
                                     } elseif (in_array($field, $yesno_fields)) {
+                                        // Yes / No fields
                                         //$newData = ($zoho_data == 'YES') ? 1 : 0;
-                                        $newData = ($zoho_data == 'YES') ? 1 : $site->{$field};  // temp only inport YES dat for Eng FJ Cert ?
+                                        $newData = ($zoho_data == 'YES') ? 1 : $site->{$field};  // temp only import YES dat for Eng FJ Cert ?
                                     } else
                                         $newData = $zoho_data;
 
@@ -440,6 +442,7 @@ class MailgunZohoController extends Controller {
             }
         }
 
+        // Yes - No fields
         foreach ($yesno_fields as $field) {
             $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
@@ -447,8 +450,8 @@ class MailgunZohoController extends Controller {
 
                 // both SWS + Zoho have data
                 if ($site->{$field} != NULL && $zoho_data && $site->{$field} != $zoho_data) {
-                    //$diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
-                    //$this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
+                    $diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
+                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
                 } // only SWS has data
                 else if ($site->{$field} != NULL && !$zoho_data) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
@@ -461,6 +464,7 @@ class MailgunZohoController extends Controller {
             }
         }
 
+        // Date fields
         foreach ($datefields as $field) {
             $excluded = (in_array($field, $exclude_update)) ? ' ** Excluded Field - NOT IMPORTED **' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
