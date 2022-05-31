@@ -212,8 +212,8 @@ class MailgunZohoController extends Controller {
                             'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                         $datefields = [
                             'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
-                            'engineering_cert', 'construction_rcvd', 'hbcf_start'];
-                        $yesno_fields = ['Eng FJ Certified?'];
+                            'construction_rcvd', 'hbcf_start'];
+                        $yesno_fields = ['engineering_cert'];
                         $exclude_update = ['completion_signed'];
                         $all_fields = array_merge($fields, $datefields, $yesno_fields, $exclude_update);
 
