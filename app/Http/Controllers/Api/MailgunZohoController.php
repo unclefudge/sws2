@@ -250,13 +250,13 @@ class MailgunZohoController extends Controller {
                                 } elseif (!empty($zoho_data)) {
                                     $newData = '';
                                     if (in_array($field, $datefields)) {
-                                        if (preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
+                                        //if (preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
                                             list($d, $m, $y) = explode('/', $zoho_data);
                                             $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                                             //if ($site->{$field})
                                             //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
                                             $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
-                                        }
+                                        //}
 
                                     } elseif (in_array($field, $yesno_fields)) {
                                         $newData = ($zoho_data == 'YES') ? 1 : 0;
@@ -465,7 +465,7 @@ class MailgunZohoController extends Controller {
             if (isset($head[$field])) {
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
 
-                if ($zoho_data && preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
+                if ($zoho_data) { //} && preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
                     list($d, $m, $y) = explode('/', $zoho_data);
                     $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                 } else
