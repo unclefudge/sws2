@@ -32,6 +32,19 @@ class CompanyDocReview extends Model {
         return $this->belongsTo('App\Models\Company\CompanyDoc', 'doc_id');
     }
 
+    /**
+     * A CompanyReviewDoc 'may' have multiple ToDoos
+     *
+     * @return Collection
+     */
+    public function todos($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'company doc review')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'company doc review')->where('type_id', $this->id)->get();
+    }
+
 
     /**
      * A Company Doc was updated by a user
@@ -68,13 +81,14 @@ class CompanyDocReview extends Model {
             'company_id' => $this->company_doc->company_id,
         ];
 
+        $this->closeToDo(); // Close any outstanding ToDos
+
         // Create ToDoo and assign to Userlist
         if ($user_list) {
             $todo = Todo::create($todo_request);
             $todo->assignUsers($user_list);
             $todo->emailToDo();
         }
-
     }
 
     /**
@@ -104,16 +118,9 @@ class CompanyDocReview extends Model {
     public function closeToDo($user = '')
     {
         if (!$user)
-            $user = Auth::user();
+            $user = (Auth::check()) ? Auth::user() : User::find(1); // Logged in User else System;
 
-        // Get a list of Document ID's of same type as this Document ie Workers Comp
-        // so we can close any ToDoo related to this type of document
-        $similiar_docs = DB::table('company_docs')->select('id')->where('category_id', $this->category_id)->where('for_company_id', $this->for_company_id)->where('company_id', $this->company_id)->get();
-        $id_array = [];
-        foreach ($similiar_docs as $doc)
-            $id_array[] = $doc->id;
-
-        $todos = Todo::where('type', 'company doc')->whereIn('type_id', $id_array)->where('status', '1')->get();
+        $todos = Todo::where('type', 'company doc review')->where('type_id', $this->id)->where('status', '1')->get();
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();

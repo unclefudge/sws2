@@ -735,6 +735,12 @@ class CompanyDocReviewController extends Controller {
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/company/doc/standard/review/{{$id}}"><i class="fa fa-search"></i></a></div>')
+            ->editColumn('assigned_to', function ($doc) {
+                $todo = $doc->todos('1')->first();
+                if ($todo)
+                return $todo->assignedToBySBC();
+                return "-";
+            })
             ->editColumn('updated_at', function ($doc) {
                 return $doc->updated_at->format('d/m/Y');
             })

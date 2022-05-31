@@ -18,6 +18,8 @@ define('TODO_TYPES', ['swms'                  => 'Safe Work Method Statements',
                       'incident prevent'      => "Incident Preventative Action",
                       'incident witness'      => "Incident Witness",
                       'incident review'       => "Incident Review",
+                      'company doc'     => 'Company Document',
+                      'company doc review'     => 'Standard Details Review',
                       'user doc'              => 'User Documents']);
 
 function validEmail($email)

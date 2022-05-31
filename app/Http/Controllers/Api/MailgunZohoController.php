@@ -15,7 +15,7 @@ use App\Http\Controllers\Controller;
 
 class MailgunZohoController extends Controller {
 
-    public $debug = true;
+    public $debug = false;
     public $countSites = 0;
     public $siteDiffs = [];
     public $blankZohoFields = [];
@@ -256,6 +256,8 @@ class MailgunZohoController extends Controller {
                                         //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
                                         $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
 
+                                    } elseif (in_array($field, $yesno_fields)) {
+                                        $newData = ($zoho_data == 'YES') ? 1 : 0;
                                     } else
                                         $newData = $zoho_data;
 
@@ -333,7 +335,7 @@ class MailgunZohoController extends Controller {
         }
 
 
-        $log .= "\n\n------------------------------------------------------\nALL DONE - ZOHO IMPORT ".strtoupper($report_type)." COMPLETE\n\n";
+        $log .= "\n\n------------------------------------------------------\nALL DONE - ZOHO IMPORT ".strtoupper($report_type)." COMPLETE\n\n\n\n";
 
         echo nl2br($log);
 
@@ -369,13 +371,13 @@ class MailgunZohoController extends Controller {
             'CX Sign Date'        => 'contract_signed',
             'CX Deposit Date'     => 'deposit_paid',
             'Prac Signed'         => 'completion_signed',
-            'Eng Certified'       => 'engineering_cert',
+            //'Eng Certified'       => 'engineering_cert',
             'CC Rcvd Date'        => 'construction_rcvd',
             'HBCF Start Date'     => 'hbcf_start',
             'Design Cons'         => 'consultant_initials',
             'Design Cons (user)'  => 'consultant_name',
             'Job Stage'           => 'job_stage',
-            'Eng FJ Certified?'   => 'engineering',
+            'Eng FJ Certified?'   => 'engineering_cert',
 
             // Contacts Module
             'Job Name (Job Name)' => 'name',
@@ -427,6 +429,27 @@ class MailgunZohoController extends Controller {
                 else if ($site->{$field} && !$zoho_data) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = $site->{$field};
+                } // only Zoho has data
+                else if (!$site->{$field} && $zoho_data) {
+                    $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
+                    $this->blankSWSFields["$site->id:$field"] = $zoho_data;
+                }
+            }
+        }
+
+        foreach ($yesno_fields as $field) {
+            $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
+            if (isset($head[$field])) {
+                $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
+
+                // both SWS + Zoho have data
+                if ($site->{$field} && $zoho_data && $site->{$field} != $zoho_data) {
+                    $diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
+                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
+                } // only SWS has data
+                else if ($site->{$field} && !$zoho_data) {
+                    //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
+                    $this->blankZohoFields["$site->id:$field"] = ($site->{$field}) ? 'YES' : 'NO';
                 } // only Zoho has data
                 else if (!$site->{$field} && $zoho_data) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";

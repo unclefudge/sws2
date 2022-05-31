@@ -147,6 +147,10 @@ class Todo extends Model {
                 $doc = CompanyDoc::find($this->type_id);
                 if ($doc)
                     return ($doc->expiry && $doc->expiry->gt(Carbon::today())) ? '/company/' . $doc->for_company_id . '/doc/' . $doc->id . '/edit' : '/company/' . $doc->for_company_id . '/doc';
+            case 'company doc review':
+                $doc = CompanyDocReview::find($this->type_id);
+                if ($doc)
+                    return ($doc->expiry && $doc->expiry->gt(Carbon::today())) ? '/company/' . $doc->for_company_id . '/doc/' . $doc->id . '/edit' : '/company/' . $doc->for_company_id . '/doc';
             case 'company ptc':
                 $ptc = CompanyDocPeriodTrade::find($this->type_id);
                 if ($ptc)

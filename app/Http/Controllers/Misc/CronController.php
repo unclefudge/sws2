@@ -60,6 +60,7 @@ class CronController extends Controller {
         CronController::brokenQaItem();
         CronController::emailPlannerKeyTasks();
         //CronController::actionPlannerKeyTasks();
+        CronController::verifyZohoImport();
 
         // Only run on week days otherwise get same email multiple times over weekend
         if (Carbon::today()->isMonday())
@@ -67,23 +68,6 @@ class CronController extends Controller {
 
         // Email Nightly Reports
         CronReportController::nightly();
-
-
-        /*if (Carbon::today()->isTuesday())
-            CronController::emailOutstandingQA();
-
-        if (Carbon::today()->isThursday()) {
-            CronController::emailJobstart();
-            CronController::emailEquipmentTransfers();
-            CronController::emailOnHoldQA();
-        }
-
-        // Fortnightly on Mondays starting 26 Oct 2020
-        $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
-        if (Carbon::today()->isMonday() && $start_monday->diffInDays(Carbon::now()) % 2 == 0)
-            CronController::emailFortnightlyReports();
-        */
-
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
@@ -958,4 +942,43 @@ class CronController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    /*
+     * Verify Zoho Import
+     */
+    static public function verifyZohoImport()
+    {
+        $log = '';
+        $email_name = "Verify Zoho Import";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $yesterday = Carbon::now()->subDays(1)->format('Ymd');
+        $successful = '';
+        $logfile = public_path("filebank/log/zoho/$yesterday.txt");
+
+        $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
+        $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
+
+        if ($jobs_complete && $contacts_complete) {
+            $log .= "Import successful\n";
+            $successful = "Zoho Import was SUCESSFUL";
+        } elseif ($jobs_complete) {
+            $log .= "Import of Contacts failed\n";
+        } elseif ($contacts_complete) {
+            $log .= "Import of Jobs failed\n";
+        } else {
+            $log .= "Import of Jobs + Contacts failed\n";
+        }
+
+        Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($successful));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 }

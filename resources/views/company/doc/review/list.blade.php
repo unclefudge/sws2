@@ -24,6 +24,7 @@
                                 <th width="5%"> #</th>
                                 <th> Document</th>
                                 <th> Assigned To</th>
+                                <th> Stage</th>
                                 <th> Updated</th>
                             </tr>
                             </thead>
@@ -59,8 +60,9 @@
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
             {data: 'name', name: 'name'},
-            {data: 'name', name: 'name'},
-            //{data: 'assigned_to', name: 'assigned_to'},
+            //{data: 'name', name: 'name'},
+            {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
+            {data: 'stage', name: 'stage'},
             {data: 'updated_at', name: 'updated_at'},
         ],
         order: [
