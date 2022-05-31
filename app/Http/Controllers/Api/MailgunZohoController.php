@@ -213,7 +213,7 @@ class MailgunZohoController extends Controller {
                         $datefields = [
                             'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
                             'construction_rcvd', 'hbcf_start'];
-                        $yesno_fields = ['engineering_cert'];
+                        $yesno_fields = ['engineering'];
                         $exclude_update = ['completion_signed'];
                         $all_fields = array_merge($fields, $datefields, $yesno_fields, $exclude_update);
 
@@ -259,7 +259,8 @@ class MailgunZohoController extends Controller {
                                         //}
 
                                     } elseif (in_array($field, $yesno_fields)) {
-                                        $newData = ($zoho_data == 'YES') ? 1 : 0;
+                                        //$newData = ($zoho_data == 'YES') ? 1 : 0;
+                                        $newData = ($zoho_data == 'YES') ? 1 : $site->{$field};  // temp only inport YES dat for Eng FJ Cert ?
                                     } else
                                         $newData = $zoho_data;
 
@@ -379,7 +380,7 @@ class MailgunZohoController extends Controller {
             'Design Cons'         => 'consultant_initials',
             'Design Cons (user)'  => 'consultant_name',
             'Job Stage'           => 'job_stage',
-            'Eng FJ Certified?'   => 'engineering_cert',
+            'Eng FJ Certified?'   => 'engineering',
 
             // Contacts Module
             'Job Name (Job Name)' => 'name',
@@ -445,15 +446,15 @@ class MailgunZohoController extends Controller {
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
 
                 // both SWS + Zoho have data
-                if ($site->{$field} && $zoho_data && $site->{$field} != $zoho_data) {
-                    $diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
-                    $this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
+                if ($site->{$field} != NULL && $zoho_data && $site->{$field} != $zoho_data) {
+                    //$diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
+                    //$this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
                 } // only SWS has data
-                else if ($site->{$field} && !$zoho_data) {
+                else if ($site->{$field} != NULL && !$zoho_data) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = ($site->{$field}) ? 'YES' : 'NO';
                 } // only Zoho has data
-                else if (!$site->{$field} && $zoho_data) {
+                else if ($site->{$field} == NULL && $zoho_data) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
                     $this->blankSWSFields["$site->id:$field"] = $zoho_data;
                 }
