@@ -142,7 +142,7 @@ class MailgunZohoController extends Controller {
                 //
                 // Report Type Row
                 //
-                if (!$row_report_type && (stripos($data[0], "Jobs modified") === 0 || stripos($data[0], "Contacts modified") === 0)) {
+                if (!$row_report_type && (stripos($data[0], "Jobs ") === 0 || stripos($data[0], "Contacts ") === 0)) {
                     //"Contacts modified today"
                     $row_report_type = $row;
 
