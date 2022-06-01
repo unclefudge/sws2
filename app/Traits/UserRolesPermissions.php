@@ -891,6 +891,12 @@ trait UserRolesPermissions {
                 return false;
             }
 
+            // Company Doc Review
+            if ($permissiontype == 'company.doc.review') {
+                if ($this->hasPermission2($permission)) return true; // User has the permission
+                return false;
+            }
+
             // Settings
             if ($permissiontype == 'settings') {
                 if ($this->hasPermission2($permission) && $record->company_id == $this->company_id) return true; // User belong to same company record

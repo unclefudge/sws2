@@ -2,7 +2,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-            <li><a href="/company/doc/standard">Standard Details</a><i class="fa fa-circle"></i></li>
+            <li><a href="/company/doc/standard/">Standard Details</a><i class="fa fa-circle"></i></li>
         <li><span>Review</span></li>
     </ul>
 @stop

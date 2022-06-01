@@ -33,6 +33,32 @@ class CompanyDocReview extends Model {
     }
 
     /**
+     * A CompanyReviewDoc 'may' be assigned to a User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function assignedTo()
+    {
+        $todo = $this->todos('1')->first();
+        if ($todo)
+            return $todo->assignedTo();
+        return null;
+    }
+
+    /**
+     * A CompanyReviewDoc 'may' be assigned to a User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function assignedToSBC()
+    {
+        $todo = $this->todos('1')->first();
+        if ($todo)
+            return $todo->assignedToBySBC();
+        return null;
+    }
+
+    /**
      * A CompanyReviewDoc 'may' have multiple ToDoos
      *
      * @return Collection
@@ -165,14 +191,26 @@ class CompanyDocReview extends Model {
 
 
     /**
-     * Get the Attachment URL (setter)
+     * Get the Original Doc URL (setter)
+     */
+    public function getOriginalDocUrlAttribute()
+    {
+        if ($this->attributes['original_doc'])// && file_exists(public_path('/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'])))
+            return '/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'];
+
+        return '';
+    }
+
+    /**
+     * Get the Current Doc URL (setter)
      */
     public function getCurrentDocUrlAttribute()
     {
         if ($this->attributes['current_doc'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company->id . '/docs/review/' . $this->attributes['current_doc'];
+            return '/filebank/company/' . $this->company_doc->company_id . '/docs/review/' . $this->attributes['current_doc'];
 
-        return '';
+        if ($this->attributes['original_doc'])// && file_exists(public_path('/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'])))
+            return '/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'];
     }
 
     /**
