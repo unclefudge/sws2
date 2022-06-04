@@ -15,6 +15,11 @@
                         <div class="caption font-dark">
                             <span class="caption-subject font-dark bold uppercase"> Standard Details</span>
                         </div>
+                        <div class="actions">
+                            @if(Auth::user()->hasAnyPermissionType('company.doc.review'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/company/doc/standard/review" data-original-title="Add">Under Review</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">

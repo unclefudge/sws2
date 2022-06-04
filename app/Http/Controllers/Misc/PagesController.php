@@ -169,7 +169,7 @@ class PagesController extends Controller {
 
         echo "<b>Creating Standard Details for Review $one_year</b></br>";
         $cat_ids = ['22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', 35];
-        $doc_ids = ['77', '78', '79'];
+        $doc_ids = ['77', '78', '79', '80', '81', '82', '83', '84', '85', '86'];
         $docs = CompanyDoc::whereIn('category_id', $cat_ids)->whereDate('updated_at', '<', $one_year)->get();
         $docs = CompanyDoc::whereIn('id', $doc_ids)->get();
         foreach ($docs as $doc) {
