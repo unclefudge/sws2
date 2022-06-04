@@ -169,9 +169,9 @@
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Documents</h3></li>
                                                         <li><a href="/company/doc/standard" class="nav-link "> Standard Details</a></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('company.doc.review'))
+                                                        {{--}}@if (Auth::user()->hasAnyPermissionType('company.doc.review'))
                                                             <li><a href="/equipment" class="nav-link "> Standard Details Review</a></li>
-                                                        @endif
+                                                        @endif --}}
                                                     </ul>
                                                 </div>
                                             @endif
