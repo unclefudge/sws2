@@ -7,8 +7,6 @@ use URL;
 use Mail;
 use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Misc\ContractorLicence;
-use App\Models\Misc\ContractorLicenceSupervisor;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +15,13 @@ class CompanyDocReview extends Model {
 
     protected $table = 'company_docs_review';
     protected $fillable = [
-        'doc_id', 'todo_id', 'name', 'stage', 'original_doc', 'current_doc',
+        'doc_id', 'todo_id', 'name', 'approved_con', 'approved_eng', 'approved_adm', 'stage', 'original_doc', 'current_doc',
         'notes', 'status', 'created_by', 'updated_by'];
-    //protected $dates = ['expiry', 'approved_at'];
+    protected $dates = ['approved_con', 'approved_eng', 'approved_adm'];
 
 
     /**
-     * A CompanyReviewDoc is for a CompanyDoc.
+     * A CompanyDocReview is for a CompanyDoc.
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -33,29 +31,23 @@ class CompanyDocReview extends Model {
     }
 
     /**
-     * A CompanyReviewDoc 'may' be assigned to a User
+     * A CompanyDocReview has many CompanyDocReviewFiles
      *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function assignedTo()
+    public function files()
     {
-        $todo = $this->todos('1')->first();
-        if ($todo)
-            return $todo->assignedTo();
-        return null;
+        return $this->hasMany('App\Models\Company\CompanyDocReviewFile', 'review_id');
     }
 
     /**
-     * A CompanyReviewDoc 'may' be assigned to a User
+     * A CompanyDocReview has many Company
      *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function assignedToSBC()
+    public function actions()
     {
-        $todo = $this->todos('1')->first();
-        if ($todo)
-            return $todo->assignedToBySBC();
-        return null;
+        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
     }
 
     /**
@@ -71,9 +63,37 @@ class CompanyDocReview extends Model {
         return Todo::where('type', 'company doc review')->where('type_id', $this->id)->get();
     }
 
+    /**
+     * A CompanyDocReview 'may' be assigned to a User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function assignedTo()
+    {
+        $todo = $this->todos('1')->first();
+        if ($todo)
+            return $todo->assignedTo();
+
+        return null;
+    }
 
     /**
-     * A Company Doc was updated by a user
+     * A CompanyDocReview 'may' be assigned to a User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function assignedToSBC()
+    {
+        $todo = $this->todos('1')->first();
+        if ($todo)
+            return $todo->assignedToBySBC();
+
+        return null;
+    }
+
+
+    /**
+     * A CompanyDocReview was updated by a user
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
@@ -82,28 +102,19 @@ class CompanyDocReview extends Model {
         return $this->belongsTo('App\User', 'updated_by');
     }
 
-    /**
-     * A Document belongs to a Category.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function category()
-    {
-        return $this->belongsTo('App\Models\Company\CompanyDocCategory', 'category_id');
-    }
-
 
     /**
-     * Create ToDoo for Company Doc to be approved and assign to given user(s)
+     * Create ToDoo for CompanyDocReview to be approved and assign to given user(s)
      */
-    public function createAssignToDo($user_list)
+    public function createAssignToDo($user_list, $due_at = null)
     {
+        $due_date = ($due_at) ? Carbon::createFromFormat('d/m/Y H:i', $due_at . '00:00')->toDateTimeString() : nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString();
         $todo_request = [
             'type'       => 'company doc review',
             'type_id'    => $this->id,
             'name'       => "Standard Details Review -  $this->name",
             'info'       => 'Please review the Standard Details document',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'due_at'     => $due_date,
             'company_id' => $this->company_doc->company_id,
         ];
 
@@ -156,6 +167,30 @@ class CompanyDocReview extends Model {
     }
 
     /**
+     * Email Action Notification
+     */
+    public function emailAction($action, $important = false)
+    {
+        $email_to = [env('EMAIL_DEV')];
+        $email_user = '';
+
+        if (\App::environment('prod')) {
+            //$email_list = $this->site->company->notificationsUsersEmailType('site.qa');
+            //$email_supers = $this->site->supervisorsEmails();
+            //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->supervisorsEmails();
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        }
+
+        /*
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        */
+    }
+
+    /**
      * Email document as Rejected
      */
     public function emailReject()
@@ -202,7 +237,7 @@ class CompanyDocReview extends Model {
     }
 
     /**
-     * Get the Current Doc URL (setter)
+     * Get the Current Doc URL
      */
     public function getCurrentDocUrlAttribute()
     {
@@ -212,6 +247,26 @@ class CompanyDocReview extends Model {
         if ($this->attributes['original_doc'])// && file_exists(public_path('/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'])))
             return '/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'];
     }
+
+    /**
+     * Get the Stage Text
+     */
+    public function getStageTextAttribute()
+    {
+        if ($this->attributes['stage'] == '1')
+            return 'Initial review by Con Mgr';
+        if ($this->attributes['stage'] == '2')
+            return 'Document to be assigned to draftsperson';
+        if ($this->attributes['stage'] == '3')
+            return 'Document being updated by draftsperson';
+        if ($this->attributes['stage'] == '4')
+            return 'Document review by Con Mgr';
+        if ($this->attributes['stage'] == '9')
+            return 'Review completed: assign renewal date';
+        if ($this->attributes['stage'] == '10')
+            return 'Review completed';
+    }
+
 
     /**
      * Display records last update_by + date

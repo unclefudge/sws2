@@ -393,7 +393,7 @@ class ReportController extends Controller {
                     elseif ($main->status == 1)
                         $assigned_days = $main->reported->diffInWeekDays($to);
 
-                    //echo "id:$main->id s:$main->status c:$count_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . $main->assigned_at->format('d/m/Y g:i') . "<br>";
+                    //echo "id:$main->id s:$main->status c:$total_allocated d:$days " . $main->reported->format('d/m/y g:i') . ' - ' . ($main->assigned_at) ? $main->assigned_at->format('d/m/Y g:i') : '*' . "<br>";
                     $total_allocated = $total_allocated + $assigned_days;
 
                     // Avg Client Contacted Days

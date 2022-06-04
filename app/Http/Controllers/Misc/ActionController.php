@@ -10,6 +10,7 @@ use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Company\CompanyDocReview;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -54,12 +55,13 @@ class ActionController extends Controller {
     {
         if ($request->ajax()) {
             $action = Action::create($request->all());
-            switch ($request->get('table')) {
-                case 'site_accidents': $record = SiteAccident::find($request->get('table_id')); break;
-                case 'site_hazards': $record = SiteHazard::find($request->get('table_id')); break;
-                case 'site_asbestos': $record = SiteAsbestos::find($request->get('table_id')); break;
-                case 'site_qa': $record = SiteQa::find($request->get('table_id')); break;
-                case 'site_maintenance': $record = SiteMaintenance::find($request->get('table_id')); break;
+            switch (request('table')) {
+                case 'site_accidents': $record = SiteAccident::find(request('table_id')); break;
+                case 'site_hazards': $record = SiteHazard::find(request('table_id')); break;
+                case 'site_asbestos': $record = SiteAsbestos::find(request('table_id')); break;
+                case 'site_qa': $record = SiteQa::find(request('table_id')); break;
+                case 'site_maintenance': $record = SiteMaintenance::find(request('table_id')); break;
+                case 'company_docs_review': $record = CompanyDocReview::find(request('table_id')); break;
             }
             $record->emailAction($action);
 

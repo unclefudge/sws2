@@ -16,9 +16,12 @@ class CreateCompanyDocsReviewTable extends Migration
         Schema::create('company_docs_review', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('doc_id')->unsigned();
-            $table->integer('todo_id')->unsigned()->nullable();
+            //$table->integer('todo_id')->unsigned()->nullable();
             $table->string('name')->nullable();
-            $table->string('stage')->nullable();
+            $table->tinyInteger('stage')->nullable();
+            $table->dateTime('approved_con')->nullable();
+            $table->dateTime('approved_eng')->nullable();
+            $table->dateTime('approved_adm')->nullable();
             $table->string('original_doc', 255)->nullable();
             $table->string('current_doc', 255)->nullable();
             $table->text('notes')->nullable();

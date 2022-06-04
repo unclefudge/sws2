@@ -177,8 +177,9 @@ class PagesController extends Controller {
             $review_doc = CompanyDocReview::where('doc_id', $doc->id)->first();
 
             if (!$review_doc) {
-                $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => 'Initial review by Con Mgr', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
-                $review_doc->createAssignToDo(3);
+                $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
+                $review_doc->createAssignToDo(7); // Gary
+                $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
             }
         }
         /*

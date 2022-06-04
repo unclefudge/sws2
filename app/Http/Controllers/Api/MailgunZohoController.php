@@ -447,6 +447,8 @@ class MailgunZohoController extends Controller {
             $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
+                if ($zoho_data)
+                    $zoho_data = ($zoho_data == 'YES') ? 1 : 0;
 
                 // both SWS + Zoho have data
                 if ($site->{$field} != NULL && $zoho_data && $site->{$field} != $zoho_data) {
@@ -459,7 +461,7 @@ class MailgunZohoController extends Controller {
                 } // only Zoho has data
                 else if ($site->{$field} == NULL && $zoho_data) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
-                    $this->blankSWSFields["$site->id:$field"] = $zoho_data;
+                    $this->blankSWSFields["$site->id:$field"] = ($zoho_data) ? 'YES' : 'NO';
                 }
             }
         }

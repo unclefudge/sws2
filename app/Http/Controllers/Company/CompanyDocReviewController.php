@@ -7,16 +7,14 @@ use Validator;
 
 use DB;
 use Session;
+use App\User;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Company\CompanyDocReviewFile;
 use App\Models\Company\CompanyDocCategory;
-use App\Models\Misc\ContractorLicenceSupervisor;
-use App\Http\Utilities\CompanyDocTypes;
+use App\Models\Misc\Action;
 use App\Http\Requests;
-use App\Http\Requests\Company\CompanyDocRequest;
-use App\Http\Requests\Company\CompanyProfileDocRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Yajra\Datatables\Datatables;
@@ -91,36 +89,92 @@ class CompanyDocReviewController extends Controller {
             return view('errors/404');
 
         $doc_request = request()->all();
-        $doc_request['expiry'] = (request('expiry')) ? Carbon::createFromFormat('d/m/Y H:i', request('expiry') . '00:00')->toDateTimeString() : null;
-
-
         //dd($doc_request);
-        $doc->update($doc_request);
 
-        // Handle attached file
-        if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-            $path = "filebank/company/" . $doc->company_doc->company_id . '/docs/review';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
-            $doc->save();
+        // Updates completed - Renew
+        if (request('renew')) {
+            if (request('next_review_date')) {
+                $doc->status = 0;
+                $doc->stage = 10;
+                $doc->approved_adm = Carbon::now()->toDateTimeString();
+                $doc->save();
+                $action = Action::create(['action' => 'Standard Details review completed - renewal date set ' . request('next_review_date'), 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+
+                // Update attachment + expiry date on Original Standard Details
+                if ($doc->current_doc) {
+                    // Delete old attached file
+                    $company_dir = '/filebank/company/' . $doc->company_doc->company_id . '/docs';
+                    if ($doc->company_doc->attachment && file_exists(public_path('/filebank/company/' . $doc->company_doc->company_id . '/docs/' . $doc->company_doc->attachment)))
+                        unlink(public_path('/filebank/company/' . $doc->company_doc->company_id . '/docs/' . $doc->company_doc->attachment));
+                    // Copy new file
+                    copy(public_path($doc->current_doc_url), public_path("$company_dir/$doc->current_doc"));
+                    $doc->company_doc->attachment = $doc->current_doc;
+                }
+
+                $doc->company_doc->expiry = Carbon::createFromFormat('d/m/Y H:i', request('next_review_date') . '00:00')->toDateTimeString();
+                $doc->company_doc->save();
+                $assigned_user = null;
+            } else
+                return back()->withErrors(['next_review_date' => "The next review date field is required."]);
+        } else {
+            if (request('approve_version')) {
+                // Version Approved by Con Mgr
+                $mesg = ($doc->stage == 1) ? 'Original Standard Details approved by Con Mgr - no changes required' : 'Updated Standard Details approved by Con Mgr';
+                $action = Action::create(['action' => $mesg, 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+
+                $doc->stage = 9; // Nadia set renew date
+                $doc->approved_con = Carbon::now()->toDateTimeString();
+                $doc->save();
+                $assigned_user = User::find(465); // Nadia
+            } elseif (request('assign_user')) {
+                // User assigned to update
+                $doc->stage = 3;
+                $doc->save();
+                $assigned_user = User::findOrFail(request('assign_user'));
+                $action = Action::create(['action' => "Assigned to $assigned_user->fullname to update", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+            } else {
+                if ($doc->stage == 1 || $doc->stage == 4) { // Updates to Standard Details by Con Mgr
+                    $doc->stage = 2; // Nadia assign Eng
+                    $doc->save();
+                    $action = Action::create(['action' => 'Standard Details updated by Con Mgr', 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+                    $assigned_user = User::find(465); // Nadia
+                } else if ($doc->stage == 3) { // Updates to Current Doc
+                    $doc->stage = 4; // Assigned to Con Mgr to review changes
+                    $doc->save();
+                    $current_user = Auth::user();
+                    $action = Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+                    $assigned_user = User::find(7); // Gary
+                }
+
+                // Handle attached file
+                if (request()->hasFile('singlefile')) {
+                    $file = request()->file('singlefile');
+                    $path = "filebank/company/" . $doc->company_doc->company_id . '/docs/review';
+                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+                    // Ensure filename is unique by adding counter to similiar filenames
+                    $count = 1;
+                    while (file_exists(public_path("$path/$name")))
+                        $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                    $file->move($path, $name);
+                    $doc->current_doc = $name;
+                    $doc->save();
+
+                    $doc_file = CompanyDocReviewFile::create(['review_id' => $doc->id, 'attachment' => $doc->current_doc]);
+                }
+            }
         }
 
-        // Close any ToDoo and create new one
+
+        // Close any ToDoo and create new one if assigned user
         $doc->closeToDo();
-        // Create approval ToDoo
-        //if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs'))
-        //    $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
-        //}
+        if ($assigned_user && request('due_at'))
+            $doc->createAssignToDo($assigned_user->id, request('due_at')); // Assigned User with due date
+        elseif ($assigned_user)
+            $doc->createAssignToDo($assigned_user->id); // Assigned User
 
         Toastr::success("Updated document");
 
-        return redirect("company/doc/standard/review/doc/$doc->id/edit");
+        return redirect("company/doc/standard/review/$doc->id/edit");
     }
 
     /**
@@ -139,10 +193,6 @@ class CompanyDocReviewController extends Controller {
         // Delete attached file
         if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment)))
             unlink(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment));
-
-        // Delete any assigned Supervisors for Contractor Licences
-        if ($doc->category_id == '7')
-            ContractorLicenceSupervisor::where('company_id', $doc->for_company_id)->delete();
 
         $doc->closeToDo();
         $doc->delete();
@@ -236,7 +286,7 @@ class CompanyDocReviewController extends Controller {
                     $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
                 $file->move($path, $name);
 
-                $doc_request['category_id'] = $request->get('category_id');
+                $doc_request['category_id'] = request('category_id');
                 $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $doc_request['company_id'] = Auth::user()->company_id;
                 $doc_request['for_company_id'] = Auth::user()->company_id;
@@ -267,12 +317,15 @@ class CompanyDocReviewController extends Controller {
         $records = CompanyDocReview::where('status', '1')->orderBy('updated_at');
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/company/doc/standard/review/{{$id}}"><i class="fa fa-search"></i></a></div>')
+            ->editColumn('id', '<div class="text-center"><a href="/company/doc/standard/review/{{$id}}/edit"><i class="fa fa-search"></i></a></div>')
             ->editColumn('assigned_to', function ($doc) {
                 //$todo = $doc->todos('1')->first();
                 //if ($todo)
                 return ($doc->assignedToSBC()) ? $doc->assignedToSBC() : '-';
                 //return "-";
+            })
+            ->addColumn('stage_text', function ($doc) {
+                return $doc->stage_text;
             })
             ->editColumn('updated_at', function ($doc) {
                 return $doc->updated_at->format('d/m/Y');

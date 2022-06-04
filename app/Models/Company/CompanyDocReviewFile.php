@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CompanyDocReviewFile extends Model {
 
-    protected $table = 'company_docs_review';
+    protected $table = 'company_docs_review_files';
     protected $fillable = ['review_id', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
     //protected $dates = ['expiry', 'approved_at'];
 
@@ -27,7 +27,7 @@ class CompanyDocReviewFile extends Model {
      */
     public function company_doc()
     {
-        return $this->belongsTo('App\Models\Company\CompanyDocRewview', 'review_id');
+        return $this->belongsTo('App\Models\Company\CompanyDocReview', 'review_id');
     }
 
 

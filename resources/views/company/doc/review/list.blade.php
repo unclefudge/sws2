@@ -62,7 +62,7 @@
             {data: 'name', name: 'name'},
             //{data: 'name', name: 'name'},
             {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
-            {data: 'stage', name: 'stage'},
+            {data: 'stage_text', name: 'stage_text'},
             {data: 'updated_at', name: 'updated_at'},
         ],
         order: [

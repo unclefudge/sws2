@@ -169,7 +169,14 @@
                             </tr>
                             </thead>
                             <tbody>
+                            <?php $assigned_total = 0; $counter = 0 ?>
                             @foreach($mains as $main)
+                                <?php
+                                $assigned = ($main->assigned_at) ? $main->reported->diffInDays($main->assigned_at) : $main->reported->diffInDays($to);
+                                        $assigned_total = $assigned_total + $assigned;
+                                $counter++;
+                                        $assign_avg = $assigned_total / $counter;
+                                        ?>
                                 <tr>
                                     <td>
                                         <div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div>
@@ -179,7 +186,7 @@
                                     <td>{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</td>
                                     <td>{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
-                                    <td>{{ ($main->assigned_at) ? $main->assigned_at->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ ($main->assigned_at) ? $main->assigned_at->format('d/m/Y') : '-' }} <br> {{ $assigned }} : {{ $assigned_total }} / {{ $assign_avg }}</td>
                                     <td>
                                         @if ($main->status == 0)
                                             {{  $main->updated_at->format('d/m/Y') }}
