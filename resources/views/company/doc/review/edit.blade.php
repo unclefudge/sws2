@@ -129,10 +129,11 @@
                                 <div class="col-md-5">
                                     <h4 class="font-green-haze">Files</h4>
                                     <hr class="field-hr">
-                                    <i class="fa fa-file-pdf-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard Details</a><br>
+                                    1. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $doc->original_doc_url }}" target="_blank"> Original Standard Details</a><br>
                                     @if (count($doc->files))
+                                        <?php $counter = 2; ?>
                                         @foreach($doc->files as $file)
-                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->fullname }})</i><br>
+                                            {{ $counter++ }}. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->fullname }})</i><br>
                                         @endforeach
                                     @endif
                                 </div>
