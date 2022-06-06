@@ -458,8 +458,9 @@ class CronReportController extends Controller {
         $mains = [];
         foreach ($active_requests as $main) {
             if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
-                $mains[] = $main;
+                $mains[$main->lastAction()->updated_at->format('Ymd')] = $main;
         }
+        ksort($mains);
 
         $data = ['data' => $mains];
         if ($email_list) {

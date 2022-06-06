@@ -336,8 +336,9 @@ class ReportController extends Controller {
         $mains = [];
         foreach ($active_requests as $main) {
             if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
-                $mains[] = $main;
+                $mains[$main->lastAction()->updated_at->format('Ymd')] = $main;
         }
+        ksort($mains);
 
         return view('manage/report/site/maintenance_no_action', compact('mains'));
     }
