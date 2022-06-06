@@ -139,7 +139,7 @@
                                     <td>{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</td>
                                     <td>{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
-                                    <td>{{ ($main->assigned_at) ? $main->assigned_at->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</td>
                                     <td>
                                         @if ($main->status == 0)
                                             {{  $main->updated_at->format('d/m/Y') }}
