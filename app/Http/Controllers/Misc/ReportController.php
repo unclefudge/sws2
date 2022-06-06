@@ -385,8 +385,8 @@ class ReportController extends Controller {
                     $total_completed = $total_completed + $days;
 
                     // Avg Assigned Days
-                    if ($main->assigned_at) {
-                        $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                    if ($main->assigned_super_at) {
+                        $assigned_at = Carbon::createFromFormat('d/m/Y H:i', $main->assigned_super_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
                         $assigned_days = $assigned_at->diffInWeekDays($main->reported);
                     } elseif ($main->status == 0 || $main->status == 3)
                         $assigned_days = $main->reported->diffInWeekDays($main->updated_at);

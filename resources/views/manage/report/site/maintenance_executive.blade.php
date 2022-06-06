@@ -70,7 +70,7 @@
                             <div class="col-md-2"></div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12"><span class="font-red">Above stats are calculated from requests created after 1st May and exclude {{ $excluded }} earlier requests.</span> </div>
+                            <div class="col-md-12"><span class="font-red">Above stats are calculated from requests created after 1st May and exclude {{ $excluded }} earlier requests.</span></div>
                         </div>
                         <hr>
                         <div class="row">
@@ -172,11 +172,17 @@
                             <?php $assigned_total = 0; $counter = 0 ?>
                             @foreach($mains as $main)
                                 <?php
-                                $assigned = ($main->assigned_at) ? $main->reported->diffInDays($main->assigned_at) : $main->reported->diffInDays($to);
-                                        $assigned_total = $assigned_total + $assigned;
-                                $counter++;
-                                        $assign_avg = $assigned_total / $counter;
-                                        ?>
+                                /*if ($main->assigned_super_at) {
+                                    $assigned_at = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $main->assigned_super_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                                    $assigned = $assigned_at->diffInWeekDays($main->reported);
+                                } elseif ($main->status == 0 || $main->status == 3)
+                                    $assigned = $main->reported->diffInWeekDays($main->updated_at);
+                                elseif ($main->status == 1)
+                                    $assigned = $main->reported->diffInWeekDays($to);
+                                $assigned_total = $assigned_total + $assigned;
+                                $counter ++;
+                                $assign_avg = $assigned_total / $counter;*/
+                                ?>
                                 <tr>
                                     <td>
                                         <div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div>
@@ -186,7 +192,7 @@
                                     <td>{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</td>
                                     <td>{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
-                                    <td>{{ ($main->assigned_at) ? $main->assigned_at->format('d/m/Y') : '-' }} <br> {{ $assigned }} : {{ $assigned_total }} / {{ $assign_avg }}</td>
+                                    <td>{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</span> {{--}} : {{ $assigned_total }} / {{ $assign_avg }} --}}</td>
                                     <td>
                                         @if ($main->status == 0)
                                             {{  $main->updated_at->format('d/m/Y') }}
