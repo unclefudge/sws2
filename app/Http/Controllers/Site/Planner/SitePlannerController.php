@@ -236,6 +236,24 @@ class SitePlannerController extends Controller {
     }
 
     /**
+     * Show Roster Planner
+     */
+    public function showRoster()
+    {
+        $date = request('date');
+        $supervisor_id = request('supervisor_id');
+        $site_id = request('site_id');
+        if (request('site_start'))
+            $site_start = request('site_start');
+        else
+            $site_start = 'week';
+
+        $site = Site::find($site_id);
+
+        return view('planner/roster', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site'));
+    }
+
+    /**
      * Show Trade Planner
      */
     public function showTrade()
@@ -566,7 +584,7 @@ class SitePlannerController extends Controller {
             // Determine start dates
             if (!$vars['first_date']) {
                 $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $array['from'] . ' 00:00:00');
-                $vars['first_date'] = ($date_from->lt($first_date)) ?  $array['from'] : $first_date->format('Y-m-d');
+                $vars['first_date'] = ($date_from->lt($first_date)) ? $array['from'] : $first_date->format('Y-m-d');
             }
             if (!$vars['start_date'] && $array['task_code'] == 'START') $vars['start_date'] = $array['from'];
             if (!$vars['start_carp'] && $array['task_code'] == 'STARTCarp') $vars['start_carp'] = $array['from'];
@@ -773,6 +791,201 @@ class SitePlannerController extends Controller {
         $json[] = $roster;
         $json[] = $non_roster;
         $json[] = $sel_site;
+        $json[] = $permission;
+
+        return $json;
+    }
+
+    /**
+     * Get Site Roster for specific site
+     */
+    public function getSiteRoster($site_id, $date)
+    {
+        $today = Carbon::now()->format('Y-m-d');
+        $carbon_date = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
+        $weekend = ($carbon_date->isWeekend() ? 1 : 0);
+
+
+        // Site with current tasks on given date
+        $site_list = [];
+        $sites = Auth::user()->authSites('edit.roster');
+        foreach ($sites as $site) {
+            if ($site->anyTasksOnDate($date) && !in_array($site->id, $site_list))
+                $site_list[] = $site->id;
+        }
+        //$site_list = [177, 532, 655];
+
+        $site_roster = [];
+        foreach ($site_list as $site_id) {
+            $site = Site::find($site_id);
+            $site_array = [];
+            $site_array['id'] = $site_id;
+            $site_array['name'] = $site->name;
+
+            $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+                ->whereDate('from', '<=', $date)->whereDate('to', '>=', $date)
+                ->where('site_id', $site_id)->where('weekend', $weekend)->get();
+
+            //$dayplan = [];
+            $r_entities = [];
+            $planner_ids = [];
+            $user_list = [];
+            foreach ($planner as $plan) {
+                $planner_ids[] = $plan->id;
+                $array = $this->getPlanData($plan);
+                $key = $plan->entity_type . '.' . $plan->entity_id;
+
+                // Add task to Entity's existing task else add Entity to list
+                if (isset($r_entities[$key])) {
+                    $r_entities[$key]['tasks'] .= ', ' . $array['task_name'];
+                    $r_entities[$key]['plan_ids'] .= ', ' . $plan->id;
+                } else {
+                    $attendance = [];
+                    if ($plan->entity_type == 'c') {
+                        // Get Staff Attendance on Current Site
+                        $staff = Company::find($plan->entity_id)->staff->pluck('id')->toArray();
+                        $roster = SiteRoster::where('site_id', $plan->site_id)->where('date', '=', $date)->whereIn('user_id', $staff)->get();
+
+                        // If today Roster will be all active company to give us the ability to add/remove them from Roster database
+                        if ($date == $today)
+                            $roster = Company::findOrFail($plan->entity_id)->staffStatus(1);
+
+                        foreach ($roster as $rostered) {
+                            // If today then determine if user is on planner otherwise we know they already are
+                            if ($date == $today) {
+                                $user = User::find($rostered->id);
+                                $roster_id = $plan->site->isUserOnRoster($user->id, $date);
+                                //echo "rid:" . $roster_id . ' user:' . $rostered->id . ' date:' . $date . "<br>";
+                            } else {
+                                $user = User::find($rostered->user_id);
+                                $roster_id = $rostered->id;
+                                //echo "rid:" . $rostered->id . ' user:' . $rostered->user_id . ' date:' . $rostered->date . "<br>";
+                            }
+
+                            $user_list[] = $user->id; // add to user_list to determine non-rostered users later
+                            // Current Site attendance
+                            $attended = ($onsite = $plan->site->isUserOnsite($user->id, $date)) ? $onsite->date->format('H:i:s') : '';
+                            // Other Site attendance
+                            $attend_other = SiteAttendance::where('user_id', $user->id)
+                                ->where('site_id', '<>', $plan->site->id)->whereDate('date', '=', $date)
+                                ->orderBy('date')->get();
+                            $other_sites = '';
+                            foreach ($attend_other as $attend) {
+                                $other_site = Site::find($attend->site_id);
+                                ($other_sites) ? $other_sites .= ', ' . $other_site->nameShort . ' (' . $attend->date->format('g:i a') . ')' :
+                                    $other_sites = $other_site->nameShort . ' (' . $attend->date->format('g:i a') . ')';
+                            }
+                            $attendance[] = ['user_id' => $user->id, 'name' => $user->fullname, 'roster_id' => $roster_id, 'attended' => $attended, 'other_sites' => $other_sites];
+                            //echo "Company:".$array['entity_name']."<br>";
+                        }
+                    }
+                    $r_entities[$key] = [
+                        'site_id'     => $plan->site_id,
+                        'key'         => $key,
+                        'entity_type' => $plan->entity_type,
+                        'entity_id'   => $plan->entity_id,
+                        'entity_name' => $array['entity_name'],
+                        'tasks'       => $array['task_name'],
+                        'plan_ids'    => $plan->id,
+                        'attendance'  => $attendance,
+                        'open'        => false
+                    ];
+                }
+                //$dayplan[] = $array;
+
+            }
+
+            // Non-Rostered attendees
+            $n_entities = [];
+            $non_rostered = SiteAttendance::where('site_id', $site_id)->whereDate('date', '=', $date)->whereNotIn('user_id', $user_list)->get();
+            foreach ($non_rostered as $non) {
+                $company = User::find($non->user_id)->company;
+                $key = 'c.' . $company->id;
+
+                $attendance = [];
+                // Get All Staff Non Rostered Attendance
+                $staff = $company->staff->pluck('id')->toArray();
+                foreach ($staff as $s) {
+                    $user = User::find($s);
+                    // Current Site attendance
+                    $attended = ($onsite = $non->site->isUserOnsite($user->id, $date)) ? $onsite->date->format('H:i:s') : '';
+                    if ($attended) {
+                        // Other Site attendance
+                        $attend_other = SiteAttendance::where('user_id', $user->id)
+                            ->where('site_id', '<>', $non->site->id)->whereDate('date', '=', $date)->orderBy('date')->get();
+                        $other_sites = '';
+                        foreach ($attend_other as $attend) {
+                            $other_site = Site::find($attend->site_id);
+                            ($other_sites) ? $other_sites .= ', ' . $other_site->nameShort . ' (' . $attend->date->format('g:i a') . ')' :
+                                $other_sites = $other_site->nameShort . ' (' . $attend->date->format('g:i a') . ')';
+                        }
+                        $attendance[] = ['user_id' => $user->id, 'name' => $user->fullname, 'attended' => $attended, 'other_sites' => $other_sites];
+                    }
+                }
+
+                if (!isset($n_entities[$key])) {
+                    $n_entities[$key] = [
+                        'site_id'     => $plan->site_id,
+                        'key'         => $key,
+                        'entity_type' => 'c',
+                        'entity_id'   => $company->id,
+                        'entity_name' => $company->name_alias,
+                        'tasks'       => 'Unrostered',
+                        'attendance'  => $attendance,
+                        'open'        => false
+                    ];
+                }
+            }
+
+            // Sort Rostered
+            $roster = [];
+            foreach ($r_entities as $entity) {
+                usort($entity['attendance'], 'sortName');
+                $roster[] = $entity;
+            }
+            usort($roster, 'sortEntityName');
+
+            // Sort Non Rostered
+            $non_roster = [];
+            foreach ($n_entities as $entity) {
+                usort($entity['attendance'], 'sortName');
+                $non_roster[] = $entity;
+            }
+            usort($non_roster, 'sortEntityName');
+
+            $site_array['roster'] = $roster;
+            $site_array['non_roster'] = $non_roster;
+
+            $site_roster[] = $site_array;
+        }
+
+
+
+        $sel_site = [];
+        //$sel_site[] = ['value' => '', 'text' => 'Select Site'];
+        $sites = Auth::user()->authSites('view.roster');
+        foreach ($sites as $site) {
+            if (Auth::user()->company->addon('planner')) {
+                if ($site->anyTasksOnDate($date))
+                    $sel_site[] = ['value' => $site->id, 'text' => $site->name];
+            } else
+                if ($site->isCompanyOnPlanner(Auth::user()->company_id, $date))
+                    $sel_site[] = ['value' => $site->id, 'text' => $site->name];
+        }
+
+        // Get Users permissions
+        $permission = '';
+        if (Auth::user()->hasPermission2('view.roster'))
+            $permission = 'view';
+        if (Auth::user()->hasPermission2('edit.roster'))
+            $permission = 'edit';
+
+        $json = [];
+        //$json[] = []; //$dayplan;
+        //$json[] = []; //$roster;
+        //$json[] = []; //$non_roster;
+        //$json[] = $sel_site;
+        $json[] = $site_roster;
         $json[] = $permission;
 
         return $json;

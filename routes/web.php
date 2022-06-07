@@ -524,6 +524,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('planner/site/{site_id}', 'Site\Planner\SitePlannerController@showSite');
     Route::any('planner/trade', 'Site\Planner\SitePlannerController@showTrade');
     Route::any('planner/roster', 'Site\Planner\SitePlannerController@showAttendance');
+    Route::any('planner/roster2', 'Site\Planner\SitePlannerController@showRoster');
     Route::any('planner/transient', 'Site\Planner\SitePlannerController@showTransient');
     Route::any('planner/preconstruction', 'Site\Planner\SitePlannerController@showPreconstruction');
     Route::any('planner/preconstruction/{site_id}', 'Site\Planner\SitePlannerController@showPreconstruction');
@@ -532,6 +533,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('planner/data/sites', 'Site\Planner\SitePlannerController@getSites');
     Route::get('planner/data/site/{site_id}', 'Site\Planner\SitePlannerController@getSitePlan');
     Route::get('planner/data/site/{site_id}/attendance/{date}', 'Site\Planner\SitePlannerController@getSiteAttendance');
+    Route::get('planner/data/site/{site_id}/roster/{date}', 'Site\Planner\SitePlannerController@getSiteRoster');
     Route::get('planner/data/site/{site_id}/allocate/{user_id}', 'Site\Planner\SitePlannerController@allocateSiteSupervisor');
     Route::any('planner/data/roster/user', 'Site\Planner\SitePlannerController@addUserRoster');
     Route::any('planner/data/roster/user/{id}', 'Site\Planner\SitePlannerController@delUserRoster');
