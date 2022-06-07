@@ -111,7 +111,7 @@ Vue.component('app-attend', {
         },
         checkall: function (entity, action) {
             for (var i = 0; i < entity.attendance.length; i++)
-                this.updateRoster(entity.attendance[i], action);
+                this.updateRoster(entity.attendance[i], entity.site_id, action);
         },
         enitityAllOnsite: function (entity) {
             // All users that are rostered on are onsite
