@@ -523,8 +523,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('planner/site', 'Site\Planner\SitePlannerController@showSite');
     Route::any('planner/site/{site_id}', 'Site\Planner\SitePlannerController@showSite');
     Route::any('planner/trade', 'Site\Planner\SitePlannerController@showTrade');
-    Route::any('planner/roster', 'Site\Planner\SitePlannerController@showAttendance');
-    Route::any('planner/roster2', 'Site\Planner\SitePlannerController@showRoster');
+    Route::any('planner/roster1', 'Site\Planner\SitePlannerController@showAttendance');
+    Route::any('planner/roster', 'Site\Planner\SitePlannerController@showRoster');
     Route::any('planner/transient', 'Site\Planner\SitePlannerController@showTransient');
     Route::any('planner/preconstruction', 'Site\Planner\SitePlannerController@showPreconstruction');
     Route::any('planner/preconstruction/{site_id}', 'Site\Planner\SitePlannerController@showPreconstruction');
