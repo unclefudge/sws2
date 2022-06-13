@@ -81,7 +81,7 @@
                                 <input type="hidden" name="add_field" id="add_field" value="{{ ($errors->has('add_field_name')) ? 1 : 0 }}">
 
                                 <div class="row">
-                                    <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings)+1 }}. &nbsp; </span></div>
+                                    <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings) }}. &nbsp; </span></div>
                                     <div class="col-md-2">
                                         <div class="form-group {!! fieldHasError('add_field_name', $errors) !!}">
                                             {!! Form::text('add_field_name', null, ['class' => 'form-control']) !!}
