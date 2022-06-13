@@ -83,9 +83,11 @@
                             <tr>
                                 <td><a href="/manage/report/attendance">Attendance</a></td>
                             </tr>
-                            <tr>
-                                <td><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a></td>
-                            </tr>
+                            @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
+                                <tr>
+                                    <td><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a></td>
+                                </tr>
+                            @endif
                             {{-- Quality Assurance --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Quality Assurance</th>

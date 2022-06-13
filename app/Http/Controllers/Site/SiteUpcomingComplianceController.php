@@ -45,9 +45,11 @@ class SiteUpcomingComplianceController extends Controller {
         $settings_select = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('name', 'order')->toArray();
         $colours = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('colour', 'order')->toArray();
         $settings_colours = [];
-        foreach ($colours as $order => $colour) {
-            list($col1, $col2, $hex) = explode('-', $colour);
-            $settings_colours[$order] = "#$hex";
+        if ($colours) {
+            foreach ($colours as $order => $colour) {
+                list($col1, $col2, $hex) = explode('-', $colour);
+                $settings_colours[$order] = "#$hex";
+            }
         }
 
 
@@ -123,12 +125,6 @@ class SiteUpcomingComplianceController extends Controller {
             $site->fc_struct_stage = request('fc_struct_stage');
             $site->save();
         }
-
-        // Create PDF
-        //$project->attacsitehment = $this->createPDF($project->id);
-        //$project->save();
-        //$project->closeToDo(Auth::user());
-
 
         Toastr::success("Updated compliance");
 
@@ -209,7 +205,7 @@ class SiteUpcomingComplianceController extends Controller {
         $setting = SiteUpcomingSettings::findOrFail($id)->delete();
 
         // Re-orer settings
-        $settings = SiteUpcomingSettings::where('status', 1)->orderBy('order')->get();
+        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->orderBy('order')->get();
         $order = 1;
         foreach ($settings as $setting) {
             $setting->order = $order ++;
