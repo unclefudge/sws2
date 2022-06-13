@@ -150,7 +150,7 @@ class SiteUpcomingComplianceController extends Controller {
             request()->validate($rules, $mesg); // Validate
         }
 
-        $settings = SiteUpcomingSettings::where('status', 1)->get();
+        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
         // Get field values from request
         foreach ($settings as $setting) {
             if (request()->has("opt-$setting->id")) {
