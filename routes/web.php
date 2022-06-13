@@ -141,6 +141,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/site_inspections', 'Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', 'Misc\ReportController@getSiteInspections');
 
+    // Reports - Upcoming Compliance
+    Route::post('manage/report/upcoming_compliance/update_job', 'Site\SiteUpcomingComplianceController@updateJob');
+    Route::get('manage/report/upcoming_compliance/settings', 'Site\SiteUpcomingComplianceController@settings');
+    Route::post('manage/report/upcoming_compliance/settings', 'Site\SiteUpcomingComplianceController@updateSettings');
+    Route::get('manage/report/upcoming_compliance/settings/del/{id}', 'Site\SiteUpcomingComplianceController@deleteSetting');
+    Route::get('manage/report/upcoming_compliance/pdf', 'Site\SiteUpcomingComplianceController@showPDF');
+    Route::post('manage/report/upcoming_compliance/pdf', 'Site\SiteUpcomingComplianceController@createPDF');
+    //Route::get('manage/report/upcoming_compliance/{id}/createpdf', 'Site\SiteUpcomingComplianceController@createPDF');
+    Route::resource('manage/report/upcoming_compliance', 'Site\SiteUpcomingComplianceController');
+
 
     // User Docs
     Route::get('user/{uid}/doc/dt/docs', 'User\UserDocController@getDocs');
@@ -499,7 +509,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('equipment/stocktake/view/{id}', 'Misc\EquipmentStocktakeController@showStocktake');
     Route::get('equipment/stocktake/{id}/edit/{tab}', 'Misc\EquipmentStocktakeController@edit');
     Route::resource('equipment/stocktake', 'Misc\EquipmentStocktakeController');
-
 
 
     // Configuration

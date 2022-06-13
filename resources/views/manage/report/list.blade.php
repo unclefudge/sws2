@@ -33,6 +33,7 @@
                             <tr>
                                 <td><a href="/manage/report/recent">Recent Reports</a></td>
                             </tr>
+                            {{-- User --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> User</th>
                             </tr>
@@ -50,6 +51,7 @@
                             <tr>
                                 <td><a href="/manage/report/users_contactinfo">Users Contact Info</a></td>
                             </tr>
+                            {{-- Company --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Company</th>
                             </tr>
@@ -74,12 +76,17 @@
                             <tr>
                                 <td><a href="/manage/report/expired_company_docs">Expired Company Documents</a></td>
                             </tr>
+                            {{-- Site --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Site</th>
                             </tr>
                             <tr>
                                 <td><a href="/manage/report/attendance">Attendance</a></td>
                             </tr>
+                            <tr>
+                                <td><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a></td>
+                            </tr>
+                            {{-- Quality Assurance --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Quality Assurance</th>
                             </tr>
@@ -89,6 +96,7 @@
                             <tr>
                                 <td><a href="/manage/report/qa_outstanding">Outstanding QA</a></td>
                             </tr>
+                            {{-- Maintenance --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Maintenance Requests</th>
                             </tr>
@@ -108,6 +116,7 @@
                                 <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                             </tr>
                             @if (Auth::user()->isCC())
+                                {{-- Equipment --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Equipment</th>
                                 </tr>
@@ -129,6 +138,7 @@
                                 <tr>
                                     <td><a href="/manage/report/equipment_restock">Equipment Restock Items</a></td>
                                 </tr>
+                                {{-- Accounting --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Accounting</th>
                                 </tr>
@@ -136,6 +146,7 @@
                                     <td><a href="/manage/report/payroll">Payroll</a></td>
                                 </tr>
                             @endif
+                            {{-- Security --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Security</th>
                             </tr>
@@ -146,6 +157,7 @@
                                 <td><a href="/manage/report/users_extra_permissions">Users with extra permissions (on top of what is provided by their role)</a></td>
                             </tr>
                             @if (Auth::user()->hasRole2('web-admin'))
+                                {{-- Web Admin --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Website Admin</th>
                                 </tr>

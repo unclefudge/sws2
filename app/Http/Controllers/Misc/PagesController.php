@@ -1595,8 +1595,8 @@ class PagesController extends Controller {
         //
         // Creating Permission
         //
-        $name = 'Company Doc Review';
-        $slug = 'company.doc.review';
+        $name = 'Site Upcoming Compliance';
+        $slug = 'site.upcoming.compliance';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

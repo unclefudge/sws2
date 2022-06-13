@@ -674,6 +674,14 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('del.site.project.supply', 'res', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%"></td>
                                                 </tr>
+                                                <tr>
+                                                    <td>Upcoming Jobs Compliance</td>
+                                                    <td width="15%">{!! permSelect('view.site.upcoming.compliance', 'all', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.site.upcoming.compliance', 'all', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
+                                                    <td width="15%">{!! permSelect('del.site.upcoming.compliance', 'res', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
+                                                </tr>
                                             </table>
                                         @endif
                                     </div>
