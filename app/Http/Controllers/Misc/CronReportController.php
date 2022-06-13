@@ -51,11 +51,11 @@ class CronReportController extends Controller {
 
         // Weekly Reports
         if (Carbon::today()->isMonday()) {
+            CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
         }
 
         if (Carbon::today()->isTuesday()) {
-            CronReportController::emailJobstart();
             CronReportController::emailOutstandingQA();
         }
 
