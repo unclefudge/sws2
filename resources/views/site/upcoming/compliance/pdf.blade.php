@@ -3,11 +3,11 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('manage.report'))
-            <li><a href="/manage/report">Management Reports</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site'))
+            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
         @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
-            <li><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/upcoming/compliance">Upcoming Jobs Compliance Data</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>PDF</span></li>
     </ul>
@@ -46,7 +46,7 @@
                         </div>
                         <br>
                         <div class="form-actions right">
-                            <a href="/site/export" class="btn default"> Back</a>
+                            <a href="/site/upcoming/compliance" class="btn default"> Back</a>
                         </div>
                         {!! Form::close() !!}
                     </div>

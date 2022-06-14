@@ -141,16 +141,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/site_inspections', 'Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', 'Misc\ReportController@getSiteInspections');
 
-    // Reports - Upcoming Compliance
-    Route::post('manage/report/upcoming_compliance/update_job', 'Site\SiteUpcomingComplianceController@updateJob');
-    Route::get('manage/report/upcoming_compliance/settings', 'Site\SiteUpcomingComplianceController@settings');
-    Route::post('manage/report/upcoming_compliance/settings', 'Site\SiteUpcomingComplianceController@updateSettings');
-    Route::get('manage/report/upcoming_compliance/settings/del/{id}', 'Site\SiteUpcomingComplianceController@deleteSetting');
-    Route::get('manage/report/upcoming_compliance/pdf', 'Site\SiteUpcomingComplianceController@showPDF');
-    Route::post('manage/report/upcoming_compliance/pdf', 'Site\SiteUpcomingComplianceController@createPDF');
-    //Route::get('manage/report/upcoming_compliance/{id}/createpdf', 'Site\SiteUpcomingComplianceController@createPDF');
-    Route::resource('manage/report/upcoming_compliance', 'Site\SiteUpcomingComplianceController');
-
 
     // User Docs
     Route::get('user/{uid}/doc/dt/docs', 'User\UserDocController@getDocs');
@@ -267,6 +257,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/supply/delete/{id}', 'Site\SiteProjectSupplyController@deleteItem');
     Route::get('site/supply/{id}/createpdf', 'Site\SiteProjectSupplyController@createPDF');
     Route::resource('site/supply', 'Site\SiteProjectSupplyController');
+
+    // Upcoming Compliance
+    Route::post('site/upcoming/compliance/update_job', 'Site\SiteUpcomingComplianceController@updateJob');
+    Route::get('site/upcoming/compliance/settings', 'Site\SiteUpcomingComplianceController@settings');
+    Route::post('site/upcoming/compliance/settings', 'Site\SiteUpcomingComplianceController@updateSettings');
+    Route::get('site/upcoming/compliance/settings/del/{id}', 'Site\SiteUpcomingComplianceController@deleteSetting');
+    Route::get('site/upcoming/compliance/pdf', 'Site\SiteUpcomingComplianceController@showPDF');
+    Route::post('site/upcoming/compliance/pdf', 'Site\SiteUpcomingComplianceController@createPDF');
+    //Route::get('manage/report/upcoming_compliance/{id}/createpdf', 'Site\SiteUpcomingComplianceController@createPDF');
+    Route::resource('site/upcoming/compliance', 'Site\SiteUpcomingComplianceController');
 
     // Site Hazards
     Route::get('site/hazard/dt/hazards', 'Site\SiteHazardController@getHazards');

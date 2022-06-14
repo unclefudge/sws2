@@ -85,7 +85,7 @@
                             </tr>
                             @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
                                 <tr>
-                                    <td><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a></td>
+                                    <td><a href="/site/upcoming/compliance">Upcoming Jobs Compliance Data</a></td>
                                 </tr>
                             @endif
                             {{-- Quality Assurance --}}

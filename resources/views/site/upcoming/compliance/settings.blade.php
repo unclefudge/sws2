@@ -3,11 +3,11 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('manage.report'))
-            <li><a href="/manage/report">Management Reports</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site'))
+            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
         @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
-            <li><a href="/manage/report/upcoming_compliance">Upcoming Jobs Compliance Data</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/upcoming/compliance">Upcoming Jobs Compliance Data</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Settings</span></li>
     </ul>
@@ -41,7 +41,12 @@
                             @foreach ($fields as $field => $title)
                                 <h3>{{ $title }}</h3>
                                 <hr class="field-hr">
-                                <?php $recs = $settings->where('field', $field) ?>
+                                <div class="row">
+                                    <div class="col-md-1">&nbsp;</div>
+                                    <div class="col-md-2"><b>Name</b></div>
+                                    <div class="col-md-3"><b>Default text</b></div>
+                                    <div class="col-md-6"><b>Colour</b></div>
+                                </div>
                                 @foreach ($settings->where('field', $field)->sortBy('order') as $setting)
                                     <div class="row">
                                         <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ $setting->order }}. &nbsp; </span></div>
@@ -49,6 +54,12 @@
                                             <div class="form-group {!! fieldHasError("$field-$setting->id", $errors) !!}">
                                                 {!! Form::text("$field-$setting->id", $setting->name, ['class' => 'form-control', 'id' => "$field-$setting->id"]) !!}
                                                 {!! fieldErrorMessage("$field-$setting->id", $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError("$field-$setting->id-text", $errors) !!}">
+                                                {!! Form::text("$field-$setting->id-text", $setting->value, ['class' => 'form-control', 'id' => "$field-$setting->id-text"]) !!}
+                                                {!! fieldErrorMessage("$field-$setting->id-text", $errors) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -99,51 +110,20 @@
                                 </div>
                             </div>
                             <br>
-                                <h3>Email list</h3>
-                                <hr class="field-hr">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
-                                            {!! Form::label('email_list', 'Email List', ['class' => 'control-label']) !!}
-                                            {!! Form::select('email_list', ['' => 'Select user(s)'] + Auth::user()->company->staffSelect('select', '1'), $email_list, ['class' => 'form-control select2', 'name' => 'email_list[]', 'id'  => 'email_list', 'title' => 'Select one or more users', 'multiple']) !!}
-                                            {!! fieldErrorMessage('email_list', $errors) !!}
-                                        </div>
+                            {{--}}
+                            <h3>Email list</h3>
+                            <hr class="field-hr">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
+                                        {!! Form::label('email_list', 'Email List', ['class' => 'control-label']) !!}
+                                        {!! Form::select('email_list', ['' => 'Select user(s)'] + Auth::user()->company->staffSelect('select', '1'), $email_list, ['class' => 'form-control select2', 'name' => 'email_list[]', 'id'  => 'email_list', 'title' => 'Select one or more users', 'multiple']) !!}
+                                        {!! fieldErrorMessage('email_list', $errors) !!}
                                     </div>
                                 </div>
-
-                            {{-- CC --}}
-                            {{--}}
-                        <h3>CC</h3>
-                        <hr class="field-hr">
-
-                        @foreach ($cc as $setting)
-                            <div class="row">
-                                <div class="col-md-2">
-                                    {!! Form::text("cc-$setting->id", $setting->name, ['class' => 'form-control', 'id' => "cc-$setting->id"]) !!}
-                                </div>
-                                <div class="col-md-4">
-                                    @foreach ($colours as $colour)
-                                        @if ($colour == $setting->colour)
-                                            <span class="hoverDiv" style="padding: 3px" id="cc_{{$setting->id}}_{{$colour}}_s"><img src="/img/{{$colour}}.png" id="cc_{{$setting->id}}_{{$colour}}_i"></span>
-                                        @else
-                                            <span class="hoverDiv" style="padding: 3px" id="cc_{{$setting->id}}_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: 0.2;" id="cc_{{$setting->id}}_{{$colour}}_i"></span>
-                                        @endif
-                                    @endforeach
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="text" name="cc-{{$setting->id}}-colour" id="cc-{{$setting->id}}-colour" value="{{$setting->colour}}">
-                                </div>
-                            </div>
-                            @if ($loop->last)
-                                <br>
-                            @else
-                                <hr style="padding: 0px; margin: 10px 0px 10px 0px;">
-                            @endif
-                        @endforeach
-                        --}}
-
+                            </div>--}}
                             <div class="form-actions right">
-                                <a href="/manage/report/upcoming_compliance" class="btn default"> Back</a>
+                                <a href="/site/upcoming/compliance" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
 

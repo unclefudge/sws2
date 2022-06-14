@@ -51,9 +51,10 @@ class SiteUpcomingComplianceController extends Controller {
                 $settings_colours[$order] = "#$hex";
             }
         }
+        $settings_text = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('value', 'order')->toArray();
 
 
-        return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_colours'));
+        return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours'));
     }
 
 
@@ -128,7 +129,7 @@ class SiteUpcomingComplianceController extends Controller {
 
         Toastr::success("Updated compliance");
 
-        return redirect("/manage/report/upcoming_compliance");
+        return redirect("/site/upcoming/compliance");
     }
 
 
@@ -156,6 +157,10 @@ class SiteUpcomingComplianceController extends Controller {
             if (request()->has("opt-$setting->id")) {
                 if (request("opt-$setting->id")) {
                     $setting->name = request("opt-$setting->id");
+                    // Default text
+                    if (request("opt-$setting->id-text"))
+                        $setting->value = request("opt-$setting->id-text");
+                    // Colour
                     if (request("opt-$setting->id-colour"))
                         $setting->colour = request("opt-$setting->id-colour");
                     $setting->save();
@@ -173,6 +178,7 @@ class SiteUpcomingComplianceController extends Controller {
         }
 
         // Update Email List
+        /*
         if (request('email_list')) {
             $email_list = implode(',', request('email_list'));
             $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
@@ -181,11 +187,11 @@ class SiteUpcomingComplianceController extends Controller {
                 $settings_email->save();
             } else
                 $settings_email = SiteUpcomingSettings::create(['field' => 'email', 'value' => $email_list, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-        }
+        }*/
 
         Toastr::success("Updated settings");
 
-        return redirect("/manage/report/upcoming_compliance/settings");
+        return redirect("/site/upcoming/compliance/settings");
     }
 
     /**
@@ -214,7 +220,7 @@ class SiteUpcomingComplianceController extends Controller {
 
         Toastr::success("Updated settings");
 
-        return redirect("/manage/report/upcoming_compliance/settings");
+        return redirect("/site/upcoming/compliance/settings");
     }
 
     /**
@@ -281,7 +287,7 @@ class SiteUpcomingComplianceController extends Controller {
                     Toastr::success("Sent email");
                 }
 
-                return  redirect("/manage/report/upcoming_compliance");
+                return  redirect("/site/upcoming/compliance");
             }
         }
     }
@@ -361,29 +367,5 @@ class SiteUpcomingComplianceController extends Controller {
         //var_dump($startdata);
 
         return $startdata;
-    }
-
-    /**
-     * Get Sites current user is authorised to manage + Process datatables ajax request.
-     */
-    public function getSites()
-    {
-        $site_records = Auth::user()->company->sites('-1'); // Upcoming sites only
-        //dd($site_records);
-
-        $dt = Datatables::of($site_records)
-            ->editColumn('id', function ($site) {
-                return '<div class="text-center"><a href="/site/' . $site->id . '"><i class="fa fa-search"></i></a></div>';
-            })
-            ->addColumn('supervisor', function ($site) {
-                return $site->supervisorsSBC();
-            })
-            ->addColumn('action', function ($project) {
-                return '<a href="/site/supply/' . $project->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
-            })
-            ->rawColumns(['id', 'supervisor', 'action'])
-            ->make(true);
-
-        return $dt;
     }
 }

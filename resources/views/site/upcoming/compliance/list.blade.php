@@ -3,8 +3,8 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('manage.report'))
-            <li><a href="/manage/report">Management Reports</a><i class="fa fa-circle"></i></li>
+        @if (Auth::user()->hasAnyPermissionType('site'))
+            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Upcoming Jobs Compliance Data</span></li>
     </ul>
@@ -21,10 +21,10 @@
                             <span class="caption-subject bold uppercase font-green-haze">Upcoming Jobs Compliance Data</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/upcoming_compliance/pdf" data-original-title="PDF">PDF</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/pdf" data-original-title="PDF">PDF</a>
 
-                        @if(Auth::user()->hasPermission2('del.site.upcoming.compliance'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/upcoming_compliance/settings" data-original-title="Setting">Settings</a>
+                            @if(Auth::user()->hasPermission2('del.site.upcoming.compliance'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/settings" data-original-title="Setting">Settings</a>
                             @endif
                         </div>
                     </div>
@@ -85,44 +85,53 @@
 
 
                     <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {!! Form::label('cc_stage', 'Stage', ['class' => 'control-label']) !!}
+                                {!! Form::select('cc_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
+                                {{--}}
+                                <select class="form-control bs-select" id="cc_stage" width="100%" name="cc_stage" tabindex="-98" onchange="updateText('manual')">
+                                    <option value="" selected="selected">Select stage</option>
+                                    <option value="1">CC Received</option>
+                                    <option value="2">Done</option>
+                                    <option value="3">Achievable</option>
+                                    <option value="4">Pending</option>
+                                    <option value="5">Needs Attention</option>
+                                </select>--}}
+                            </div>
+                        </div>
                         <div class="col-md-9">
                             <div class="form-group">
                                 {!! Form::label('cc', 'CC', ['class' => 'control-label']) !!}
                                 {!! Form::text('cc', null, ['class' => 'form-control', 'id' => 'cc']) !!}
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                {!! Form::label('cc_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('cc_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
-                            </div>
-                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-9">
-                            <div class="form-group">
-                                {!! Form::label('fc_plans', 'FC Plans', ['class' => 'control-label']) !!}
-                                {!! Form::text('fc_plans', null, ['class' => 'form-control', 'id' => 'fc_plans']) !!}
-                            </div>
-                        </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('fc_plans_stage', 'Stage', ['class' => 'control-label']) !!}
                                 {!! Form::select('fc_plans_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'fc_plans_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-9">
                             <div class="form-group">
-                                {!! Form::label('fc_struct', 'FC Structural', ['class' => 'control-label']) !!}
-                                {!! Form::text('fc_struct', null, ['class' => 'form-control', 'id' => 'fc_struct']) !!}
+                                {!! Form::label('fc_plans', 'FC Plans', ['class' => 'control-label']) !!}
+                                {!! Form::text('fc_plans', null, ['class' => 'form-control', 'id' => 'fc_plans']) !!}
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('fc_struct_stage', 'Stage', ['class' => 'control-label']) !!}
                                 {!! Form::select('fc_struct_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'fc_struct_stage', 'width' => '100%']) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                {!! Form::label('fc_struct', 'FC Structural', ['class' => 'control-label']) !!}
+                                {!! Form::text('fc_struct', null, ['class' => 'form-control', 'id' => 'fc_struct']) !!}
                             </div>
                         </div>
                     </div>
@@ -165,7 +174,39 @@
 
             $("#modal_edit").modal('show');
         });
+
+        $("#cc_stage").change(function (e) {
+            var default_text = @json($settings_text);
+
+            // Only perform action if Modal is open - avoids updating fields when initial modal creation
+            if ($('#modal_edit').hasClass('in')) {
+                if (default_text[$("#cc_stage").val()])
+                    $('#cc').val(default_text[$("#cc_stage").val()]);
+            }
+        });
+
+        $("#fc_plans_stage").change(function (e) {
+            var default_text = @json($settings_text);
+
+            // Only perform action if Modal is open - avoids updating fields when initial modal creation
+            if ($('#modal_edit').hasClass('in')) {
+                if (default_text[$("#fc_plans_stage").val()])
+                    $('#fc_plans').val(default_text[$("#fc_plans_stage").val()]);
+            }
+        });
+
+        $("#fc_struct_stage").change(function (e) {
+            var default_text = @json($settings_text);
+
+            // Only perform action if Modal is open - avoids updating fields when initial modal creation
+            if ($('#modal_edit').hasClass('in')) {
+                if (default_text[$("#fc_struct_stage").val()])
+                    $('#fc_struct').val(default_text[$("#fc_struct_stage").val()]);
+            }
+        });
+
     });
+
 
 </script>
 @stop

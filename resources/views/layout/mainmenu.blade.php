@@ -120,6 +120,9 @@
                                                         @if (Auth::user()->hasAnyPermissionType('site.project.supply'))
                                                             <li><a href="/site/supply" class="nav-link"> Project Suppy Info </a></li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
+                                                            <li><a href="/site/upcoming/compliance" class="nav-link"> Upcoming Job Compliance </a></li>
+                                                        @endif
                                                     </ul>
                                                 </div>
                                             @endif
