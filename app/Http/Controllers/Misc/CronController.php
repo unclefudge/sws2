@@ -906,15 +906,15 @@ class CronController extends Controller {
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {
                 if ($task->entity_type == 'c' && $task->company->seniorUsers())
-                $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                $mesg .= " - email sent to " . implode("; ", $task->company->seniorUsersEmail()) . "\n" ;
+                    $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
+                $mesg .= " - email sent to " . implode("; ", $task->company->seniorUsersEmail()) . "\n";
                 echo "$mesg<br>";
                 $log .= "$mesg\n";
                 $todo_request = [
                     'type'       => 'scaffold handover',
                     'type_id'    => $task->site->id,
                     'name'       => 'Scaffold Handover Certificate for ' . $task->site->name,
-                    'info'       => 'Please complete the Scaffold Handover Certificate for '.$task->site->name,
+                    'info'       => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
                     'priority'   => '1',
                     'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
                     'company_id' => '3',
@@ -926,7 +926,7 @@ class CronController extends Controller {
                 $todo = Todo::create($todo_request);
                 $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
                 $todo->emailToDo();
-                $found_tasks++;
+                $found_tasks ++;
             }
         }
 
@@ -963,16 +963,19 @@ class CronController extends Controller {
 
         if ($jobs_complete && $contacts_complete) {
             $log .= "Import successful\n";
-            $successful = "Zoho Import was SUCESSFUL";
-        } elseif ($jobs_complete) {
-            $log .= "Import of Contacts failed\n";
-        } elseif ($contacts_complete) {
-            $log .= "Import of Jobs failed\n";
         } else {
-            $log .= "Import of Jobs + Contacts failed\n";
+            $reason = '';
+            if ($jobs_complete) {
+                $reason .= "Import of Contacts failed\n";
+            } elseif ($contacts_complete) {
+                $reason .= "Import of Jobs failed\n";
+            } else {
+                $reason .= "Import of Jobs + Contacts failed\n";
+            }
+            $log .= $reason;
+            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
         }
 
-        Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($successful));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

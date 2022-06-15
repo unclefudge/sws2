@@ -1218,8 +1218,10 @@ class SitePlannerController extends Controller {
     /**
      * Get Upcoming Tasks for given Trade
      */
-    public function getUpcomingTasks(Request $request, $date)
+    public function getUpcomingTasks($date)
     {
+        if (!$date) $date = Carbon::now()->startOfWeek()->format('Y-m-d');
+
         $trade_list = Auth::user()->company->tradeListPlanner()->pluck('id')->toArray();
         $tasks = Task::whereIn('trade_id', $trade_list)->where('upcoming', '1')->where('status', '1')->orderBy('name')->get();
 

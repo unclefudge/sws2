@@ -98,7 +98,9 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-md-6">
-                                @if (Auth::user()->hasPermission2('add.site.accident'))
+                                @if (Auth::user()->hasPermission2('add.site.incident'))
+                                    <a href="/site/incident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                                @elseif (Auth::user()->hasPermission2('add.site.accident'))
                                     <a href="/site/accident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
                                 @endif
                             </div>
