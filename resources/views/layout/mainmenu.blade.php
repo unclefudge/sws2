@@ -38,7 +38,7 @@
                                         <div class="row">
                                             <div class="col-md-1 hidden-sm hidden-xs"><img src="/img/menu_siteinfo.png"></div>
                                             {{-- Site Info Safety --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.hazard|site.accident|safety.doc'))
+                                            @if (Auth::user()->hasAnyPermissionType('site.hazard|site.incident|site.accident|safety.doc'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Safety</h3></li>

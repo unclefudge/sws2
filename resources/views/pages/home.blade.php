@@ -85,7 +85,7 @@
             </div>
 
         @endif
-        @if (Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
+        @if (Auth::user()->hasPermission2('add.site.incident') || Auth::user()->hasPermission2('add.site.accident') || Auth::user()->hasPermission2('add.site.hazard') || Auth::user()->hasPermission2('add.site.asbestos'))
             <div class="col-md-6 col-sm-6 hidden-sm hidden-xs">
                 <div class="portlet light ">
                     <div class="portlet-title">
