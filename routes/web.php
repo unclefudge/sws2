@@ -128,6 +128,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/attendance/dt/attendance', 'Misc\ReportController@getAttendance');
     Route::get('/manage/report/payroll', 'Misc\ReportController@payroll');
     Route::get('/manage/report/nightly', 'Misc\ReportController@nightly');
+    Route::get('/manage/report/zoho', 'Misc\ReportController@zoho');
     Route::get('/manage/report/qa/{id}', 'Misc\ReportController@QAdebug');
     Route::get('/manage/report/qa_onhold', 'Misc\ReportController@OnholdQA');
     Route::post('/manage/report/qa_onhold/report', 'Misc\ReportController@OnholdQAPDF');

@@ -492,4 +492,11 @@ class ReportController extends Controller {
 
         return view('manage/report/nightly', compact('files'));
     }
+
+    public function zoho()
+    {
+        $files = array_reverse(array_diff(scandir(public_path('/filebank/log/zoho')), array('.', '..')));
+
+        return view('manage/report/zoho', compact('files'));
+    }
 }

@@ -82,22 +82,11 @@
                 <div class="modal-body">
                     {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteUpcomingComplianceController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                     <input type="hidden" name="site_id" id="site_id" value="">
-
-
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('cc_stage', 'Stage', ['class' => 'control-label']) !!}
                                 {!! Form::select('cc_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
-                                {{--}}
-                                <select class="form-control bs-select" id="cc_stage" width="100%" name="cc_stage" tabindex="-98" onchange="updateText('manual')">
-                                    <option value="" selected="selected">Select stage</option>
-                                    <option value="1">CC Received</option>
-                                    <option value="2">Done</option>
-                                    <option value="3">Achievable</option>
-                                    <option value="4">Pending</option>
-                                    <option value="5">Needs Attention</option>
-                                </select>--}}
                             </div>
                         </div>
                         <div class="col-md-9">
