@@ -117,7 +117,10 @@
                                 {{-- Note 4 --}}
                                 <div class="row">
                                     <div class="col-md-4">{!! Form::label('contract_no', 'This Statement applies for work between:', ['class' => 'control-label']) !!}</div>
-                                    <div class="col-md-2"> {!! Form::select('date_from', $dates_from, null, ['class' => 'form-control bs-select', 'id' => 'date_from']) !!}</div>
+                                    <div class="col-md-2">
+                                        {!! Form::select('date_from', $dates_from, null, ['class' => 'form-control bs-select', 'id' => 'date_from']) !!}
+                                        {!! fieldErrorMessage('date_from', $errors) !!}
+                                    </div>
                                     <div class="col-md-1 text-center">
                                         <div style="margin-top: 7px">and</div>
                                     </div>

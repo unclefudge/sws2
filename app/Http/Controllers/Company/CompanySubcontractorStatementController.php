@@ -70,8 +70,8 @@ class CompanySubcontractorStatementController extends Controller {
         $to_now = ($month > 6) ? Carbon::parse("June 30 $next_year") : Carbon::parse("June 30 $year");
         $to_next = ($month > 6) ? Carbon::parse("June 30 $next_year")->addYear() : Carbon::parse("June 30 $year")->addYear();
 
-        $dates_from = ['current' => $from_now->format('d/m/Y'), 'next' => $from_next->format('d/m/Y')];
-        $dates_to = ['current' => $to_now->format('d/m/Y'), 'next' => $to_next->format('d/m/Y')];
+        $dates_from = ['' => 'Select year', 'current' => $from_now->format('d/m/Y'), 'next' => $from_next->format('d/m/Y')];
+        $dates_to = ['' => 'Select year', 'current' => $to_now->format('d/m/Y'), 'next' => $to_next->format('d/m/Y')];
 
         return view('company/doc/ss-create', compact('company', 'dates_from', 'dates_to'));
     }
@@ -89,6 +89,7 @@ class CompanySubcontractorStatementController extends Controller {
         ];
 
         $this->validate(request(), [
+            'date_from' => 'required',
             'contractor_full_name'    => 'required',
             'contractor_signed_name'  => 'required',
             'contractor_signed_title' => 'required',
