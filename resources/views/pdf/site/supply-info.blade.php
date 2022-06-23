@@ -68,7 +68,7 @@
 <footer>
     <div class="pagenum-container">
         <hr style="margin: 0px">
-        {{ $project->site->name }} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span><br>{{ $project->site->address }}, {{  $project->site->suburb_state_postcode }}
+        {{ $project->site->address }}, {{  $project->site->suburb_state_postcode }} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>
     </div>
 </footer>
 <div class="container">
@@ -79,7 +79,7 @@
                 <img src="{!! URL::to('/') !!}/img/logo-capecod2.png">
             </div>
             <div class="col-xs-10">
-                <h3>Project Supply Infomation</h3>
+                <h3>Project Information Sheet</h3>
             </div>
         </div>
         <hr style="margin: 5px 0px">
@@ -90,7 +90,7 @@
         <div class="col-xs-12">The following Products are a description of the internal and external materials included in your project with Contact Details for your reference.<br><br></div>
     </div>
 
-    <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
+    <table class="table table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #f0f6fa; font-weight: bold;">
             <th width="25%" class="pad5">Product</th>

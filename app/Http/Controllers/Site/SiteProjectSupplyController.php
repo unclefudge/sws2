@@ -273,7 +273,7 @@ class SiteProjectSupplyController extends Controller {
 
         Toastr::success("Updated project");
 
-        return redirect("/site/supply/$project->id");
+        return redirect("/site/supply/$project->id/edit");
     }
 
     /**
@@ -333,7 +333,7 @@ class SiteProjectSupplyController extends Controller {
         if (!file_exists($path))
             mkdir($path, 0777, true);
 
-        $filename = "Project Supply Infomation-" . $project->site->code . ".pdf";
+        $filename = $project->site->name . "-Project Information Sheet.pdf";
 
         //
         // Generate PDF
@@ -371,7 +371,11 @@ class SiteProjectSupplyController extends Controller {
                 return (new Carbon($project->updated_at))->format('d/m/Y');
             })
             ->addColumn('action', function ($project) {
-                return '<a href="/site/supply/' . $project->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
+                $proj = SiteProjectSupply::findOrFail($project->id);
+                if (Auth::user()->allowed2('edit.site.project.supply', $proj))
+                    return '<a href="/site/supply/' . $project->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                else
+                    return '<a href="/site/supply/' . $project->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
             })
             ->rawColumns(['id', 'action'])
             ->make(true);

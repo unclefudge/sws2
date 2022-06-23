@@ -54,7 +54,8 @@ class SessionController extends Controller {
                 return back()->withErrors(['message' => 'These credentials do not match our records.']);
             }
 
-            if (\App::environment('dev') && !Auth::user()->isCC()) {
+            // Restrict Login Access to DEV server
+            if (\App::environment('dev') && !in_array(Auth::user()->company_id, [3])) {
                 Auth::logout();
 
                 return back()->withErrors(['message' => "You don't have access to use the DEVELOPMENT server"]);
