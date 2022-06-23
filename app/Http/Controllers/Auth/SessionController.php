@@ -54,6 +54,12 @@ class SessionController extends Controller {
                 return back()->withErrors(['message' => 'These credentials do not match our records.']);
             }
 
+            if (\App::environment('dev') && !Auth::user()->isCC()) {
+                Auth::logout();
+
+                return back()->withErrors(['message' => "You don't have access to use the DEVELOPMENT server"]);
+            }
+
             // Record last_login but disable timestamps to preserve last time record was updated.
             Auth::user()->last_login = Carbon::now();
             Auth::user()->updated_by = Auth::user()->updated_by;

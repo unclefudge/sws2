@@ -46,12 +46,12 @@
                                                             <li><a href="/site/hazard" class="nav-link @if (Auth::user()->siteHazards('1')->count()) font-yellow-lemon @endif">Hazards</a></li>
                                                         @endif
 
-                                                        @if (Auth::user()->hasAnyPermissionType('site.accident') && !Auth::user()->isCC())
+                                                        @if (Auth::user()->hasAnyPermissionType('site.accident') && !Auth::user()->hasAnyPermissionType('site.incident'))
                                                             <li><a href="/site/accident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Accidents</a>
                                                             </li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.incident'))
-                                                            <li><a href="/site/incident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Incidents</a>
+                                                            <li><a href="/site/incident" class="nav-link @if (Auth::user()->siteincidents('1')->count()) font-yellow-lemon @endif">Incidents</a>
                                                             </li>
                                                         @endif
 
