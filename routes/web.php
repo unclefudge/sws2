@@ -543,8 +543,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('planner/data/sites', 'Site\Planner\SitePlannerController@getSites');
     Route::get('planner/data/site/{site_id}', 'Site\Planner\SitePlannerController@getSitePlan');
     Route::get('planner/data/site/{site_id}/attendance/{date}', 'Site\Planner\SitePlannerController@getSiteAttendance');
-    Route::get('planner/data/site/{site_id}/roster/{date}', 'Site\Planner\SitePlannerController@getSiteRoster');
     Route::get('planner/data/site/{site_id}/allocate/{user_id}', 'Site\Planner\SitePlannerController@allocateSiteSupervisor');
+    Route::get('planner/data/roster/{date}/super/{super_id}', 'Site\Planner\SitePlannerController@getSiteRoster');
     Route::any('planner/data/roster/user', 'Site\Planner\SitePlannerController@addUserRoster');
     Route::any('planner/data/roster/user/{id}', 'Site\Planner\SitePlannerController@delUserRoster');
     Route::any('planner/data/roster/add-company/{cid}/site/{site_id}/date/{date}', 'Site\Planner\SitePlannerController@addCompanyRoster');

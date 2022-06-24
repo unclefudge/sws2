@@ -1,7 +1,7 @@
-$('#site_id').change(function () {
-    xx.params.site_id = $(this).val();
-    alert(xx.params.site_id);
-    postAndRedirect('/planner/attendance', xx.params);
+$('#supervisor_id').change(function () {
+    xx.params.supervisor_id = $(this).val();
+    postAndRedirect('/planner/roster', xx.params);
+    alert(xx.params.supervisor_id);
 });
 
 var xx = {
@@ -9,7 +9,7 @@ var xx = {
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
     today: moment().format('YYYY-MM-DD'), current_date: moment().format('YYYY-MM-DD'),
     showSpinner: false,
-    rostered: [], unrostered: [], plan: [], sel_site: [], sites: [],
+    rostered: [], unrostered: [], plan: [], sel_super: [], sites: [],
 };
 
 Vue.component('app-attend', {
@@ -39,21 +39,22 @@ Vue.component('app-attend', {
         getDayPlan: function () {
             // Get plan from database and initialise planner variables
             setTimeout(function () {
-                var current_site_id = 'none';
-                if (this.xx.params.site_id)
-                    current_site_id = this.xx.params.site_id;
+                var current_supervisor_id = 'none';
+                if (this.xx.params.supervisor_id)
+                    current_supervisor_id = this.xx.params.supervisor_id;
 
-                    this.xx.showSpinner = true;
-                    this.xx.plan = [];
-                    $.getJSON('/planner/data/site/' + current_site_id + '/roster/' + this.xx.current_date, function (plan) {
-                        this.xx.sites = plan[0];
-                        //this.xx.rostered = plan[1];
-                        //this.xx.unrostered = plan[2];
-                        //this.xx.sel_site = plan[3];
-                        this.xx.permission = plan[1];
-                        this.xx.showSpinner = false;
-                    }.bind(this));
-                    this.$broadcast('refreshWeekPlanEvent');
+                this.xx.showSpinner = true;
+                this.xx.plan = [];
+                //$.getJSON('/planner/data/site/' + current_site_id + '/roster/' + this.xx.current_date, function (plan) {
+                $.getJSON('/planner/data/roster/' + this.xx.current_date + '/super/' + current_supervisor_id, function (plan) {
+                    this.xx.sites = plan[0];
+                    this.xx.permission = plan[1];
+                    this.xx.sel_super = plan[2];
+                    //this.xx.rostered = plan[1];
+                    //this.xx.unrostered = plan[2];
+                    this.xx.showSpinner = false;
+                }.bind(this));
+                this.$broadcast('refreshWeekPlanEvent');
 
             }.bind(this), 100);
         },
@@ -113,52 +114,17 @@ Vue.component('app-attend', {
             for (var i = 0; i < entity.attendance.length; i++)
                 this.updateRoster(entity.attendance[i], entity.site_id, action);
         },
-        enitityAllOnsite: function (entity) {
-            // All users that are rostered on are onsite
-            for (var i = 0; i < this.xx.rostered.length; i++) {
-                var rec = this.xx.rostered[i];
-                if (rec.key == entity.key) {
-                    var rostered = false;
-                    for (var x = 0; x < rec.attendance.length; x++) {
-                        if (rec.attendance[x]['roster_id'] && !rec.attendance[x]['attended'])
-                            return false;
-                        if (rec.attendance[x]['roster_id'] && rec.attendance[x]['attended'])
-                            rostered = true;
-                    }
-
-                    // If company rostered but all are 'un-ticked' to attend then company isn't all onsite
-                    if (!rostered)
-                        return false ;
-                }
-            }
-            return true;
-        },
-        enitityPlannedButNotRostered: function (entity) {
-            // Company planned but no users are rostered to attend or 'ticked'
-            for (var i = 0; i < this.xx.rostered.length; i++) {
-                var rec = this.xx.rostered[i];
-                if (rec.key == entity.key) {
-                    var rostered = false;
-                    for (var x = 0; x < rec.attendance.length; x++) {
-                        if (rec.attendance[x]['roster_id'])
-                            return false;
-                    }
-                    return true ;
-                }
-            }
-            return false;
-        },
         entityClass: function (entity) {
             // Set class of task name for displaying on planner
             var str = '';
             if (entity.entity_type === 't')
                 str = str + ' font-yellow-gold';
 
-            if (entity.entity_type === 'c' && this.enitityAllOnsite(entity))
-                str = str + ' font-blue';
-
-            if (entity.entity_type === 'c' && this.enitityPlannedButNotRostered(entity))
+            if (entity.entity_type === 'c' && entity.allonsite && entity.attendance.length == 0)
                 str = str + ' font-purple';
+
+            if (entity.entity_type === 'c' && entity.allonsite)
+                str = str + ' font-blue';
 
             return str;
         },
