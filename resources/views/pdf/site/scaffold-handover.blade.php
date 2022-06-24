@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -82,7 +82,7 @@
         </div>
         {{-- Job Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-1">Site</div>
@@ -105,21 +105,21 @@
 
         {{-- Location --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DESCRIPTION / LOCATION</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DESCRIPTION / LOCATION</h5></div>
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-12">{!! nl2br($report->location) !!}</div>
         </div>
         {{-- Use --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INTENDED USE</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INTENDED USE</h5></div>
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-12">{!! nl2br($report->use) !!}</div>
         </div>
         {{-- Photos --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">PHOTOS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">PHOTOS</h5></div>
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-12">
@@ -138,7 +138,7 @@
         </div>
         {{-- Signed Off --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">Handover Inspection of Scaffold</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">Handover Inspection of Scaffold</h5></div>
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-12">This scaffold detailed above has been erected in accordance with the attached drawings, the WHS Regulations and the General Guide for scaffolds and scaffolding work; is informed by relevant technical standards and is suitable for its intended purpose.<br><br><br>

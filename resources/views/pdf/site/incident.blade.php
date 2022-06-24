@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -98,7 +98,7 @@
         </div>
         {{-- Notification Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTIFICATION DETAILS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTIFICATION DETAILS</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Incident Date</div>
@@ -137,7 +137,7 @@
 
         {{-- Persons Involved --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">PERSONS INVOLVED</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">PERSONS INVOLVED</h5></div>
         </div>
         @foreach ($incident->people as $person)
             <div class="row" style="padding: 0px;">
@@ -177,7 +177,7 @@
 
         {{-- Witness Statement --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WITNESS STATEMENTS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WITNESS STATEMENTS</h5></div>
         </div>
         @foreach ($incident->witness as $witness)
             <div class="row" style="padding: 0px;">
@@ -206,7 +206,7 @@
 
         {{-- Conversation --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECORD OF CONVERSATION</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECORD OF CONVERSATION</h5></div>
         </div>
         @foreach ($incident->conversations as $conversation)
             <div class="row" style="padding: 0px;">
@@ -233,7 +233,7 @@
 
         {{-- Incident Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INCIDENT</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INCIDENT</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Risk Potential</div>
@@ -263,7 +263,7 @@
         {{-- Notifiable --}}
         @if ($incident->notifiable)
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTIFIABLE INCIDENT & REGULATOR ACTION DETAILS</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTIFIABLE INCIDENT & REGULATOR ACTION DETAILS</h5></div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Regulator</div>
@@ -286,7 +286,7 @@
         {{-- Injury Details --}}
         @if ($incident->isInjury())
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INJURY</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INJURY</h5></div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Treatment</div>
@@ -311,7 +311,7 @@
         {{-- Damage Details --}}
         @if ($incident->isDamage())
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DAMAGE</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DAMAGE</h5></div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Damage Details</div>
@@ -328,7 +328,7 @@
         {{-- Notes --}}
         @if ($incident->actions->count())
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTES</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">NOTES</h5></div>
             </div>
             @foreach ($incident->actions as $action)
                 <div class="row">
@@ -342,7 +342,7 @@
         {{-- Assigned Tasks --}}
         @if ($incident->todos()->count())
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ASSIGNED TASKS</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ASSIGNED TASKS</h5></div>
             </div>
             @foreach ($incident->todos() as $todo)
                 <div class="row">
@@ -371,7 +371,7 @@
 
         {{-- Reviewed --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REVIEW</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REVIEW</h5></div>
         </div>
         @if ($incident->reviews()->count())
             @foreach ($incident->reviews() as $review)
@@ -411,7 +411,7 @@
 
         {{-- Incident Conditions --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INCIDENT CONDITIONS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INCIDENT CONDITIONS</h5></div>
         </div>
         @if ($qConditions->responsesCSV('site_incidents', $incident->id))
             @foreach ($qConditions->optionsArray() as $id => $label)
@@ -430,7 +430,7 @@
 
         {{-- Contributing Factors --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONTRIBUTING FACTORS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONTRIBUTING FACTORS</h5></div>
         </div>
         @if ($qConFactorDefences->responsesCSV('site_incidents', $incident->id))
             <div class="row">
@@ -465,7 +465,7 @@
 
         {{-- Root Causes --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
         </div>
         @if ($qRootCause->responsesCSV('site_incidents', $incident->id))
             @foreach ($qRootCause->optionsArray() as $id => $label)
@@ -484,7 +484,7 @@
 
         {{-- Actions to Prevent Reoccurence --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ACTIONS TO PREVENT REOCCURENCE</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ACTIONS TO PREVENT REOCCURENCE</h5></div>
         </div>
         <div class="row">
             <div class="col-xs-2">Preventive Strategies:</div>

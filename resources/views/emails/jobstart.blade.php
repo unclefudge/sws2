@@ -1,6 +1,6 @@
 <h3>Upcoming Job Start Dates</h3>
 <table style="border: 1px solid; border-collapse: collapse">
-    <tr style="border: 1px solid; background-color: #f0f6fa; font-weight: bold;">
+    <tr style="border: 1px solid; background-color: #F6F6F6; font-weight: bold;">
         <td width="80" style="border: 1px solid">Date</td>
         <td width="200" style="border: 1px solid">Site</td>
         <td width="120" style="border: 1px solid">Supervisor</td>

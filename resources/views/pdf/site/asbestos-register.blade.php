@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -94,7 +94,7 @@
 
     <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
         <thead>
-        <tr style="background-color: #f0f6fa; font-weight: bold;">
+        <tr style="background-color: #F6F6F6; font-weight: bold;">
             <th width="5%" class="pad5">Date<br>Identified</th>
             <th width="20%" class="pad5"><br>Location of ACM</th>
             <th width="16%" class="pad5"><br>Type</th>

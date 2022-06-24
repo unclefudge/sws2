@@ -611,6 +611,7 @@ Route::get('cron/expired-companydoc', 'Misc\CronController@expiredCompanyDoc');
 Route::get('cron/expired-swms', 'Misc\CronController@expiredSWMS');
 Route::get('cron/archive-toolbox', 'Misc\CronController@archiveToolbox');
 Route::get('cron/email-jobstart', 'Misc\CronReportController@emailJobstart');
+Route::get('cron/email-upcomingjob', 'Misc\CronReportController@emailUpcomingJobCompilance');
 Route::get('cron/email-fortnight', 'Misc\CronReportController@emailFortnightlyReports');
 Route::get('cron/email-equipment-transfers', 'Misc\CronReportController@emailEquipmentTransfers');
 Route::get('cron/email-equipment-restock', 'Misc\CronReportController@emailEquipmentRestock');

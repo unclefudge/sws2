@@ -258,7 +258,7 @@ class SiteUpcomingComplianceController extends Controller {
         $startdata = $this->getUpcomingData();
         //dd($startdata);
 
-        //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf->setPaper('A4', 'landscape');
 
@@ -292,35 +292,12 @@ class SiteUpcomingComplianceController extends Controller {
         }
     }
 
-    public function createPDF2($id)
-    {
-        $project = SiteProjectSupply::findOrFail($id);
-
-        // Set + create create directory if required
-        $path = "filebank/site/$project->site_id/docs";
-        if (!file_exists($path))
-            mkdir($path, 0777, true);
-
-        $filename = "Project Supply Infomation-" . $project->site->code . ".pdf";
-
-        //
-        // Generate PDF
-        //
-        //return view('pdf/site/supply-info', compact('project'));
-        //return PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4', 'landscape')->stream();
-        $pdf = PDF::loadView('pdf/site/supply-info', compact('project'));
-        $pdf->setPaper('A4');
-        $pdf->save(public_path("$path/$filename"));
-
-        return $filename;
-    }
-
     /**
      * Display the specified resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function getUpcomingData()
+    static public function getUpcomingData()
     {
         $today = Carbon::now()->format('Y-m-d');
         $planner = DB::table('site_planner AS p')

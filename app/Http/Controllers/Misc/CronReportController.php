@@ -17,6 +17,7 @@ use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
+use App\Models\Site\SiteUpcomingSettings;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
@@ -36,6 +37,7 @@ use App\Models\Comms\TodoUser;
 use App\Models\Comms\SafetyTip;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use Illuminate\Support\Facades\Auth;
 
 class CronReportController extends Controller {
@@ -57,6 +59,7 @@ class CronReportController extends Controller {
 
         if (Carbon::today()->isTuesday()) {
             CronReportController::emailOutstandingQA();
+            CronReportController::emailUpcomingJobCompilance();
         }
 
         if (Carbon::today()->isThursday()) {
@@ -268,6 +271,55 @@ class CronReportController extends Controller {
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    /*
+   * Email UpcomingJobCompliance
+   */
+    static public function emailUpcomingJobCompilance()
+    {
+        $log = '';
+        $email_name = "Upcoming Job Compliance";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.upcoming.compliance');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+
+        // Colours
+        $colours = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('colour', 'order')->toArray();
+        $settings_colours = [];
+        foreach ($colours as $order => $colour) {
+            list($col1, $col2, $hex) = explode('-', $colour);
+            $settings_colours[$order] = "#$hex";
+        }
+
+        $startdata = SiteUpcomingComplianceController::getUpcomingData();
+        //dd($startdata);
+
+        // Create PDF
+        $file = public_path('filebank/tmp/upcoming-jobs-compliance.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteUpcomingCompliance($file));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 
     /*
     * Email Equipment Transfers

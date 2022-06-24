@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -91,7 +91,7 @@
         </div>
         {{-- Job Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Date</div>
@@ -141,7 +141,7 @@
 
         {{-- Existing Wiring --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONDITION OF EXISTING WIRING</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONDITION OF EXISTING WIRING</h5></div>
         </div>
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">The existing wiring was found to be:<br>{!! nl2br($report->existing) !!}</div>
@@ -150,7 +150,7 @@
 
         {{-- Required Work --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REQUIRED WORK TO MEET COMPLIANCE</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REQUIRED WORK TO MEET COMPLIANCE</h5></div>
         </div>
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">
@@ -166,7 +166,7 @@
 
         {{-- Recommended Work --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECOMMENDED WORKS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECOMMENDED WORKS</h5></div>
         </div>
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">
@@ -183,7 +183,7 @@
 
         {{-- Additional Notes  --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ADDITIONAL NOTES</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ADDITIONAL NOTES</h5></div>
         </div>
         <div class="row" style="padding: 2px;">
             <div class="col-xs-12">

@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -65,7 +65,7 @@
             </div>
             <hr style="margin: 5px 0px">
             <br>
-            <div class="row" style="border: 1px solid lightgrey; background-color: #f0f6fa; font-weight: bold; overflow: hidden;">
+            <div class="row" style="border: 1px solid lightgrey; background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
                 <div class="col-xs-1">Date</div>
                 <div class="col-xs-3">Company</div>
                 <div class="col-xs-8">Attendance</div>

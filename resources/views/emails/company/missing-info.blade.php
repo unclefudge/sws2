@@ -2,7 +2,7 @@
 # Missing Company Information
 
 <table style="border: 1px solid; border-collapse: collapse">
-    <tr style="border: 1px solid; background-color: #f0f6fa; font-weight: bold;">
+    <tr style="border: 1px solid; background-color: #F6F6F6; font-weight: bold;">
         <td width="200" style="border: 1px solid">Company</td>
         <td width="200" style="border: 1px solid">Missing Info / Document</td>
         <td width="110" style="border: 1px solid">Expiry / Last Updated</td>

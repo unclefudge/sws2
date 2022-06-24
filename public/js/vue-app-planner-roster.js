@@ -84,7 +84,7 @@ Vue.component('app-attend', {
                     this.$http.post('/planner/data/roster/user/' + user.roster_id, user)
                         .then(function (response) {
                             user.roster_id = 0;
-                            //console.log('del '+user.name);
+                            console.log('del ' + user.name);
                         }.bind(this)).catch(function (response) {
                         alert('failed to remove user from roster');
                     });
@@ -96,7 +96,7 @@ Vue.component('app-attend', {
                     this.$http.post('/planner/data/roster/user/', record)
                         .then(function (response) {
                             user.roster_id = response.data.id;
-                            //console.log('add '+user.name);
+                            console.log('add ' + user.name);
                         }.bind(this)).catch(function (response) {
                         alert('failed to add user to roster');
                     });
@@ -114,17 +114,54 @@ Vue.component('app-attend', {
             for (var i = 0; i < entity.attendance.length; i++)
                 this.updateRoster(entity.attendance[i], entity.site_id, action);
         },
+        enitityAllOnsite: function (entity) {
+            // All users that are rostered on are onsite
+            var rostered = false;
+            //console.log('s:'+entity.site_id+ ' c:'+entity.entity_name + ' a:'+entity.attendance.length);
+            for (var i = 0; i < entity.attendance.length; i++) {
+                var rec = entity.attendance[i];
+                //console.log('r:'+rec.roster_id + ' a:'+rec.attended);
+                if (rec.roster_id && !rec.attended)
+                    return false;
+                if (rec.roster_id && rec.attended)
+                    rostered = true;
+            }
+            //console.log(rostered);
+            return rostered;
+        },
+        enitityPlannedButNotRostered: function (entity) {
+            // Company planned but no users are rostered to attend or 'ticked'
+            if (entity.tasks != 'Unrostered') {
+                console.log('s:'+entity.site_id+ ' c:'+entity.entity_name + ' a:'+entity.attendance.length);
+                if (entity.attendance.length == 0)
+                    return true;
+
+                for (var i = 0; i < entity.attendance.length; i++) {
+                    var rec = entity.attendance[i];
+                    console.log('r:'+rec.roster_id + ' a:'+rec.attended);
+                    if (rec.roster_id && !rec.attended)
+                        return false;
+                }
+                return true;
+            }
+            return false;
+        },
         entityClass: function (entity) {
             // Set class of task name for displaying on planner
             var str = '';
             if (entity.entity_type === 't')
                 str = str + ' font-yellow-gold';
 
-            if (entity.entity_type === 'c' && entity.allonsite && entity.attendance.length == 0)
-                str = str + ' font-purple';
+            /*if (entity.entity_type === 'c' && entity.allonsite && entity.attendance.length == 0)
+             str = str + ' font-purple';
 
-            if (entity.entity_type === 'c' && entity.allonsite)
+             if (entity.entity_type === 'c' && entity.allonsite)
+             str = str + ' font-blue';*/
+
+            if (entity.entity_type === 'c' && this.enitityAllOnsite(entity))
                 str = str + ' font-blue';
+            else if (entity.entity_type === 'c' && this.enitityPlannedButNotRostered(entity))
+                str = str + ' font-purple';
 
             return str;
         },

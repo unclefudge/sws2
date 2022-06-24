@@ -31,12 +31,12 @@
             page-break-inside: avoid;
         }
 
-        .row-striped:nth-of-type(odd) {
+        .table-striped>tbody>tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .row-striped:nth-of-type(even) {
-            background-color: #f4f4f4;
+        .table-striped>tbody>tr:nth-of-type(even) {
+            background-color: #fbfbfb;
         }
 
         .border-right {
@@ -82,7 +82,7 @@
         </div>
         {{-- Job Details --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">JOB DETAILS &nbsp; : &nbsp; {{ $report->site->name }}</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Date</div>
@@ -111,7 +111,7 @@
 
         {{-- Inspection DETAILS --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INSPECTION DETAILS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INSPECTION DETAILS</h5></div>
         </div>
         {{--Water Pressure / Hammer--}}
         <div class="row" style="padding: 0px">
@@ -138,7 +138,7 @@
 
         {{--  Gas  Meter / Pipes --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">GAS</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">GAS</h5></div>
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-2">Gas Meter Position OK?</div>
@@ -158,7 +158,7 @@
 
         {{-- Existing Plumbing --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONDITION OF EXISTING PLUMBING</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONDITION OF EXISTING PLUMBING</h5></div>
         </div>
         <div class="row">
             <div class="col-xs-12">The existing plumbing was found to be:<br>{!! nl2br($report->existing) !!}<br><br></div>
@@ -166,7 +166,7 @@
 
         <!-- Comments -->
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ADDITIONAL NOTES</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ADDITIONAL NOTES</h5></div>
         </div>
         <div class="row">
             <div class="col-xs-12">{!! nl2br($report->notes) !!}<br><br></div>
@@ -177,7 +177,7 @@
 
         {{-- Water Pressure --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WATER PRESSURE</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WATER PRESSURE</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-12">Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our recommendation that you have fitted a pressure limiting valve at the metre to avoid possible problems:
@@ -191,7 +191,7 @@
 
         {{-- Water Hammer --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WATER HAMMER</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WATER HAMMER</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-12">{!! nl2br($report->hammer_notes) !!}<br><br>
@@ -201,7 +201,7 @@
 
         {{-- Sewer --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">SEWER</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">SEWER</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-12">Upon closer inspection of the sewer diagram that we have obtained from the Water Board:<br>
@@ -226,7 +226,7 @@
 
         {{-- Stormwater --}}
         <div class="row">
-            <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">STORMWATER</h5></div>
+            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">STORMWATER</h5></div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-12">Upon closer examination of your current stormwater system:<br>
@@ -248,7 +248,7 @@
         {{-- Stormwater Detention --}}
         @if ($report->stormwater_detention_type)
             <div class="row">
-                <div class="col-xs-12" style="background-color: #f0f6fa; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ONSITE STORMWATER DETENTION</h5></div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ONSITE STORMWATER DETENTION</h5></div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-12">{!! nl2br($report->stormwater_detention_type) !!}:<br>

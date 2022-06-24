@@ -6,7 +6,7 @@
             <h1>Maintenance Requests with No Actions in the last 14 Days</h1>
             <p></p>
             <table style="border: 1px solid; border-collapse: collapse">
-                <tr style="border: 1px solid; background-color: #f0f6fa; font-weight: bold;">
+                <tr style="border: 1px solid; background-color: #F6F6F6; font-weight: bold;">
                     <td width="60" style="border: 1px solid">#</td>
                     <td width="80" style="border: 1px solid">Reported</td>
                     <td width="60" style="border: 1px solid">Job #</td>
