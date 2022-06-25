@@ -93,10 +93,10 @@
     <table class="table table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold;">
-            <th width="25%" class="pad5">Product</th>
-            <th width="25%" class="pad5">Supplier</th>
-            <th width="25%" class="pad5">Type</th>
-            <th width="15%" class="pad5">Colour</th>
+            <th width="25%" class="pad5">{{ $project->titles()->name }}</th>
+            <th width="25%" class="pad5">{{ $project->titles()->supplier }}</th>
+            <th width="25%" class="pad5">{{ $project->titles()->type }}</th>
+            <th width="15%" class="pad5">{{ $project->titles()->colour }}</th>
         </tr>
         </thead>
         @foreach ($project->itemsOrdered() as $item)

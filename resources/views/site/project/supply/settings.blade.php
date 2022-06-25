@@ -30,14 +30,22 @@
                         @include('form-error')
 
                         <div class="form-body">
+                            {{-- Column Titles --}}
                             <div class="row bold hidden-sm hidden-xs">
-                                <div class="col-md-2">Product</div>
-                                <div class="col-md-3">Supplier <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="One supplier per line"
-                                       data-original-title="Supplier"> <i class="fa fa-question-circle font-grey-silver"></i></a>
+                                <div class="col-md-2">
+                                    <div class="form-group">{!! Form::text("title-product", $title->name, ['class' => 'form-control']) !!}
+                                    </div>
                                 </div>
-                                <div class="col-md-3">Type <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="One type per line"
-                                                              data-original-title="Type"> <i class="fa fa-question-circle font-grey-silver"></i></a></div>
-                                <div class="col-md-4">Colour</div>
+                                <div class="col-md-3">{!! Form::text("title-supplier", $title->supplier, ['class' => 'form-control']) !!}
+                                    {{--}}<a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="One supplier per line"
+                                       data-original-title="Supplier"> <i class="fa fa-question-circle font-grey-silver"></i></a>--}}
+                                </div>
+                                <div class="col-md-3">
+                                    {!! Form::text("title-type", $title->type, ['class' => 'form-control']) !!}
+                                    {{--<a href="javascript:;" class="popovers" data-container="body" data-trigger="hover" data-content="One type per line"
+                                                              data-original-title="Type"> <i class="fa fa-question-circle font-grey-silver"></i></a>--}}
+                                </div>
+                                <div class="col-md-4">{!! Form::text("title-colour", $title->colour, ['class' => 'form-control']) !!}</div>
                                 {{--}}<div class="col-md-2">Notes</div>--}}
                             </div>
                             <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
@@ -58,16 +66,16 @@
                                         {{-- Supplier --}}
                                         <div class="visible-sm visible-xs">Supplier</div>
 
-                                            <div class="form-group">
-                                                {!! Form::textarea("supplier-$product->id", $product->supplier, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            </div>
+                                        <div class="form-group">
+                                            {!! Form::textarea("supplier-$product->id", $product->supplier, ['rows' => '3', 'class' => 'form-control']) !!}
+                                        </div>
                                     </div>
                                     <div class="col-md-3">
                                         {{-- Type --}}
                                         <div class="visible-sm visible-xs">Type</div>
-                                            <div class="form-group">
-                                                {!! Form::textarea("type-$product->id", $product->type, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            </div>
+                                        <div class="form-group">
+                                            {!! Form::textarea("type-$product->id", $product->type, ['rows' => '3', 'class' => 'form-control']) !!}
+                                        </div>
                                     </div>
                                     {{-- Colour --}}
                                     <div class="col-md-4">

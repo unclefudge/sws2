@@ -75,6 +75,14 @@ class SiteProjectSupply extends Model {
         return true;
     }
 
+    /*
+    * List of Product Titles
+    */
+    public function titles()
+    {
+        return SiteProjectSupplyProduct::find(1);
+    }
+
     /**
      * Create ToDoo for QA Report and assign to given user(s)
      */

@@ -107,12 +107,13 @@ class SiteProjectSupplyController extends Controller {
     public function show($id)
     {
         $project = SiteProjectSupply::findOrFail($id);
+        $title = SiteProjectSupplyProduct::findOrFail(1);
 
         // Check authorisation and throw 404 if not
         //if (!Auth::user()->allowed2('view.site.project.supply', $project))
         //    return view('errors/404');
 
-        return view('site/project/supply/show', compact('project'));
+        return view('site/project/supply/show', compact('project', 'title'));
     }
 
     /**
@@ -126,9 +127,10 @@ class SiteProjectSupplyController extends Controller {
         if (!Auth::user()->hasPermission2('del.site.project.supply'))
             return view('errors/404');
 
+        $title = SiteProjectSupplyProduct::findOrFail(1);
         $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 2)->orderBy('order')->get();
 
-        return view('site/project/supply/settings', compact('products'));
+        return view('site/project/supply/settings', compact('title', 'products'));
     }
 
     /**
@@ -144,7 +146,9 @@ class SiteProjectSupplyController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.project.supply', $project)))
             return view('errors/404');
 
-        return view('site/project/supply/edit', compact('project'));
+        $title = SiteProjectSupplyProduct::find(1);
+
+        return view('site/project/supply/edit', compact('project', 'title'));
 
     }
 
@@ -309,7 +313,14 @@ class SiteProjectSupplyController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 1)->orderBy('order')->get();
+        $title = SiteProjectSupplyProduct::find(1);
+        $title->name = request('title-product');
+        $title->supplier = request('title-supplier');
+        $title->type = request('title-type');
+        $title->colour = request('title-colour');
+        $title->save();
+
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 2)->orderBy('order')->get();
         foreach ($products as $product) {
             $product->supplier = request("supplier-$product->id");
             $product->type = request("type-$product->id");
@@ -319,7 +330,7 @@ class SiteProjectSupplyController extends Controller {
 
         Toastr::success("Updated settings");
 
-        return view('site/project/supply/settings', compact('products'));
+        return view('site/project/supply/settings', compact('title', 'products'));
     }
 
     public function createPDF($id)

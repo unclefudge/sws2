@@ -47,10 +47,10 @@
                             <hr style="padding: 0px; margin: 0px 0px 30px 0px">
 
                             <div class="row bold hidden-sm hidden-xs">
-                                <div class="col-md-2">Product</div>
-                                <div class="col-md-3">Supplier</div>
-                                <div class="col-md-3">Type</div>
-                                <div class="col-md-2">Colour</div>
+                                <div class="col-md-2">{{ $title->name }}</div>
+                                <div class="col-md-3">{{ $title->supplier }}</div>
+                                <div class="col-md-3">{{ $title->type }}</div>
+                                <div class="col-md-2">{{ $title->colour }}</div>
                                 {{--}}<div class="col-md-2">Notes</div>--}}
                             </div>
                             <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
