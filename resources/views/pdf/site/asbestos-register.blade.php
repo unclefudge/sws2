@@ -79,7 +79,7 @@
                 <h3>Asbestos Register</h3>
             </div>
             <div class="col-xs-2">
-                <img src="{!! URL::to('/') !!}/img/logo-capecod2.png">
+                <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40">
             </div>
         </div>
         <hr style="margin: 5px 0px">

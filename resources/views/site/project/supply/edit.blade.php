@@ -19,8 +19,13 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Create Project Supply Infomation</span>
+                            <span class="caption-subject font-green-haze bold uppercase">Project Supply Infomation</span>
                             <span class="caption-helper"></span>
+                        </div>
+                        <div class="actions">
+                            @if ($project->attachment)
+                                <a class="btn btn-circle green btn-outline btn-sm" href="{{ $project->attachment_url }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
+                            @endif
                         </div>
                     </div>
                     <div class="portlet-body form">
@@ -76,15 +81,15 @@
                                 <div class="row" id="item-{{ $item->id }}">
                                     <div class="col-md-2">
                                         <div class="hidden-sm hidden-xs">
-                                            {{ ($item->product_id == 32) ? 'Special Item' : $item->product }}
+                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }}
                                         </div>
                                         <div class="visible-sm visible-xs">
-                                            <br><b>{{ ($item->product_id == 32) ? 'Special Item' : $item->product }}</b>
+                                            <br><b>{{ ($item->product_id == 2) ? 'Special Item' : $item->product }}</b>
                                             <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
-                                            @if ($item->product_id == 32)
+                                            @if ($item->product_id == 2)
                                                 <div>Product</div> @endif
                                         </div>
-                                        @if ($item->product_id == 32)
+                                        @if ($item->product_id == 2)
                                             <div class="form-group">
                                                 {!! Form::text("product_txt_$item->id", $item->product, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
                                             </div>
@@ -101,7 +106,7 @@
                                             </div>
                                         @endif
                                         <div id="div-supplier-txt-{{$item->id}}" @if ($supplier != 'other' && $supplierOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
+                                            @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
                                             <div class="form-group">
                                                 {!! Form::text("supplier_txt_$item->id", $item->supplier, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
                                             </div>
@@ -118,7 +123,7 @@
                                             </div>
                                         @endif
                                         <div id="div-type-txt-{{$item->id}}" @if ($type != 'other' && $typeOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
+                                            @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
                                             <div class="form-group">
                                                 {!! Form::text("type_txt_$item->id", $item->type, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
                                             </div>
@@ -127,7 +132,7 @@
                                     {{-- Colour --}}
                                     <div class="col-md-2">
                                         <div class="visible-sm visible-xs">Colour</div>
-                                        @if ($item->product_id == 32) <br class="hidden-sm hidden-xs"> @endif
+                                        @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
                                         {!! Form::text("colour-$item->id", $item->colour, ['class' => 'form-control']) !!}
                                     </div>
                                     <div class="col-md-2">
@@ -189,7 +194,7 @@
                                             </div>
                                         </div>
                                         {{-- Colour --}}
-                                        <div class="col-md-2"  id="div-colour-s{{$i}}">
+                                        <div class="col-md-2" id="div-colour-s{{$i}}">
                                             <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control', 'placeholder' => 'Enter colour']) !!}</div>
                                         {{-- Notes --}}
                                         {{--}}
@@ -256,7 +261,7 @@
             } else {
                 $("#" + field + "-" + id).val(val);
                 $("#div-" + field + "-txt-" + id).hide();
-                alert(val);
+                //alert(val);
                 if (val == 'n/a') {
                     $("#div-type-s" + id).hide();
                 }

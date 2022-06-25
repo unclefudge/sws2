@@ -7,7 +7,7 @@
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
         <li><a href="/site/supply">Project Supply Info</a><i class="fa fa-circle"></i></li>
-        <li><span>Create</span></li>
+        <li><span>Settings</span></li>
     </ul>
 @stop
 

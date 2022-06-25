@@ -44,7 +44,7 @@
     <!-- Cover Page -->
     <div class="roundcorners">
         <p style="padding-top: 50px"></p>
-        <p style="text-align: center"><img src="{!! URL::to('/') !!}/img/logo-capecod2-large.png"></p>
+        <p style="text-align: center"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png"></p>
         <p style="padding-top: 100px"></p>
         <p style="text-align: center; font-size: 60px; font-weight: 800">QUALITY</p>
         <p style="text-align: center; font-size: 60px; font-weight: 800">ASSURANCE</p>

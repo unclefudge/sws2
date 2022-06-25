@@ -76,10 +76,10 @@
         <?php $page_count = 1; ?>
         <div class="row">
             <div class="col-xs-2">
-                <img src="{!! URL::to('/') !!}/img/logo-capecod2.png">
+                <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40">
             </div>
-            <div class="col-xs-10">
-                <h3>Project Information Sheet</h3>
+            <div class="col-xs-9">
+               <h3 style="text-align: right">Project Information Sheet</h3>
             </div>
         </div>
         <hr style="margin: 5px 0px">

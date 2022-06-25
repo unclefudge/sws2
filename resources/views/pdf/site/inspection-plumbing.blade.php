@@ -77,7 +77,7 @@
     <?php $pagecount = 1; ?>
     <div class="page22">
         <div class="row" style="padding: 5px">
-            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod2.png"></div>
+            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
             <div class="col-xs-9"><h3 style="margin: 0px">PLUMBING INSPECTION REPORT</h3></div>
         </div>
         {{-- Job Details --}}

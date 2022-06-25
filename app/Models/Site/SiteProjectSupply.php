@@ -49,10 +49,13 @@ class SiteProjectSupply extends Model {
         $ordered = [];
         $specials = 0;
         foreach ($this->items as $item) {
-            $product = SiteProjectSupplyProduct::find($item->product_id);
-            $order = ($product->id == 32) ? "100" . $specials++ : $product->order;
-            $ordered[$order] = $item;
+            if ($item->product_id > 1) {
+                $product = SiteProjectSupplyProduct::find($item->product_id);
+                $order = ($product->id == 2) ? "100" . $specials ++ : $product->order;
+                $ordered[$order] = $item;
+            }
         }
+        ksort($ordered);
 
         return $ordered;
     }
@@ -64,11 +67,9 @@ class SiteProjectSupply extends Model {
     {
         $maxID = SiteProjectSupplyProduct::all()->count();
 
-        for ($i = 1; $i <= $maxID; $i ++) {
-            if ($i != 32) { // Exclude Special Item 32
-                $product = SiteProjectSupplyProduct::findOrFail($i);
-                $item = SiteProjectSupplyItem::create(['supply_id' => $this->id, 'product_id' => $product->id, 'product' => $product->name]);
-            }
+        for ($i = 3; $i <= $maxID; $i ++) {
+            $product = SiteProjectSupplyProduct::findOrFail($i);
+            $item = SiteProjectSupplyItem::create(['supply_id' => $this->id, 'product_id' => $product->id, 'product' => $product->name]);
         }
 
         return true;

@@ -71,7 +71,7 @@
         <?php $pagecount ++ ?>
         <div class="row">
             <div class="col-xs-6">
-                <img src="{!! URL::to('/') !!}/img/logo-capecod2.png">
+                <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40">
             </div>
             <div class="col-xs-6">
                 <p>JOB NAME: {{ $site->name }}<br>

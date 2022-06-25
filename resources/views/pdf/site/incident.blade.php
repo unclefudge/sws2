@@ -93,7 +93,7 @@
     ?>
     <div class="page22">
         <div class="row" style="padding: 5px">
-            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod2.png"></div>
+            <div class="col-xs-3"> <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
             <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT REPORT</h3></div>
         </div>
         {{-- Notification Details --}}
@@ -405,7 +405,7 @@
 
         {{-- Investigation & Analysis --}}
         <div class="row" style="padding: 5px">
-            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod2.png"></div>
+            <div class="col-xs-3"> <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
             <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT INVESTIGATION & ANALYSIS</h3></div>
         </div>
 

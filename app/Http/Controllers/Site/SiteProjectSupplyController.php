@@ -73,11 +73,11 @@ class SiteProjectSupplyController extends Controller {
                 $sitelist[$site->id] = "$site->name";
         }
 
-        $lockup = [1, 2, 3, 4, 5, 6, 7, 8];
+        $lockup = [32, 33, 3, 4, 5, 6, 7, 8];
         $fixout = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
 
         $products = SiteProjectSupplyProduct::where('status', '1')->whereIn('id', $lockup)->get();
-        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 2)->orderBy('order')->get();
 
         return view('site/project/supply/create', compact('sitelist', 'products'));
     }
@@ -126,7 +126,7 @@ class SiteProjectSupplyController extends Controller {
         if (!Auth::user()->hasPermission2('del.site.project.supply'))
             return view('errors/404');
 
-        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 2)->orderBy('order')->get();
 
         return view('site/project/supply/settings', compact('products'));
     }
@@ -179,21 +179,19 @@ class SiteProjectSupplyController extends Controller {
         if ($project) {
             $maxID = SiteProjectSupplyProduct::all()->count();
 
-            for ($i = 1; $i <= $maxID; $i ++) {
-                if ($i != 32) { // Exclude Special Item 32
-                    $item = SiteProjectSupplyItem::where('supply_id', $project->id)->where('product_id', $i)->first();
-                    $product = SiteProjectSupplyProduct::findOrFail($i);
+            for ($i = 3; $i <= $maxID; $i ++) {
+                $item = SiteProjectSupplyItem::where('supply_id', $project->id)->where('product_id', $i)->first();
+                $product = SiteProjectSupplyProduct::findOrFail($i);
 
-                    if ($item) {
-                        $item->product = $product->name;
-                        $item->supplier = request("supplier-$i");
-                        $item->type = request("type-$i");
-                        $item->colour = request("colour-$i");
-                        $item->save();
-                    } else {
-                        $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $i, 'product' => $product->name,
-                                                                           'supplier'  => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
-                    }
+                if ($item) {
+                    $item->product = $product->name;
+                    $item->supplier = request("supplier-$i");
+                    $item->type = request("type-$i");
+                    $item->colour = request("colour-$i");
+                    $item->save();
+                } else {
+                    $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $i, 'product' => $product->name,
+                                                                       'supplier'  => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
                 }
             }
         }
@@ -201,7 +199,7 @@ class SiteProjectSupplyController extends Controller {
         // New Special items
         for ($i = 1; $i <= 5; $i ++) {
             if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
-                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 32, 'product' => request("product-s$i"),
+                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 2, 'product' => request("product-s$i"),
                                                                    'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
             }
         }
@@ -311,7 +309,7 @@ class SiteProjectSupplyController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '!=', 32)->orderBy('order')->get();
+        $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 1)->orderBy('order')->get();
         foreach ($products as $product) {
             $product->supplier = request("supplier-$product->id");
             $product->type = request("type-$product->id");

@@ -32,7 +32,7 @@ class SiteProjectSupplyProduct extends Model {
 
         foreach ($options as $opt) {
             if ($opt)
-                $array[$opt] = $opt;
+                $array[rtrim($opt)] = rtrim($opt);
         }
 
         if (count($array)) {
