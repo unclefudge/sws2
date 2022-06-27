@@ -380,8 +380,8 @@ class SiteProjectSupplyController extends Controller {
                 return (new Carbon($project->updated_at))->format('d/m/Y');
             })
             ->addColumn('action', function ($project) {
-                $proj = SiteProjectSupply::findOrFail($project->id);
-                if (Auth::user()->allowed2('edit.site.project.supply', $proj))
+                //$proj = SiteProjectSupply::findOrFail($project->id);
+                if (Auth::user()->hasPermission2('edit.site.project.supply'))
                     return '<a href="/site/supply/' . $project->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 else
                     return '<a href="/site/supply/' . $project->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';

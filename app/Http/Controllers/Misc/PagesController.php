@@ -164,6 +164,14 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Creating Project Supply for Active Sites</b></br>";
+        $sites = Site::where('company_id', 3)->where('status', 1)->get();
+        foreach ($sites as $site) {
+            $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
+            $project->initialise();
+        }
+
+        /*
         $today = Carbon::today();
         $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
 
@@ -182,6 +190,7 @@ class PagesController extends Controller {
                 $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
             }
         }
+        */
         /*
         // Update Old Single Line Client Name into Title-First-Last fields
 
