@@ -258,7 +258,7 @@ class SiteUpcomingComplianceController extends Controller {
         $startdata = $this->getUpcomingData();
         //dd($startdata);
 
-        return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf->setPaper('A4', 'landscape');
 
@@ -283,11 +283,19 @@ class SiteUpcomingComplianceController extends Controller {
                 //dd($email_to);
 
                 if ($email_to) {
-                    Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingCompliance($file));
+                    //Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingCompliance($startdata, $file));
+                    $data = ['startdata' => $startdata, 'settings_colours' => $settings_colours];
+                    Mail::send('emails/site/upcoming-compliance', $data, function ($m) use ($email_to, $data, $file) {
+                        $send_from = 'do-not-reply@safeworksite.com.au';
+                        $m->from($send_from, 'Safe Worksite');
+                        $m->to($email_to);
+                        $m->subject('SafeWorksite - Upcoming Jobs Compliance Data');
+                        $m->attach($file);
+                    });
                     Toastr::success("Sent email");
                 }
 
-                return  redirect("/site/upcoming/compliance");
+                return redirect("/site/upcoming/compliance");
             }
         }
     }

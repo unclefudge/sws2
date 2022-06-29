@@ -311,7 +311,17 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteUpcomingCompliance($file));
+        //Mail::to($email_list)->send(new \App\Mail\Site\SiteUpcomingCompliance($startdata, $file));
+        if ($email_list) {
+            $data = ['startdata' => $startdata, 'settings_colours' => $settings_colours];
+            Mail::send('emails/site/upcoming-compliance', $startdata, function ($m) use ($email_list, $data, $file) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('SafeWorksite - Upcoming Jobs Compliance Data');
+                $m->attach($file);
+            });
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

@@ -19,8 +19,9 @@ class SiteUpcomingCompliance extends Mailable implements ShouldQueue {
      *
      * @return void
      */
-    public function __construct($file_attachment)
+    public function __construct($data, $file_attachment)
     {
+        $this->data = $data;
         $this->file_attachment = $file_attachment;
     }
 
