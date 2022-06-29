@@ -745,7 +745,7 @@ class CompanyController extends Controller {
             })
             ->addColumn('manager', function ($company) {
                 if (count($company->seniorUsers()))
-                    return $company->seniorUsersSBC();
+                    return $company->seniorUsersPhoneEmail();
 
                 return 'N/A';
             })

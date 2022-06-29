@@ -647,6 +647,30 @@ class Company extends Model {
     }
 
     /**
+     * A list of Seniors users separated by ,
+     *
+     * @return string
+     */
+    public function seniorUsersPhoneEmail()
+    {
+        $string = '';
+
+        // Include Primary + Secondary
+        if ($this->primary_user) {
+            $string .= $this->primary_contact()->fullname ." <span class='badge badge-info badge-roundless'>P</span><br>";
+            if ($this->primary_contact()->phone) $string .= "P: ". $this->primary_contact()->phone ."<br>";
+            if ($this->primary_contact()->email) $string .= "E: ". $this->primary_contact()->email ."<br>";
+        }
+        if ($this->secondary_user) {
+            $string .= $this->secondary_contact()->fullname . " <span class='badge badge-info badge-roundless'>S</span><br>";
+            if ($this->secondary_contact()->phone) $string .= "P: ". $this->secondary_contact()->phone ."<br>";
+            if ($this->secondary_contact()->email) $string .= "E: ". $this->secondary_contact()->email ."<br>";
+        }
+
+        return $string;
+    }
+
+    /**
      * A list of senior users emails
      *
      * @return string
