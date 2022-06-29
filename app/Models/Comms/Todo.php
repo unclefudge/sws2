@@ -137,6 +137,8 @@ class Todo extends Model {
                 return '/site/qa/' . $this->type_id;
             case 'maintenance':
                 return '/site/maintenance/' . $this->type_id;
+            case 'project supply':
+                return '/site/supply/' . $this->type_id . '/edit';
             case 'scaffold handover':
                 return '/site/scaffold/handover/create/' . $this->type_id;
             case 'incident review':

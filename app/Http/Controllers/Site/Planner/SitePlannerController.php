@@ -1749,6 +1749,8 @@ class SitePlannerController extends Controller {
             if (!$project) {
                 $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
                 $project->initialise();
+                //$project->createToDo($project->site->supervisors->pluck('id')->toArray());
+                $project->createToDo(3);
             }
 
             return redirect("/planner/site/$site->id");

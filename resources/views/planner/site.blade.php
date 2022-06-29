@@ -47,13 +47,22 @@
                                 <div class="form-group">
                                     <select id="site_id" name="site_id" class="form-control select2" width="100%">
                                         <option></option>
+                                        <?php $found = false; ?>
                                         @foreach (Auth::user()->authSitesSelect('view.site.planner', 1, 'prompt', 'started') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
+                                            <?php if ($site && $site->id == $id) $found = true; ?>
                                         @endforeach
                                         <optgroup label="Maintenance"></optgroup>
                                         @foreach (Auth::user()->authSitesSelect('view.site.planner', 2, 'prompt') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
+                                            <?php if ($site && $site->id == $id) $found = true; ?>
                                         @endforeach
+
+                                        @if ($site && !$found)
+                                            <optgroup label="Other"></optgroup>
+                                            <option value="{{ $site->id }}" selected>{{ $site->name }}</option>
+                                        @endif
+
                                     </select>
                                 </div>
                             </div>
@@ -457,7 +466,7 @@
             </template>
         </div>
 
-        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+        <pre v-if="xx.dev">@{{ $data | json }}</pre>
         -->
     </template>
 

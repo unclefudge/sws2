@@ -825,8 +825,8 @@ class Company extends Model {
         if ($status && !is_array($status))
             $status = [$status];
 
-        $collection = ($status != '') ? Site::whereIn('status', $status)->where('company_id', $this->id)->orWhere('company_id', $this->reportsTo()->id)->get() :
-            Site::where('company_id', $this->id)->orWhere('company_id', $this->reportsTo()->id)->get();
+        $company_ids = [$this->id, $this->reportsTo()->id];
+        $collection = ($status != '') ? Site::whereIn('status', $status)->whereIn('company_id', $company_ids)->get() : Site::whereIn('company_id',  $company_ids)->get();
 
         // If Company has no Parent then return full collection
         // ie. a list of all sites of all their own clients
@@ -834,15 +834,17 @@ class Company extends Model {
             return $collection;
 
         $logged_site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
+        //var_dump($collection->pluck('id')->toArray());
+        //dd($collection->pluck('id')->toArray());
 
         // Otherwise return a filtered collection of sites that company is on planner for
         $filteredCollection = [];
         foreach ($collection as $site) {
-            if ($date_from && $date_to)
+            if ($date_from && $date_to) {
                 $onPlanner = SitePlanner::where('site_id', $site->id)
                     ->where('entity_type', 'c')->where('entity_id', $this->id)
-                    ->whereDate('from', '>=', $date_from)->whereDate('to', '<=', $date_to)->first();
-            else
+                    ->whereDate('from', '<=', $date_from)->whereDate('to', '>=', $date_to)->first();
+            } else
                 $onPlanner = SitePlanner::where('site_id', $site->id)
                     ->where('entity_type', 'c')->where('entity_id', $this->id)->first();
             if (!$onPlanner && $site->id != $logged_site_id)

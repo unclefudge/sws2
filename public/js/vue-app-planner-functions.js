@@ -485,7 +485,7 @@ function addStartTaskToPlanner(plan, site_id, date) {
     };
     // 4 days after
     var floorInspect = {
-        id: '', site_id: site_id, entity_type: 'c', entity_id: 23, entity_name: 'Essential Certifiers', task_id: 183, task_code: 'Fl',
+        id: '', site_id: site_id, entity_type: 'c', entity_id: 359, entity_name: 'Cocert', task_id: 183, task_code: 'Fl',
         task_name: 'Floor Inspection', from: nextWorkDate(date, '+', 4), to: nextWorkDate(date, '+', 4), days: 1
     };
     // 5 days after
@@ -507,7 +507,7 @@ function addStartTaskToPlanner(plan, site_id, date) {
     var polEaves = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 10, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 13), days: 2};
     var catwalkUp = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 27, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 12), days: 1};
     // 13 days after
-    var frameInspect = {site_id: site_id, entity_type: 'c', entity_id: 23, task_id: 184, from: nextWorkDate(date, '+', 13), to: nextWorkDate(date, '+', 13), days: 1};
+    var frameInspect = {site_id: site_id, entity_type: 'c', entity_id: 359, task_id: 184, from: nextWorkDate(date, '+', 13), to: nextWorkDate(date, '+', 13), days: 1};
     // 14 days after
     var genClean = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 198, from: nextWorkDate(date, '+', 14), to: nextWorkDate(date, '+', 14), days: 1};
 
@@ -602,7 +602,7 @@ function addStartTaskToPlanner2(plan, site_id, date) {
         };
         // 4 days after
         var floorInspect = {
-            id: '', site_id: site_id, entity_type: 'c', entity_id: 23, entity_name: 'Essential Certifiers', task_id: 183, task_code: 'Fl',
+            id: '', site_id: site_id, entity_type: 'c', entity_id: 359, entity_name: 'CoCert', task_id: 183, task_code: 'Fl',
             task_name: 'Floor Inspection', from: nextWorkDate(date, '+', 4), to: nextWorkDate(date, '+', 4), days: 1
         };
         // 5 days after
@@ -624,7 +624,7 @@ function addStartTaskToPlanner2(plan, site_id, date) {
         var polEaves = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 10, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 13), days: 2};
         var catwalkUp = {site_id: site_id, entity_type: 't', entity_id: 2, task_id: 27, from: nextWorkDate(date, '+', 12), to: nextWorkDate(date, '+', 12), days: 1};
         // 13 days after
-        var frameInspect = {site_id: site_id, entity_type: 'c', entity_id: 23, task_id: 184, from: nextWorkDate(date, '+', 13), to: nextWorkDate(date, '+', 13), days: 1};
+        var frameInspect = {site_id: site_id, entity_type: 'c', entity_id: 359, task_id: 184, from: nextWorkDate(date, '+', 13), to: nextWorkDate(date, '+', 13), days: 1};
         // 14 days after
         var genClean = {site_id: site_id, entity_type: 't', entity_id: 21, task_id: 198, from: nextWorkDate(date, '+', 14), to: nextWorkDate(date, '+', 14), days: 1};
 

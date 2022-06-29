@@ -490,6 +490,10 @@ trait UserRolesPermissions {
      */
     public function authSitesSelect2Options($permission, $selected = null, $status = 1)
     {
+        // Status can be passed as int or array - Convert to array
+        if ($status && !is_array($status))
+            $status = [$status];
+
         $headers = false;
         $options = '<option></option>';
 
@@ -499,9 +503,9 @@ trait UserRolesPermissions {
                 //app('log')->debug("=== AuthSites ===");
                 // Site Checkin and either Company or Parent Company has Planner
                 $sites_planned = [];
-                foreach ($this->company->sitesPlannedFor(1, Carbon::today(), Carbon::today()) as $site) {
+                foreach ($this->company->sitesPlannedFor([1,2], Carbon::today(), Carbon::today()) as $site) {
                     $site = Site::findOrFail($site->id);
-                    if ($site->status == 1 && $site->show_checkin)
+                    if (in_array($site->status, [1,2]) && $site->show_checkin)
                         $sites_planned[$site->id] = "$site->name ($site->address, $site->suburb)";
                 }
                 asort($sites_planned);
@@ -537,7 +541,7 @@ trait UserRolesPermissions {
         if ($company_level == '40') $company_ids = $this->areaSites()->pluck('id')->toArray(); // Supervisor for
         if ($company_level == '30') $company_ids = $this->company->sitesPlannedFor()->pluck('id')->toArray(); // Planned for
         if ($company_level == '1') $company_ids = $this->company->sites()->pluck('id')->toArray(); // Delete / Sign Off All
-        $sites_company = Site::where('status', $status)->whereIn('id', $company_ids)->get();
+        $sites_company = Site::whereIn('status', $status)->whereIn('id', $company_ids)->get();
 
         $sites_company_array = [];
         foreach ($sites_company as $site)
@@ -565,7 +569,7 @@ trait UserRolesPermissions {
             if ($parent_level == '30') $parent_ids = $this->company->sitesPlannedFor()->pluck('id')->toArray(); // Planned for
             if ($parent_level == '20') $parent_ids = []; // Own Company
             if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->sites()->pluck('id')->toArray(); // Delete / Sign Off All
-            $sites_parent = Site::where('status', $status)->whereIn('id', $parent_ids)->get();
+            $sites_parent = Site::whereIn('status', $status)->whereIn('id', $parent_ids)->get();
 
             $sites_parent_array = [];
             if ($sites_parent) {
@@ -595,7 +599,7 @@ trait UserRolesPermissions {
             if ($parent_level == '30') $parent_ids = $this->company->reportsTo()->sitesPlannedFor()->pluck('id')->toArray(); // Planned for
             if ($parent_level == '20') $parent_ids = []; // Own Company
             if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->reportsTo()->sites()->pluck('id')->toArray(); // Delete / Sign Off All
-            $sites_parent = Site::where('status', $status)->whereIn('id', $parent_ids)->get();
+            $sites_parent = Site::whereIn('status', $status)->whereIn('id', $parent_ids)->get();
 
             $sites_parent_array = [];
             if ($sites_parent) {
