@@ -657,14 +657,14 @@ class Company extends Model {
 
         // Include Primary + Secondary
         if ($this->primary_user) {
-            $string .= $this->primary_contact()->fullname ." <span class='badge badge-info badge-roundless'>P</span><br>";
-            if ($this->primary_contact()->phone) $string .= "P: ". $this->primary_contact()->phone ."<br>";
-            if ($this->primary_contact()->email) $string .= "E: ". $this->primary_contact()->email ."<br>";
+            $string .= $this->primary_contact()->fullname . " <span class='badge badge-info badge-roundless'>P</span><br>";
+            if ($this->primary_contact()->phone) $string .= "P: " . $this->primary_contact()->phone . "<br>";
+            if ($this->primary_contact()->email) $string .= "E: " . $this->primary_contact()->email . "<br>";
         }
         if ($this->secondary_user) {
             $string .= $this->secondary_contact()->fullname . " <span class='badge badge-info badge-roundless'>S</span><br>";
-            if ($this->secondary_contact()->phone) $string .= "P: ". $this->secondary_contact()->phone ."<br>";
-            if ($this->secondary_contact()->email) $string .= "E: ". $this->secondary_contact()->email ."<br>";
+            if ($this->secondary_contact()->phone) $string .= "P: " . $this->secondary_contact()->phone . "<br>";
+            if ($this->secondary_contact()->email) $string .= "E: " . $this->secondary_contact()->email . "<br>";
         }
 
         return $string;
@@ -827,7 +827,7 @@ class Company extends Model {
         foreach ($this->sites($status) as $site) {
             //$record = Site::findOrFail($site->id);
             //if ($record->status)
-            $array[$site->id] =  $site->name; //"$site->suburb - $site->address ($site->code-$site->name)";
+            $array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code-$site->name)";
         }
         asort($array);
 
@@ -850,7 +850,7 @@ class Company extends Model {
             $status = [$status];
 
         $company_ids = [$this->id, $this->reportsTo()->id];
-        $collection = ($status != '') ? Site::whereIn('status', $status)->whereIn('company_id', $company_ids)->get() : Site::whereIn('company_id',  $company_ids)->get();
+        $collection = ($status != '') ? Site::whereIn('status', $status)->whereIn('company_id', $company_ids)->get() : Site::whereIn('company_id', $company_ids)->get();
 
         // If Company has no Parent then return full collection
         // ie. a list of all sites of all their own clients
@@ -865,9 +865,11 @@ class Company extends Model {
         $filteredCollection = [];
         foreach ($collection as $site) {
             if ($date_from && $date_to) {
-                $onPlanner = SitePlanner::where('site_id', $site->id)
-                    ->where('entity_type', 'c')->where('entity_id', $this->id)
-                    ->whereDate('from', '<=', $date_from)->whereDate('to', '>=', $date_to)->first();
+                if ($date_from == $date_to) // Used for Site Checkin current day
+                    $onPlanner = SitePlanner::where('site_id', $site->id)->where('entity_type', 'c')->where('entity_id', $this->id)->whereDate('from', '<=', $date_from)->whereDate('to', '>=', $date_to)->first();
+                else
+                    $onPlanner = SitePlanner::where('site_id', $site->id)->where('entity_type', 'c')->where('entity_id', $this->id)->whereDate('from', '>=', $date_from)->whereDate('to', '<=', $date_to)->first();
+
             } else
                 $onPlanner = SitePlanner::where('site_id', $site->id)
                     ->where('entity_type', 'c')->where('entity_id', $this->id)->first();

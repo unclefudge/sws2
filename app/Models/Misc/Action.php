@@ -26,6 +26,15 @@ class Action extends Model {
             return $this->belongsTo('App\Models\Site\SiteQa', 'table_id');
         if ($this->table == 'site_asbestos')
             return $this->belongsTo('App\Models\Site\SiteAsbestos', 'table_id');
+        if ($this->table == 'site_maintenance')
+            return $this->belongsTo('App\Models\Site\SiteMaintenance', 'table_id');
+        if ($this->table == 'site_inspection_plumbing')
+            return $this->belongsTo('App\Models\Site\SiteInspectionPlumbing', 'table_id');
+        if ($this->table == 'site_inspection_electrical')
+            return $this->belongsTo('App\Models\Site\SiteInspectionElectrical', 'table_id');
+        if ($this->table == 'company_docs_review')
+            return $this->belongsTo('App\Models\Company\CompanyDoc', 'table_id');
+
     }
 
     /**

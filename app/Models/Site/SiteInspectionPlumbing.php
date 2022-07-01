@@ -108,6 +108,26 @@ class SiteInspectionPlumbing extends Model {
     }
 
     /**
+     * Create ToDoo for Plumbing Report and assign to given user(s)
+     */
+    public function createContructionReviewToDo($user_list)
+    {
+        // Create ToDoo for Construction Manager to assign to company
+        $todo_request = [
+            'type'       => 'inspection_plumbing',
+            'type_id'    => $this->id,
+            'name'       => 'Plumbing Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'info'       => 'Please review inspection and sign off on report',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'company_id' => $this->site->owned_by->id,
+        ];
+
+        // Create ToDoo and assign to Construction Manager
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+    }
+
+    /**
      * Close any outstanding ToDoo for this QA
      */
     public function closeToDo()
@@ -120,6 +140,31 @@ class SiteInspectionPlumbing extends Model {
             $todo->save();
         }
     }
+
+    /**
+     * Email Action Notification
+     */
+    public function emailAction($action, $important = false)
+    {
+        $email_to = [env('EMAIL_DEV')];
+        $email_user = '';
+
+        if (\App::environment('prod')) {
+            //$email_list = $this->site->company->notificationsUsersEmailType('site.qa');
+            //$email_supers = $this->site->supervisorsEmails();
+            //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->supervisorsEmails();
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        }
+
+        /*
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        */
+    }
+
 
     /**
      * Get the owner of record   (getter)

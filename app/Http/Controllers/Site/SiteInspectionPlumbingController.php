@@ -38,16 +38,10 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.inspection'))
             return view('errors/404');
 
-        $non_assigned = SiteInspectionPlumbing::select([
-            'site_inspection_plumbing.id', 'site_inspection_plumbing.site_id', 'site_inspection_plumbing.created_at',
-            'site_inspection_plumbing.status', 'sites.company_id',
-            DB::raw('sites.name AS sitename'), 'sites.code',
-        ])
-            ->join('sites', 'site_inspection_plumbing.site_id', '=', 'sites.id')
-            ->where('site_inspection_plumbing.status', '=', 2)
-            ->orWhere('site_inspection_plumbing.assigned_to', '=', NULL)->get();
+        $non_assigned = SiteInspectionPlumbing::where('status', 2)->orWhere('assigned_to', null)->get();
+        $under_review = SiteInspectionPlumbing::where('status', 3)->get();
 
-        return view('site/inspection/plumbing/list', compact('non_assigned'));
+        return view('site/inspection/plumbing/list', compact('non_assigned', 'under_review'));
     }
 
     /**
@@ -77,7 +71,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+        if (in_array($report->status, [1,3]) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
         elseif ($report->status == 2)
             return view('/site/inspection/plumbing/docs', compact('report'));
@@ -128,7 +122,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('view.site.inspection', $report))
             return view('errors/404');
 
-        if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report))
+        if ($report->status == 1 && Auth::user()->allowed2('edit.site.inspection', $report))
             return redirect('/site/inspection/plumbing/' . $report->id . '/edit');
 
         return view('/site/inspection/plumbing/show', compact('report'));
@@ -167,25 +161,25 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        $rules = ['client_name'        => 'required',
-                  'client_address'     => 'required',
-                  'inspected_name'     => 'required_if:status,0',
-                  'inspected_lic'      => 'required_if:status,0',
-                  'pressure_reduction' => 'required_if:status,0',
-                  'hammer' => 'required_if:status,0',
-                  'hotwater_lowered' => 'required_if:status,0',
-                  'gas_position' => 'required_if:status,0',
+        $rules = ['client_name'               => 'required',
+                  'client_address'            => 'required',
+                  'inspected_name'            => 'required_if:status,0',
+                  'inspected_lic'             => 'required_if:status,0',
+                  'pressure_reduction'        => 'required_if:status,0',
+                  'hammer'                    => 'required_if:status,0',
+                  'hotwater_lowered'          => 'required_if:status,0',
+                  'gas_position'              => 'required_if:status,0',
                   'stormwater_detention_type' => 'required_if:status,0',
         ];
-        $mesg = ['client_name.required'       => 'The client name field is required.',
-                 'client_address.required'    => 'The client address field is required.',
-                 'inspected_name.required_if' => 'The inspection carried out by field is required.',
-                 'inspected_lic.required_if'  => 'The licence no. field is required.',
-                 'pressure_reduction.required_if'  => 'The pressure reduction value field is required.',
-                 'hammer.required_if'  => 'The water hammer field is required.',
-                 'hotwater_lowered.required_if'  => 'The will pipes in roof hot water need to be lowered field is required.',
-                 'gas_position.required_if'  => 'The gas meter position field is required.',
-                 'stormwater_detention_type.required_if'  => 'The onsite stormwater detention field is required.',
+        $mesg = ['client_name.required'                  => 'The client name field is required.',
+                 'client_address.required'               => 'The client address field is required.',
+                 'inspected_name.required_if'            => 'The inspection carried out by field is required.',
+                 'inspected_lic.required_if'             => 'The licence no. field is required.',
+                 'pressure_reduction.required_if'        => 'The pressure reduction value field is required.',
+                 'hammer.required_if'                    => 'The water hammer field is required.',
+                 'hotwater_lowered.required_if'          => 'The will pipes in roof hot water need to be lowered field is required.',
+                 'gas_position.required_if'              => 'The gas meter position field is required.',
+                 'stormwater_detention_type.required_if' => 'The onsite stormwater detention field is required.',
         ];
 
         if (in_array(Auth::user()->id, DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray())) {
@@ -203,11 +197,16 @@ class SiteInspectionPlumbingController extends Controller {
         $report_request['inspected_at'] = $inspected_at->toDateTimeString();
         $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
 
-        // On completion close any outstanding ToDoos
-        if (request('status') == 0 && $report->status != 0) {
+        if (request('status') == 0 && $report->status == 1) {
+            // Reported completed by trade - close any outstanding ToDoos
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;
+            $report_request['status'] = 3;
 
+            // Create ToDoo for Con Mgr
+            $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+        } elseif (request('status') == 0 && $report->status == 3) {
+            // Report completed + reviewed by Con Mgr
             // Email completed notification
             $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
@@ -237,10 +236,10 @@ class SiteInspectionPlumbingController extends Controller {
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/plumbing');
-        elseif ($report->status)
+        elseif (in_array($report->status, [1,2]))
             return redirect('site/inspection/plumbing/' . $report->id . '/edit');
         else
-            return redirect('site/inspection/plumbing/' . $report->id);
+            return redirect('site/inspection/plumbing/');
     }
 
     /**
@@ -266,6 +265,7 @@ class SiteInspectionPlumbingController extends Controller {
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReopened($report));
             }
         }
+
         return redirect('site/inspection/plumbing/' . $report->id . '/edit');
     }
 
@@ -358,7 +358,7 @@ class SiteInspectionPlumbingController extends Controller {
         ])
             ->join('sites', 'site_inspection_plumbing.site_id', '=', 'sites.id')
             ->where('site_inspection_plumbing.status', '=', request('status'))
-            ->where('site_inspection_plumbing.assigned_to', '<>', NULL)
+            ->where('site_inspection_plumbing.assigned_to', '<>', null)
             ->whereIn('site_inspection_plumbing.id', $inpect_ids);
 
         $dt = Datatables::of($inspect_records)

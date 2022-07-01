@@ -4,11 +4,32 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         @if (Auth::user()->company->subscription)
-            <li><a href="/site/inspection/electrical">Plumbing Inspection Reports</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/inspection/plumbing">Plumbing Inspection Reports</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Edit Report</span></li>
     </ul>
 @stop
+
+<style>
+    a.mytable-header-link {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333 !important;
+    }
+
+    @media screen and (min-width: 992px) {
+        .datepicker-input {
+            width: 130px !important;
+        }
+    }
+
+    @media screen and (min-width: 1200px) {
+        .datepicker-input {
+            width: 160px !important;
+        }
+    }
+</style>
+
 
 @section('content')
     <div class="page-content-inner">
@@ -113,10 +134,10 @@
 
                             {{-- Gallery --}}
                             <br>
-                            <div class="row"  id="photos-show">
+                            <div class="row" id="photos-show">
                                 <div class="col-md-7">
                                     <h4>Photos
-                                        @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
+                                        @if($report->status == 1 && (Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report)))
                                             <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
                                         @endif</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
@@ -125,7 +146,7 @@
                                 <div class="col-md-1"></div>
                                 <div class="col-md-4" id="docs-show">
                                     <h4>Documents
-                                        @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
+                                        @if($report->status == 1 && (Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report)))
                                             <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
                                         @endif
                                     </h4>
@@ -134,6 +155,7 @@
                                 </div>
                             </div>
 
+                            {{-- Photos / Docs --}}
                             <div id="photos-edit">
                                 <h4>Photos / Documents
                                     @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
@@ -198,6 +220,7 @@
 
                                 {{-- Client contacted --}}
                                 <div class="col-md-2" style="{{ (!$report->assigned_to) ? 'display:none' : '' }}">
+                                    {{--}}
                                     <div class="form-group {!! fieldHasError('client_contacted', $errors) !!}">
                                         {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
                                         <div class="input-group date date-picker">
@@ -205,14 +228,24 @@
                                             <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
                                         </div>
                                         {!! fieldErrorMessage('client_contacted', $errors) !!}
+                                    </div>--}}
+
+                                    {!! Form::label('client_contacted', 'Client contacted', ['class' => 'control-label']) !!}
+                                    <div class="input-group" style="width=80%">
+                                        <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                     </div>
+                                    <input v-model="xx.client_contacted" type="hidden" name="client_contacted" id="client_contacted" value="{{  ($report->client_contacted) ? $report->client_contacted->format('d/m/Y') : ''}}">
+                                    {!! fieldErrorMessage('client_contacted', $errors) !!}
+
                                 </div>
 
                                 {{-- Status --}}
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+                                        @if ($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+                                            {!! Form::select('status', ['1' => 'Active', '3' => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                        @elseif ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
                                             {!! Form::select('status', ['1' => 'Active', '0' => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @else
                                             {!! Form::text('status_text', ($report->status == 0) ? 'Completed' : 'Active', ['class' => 'form-control', 'readonly']) !!}
@@ -514,10 +547,12 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <h6>Please note that these remain best estimate until the final position and depth of services are located. Final estimates will be relayed to you at that time for your approval. <br><br>Thank you for your acknowledgment of the above and we will do our best to keep all costs to a minimum.</h6><br></div>
+                                        <h6>Please note that these remain best estimate until the final position and depth of services are located. Final estimates will be relayed to you at that time for your approval. <br><br>Thank you for your acknowledgment of the above and we will do our best to
+                                            keep all costs to a minimum.</h6><br></div>
                                 </div>
 
-                                <!-- Additional -->
+                                {{-- Additional --}}
+                                {{--}}
                                 <h4 class="font-green-haze">Additional Notes for Cape Cod</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
@@ -528,22 +563,84 @@
                                             {!! fieldErrorMessage('trade_notes', $errors) !!}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            </div>
+                                </div>--}}
 
-                            <div class="form-actions right">
-                                <a href="/site/inspection/plumbing" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <app-actions :table_id="{{ $report->id }}"></app-actions>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+
+                        <div class="form-actions right">
+                            <a href="/site/inspection/plumbing" class="btn default"> Back</a>
+                            <button type="submit" class="btn green"> Save</button>
+                        </div>
                     </div>
+                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+
+    <template id="actions-template">
+        <action-modal></action-modal>
+        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $report->id }}">
+        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
+        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
+
+        <div class="page-content-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="font-green-haze">Additional Notes
+                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                    </h4>
+                    <hr>
+                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
+                        <thead>
+                        <tr class="mytable-header">
+                            <th width="10%">Date</th>
+                            <th> Details</th>
+                            <th width="20%"> Name</th>
+                            {{--}}<th width="5%"></th>--}}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template v-for="action in actionList">
+                            <tr>
+                                <td>@{{ action.niceDate }}</td>
+                                <td>@{{ action.action }}</td>
+                                <td>@{{ action.fullname }}</td>
+                                {{--}}
+                                <td>
+                                    <!--<button v-show="xx.record_status != 0" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
+                                        <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
+                                    </button>-->
+                                    <!--
+                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
+                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
+                                        <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
+                                    </button>
+                                    -->
+                                </td>--}}
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+
+                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    -->
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    @include('misc/actions-modal')
+@stop
 
 
 @section('page-level-plugins-head')
@@ -552,22 +649,27 @@
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
+    {{--}}<link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>--}}
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    {{--}}<script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>--}}
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/js/moment.min.js" type="text/javascript"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+<script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script>
+<script src="/js/libs/moment.min.js" type="text/javascript"></script>
+<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+<script src="/js/libs/vue-strap.min.js"></script>
+<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+<script src="/js/vue-modal-component.js"></script>
+<script src="/js/vue-app-basic-functions.js"></script>
 <script type="text/javascript">
     $.ajaxSetup({
         headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
@@ -576,6 +678,10 @@
     $(document).ready(function () {
         /* Select2 */
         $("#assigned_to").select2({placeholder: "Select Company"});
+
+        if ($("#status").val() == '3') {
+            $('#inspector-div').show();
+        }
 
         $("#status").change(function () {
             $('#inspector-div').hide();
@@ -640,11 +746,122 @@
         });
     });
 
-    $('.date-picker').datepicker({
+    /*$('.date-picker').datepicker({
         autoclose: true,
         clearBtn: true,
         format: 'dd/mm/yyyy',
+    });*/
+</script>
+<script>
+    Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+    var host = window.location.hostname;
+    var dev = true;
+    if (host == 'safeworksite.com.au')
+        dev = false;
+
+    var xx = {
+        dev: dev,
+        action: '', loaded: false,
+        table_name: 'site_inspection_plumbing', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
+        created_by: '', created_by_fullname: '',
+    };
+
+    Vue.component('app-actions', {
+        template: '#actions-template',
+        props: ['table', 'table_id', 'status'],
+
+        created: function () {
+            this.getActions();
+        },
+        data: function () {
+            return {xx: xx, actionList: []};
+        },
+        events: {
+            'addActionEvent': function (action) {
+                this.actionList.push(action);
+            },
+        },
+        methods: {
+            getActions: function () {
+                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                    this.actionList = actions;
+                }.bind(this));
+            },
+        },
     });
+
+    Vue.component('ActionModal', {
+        template: '#actionModal-template',
+        props: ['show'],
+        data: function () {
+            var action = {};
+            return {xx: xx, action: action, oAction: ''};
+        },
+        events: {
+            'add-action-modal': function (e) {
+                var newaction = {};
+                this.oAction = '';
+                this.action = newaction;
+                this.xx.action = 'add';
+                this.show = true;
+            },
+            'edit-action-modal': function (action) {
+                this.oAction = action.action;
+                this.action = action;
+                this.xx.action = 'edit';
+                this.show = true;
+            }
+        },
+        methods: {
+            close: function () {
+                this.show = false;
+                this.action.action = this.oAction;
+            },
+            addAction: function (action) {
+                var actiondata = {
+                    action: action.action,
+                    table: this.xx.table_name,
+                    table_id: this.xx.table_id,
+                    niceDate: moment().format('DD/MM/YY'),
+                    created_by: this.xx.created_by,
+                    fullname: this.xx.created_by_fullname,
+                };
+                //alert('add action');
+
+                this.$http.post('/action', actiondata)
+                        .then(function (response) {
+                            toastr.success('Created new action ');
+                            actiondata.id = response.data.id;
+                            this.$dispatch('addActionEvent', actiondata);
+                        }.bind(this))
+                        .catch(function (response) {
+                            alert('failed adding new action');
+                        });
+
+                this.close();
+            },
+            updateAction: function (action) {
+                this.$http.patch('/action/' + action.id, action)
+                        .then(function (response) {
+                            toastr.success('Saved Action');
+                        }.bind(this))
+                        .catch(function (response) {
+                            alert('failed to save action [' + action.id + ']');
+                        });
+                this.show = false;
+            },
+        }
+    });
+
+    var myApp = new Vue({
+        el: 'body',
+        data: {xx: xx},
+        components: {
+            datepicker: VueStrap.datepicker,
+        },
+    });
+
 </script>
 @stop
 

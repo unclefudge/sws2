@@ -4,7 +4,7 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         @if (Auth::user()->company->subscription)
-            <li><a href="/site/inspection/electrical">Plumbing Inspection Reports</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/inspection/plumbing">Plumbing Inspection Reports</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Create Report</span></li>
     </ul>

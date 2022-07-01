@@ -10,6 +10,8 @@ use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Company\CompanyDocReview;
 use App\Http\Requests;
 use Illuminate\Http\Request;
@@ -61,6 +63,8 @@ class ActionController extends Controller {
                 case 'site_asbestos': $record = SiteAsbestos::find(request('table_id')); break;
                 case 'site_qa': $record = SiteQa::find(request('table_id')); break;
                 case 'site_maintenance': $record = SiteMaintenance::find(request('table_id')); break;
+                case 'site_inspection_plumbing': $record = SiteInspectionPlumbing::find(request('table_id')); break;
+                case 'site_inspection_electrical': $record = SiteInspectionElectrical::find(request('table_id')); break;
                 case 'company_docs_review': $record = CompanyDocReview::find(request('table_id')); break;
             }
             $record->emailAction($action);

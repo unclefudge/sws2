@@ -41,7 +41,6 @@
                                             <div class="text-center"><a href="/site/inspection/electrical/{{ $rec->id }}"><i class="fa fa-search"></i></a></div>
                                         </td>
                                         <td> {{ $rec->created_at->format('d/m/Y') }}</td>
-                                        <td> {{ $rec->site->code }}</td>
                                         <td> {{ $rec->site->name }}</td>
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
