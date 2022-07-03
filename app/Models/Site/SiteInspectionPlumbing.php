@@ -21,10 +21,11 @@ class SiteInspectionPlumbing extends Model {
         'fuel_type', 'gas_position', 'gas_pipes', 'gas_lines', 'gas_notes', 'existing', 'existing_notes',
         'sewer_cost', 'sewer_allowance', 'sewer_extra', 'sewer_notes',
         'stormwater_cost', 'stormwater_allowance', 'stormwater_extra', 'stormwater_notes', 'stormwater_detention_type', 'stormwater_detention_notes', 'trade_notes',
+        'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at'];
+    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at', 'supervisor_sign_at', 'manager_sign_at'];
 
     /**
      * A SiteInspectionPlumbing belongs to a site
@@ -47,7 +48,7 @@ class SiteInspectionPlumbing extends Model {
     }
 
     /**
-     * A SiteInspectionElectrical has many Docs.
+     * A SiteInspectionPlumbing has many Docs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
@@ -55,6 +56,33 @@ class SiteInspectionPlumbing extends Model {
     {
         return SiteInspectionDoc::where('inspect_id', $this->id)->where('table', 'plumbing')->get();
     }
+
+    /**
+     * A SiteInspectionPlumbing has many Actions
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actions()
+    {
+        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
+    }
+
+    /**
+     * Actions Markup Table
+     */
+    public function actionsMarkdownTable()
+    {
+        $string = '';
+
+        if (count($this->actions->sortByDesc('created_at')))
+            $string .= '|:-----|:-------|:------|\n';
+            foreach ($this->actions as $action) {
+                $string .=  '| '.$action->created_at->format('d/m/Y')." | $action->action | " . $action->user->full_name  . ' |\n';
+            }
+
+        return $string;
+    }
+
 
     /**
      * A SiteInspectionPlumbing belongs to a user

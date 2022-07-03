@@ -13,6 +13,7 @@ use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteInspectionDoc;
+use App\Models\Misc\Action;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -71,7 +72,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        if (in_array($report->status, [1,3]) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+        if (in_array($report->status, [1, 3]) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
         elseif ($report->status == 2)
             return view('/site/inspection/plumbing/docs', compact('report'));
@@ -205,12 +206,6 @@ class SiteInspectionPlumbingController extends Controller {
 
             // Create ToDoo for Con Mgr
             $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
-        } elseif (request('status') == 0 && $report->status == 3) {
-            // Report completed + reviewed by Con Mgr
-            // Email completed notification
-            $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
-            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
-
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
@@ -236,10 +231,57 @@ class SiteInspectionPlumbingController extends Controller {
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/plumbing');
-        elseif (in_array($report->status, [1,2]))
+        elseif (in_array($report->status, [1, 2]))
             return redirect('site/inspection/plumbing/' . $report->id . '/edit');
         else
             return redirect('site/inspection/plumbing/');
+    }
+
+    /**
+     * Sign Off on the Report
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function signoff($id)
+    {
+        $report = SiteInspectionPlumbing::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+            return view('errors/404');
+
+        //dd(request()->all());
+
+        $current_user = Auth::User()->full_name;
+        if (request('manager_sign_by')) {
+            if (request('manager_sign_by') == 'y') {
+                $report->manager_sign_by = Auth::User()->id;
+                $report->manager_sign_at = Carbon::now();
+                $report->status = 0;
+                $action = Action::create(['action' => "Report signed off by Construction Manager - $current_user", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+
+                // Email completed notification
+                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
+
+                dd($email_list);
+            } else {
+                $action = Action::create(['action' => "Report rejected by Construction Manager - $current_user", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $report->inspected_name = null;
+                $report->inspected_lic = null;
+                $report->status = 1;
+
+                // Create ToDoo for trade to Re-complete report
+                $report->closeToDo();
+                $company = Company::find(request('assigned_to'));
+                if ($company && $company->primary_user)
+                    $report->createAssignedToDo([$company->primary_user]);
+
+            }
+            $report->save();
+        }
+
+        return redirect("site/inspection/plumbing/$report->id");
     }
 
     /**

@@ -33,7 +33,7 @@
                         @include('form-error')
 
                         <div class="form-body">
-                            {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteInspectionPlumbingController@update', $report->id], 'class' => 'horizontal-form']) !!}
+                            {!! Form::model($report, ['method' => 'POST', 'action' => ['Site\SiteInspectionPlumbingController@signoff', $report->id], 'class' => 'horizontal-form']) !!}
 
                             <div class="row">
                                 <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->code }} - {{ $report->site->name }}</h3></div>
@@ -294,11 +294,14 @@
                                 <div class="col-sm-3 text-right">Construction Manager:</div>
                                 <div class="col-sm-9">
                                     <div class="col-md-6">
-                                        @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                        @if ($report->manager_sign_by)
+                                                {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
+                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
                                             <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
-                                                {!! Form::select('approve_version', ['' => 'Do you approve this inspection report', '0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'approve_version']) !!}
-                                                {!! fieldErrorMessage('approve_version', $errors) !!}
+                                                {!! Form::select('manager_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
                                             </div>
+                                        @else
+                                            <span class="font-red">Pending Sign Off</span>
                                         @endif
                                     </div>
                                 </div>

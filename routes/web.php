@@ -382,6 +382,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/plumbing/upload', 'Site\SiteInspectionPlumbingController@uploadAttachment');
     Route::any('site/inspection/plumbing/{id}/docs', 'Site\SiteInspectionPlumbingController@documents');
     Route::get('site/inspection/plumbing/{id}/report', 'Site\SiteInspectionPlumbingController@reportPDF');
+    Route::post('site/inspection/plumbing/{id}/signoff', 'Site\SiteInspectionPlumbingController@signoff');
     Route::resource('site/inspection/plumbing', 'Site\SiteInspectionPlumbingController');
 
     // Site Scaffold Handover

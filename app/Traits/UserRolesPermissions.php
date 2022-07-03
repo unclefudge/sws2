@@ -490,8 +490,9 @@ trait UserRolesPermissions {
      */
     public function authSitesSelect2Options($permission, $selected = null, $status = 1)
     {
+        //dd($status);
         // Status can be passed as int or array - Convert to array
-        if ($status && !is_array($status))
+        if (isset($status) && !is_array($status))
             $status = [$status];
 
         $headers = false;

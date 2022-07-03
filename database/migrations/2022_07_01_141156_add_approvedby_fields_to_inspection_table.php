@@ -37,11 +37,17 @@ class AddApprovedbyFieldsToInspectionTable extends Migration
     public function down()
     {
         Schema::table('site_inspection_electrical', function($table) {
-            $table->dropColumn('trade_notes');
+            $table->dropColumn('manager_sign_at');
+            $table->dropColumn('manager_sign_by');
+            $table->dropColumn('supervisor_sign_at');
+            $table->dropColumn('supervisor_sign_by');
         });
 
         Schema::table('site_inspection_plumbing', function($table) {
-            $table->dropColumn('trade_notes');
+            $table->dropColumn('manager_sign_at');
+            $table->dropColumn('manager_sign_by');
+            $table->dropColumn('supervisor_sign_at');
+            $table->dropColumn('supervisor_sign_by');
         });
     }
 }
