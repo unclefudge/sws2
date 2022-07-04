@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->company->subscription)
+        @if (Auth::user()->hasAnyPermissionType('site.inspection'))
             <li><a href="/site/inspection/plumbing">Plumbing Inspection Reports</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Edit Report</span></li>
@@ -377,7 +377,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Comments -->
+                                {{-- Comments --}}
                                 <h4 class="font-green-haze">Additional Notes for Client</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
@@ -571,7 +571,6 @@
                                         <app-actions :table_id="{{ $report->id }}"></app-actions>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -595,7 +594,7 @@
         <div class="page-content-inner">
             <div class="row">
                 <div class="col-md-12">
-                    <h4 class="font-green-haze">Additional Notes
+                    <h4 class="font-green-haze">Additional Notes for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
                         <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                     </h4>
                     <hr>
@@ -605,7 +604,6 @@
                             <th width="10%">Date</th>
                             <th> Details</th>
                             <th width="20%"> Name</th>
-                            {{--}}<th width="5%"></th>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -614,18 +612,6 @@
                                 <td>@{{ action.niceDate }}</td>
                                 <td>@{{ action.action }}</td>
                                 <td>@{{ action.fullname }}</td>
-                                {{--}}
-                                <td>
-                                    <!--<button v-show="xx.record_status != 0" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
-                                    </button>-->
-                                    <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
-                                    </button>
-                                    -->
-                                </td>--}}
                             </tr>
                         </template>
                         </tbody>
@@ -745,12 +731,6 @@
             data.form.append("report_id", $("#report_id").val());
         });
     });
-
-    /*$('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });*/
 </script>
 <script>
     Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');

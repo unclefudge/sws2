@@ -13,6 +13,7 @@ use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionDoc;
+use App\Models\Misc\Action;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -38,16 +39,10 @@ class SiteInspectionElectricalController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.inspection'))
             return view('errors/404');
 
-        $non_assigned = SiteInspectionElectrical::select([
-            'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.created_at',
-            'site_inspection_electrical.status', 'sites.company_id',
-            DB::raw('sites.name AS sitename'), 'sites.code',
-        ])
-            ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')
-            ->where('site_inspection_electrical.status', '=', 2)
-            ->orWhere('site_inspection_electrical.assigned_to', '=', null)->get();
+        $non_assigned = SiteInspectionElectrical::where('status', 2)->orWhere('assigned_to', null)->get();
+        $under_review = SiteInspectionElectrical::where('status', 3)->get();
 
-        return view('site/inspection/electrical/list', compact('non_assigned'));
+        return view('site/inspection/electrical/list', compact('non_assigned', 'under_review'));
     }
 
     /**
@@ -128,7 +123,7 @@ class SiteInspectionElectricalController extends Controller {
         if (!Auth::user()->allowed2('view.site.inspection', $report))
             return view('errors/404');
 
-        if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report))
+        if ($report->status == 1 && Auth::user()->allowed2('edit.site.inspection', $report))
             return redirect('/site/inspection/electrical/' . $report->id . '/edit');
 
         return view('/site/inspection/electrical/show', compact('report'));
@@ -191,22 +186,21 @@ class SiteInspectionElectricalController extends Controller {
         $report_request['inspected_at'] = $inspected_at->toDateTimeString();
         $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
 
-        // On completion close any outstanding ToDoos
-        if (request('status') == 0 && $report->status != 0) {
+        if (request('status') == 0 && $report->status == 1) {
+            // Reported completed by trade - close any outstanding ToDoos
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;
+            $report_request['status'] = 3;
 
-            // Email completed notification
-            $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
-            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
-
+            // Create ToDoo for Electrical Review
+            $report->createContructionReviewToDo([464]); // Alethea
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
         }
 
         // Create ToDoo for change of assigned company
-        if (request('assigned_to') != $report->assigned_to) {
+        if (request('assigned_to') && request('assigned_to') != $report->assigned_to) {
             $report->closeToDo();
             $report_request['assigned_at'] = Carbon::now()->toDateTimeString();
             $company = Company::find(request('assigned_to'));
@@ -226,10 +220,88 @@ class SiteInspectionElectricalController extends Controller {
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/electrical');
-        elseif ($report->status)
+        elseif (in_array($report->status, [1, 2]))
             return redirect('site/inspection/electrical/' . $report->id . '/edit');
         else
             return redirect('site/inspection/electrical/' . $report->id);
+    }
+
+    /**
+     * Sign Off on the Report
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function signoff($id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+            return view('errors/404');
+
+        //dd(request()->all());
+
+        $current_user = Auth::User()->full_name;
+
+        // Electrical Mgr Signoff
+        if (request('supervisor_sign_by')) {
+            if (request('supervisor_sign_by') == 'y') {
+                $report->supervisor_sign_by = Auth::User()->id;
+                $report->supervisor_sign_at = Carbon::now();
+                $report->status = 3;
+                $action = Action::create(['action' => "Report signed off by Electrical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+
+                // Create ToDoo for Con Mgr
+                $report->closeToDo();
+                $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            } else {
+                $action = Action::create(['action' => "Report rejected by Electrical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $report->inspected_name = null;
+                $report->inspected_lic = null;
+                $report->status = 1;
+
+                // Create ToDoo for trade to Re-complete report
+                $report->closeToDo();
+                $company = Company::find($report->assigned_to);
+                if ($company && $company->primary_user)
+                    $report->createAssignedToDo([$company->primary_user]);
+
+                Toastr::error("Report Rejected");
+
+            }
+            $report->save();
+        }
+
+        // Con Mgr Signoff
+        if (request('manager_sign_by')) {
+            if (request('manager_sign_by') == 'y') {
+                $report->manager_sign_by = Auth::User()->id;
+                $report->manager_sign_at = Carbon::now();
+                $report->status = 0;
+                $action = Action::create(['action' => "Report signed off by Construction Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+
+                // Email completed notification
+                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
+                Toastr::success("Report Signed Off");
+
+                //dd($email_list);
+            } else {
+                $action = Action::create(['action' => "Report rejected by Construction Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $report->supervisor_sign_by = null;
+                $report->supervisor_sign_at = null;
+                $report->status = 3;
+
+                // Create ToDoo for Electrical Review
+                $report->closeToDo();
+                $report->createContructionReviewToDo([464]); // Alethea
+                Toastr::error("Report Rejected");
+
+            }
+            $report->save();
+        }
+
+        return redirect("site/inspection/electrical/$report->id");
     }
 
     /**

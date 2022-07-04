@@ -67,22 +67,6 @@ class SiteInspectionPlumbing extends Model {
         return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
     }
 
-    /**
-     * Actions Markup Table
-     */
-    public function actionsMarkdownTable()
-    {
-        $string = '';
-
-        if (count($this->actions->sortByDesc('created_at')))
-            $string .= '|:-----|:-------|:------|\n';
-            foreach ($this->actions as $action) {
-                $string .=  '| '.$action->created_at->format('d/m/Y')." | $action->action | " . $action->user->full_name  . ' |\n';
-            }
-
-        return $string;
-    }
-
 
     /**
      * A SiteInspectionPlumbing belongs to a user
@@ -140,7 +124,7 @@ class SiteInspectionPlumbing extends Model {
      */
     public function createContructionReviewToDo($user_list)
     {
-        // Create ToDoo for Construction Manager to assign to company
+        // Create ToDoo for Construction Manager to review report
         $todo_request = [
             'type'       => 'inspection_plumbing',
             'type_id'    => $this->id,

@@ -172,10 +172,10 @@
                                 <div class="col-md-11">{!! nl2br($report->existing) !!}</div>
                             </div>
 
-                            <!-- Comments -->
+                            {{-- Comments --}}
                             @if ($report->notes)
                                 <br>
-                                <h4 class="font-green-haze">Additional notes</h4>
+                                <h4 class="font-green-haze">Client notes</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
@@ -295,7 +295,7 @@
                                 <div class="col-sm-9">
                                     <div class="col-md-6">
                                         @if ($report->manager_sign_by)
-                                                {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
+                                            {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
                                         @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
                                             <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
                                                 {!! Form::select('manager_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
@@ -323,9 +323,12 @@
                             <a href="/site/inspection/plumbing" class="btn default"> Back</a>
                             @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report))
                                 <button type="submit" class="btn green"> Save</button>
-                                {!! Form::close() !!}
+
+                            @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
+                                <a href="/site/inspection/electrical/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
                             @endif
                         </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
@@ -346,7 +349,7 @@
         <div class="page-content-inner">
             <div class="row">
                 <div class="col-md-12">
-                    <h4 class="font-green-haze">Additional Notes
+                    <h4 class="font-green-haze">Additional Notes for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
                         <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                     </h4>
                     <hr>
@@ -356,7 +359,6 @@
                             <th width="10%">Date</th>
                             <th> Details</th>
                             <th width="20%"> Name</th>
-                            {{--}}<th width="5%"></th>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -365,18 +367,6 @@
                                 <td>@{{ action.niceDate }}</td>
                                 <td>@{{ action.action }}</td>
                                 <td>@{{ action.fullname }}</td>
-                                {{--}}
-                                <td>
-                                    <!--<button v-show="xx.record_status != 0" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
-                                    </button>-->
-                                    <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
-                                    </button>
-                                    -->
-                                </td>--}}
                             </tr>
                         </template>
                         </tbody>
@@ -391,7 +381,6 @@
     </template>
 
     @include('misc/actions-modal')
-
 @stop
 
 @section('page-level-plugins-head')

@@ -375,6 +375,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/electrical/{id}/docs', 'Site\SiteInspectionElectricalController@documents');
     Route::get('site/inspection/electrical/{id}/report', 'Site\SiteInspectionElectricalController@reportPDF');
     Route::get('site/inspection/electrical/{id}/status/{status}', 'Site\SiteInspectionElectricalController@updateStatus');
+    Route::post('site/inspection/electrical/{id}/signoff', 'Site\SiteInspectionElectricalController@signoff');
     Route::resource('site/inspection/electrical', 'Site\SiteInspectionElectricalController');
 
     // Site Inspection Plumbing Register
@@ -382,6 +383,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/plumbing/upload', 'Site\SiteInspectionPlumbingController@uploadAttachment');
     Route::any('site/inspection/plumbing/{id}/docs', 'Site\SiteInspectionPlumbingController@documents');
     Route::get('site/inspection/plumbing/{id}/report', 'Site\SiteInspectionPlumbingController@reportPDF');
+    Route::get('site/inspection/plumbing/{id}/status/{status}', 'Site\SiteInspectionPlumbingController@updateStatus');
     Route::post('site/inspection/plumbing/{id}/signoff', 'Site\SiteInspectionPlumbingController@signoff');
     Route::resource('site/inspection/plumbing', 'Site\SiteInspectionPlumbingController');
 

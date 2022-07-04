@@ -72,7 +72,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        if (in_array($report->status, [1, 3]) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
         elseif ($report->status == 2)
             return view('/site/inspection/plumbing/docs', compact('report'));
@@ -197,6 +197,7 @@ class SiteInspectionPlumbingController extends Controller {
         $inspected_at = new Carbon (preg_replace('/-/', '', request('inspected_at')));
         $report_request['inspected_at'] = $inspected_at->toDateTimeString();
         $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
+
 
         if (request('status') == 0 && $report->status == 1) {
             // Reported completed by trade - close any outstanding ToDoos

@@ -33,7 +33,7 @@
                         @include('form-error')
 
                         <div class="form-body">
-                            {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteInspectionElectricalController@update', $report->id], 'class' => 'horizontal-form']) !!}
+                            {!! Form::model($report, ['method' => 'POST', 'action' => ['Site\SiteInspectionElectricalController@signoff', $report->id], 'class' => 'horizontal-form']) !!}
 
                             <div class="row">
                                 <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->code }} - {{ $report->site->name }}</h3></div>
@@ -170,22 +170,63 @@
                                 </div>
                             @endif
 
-                            @if ($report->trade_notes)
-                                <h4 class="font-green-haze">Cape Code Notes</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
+                            {{-- Notes --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <app-actions :table_id="{{ $report->id }}"></app-actions>
                                 </div>
-                            @endif
+                            </div>
+
+                            {{-- Sign Off --}}
+                            <br>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5><b>INSPECTION REPORT ELECTRONIC SIGN-OFF</b></h5>
+                                    <p>The above report have been reviewed by the following people.</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 text-right">Electrical Manager:</div>
+                                <div class="col-sm-9">
+                                    <div class="col-md-6">
+                                        @if ($report->supervisor_sign_by)
+                                            {!! \App\User::find($report->supervisor_sign_by)->full_name !!}, &nbsp;{{ $report->supervisor_sign_at->format('d/m/Y') }}
+                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->id == 464 || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager')))
+                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
+                                                {!! Form::select('supervisor_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor_sign_by']) !!}
+                                            </div>
+                                        @else
+                                            <span class="font-red">Pending Sign Off</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 text-right">Construction Manager:</div>
+                                <div class="col-sm-9">
+                                    <div class="col-md-6">
+                                        @if ($report->manager_sign_by)
+                                            {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
+                                        @elseif($report->status == 3 && $report->supervisor_sign_by && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
+                                                {!! Form::select('manager_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
+                                            </div>
+                                        @else
+                                            <span class="font-red">Pending Sign Off</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         @if(Auth::user()->allowed2('edit.site.inspection', $report))
                             <div class="form-actions right">
                                 <a href="/site/inspection/electrical" class="btn default"> Back</a>
-                                @if (Auth::user()->allowed2('sig.site.inspection', $report))
-                                    <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn green"> Edit</a>
-                                @elseif (!$report->status)
+                                @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report))
+                                    <button type="submit" class="btn green"> Save</button>
+                                    {!! Form::close() !!}
+                                @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
                                     <a href="/site/inspection/electrical/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
                                 @endif
                             </div>
@@ -203,7 +244,49 @@
         </div>
     </div>
 
-    @stop <!-- END Content -->
+    <template id="actions-template">
+        <action-modal></action-modal>
+        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $report->id }}">
+        <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
+        <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
+
+        <div class="page-content-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 class="font-green-haze">Additional Notes for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
+                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                    </h4>
+                    <hr>
+                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
+                        <thead>
+                        <tr class="mytable-header">
+                            <th width="10%">Date</th>
+                            <th> Details</th>
+                            <th width="20%"> Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template v-for="action in actionList">
+                            <tr>
+                                <td>@{{ action.niceDate }}</td>
+                                <td>@{{ action.action }}</td>
+                                <td>@{{ action.fullname }}</td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+
+                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    -->
+
+                </div>
+            </div>
+        </div>
+    </template>
+
+    @include('misc/actions-modal')
+
+    @stop
 
 
 @section('page-level-plugins-head')
@@ -218,9 +301,122 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<!--<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>-->
 <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+<script src="/js/libs/vue-strap.min.js"></script>
+<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+<script src="/js/vue-modal-component.js"></script>
+<script src="/js/vue-app-basic-functions.js"></script>
+<script>
+    Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+    var host = window.location.hostname;
+    var dev = true;
+    if (host == 'safeworksite.com.au')
+        dev = false;
+
+    var xx = {
+        dev: dev,
+        action: '', loaded: false,
+        table_name: 'site_inspection_electrical', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
+        created_by: '', created_by_fullname: '',
+    };
+
+    Vue.component('app-actions', {
+        template: '#actions-template',
+        props: ['table', 'table_id', 'status'],
+
+        created: function () {
+            this.getActions();
+        },
+        data: function () {
+            return {xx: xx, actionList: []};
+        },
+        events: {
+            'addActionEvent': function (action) {
+                this.actionList.push(action);
+            },
+        },
+        methods: {
+            getActions: function () {
+                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                    this.actionList = actions;
+                }.bind(this));
+            },
+        },
+    });
+
+    Vue.component('ActionModal', {
+        template: '#actionModal-template',
+        props: ['show'],
+        data: function () {
+            var action = {};
+            return {xx: xx, action: action, oAction: ''};
+        },
+        events: {
+            'add-action-modal': function (e) {
+                var newaction = {};
+                this.oAction = '';
+                this.action = newaction;
+                this.xx.action = 'add';
+                this.show = true;
+            },
+            'edit-action-modal': function (action) {
+                this.oAction = action.action;
+                this.action = action;
+                this.xx.action = 'edit';
+                this.show = true;
+            }
+        },
+        methods: {
+            close: function () {
+                this.show = false;
+                this.action.action = this.oAction;
+            },
+            addAction: function (action) {
+                var actiondata = {
+                    action: action.action,
+                    table: this.xx.table_name,
+                    table_id: this.xx.table_id,
+                    niceDate: moment().format('DD/MM/YY'),
+                    created_by: this.xx.created_by,
+                    fullname: this.xx.created_by_fullname,
+                };
+                //alert('add action');
+
+                this.$http.post('/action', actiondata)
+                        .then(function (response) {
+                            toastr.success('Created new action ');
+                            actiondata.id = response.data.id;
+                            this.$dispatch('addActionEvent', actiondata);
+                        }.bind(this))
+                        .catch(function (response) {
+                            alert('failed adding new action');
+                        });
+
+                this.close();
+            },
+            updateAction: function (action) {
+                this.$http.patch('/action/' + action.id, action)
+                        .then(function (response) {
+                            toastr.success('Saved Action');
+                        }.bind(this))
+                        .catch(function (response) {
+                            alert('failed to save action [' + action.id + ']');
+                        });
+                this.show = false;
+            },
+        }
+    });
+
+    var myApp = new Vue({
+        el: 'body',
+        data: {xx: xx},
+        components: {
+            datepicker: VueStrap.datepicker,
+        },
+    });
+
+</script>
 @stop
 

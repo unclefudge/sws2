@@ -17,11 +17,12 @@ class SiteInspectionElectrical extends Model {
     protected $table = 'site_inspection_electrical';
     protected $fillable = [
         'site_id', 'client_name', 'client_address', 'client_contacted', 'info', 'assigned_to', 'assigned_at', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
-        'existing', 'required', 'required_cost', 'recommend', 'recommend_cost', 'trade_notes', 'notes', 'status',
-        'created_by', 'updated_by', 'created_at', 'updated_at'
+        'existing', 'required', 'required_cost', 'recommend', 'recommend_cost', 'trade_notes',
+        'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
+        'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at'];
+    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at',  'supervisor_sign_at', 'manager_sign_at',];
 
     /**
      * A SiteInspectionElectrical belongs to a site
@@ -52,6 +53,17 @@ class SiteInspectionElectrical extends Model {
     {
         return SiteInspectionDoc::where('inspect_id', $this->id)->where('table', 'electrical')->get();
     }
+
+    /**
+     * A SiteInspectionElectrical has many Actions
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actions()
+    {
+        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
+    }
+
 
     /**
      * A SiteInspectionElectrical belongs to a user
@@ -105,6 +117,47 @@ class SiteInspectionElectrical extends Model {
     }
 
     /**
+     * Create ToDoo for Electrical Report and assign to given user(s)
+     */
+    public function createContructionReviewToDo($user_list)
+    {
+        // Create ToDoo for Construction Manager to review report
+        $todo_request = [
+            'type'       => 'inspection_electrical',
+            'type_id'    => $this->id,
+            'name'       => 'Electrical Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'info'       => 'Please review inspection and sign off on report',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'company_id' => $this->site->owned_by->id,
+        ];
+
+        // Create ToDoo and assign to Review Manager
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
+    }
+
+    /**
+     * Create ToDoo for Electrical Report and assign to given user(s)
+     */
+    public function createElectricalReviewToDo($user_list)
+    {
+        // Create ToDoo for Electrical Reviewer to review report
+        $todo_request = [
+            'type'       => 'inspection_electrical',
+            'type_id'    => $this->id,
+            'name'       => 'Electrical Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'info'       => 'Please review inspection and sign off on report',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'company_id' => $this->site->owned_by->id,
+        ];
+
+        // Create ToDoo and assign to Construction Manager
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+    }
+
+    /**
      * Close any outstanding ToDoo for this QA
      */
     public function closeToDo()
@@ -116,6 +169,30 @@ class SiteInspectionElectrical extends Model {
             $todo->done_by = Auth::user()->id;
             $todo->save();
         }
+    }
+
+    /**
+     * Email Action Notification
+     */
+    public function emailAction($action, $important = false)
+    {
+        $email_to = [env('EMAIL_DEV')];
+        $email_user = '';
+
+        if (\App::environment('prod')) {
+            //$email_list = $this->site->company->notificationsUsersEmailType('site.qa');
+            //$email_supers = $this->site->supervisorsEmails();
+            //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->supervisorsEmails();
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        }
+
+        /*
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAction($this, $action));
+        */
     }
 
     /**
