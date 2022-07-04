@@ -205,7 +205,7 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Con Mgr
-            $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            //$report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
@@ -264,7 +264,7 @@ class SiteInspectionPlumbingController extends Controller {
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
 
-                dd($email_list);
+                //dd($email_list);
             } else {
                 $action = Action::create(['action' => "Report rejected by Construction Manager - $current_user", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
                 $report->inspected_name = null;
