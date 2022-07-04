@@ -435,7 +435,7 @@ class MailgunZohoController extends Controller {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
-                else if (!$site->{$field} && $zoho_data) {
+                else if (!$site->{$field} && $zoho_data && !in_array($field, $exclude_update)) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
                     $this->blankSWSFields["$site->id:$field"] = $zoho_data;
                 }
@@ -459,7 +459,7 @@ class MailgunZohoController extends Controller {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = ($site->{$field}) ? 'YES' : 'NO';
                 } // only Zoho has data
-                else if ($site->{$field} == NULL && $zoho_data) {
+                else if ($site->{$field} == NULL && $zoho_data && !in_array($field, $exclude_update)) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
                     $this->blankSWSFields["$site->id:$field"] = ($zoho_data) ? 'YES' : 'NO';
                 }
@@ -487,7 +487,7 @@ class MailgunZohoController extends Controller {
                     //$diff .= "  $field: " . $site->{$field}->format('d/m/Y') . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = $site->{$field};
                 } // only Zoho has data
-                else if (!$site->{$field} && $zoho_data && in_array($field, $exclude_update)) {
+                else if (!$site->{$field} && $zoho_data && !in_array($field, $exclude_update)) {
                     $diff .= "  $field: {empty}  <= $date_with_leading_zeros $excluded\n";
                     $this->blankSWSFields["$site->id:$field"] = $zoho_data;
                 }
