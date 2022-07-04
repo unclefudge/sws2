@@ -15,14 +15,16 @@ A inspection report has been completed for {{ $report->site->name }}.
 | **TYPE** | Plumbing |
 | **Site Name**  | {{ $report->site->name  }} |
 | **Site Address**  | {{ $report->site->address }}, {{ $report->site->SuburbStatePostcode }} |
+| &nbsp;  | &nbsp; |
 
+**Notes**
 
+---
 
-## Notes
 @foreach($report->actions->sortByDesc('created_at') as $action)
-    {{ $action->created_at->format('d/m/Y') }} -  {{ $action->user->full_name }}
+    {{ $action->created_at->format('d/m/Y') }} - {{ $action->user->full_name }}
     {{ $action->action }}
-    ---
+
 @endforeach
 
 

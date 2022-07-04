@@ -205,14 +205,14 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Con Mgr
-            //$report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
         }
 
         // Create ToDoo for change of assigned company
-        if (request('assigned_to') != $report->assigned_to) {
+        if (request('assigned_to') && request('assigned_to') != $report->assigned_to) {
             $report->closeToDo();
             $report_request['assigned_at'] = Carbon::now()->toDateTimeString();
             $company = Company::find(request('assigned_to'));
@@ -258,24 +258,27 @@ class SiteInspectionPlumbingController extends Controller {
                 $report->manager_sign_by = Auth::User()->id;
                 $report->manager_sign_at = Carbon::now();
                 $report->status = 0;
-                $action = Action::create(['action' => "Report signed off by Construction Manager - $current_user", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report signed off by Construction Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Email completed notification
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
+                Toastr::success("Report Signed Off");
 
                 //dd($email_list);
             } else {
-                $action = Action::create(['action' => "Report rejected by Construction Manager - $current_user", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report rejected by Construction Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
                 $report->inspected_name = null;
                 $report->inspected_lic = null;
                 $report->status = 1;
 
                 // Create ToDoo for trade to Re-complete report
                 $report->closeToDo();
-                $company = Company::find(request('assigned_to'));
+                $company = Company::find($report->assigned_to);
                 if ($company && $company->primary_user)
                     $report->createAssignedToDo([$company->primary_user]);
+
+                Toastr::error("Report Rejected");
 
             }
             $report->save();
