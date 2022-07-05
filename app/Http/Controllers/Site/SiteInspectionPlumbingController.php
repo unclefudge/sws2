@@ -259,6 +259,8 @@ class SiteInspectionPlumbingController extends Controller {
                 $report->manager_sign_by = Auth::User()->id;
                 $report->manager_sign_at = Carbon::now();
                 $report->status = 0;
+
+                $report->closeToDo();
                 $action = Action::create(['action' => "Report signed off by Construction Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Email completed notification
