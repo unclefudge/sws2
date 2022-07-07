@@ -296,7 +296,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();
-                $report->createContructionReviewToDo([464]); // Alethea
+                $report->createContructionReviewToDo([1164]); // Brianna
                 Toastr::error("Report Rejected");
 
             }
