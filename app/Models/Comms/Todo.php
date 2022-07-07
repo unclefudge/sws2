@@ -287,6 +287,11 @@ class Todo extends Model {
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
+        // Exclude CC Non Cape Code users on certain ToDoo types
+        $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical'];
+        if (in_array($this->type, $excludeCCtypes) && Auth::check() && !Auth::user()->isCC())
+            $email_user = '';
+
         // Don't cc email to user if Todoo is a Company Doc Approval
         if (preg_match('/^Company Document Approval Request/', $this->name))
             $email_user = '';
