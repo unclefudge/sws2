@@ -193,7 +193,7 @@ class SiteInspectionElectricalController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Electrical Review
-            $report->createContructionReviewToDo([464]); // Alethea
+            $report->createContructionReviewToDo([1164]); // Brianna
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
