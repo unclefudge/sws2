@@ -289,7 +289,7 @@ class Todo extends Model {
 
         // Exclude CC Non Cape Code users on certain ToDoo types
         $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical'];
-        if (in_array($this->type, $excludeCCtypes) && Auth::check() && !Auth::user()->isCC())
+        if (in_array($this->type, $excludeCCtypes))
             $email_user = '';
 
         // Don't cc email to user if Todoo is a Company Doc Approval
