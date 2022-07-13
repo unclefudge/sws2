@@ -287,7 +287,7 @@ class Todo extends Model {
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
-        // Exclude CC Non Cape Code users on certain ToDoo types
+        // Exclude CC for users on certain ToDoo types
         $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical'];
         if (in_array($this->type, $excludeCCtypes))
             $email_user = '';

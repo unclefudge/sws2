@@ -129,7 +129,7 @@ class SiteInspectionPlumbing extends Model {
             'type'       => 'inspection_plumbing',
             'type_id'    => $this->id,
             'name'       => 'Plumbing Inspection Report Completed - ' . ' (' . $this->site->name . ')',
-            'info'       => 'Please review inspection and sign off on report',
+            'info'       => 'Please process the Variation and sign off on the Task',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
