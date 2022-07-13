@@ -62,6 +62,16 @@ class Site extends Model {
     }
 
     /**
+     * A Site has many ClientPlannerEmails
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function clientPlannerEmails()
+    {
+        return $this->hasMany('App\Models\Client\ClientPlannerEmail');
+    }
+
+    /**
      * A Site has many EquipmentLocation
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany

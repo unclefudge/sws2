@@ -89,7 +89,7 @@ class SiteInspectionPlumbing extends Model {
             'name'       => 'Plumbing Inspection Report - ' . ' (' . $this->site->name . ')',
             'info'       => 'Please complete the inspection report',
             'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
             'company_id' => '3',
         ];
 

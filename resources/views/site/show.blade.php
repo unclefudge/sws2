@@ -21,17 +21,21 @@
             @include('site/_show-safety')
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
-                {{-- Site Details --}}
+
                 @if (Auth::user()->allowed2('view.site', $site))
+                    {{-- Site Details --}}
                     @include('site/_show-site')
                     @include('site/_edit-site')
-                @endif
 
-                {{-- Client Details --}}
-                @if (Auth::user()->allowed2('view.site', $site))
+                    {{-- Client Details --}}
                     @include('site/_show-client')
                     @include('site/_edit-client')
                 @endif
+
+                    {{-- Client Planner Email --}}
+                    @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                        @include('site/_show-clientemail')
+                    @endif
             </div>
 
 

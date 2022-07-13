@@ -227,7 +227,7 @@ class ClientPlannerEmailController extends Controller {
         if ($last_client_email)
             $date_from = $last_client_email->updated_at->format('Y-m-d');
         else {
-            $golive_date = Carbon::createFromFormat('Y-m-d', '2022-07-06');
+            $golive_date = Carbon::createFromFormat('Y-m-d', '2022-07-30');
             $date_from = ($site->created_at->gt($golive_date)) ?  $site->created_at->format('Y-m-d') : $golive_date->format('Y-m-d');
         }
 

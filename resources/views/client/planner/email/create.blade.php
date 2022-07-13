@@ -217,11 +217,11 @@
                         dataType: 'json',
                         success: function (data) {
 
-                            //if (data.client1_email != '')
-                            //    $("#email1").val(data.client1_email);
+                            if (data.client1_email != '')
+                                $("#email1").val(data.client1_email);
 
-                            //if (data.client2_email != '')
-                            //    $("#email2").val(data.client2_email);
+                            if (data.client2_email != '')
+                                $("#email2").val(data.client2_email);
 
                             if (data.client_intro != '')
                                 $("#intro").val(data.client_intro);

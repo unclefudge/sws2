@@ -86,7 +86,7 @@ class SiteInspectionElectrical extends Model {
             'name'       => 'Electrical Inspection Report - ' . ' (' . $this->site->name . ')',
             'info'       => 'Please complete the inspection report',
             'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
             'company_id' => '3',
         ];
 
