@@ -101,120 +101,136 @@
                                         <li>Any person(s) involved in the incident</li>
                                     </ul>
                                 </div>
-                                <h4>Person Injured</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
 
+
+                            {{-- Anyone injured --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group {!! fieldHasError('person_injured', $errors) !!}">
+                                            {!! Form::label('person_injured', 'Was anyone injured in the incident?', ['class' => 'control-label']) !!}
+                                            {!! Form::select('person_injured', ['' => 'Select option', 'y' => 'Yes', 'n' => 'No'], null, ['class' => 'form-control bs-select ', 'id' => 'person_injured']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div id="person_injured_div">
+                                    <h4>Person Injured</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                </div>
+
+                            {{-- Other type of invloved person --}}
                                 {{-- Involvement Type --}}
-                                @if (false)
+                                <div class="row" id="person_other_div">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('type', $errors) !!}">
+                                            <?php $qType = App\Models\Misc\FormQuestion::find(8) ?>
+                                            {!! Form::label('type', $qType->name, ['class' => 'control-label']) !!}
+                                            {!! Form::select('type', ['' => 'Select type'] + $qType->optionsArray(), null, ['class' => 'form-control bs-select ', 'id' => 'type']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" id="field_type_other">
+                                        <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
+                                            {!! Form::label('type_other', 'Other Type', ['class' => 'control-label']) !!}
+                                            {!! Form::text('type_other', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('type_other', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="person_details_div">
+                                    {{-- User + DOB --}}
+                                    <div class="row">
+                                        {{-- User Id --}}
+                                        <div class="col-md-6">
+                                            <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
+                                                {!! Form::label('user_id', 'Person Involved', ['class' => 'control-label', 'id' => 'user_id_label']) !!}
+                                                {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('prompt', '1'),
+                                                     null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
+                                                {!! fieldErrorMessage('user_id', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                        @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                            {{-- DOB --}}
+                                            <div class="col-md-3">
+                                                <div class="form-group {!! fieldHasError('dob', $errors) !!}">
+                                                    {!! Form::label('dob', 'Date of Birth', ['class' => 'control-label']) !!}
+                                                    <div class="input-group date date-picker">
+                                                        {!! Form::text('dob', ($incident->dob) ? $incident->dob->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                                                        <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                                    </div>
+                                                    {!! fieldErrorMessage('dob', $errors) !!}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+
+                                    {{-- Name + Contact --}}
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                                <?php $qType = App\Models\Misc\FormQuestion::find(8) ?>
-                                                {!! Form::label('type', $qType->name, ['class' => 'control-label']) !!}
-                                                {!! Form::select('type', ['' => 'Select type'] + $qType->optionsArray(), null, ['class' => 'form-control bs-select ', 'id' => 'type']) !!}
+                                            <div class="form-group {!! fieldHasError('name', $errors) !!}">
+                                                {!! Form::label('name', 'Full name', ['class' => 'control-label']) !!}
+                                                {!! Form::text('name', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('name', $errors) !!}
                                             </div>
                                         </div>
-                                        <div class="col-md-3" id="field_type_other">
-                                            <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
-                                                {!! Form::label('type_other', 'Other Type', ['class' => 'control-label']) !!}
-                                                {!! Form::text('type_other', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('type_other', $errors) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- User + DOB --}}
-                                <div class="row">
-                                    {{-- User Id --}}
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('user_id', $errors) !!}">
-                                            {!! Form::label('user_id', 'Injured Person', ['class' => 'control-label']) !!}
-                                            {!! Form::select('user_id', ['' => 'Select user'] + Auth::user()->company->usersSelect('prompt', '1'),
-                                                 null, ['class' => 'form-control select2', 'name' => 'user_id', 'id'  => 'user_id',]) !!}
-                                            {!! fieldErrorMessage('user_id', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3"></div>
-                                    @if (Auth::user()->allowed2('del.site.incident', $incident))
-                                        {{-- DOB --}}
                                         <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('dob', $errors) !!}">
-                                                {!! Form::label('dob', 'Date of Birth', ['class' => 'control-label']) !!}
-                                                <div class="input-group date date-picker">
-                                                    {!! Form::text('dob', ($incident->dob) ? $incident->dob->format('d/m/Y') : '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                                    <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                            <div class="form-group {!! fieldHasError('contact', $errors) !!}">
+                                                {!! Form::label('contact', 'Contact', ['class' => 'control-label']) !!}
+                                                {!! Form::text('contact', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('contact', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group {!! fieldHasError('address', $errors) !!}">
+                                                {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
+                                                {!! Form::text('address', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('address', $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Employment info --}}
+                                    <div class="row">
+                                        {{-- Supervisor --}}
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
+                                                {!! Form::label('supervisor', 'Supervisor/PCBU', ['class' => 'control-label']) !!}
+                                                {!! Form::text('supervisor', null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage('supervisor', $errors) !!}
+                                            </div>
+                                        </div>
+                                        @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                            {{-- Employer --}}
+                                            <div class="col-md-3">
+                                                <div class="form-group {!! fieldHasError('employer', $errors) !!}">
+                                                    {!! Form::label('employer', 'Employer', ['class' => 'control-label']) !!}
+                                                    {!! Form::text('employer', null, ['class' => 'form-control']) !!}
+                                                    {!! fieldErrorMessage('employer', $errors) !!}
                                                 </div>
-                                                {!! fieldErrorMessage('dob', $errors) !!}
                                             </div>
-                                        </div>
-                                    @endif
-                                </div>
 
-
-                                {{-- Name + Contact --}}
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                            {!! Form::label('name', 'Full name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('name', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('contact', $errors) !!}">
-                                            {!! Form::label('contact', 'Contact', ['class' => 'control-label']) !!}
-                                            {!! Form::text('contact', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('contact', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                            {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                            {!! Form::text('address', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('address', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Employment info --}}
-                                <div class="row">
-                                    {{-- Supervisor --}}
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
-                                            {!! Form::label('supervisor', 'Supervisor/PCBU', ['class' => 'control-label']) !!}
-                                            {!! Form::text('supervisor', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('supervisor', $errors) !!}
-                                        </div>
-                                    </div>
-                                    @if (Auth::user()->allowed2('del.site.incident', $incident))
-                                        {{-- Employer --}}
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('employer', $errors) !!}">
-                                                {!! Form::label('employer', 'Employer', ['class' => 'control-label']) !!}
-                                                {!! Form::text('employer', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('employer', $errors) !!}
+                                            {{-- Engagement --}}
+                                            <div class="col-md-3">
+                                                <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
+                                                    {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
+                                                    {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
+                                                    {!! fieldErrorMessage('engagement', $errors) !!}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        {{-- Engagement --}}
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('engagement', $errors) !!}">
-                                                {!! Form::label('engagement', 'Engagement Type', ['class' => 'control-label']) !!}
-                                                {!! Form::select('engagement', ['' => 'Select type', 'Sub-contractor' => 'Sub-contractor', 'Employee' => 'Employee', 'Visitor' => 'Visitor', 'Public' => 'Public'], null, ['class' => 'form-control bs-select', 'id'  => 'engagement',]) !!}
-                                                {!! fieldErrorMessage('engagement', $errors) !!}
+                                            {{-- Occupation --}}
+                                            <div class="col-md-3">
+                                                <div class="form-group {!! fieldHasError('occupation', $errors) !!}">
+                                                    {!! Form::label('occupation', 'Occupation', ['class' => 'control-label']) !!}
+                                                    {!! Form::text('occupation', null, ['class' => 'form-control']) !!}
+                                                    {!! fieldErrorMessage('occupation', $errors) !!}
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        {{-- Occupation --}}
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('occupation', $errors) !!}">
-                                                {!! Form::label('occupation', 'Occupation', ['class' => 'control-label']) !!}
-                                                {!! Form::text('occupation', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('occupation', $errors) !!}
-                                            </div>
-                                        </div>
-                                    @endif
+                                        @endif
+                                    </div>
                                 </div>
                             @endif
                             <br><br>
@@ -262,13 +278,48 @@
 
         updateFields();
 
+        // On Change Person_injured
+        $("#person_injured").change(function () {
+            updateFields();
+        });
+
         // On Change User_id
         $("#user_id").change(function () {
             updateFields();
         });
 
+        // On Change Type
+        $("#type").change(function () {
+            updateFields();
+        });
+
 
         function updateFields() {
+            $("#person_injured_div").hide();
+            $("#person_other_div").hide();
+            $("#person_details_div").hide();
+            $("#field_type_other").hide();
+
+
+            // Injured person
+            if ($("#person_injured").val() == 'y') {
+                $("#person_injured_div").show();
+                $("#person_details_div").show();
+                $("#user_id_label").html('Injured Person');
+            }
+
+            // No-one injured
+            if ($("#person_injured").val() == 'n') {
+                $("#person_other_div").show();
+                $("#person_details_div").show();
+                $("#user_id_label").html('Person Involved');
+            }
+
+            // Type Other
+            if ($("#type").val() == '13')
+                $("#field_type_other").show();
+
+
             var user_id = $("#user_id").select2("val");
             if (user_id) {
                 $.ajax({

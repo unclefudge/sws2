@@ -110,7 +110,7 @@ class SiteInspectionPlumbing extends Model {
             'type_id'    => $this->id,
             'name'       => 'Plumbing Inspection Report Created - ' . ' (' . $this->site->name . ')',
             'info'       => 'Please review inspection and assign to a company',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 
@@ -130,7 +130,7 @@ class SiteInspectionPlumbing extends Model {
             'type_id'    => $this->id,
             'name'       => 'Plumbing Inspection Report Completed - ' . ' (' . $this->site->name . ')',
             'info'       => 'Please review inspection and sign off on report',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 14)->toDateTimeString(),
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 

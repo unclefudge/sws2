@@ -109,12 +109,13 @@ class SiteIncident extends Model {
         $todos = ($status) ? Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get() : Todo::where('type', 'incident')->where('type_id', $this->id)->get();
 
         if ($todos) {
-            foreach($todos as $todo) {
+            foreach ($todos as $todo) {
                 foreach ($todo->assignedTo() as $user)
                     if ($user->id == $user_id)
                         return true;
             }
         }
+
         return false;
     }
 
@@ -150,7 +151,7 @@ class SiteIncident extends Model {
     public function reviewsBy($status = '')
     {
         $reviews = [];
-        $Todos =  ($status) ? Todo::where('status', $status)->where('type', 'incident review')->where('type_id', $this->id)->get() : Todo::where('type', 'incident review')->where('type_id', $this->id)->get();
+        $Todos = ($status) ? Todo::where('status', $status)->where('type', 'incident review')->where('type_id', $this->id)->get() : Todo::where('type', 'incident review')->where('type_id', $this->id)->get();
 
         foreach ($Todos as $todo)
             $reviews[$todo->users()->first()->user_id] = ($todo->done_at) ? $todo->done_at->format('d/m/Y') : '';
@@ -256,7 +257,11 @@ class SiteIncident extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
+            // If incident happened on a Job site get Site owners details else use parent company details
+            if ($this->site_id)
+                $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
+            else
+                Auth::user()->company->reportTo()->notificationsUsersEmailType('site.accident');
             //$email_supers = $this->site->supervisorsEmails();
             //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';

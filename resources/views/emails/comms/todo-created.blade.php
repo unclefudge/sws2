@@ -5,6 +5,8 @@ A task has been sent to you with the following details:
 
 **{{ $todo->name  }}**
 
+Assigned to: {!! $todo->assignedToBySBC() !!}
+
 {!! ($todo->due_at) ? 'Task due: '.$todo->due_at->format('d/m/Y') : '' !!}
 
 {{ $todo->info }}

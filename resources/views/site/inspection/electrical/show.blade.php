@@ -182,12 +182,12 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h5><b>INSPECTION REPORT ELECTRONIC SIGN-OFF</b></h5>
+                                    <h5><b>PROCESS VARIATION AND SIGN OFF ON TASKS</b></h5>
                                     <p>The above report have been reviewed by the following people.</p>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-3 text-right">Electrical Manager:</div>
+                                <div class="col-sm-3 text-right">Admin Officer:</div>
                                 <div class="col-sm-9">
                                     <div class="col-md-6">
                                         @if ($report->supervisor_sign_by)
