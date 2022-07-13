@@ -188,9 +188,9 @@ class ClientPlannerEmailController extends Controller {
         //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         $body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me.<br><br>";
         $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
-        $body .= "<br><br>".Auth::user()->fullname;
+        $body .= "<br><br>" . Auth::user()->fullname;
         if (Auth::user()->jobtitle)
-            $body .= "<br>".strtoupper(Auth::user()->jobtitle);
+            $body .= "<br>" . strtoupper(Auth::user()->jobtitle);
 
         //print_r(nl2br($body));
         //dd($email_request);
@@ -224,10 +224,16 @@ class ClientPlannerEmailController extends Controller {
         // Check for recent QAs
         //
         $last_client_email = ClientPlannerEmail::where('status', 0)->where('site_id', $site->id)->orderBy('updated_at', 'DESC')->first();
-        $date_from = ($last_client_email) ? $last_client_email->updated_at->format('Y-m-d') : $site->created_at->format('Y-m-d');
+        if ($last_client_email)
+            $date_from = $last_client_email->updated_at->format('Y-m-d');
+        else {
+            $golive_date = Carbon::createFromFormat('Y-m-d', '2022-07-06');
+            $date_from = ($site->created_at->gt($golive_date)) ?  $site->created_at->format('Y-m-d') : $golive_date->format('Y-m-d');
+        }
+
 
         $qas = $site->qaReports->where('status', 0);
-        $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>', $date_from)->first();
+        $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>=', $date_from)->first();
         if ($site_qa)  // Call qaPDF and queue PDF to be created + attach doc to record
             app('App\Http\Controllers\Site\SiteQaController')->qaPDF(['email_id' => $email->id, 'date_from' => $date_from]);
 
