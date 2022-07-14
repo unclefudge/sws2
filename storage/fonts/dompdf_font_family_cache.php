@@ -84,9 +84,18 @@
     'normal' => $fontDir . '/glyphicons_halflings_normal_3666f2c75721d5d4133b57247675becf',
   ),
   'pt sans' => array(
-    'normal' => $fontDir . '/pt_sans_normal_e76a836bdb9b639f8f8481b37cb34a7a',
+    'normal' => $fontDir . '/pt_sans_normal_fa52bdbac54dbb0189884934fe13d6a1',
   ),
   'martel sans' => array(
     'normal' => $fontDir . '/1968e2aa7a241d74a376e858af398b02',
+  ),
+  'roboto condensed' => array(
+    'normal' => $fontDir . '/roboto_condensed_normal_fb71bfbe8fb909a21d60ecc800a45bf8',
+  ),
+  'signika' => array(
+    '600' => $fontDir . '/signika_600_027311b454394b9b2d49281721227807',
+  ),
+  'open sans' => array(
+    '300' => $fontDir . '/open_sans_300_b238a082ddaafa8f804813f71033ff2c',
   ),
 ) ?>

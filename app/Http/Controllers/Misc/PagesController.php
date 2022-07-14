@@ -54,6 +54,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class PagesController extends Controller {
 
@@ -164,12 +165,29 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Creating Merged PDF</b></br>";
+
+        $site = Site::find(403);
+        $site->createWhsManagementPlanPDF();
+
+        $mergedPDF = PDFMerger::init();
+
+        $cover = public_path('/filebank/tmp/report/3/QA 7865-IsikSantos-Bronte (403) 20220623143956.pdf');
+        $master = public_path('WHS Management Plan.pdf');
+        $mergedPDF->addPDF($cover, 'all');
+        $mergedPDF->addPDF($master, 'all');
+
+        $mergedPDF->merge();
+        $mergedPDF->save(public_path('/filebank/tmp/merged_result.pdf'));
+
+
+        /*
         echo "<b>Creating Project Supply for Active Sites</b></br>";
         $sites = Site::where('company_id', 3)->where('status', 1)->get();
         foreach ($sites as $site) {
             $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
             $project->initialise();
-        }
+        }*/
 
         /*
         $today = Carbon::today();

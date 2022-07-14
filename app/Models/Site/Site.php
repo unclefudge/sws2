@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
 use App\Models\Site\Planner\Task;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class Site extends Model {
 
@@ -627,6 +628,20 @@ class Site extends Model {
 
         return ($firstTask) ? $firstTask->from : null;
     }
+
+    /**
+     * Create WHS Managemnent Plan PDF
+     *
+     * @return string;
+     */
+    public function createWhsManagementPlanPDF()
+    {
+
+        $site = $this;
+        return view('pdf/site/whs-management-plan-cover', compact('site'));
+        //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
+    }
+
 
     /**
      * Get the 'START' job task date if it exists  (getter)

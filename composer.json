@@ -21,6 +21,7 @@
         "nilsenj/toastr-5.1-laravel": "dev-master",
         "spatie/laravel-backup": "6.*",
         "uxweb/sweet-alert": "~2.0",
+        "webklex/laravel-pdfmerger": "^1.3",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {

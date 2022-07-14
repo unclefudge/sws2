@@ -191,6 +191,7 @@ return [
         //Barryvdh\Snappy\ServiceProvider::class,   old version prior laravel 5.5
         Barryvdh\DomPDF\ServiceProvider::class,
         Spatie\Backup\BackupServiceProvider::class,
+        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
 
     ],
 
@@ -253,6 +254,7 @@ return [
         //'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,  older version prior laravel 5.5
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
 
     ],
 

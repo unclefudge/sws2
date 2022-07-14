@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Validator;
 
 use DB;
+use PDF;
 use Session;
 use App\User;
 use App\Models\Site\Site;
@@ -20,6 +21,7 @@ use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 use Alert;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class SiteController extends Controller {
 
@@ -282,6 +284,35 @@ class SiteController extends Controller {
     }
 
     /**
+     * Create WHS Management Plan
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function createWhsManagementPlan($site_id)
+    {
+        $site = Site::findOrFail($site_id);
+
+        //return view('pdf/site/whs-management-plan-cover', compact('site'));
+        //return PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4')->stream();
+        $pdf = PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4');
+        $cover = public_path("filebank/site/$site_id/docs/WHS Management Plan Cover.pdf");
+        if (file_exists($cover))
+            unlink($cover);
+        $pdf->save($cover);
+
+        // Merge Cover page with Master document
+        $mergedPDF = PDFMerger::init();
+        $master = public_path('WHS Management Plan.pdf');
+        $mergedPDF->addPDF($cover, 'all');
+        $mergedPDF->addPDF($master, [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+
+        $mergedPDF->merge();
+        $mergedPDF->save(public_path("filebank/site/$site_id/docs/WHS Management Plan.pdf"));
+
+        return $mergedPDF->stream();
+    }
+
+    /**
      * Get Sites current user is authorised to manage + Process datatables ajax request.
      */
     public function getSites()
@@ -437,64 +468,6 @@ class SiteController extends Controller {
     }*/
 
 
-    /**
-     * Process Site Check-in.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function processCheckin(SiteCheckinRequest $request, $slug)
-    {
-        $site = Site::where(compact('slug'))->firstOrFail();
 
-        if ($request->has('safe_site'))
-            $site->attendance()->save(new SiteAttendance(['safe_site' => '1']));
-        else {
-            if ($request->has('checkinTrade')) {
-                $worksite = Site::find($site->id);
-
-                return view('site/checkinTradeFail', compact(['worksite']));
-            }
-
-            $site->attendance()->save(new SiteAttendance(['safe_site' => '0']));
-
-            // Create Hazard + attach to site
-            if ($request->has('action_required'))
-                $hazard = $site->hazards()->save(new SiteHazard($request->only('action_required', 'reason', 'location', 'rating')));
-            else
-                $hazard = $site->hazards()->save(new SiteHazard($request->only('reason', 'location', 'rating')));
-
-            //Create action taken + attach to hazard
-            if ($hazard) {
-                $action = Action::create(['action' => $request->get('action'), 'table' => 'site_hazards', 'table_id' => $hazard->id]);
-                $hazard->touch(); // update timestamp
-
-                // Handle attached Photo or Video
-                if ($request->hasFile('media'))
-                    $hazard->saveAttachedMedia($request->file('media'));
-
-                // Email hazard
-                $hazard->emailHazard($action);
-            }
-        }
-
-        // if Today add them to Roster if Company is on Planer but user not on Roster
-        $today = Carbon::now()->format('Y-m-d');
-        if ($site->isCompanyOnPlanner(Auth::user()->company_id, $today) && !$site->isUserOnRoster(Auth::user()->id, $today)) {
-            $newRoster = SiteRoster::create(array(
-                'site_id'    => $site->id,
-                'user_id'    => Auth::user()->id,
-                'date'       => $today . ' 00:00:00',
-                'created_by' => '1',
-                'updated_by' => '1',
-            ));
-        }
-
-        Toastr::success("Checked in");
-
-        //$worksite = $site;
-        //dd($site);
-        return redirect('/dashboard');
-    }*/
 
 }
