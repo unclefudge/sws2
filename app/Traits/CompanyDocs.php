@@ -118,15 +118,17 @@ trait CompanyDocs {
         // 7  CL - Contractors Licence
         // 12 PP - Privacy Policy
         //
-        // Categories                          | PL  |WC/SA| SUB | PTC | CL  | PP  |
-        // 0  Unallocated                      |_____|_____|_____|_____|_____|_____|
-        // 1  Subcontractor (On Site Trade)    |__X__|__X__|__X__|__X__|__X__|__X__|
-        // 2  Service Provider (On Site trade  |__X__|__X__|__X__|_____|__X__|__X__|
-        // 3  Service Provider (Off Site)      |_____|__X__|__X__|_____|_____|__X__|
-        // 4  Supply & Fit                     |__X__|__X__|_____|_____|__X__|__X__|
-        // 5  Supply Only                      |__X__|_____|_____|_____|_____|__X__|
-        // 6  Consultant                       |__X__|__X__|__X__|_____|_____|__X__|
-        // 7  Builder                          |__X__|__X__|_____|_____|_____|__X__|
+        // Categories                          | PL  |WC/SA| SUB | PTC | CL  | PP  | TT  |
+        //                                     |__1__|_2/3_|__4__|__5__|__7__|_12__|__6__|
+        //                                     |=========================================|
+        // 0  Unallocated                      |_____|_____|_____|_____|_____|_____|_____|
+        // 1  Subcontractor (On Site Trade)    |__X__|__X__|__X__|__X__|__X__|__X__|__X__|
+        // 2  Service Provider (On Site trade  |__X__|__X__|__X__|_____|__X__|__X__|__X__|
+        // 3  Service Provider (Off Site)      |_____|__X__|__X__|_____|_____|__X__|_____|
+        // 4  Supply & Fit                     |__X__|__X__|_____|_____|__X__|__X__|_____|
+        // 5  Supply Only                      |__X__|_____|_____|_____|_____|__X__|_____|
+        // 6  Consultant                       |__X__|__X__|__X__|_____|_____|__X__|_____|
+        // 7  Builder                          |__X__|__X__|_____|_____|_____|__X__|_____|
 
         // Ignore docs for some split companys (NRW Carpentry 2 (202)
         if (in_array($this->id, [202]))
@@ -147,7 +149,7 @@ trait CompanyDocs {
         }
 
         // Subcontractor (On Site Trade)
-        if ($this->category == 1 && (in_array($type, [1, 4]) || ($this->parent_company == 3 && $type == 5))) return true; // Requires PL, Sub, + PTC (CC Only)
+        if ($this->category == 1 && (in_array($type, [1, 4]) || ($this->parent_company == 3 && in_array($type, [5, 6])))) return true; // Requires PL, Sub, + PTC, TT (CC Only)
         if ($this->category == 1 && $type == 7 && $this->tradeRequiresContractorsLicence()) return true;
 
         // Service Provider (On Site Trades)
@@ -306,7 +308,7 @@ trait CompanyDocs {
      */
     public function compliantDocs($format = 'array')
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 6 => 'Electrical Test & Tagging', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         $compliant_docs = [];
         $compliant_html = '';
 
@@ -372,7 +374,7 @@ trait CompanyDocs {
      */
     public function missingDocs($format = 'array')
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract',  6 => 'Electrical Test & Tagging', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         $missing_docs = [];
         $missing_html = '';
 
@@ -401,7 +403,7 @@ trait CompanyDocs {
      */
     public function isMissingDocs()
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 6 => 'Electrical Test & Tagging', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         foreach ($doc_types as $type => $name) {
             if ($this->requiresCompanyDoc($type) && (!$this->activeCompanyDoc($type) || $this->activeCompanyDoc($type)->status != 1))
                 return true;

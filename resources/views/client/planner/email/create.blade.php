@@ -5,7 +5,7 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
-            <li><a href="/client/planner/emails">Client Planner Emails</a><i class="fa fa-circle"></i></li>
+            <li><a href="/client/planner/email">Client Planner Emails</a><i class="fa fa-circle"></i></li>
         @endif
         <li><span>Create Email</span></li>
     </ul>

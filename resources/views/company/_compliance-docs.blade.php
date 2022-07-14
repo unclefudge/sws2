@@ -143,10 +143,13 @@ $compliantDocs = $company->compliantDocs();
                     </div>
                 @endif
             </div> --}}
-                @if (in_array($company->category, [1,2]))
+
+
+                {{-- Currently Disabled Test & Tag as additional as it was made required --}}
+                @if (false && in_array($company->category, [1,2]))
                     <hr>
                     <b>Additional documents:</b>
-                    {{-- Test & Tag --}}
+                    {{--- Test & Tag --}}
                     <?php $tag_doc = $company->activeCompanyDoc(6) ?>
                     <div class="row">
                         @if ($tag_doc && $tag_doc->status == 1)

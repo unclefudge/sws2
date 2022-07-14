@@ -9,6 +9,7 @@ class OverrideTypes {
         'cd1' => 'Public Liabilty',
         'cd2' => 'Workers Compensation',
         'cd3' => 'Sickness & Accident Insurance',
+        'cd6' => 'Electrical Test & Tagging',
         'cd7' => 'Contractor Licence',
         'ud1' => 'White Card',
     ];
