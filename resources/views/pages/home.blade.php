@@ -218,9 +218,40 @@
                             @foreach (TODO_TYPES AS $todo_type => $todo_name)
                                 @if (Auth::user()->todoType($todo_type, 1)->count())
                                     <h4>{{$todo_name}}</h4>
-                                    @foreach(Auth::user()->todoType($todo_type, 1) as $todo)
-                                        @include('pages/_home-todo')
-                                    @endforeach
+                                    @if ($todo_type == 'qa')
+                                        <?php
+                                        $qa_outstanding = Auth::user()->todoType($todo_type, 1)->count();
+                                        if ($qa_outstanding > 20)
+                                            $qa_colour = 'danger';
+                                        else if ($qa_outstanding > 10)
+                                            $qa_colour = 'warning';
+                                        else
+                                            $qa_colour = 'info';
+                                        ?>
+                                        <li>
+                                            <a href="/site/qa" class="task-title">
+                                                <div class="col1">
+                                                    <div class="cont">
+                                                        <div class="cont-col1">
+                                                            <div class="label label-sm label-{{$qa_colour}}">
+                                                                <i class="fa fa-star"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="cont-col2">
+                                                            <div class="desc">
+                                                                <span class="badge badge-roundless">{{ Auth::user()->todoType($todo_type, 1)->count() }}</span> Quality Assurance tasks
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col2">&nbsp;</div>
+                                            </a>
+                                        </li>
+                                    @else
+                                        @foreach(Auth::user()->todoType($todo_type, 1) as $todo)
+                                            @include('pages/_home-todo')
+                                        @endforeach
+                                    @endif
                                 @endif
                             @endforeach
 

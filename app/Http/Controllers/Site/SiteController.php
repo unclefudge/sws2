@@ -292,6 +292,12 @@ class SiteController extends Controller {
     {
         $site = Site::findOrFail($site_id);
 
+        // Ensure site directory exists
+        if (!file_exists(public_path("/filebank/site/$site_id")))
+            mkdir(public_path("/filebank/site/$site_id"));
+        if (!file_exists(public_path("/filebank/site/$site_id/docs")))
+            mkdir(public_path("/filebank/site/$site_id/docs"));
+
         //return view('pdf/site/whs-management-plan-cover', compact('site'));
         //return PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4')->stream();
         $pdf = PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4');
