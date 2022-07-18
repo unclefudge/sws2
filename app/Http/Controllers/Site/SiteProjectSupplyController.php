@@ -270,6 +270,8 @@ class SiteProjectSupplyController extends Controller {
         // Create PDF
         $project->attachment = $this->createPDF($project->id);
         $project->save();
+
+        // Close outstanding tasks
         $project->closeToDo(Auth::user());
 
 

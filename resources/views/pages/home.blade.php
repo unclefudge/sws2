@@ -226,7 +226,7 @@
                                         else if ($qa_outstanding > 10)
                                             $qa_colour = 'warning';
                                         else
-                                            $qa_colour = 'info';
+                                            $qa_colour = 'success';
                                         ?>
                                         <li>
                                             <a href="/site/qa" class="task-title">

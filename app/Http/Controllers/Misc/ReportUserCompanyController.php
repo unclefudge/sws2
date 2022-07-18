@@ -14,6 +14,7 @@ use App\Models\Misc\Permission2;
 use App\Models\Misc\Role2;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
+use App\Jobs\CompanyMissingInfoCsv;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -190,7 +191,25 @@ class ReportUserCompanyController extends Controller {
     public function missingCompanyInfoCSV()
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-        $csv = "Company, Missing Info / Document, Expiry / Last updated\r\n";
+
+
+        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+        // Create directory if required
+        if (!is_dir(public_path($dir)))
+            mkdir(public_path($dir), 0777, true);
+        $output_file = public_path($dir . "/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
+        touch($output_file);
+
+        //dd('here');
+        CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
+
+        dd('sent');
+        //return redirect('/manage/report/missing_company_info');
+
+        return redirect('/manage/report/recent');
+
+
+        /*$csv = "Company, Missing Info / Document, Expiry / Last updated\r\n";
 
         foreach ($companies as $company) {
             if ($company->missingInfo())
@@ -209,7 +228,7 @@ class ReportUserCompanyController extends Controller {
         $bytes_written = File::put(public_path($filename), $csv);
         if ($bytes_written === false) die("Error writing to file");
 
-        return redirect($filename);
+        return redirect($filename);*/
     }
 
     public function companyUsers()

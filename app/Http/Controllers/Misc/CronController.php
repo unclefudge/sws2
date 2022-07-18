@@ -935,36 +935,23 @@ class CronController extends Controller {
         //
         // Project Information Sheets
         //
-        /*
+
         $project_task_ids = [10, 378, 265];  // Polastic Eaves Windows (lock up), Pre-prac, Prac Completion
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $project_task_ids)->orderBy('site_id')->get();
 
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {
-                if ($task->entity_type == 'c' && $task->company->seniorUsers())
-                    $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                $mesg .= " - email sent to " . implode("; ", $task->company->seniorUsersEmail()) . "\n";
-                echo "$mesg<br>";
-                $log .= "$mesg\n";
-                $todo_request = [
-                    'type'       => 'scaffold handover',
-                    'type_id'    => $task->site->id,
-                    'name'       => 'Scaffold Handover Certificate for ' . $task->site->name,
-                    'info'       => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
-                    'priority'   => '1',
-                    'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
-                    'company_id' => '3',
-                    'created_by' => '1',
-                    'updated_by' => '1'
-                ];
 
-                // Create ToDoo and assign to Site Supervisors
-                $todo = Todo::create($todo_request);
-                $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
-                $todo->emailToDo();
+                // Create New Project Supply
+                $project = SiteProjectSupply::where('site_id', $task->site->id)->first();
+                if (!$project) {
+                    $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
+                    $project->initialise();
+                }
+                $project->createToDo($project->site->supervisors->pluck('id')->toArray());
                 $found_tasks ++;
             }
-        }*/
+        }
 
 
         if (!$found_tasks) {
