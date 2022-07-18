@@ -203,32 +203,7 @@ class ReportUserCompanyController extends Controller {
         //dd('here');
         CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
 
-        dd('sent');
-        //return redirect('/manage/report/missing_company_info');
-
         return redirect('/manage/report/recent');
-
-
-        /*$csv = "Company, Missing Info / Document, Expiry / Last updated\r\n";
-
-        foreach ($companies as $company) {
-            if ($company->missingInfo())
-                $csv .= "$company->name, " . $company->missingInfo() . ', ' . $company->updated_at->format('d/m/Y') . "\r\n";
-            if ($company->missingDocs()) {
-                foreach ($company->missingDocs() as $type => $name) {
-                    $doc = $company->expiredCompanyDoc($type);
-                    $exp = ($doc != 'N/A') ? $doc->expiry->format('Y-m-d') : 'never';
-                    $csv .= "$company->name, $name, $exp\r\n";
-                }
-            }
-        }
-
-        //echo $csv;
-        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/missing_company_info.csv';
-        $bytes_written = File::put(public_path($filename), $csv);
-        if ($bytes_written === false) die("Error writing to file");
-
-        return redirect($filename);*/
     }
 
     public function companyUsers()
