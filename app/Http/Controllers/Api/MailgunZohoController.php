@@ -312,6 +312,7 @@ class MailgunZohoController extends Controller {
                 //
                 // Zoho Missing Data Fields
                 //
+                /*
                 $last_site = '';
                 if (count($this->blankZohoFields)) {
                     $emptyZohoLog = "The Zoho import into SafeWorksite found missing data in (" . count($this->blankZohoFields) . ") Zoho Jobs.\n\n---";
@@ -330,7 +331,7 @@ class MailgunZohoController extends Controller {
 
                     // Email report to Zoho data person
                     //Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoEmptyFields($emptyZohoLog));
-                }
+                } */
             } else {
                 $log .= "\nFailed to import any records:\n";
                 $log .= ($row_report_type) ? " - Report type line: $row_report_type\n" : "Report type line: FAILED\n";

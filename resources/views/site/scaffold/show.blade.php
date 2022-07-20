@@ -121,8 +121,12 @@
                                 <div class="col-md-6">
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-4"><b>Inspector licence:</b></div>
-                                        <div class="col-md-8"><a href="{{ $report->inspector_licence_url }}" target="_blank" class="html5lightbox " title="{{ $report->name }}" data-lityXXX>
-                                                <img src="{{ $report->inspector_licence_url }}" class="thumbnail img-responsive img-thumbnail"></a></div>
+                                        <div class="col-md-8">
+                                            @if ($report->inspector_licence)
+                                                <a href="{{ $report->inspector_licence_url }}" target="_blank" class="html5lightbox " title="{{ $report->name }}" data-lityXXX>
+                                                    <img src="{{ $report->inspector_licence_url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>

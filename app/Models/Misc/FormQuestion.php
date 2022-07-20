@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class FormQuestion extends Model {
 
-    protected $table = 'form_questions';
+    protected $table = 'site_incidents_questions';
     protected $fillable = ['type', 'name', 'label', 'parent', 'order', 'form', 'company_id', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
