@@ -19,6 +19,7 @@ class CreateFormTables extends Migration
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->text('notes')->nullable();
+            $table->tinyInteger('master')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->integer('company_id')->unsigned()->nullable();
 
@@ -34,7 +35,7 @@ class CreateFormTables extends Migration
             $table->integer('template_id')->unsigned();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
-            $table->integer('order')->unsigned()->nullable();
+            $table->tinyInteger('order')->unsigned()->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
@@ -52,7 +53,7 @@ class CreateFormTables extends Migration
             $table->integer('parent')->unsigned()->nullable();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
-            $table->integer('order')->unsigned()->nullable();
+            $table->tinyInteger('order')->unsigned()->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
@@ -74,12 +75,13 @@ class CreateFormTables extends Migration
             $table->string('type', 50)->nullable();
             $table->string('type_special', 50)->nullable();
             $table->string('type_version', 50)->nullable();
-            $table->integer('order')->unsigned()->nullable();
+            $table->tinyInteger('order')->unsigned()->nullable();
             $table->string('default', 255)->nullable();
             $table->tinyInteger('multiple')->nullable();
             $table->tinyInteger('required')->nullable();
             $table->string('placeholder', 255)->nullable();
             $table->text('helper')->nullable();
+            $table->tinyInteger('width')->default(100);
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
@@ -92,15 +94,15 @@ class CreateFormTables extends Migration
         /* Template - Question Option */
         Schema::create('form_options', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('question_id')->unsigned();
+            $table->integer('question_id')->unsigned()->nullable();
             $table->string('text', 255)->nullable();
             $table->string('value', 255)->nullable();
-            $table->integer('order')->unsigned()->nullable();
+            $table->tinyInteger('order')->unsigned()->nullable();
             $table->string('colour', 25)->nullable();
             $table->integer('score')->nullable();
             $table->string('group', 255)->nullable();
+            $table->tinyInteger('master')->nullable();
             $table->tinyInteger('status')->default(1);
-
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -122,7 +124,7 @@ class CreateFormTables extends Migration
             $table->tinyInteger('status')->default(1);
 
             // Foreign keys
-            $table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
+            //$table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -140,7 +142,7 @@ class CreateFormTables extends Migration
             $table->integer('company_id')->unsigned()->nullable();
 
             // Foreign keys
-            $table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
+            //$table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -157,7 +159,7 @@ class CreateFormTables extends Migration
             $table->text('value')->nullable();
 
             // Foreign keys
-            $table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -173,11 +175,11 @@ class CreateFormTables extends Migration
             $table->string('category', 255)->nullable();
             $table->string('name', 255)->nullable();
             $table->string('attachment', 255)->nullable();
-            $table->integer('order')->unsigned()->nullable();
+            $table->tinyInteger('order')->unsigned()->nullable();
             $table->text('notes')->nullable();
 
             // Foreign keys
-            $table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -196,7 +198,7 @@ class CreateFormTables extends Migration
             $table->text('notes')->nullable();
 
             // Foreign keys
-            $table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();

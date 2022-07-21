@@ -5,37 +5,63 @@ namespace App\Models\Misc\Form;
 use URL;
 use Mail;
 use App\User;
+use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormSection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class FormSection extends Model {
+class FormQuestion extends Model {
 
-    protected $table = 'form_questionss';
-    protected $fillable = ['page_id', 'parent', 'name', 'description', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $table = 'form_questions';
+    protected $fillable = ['section_id', 'name', 'type', 'type_special', 'type_version', 'order', 'default', 'multiple', 'required',
+        'placeholder', 'helper', 'width', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
 
     /*
-     * A FormSection belongs to a FormPage
+     * A FormQuestion belongs to a FormSection
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function page()
+    public function section()
     {
-        return $this->belongsTo('App\Models\Misc\FormPage', 'page_id')->get();
+        return $this->belongsTo('App\Models\Misc\FormSection', 'section_id')->get();
     }
 
 
     /**
-     * A FormSection has many questions
+     * A FormQuestion 'may' have many options
      *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
-    public function questions()
+    public function options()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'page_id');
+        if ($this->type == 'select') {
+            if ($this->type_special) {
+                $option_ids = [];
+                if ($this->type_special == 'CONN') $option_ids = [1, 2, 3, 4];
+                if ($this->type_special == 'YN') $option_ids = [5, 6];
+                if ($this->type_special == 'YrN') $option_ids = [7, 8];
+                if ($this->type_special == 'YgN') $option_ids = [9, 10];
+                if ($this->type_special == 'YNNA') $option_ids = [11, 12, 13];
+
+                return FormOption::find($option_ids)->sortBy('order');
+            } else
+                return FormOption::where('question_id', $this->id)->where('status')->sortBy('order');
+        }
+
+        return null;
+    }
+
+    /**
+     * A FormQuestion 'may' have many options
+     *
+     */
+    public function optionsArray()
+    {
+        if ($this->type == 'select')
+            return $this->options()->pluck('text', 'id')->toArray();
+        return [];
     }
 
 

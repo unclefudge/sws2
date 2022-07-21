@@ -74,6 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', 'Misc\PagesController@index');
     Route::get('/dashboard', 'Misc\PagesController@index');
     Route::get('/manage/quick', 'Misc\PagesController@quick');
+    Route::get('/manage/quick2', 'Misc\PagesController@quick2');
     Route::get('/manage/fixplanner', 'Misc\PagesController@fixplanner');
     Route::get('/manage/importcompany', 'Misc\PagesController@importCompany');
     Route::get('/manage/completedqa', 'Misc\PagesController@completedQA');
@@ -639,6 +640,8 @@ Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', 'Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance');
 Route::get('manage/import-questions', 'Misc\PagesController@importQuestions');
+Route::get('manage/initform', 'Misc\PagesController@initFormTemplate');
+Route::get('manage/resetform', 'Misc\PagesController@resetFormTemplate');
 
 
 Route::get('test/asbestosreg', 'Misc\PagesController@asbestosRegister');

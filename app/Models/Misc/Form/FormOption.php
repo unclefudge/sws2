@@ -5,6 +5,7 @@ namespace App\Models\Misc\Form;
 use URL;
 use Mail;
 use App\User;
+use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormSection;
 use App\Models\Misc\Form\FormQuestion;
@@ -12,41 +13,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class FormPage extends Model {
+class FormOption extends Model {
 
-    protected $table = 'form_pages';
-    protected $fillable = ['template_id', 'name', 'description', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-
+    protected $table = 'form_options';
+    protected $fillable = ['question_id', 'text', 'value', 'order', 'colour', 'score', 'group', 'master', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
-     * A FormPage belongs to a FormTemplate
+     * A FormOption belongs to a FormQuestion
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function template()
+    public function question()
     {
-        return $this->belongsTo('App\Models\Misc\FormTemplate', 'template_id')->get();
-    }
-
-
-    /**
-     * A FormPage has many sections
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function sections()
-    {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id');
-    }
-
-    /**
-     * A FormPage has many questions
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function questions()
-    {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        return $this->belongsTo('App\Models\Misc\FormQuestion', 'question_id')->get();
     }
 
 
