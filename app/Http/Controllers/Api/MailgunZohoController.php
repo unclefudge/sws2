@@ -384,6 +384,8 @@ class MailgunZohoController extends Controller {
             'Design Cons (user)'  => 'consultant_name',
             'Job Stage'           => 'job_stage',
             'Eng FJ Certified?'   => 'engineering',
+            //'Project Coordinator' => '',
+            //'Project Coordinator (user)' => '',
 
             // Contacts Module
             'Job Name (Job Name)' => 'name',

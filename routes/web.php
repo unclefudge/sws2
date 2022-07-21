@@ -516,6 +516,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('equipment/stocktake', 'Misc\EquipmentStocktakeController');
 
 
+    // Form Template
+    Route::get('form/template/dt/templates', 'Misc\Form\FormTemplateController@getTemplates');
+    Route::resource('form/template', 'Misc\Form\FormTemplateController');
+
+
     // Configuration
     Route::get('settings', 'Misc\PagesController@settings');
     Route::get('settings/notifications/{id}/status/{status}', 'Misc\SettingsNotificationController@updateStatus');
