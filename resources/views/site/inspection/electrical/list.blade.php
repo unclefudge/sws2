@@ -92,6 +92,9 @@
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
                                                 <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
                                             @endif
+                                            @if(Auth::user()->allowed2('del.site.inspection', $report))
+                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $report->id }}" data-name="{{ $report->site->name }}"><i class="fa fa-trash"></i></button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
