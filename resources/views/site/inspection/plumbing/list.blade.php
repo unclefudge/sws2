@@ -78,7 +78,7 @@
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="5%"></th>
+                                    <th width="10%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($under_review as $report)
