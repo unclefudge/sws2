@@ -318,6 +318,23 @@ class SiteInspectionPlumbingController extends Controller {
     }
 
     /**
+     * Delete the specified resource in storage.
+     */
+    public function destroy($id)
+    {
+        $report = SiteInspectionPlumbing::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.inspection', $report))
+            return view('errors/404');
+
+        $report->delete();
+
+        return redirect('site/inspection/plumbing/');
+
+    }
+
+    /**
      * Upload File + Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response

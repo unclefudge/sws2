@@ -25,7 +25,7 @@ class FormOption extends Model {
      */
     public function question()
     {
-        return $this->belongsTo('App\Models\Misc\FormQuestion', 'question_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id')->get();
     }
 
 

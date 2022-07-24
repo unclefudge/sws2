@@ -16,6 +16,15 @@ class FormTemplate extends Model {
     protected $table = 'form_templates';
     protected $fillable = ['name', 'description', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
+    /**
+     * A FormTemplate has many forms
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function forms()
+    {
+        return $this->hasMany('App\Models\Misc\Form\Form', 'template_id');
+    }
 
     /**
      * A FormTemplate has many pages
@@ -45,7 +54,8 @@ class FormTemplate extends Model {
      */
     public function questions()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
+        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        //return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
     }
 
 

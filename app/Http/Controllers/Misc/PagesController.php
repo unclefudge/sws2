@@ -48,6 +48,7 @@ use App\Models\Misc\Equipment\EquipmentLog;
 //use App\Models\Misc\FormResponse;
 use App\Models\Misc\Permission2;
 use App\Models\Misc\Action;
+use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormSection;
@@ -1731,6 +1732,14 @@ class PagesController extends Controller {
         $question8 = FormQuestion::create(
             ['section_id' => $section3->id, 'name' => "Question8", 'type' => "select", 'type_special' => null, 'type_version' => 'bs-select',
              'order'      => 2, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+
+
+
+        //
+        // Create User Form
+        //
+        $form = Form::create(['template_id' => 1, 'name' => 'MyForm', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
+
     }
 
 

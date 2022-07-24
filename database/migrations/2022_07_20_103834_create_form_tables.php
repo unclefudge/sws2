@@ -133,7 +133,7 @@ class CreateFormTables extends Migration
         });
 
         /* Form */
-        Schema::create('form', function (Blueprint $table) {
+        Schema::create('forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('template_id')->unsigned();
             $table->string('name', 255)->nullable();
@@ -217,7 +217,7 @@ class CreateFormTables extends Migration
         Schema::dropIfExists('form_actions');
         Schema::dropIfExists('form_files');
         Schema::dropIfExists('form_responses');
-        Schema::dropIfExists('form');
+        Schema::dropIfExists('forms');
         Schema::dropIfExists('form_logic');
         Schema::dropIfExists('form_options');
         Schema::dropIfExists('form_questions');

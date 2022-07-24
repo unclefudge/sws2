@@ -32,7 +32,7 @@
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="5%"></th>
+                                    <th width="10%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($non_assigned as $report)
@@ -45,6 +45,9 @@
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
                                                 <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
+                                            @endif
+                                            @if(Auth::user()->allowed2('del.site.inspection', $report))
+                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $report->id }}" data-name="{{ $report->site->name }}"><i class="fa fa-trash"></i></button>
                                             @endif
                                         </td>
                                     </tr>
@@ -159,35 +162,74 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script type="text/javascript">
-
-    var status = $('#status').val();
-
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/inspection/electrical/dt/list') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
-            {data: 'sitename', name: 'sites.name'},
-            {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
-            {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
-            {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
-        ],
-        order: [
-            [2, "desc"]
-        ]
+    $.ajaxSetup({
+        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
     });
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
+    $(document).ready(function () {
+
+        var status = $('#status').val();
+
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/inspection/electrical/dt/list') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
+                {data: 'sitename', name: 'sites.name'},
+                {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
+                {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
+                {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
+            ],
+            order: [
+                [2, "desc"]
+            ]
+        });
+
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
+
+        // Warning message for deleting report
+        $('.delete-report').click(function (e) {
+            e.preventDefault();
+            var url = "/site/inspection/electrical/" + $(this).data('id');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted report');
+                    },
+                }).always(function (data) {
+                    location.reload();
+                });
+            });
+        });
+
     });
+
+
 </script>
 @stop

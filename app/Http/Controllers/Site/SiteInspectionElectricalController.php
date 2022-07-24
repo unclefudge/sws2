@@ -333,6 +333,23 @@ class SiteInspectionElectricalController extends Controller {
         return redirect('site/inspection/electrical/' . $report->id . '/edit');
     }
 
+    /**
+     * Delete the specified resource in storage.
+     */
+    public function destroy($id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.inspection', $report))
+            return view('errors/404');
+
+        $report->delete();
+
+        return redirect('site/inspection/electrical/');
+
+    }
+
 
     /**
      * Upload File + Store a newly created resource in storage.

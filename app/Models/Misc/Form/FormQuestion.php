@@ -26,7 +26,7 @@ class FormQuestion extends Model {
      */
     public function section()
     {
-        return $this->belongsTo('App\Models\Misc\FormSection', 'section_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id')->get();
     }
 
 

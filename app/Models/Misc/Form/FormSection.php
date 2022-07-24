@@ -16,7 +16,6 @@ class FormSection extends Model {
     protected $table = 'form_sections';
     protected $fillable = ['template_id', 'page_id', 'parent', 'name', 'description', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
-
     /*
      * A FormSection belongs to a FormPage
      *
@@ -24,7 +23,7 @@ class FormSection extends Model {
      */
     public function page()
     {
-        return $this->belongsTo('App\Models\Misc\FormPage', 'page_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormPage', 'page_id')->get();
     }
 
 
