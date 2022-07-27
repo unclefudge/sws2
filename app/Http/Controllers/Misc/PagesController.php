@@ -189,13 +189,13 @@ class PagesController extends Controller {
         $mergedPDF->save(public_path('/filebank/tmp/merged_result.pdf'));
 
 */
-        /*
+
         echo "<b>Creating Project Supply for Active Sites</b></br>";
         $sites = Site::where('company_id', 3)->where('status', 1)->get();
         foreach ($sites as $site) {
             $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
             $project->initialise();
-        }*/
+        }
 
         /*
         $today = Carbon::today();

@@ -33,7 +33,7 @@
                         <div class="col-md-3 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active / Maintenance</option>
+                                    <option value="1" selected>Active</option>
                                     <option value="0">Completed</option>
                                 </select>
                             </div>

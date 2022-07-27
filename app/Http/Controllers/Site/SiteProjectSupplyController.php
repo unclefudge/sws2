@@ -364,7 +364,7 @@ class SiteProjectSupplyController extends Controller {
     public function getReports()
     {
         $site_list = Auth::user()->authSites('view.site.project.supply')->pluck('id')->toArray();
-        $status = (request('status') == 0) ? [0] : [1, 2];
+        $status = (request('status') == 0) ? [0] : [1];
         //dd(request('status'));
         $records = DB::table('project_supply AS p')
             ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 's.name as sitename', 's.code', 's.status'])
