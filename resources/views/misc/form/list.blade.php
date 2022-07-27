@@ -25,6 +25,7 @@
                     </div>
 
                     <div class="portlet-body" id="vueApp">
+                        <example-component></example-component>
                     </div>
                 </div>
             </div>
@@ -43,9 +44,11 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="https://unpkg.com/vue@3"></script>
+<script src="{{ mix('js/app.js') }}"></script>
+{{--}}
 <script type="module" >
     import App from '/js/vue/testapp.js';
 
     Vue.createApp(App).mount('#vueApp');
-</script>
+</script>--}}
 @stop
