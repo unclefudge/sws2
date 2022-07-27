@@ -23,7 +23,7 @@ A asbestos notification has been lodged for {{ $asbestos->site->name }}.
 | **Submitted by**  | {{ $asbestos->createdBy->name }} ({{ $asbestos->createdBy->company->name }}) |
 | **Submitted at**  | {{ $asbestos->created_at->format('d/m/Y g:i a') }} |
 
-@component('mail::button', ['url' => config('app.url').'/site/asbestos/'.$asbestos->id])
+@component('mail::button', ['url' => config('app.url').'/site/asbestos/notification'.$asbestos->id])
 View Notification
 @endcomponent
 

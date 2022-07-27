@@ -19,7 +19,7 @@ A asbestos notification has been updated for {{ $asbestos->site->name }}.
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |
 | **Submitted at**  | {{ $action->created_at->format('d/m/Y g:i a') }} |
 
-@component('mail::button', ['url' => config('app.url').'/site/asbestos/'.$asbestos->id])
+@component('mail::button', ['url' => config('app.url').'/site/asbestos/notification'.$asbestos->id])
 View Notification
 @endcomponent
 
