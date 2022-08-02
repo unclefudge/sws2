@@ -28,7 +28,8 @@ class Site extends Model {
         'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
         'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email',
         'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
-        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start', 'consultant_name',
+        'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start',
+        'consultant_name', 'project_mgr', 'project_mgr_name',
         'completion_signed', 'completed', 'status', 'company_id', 'created_by', 'updated_by'];
     protected $dates = ['completed', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start',];
 
