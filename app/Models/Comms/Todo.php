@@ -95,7 +95,7 @@ class Todo extends Model {
     {
         $string = '';
         foreach ($this->assignedTo() as $user) {
-            $string .= $user->fullname . ' ('.$user->company->name.'), ';
+            $string .= $user->fullname . ' (' . $user->company->name . '), ';
         }
         $string = rtrim($string, ', ');
 
@@ -145,7 +145,8 @@ class Todo extends Model {
                 return '/site/incident/' . $this->type_id;
             case 'incident witness':
                 $witness = SiteIncidentWitness::find($this->type_id);
-                return '/site/incident/' . $witness->incident->id .'/witness/' . $this->type_id;
+
+                return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
             case 'company doc':
                 $doc = CompanyDoc::find($this->type_id);
                 if ($doc)
@@ -284,6 +285,11 @@ class Todo extends Model {
             }
         } else if (\App::environment('local', 'dev'))
             $email_list = [env('EMAIL_ME')];
+
+        // Remove Gary from all ToDoo emails
+        if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
+            unset($email_list[$key]);
+
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 

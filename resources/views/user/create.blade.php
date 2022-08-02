@@ -86,6 +86,19 @@
                                 </div>
                             </div>
 
+                            {{-- Company Creation field --}}
+                            <div class="note note-warning" id="company_creation_fields">
+                                <b>This person is a separate entity (Soul Trader, Partnership, Trading Trust or Company).</b><br><br>
+                                This means that you need to collect extra documentation from them in order for you to be compliant.<br><br>
+                                {{--}}
+                                @if (Auth::user()->company->status == 2)
+                                    Add this person once you have completed the Sign Up process
+                                @else
+                                    Add this person via <a href="/company/create" class="btn dark btn-sm" data-original-title="Add" style="margin-left: 20px">Add Company</a>
+                                @endif
+                                --}}
+                            </div>
+
                             {{-- User Creation field --}}
                             <div id="user_creation_fields">
                                 {{-- Login Details --}}
@@ -272,18 +285,6 @@
                                     <button type="submit" class="btn green"> Save</button>
                                 </div>
                             </div>
-
-                            {{-- Company Creation field --}}
-                            <div class="note note-warning" id="company_creation_fields">
-                                <b>This person is a separate entity (Soul Trader, Partnership, Trading Trust or Company).</b><br><br>
-                                This means that you need to collect extra documentation from them in order for you to be compliant.<br><br>
-                                @if (Auth::user()->company->status == 2)
-                                    Add this person once you have completed the Sign Up process
-                                @else
-                                    Add this person via <a href="/company/create" class="btn dark btn-sm" data-original-title="Add" style="margin-left: 20px">Add Company</a>
-                                @endif
-                            </div>
-
                         </div>
                         {!! Form::close() !!}
                     </div>
@@ -332,7 +333,7 @@
             $("#user_creation_fields").hide();
             $("#company_creation_fields").hide();
 
-            if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
+            //if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
                 $("#user_creation_fields").show();
             if ($("#employment_type").val() == 3)
                 $("#company_creation_fields").show();

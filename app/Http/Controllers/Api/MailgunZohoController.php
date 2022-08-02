@@ -6,6 +6,7 @@ use Mail;
 use File;
 use Carbon\Carbon;
 use App\User;
+use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Jobs\ZohoImportVerify;
@@ -119,6 +120,7 @@ class MailgunZohoController extends Controller {
         if ($this->debug) app('log')->debug("Parsing file: $file");
 
 
+        $cc = Company::find(3);
         $save_enabled = true;
         $overwrite_with_blank = false;
         $report_type = '';
@@ -207,7 +209,7 @@ class MailgunZohoController extends Controller {
                         $sites_imported[] = $site->id;
 
                         $fields = [
-                            'name', 'address', 'suburb', 'postcode', 'consultant_name',
+                            'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name',
                             'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
                             'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                         $datefields = [
@@ -263,6 +265,13 @@ class MailgunZohoController extends Controller {
                                         // Yes / No fields
                                         //$newData = ($zoho_data == 'YES') ? 1 : 0;
                                         $newData = ($zoho_data == 'YES') ? 1 : $site->{$field};  // temp only import YES dat for Eng FJ Cert ?
+                                    } elseif ($field == 'project_mgr' && $head['project_mgr_name']){
+                                        // Project Manager - convert Name into Userid
+                                        $project_mgr_name = $data[$head['project_mgr_name']];
+                                        if ($project_mgr_name) {
+                                            $user = $cc->projectManagersMatch($project_mgr_name);
+                                                $newData = ($user) ? $user->id : null;
+                                        }
                                     } else
                                         $newData = $zoho_data;
 
@@ -384,8 +393,8 @@ class MailgunZohoController extends Controller {
             'Design Cons (user)'  => 'consultant_name',
             'Job Stage'           => 'job_stage',
             'Eng FJ Certified?'   => 'engineering',
-            //'Project Coordinator' => '',
-            //'Project Coordinator (user)' => '',
+            'Project Coordinator' => 'project_mgr',
+            'Project Coordinator (user)' => 'project_mgr_name',
 
             // Contacts Module
             'Job Name (Job Name)' => 'name',
@@ -419,9 +428,6 @@ class MailgunZohoController extends Controller {
     public function compareSiteData($site, $data, $head, $fields, $datefields, $yesno_fields, $exclude_update, $new_site)
     {
         $diff = "[$site->id] $site->name $new_site\n";
-
-        //$fields = ['address', 'suburb', 'postcode', 'client_phone', 'client_phone_desc', 'client_email', 'client_phone2', 'client_phone2_desc', 'client_email2'];
-        //$dates = ['council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed'];
 
 
         foreach ($fields as $field) {

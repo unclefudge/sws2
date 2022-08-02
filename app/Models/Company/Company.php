@@ -803,6 +803,56 @@ class Company extends Model {
     }
 
     /**
+     * A Unique list of project manager this company has
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function projectManagers()
+    {
+        if ($this->id == 3) {
+            return (User::find(array_values(PROJECT_MGRS)));
+        }
+
+        return null;
+    }
+
+    /**
+     * A dropdown list of users that have the role 'project manager' for company.
+     *
+     * @return array
+     */
+    public function projectManagersSelect($prompt = '')
+    {
+        $array = [];
+        foreach ($this->projectManagers() as $user) {
+            if ($user->status)
+                $array[$user->id] = $user->fullname;
+        }
+
+        asort($array);
+
+        return ($prompt) ? $array = array('' => 'Select coodinator') + $array : $array;
+    }
+
+    /**
+     * Match a Project Manager user to a name
+     *
+     */
+    public function projectManagersMatch($name)
+    {
+        // Search Global Managers array
+        if (array_key_exists($name, PROJECT_MGRS))
+            return User::find(PROJECT_MGRS[$name]);
+
+        foreach ($this->staffStatus(1) as $user) {
+            if ($user->fullname === $name)
+                return $user;
+        }
+
+        return null;
+    }
+
+    /**
      * A list of sites this company owns
      *
      * @return \Illuminate\Database\Eloquent\Collection

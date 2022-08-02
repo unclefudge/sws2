@@ -21,6 +21,8 @@ define('TODO_TYPES', ['incident'              => "Incident Report",
                       'company doc'           => 'Company Document',
                       'company doc review'    => 'Standard Details Review',
                       'user doc'              => 'User Documents',]);
+define('PROJECT_MGRS', ['Kirstie Silk'       => 108, 'Jo Moerman' => 109, 'Scott Morrell' => 462, 'Nadia Lay' => 465,
+                        'Clinton Strickland' => 467, 'Jim Kapodistrias' => 511, 'Juliana Choufani' => 528]);
 
 function validEmail($email)
 {
