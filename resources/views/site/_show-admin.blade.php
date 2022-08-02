@@ -59,5 +59,10 @@
             <div class="col-xs-6">{!! $site->consultant_name !!}</div>
         </div>
         <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6">Project Coordinator:</div>
+            <div class="col-xs-6">{!! $site->project_mgr_name !!}</div>
+        </div>
+        <hr class="field-hr">
     </div>
 </div>

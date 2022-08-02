@@ -226,6 +226,13 @@ class SiteController extends Controller {
         $site_request['engineering_cert'] = (request('engineering_cert')) ? Carbon::createFromFormat('d/m/Y H:i', request('engineering_cert') . '00:00')->toDateTimeString() : null;
         $site_request['construction_rcvd'] = (request('construction_rcvd')) ? Carbon::createFromFormat('d/m/Y H:i', request('construction_rcvd') . '00:00')->toDateTimeString() : null;
         $site_request['hbcf_start'] = (request('hbcf_start')) ? Carbon::createFromFormat('d/m/Y H:i', request('hbcf_start') . '00:00')->toDateTimeString() : null;
+
+        // Project Cooinator
+        if (request('project_mgr')) {
+            $mgr = User::find(request('project_mgr'));
+            $site_request['project_mgr_name'] = $mgr->fullname;
+        }
+
         $site->update($site_request);
 
         Toastr::success("Saved changes");

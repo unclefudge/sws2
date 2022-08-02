@@ -174,6 +174,17 @@
                 </div>
             </div>
             <hr class="field-hr">
+
+            {{-- Project Coodinator--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('project_mgr', $errors) !!}">
+                    {!! Form::label('project_mgr', 'Project Coodinator', ['class' => 'col-md-6 control-label']) !!}
+                    <div class="col-md-6">
+                        {!! Form::select('project_mgr', $site->company->projectManagersSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('project_mgr', $errors) !!}
+                    </div>
+                </div>
+            </div>
         @endif
         <br>
         <div class="form-actions right">
