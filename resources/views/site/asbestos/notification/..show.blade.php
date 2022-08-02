@@ -226,7 +226,7 @@
         },
         events: {
             'addActionEvent': function (action) {
-                this.actionList.push(action);
+                this.actionList.unshift(action);
             },
         },
         methods: {

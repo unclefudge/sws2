@@ -249,13 +249,13 @@ class SiteInspectionElectricalController extends Controller {
                 $report->supervisor_sign_by = Auth::User()->id;
                 $report->supervisor_sign_at = Carbon::now();
                 $report->status = 3;
-                $action = Action::create(['action' => "Report signed off by Electrical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
                 // Create ToDoo for Con Mgr
                 $report->closeToDo();
                 $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
             } else {
-                $action = Action::create(['action' => "Report rejected by Electrical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;
                 $report->inspected_lic = null;
                 $report->status = 1;

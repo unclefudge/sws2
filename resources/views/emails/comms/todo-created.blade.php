@@ -9,7 +9,7 @@ Assigned to: {!! $todo->assignedToBySBC() !!}
 
 {!! ($todo->due_at) ? 'Task due: '.$todo->due_at->format('d/m/Y') : '' !!}
 
-{{ $todo->info }}
+{!! $todo->info !!}
 
 
 @component('mail::button', ['url' => config('app.url').$todo->url()])

@@ -41,7 +41,7 @@ class CompanyDocReview extends Model {
     }
 
     /**
-     * A CompanyDocReview has many Company
+     * A CompanyDocReview has many Actions
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -91,6 +91,23 @@ class CompanyDocReview extends Model {
         return null;
     }
 
+    /**
+     * A list of Actions in 'Note' form
+     */
+    public function actionNotes()
+    {
+        $string = '';
+
+        if ($this->actions) {
+            $string = "<br><br><b>Notes</b><br>";
+            foreach ($this->actions as $action) {
+                $string .= $action->created_at->format('d/m/Y') . " &nbsp; - &nbsp; " . $action->action . " &nbsp; (" . $action->user->fullname . ")<br>";
+            }
+        }
+
+        return $string;
+    }
+
 
     /**
      * A CompanyDocReview was updated by a user
@@ -113,7 +130,7 @@ class CompanyDocReview extends Model {
             'type'       => 'company doc review',
             'type_id'    => $this->id,
             'name'       => "Standard Details Review -  $this->name",
-            'info'       => 'Please review the Standard Details document',
+            'info'       => "Please review the Standard Details document".$this->actionNotes(),
             'due_at'     => $due_date,
             'company_id' => $this->company_doc->company_id,
         ];
