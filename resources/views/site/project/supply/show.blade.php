@@ -95,6 +95,40 @@
 
 
                             <br><br>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5><b>PROJECT SUPPLY ELECTRONIC SIGN-OFF</b></h5>
+                                    <p>The above supply items have been verified by the site construction supervisor.</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 text-right">Site Supervisor:</div>
+                                <div class="col-sm-9">
+                                    @if ($project->supervisor_sign_by)
+                                        {!! \App\User::find($project->supervisor_sign_by)->full_name !!}, &nbsp;{{ $project->supervisor_sign_at->format('d/m/Y') }}
+                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                    @elseif (Auth::user()->isSupervisor() || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                    @else
+                                        <span class="font-red">Pending</span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-3 text-right">Site Manager:</div>
+                                <div class="col-sm-9">
+                                    @if ($project->manager_sign_by)
+                                        {!! \App\User::find($project->manager_sign_by)->full_name !!}, &nbsp;{{ $project->manager_sign_at->format('d/m/Y') }}
+                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                    @elseif (!$project->supervisor_sign_by)
+                                        <span class="font-red">Waiting for Site Supervisor Sign Off</span>
+                                    @elseif (Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                    @endif
+                                </div>
+                            </div>
+                            <br><br>
                             <div class="form-actions right">
                                 <a href="/site/supply" class="btn default"> Back</a>
                                 @if(Auth::user()->allowed2('edit.site.project.supply', $project))
@@ -129,71 +163,9 @@
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site",});
-
-        function updateField(field, id, val) {
-            if (val == 'other') {
-                $("#" + field + "-" + id).val('');
-                $("#div-" + field + "-txt-" + id).show();
-            } else {
-                $("#" + field + "-" + id).val(val);
-                $("#div-" + field + "-txt-" + id).hide();
-            }
-        }
-
-        //
-        // On Change Dropdown option
-        //
-
-        // Supply option
-        $(".supplyOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('supplier', name.substr(13), $(this).val());
-        });
-
-        // Type option
-        $(".typeOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('type', name.substr(9), $(this).val());
-        });
-
-        // Colour option
-        $(".colourOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('colour', name.substr(11), $(this).val());
-        });
-
-
-        //
-        // Text field updated
-        //
-
-        // Supply text
-        $(".supplyText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(13);
-                $("#supplier-" + id).val($(this).val());
-            }
-        });
-
-        // Type text
-        $(".typeText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(9);
-                $("#type-" + id).val($(this).val());
-            }
-        });
-
-        // Colour text
-        $(".colourText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(11);
-                $("#colour-" + id).val($(this).val());
-            }
+        $(".signoff").click(function (e) {
+            e.preventDefault();
+            window.location.href = "/site/supply/{{$project->id}}/signoff";
         });
     });
 </script>
