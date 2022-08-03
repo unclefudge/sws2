@@ -258,6 +258,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/supply/{id}/create', 'Site\SiteProjectSupplyController@createItem');
     Route::get('site/supply/delete/{id}', 'Site\SiteProjectSupplyController@deleteItem');
     Route::get('site/supply/{id}/createpdf', 'Site\SiteProjectSupplyController@createPDF');
+    Route::get('site/supply/{id}/signoff', 'Site\SiteProjectSupplyController@signoff');
     Route::resource('site/supply', 'Site\SiteProjectSupplyController');
 
     // Upcoming Compliance

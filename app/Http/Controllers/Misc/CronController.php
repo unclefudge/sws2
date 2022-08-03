@@ -948,7 +948,7 @@ class CronController extends Controller {
                     $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
                     $project->initialise();
                 }
-                $project->createToDo($project->site->supervisors->pluck('id')->toArray());
+                $project->createReviewToDo($project->site->supervisors->pluck('id')->toArray());
                 $found_tasks ++;
             }
         }

@@ -261,7 +261,7 @@ class SiteProjectSupplyController extends Controller {
         // New Special items
         for ($i = 1; $i <= 5; $i ++) {
             if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
-                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 32, 'product' => request("product-s$i"),
+                $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 2, 'product' => request("product-s$i"),
                                                                    'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
             }
         }
@@ -274,6 +274,9 @@ class SiteProjectSupplyController extends Controller {
         // Close outstanding tasks
         $project->closeToDo(Auth::user());
 
+        // If all items completed send Supervisor ToDoo task
+        if ($project->items->count() == $project->itemsCompleted()->count())
+            $project->createSignOffToDo($project->site->supervisors->pluck('id')->toArray());
 
         Toastr::success("Updated project");
 
@@ -281,26 +284,34 @@ class SiteProjectSupplyController extends Controller {
     }
 
     /**
-     * Delete Item
+     * Sign Off Item
      */
-    public function deleteItem($id)
+    public function signoff($id)
     {
-        $asbItem = SiteAsbestosRegisterItem::findOrFail($id);
-        $asb = SiteAsbestosRegister::findOrFail($asbItem->register_id);
+        $project = SiteProjectSupply::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('edit.site.project.supply', $asb)))
+        if (!Auth::user()->allowed2('edit.site.project.supply', $project))
             return view('errors/404');
 
-        $asbItem->delete();
+        if (!$project->supervisor_sign_by) {
+            $project->supervisor_sign_by = Auth::user()->id;
+            $project->supervisor_sign_at = Carbon::now();
 
-        // Increment major version
-        list($major, $minor) = explode('.', $asb->version);
-        $major ++;
-        $asb->version = $major . '.0';
-        $asb->save();
+            // Send Con Mgr ToDoo task to sign off
+            $project->closeToDo();
+            $project->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+        } else {
+            $project->manager_sign_by = Auth::user()->id;
+            $project->manager_sign_at = Carbon::now();
+        }
+        $project->save();
 
-        return redirect("/site/project/supply/$asb->id");
+        if ($project->status)
+            return redirect("/site/supply/$project->id/edit");
+
+        return redirect("/site/supply/$project->id");
+
     }
 
     /**

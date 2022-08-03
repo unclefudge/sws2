@@ -14,11 +14,12 @@ class SiteProjectSupply extends Model {
 
     protected $table = 'project_supply';
     protected $fillable = [
-        'site_id', 'version', 'approved_by', 'approved_at', 'attachment', 'notes', 'status',
+        'site_id', 'version', 'approved_by', 'approved_at', 'attachment',
+        'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at', 'notes', 'status',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
 
-    protected $dates = ['approved_at'];
+    protected $dates = ['supervisor_sign_at', 'manager_sign_at', 'approved_at'];
 
     /**
      * A SiteProjectSupply belongs to a site
@@ -61,6 +62,21 @@ class SiteProjectSupply extends Model {
     }
 
     /*
+    * List of items completed
+    */
+    public function itemsCompleted()
+    {
+        $completed = [];
+        foreach ($this->items as $item) {
+            if ($item->supplier && $item->type && $item->colour)
+                $completed[] = $item->id;
+        }
+
+
+        return SiteProjectSupplyItem::find($completed);
+    }
+
+    /*
     * Initialise Project Supply record  - add default items
     */
     public function initialise()
@@ -84,15 +100,15 @@ class SiteProjectSupply extends Model {
     }
 
     /**
-     * Create ToDoo for QA Report and assign to given user(s)
+     * Create ToDoo for ProjectSupply and assign to given user(s)
      */
-    public function createToDo($user_list)
+    public function createReviewToDo($user_list)
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
             'type'       => 'project supply',
             'type_id'    => $this->id,
-            'name'       => 'Project Supply Information - ' . $this->name . ' (' . $site->name . ')',
+            'name'       => 'Project Supply Information - ' . $site->name,
             'info'       => 'Please update the supplied products for this site.',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->site->company_id,
@@ -105,15 +121,36 @@ class SiteProjectSupply extends Model {
     }
 
     /**
-     * Close any outstanding ToDoo for this QA
+     * Create ToDoo for ProjectSupply and assign to given user(s)
      */
-    public function closeToDo($user)
+    public function createSignOffToDo($user_list)
+    {
+        $site = Site::findOrFail($this->site_id);
+        $todo_request = [
+            'type'       => 'project supply',
+            'type_id'    => $this->id,
+            'name'       => 'Project Supply Information - ' . $site->name,
+            'info'       => 'Please sign off on completed items',
+            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => $this->site->company_id,
+        ];
+
+        // Create ToDoo and assign to Site Supervisors
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
+    }
+
+    /**
+     * Close any outstanding ToDoo for this Project Supply
+     */
+    public function closeToDo()
     {
         $todos = Todo::where('type', 'project supply')->where('type_id', $this->id)->where('status', '1')->get();
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();
-            $todo->done_by = $user->id;
+            $todo->done_by = (Auth::check()) ? Auth::user()->id : 1;
             $todo->save();
         }
     }

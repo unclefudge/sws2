@@ -166,7 +166,7 @@ class SiteInspectionElectrical extends Model {
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();
-            $todo->done_by = Auth::user()->id;
+            $todo->done_by = (Auth::check()) ? Auth::user()->id : 1;
             $todo->save();
         }
     }

@@ -38,6 +38,18 @@ class SiteProjectSupplyItem extends Model {
     }
 
 
+    /*
+    *  Determine if Item is complete - has supplier + type + colour filled out
+    */
+    public function isComplete()
+    {
+        if ($this->supplier && $this->type && $this->colour)
+            return true;
+
+        return false;
+    }
+
+
     /**
      * Display records last update_by + date
      *
@@ -46,6 +58,7 @@ class SiteProjectSupplyItem extends Model {
     public function displayUpdatedBy()
     {
         $user = User::findOrFail($this->updated_by);
+
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
         '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }

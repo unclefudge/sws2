@@ -81,7 +81,7 @@
                                 <div class="row" id="item-{{ $item->id }}">
                                     <div class="col-md-2">
                                         <div class="hidden-sm hidden-xs">
-                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }}
+                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }} &nbsp; @if ($item->isComplete()) <i class="fa fa-check font-green-haze"></i> @endif
                                         </div>
                                         <div class="visible-sm visible-xs">
                                             <br><b>{{ ($item->product_id == 2) ? 'Special Item' : $item->product }}</b>
@@ -206,13 +206,50 @@
                                     <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
                                     <div class="visible-sm visible-xs"><br></div>
                                 @endfor
+                            </div>
+                            <br><br>
 
+
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5><b>PROJECT SUPPLY ELECTRONIC SIGN-OFF</b></h5>
+                                    <p>The above supply items have been verified by the site construction supervisor.</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 text-right">Site Supervisor:</div>
+                                <div class="col-sm-9">
+                                    @if ($project->supervisor_sign_by)
+                                        {!! \App\User::find($project->supervisor_sign_by)->full_name !!}, &nbsp;{{ $project->supervisor_sign_at->format('d/m/Y') }}
+                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                    @elseif (Auth::user()->isSupervisor() || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                    @else
+                                        <span class="font-red">Pending</span>
+                                    @endif
+                                </div>
+                                <div class="col-sm-3 text-right">Site Manager:</div>
+                                <div class="col-sm-9">
+                                    @if ($project->manager_sign_by)
+                                        {!! \App\User::find($project->manager_sign_by)->full_name !!}, &nbsp;{{ $project->manager_sign_at->format('d/m/Y') }}
+                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                    @elseif (!$project->supervisor_sign_by)
+                                        <span class="font-red">Waiting for Site Supervisor Sign Off</span>
+                                    @elseif (Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                    @endif
+                                </div>
                             </div>
 
                             <br><br>
                             <div class="form-actions right">
                                 <a href="/site/supply" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                @if ($project->items->count() != $project->itemsCompleted()->count())
+                                    <button type="submit" class="btn green"> Save</button>
+                                @endif
                             </div>
 
                         </div> <!-- /Form body -->
@@ -251,6 +288,12 @@
             $("#add-items").show();
             $(".add-item").show();
             $("#btn-add-item").hide();
+        });
+
+
+        $(".signoff").click(function (e) {
+            e.preventDefault();
+            window.location.href = "/site/supply/{{$project->id}}/signoff";
         });
 
         function updateField(field, id, val) {
