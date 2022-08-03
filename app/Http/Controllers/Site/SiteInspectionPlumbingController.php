@@ -266,6 +266,20 @@ class SiteInspectionPlumbingController extends Controller {
                 // Email completed notification
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
+
+                // Email completed PDF to Project Manager
+                $site = Site::findOrFail($report->site_id);
+                $pdf = PDF::loadView('pdf/site/inspection-plumbing', compact('report', 'site'))->setPaper('a4');
+                $file = public_path("filebank/tmp/$site->name - Plumbing Inspection Report.pdf");
+                if (file_exists($file))
+                    unlink($file);
+                $pdf->save($file);
+
+
+                $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+                if (\App::environment('prod') && $report->site->project_mgr && validEmail($report->site->project_mgr->email))
+                    $email_list[] = $report->site->project_mgr->email;
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReport($report, $file));
                 Toastr::success("Report Signed Off");
 
                 //dd($email_list);
