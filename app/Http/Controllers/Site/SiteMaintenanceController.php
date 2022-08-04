@@ -668,8 +668,13 @@ class SiteMaintenanceController extends Controller {
      */
     public function getMaintenance()
     {
-        $requests = Auth::user()->maintenanceRequests(request('status'));
-        $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
+        if (request('supervisor_sel'))
+            $request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
+        else {
+            $requests = Auth::user()->maintenanceRequests(request('status'));
+            $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
+        }
+
 
         $records = DB::table('site_maintenance AS m')
             ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',

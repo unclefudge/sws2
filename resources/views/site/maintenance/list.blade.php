@@ -76,6 +76,14 @@
                         </div>
                     </div>
                     <div class="row">
+                        @if (Auth::user()->permissionLevel('view.site.maintenance', 3) == 99)
+                            <input type="hidden" id="supervisor_sel" value="1">
+                            <div class="col-md-4">
+                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                            </div>
+                        @else
+                            <input type="hidden" id="supervisor_sel" value="0">
+                        @endif
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
@@ -133,6 +141,8 @@
             'url': '{!! url('site/maintenance/dt/maintenance') !!}',
             'type': 'GET',
             'data': function (d) {
+                d.supervisor_sel = $('#supervisor_sel').val();
+                d.supervisor = $('#supervisor').val();
                 d.status = $('#status1').val();
             }
         },
@@ -154,6 +164,10 @@
     });
 
     $('select#status1').change(function () {
+        table1.ajax.reload();
+    });
+
+    $('select#supervisor').change(function () {
         table1.ajax.reload();
     });
 </script>

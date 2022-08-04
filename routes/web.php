@@ -271,6 +271,10 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::get('manage/report/upcoming_compliance/{id}/createpdf', 'Site\SiteUpcomingComplianceController@createPDF');
     Route::resource('site/upcoming/compliance', 'Site\SiteUpcomingComplianceController');
 
+    // Prac Complete Extention
+    Route::post('site/extension/update_job', 'Site\SiteExtensionController@updateJob');
+    Route::resource('site/extension/', 'Site\SiteExtensionController');
+
     // Site Hazards
     Route::get('site/hazard/dt/hazards', 'Site\SiteHazardController@getHazards');
     Route::get('site/hazard/{id}/status/{status}', 'Site\SiteHazardController@updateStatus');

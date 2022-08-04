@@ -317,7 +317,14 @@ class SiteQaController extends Controller {
      */
     public function getQaReports()
     {
-        $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
+        if (request('supervisor_sel'))
+            $site_list = (request('supervisor') == 'all') ? Site::all()->pluck('id')->toArray() : DB::table('site_supervisor')->where('user_id', request('supervisor'))->get()->pluck('site_id')->toArray();
+        else
+            $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
+
+        //dd($site_list);
+
+        //$site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
         $records = DB::table('site_qa AS q')
             ->select(['q.id', 'q.name', 'q.site_id', 'q.version', 'q.master_id', 'q.company_id', 'q.status', 'q.updated_at',
                 's.name as sitename'])

@@ -591,6 +591,14 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('del.site.upcoming.compliance', 'res', $rec, $cid, $dis) !!}</td>
                                 <td width="15%"></td>
                             </tr>
+                            <tr>
+                                <td>Prac Complete Extention</td>
+                                <td width="15%">{!! permSelect('view.site.extension', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.extension', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
+                                <td width="15%">{!! permSelect('del.site.extension', 'res', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
+                            </tr>
                         </table>
                     @endif
                 </div>
