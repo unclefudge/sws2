@@ -287,8 +287,12 @@ class Todo extends Model {
             $email_list = [env('EMAIL_ME')];
 
         // Remove Gary from all ToDoo emails
-        if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
-            unset($email_list[$key]);
+        if (is_array($email_list))
+            if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
+                unset($email_list[$key]);
+        else
+            if ($email_list == 'gary@capecod.com.au')
+                $email_list = '';
 
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
