@@ -344,7 +344,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         $report->delete();
 
-        return redirect('site/inspection/plumbing/');
+        //return redirect('site/inspection/plumbing/');
 
     }
 
@@ -454,6 +454,13 @@ class SiteInspectionPlumbingController extends Controller {
                 $r = SiteInspectionPlumbing::find($inspect->id);
 
                 return ($r->assigned_to) ? $r->assignedTo->name : '-';
+            })
+            ->addColumn('action', function ($inspect) {
+                $r = SiteInspectionPlumbing::find($inspect->id);
+                if (Auth::user()->allowed2("del.site.inspection", $r)) {
+                    return '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-id="' . $r->id . '" data-name="' . $r->site->name . '"><i class="fa fa-trash"></i></button>';
+                }
+                return '';
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

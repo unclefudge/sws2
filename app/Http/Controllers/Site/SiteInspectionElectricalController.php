@@ -346,7 +346,7 @@ class SiteInspectionElectricalController extends Controller {
 
         $report->delete();
 
-        return redirect('site/inspection/electrical/');
+        //return redirect('site/inspection/electrical/');
 
     }
 
@@ -463,6 +463,13 @@ class SiteInspectionElectricalController extends Controller {
                 $r = SiteInspectionElectrical::find($inspect->id);
 
                 return ($r->assigned_to) ? $r->assignedTo->name : '-';
+            })
+            ->addColumn('action', function ($inspect) {
+                $r = SiteInspectionElectrical::find($inspect->id);
+                if (Auth::user()->allowed2("del.site.inspection", $r)) {
+                    return '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-id="' . $r->id . '" data-name="' . $r->site->name . '"><i class="fa fa-trash"></i></button>';
+                }
+                return '';
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

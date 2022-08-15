@@ -137,7 +137,7 @@ class SiteInspectionPlumbing extends Model {
         // Create ToDoo and assign to Construction Manager
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
-        $todo->emailToDo('kirstie@capecod.com.au');
+        //$todo->emailToDo('kirstie@capecod.com.au');
     }
 
     /**
