@@ -317,6 +317,36 @@
                                 @endif
                             @endforeach
 
+                            {{-- Open Site Incidents for CC admin/super --}}
+                            <?php $count = 0 ?>
+                            @foreach(App\Models\Site\Incident\SiteIncident::where('status', '1')->get() as $doc)
+                                @if(Auth::user()->allowed2('view.site.accident', $doc))
+                                    <?php $count ++ ?>
+                                    @if ($count == 1)
+                                        <h4>Accidents</h4>
+                                    @endif
+                                    <li>
+                                        <a href="/site/accident/{{ $doc->id }}" class="task-title">
+                                            <div class="col1">
+                                                <div class="cont">
+                                                    <div class="cont-col1">
+                                                        <div class="label label-sm label-danger">
+                                                            <i class="fa fa-medkit"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="cont-col2">
+                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site->name }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col2">
+                                                <div class="date"> {{ $doc->date->format('d/m/Y') }}</div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+
                             {{-- Open Site Hazards + Taskfor CC admin/super --}}
                             <?php $count = 0 ?>
                             @foreach(App\Models\Site\SiteHazard::where('status', '1')->get() as $doc)

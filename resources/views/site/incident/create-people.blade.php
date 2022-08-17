@@ -306,6 +306,7 @@
                 $("#person_injured_div").show();
                 $("#person_details_div").show();
                 $("#user_id_label").html('Injured Person');
+                $("#type").val('9');
             }
 
             // No-one injured
