@@ -302,8 +302,14 @@ class SiteProjectSupplyController extends Controller {
             $project->closeToDo();
             $project->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
         } else {
+            $project->closeToDo();
             $project->manager_sign_by = Auth::user()->id;
             $project->manager_sign_at = Carbon::now();
+
+            // Email completion
+            $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+            $report_file = ($project->attachment) ? public_path($project->attachmentUrl) : '';
+            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }
         $project->save();
 
