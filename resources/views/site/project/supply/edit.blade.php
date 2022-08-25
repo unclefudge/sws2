@@ -247,9 +247,7 @@
                             <br><br>
                             <div class="form-actions right">
                                 <a href="/site/supply" class="btn default"> Back</a>
-                                @if ($project->items->count() != $project->itemsCompleted()->count())
-                                    <button type="submit" class="btn green"> Save</button>
-                                @endif
+                                <button type="submit" class="btn green"> Save</button>
                             </div>
 
                         </div> <!-- /Form body -->
