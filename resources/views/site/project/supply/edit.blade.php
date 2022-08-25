@@ -257,6 +257,12 @@
             </div>
         </div>
     </div>
+
+    <div>
+        <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
+            {!! $project->displayUpdatedBy() !!}
+        </div>
+    </div>
 @stop
 
 

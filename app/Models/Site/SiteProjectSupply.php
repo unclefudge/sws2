@@ -4,6 +4,7 @@ namespace App\Models\Site;
 
 use URL;
 use Mail;
+use App\User;
 use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -178,6 +179,19 @@ class SiteProjectSupply extends Model {
         elseif ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\SiteAsbestosCreated($this));
     }*/
+
+    /**
+     * Display records last update_by + date
+     *
+     * @return string
+     */
+    public function displayUpdatedBy()
+    {
+        $user = User::find($this->updated_by);
+
+        return ($user) ? '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname : "$this->updated_by";
+    }
 
     /**
      * Get the owner of record   (getter)
