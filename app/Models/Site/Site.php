@@ -54,6 +54,16 @@ class Site extends Model {
     }
 
     /**
+     * A Site belongs to a Project Manager
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function projectManager()
+    {
+        return $this->belongsTo('App\User', 'project_mgr');
+    }
+
+    /**
      * A Site has many SiteAttendance
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
