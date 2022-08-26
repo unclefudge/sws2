@@ -8,7 +8,7 @@
             @endif
         </div>
         <div class="actions">
-            @if (Auth::user()->allowed2('edit.user', $user))
+            @if (Auth::user()->allowed2('edit.user', $user) || (Auth::user()->hasRole2('con-construction-manager') && $user->company_id != Auth::user()->company_id))
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('login')">Edit</button>
             @endif
         </div>

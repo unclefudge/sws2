@@ -23,8 +23,8 @@
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/site/extention/pdf" data-original-title="PDF">PDF</a>
 
-                            @if(Auth::user()->hasPermission2('del.site.extention'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/extention/settings" data-original-title="Setting">Settings</a>
+                            @if(Auth::user()->hasPermission2('del.site.extension'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
                             @endif
                         </div>
                     </div>

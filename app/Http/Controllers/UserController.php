@@ -251,7 +251,7 @@ class UserController extends Controller {
         $user = User::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.user', $user))
+        if (!(Auth::user()->allowed2('edit.user', $user) || (Auth::user()->hasRole2('con-construction-manager') && $user->company_id != Auth::user()->company_id)))
             return view('errors/404');
 
         //
