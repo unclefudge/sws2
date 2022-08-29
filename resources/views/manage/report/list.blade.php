@@ -88,6 +88,11 @@
                                     <td><a href="/site/upcoming/compliance">Upcoming Jobs Compliance Data</a></td>
                                 </tr>
                             @endif
+                            @if (Auth::user()->hasAnyPermissionType('site.extension'))
+                                <tr>
+                                    <td><a href="/site/extension">Contract Time Extensions</a></td>
+                                </tr>
+                            @endif
                             {{-- Quality Assurance --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Quality Assurance</th>
