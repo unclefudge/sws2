@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Contract Time Extentions</span></li>
+        <li><span>Contract Time Extensions</span></li>
     </ul>
 @stop
 
@@ -18,7 +18,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Contract Time Extentions</span>
+                            <span class="caption-subject bold uppercase font-green-haze">Contract Time Extensions</span>
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/site/extention/pdf" data-original-title="PDF">PDF</a>
@@ -33,8 +33,8 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="25%">Site</th>
-                                <th width="15%">Prac Completion</th>
-                                <th width="15%">Extend Reasons</th>
+                                <th width="10%">Prac Completion</th>
+                                <th width="25%">Extend Reasons</th>
                                 <th>Extend Notes</th>
                             </tr>
                             </thead>
@@ -43,7 +43,10 @@
                                 <tr>
                                     <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                     <td>{{ $row['prac_completion'] }}</td>
-                                    <td>{{ $row['start_job'] }}</td>
+                                    <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
+                                        {{ $row['extend_reasons'] }}
+                                        <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="@json($row['extend_reasons_array'])">
+                                    </td>
                                     <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
                                         <div id="note-{{$row['id']}}"> {!! nl2br($row['notes']) !!}</div>
                                         <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
@@ -95,7 +98,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 {!! Form::label('reasons', 'Extend Reasons', ['class' => 'control-label']) !!}
-                                {!! Form::select('reasons', $extend_reasons, null, ['class' => 'form-control select2', 'id' => 'reasons', 'multiple', 'width' => '100%']) !!}
+                                {!! Form::select('reasons', $extend_reasons, null, ['class' => 'form-control select2', 'id' => 'reasons', 'name' => 'reasons[]', 'multiple', 'width' => '100%']) !!}
                             </div>
                         </div>
                     </div>
@@ -142,15 +145,14 @@
             $("#site_id").val(site_id);
             $("#site_name").text($("#sitename-" + site_id).text());
 
-            // CC
-            $("#cc").val($("#cc-" + site_id).text());
-            $("#cc_stage").val($("#cc-" + site_id + "-s").val()).change();
-            // FC Plans
-            $("#fc_plans").val($("#fcp-" + site_id).text());
-            $("#fc_plans_stage").val($("#fcp-" + site_id + "-s").val()).change();
-            // FC Structural
-            $("#fc_struct").val($("#fcs-" + site_id).text());
-            $("#fc_struct_stage").val($("#fcs-" + site_id + "-s").val()).change();
+            // Extension reason + notes
+            $("#extension_notes").val($("#note-" + site_id).text());
+            var reason_array_str = $("#reason-" + site_id + "-array").val();
+            reason_array_str = reason_array_str.replace('[', '').replace(']', '').replace(' ', '');
+            var reason_array = reason_array_str.split(',');
+
+            $("#reasons").val(reason_array);
+            $("#reasons").trigger('change');
 
             $("#modal_edit").modal('show');
         });

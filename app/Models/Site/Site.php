@@ -407,6 +407,31 @@ class Site extends Model {
     }
 
     /**
+     * A Site has many extension
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function extensionReasons()
+    {
+        return $this->belongsToMany('App\Models\Site\SiteExtensionCategory', 'site_extensions', 'site_id', 'cat_id');
+    }
+
+    /**
+     * A Site has many extension SBC
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function extensionReasonsSBC()
+    {
+        $string = '';
+        foreach ($this->extensionReasons as $reason) {
+            $string .= "$reason->name, ";
+        }
+
+        return rtrim($string, ', ');
+    }
+
+    /**
      * A SiteAttendance for specific date yyyy-mm-dd
      *
      * @return \Illuminate\Database\Eloquent\Collection

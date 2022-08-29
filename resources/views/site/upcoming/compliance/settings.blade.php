@@ -67,7 +67,7 @@
                                                 <?php $opacity = ($colour == $setting->colour) ? '1' : '0.15' ?>
                                                 <span class="hoverDiv" style="padding: 3px" id="{{$field}}_{{$setting->id}}_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: {{$opacity}};" id="{{$field}}_{{$setting->id}}_{{$colour}}_i"></span>
                                             @endforeach
-                                            <a href="/manage/report/upcoming_compliance/settings/del/{{ $setting->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i> </a>
+                                            <a href="/site/upcoming/compliance/settings/del/{{ $setting->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i> </a>
                                         </div>
                                         <div class="col-md-3">
                                             <input type="hidden" name="{{$field}}-{{$setting->id}}-colour" id="{{$field}}-{{$setting->id}}-colour" value="{{$setting->colour}}">

@@ -12,6 +12,7 @@ use Input;
 use Session;
 use App\User;
 use App\Models\Site\Site;
+use App\Models\Site\SiteExtensionCategory;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Company\Company;
 use App\Http\Requests;
@@ -57,7 +58,8 @@ class SiteExtensionController extends Controller {
                     'prac_completion'      => ($prac_completion) ? $prac_completion->from->format('d/m/y') : '',
                     'prac_completion_date' => ($prac_completion) ? $prac_completion->from->format('ymd') : '',
                     'start_job'            => ($start_job) ? $start_job->from->format('d/m/Y') : '',
-                    'extend_reasons'       => '',
+                    'extend_reasons'       => $site->extensionReasonsSBC(),
+                    'extend_reasons_array' => $site->extensionReasons->pluck('id')->toArray(),
                     'notes'                => $site->extension_notes
                 ];
                 if ($prac_completion)
@@ -67,17 +69,17 @@ class SiteExtensionController extends Controller {
             }
         }
 
-        usort($prac_yes, function($a, $b) {
+        usort($prac_yes, function ($a, $b) {
             return $a['prac_completion_date'] <=> $b['prac_completion_date'];
         });
 
-        usort($prac_no, function($a, $b) {
+        usort($prac_no, function ($a, $b) {
             return $a['name'] <=> $b['name'];
         });
 
         $data = $prac_yes + $prac_no;
 
-        $extend_reasons = ['1' => 1, '2' => 2];
+        $extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
 
         return view('site/extension/list', compact('data', 'extend_reasons'));
     }
@@ -101,20 +103,14 @@ class SiteExtensionController extends Controller {
     public function settings()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
+        if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
-        $cc = DB::table('site_upcoming_settings')->where('field', 'cc')->get();
-        $fc_plans = DB::table('site_upcoming_settings')->where('field', 'fc_plans')->get();
-        $fc_struct = DB::table('site_upcoming_settings')->where('field', 'fc_struct')->get();
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
-
-        $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
-        $email_list = ($settings_email) ? explode(',', $settings_email->value) : [];
+        $cats = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
 
         //dd($email_list);
 
-        return view('site/upcoming/compliance/settings', compact('settings', 'email_list', 'cc', 'fc_plans', 'fc_struct'));
+        return view('site/extension/settings', compact('cats'));
     }
 
 
@@ -139,17 +135,18 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.extension'))
             return view('errors/404');
 
-        dd(request()->all());
+        //dd(request()->all());
 
         if (request('site_id')) {
             $site = Site::findOrFail(request('site_id'));
             $site->extension_notes = request('extension_notes');
             $site->save();
+            $site->extensionReasons()->sync(request('reasons'));
         }
 
         Toastr::success("Updated compliance");
 
-        return redirect("/site/upcoming/compliance");
+        return redirect("/site/extension");
     }
 
 
@@ -161,57 +158,39 @@ class SiteExtensionController extends Controller {
     public function updateSettings()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+        if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
-        //dd(request()->all());
         if (request('add_field')) {
             $rules = ['add_field_name' => 'required'];
-            $mesg = ['add_field_name.required' => 'The stage name field is required.'];
+            $mesg = ['add_field_name.required' => 'The name field is required.'];
             request()->validate($rules, $mesg); // Validate
         }
 
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
+        //dd(request()->all());
+        $cats = SiteExtensionCategory::where('status', 1)->get();
         // Get field values from request
-        foreach ($settings as $setting) {
-            if (request()->has("opt-$setting->id")) {
-                if (request("opt-$setting->id")) {
-                    $setting->name = request("opt-$setting->id");
-                    // Default text
-                    if (request("opt-$setting->id-text"))
-                        $setting->value = request("opt-$setting->id-text");
-                    // Colour
-                    if (request("opt-$setting->id-colour"))
-                        $setting->colour = request("opt-$setting->id-colour");
-                    $setting->save();
+        foreach ($cats as $cat) {
+            if (request()->has("cat-$cat->id")) {
+                if (request("cat-$cat->id")) {
+                    $cat->name = request("cat-$cat->id");
+                    $cat->save();
                 } else
-                    return back()->withErrors(["opt-$setting->id" => "The stage name field is required."]);
+                    return back()->withErrors(["cat-$cat->id" => "The name field is required."]);
             }
 
         }
 
         // Add Extra Field
         if (request('add_field')) {
-            $add_colour = (request('add-field-colour')) ? request('add-field-colour') : null;
-            $add_order = count($settings) + 1;
-            SiteUpcomingSettings::create(['field' => 'opt', 'name' => request('add_field_name'), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+            $add_order = count($cats) + 1;
+            SiteExtensionCategory::create(['name' => request('add_field_name'), 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
         }
 
-        // Update Email List
-        /*
-        if (request('email_list')) {
-            $email_list = implode(',', request('email_list'));
-            $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
-            if ($settings_email) {
-                $settings_email->value = $email_list;
-                $settings_email->save();
-            } else
-                $settings_email = SiteUpcomingSettings::create(['field' => 'email', 'value' => $email_list, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-        }*/
 
         Toastr::success("Updated settings");
 
-        return redirect("/site/upcoming/compliance/settings");
+        return redirect("/site/extension/settings");
     }
 
     /**
@@ -222,16 +201,18 @@ class SiteExtensionController extends Controller {
     public function deleteSetting($id)
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+        if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
         //dd(request()->all());
 
         // Delete setting
-        $setting = SiteUpcomingSettings::findOrFail($id)->delete();
+        $setting = SiteExtensionCategory::findOrFail($id);
+        $setting->status = 0;
+        $setting->save();
 
         // Re-orer settings
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->orderBy('order')->get();
+        $settings = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
         $order = 1;
         foreach ($settings as $setting) {
             $setting->order = $order ++;
@@ -240,7 +221,7 @@ class SiteExtensionController extends Controller {
 
         Toastr::success("Updated settings");
 
-        return redirect("/site/upcoming/compliance/settings");
+        return redirect("/site/extension/settings");
     }
 
     /**
