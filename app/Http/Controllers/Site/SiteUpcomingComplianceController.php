@@ -226,16 +226,13 @@ class SiteUpcomingComplianceController extends Controller {
     /**
      * Create upcoming PDF
      */
-    public function showPDF(Request $request)
+    public function showPDF()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
             return view('errors/404');
 
-
-        $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
-        $email_list = ($settings_email) ? explode(',', $settings_email->value) : [];
-
+        $email_list =  Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.upcoming.compliance');
 
         return view('site/upcoming/compliance/pdf', compact('email_list'));
     }

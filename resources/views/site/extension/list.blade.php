@@ -21,7 +21,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Contract Time Extensions</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extention/pdf" data-original-title="PDF">PDF</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/pdf" data-original-title="PDF">PDF</a>
 
                             @if(Auth::user()->hasPermission2('del.site.extension'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
@@ -48,7 +48,7 @@
                                         <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="@json($row['extend_reasons_array'])">
                                     </td>
                                     <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
-                                        <div id="note-{{$row['id']}}"> {!! nl2br($row['notes']) !!}</div>
+                                        <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
                                         <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
                                     </td>
                                 </tr>
@@ -106,7 +106,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 {!! Form::label('extension_notes', 'Extend notes', ['class' => 'control-label']) !!}
-                                {!! Form::text('extension_notes', null, ['class' => 'form-control', 'id' => 'extension_notes']) !!}
+                                {!! Form::textarea('extension_notes', null, ['class' => 'form-control', 'rows' => 5, 'id' => 'extension_notes']) !!}
                             </div>
                         </div>
                     </div>
