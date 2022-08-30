@@ -287,7 +287,7 @@
 
                                     <!-- Single File -->
                                     <div class="form-group {!! fieldHasError('singlefile', $errors) !!}" style="display: none" id="singlefile-div">
-                                        <label class="control-label">Select File</label>
+                                        <label class="control-label">Select File (PDF)</label>
                                         <input id="singlefile" name="singlefile" type="file" class="file-loading">
                                         {!! fieldErrorMessage('singlefile', $errors) !!}
                                     </div>
