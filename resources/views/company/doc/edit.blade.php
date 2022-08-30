@@ -552,7 +552,7 @@
         $("#change_file").click(function () {
             $('#attachment-div').hide();
             //$('#singlefile-div').show();
-            if ($("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+            if ($("#category_id").val() == 6 || $("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 6 Test Tag, 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
                 $('#singleimage-div').show();
                 $('#filetype').val('image');
             } else {

@@ -302,7 +302,7 @@
 
 
             if (cat != '') {
-                if (cat == 7 || cat == 9 || cat == 10) { // 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+                if (cat == 6 || cat == 7 || cat == 9 || cat == 10) { // 6 Test Tag,  7 Contractors Lic, 9 Other Lic, 10 Builders Lic
                     $('#singleimage-div').show();
                     $('#filetype').val('image');
                 } else {
