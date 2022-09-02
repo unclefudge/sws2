@@ -33,7 +33,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="25%">Site</th>
-                                <th width="10%">Prac Completion</th>
+                                <th width="10%">Forecast Completion</th>
                                 <th width="25%">Extend Reasons</th>
                                 <th>Extend Notes</th>
                             </tr>

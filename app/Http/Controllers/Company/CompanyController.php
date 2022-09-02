@@ -89,7 +89,11 @@ class CompanyController extends Controller {
 
 
         // Mail request to new company
-        Mail::to(request('email'))->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        if ($email_user)
+            Mail::to(request('email'))->cc([$email_user])->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
+        else
+            Mail::to(request('email'))->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         // Mail notification to parent company
         if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))
             Mail::to($newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))->send(new \App\Mail\Company\CompanyCreated($newCompany));

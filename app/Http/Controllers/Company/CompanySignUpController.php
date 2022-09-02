@@ -212,7 +212,12 @@ class CompanySignUpController extends Controller {
     public function welcome($id)
     {
         $company = Company::findorFail($id);
-        Mail::to($company)->send(new \App\Mail\Company\CompanyWelcome($company, Auth::user()->company, $company->nickname));
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+
+        if ($email_user)
+            Mail::to($company)->cc([$email_user])->send(new \App\Mail\Company\CompanyWelcome($company, Auth::user()->company, $company->nickname));
+        else
+            Mail::to($company)->send(new \App\Mail\Company\CompanyWelcome($company, Auth::user()->company, $company->nickname));
 
         return view('company/list');
     }
@@ -231,7 +236,7 @@ class CompanySignUpController extends Controller {
         // Delete all users + uploaded user docs linked to company
         if (count($company->staff))
             foreach ($company->staff as $user) {
-                foreach($user->userDocs() as $doc) {
+                foreach ($user->userDocs() as $doc) {
                     // Delete any User Docs
                     if ($doc->attachment && file_exists(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment)))
                         unlink(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment));
