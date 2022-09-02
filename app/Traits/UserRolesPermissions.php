@@ -547,7 +547,7 @@ trait UserRolesPermissions {
         $sites_company_array = [];
         foreach ($sites_company as $site)
             $sites_company_array[$site->id] = "$site->name ($site->address, $site->suburb)";
-        //$sites_company_array[$site->id] = "$site->suburb - $site->address ($site->code:$site->name)";
+        
         asort($sites_company_array);
 
         if (count($sites_company_array)) {
@@ -575,7 +575,7 @@ trait UserRolesPermissions {
             $sites_parent_array = [];
             if ($sites_parent) {
                 foreach ($sites_parent as $site)
-                    $sites_parent_array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
+                    $sites_parent_array[$site->id] = "$site->name ($site->address, $site->suburb)";
             }
             asort($sites_parent_array);
 
@@ -605,7 +605,7 @@ trait UserRolesPermissions {
             $sites_parent_array = [];
             if ($sites_parent) {
                 foreach ($sites_parent as $site)
-                    $sites_parent_array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
+                    $sites_parent_array[$site->id] = "$site->name ($site->address, $site->suburb)";
             }
             asort($sites_parent_array);
 
