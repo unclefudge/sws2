@@ -97,7 +97,7 @@
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">Reports</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('site.attendance'))
-                                                            <li><a href="/site/attendance" class="nav-link"> Site Attendanace </a></li>
+                                                            <li><a href="/site/attendance" class="nav-link"> Site Attendance </a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.maintenance'))
                                                             <li><a href="/site/maintenance" class="nav-link"> Maintenance Requests </a></li>

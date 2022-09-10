@@ -864,9 +864,9 @@ trait UserRolesPermissions {
                 return false;
             }
 
-            // Site (Doc, QA, Asbestos, Export) + Attendance + Compliance + Safety Doc
+            // Site (Doc, QA, Asbestos, Export, ProjectSupply) + Attendance + Compliance + Safety Doc
             if ($permissiontype == 'site.doc' || $permissiontype == 'site.qa' || $permissiontype == 'site.asbestos' || $permissiontype == 'site.export' || $permissiontype == 'site.project.supply' ||
-                $permissiontype == 'roster' || $permissiontype == 'compliance' || $permissiontype == 'safety.doc'
+                 $permissiontype == 'roster' || $permissiontype == 'compliance' || $permissiontype == 'safety.doc'
             ) {
                 if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
 
@@ -898,6 +898,12 @@ trait UserRolesPermissions {
 
             // Company Doc Review
             if ($permissiontype == 'company.doc.review') {
+                if ($this->hasPermission2($permission)) return true; // User has the permission
+                return false;
+            }
+
+            // Site Extension (Contract Time
+            if ($permissiontype == 'site.extension') {
                 if ($this->hasPermission2($permission)) return true; // User has the permission
                 return false;
             }

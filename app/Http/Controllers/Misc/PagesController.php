@@ -30,6 +30,8 @@ use App\Models\Site\Incident\SiteIncidentPeople;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteProjectSupplyItem;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\SafetyDoc;
@@ -190,12 +192,61 @@ class PagesController extends Controller {
 
 */
 
-        echo "<b>Creating Project Supply for Active Sites</b></br>";
-        $sites = Site::where('company_id', 3)->where('status', 1)->get();
+        echo "<b>Creating Site Extension for Active Sites</b></br>";
+
+        $hide_site_code = ['0000', '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '1234', '1235'];
+        $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get();
+        //$sites = Auth::user()->authSites('view.site.extension', '1')->whereNotIn('code', $hide_site_code);
+
+        $today = Carbon::now();
+        $mon = new Carbon('monday this week');
+        echo "Today:" . $today->format('d/m/Y') . "<br>";
+        echo "Mon:" . $mon->format('d/m/Y') . "<br>";
+
+        $data = [];
+        $prac_yes = $prac_no = [];
         foreach ($sites as $site) {
-            $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
-            $project->initialise();
+            $start_job = SitePlanner::where('site_id', $site->id)->where('task_id', 11)->first();
+            // Show only site which Job Start has before today
+            if ($start_job && $start_job->from->lte($today)) {
+                $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
+                $site_data = [
+                    'id'              => $site->id,
+                    'name'            => $site->name,
+                    'completion_date' => ($prac_completion) ? $prac_completion->from : '',
+                    'completion_ymd'  => ($prac_completion) ? $prac_completion->from->format('ymd') : '',
+                ];
+                if ($prac_completion)
+                    $prac_yes[] = $site_data;
+                else
+                    $prac_no[] = $site_data;
+            }
         }
+
+        usort($prac_yes, function ($a, $b) {
+            return $a['completion_ymd'] <=> $b['completion_ymd'];
+        });
+
+        usort($prac_no, function ($a, $b) {
+            return $a['name'] <=> $b['name'];
+        });
+
+        $data = $prac_yes + $prac_no;
+
+        //dd($data);
+
+        $ext = SiteExtension::whereDate('date', $mon->format('Y-m-d'))->first();
+        if (!$ext)
+            $ext = SiteExtension::create(['date' => $mon->toDateTimeString(), 'status' => 1]);
+
+        foreach ($data as $site) {
+            $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
+            if (!$ext_site)
+                $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
+        }
+
+        $ext->createPDF();
+
 
         /*
         $today = Carbon::today();
@@ -1632,7 +1683,8 @@ class PagesController extends Controller {
     /*
      * Reset Template Form
      */
-    public function resetFormTemplate() {
+    public function resetFormTemplate()
+    {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Reseting Sample Form Template - $now</b></br>";
         DB::table('form_templates')->truncate();
@@ -1651,7 +1703,8 @@ class PagesController extends Controller {
     /*
      * Initilise Template Form
      */
-    public function initFormTemplate() {
+    public function initFormTemplate()
+    {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Creating Sample Form Template - $now</b></br>";
 
@@ -1662,7 +1715,7 @@ class PagesController extends Controller {
         // CONN
         FormOption::create(['text' => 'Compliant', 'value' => 'Compliant', 'order' => 1, 'colour' => 'green', 'score' => 2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         FormOption::create(['text' => 'Observation', 'value' => 'Observation', 'order' => 2, 'colour' => 'orange', 'score' => 1, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        FormOption::create(['text' => 'Non-conformance', 'value' => 'Non-conformance', 'order' => 3, 'colour' => 'red', 'score' => -2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['text' => 'Non-conformance', 'value' => 'Non-conformance', 'order' => 3, 'colour' => 'red', 'score' => - 2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         FormOption::create(['text' => 'Not Applicable', 'value' => 'Not Applicable', 'order' => 4, 'colour' => null, 'score' => 0, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         // YN
         FormOption::create(['text' => 'Yes', 'value' => 'Yes', 'order' => 1, 'score' => 1, 'colour' => null, 'group' => 'YN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
@@ -1732,7 +1785,6 @@ class PagesController extends Controller {
         $question8 = FormQuestion::create(
             ['section_id' => $section3->id, 'name' => "Question8", 'type' => "select", 'type_special' => null, 'type_version' => 'bs-select',
              'order'      => 2, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
-
 
 
         //

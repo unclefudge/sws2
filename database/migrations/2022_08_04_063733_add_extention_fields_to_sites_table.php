@@ -28,14 +28,11 @@ class AddExtentionFieldsToSitesTable extends Migration
         Schema::create('site_extensions_sites', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('extension_id')->unsigned()->nullable();
-            $table->string('reasons', 255)->nullable();
-            $table->text('extension_notes')->nullable();
-            $table->string('name', 255)->nullable();
-            $table->dateTime('date')->nullable();
-            $table->integer('approved_by')->unsigned()->nullable();
-            $table->timestamp('approved_at')->nullable();
             $table->integer('site_id')->unsigned()->nullable();
-            $table->integer('cat_id')->unsigned()->nullable();
+            $table->dateTime('completion_date')->nullable();
+            $table->string('reasons', 255)->nullable();
+            $table->text('notes')->nullable();
+            $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
 
@@ -59,16 +56,8 @@ class AddExtentionFieldsToSitesTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('site_extensions', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('site_id')->unsigned()->nullable();
-            $table->integer('cat_id')->unsigned()->nullable();
-            $table->timestamps();
-        });
-
         Schema::table('sites', function (Blueprint $table) {
-            $table->text('extension_notes')->nullable();
-            $table->string('special', 50)->nullable();
+            $table->string('special')->nullable();
         });
     }
 
@@ -80,11 +69,11 @@ class AddExtentionFieldsToSitesTable extends Migration
     public function down()
     {
         Schema::table('sites', function (Blueprint $table) {
-            $table->dropColumn('extension_notes');
             $table->dropColumn('special');
         });
 
         Schema::dropIfExists('site_extensions_categories');
+        Schema::dropIfExists('site_extensions_sites');
         Schema::dropIfExists('site_extensions');
     }
 }

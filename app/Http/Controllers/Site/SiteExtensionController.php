@@ -11,7 +11,10 @@ use Mail;
 use Input;
 use Session;
 use App\User;
+use App\Jobs\SiteExtensionPdf;
 use App\Models\Site\Site;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteExtensionCategory;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Company\Company;
@@ -40,12 +43,12 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.extension'))
             return view('errors/404');
 
-
-
-        $data = $this->getData();
-        $extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
-
-        return view('site/extension/list', compact('data', 'extend_reasons'));
+        $extension = SiteExtension::where('status', 1)->latest()->first();
+        return redirect("/site/extension/$extension->id");
+        //$data = $this->getData($extension);
+        //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        //dd($data);
+        //return view('site/extension/list', compact('extension', 'data', 'extend_reasons'));
     }
 
 
@@ -56,7 +59,19 @@ class SiteExtensionController extends Controller {
      */
     public function show($id)
     {
-        //
+        $extension = SiteExtension::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.extension', $extension))
+            return view('errors/404');
+
+
+        $data = $this->getData($extension);
+        $extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+
+        //dd($data);
+
+        return view('site/extension/show', compact('extension', 'data', 'extend_reasons'));
     }
 
     /**
@@ -96,21 +111,50 @@ class SiteExtensionController extends Controller {
     public function updateJob()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.extension'))
+        if (!Auth::user()->hasPermission2('edit.site.extension'))
             return view('errors/404');
 
         //dd(request()->all());
 
         if (request('site_id')) {
-            $site = Site::findOrFail(request('site_id'));
-            $site->extension_notes = request('extension_notes');
-            $site->save();
-            $site->extensionReasons()->sync(request('reasons'));
+            $site_ext = SiteExtensionSite::findOrFail(request('site_id'));
+            $site_ext->notes = request('extension_notes');
+            if (request('reasons'))
+                $site_ext->reasons = implode(',', request('reasons'));
+            $site_ext->save();
+            $site_ext->extension->createPDF();
         }
 
-        Toastr::success("Updated compliance");
+        Toastr::success("Updated extension");
 
         return redirect("/site/extension");
+    }
+
+    /**
+     * Sign Off Item
+     */
+    public function signoff($id)
+    {
+        $extension = SiteExtension::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        $extension->approved_by = Auth::user()->id;
+        $extension->approved_at = Carbon::now();
+
+        //$extension->closeToDo();
+        //$project->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+
+        $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+        if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
+        Toastr::success("Report Signed Off");
+
+        $extension->save();
+
+        return redirect("/site/extension/$extension->id");
+
     }
 
 
@@ -188,6 +232,7 @@ class SiteExtensionController extends Controller {
         return redirect("/site/extension/settings");
     }
 
+
     /**
      * Create upcoming PDF
      */
@@ -197,7 +242,7 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.extension'))
             return view('errors/404');
 
-        $email_list =  Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.extension');
+        $email_list = Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.extension');
 
         return view('site/extension/pdf', compact('email_list'));
     }
@@ -209,10 +254,11 @@ class SiteExtensionController extends Controller {
     {
         //dd(request()->all());
 
-        $data = $this->getData();
+        $extension = SiteExtension::where('status', 1)->latest()->first();
+        $data = $this->getData($extension);
         //dd($startdata);
 
-        //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        //return view('pdf/site/contract-extension', compact('data'));
         $pdf = PDF::loadView('pdf/site/contract-extension', compact('data'));
         $pdf->setPaper('A4', 'landscape');
 
@@ -259,8 +305,25 @@ class SiteExtensionController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    static public function getData()
+    static public function getData($extension)
     {
+        $data = [];
+        if ($extension) {
+            foreach ($extension->sites as $site) {
+                $data[] = [
+                    'id'                   => $site->id,
+                    'name'                 => $site->site->name,
+                    'super_initials'       => $site->site->supervisorsInitialsSBC(),
+                    'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
+                    'extend_reasons'       => $site->reasons,
+                    'extend_reasons_text'  => $site->reasonsSBC(),
+                    'extend_reasons_array' => $site->reasonsArray(),
+                    'notes'                => $site->notes
+                ];
+            }
+        }
+
+        /*
         $hide_site_code = ['0000', '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '1234', '1235'];
         $sites = Auth::user()->authSites('view.site.extension', '1')->whereNotIn('code', $hide_site_code);
 
@@ -299,6 +362,7 @@ class SiteExtensionController extends Controller {
         });
 
         $data = $prac_yes + $prac_no;
+        */
 
         return $data;
     }

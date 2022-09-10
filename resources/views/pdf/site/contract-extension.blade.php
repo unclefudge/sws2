@@ -64,7 +64,8 @@
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
             <th width="15%" class="pad5">Site</th>
-            <th width="5%" class="pad5">Prac Completion</th>
+            <th width="5%" class="pad5">Supervisor</th>
+            <th width="5%" class="pad5">Forecast Completion</th>
             <th width="25%" class="pad5">Extend Reasons</th>
             <th class="pad5">Extend Notes</th>
         </tr>
@@ -73,8 +74,9 @@
         @foreach($data as $row)
             <tr>
                 <td class="pad5">{!! $row['name'] !!}</td>
-                <td class="pad5">{!! $row['prac_completion'] !!}</td>
-                <td class="pad5">{!! $row['extend_reasons'] !!}</td>
+                <td class="pad5">{!! $row['super_initials'] !!}</td>
+                <td class="pad5">{!! $row['completion_date'] !!}</td>
+                <td class="pad5">{!! $row['extend_reasons_text'] !!}</td>
                 <td class="pad5">{!! nl2br($row['notes']) !!}</td>
             </tr>
         @endforeach

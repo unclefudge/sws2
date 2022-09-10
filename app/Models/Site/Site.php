@@ -344,6 +344,22 @@ class Site extends Model {
     }
 
     /**
+     * A list of supervisors for this site Initials only
+     *
+     * @return string
+     */
+    public function supervisorsInitialsSBC()
+    {
+        $string = '';
+        foreach ($this->supervisors as $user) {
+            if ($user->status)
+                $string .= strtoupper($user->firstname[0]) . strtoupper($user->lastname[0]) . ', ';
+        }
+
+        return rtrim($string, ', ');
+    }
+
+    /**
      * Determines if a User is a Supervisor of this site
      *
      * @return string
@@ -674,6 +690,7 @@ class Site extends Model {
     {
 
         $site = $this;
+
         return view('pdf/site/whs-management-plan-cover', compact('site'));
         //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
     }

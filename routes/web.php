@@ -276,9 +276,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/extension/settings', 'Site\SiteExtensionController@settings');
     Route::post('site/extension/settings', 'Site\SiteExtensionController@updateSettings');
     Route::get('site/extension/settings/del/{id}', 'Site\SiteExtensionController@deleteSetting');
-    Route::get('site/extension/pdf', 'Site\SiteExtensionController@showPDF');
-    Route::post('site/extension/pdf', 'Site\SiteExtensionController@createPDF');
-    Route::resource('site/extension/', 'Site\SiteExtensionController');
+    Route::get('site/extension/{id}/signoff', 'Site\SiteExtensionController@signoff');
+    Route::resource('site/extension', 'Site\SiteExtensionController');
 
     // Site Hazards
     Route::get('site/hazard/dt/hazards', 'Site\SiteHazardController@getHazards');

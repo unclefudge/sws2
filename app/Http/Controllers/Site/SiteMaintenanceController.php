@@ -414,18 +414,16 @@ class SiteMaintenanceController extends Controller {
             $main->emailAssigned($super);
             $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
+            $main->closeToDo();   // Delete Construction Mgr Todoo
+
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
                 $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
 
             if (!$main->assigned_to) {
-                $main->closeToDo(); // Delete previous Supervisor Todoo
                 $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
             }
             $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
-
-
-            $main->closeToDo();   // Delete Construction Mgr Todoo
         }
 
         // Email if Company Assigned is updated
@@ -438,6 +436,8 @@ class SiteMaintenanceController extends Controller {
             // Set Assigned to date field if not set
             if (!$main->assigned_at)
                 $main_request['assigned_at'] = Carbon::now()->toDateTimeString();
+
+            $main->closeToDo();
         }
 
         // Add note if change of Status

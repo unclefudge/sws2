@@ -17,6 +17,8 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
@@ -60,6 +62,7 @@ class CronController extends Controller {
         CronController::brokenQaItem();
         CronController::emailPlannerKeyTasks();
         //CronController::actionPlannerKeyTasks();
+        CronController::siteExtensions();
         CronController::verifyZohoImport();
 
         // Only run on week days otherwise get same email multiple times over weekend
@@ -957,6 +960,81 @@ class CronController extends Controller {
         if (!$found_tasks) {
             echo "No key tasks today";
             $log .= "No key tasks today";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension
+    */
+    static public function siteExtensions()
+    {
+        $log = '';
+        $email_name = "Creating Site Extension for Active Sites";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
+
+        $mon = new Carbon('monday this week');
+
+        $data = [];
+        $prac_yes = $prac_no = [];
+        foreach ($sites as $site) {
+            $start_job = SitePlanner::where('site_id', $site->id)->where('task_id', 11)->first();
+            // Show only site which Job Start has before today
+            if ($start_job && $start_job->from->lte($mon)) {
+                $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
+                $site_data = [
+                    'id'              => $site->id,
+                    'name'            => $site->name,
+                    'completion_date' => ($prac_completion) ? $prac_completion->from : '',
+                    'completion_ymd'  => ($prac_completion) ? $prac_completion->from->format('ymd') : '',
+                ];
+                if ($prac_completion)
+                    $prac_yes[] = $site_data;
+                else
+                    $prac_no[] = $site_data;
+            }
+        }
+
+        usort($prac_yes, function ($a, $b) {return $a['completion_ymd'] <=> $b['completion_ymd'];});
+        usort($prac_no, function ($a, $b) {return $a['name'] <=> $b['name'];});
+        $data = $prac_yes + $prac_no;
+
+        //dd($data);
+        $mesg = "Existing";
+        $ext = SiteExtension::whereDate('date', $mon->format('Y-m-d'))->first();
+        if (!$ext) {
+            $ext = SiteExtension::create(['date' => $mon->toDateTimeString(), 'status' => 1]);
+            $mesg = "Creating new";
+        }
+        echo "$mesg week: ".$mon->format('d/m/Y')."<br>";
+        $log .= "$mesg week: ".$mon->format('d/m/Y')."\n";
+
+        foreach ($data as $site) {
+            $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
+            if (!$ext_site)
+                $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
+        }
+
+        $ext->createPDF();
+
+        // Archive old active extensions
+        $old_extensions = SiteExtension::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
+        if ($old_extensions) {
+            foreach ($old_extensions as $ext) {
+                $ext->status = 0;
+                $ext->save();
+                echo "Archiving week: ".$ext->date->format('d/m/Y')."<br>";
+                $log .= "Archiving week: ".$ext->date->format('d/m/Y')."\n";
+            }
         }
 
         echo "<h4>Completed</h4>";
