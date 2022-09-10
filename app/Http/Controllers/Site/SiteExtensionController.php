@@ -44,7 +44,10 @@ class SiteExtensionController extends Controller {
             return view('errors/404');
 
         $extension = SiteExtension::where('status', 1)->latest()->first();
-        return redirect("/site/extension/$extension->id");
+        if ($extension)
+            return redirect("/site/extension/$extension->id");
+
+        return view('errors/404');
         //$data = $this->getData($extension);
         //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         //dd($data);
