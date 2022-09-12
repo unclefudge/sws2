@@ -273,6 +273,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Prac Complete Extention
     Route::post('site/extension/update_job', 'Site\SiteExtensionController@updateJob');
+    Route::get('site/extension/past', 'Site\SiteExtensionController@past');
     Route::get('site/extension/settings', 'Site\SiteExtensionController@settings');
     Route::post('site/extension/settings', 'Site\SiteExtensionController@updateSettings');
     Route::get('site/extension/settings/del/{id}', 'Site\SiteExtensionController@deleteSetting');

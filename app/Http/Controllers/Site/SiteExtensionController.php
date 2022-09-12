@@ -82,6 +82,23 @@ class SiteExtensionController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    public function past()
+    {
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.extension'))
+            return view('errors/404');
+
+        $extensions = SiteExtension::where('status', 0)->orderBy('date')->get();
+
+        return view('site/extension/past', compact('extensions'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function settings()
     {
         // Check authorisation and throw 404 if not
