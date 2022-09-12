@@ -21,7 +21,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Contract Time Extensions</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Current Week</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension" data-original-title="Setting">Current Week</a>
                             @if(Auth::user()->hasPermission2('del.site.extension'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
                             @endif
