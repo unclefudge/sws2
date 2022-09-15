@@ -421,6 +421,13 @@ class SitePlannerController extends Controller {
         //if (!Auth::user()->hasAnyPermissionType('forcast.planner'))
         //    return view('errors/404');
 
+        // Set Supervisor_id
+        $supervisor_id = '';
+        if (request('supervisor_id'))
+            $supervisor_id = request('supervisor_id');
+        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
+            $supervisor_id = Auth::user()->id;
+
         $first_month = new Carbon('first day of this month');
         $six_months = new Carbon('first day of this month');
         $six_months = $six_months->addMonths(6)->subDay();
@@ -438,63 +445,79 @@ class SitePlannerController extends Controller {
             $site = Site::findOrFail($site_id);
             $job_start = SitePlanner::where('site_id', $site_id)->where('task_id', 11)->first();
             $prac_complete = SitePlanner::where('site_id', $site_id)->where('task_id', 265)->first();
+            $supervisor_ids = $site->supervisors->pluck('id')->toArray();
+            $supervisor_ids = rtrim(implode(',', $supervisor_ids),',');
             $array = [
-                'site_id'          => $site_id,
-                'site_name'        => $site->name,
-                'super_initials'   => $site->supervisorsInitialsSBC(),
-                'job_start'        => ($job_start) ? $job_start->from->format('d/m/Y') : '',
-                'job_start_ym'     => ($job_start) ? $job_start->from->format('Ym') : '',
-                'job_start_ymd'    => ($job_start) ? $job_start->from->format('Ymd') : '',
-                'job_start_day'    => ($job_start) ? $job_start->from->format('j S') : '',
-                'prac_complete'    => ($prac_complete) ? $prac_complete->from->format('d/m/Y') : '',
-                'prac_complete_ym' => ($prac_complete) ? $prac_complete->from->format('Ym') : '',
+                'site_id'           => $site_id,
+                'site_name'         => $site->name,
+                'super_initials'    => $site->supervisorsInitialsSBC(),
+                'supervisor_id'     => $supervisor_ids,
+                'job_start'         => ($job_start) ? $job_start->from->format('d/m/Y') : '',
+                'job_start_ym'      => ($job_start) ? $job_start->from->format('Ym') : '',
+                'job_start_ymd'     => ($job_start) ? $job_start->from->format('Ymd') : '',
+                'job_start_day'     => ($job_start) ? $job_start->from->format('j S') : '',
+                'prac_complete'     => ($prac_complete) ? $prac_complete->from->format('d/m/Y') : '',
+                'prac_complete_ym'  => ($prac_complete) ? $prac_complete->from->format('Ym') : '',
                 'prac_complete_ymd' => ($prac_complete) ? $prac_complete->from->format('Ymd') : '',
                 'prac_complete_day' => ($prac_complete) ? $prac_complete->from->format('j S') : '',
 
             ];
             $site_data[] = $array;
 
-            if (!in_array($array['super_initials'], $supers))
-                $supers[$array['super_initials']] = $site->supervisorsSBC();
+            if (!in_array($array['supervisor_id'], $supers))
+                $supers[$array['supervisor_id']] = $site->supervisorsSBC();
         }
 
-        // Sites ordered - Jobstart
-        // usort($site_data, function ($a, $b) {
-        //    return $a['job_start_ymd'] <=> $b['job_start_ymd'];
-        ///});
-
-        // Sites ordered - Prac Complete
-        usort($site_data, function ($a, $b) {
-            return $a['prac_complete_ymd'] <=> $b['prac_complete_ymd'];
-        });
         //dd($site_data);
 
-        ksort($supers);
+        asort($supers);
         $site_data_sorted = [];
-        foreach ($supers as $super_initals => $super_name) {
-            $site_data_sorted[] = ['site_name' => $super_name, 'super_initials' => $super_initals,
-                                   'site_id' => '',  'job_start' => '', 'job_start_ym' => '', 'job_start_day' => '',
+        foreach ($supers as $super_id => $super_name) {
+            $site_data_sorted[] = ['site_name'     => $super_name, 'supervisor_id' => $super_id,
+                                   'site_id'       => '', 'job_start' => '', 'job_start_ym' => '', 'job_start_day' => '',
                                    'prac_complete' => '', 'prac_complete_ym' => '', 'prac_complete_day' => ''];
+
+            // Sites ordered - Prac Complete
+            usort($site_data, function ($a, $b) {
+                return $a['prac_complete_ymd'] <=> $b['prac_complete_ymd'];
+            });
 
             // For Sites with Prac Complete set
             foreach ($site_data as $array) {
-                if ($array['prac_complete_ym'] && $super_initals == $array['super_initials'])
+                if ($array['prac_complete_ym'] && $super_id == $array['supervisor_id'])
                     $site_data_sorted[] = $array;
             }
-            // Sites without Prac Complate
+            // Sites without Prac Complete or Start (only Active)
             foreach ($site_data as $array) {
-                if (!$array['prac_complete_ym'] && $super_initals == $array['super_initials'])
+                if (!$array['prac_complete_ym'] && !$array['job_start'] && $super_id == $array['supervisor_id'])
                     $site_data_sorted[] = $array;
             }
+
+            // Sites ordered - Jobstart
+            usort($site_data, function ($a, $b) {
+                return $a['job_start_ymd'] <=> $b['job_start_ymd'];
+            });
+
+            //Sites without Prac Complete but have Start (rest)
+            foreach ($site_data as $array) {
+                if (!$array['prac_complete_ym'] && $array['job_start'] && $super_id == $array['supervisor_id'])
+                    $site_data_sorted[] = $array;
+            }
+
+            // Add a totals row (to be calcularte later
+            $site_data_sorted[] = ['site_name'     => "Totals", 'supervisor_id' => $super_id,
+                                   'site_id'       => '', 'job_start' => '', 'job_start_ym' => '', 'job_start_day' => '',
+                                   'prac_complete' => '', 'prac_complete_ym' => '', 'prac_complete_day' => ''];
         }
 
 
         $months = [];
+        $data = [];
         foreach ($site_data_sorted as $array) {
             $col = [];
             $col['site_id'] = $array['site_id'];
             $col['site_name'] = $array['site_name'];
-            $col['super_initials'] = $array['super_initials'];
+            $col['supervisor_id'] = $array['supervisor_id'];
             $col['job_start'] = $array['job_start'];
             $col['job_start_day'] = $array['job_start_day'];
             $col['prac_complete'] = $array['prac_complete'];
@@ -525,7 +548,7 @@ class SitePlannerController extends Controller {
                         $col["m$i"] = '';
                 }
             } else {
-                $col = ['site_id' => $array['site_id'], 'site_name' => $array['site_name'], 'super_initials' => $array['super_initials'], 'm0' => '', 'm1' => '', 'm2' => '', 'm3' => '', 'm4' => '', 'm5' => ''];
+                $col = ['site_id' => $array['site_id'], 'site_name' => $array['site_name'], 'supervisor_id' => $array['supervisor_id'], 'm0' => '', 'm1' => '', 'm2' => '', 'm3' => '', 'm4' => '', 'm5' => ''];
                 $key_task = true;
             }
             //$col['key'] = ($key_task) ? 'Y' : 'N';
@@ -533,9 +556,36 @@ class SitePlannerController extends Controller {
                 $data[] = $col;
         }
 
+        $current_super = '';
+        foreach ($data as $key => $row) {
+            //echo "$key: ";
+            //print_r($row);
+            //echo "<br>";
+            if (!$row['site_id'] && $row['site_name'] != 'Totals') {
+                //echo "Super: ".$row['super_initials']."<br>";
+                $current_super = $row['supervisor_id'];
+                $m0 = $m1 = $m2 = $m3 = $m4 = $m5 = 0;
+            } elseif (!$row['site_id'] && $row['site_name'] == 'Totals') {
+                //echo "$m0 : $m1 : $m2 : $m3 : $m4 : $m5 <br>";
+                $data[$key]['m0'] = $m0;
+                $data[$key]['m1'] = $m1;
+                $data[$key]['m2'] = $m2;
+                $data[$key]['m3'] = $m3;
+                $data[$key]['m4'] = $m4;
+                $data[$key]['m5'] = $m5;
+            } else {
+                if ($row['m0'] != '') $m0 ++;
+                if ($row['m1'] != '') $m1 ++;
+                if ($row['m2'] != '') $m2 ++;
+                if ($row['m3'] != '') $m3 ++;
+                if ($row['m4'] != '') $m4 ++;
+                if ($row['m5'] != '') $m5 ++;
+            }
+        }
+
         //dd($data);
 
-        return view('planner/forecast', compact('data', 'months'));
+        return view('planner/forecast', compact('data', 'months', 'supervisor_id'));
     }
 
     /**
