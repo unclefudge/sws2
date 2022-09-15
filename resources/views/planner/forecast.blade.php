@@ -54,31 +54,31 @@
                                         {{-- Loop through for each month --}}
                                         @for ($i = 0; $i < 6; $i++)
                                             @if ($row["m$i"] == 'Active')
-                                                <td width="5%" style="background: #B5E2CD;"></td>
+                                                <td width="7%" style="background: #B5E2CD;"></td>
                                             @elseif ($row["m$i"] == 'START')
-                                                <td width="5%" style="background: #C5D1EC;">
+                                                <td width="7%" style="background: #C5D1EC;">
                                                     <?php $split = explode(' ', $row['job_start_day']); ?>
                                                     {{ $split[0] }}<sup> {{ $split[1] }}</sup>
                                                 </td>
                                             @elseif ($row["m$i"] == 'PRAC')
-                                                <td width="5%" style="background: #FDD7B1;">
+                                                <td width="7%" style="background: #FDD7B1;">
                                                     <?php $split = explode(' ', $row['prac_complete_day']); ?>
                                                     {{ $split[0] }}<sup> {{ $split[1] }}</sup>
                                                 </td>
                                             @else
-                                                <td width="5%"></td>
+                                                <td width="7%"></td>
                                             @endif
                                         @endfor
                                     </tr>
                                 @else
                                     <tr style="background: #f0f6fa">
                                         <td colspan="2"><b> &nbsp; {{ $row['site_name'] }}</b></td>
-                                        <th width="5%"> {{ $months[0] }}</th>
-                                        <th width="5%"> {{ $months[1] }}</th>
-                                        <th width="5%"> {{ $months[2] }}</th>
-                                        <th width="5%"> {{ $months[3] }}</th>
-                                        <th width="5%"> {{ $months[4] }}</th>
-                                        <th width="5%"> {{ $months[5] }}</th>
+                                        <th width="7%"> {{ $months[0] }}</th>
+                                        <th width="7%"> {{ $months[1] }}</th>
+                                        <th width="7%"> {{ $months[2] }}</th>
+                                        <th width="7%"> {{ $months[3] }}</th>
+                                        <th width="7%"> {{ $months[4] }}</th>
+                                        <th width="7%"> {{ $months[5] }}</th>
                                     </tr>
                                 @endif
                             @endforeach
