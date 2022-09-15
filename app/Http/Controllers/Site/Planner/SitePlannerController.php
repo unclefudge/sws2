@@ -413,6 +413,132 @@ class SitePlannerController extends Controller {
     }
 
     /**
+     * Show Up and Coming Projects
+     */
+    public function showForecast()
+    {
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->hasAnyPermissionType('forcast.planner'))
+        //    return view('errors/404');
+
+        $first_month = new Carbon('first day of this month');
+        $six_months = new Carbon('first day of this month');
+        $six_months = $six_months->addMonths(6)->subDay();
+
+        $site_list = [];
+        $sites = Auth::user()->company->sites()->pluck('id')->toArray();
+        $planner = SitePlanner::whereDate('from', '>=', $first_month)->whereDate('to', '<=', $six_months)->whereIn('site_id', $sites)->orderBy('from')->pluck('site_id')->toArray();
+        $site_list = array_unique($planner);
+
+        //dd($site_list);
+
+        $site_data = [];
+        $supers = [];
+        foreach ($site_list as $site_id) {
+            $site = Site::findOrFail($site_id);
+            $job_start = SitePlanner::where('site_id', $site_id)->where('task_id', 11)->first();
+            $prac_complete = SitePlanner::where('site_id', $site_id)->where('task_id', 265)->first();
+            $array = [
+                'site_id'          => $site_id,
+                'site_name'        => $site->name,
+                'super_initials'   => $site->supervisorsInitialsSBC(),
+                'job_start'        => ($job_start) ? $job_start->from->format('d/m/Y') : '',
+                'job_start_ym'     => ($job_start) ? $job_start->from->format('Ym') : '',
+                'job_start_ymd'    => ($job_start) ? $job_start->from->format('Ymd') : '',
+                'job_start_day'    => ($job_start) ? $job_start->from->format('j S') : '',
+                'prac_complete'    => ($prac_complete) ? $prac_complete->from->format('d/m/Y') : '',
+                'prac_complete_ym' => ($prac_complete) ? $prac_complete->from->format('Ym') : '',
+                'prac_complete_ymd' => ($prac_complete) ? $prac_complete->from->format('Ymd') : '',
+                'prac_complete_day' => ($prac_complete) ? $prac_complete->from->format('j S') : '',
+
+            ];
+            $site_data[] = $array;
+
+            if (!in_array($array['super_initials'], $supers))
+                $supers[$array['super_initials']] = $site->supervisorsSBC();
+        }
+
+        // Sites ordered - Jobstart
+        // usort($site_data, function ($a, $b) {
+        //    return $a['job_start_ymd'] <=> $b['job_start_ymd'];
+        ///});
+
+        // Sites ordered - Prac Complete
+        usort($site_data, function ($a, $b) {
+            return $a['prac_complete_ymd'] <=> $b['prac_complete_ymd'];
+        });
+        //dd($site_data);
+
+        ksort($supers);
+        $site_data_sorted = [];
+        foreach ($supers as $super_initals => $super_name) {
+            $site_data_sorted[] = ['site_name' => $super_name, 'super_initials' => $super_initals,
+                                   'site_id' => '',  'job_start' => '', 'job_start_ym' => '', 'job_start_day' => '',
+                                   'prac_complete' => '', 'prac_complete_ym' => '', 'prac_complete_day' => ''];
+
+            // For Sites with Prac Complete set
+            foreach ($site_data as $array) {
+                if ($array['prac_complete_ym'] && $super_initals == $array['super_initials'])
+                    $site_data_sorted[] = $array;
+            }
+            // Sites without Prac Complate
+            foreach ($site_data as $array) {
+                if (!$array['prac_complete_ym'] && $super_initals == $array['super_initials'])
+                    $site_data_sorted[] = $array;
+            }
+        }
+
+
+        $months = [];
+        foreach ($site_data_sorted as $array) {
+            $col = [];
+            $col['site_id'] = $array['site_id'];
+            $col['site_name'] = $array['site_name'];
+            $col['super_initials'] = $array['super_initials'];
+            $col['job_start'] = $array['job_start'];
+            $col['job_start_day'] = $array['job_start_day'];
+            $col['prac_complete'] = $array['prac_complete'];
+            $col['prac_complete_day'] = $array['prac_complete_day'];
+
+            // Determine
+            $key_task = false;
+            if ($array['site_id'] != '') {
+                for ($i = 0; $i < 6; $i ++) {
+                    $this_month = new Carbon('first day of this month');
+                    $this_month = $this_month->addMonths($i);
+                    $months[$i] = $this_month->format('M');
+                    $this_month = $this_month->format('Ym');
+                    //echo "M: $this_month  JB:" . $array['job_start_ym'] . " PC:" . $array['prac_complete_ym'] . "<br>";
+                    if ($this_month == $array['job_start_ym']) {
+                        $col["m$i"] = 'START';
+                        $key_task = true;
+                    } else if ($this_month == $array['prac_complete_ym']) {
+                        $col["m$i"] = 'PRAC';
+                        $key_task = true;
+                    } elseif ($this_month > $array['job_start_ym'] && $this_month < $array['prac_complete_ym']) {
+                        $col["m$i"] = 'Active';
+                        $key_task = true;
+                    } elseif ($this_month > $array['job_start_ym'] && $array['prac_complete_ym'] == '') {
+                        $col["m$i"] = 'Active';
+                        $key_task = true;
+                    } else
+                        $col["m$i"] = '';
+                }
+            } else {
+                $col = ['site_id' => $array['site_id'], 'site_name' => $array['site_name'], 'super_initials' => $array['super_initials'], 'm0' => '', 'm1' => '', 'm2' => '', 'm3' => '', 'm4' => '', 'm5' => ''];
+                $key_task = true;
+            }
+            //$col['key'] = ($key_task) ? 'Y' : 'N';
+            if ($key_task)
+                $data[] = $col;
+        }
+
+        //dd($data);
+
+        return view('planner/forecast', compact('data', 'months'));
+    }
+
+    /**
      * Get Weekly Planner for date
      */
     public function getWeeklyPlan(Request $request, $date, $super_id)
@@ -661,7 +787,8 @@ class SitePlannerController extends Controller {
     /**
      * Get Site Roster for specific site
      */
-    public function getSiteRoster($date, $super_id)
+    public
+    function getSiteRoster($date, $super_id)
     {
         if ($super_id == 'all')
             $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();

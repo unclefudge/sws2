@@ -141,11 +141,12 @@ class Todo extends Model {
                 return '/site/supply/' . $this->type_id . '/edit';
             case 'scaffold handover':
                 return '/site/scaffold/handover/create/' . $this->type_id;
+            case 'extension signoff':
+                return '/site/extension/' . $this->type_id;
             case 'incident review':
                 return '/site/incident/' . $this->type_id;
             case 'incident witness':
                 $witness = SiteIncidentWitness::find($this->type_id);
-
                 return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
             case 'company doc':
                 $doc = CompanyDoc::find($this->type_id);

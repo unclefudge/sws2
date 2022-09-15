@@ -1004,8 +1004,12 @@ class CronController extends Controller {
             }
         }
 
-        usort($prac_yes, function ($a, $b) {return $a['completion_ymd'] <=> $b['completion_ymd'];});
-        usort($prac_no, function ($a, $b) {return $a['name'] <=> $b['name'];});
+        usort($prac_yes, function ($a, $b) {
+            return $a['completion_ymd'] <=> $b['completion_ymd'];
+        });
+        usort($prac_no, function ($a, $b) {
+            return $a['name'] <=> $b['name'];
+        });
         $data = $prac_yes + $prac_no;
 
         //dd($data);
@@ -1015,8 +1019,8 @@ class CronController extends Controller {
             $ext = SiteExtension::create(['date' => $mon->toDateTimeString(), 'status' => 1]);
             $mesg = "Creating new";
         }
-        echo "$mesg week: ".$mon->format('d/m/Y')."<br>";
-        $log .= "$mesg week: ".$mon->format('d/m/Y')."\n";
+        echo "$mesg week: " . $mon->format('d/m/Y') . "<br>";
+        $log .= "$mesg week: " . $mon->format('d/m/Y') . "\n";
 
         foreach ($data as $site) {
             $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
@@ -1026,16 +1030,33 @@ class CronController extends Controller {
 
         $ext->createPDF();
 
+        if ($ext->sites->count() != $ext->sitesCompleted()->count()) {
+            foreach ($ext->site as $site) {
+                    if (!$site->reasons) {
+                        $superInitials = $site->site->supervisorsInitialsSBC();
+                        if (!in_array($superInitials)
+                    }
+                        $completed[] = $site->id;
+            }
+
+        } elseif (!$ext->approved_by) {
+            // Report is complete but yet to be signed.
+            $ext->closeToDo();
+            $ext->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray()); // Con Mgr Role
+        }
+
+
         // Archive old active extensions
         $old_extensions = SiteExtension::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
         if ($old_extensions) {
             foreach ($old_extensions as $ext) {
                 $ext->status = 0;
                 $ext->save();
-                echo "Archiving week: ".$ext->date->format('d/m/Y')."<br>";
-                $log .= "Archiving week: ".$ext->date->format('d/m/Y')."\n";
+                echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
+                $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
             }
         }
+
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

@@ -168,7 +168,6 @@
                                         <a href="/todo/{{$todo->id}}/edit" class="btn red">Edit Task</a>
                                     @endif
                                 @endif
-
                                 @if($todo->type == 'swms')
                                     <a href="/safety/doc/wms/{{ $todo->type_id }}" class="btn dark">View expired SWMS</a>
                                     <a href="/safety/doc/wms/{{ $todo->type_id }}/replace" class="btn blue">Make new SWMS</a>
@@ -182,6 +181,9 @@
                                 @if($todo->type == 'project supply')
                                     <a href="/site/supply/{{ $todo->type_id }}/edit" class="btn blue">Update Supply Info</a>
                                 @endif
+                                    @if($todo->type == 'extension')
+                                        <a href="/site/extension" class="btn blue">View Contract Time Extensions</a>
+                                    @endif
                                 @if($todo->type == 'company doc')
                                     <?php $doc = \App\Models\Company\CompanyDoc::find($todo->type_id) ?>
                                     <a href="/company/{{ $doc->for_company_id }}/doc/{{ $doc->id }}/edit" class="btn dark">View Document</a>

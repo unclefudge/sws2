@@ -83,18 +83,17 @@ class SiteExtension extends Model {
     }
 
     /**
-     * Create ToDoo for ProjectSupply and assign to given user(s)
+     * Create ToDoo for SiteExtension to be Signed Off
      */
     public function createSignOffToDo($user_list)
     {
-        $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'project supply',
+            'type'       => 'extension',
             'type_id'    => $this->id,
-            'name'       => 'Project Supply Information - ' . $site->name,
+            'name'       => 'Contract Time Extensions - ' . $this->date->format('d/m/Y'),
             'info'       => 'Please sign off on completed items',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
-            'company_id' => $this->site->company_id,
+            'due_at'     => Carbon::today()->toDateTimeString(),
+            'company_id' => 3,
         ];
 
         // Create ToDoo and assign to Site Supervisors
@@ -104,11 +103,11 @@ class SiteExtension extends Model {
     }
 
     /**
-     * Close any outstanding ToDoo for this Project Supply
+     * Close any outstanding ToDoo for this SiteExtension
      */
     public function closeToDo()
     {
-        $todos = Todo::where('type', 'project supply')->where('type_id', $this->id)->where('status', '1')->get();
+        $todos = Todo::where('type', 'extension')->where('type_id', $this->id)->where('status', '1')->get();
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();
