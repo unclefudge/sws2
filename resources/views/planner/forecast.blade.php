@@ -69,6 +69,11 @@
                                                 <td width="5%"></td>
                                             @endif
                                         @endfor
+                                        <td width="10%">
+                                            @if ($row['prac_complete'] && !in_array('PRAC', $row))
+                                                {{ $row['prac_complete']  }}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @else
                                     <tr style="background: #f0f6fa">
@@ -79,6 +84,7 @@
                                         <th width="5%"> {{ $months[3] }}</th>
                                         <th width="5%"> {{ $months[4] }}</th>
                                         <th width="5%"> {{ $months[5] }}</th>
+                                        <td width="10%"></td>
                                     </tr>
                                 @endif
                             @endforeach
