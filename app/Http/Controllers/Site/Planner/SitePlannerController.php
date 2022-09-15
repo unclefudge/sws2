@@ -426,7 +426,7 @@ class SitePlannerController extends Controller {
         $six_months = $six_months->addMonths(6)->subDay();
 
         $site_list = [];
-        $sites = Auth::user()->company->sites()->pluck('id')->toArray();
+        $sites = Site::where('status', 1)->where('special', null)->where('company_id', Auth::user()->company_id)->pluck('id')->toArray();
         $planner = SitePlanner::whereDate('from', '>=', $first_month)->whereDate('to', '<=', $six_months)->whereIn('site_id', $sites)->orderBy('from')->pluck('site_id')->toArray();
         $site_list = array_unique($planner);
 
