@@ -55,6 +55,16 @@
         <hr class="field-hr">
         @if (Auth::user()->isCompany($company->reportsTo()))
             <div class="row">
+                <div class="col-md-3">Planner Abbr.:</div>
+                <div class="col-xs-9">{!! $company->nickname !!}</div>
+            </div>
+            <hr class="field-hr">
+            <div class="row">
+                <div class="col-md-3">Report Abbr.:</div>
+                <div class="col-xs-9">{!! $company->abbr !!}</div>
+            </div>
+            <hr class="field-hr">
+            <div class="row">
                 <div class="col-md-3">Private Notes:</div>
                 <div class="col-xs-9">@if($company->notes){!! nl2br($company->notes) !!} </a>@else - @endif
                 </div>

@@ -34,8 +34,11 @@
                             <tr class="mytable-header">
                                 <th width="7%">Date</th>
                                 <th width="20%">Site</th>
-                                <th width="15%">Supervisor</th>
-                                <th width="15%">Company</th>
+                                <th width="5%">Super</th>
+                                <th width="5%">Company</th>
+                                <th width="7%">Deposit Paid</th>
+                                <th width="5%">ENG</th>
+                                <th width="7%">HBCF</th>
                                 <th>CC</th>
                                 <th>FC Plans</th>
                                 <th>FC Structural</th>
@@ -48,6 +51,9 @@
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
                                     <td>{!! $row['supervisor'] !!}</td>
                                     <td>{!! $row['company'] !!}</td>
+                                    <td>{!! $row['deposit_paid'] !!}</td>
+                                    <td>{!! $row['eng'] !!}</td>
+                                    <td>{!! $row['hbcf'] !!}</td>
                                     <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours[$row['cc_stage']] : '' }}">
                                         <div id="cc-{{$row['id']}}">{!! $row['cc'] !!}</div>
                                         <input type="hidden" id="cc-{{$row['id']}}-s" value="{!! $row['cc_stage'] !!}">

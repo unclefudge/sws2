@@ -28,7 +28,7 @@ class Company extends Model {
 
     protected $table = 'companys';
     protected $fillable = [
-        'name', 'nickname', 'slug', 'email', 'phone', 'logo_banner', 'logo_profile',
+        'name', 'nickname', 'abbr', 'slug', 'email', 'phone', 'logo_banner', 'logo_profile',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country', 'primary_user', 'secondary_user',
         'abn', 'gst', 'business_entity', 'sub_group', 'payroll_tax', 'creditor_code', 'superannuation', 'category',
         'lic_override', 'licence_no', 'licence_type', 'licence_expiry',

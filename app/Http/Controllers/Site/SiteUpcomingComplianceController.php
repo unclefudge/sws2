@@ -232,7 +232,7 @@ class SiteUpcomingComplianceController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
             return view('errors/404');
 
-        $email_list =  Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.upcoming.compliance');
+        $email_list = Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.upcoming.compliance');
 
         return view('site/upcoming/compliance/pdf', compact('email_list'));
     }
@@ -317,9 +317,11 @@ class SiteUpcomingComplianceController extends Controller {
         foreach ($planner as $plan) {
             $site = Site::findOrFail($plan->site_id);
             if ($site->status == 1) {
-                $entity_name = "Carpenter";
-                if ($plan->entity_type == 'c')
-                    $entity_name = Company::find($plan->entity_id)->name;
+                $entity_name = "-";
+                if ($plan->entity_type == 'c') {
+                    $company = Company::find($plan->entity_id);
+                    $entity_name = ($company->abbr) ? $company->abbr : $company->name;
+                }
 
                 $cc = $cc_stage = null;
                 if ($site->cc) {
@@ -335,7 +337,10 @@ class SiteUpcomingComplianceController extends Controller {
                     'code'            => $site->code,
                     'name'            => $site->name,
                     'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorsSBC(),
+                    'supervisor'      => $site->supervisorsInitialsSBC(),
+                    'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
+                    'eng'             => ($site->engineering) ? 'Y' : '-',
+                    'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
                     'cc'              => $cc,
                     'cc_stage'        => $cc_stage,
                     'fc_plans'        => $site->fc_plans,
@@ -345,8 +350,40 @@ class SiteUpcomingComplianceController extends Controller {
                 ];
             }
         }
+
+        // Search for Sites with Contract Signed
+        $contracts_signed = Site::where('status', '-1')->where('contract_signed', '!=', null)->pluck('id')->toArray();
+        foreach ($contracts_signed as $site_id) {
+            $site = Site::findOrFail($site_id);
+
+            $cc = $cc_stage = null;
+            if ($site->cc) {
+                $cc = $site->cc;
+                $cc_stage = $site->cc_stage;
+            } elseif ($site->construction_rcvd) {
+                $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
+                $cc_stage = 1;
+            }
+            $startdata[] = [
+                'id'              => $site->id,
+                'date'            => '',
+                'code'            => $site->code,
+                'name'            => $site->name,
+                'company'         => '-',
+                'supervisor'      => $site->supervisorsInitialsSBC(),
+                'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
+                'eng'             => ($site->engineering) ? 'Y' : '-',
+                'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                'cc'              => $cc,
+                'cc_stage'        => $cc_stage,
+                'fc_plans'        => $site->fc_plans,
+                'fc_plans_stage'  => $site->fc_plans_stage,
+                'fc_struct'       => $site->fc_struct,
+                'fc_struct_stage' => $site->fc_struct_stage,
+            ];
+        }
+
         //dd($startdata);
-        //var_dump($startdata);
 
         return $startdata;
     }

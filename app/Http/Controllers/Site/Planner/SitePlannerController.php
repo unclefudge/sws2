@@ -1907,7 +1907,7 @@ class SitePlannerController extends Controller {
         $site = Site::find($site_id);
 
         // Move from Pre-construction to Active
-        if ($site->status == - 1 && $status == 1) {
+        if ($site->status == '-1' && $status == 1) {
             $site->status = 1;
             $site->save();
 

@@ -57,7 +57,7 @@ class AddExtentionFieldsToSitesTable extends Migration
         });
 
         Schema::table('sites', function (Blueprint $table) {
-            $table->string('special')->nullable();
+
         });
     }
 

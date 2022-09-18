@@ -140,6 +140,28 @@
         {{-- Notes --}}
         @if (Auth::user()->isCompany($company->reportsTo()))
             <hr class="field-hr">
+            {{-- Planner Abbr --}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('nickname', $errors) !!}">
+                    {!! Form::label('nickname', 'Planner Abbreviation:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="col-md-9">
+                        {!! Form::text('nickname', null, ['class' => 'form-control']) !!}
+                        {!! fieldErrorMessage('nickname', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- Reports Abbr --}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('abbr', $errors) !!}">
+                    {!! Form::label('abbr', 'Report Abbreviation:', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="col-md-9">
+                        {!! Form::text('abbr', null, ['class' => 'form-control']) !!}
+                        {!! fieldErrorMessage('abbr', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
             <div class="row">
                 <div class="form-group {!! fieldHasError('notes', $errors) !!}">
                     {!! Form::label('notes', 'Private Notes:', ['class' => 'col-md-3 control-label']) !!}
