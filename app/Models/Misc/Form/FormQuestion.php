@@ -14,7 +14,7 @@ use Carbon\Carbon;
 
 class FormQuestion extends Model {
 
-    protected $table = 'form_questions';
+    protected $table = 'forms_questions';
     protected $fillable = ['section_id', 'name', 'type', 'type_special', 'type_version', 'order', 'default', 'multiple', 'required',
         'placeholder', 'helper', 'width', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
@@ -26,7 +26,7 @@ class FormQuestion extends Model {
      */
     public function section()
     {
-        return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id');
     }
 
 
@@ -47,7 +47,7 @@ class FormQuestion extends Model {
 
                 return FormOption::find($option_ids)->sortBy('order');
             } else
-                return FormOption::where('question_id', $this->id)->where('status')->sortBy('order');
+                return FormOption::where('question_id', $this->id)->where('status')->orderBy('order')->get();
         }
 
         return null;

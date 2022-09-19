@@ -15,17 +15,20 @@ use Carbon\Carbon;
 
 class FormOption extends Model {
 
-    protected $table = 'form_options';
+    protected $table = 'forms_options';
     protected $fillable = ['question_id', 'text', 'value', 'order', 'colour', 'score', 'group', 'master', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
-     * A FormOption belongs to a FormQuestion
+     * A FormOption 'may' belong to a FormQuestion
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function question()
     {
-        return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id')->get();
+        if ($this->master)
+            return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
+
+        return null;
     }
 
 

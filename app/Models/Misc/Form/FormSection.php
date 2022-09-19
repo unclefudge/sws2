@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 class FormSection extends Model {
 
-    protected $table = 'form_sections';
+    protected $table = 'forms_sections';
     protected $fillable = ['template_id', 'page_id', 'parent', 'name', 'description', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
@@ -23,7 +23,7 @@ class FormSection extends Model {
      */
     public function page()
     {
-        return $this->belongsTo('App\Models\Misc\Form\FormPage', 'page_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormPage', 'page_id');
     }
 
 
@@ -34,7 +34,7 @@ class FormSection extends Model {
      */
     public function questions()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'page_id');
+        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'section_id');
     }
 
 

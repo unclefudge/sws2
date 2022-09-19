@@ -191,7 +191,7 @@ class PagesController extends Controller {
         $mergedPDF->save(public_path('/filebank/tmp/merged_result.pdf'));
 
 */
-
+/*
         echo "<b>Creating Site Extension for Active Sites</b></br>";
 
         $hide_site_code = ['0000', '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '1234', '1235'];
@@ -247,7 +247,7 @@ class PagesController extends Controller {
 
         $ext->createPDF();
 
-
+*/
         /*
         $today = Carbon::today();
         $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
@@ -1687,16 +1687,16 @@ class PagesController extends Controller {
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Reseting Sample Form Template - $now</b></br>";
-        DB::table('form_templates')->truncate();
-        DB::table('form_pages')->truncate();
-        DB::table('form_sections')->truncate();
-        DB::table('form_questions')->truncate();
-        DB::table('form_options')->truncate();
-        DB::table('form_logic')->truncate();
-        DB::table('form')->truncate();
-        DB::table('form_responses')->truncate();
-        DB::table('form_files')->truncate();
-        DB::table('form_actions')->truncate();
+        DB::table('forms_templates')->truncate();
+        DB::table('forms_pages')->truncate();
+        DB::table('forms_sections')->truncate();
+        DB::table('forms_questions')->truncate();
+        DB::table('forms_options')->truncate();
+        DB::table('forms_logic')->truncate();
+        DB::table('forms')->truncate();
+        DB::table('forms_responses')->truncate();
+        DB::table('forms_files')->truncate();
+        DB::table('forms_actions')->truncate();
     }
 
 
@@ -1729,7 +1729,7 @@ class PagesController extends Controller {
         // YNNA
         FormOption::create(['text' => 'Yes', 'value' => 'Yes', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         FormOption::create(['text' => 'No', 'value' => 'No', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        FormOption::create(['text' => 'N/A', 'value' => 'N/A', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['text' => 'N/A', 'value' => 'N/A', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
 
         // Creating Sample Template
@@ -1792,6 +1792,33 @@ class PagesController extends Controller {
         //
         $form = Form::create(['template_id' => 1, 'name' => 'MyForm', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
 
+    }
+
+    //
+    // Show FormTemplate
+    public function showTemplate($id)
+    {
+        $template = FormTemplate::find($id);
+
+        echo "Name: $template->name ($template->description)<br>";
+        echo "P:".$template->pages->count()." S:".$template->sections->count()." Q:".$template->questions->count()."<br>-----------<br><br>";
+
+        foreach ($template->pages as $page) {
+            echo "Page $page->id : $page->name<br>-------------------------------------<br>";
+            foreach ($page->sections as $section) {
+                echo "Section $section->id : $section->name (p:".$section->page->id.")<br>";
+                foreach ($section->questions as $question) {
+                    echo "Q $question->id - $question->name (s:".$question->section->id.") &nbsp; T:$question->type  &nbsp; S:$question->type_special<br>";
+                    if ($question->type == 'select') {
+                        foreach ($question->options() as $opt) {
+                            echo " &nbsp; &nbsp; [$opt->id] T:$opt->text V:$opt->value C:$opt->colour<br>";
+                        }
+                        echo "<br>";
+                    }
+                }
+                echo "<br>";
+            }
+        }
     }
 
 

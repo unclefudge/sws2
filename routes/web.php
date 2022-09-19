@@ -656,6 +656,7 @@ Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance'
 Route::get('manage/import-questions', 'Misc\PagesController@importQuestions');
 Route::get('manage/initform', 'Misc\PagesController@initFormTemplate');
 Route::get('manage/resetform', 'Misc\PagesController@resetFormTemplate');
+Route::get('manage/template/{id}', 'Misc\PagesController@showTemplate');
 
 
 Route::get('test/asbestosreg', 'Misc\PagesController@asbestosRegister');

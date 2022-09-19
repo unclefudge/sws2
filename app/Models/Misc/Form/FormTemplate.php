@@ -13,8 +13,8 @@ use Carbon\Carbon;
 
 class FormTemplate extends Model {
 
-    protected $table = 'form_templates';
-    protected $fillable = ['name', 'description', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $table = 'forms_templates';
+    protected $fillable = ['name', 'description', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /**
      * A FormTemplate has many forms

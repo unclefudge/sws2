@@ -16,7 +16,7 @@ class CreateFormQuestionsTable extends Migration
         //
         // Form questions 'dropdown options'
         //
-        Schema::create('form_questions', function (Blueprint $table) {
+        Schema::create('site_incidents_questions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('type', 50)->nullable();
             $table->string('name', 255)->nullable();
@@ -36,7 +36,7 @@ class CreateFormQuestionsTable extends Migration
         //
         // Responses to questions
         //
-        Schema::create('form_responses', function (Blueprint $table) {
+        Schema::create('site_incidents_responses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('question_id')->unsigned();
             $table->integer('option_id')->unsigned();
@@ -45,7 +45,7 @@ class CreateFormQuestionsTable extends Migration
             $table->text('info')->nullable();
 
             // Foreign keys
-            $table->foreign('question_id')->references('id')->on('form_questions')->onDelete('cascade');
+            $table->foreign('question_id')->references('id')->on('site_incidents_questions')->onDelete('cascade');
 
             $table->timestamps();
         });
@@ -58,7 +58,7 @@ class CreateFormQuestionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('form_responses');
-        Schema::dropIfExists('form_questions');
+        Schema::dropIfExists('site_incidents_responses');
+        Schema::dropIfExists('site_incidents_questions');
     }
 }

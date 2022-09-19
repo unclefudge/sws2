@@ -5,7 +5,7 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><a href="/form">Forms</a><i class="fa fa-circle"></i></li>
         <li><a href="/form/template">Form Templates</a><i class="fa fa-circle"></i></li>
-        <li><span>Edit</span></li>
+        <li><span>Show</span></li>
     </ul>
 @stop
 
@@ -16,7 +16,7 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <span class="caption-subject font-green-haze bold uppercase">Edit Form Template </span>
+                            <span class="caption-subject font-green-haze bold uppercase">Form Template </span>
                             <span class="caption-helper"> - ID: {{ $template->id }}</span>
                         </div>
                     </div>
@@ -44,8 +44,6 @@
                                     </div>
                                 </div>
                             </div>
-
-
 
 
 
@@ -80,6 +78,30 @@
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script>
     $(document).ready(function () {
+        $('#category_id').change(function () {
+            displayFields();
+        });
+
+        $('#subcategory_id').change(function () {
+            displayFields();
+        });
+
+        displayFields();
+
+        function displayFields() {
+            $('#field-subcat').hide()
+            $('#field-length').hide()
+            $('#field-minstock').hide()
+
+            if ($('#category_id').val() == 3) {
+                $('#field-subcat').show();
+                $('#field-length').show();
+            }
+            if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
+                $('#field-minstock').show();
+            }
+        }
+
 
     });
 

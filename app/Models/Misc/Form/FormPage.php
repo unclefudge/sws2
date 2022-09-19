@@ -14,7 +14,7 @@ use Carbon\Carbon;
 
 class FormPage extends Model {
 
-    protected $table = 'form_pages';
+    protected $table = 'forms_pages';
     protected $fillable = ['template_id', 'name', 'description', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
 
@@ -25,7 +25,7 @@ class FormPage extends Model {
      */
     public function template()
     {
-        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id');
     }
 
 
