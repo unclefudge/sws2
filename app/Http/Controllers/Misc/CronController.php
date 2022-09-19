@@ -1030,14 +1030,14 @@ class CronController extends Controller {
 
         $ext->createPDF();
 
+
         if ($ext->sites->count() != $ext->sitesCompleted()->count()) {
-            foreach ($ext->site as $site) {
-                    if (!$site->reasons) {
-                        $superInitials = $site->site->supervisorsInitialsSBC();
-                        if (!in_array($superInitials)
-                    }
-                        $completed[] = $site->id;
-            }
+            /*foreach ($ext->site as $site) {
+                if (!$site->reasons) {
+                    $superInitials = $site->site->supervisorsInitialsSBC();
+                }
+                $completed[] = $site->id;
+            }*/
 
         } elseif (!$ext->approved_by) {
             // Report is complete but yet to be signed.
