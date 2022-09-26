@@ -529,6 +529,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Form Template
     Route::get('form/template/dt/templates', 'Misc\Form\FormTemplateController@getTemplates');
+    Route::get('form/template/data/template/{template_id}', 'Misc\Form\FormTemplateController@getTemplate');
     Route::resource('form/template', 'Misc\Form\FormTemplateController');
 
     // Form Template

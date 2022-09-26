@@ -129,6 +129,24 @@ class FormTemplateController extends Controller {
         return redirect('site/scaffold/handover');
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTemplate($id)
+    {
+
+        $template = FormTemplate::findOrFail($id);
+
+        $json = [];
+        $json[] = $template;
+        $json[] = $template->pages;
+        $json[] = $template->sections;
+
+        return $json;
+    }
+
 
     /**
      * Get Templates current user is authorised to manage + Process datatables ajax request.
