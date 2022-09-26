@@ -331,7 +331,7 @@ class SiteUpcomingComplianceController extends Controller {
                     $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
                     $cc_stage = 1;
                 }
-                /*$startdata[] = [
+                $startdata[] = [
                     'id'              => $site->id,
                     'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
                     'code'            => $site->code,
@@ -347,7 +347,7 @@ class SiteUpcomingComplianceController extends Controller {
                     'fc_plans_stage'  => $site->fc_plans_stage,
                     'fc_struct'       => $site->fc_struct,
                     'fc_struct_stage' => $site->fc_struct_stage,
-                ];*/
+                ];
             }
         }
 
@@ -355,7 +355,7 @@ class SiteUpcomingComplianceController extends Controller {
 
         // Search for Sites with Contract Signed
         $contracts_signed = Site::where('status', '-1')->where('contract_signed', '!=', null)->where('company_id', 3)->pluck('id')->toArray();
-        var_dump($contracts_signed);
+        //var_dump($contracts_signed);
         foreach ($contracts_signed as $site_id) {
             $site = Site::findOrFail($site_id);
 
@@ -386,7 +386,7 @@ class SiteUpcomingComplianceController extends Controller {
             ];
         }
 
-        dd($startdata);
+        //dd($startdata);
 
         return $startdata;
     }
