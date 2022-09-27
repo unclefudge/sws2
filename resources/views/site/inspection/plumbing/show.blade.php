@@ -36,7 +36,7 @@
                             {!! Form::model($report, ['method' => 'POST', 'action' => ['Site\SiteInspectionPlumbingController@signoff', $report->id], 'class' => 'horizontal-form']) !!}
 
                             <div class="row">
-                                <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->code }} - {{ $report->site->name }}</h3></div>
+                                <div class="col-md-6"><h3 style="margin: 0px"> {{ $report->site->name }}</h3></div>
                                 <div class="col-md-6">
                                     <h2 style="margin: 0px; padding-right: 20px">
                                         @if($report->status == '0')

@@ -32,7 +32,20 @@ class SiteInspectionPlumbingReport extends Mailable implements ShouldQueue {
      */
     public function build()
     {
+        $email = $this->markdown('emails/site/inspection-plumbing-report')->subject('SafeWorksite - Plumbing Inspection Report');
+
+        // Attachments - Report
         if ($this->file_attachment && file_exists($this->file_attachment))
-            return $this->markdown('emails/site/inspection-plumbing-report')->subject('SafeWorksite - Plumbing Inspection Report')->attach($this->file_attachment);
+            $email->attach($this->file_attachment);
+
+        // Attachments - Uploaded by Plumber
+        $inspected_by = $this->report->inspected_by; // Plumbers user_id
+        if ($this->report->docs()->count()) {
+            foreach ($this->report->docs() as $doc) {
+                if ($doc->created_by == $inspected_by && file_exists(public_path($doc->attachment_url)))
+                    $email->attach(public_path($doc->attachment_url));
+            }
+        }
+        return $email;
     }
 }
