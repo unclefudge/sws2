@@ -10,6 +10,8 @@ use PDF;
 use Mail;
 use Session;
 use App\Models\Misc\Form\FormTemplate;
+use App\Models\Misc\Form\FormPage;
+use App\Models\Misc\Form\FormSection;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -123,26 +125,150 @@ class FormTemplateController extends Controller {
      */
     public function update($id)
     {
+        $template = FormTemplate::findOrFail($id);
 
-        Toastr::success("Submitted certificate");
+        dd($template);
+        Toastr::success("Template saved");
 
         return redirect('site/scaffold/handover');
     }
 
+
     /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
+     * Save Custom Template
+     */
+    public function saveTemplate()
+    {
+        //dd(request()->all());
+        $custom_form = request('custom_form');
+        if ($custom_form) {
+            $template = FormTemplate::findOrFail($custom_form['id']);
+
+            if ($template) {
+                // Update Template
+                $template->name = $custom_form['name'];
+                $template->description = $custom_form['description'];
+                $template->save();
+
+                // Save Pages
+                $pages = $custom_form['pages'];
+                for ($i=0; $i < count($pages); $i++) {
+                    if ($pages[$i]['id'] != 'new') {
+                        $page = FormPage::findOrFail($pages[$i]['id']);
+                        if ($page) {
+                            // Update existing Page
+                            $page->name = $pages[$i]['name'];
+                            $page->description = $pages[$i]['description'];
+                            $page->order = $pages[$i]['order'];
+                            $page->save();
+                        }
+                    } else {
+                        // Create new Page
+                    }
+
+                    // Save Sections
+                    $sections = $pages[$i]['sections'];
+                    for ($i=0; $i < count($sections); $i++) {
+                        if ($sections[$i]['id'] != 'new') {
+                            $section = FormSection::findOrFail($sections[$i]['id']);
+                            if ($section) {
+                                // Update existing Section
+                                $section->page_id = $page->id;
+                                $section->name = $sections[$i]['name'];
+                                $section->description = $sections[$i]['description'];
+                                $section->order = $sections[$i]['order'];
+                                $section->save();
+                            }
+                        } else {
+                            // Create new Section
+                        }
+                    }
+                }
+            }
+        }
+
+        Toastr::success("Template saved");
+        return response()->json(['status' => 'ok', 'success' => true,], 200);
+        //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
+        //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
+    }
+
+    /**
+     * Get Custom Template
      */
     public function getTemplate($id)
     {
 
         $template = FormTemplate::findOrFail($id);
+        //$pages = $template->pages;
+        //return ($pages);
 
-        $json = [];
-        $json[] = $template;
-        $json[] = $template->pages;
-        $json[] = $template->sections;
+        $pages = [];
+
+
+        // Create Template Object
+        $template_obj = new \stdClass();
+        $template_obj->id = $template->id;
+        $template_obj->name = $template->name;
+        $template_obj->description = $template->description;
+
+        // Add Pages
+        $template_obj->pages = [];
+        foreach($template->pages as $page) {
+            // Create page Object
+            $page_obj = new \stdClass();
+            $page_obj->id = $page->id;
+            $page_obj->name = $page->name;
+            $page_obj->description = $page->description;
+            $page_obj->order = $page->order;
+
+            // Add Sections
+            $page_obj->sections = [];
+            foreach($page->sections as $section) {
+                // Create Section Object
+                $section_obj = new \stdClass();
+                $section_obj->id = $section->id;
+                $section_obj->name = $section->name;
+                $section_obj->description = $section->description;
+                $section_obj->order = $section->order;
+
+                // Add Questions
+                $section_obj->questions = [];
+                foreach($section->questions as $question) {
+                    // Create Question Object
+                    $question_obj = new \stdClass();
+                    $question_obj->id = $question->id;
+                    $question_obj->name = $question->name;
+                    $question_obj->type = $question->type;
+                    $question_obj->type_special = $question->type_special;
+                    $question_obj->type_version = $question->type_version;
+                    $question_obj->order = $question->order;
+                    $question_obj->default = $question->default;
+                    $question_obj->multiple = $question->multiple;
+                    $question_obj->required = $question->required;
+                    $question_obj->placeholder = $question->placeholder;
+                    $question_obj->helper = $question->helper;
+                    $question_obj->width = $question->width;
+
+                    // Add Question Object to Section
+                    $section_obj->questions[] = $question_obj;
+
+                }
+
+                // Add Section Object to Page
+                $page_obj->sections[] = $section_obj;
+            }
+
+            // Add Page Object to Template
+            $template_obj->pages[] = $page_obj;
+        }
+
+        $json[] = $template_obj;
+
+        //$json = [];
+        //$json[] = $template;
+        //$json[] = $pages;
+        //$json[] = $template->sections;
 
         return $json;
     }

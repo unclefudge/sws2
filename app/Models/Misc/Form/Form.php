@@ -25,7 +25,17 @@ class Form extends Model {
      */
     public function template()
     {
-        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id')->get();
+        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id');
+    }
+
+    /**
+     * A Form has many responses
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function responses()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormResponse',  'form_id',);
     }
 
 

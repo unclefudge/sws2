@@ -285,6 +285,23 @@ class SiteInspectionElectricalController extends Controller {
                 // Email completed notification
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
+
+
+                // Email completed PDF to Trade
+                $site = Site::findOrFail($report->site_id);
+                $pdf = PDF::loadView('pdf/site/inspection-electrical', compact('report', 'site'))->setPaper('a4');
+                $file = public_path("filebank/tmp/$site->name - Electrical Inspection Report.pdf");
+                if (file_exists($file))
+                    unlink($file);
+                $pdf->save($file);
+
+                // Trade who completed report
+                $email_list = [env('EMAIL_DEV')];
+                $company = Company::find($report->assigned_to);
+                if (\App::environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
+                    $email_list = [$company->primary_contact()->email];
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReportTrade($report, $file));
+
                 Toastr::success("Report Signed Off");
 
                 //dd($email_list);

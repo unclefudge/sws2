@@ -160,6 +160,7 @@ class CreateFormTables extends Migration
         Schema::create('forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('template_id')->unsigned();
+            $table->integer('site_id')->unsigned()->nullable();
             $table->string('name', 255)->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
@@ -178,7 +179,7 @@ class CreateFormTables extends Migration
             $table->increments('id');
             $table->integer('form_id')->unsigned();
             $table->integer('question_id')->unsigned();
-            $table->integer('option_id')->unsigned();
+            $table->integer('option_id')->unsigned()->nullable();
             $table->text('value')->nullable();
             $table->tinyInteger('status')->default(1);
 

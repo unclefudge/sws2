@@ -21,5 +21,17 @@ export default {
     },
 
     methods: {
+        activeField(field) {
+            return (field == this.active_field) ? true : false;
+        },
+        editfield(field) {
+            this.$emit('editfield', field);
+        }
     },
+    events: {
+        /*nameOfCustomEventToCall: function (event) {
+         // do something - probably hide the dropdown menu / modal etc.
+         alert('clicked out');
+         }*/
+    }
 }

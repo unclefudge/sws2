@@ -86,10 +86,7 @@
         },
         columns: [
             {data: 'view', name: 'view', orderable: false, searchable: false},
-            //{data: 'code', name: 'sites.code'},
             {data: 'sitename', name: 'sites.name'},
-            //{data: 'sitename', name: 'sites.name'},
-            //{data: 'sitename', name: 'sites.name'},
             {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
             {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
         ],

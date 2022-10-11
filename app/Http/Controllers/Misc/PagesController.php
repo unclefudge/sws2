@@ -1733,48 +1733,46 @@ class PagesController extends Controller {
 
 
         // Creating Sample Template
-        $template = FormTemplate::create(['name' => 'Template1', 'description' => 'brief description', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
+        $template = FormTemplate::create(['name' => 'Safety In Design Checklist', 'description' => 'The following criteria is to be established in order to prompt identification of potential hazards related to the existing conditions of a project and those arising from the associated proposed design and contract works. All identified hazards must be captured within the site-specific risk assessment. ', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
 
         // Pages 3
-        for ($i = 1; $i < 4; $i ++)
-            $template->pages()->save(new FormPage(['name' => "Page$i", 'description' => "page $i", 'order' => $i, 'created_by' => 3, 'updated_by' => 3]));
+        //for ($i = 1; $i < 4; $i ++)
+        //    $template->pages()->save(new FormPage(['name' => "Page$i", 'description' => "page $i", 'order' => $i, 'created_by' => 3, 'updated_by' => 3]));
 
         //
         // Page 1
         //
-        $page1 = $template->pages->where('order', 1)->first();
+        $page1 = FormPage::create(['template_id' => $template->id, 'name' => "Title Page", 'description' => '', 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
         // Sections
         $page1->sections()->save(new FormSection(['parent' => null, 'name' => "Section 1a", 'description' => "section 1a", 'order' => 1, 'created_by' => 3, 'updated_by' => 3]));
-        $page1->sections()->save(new FormSection(['parent' => null, 'name' => "Section 1b", 'description' => "section 1b", 'order' => 2, 'created_by' => 3, 'updated_by' => 3]));
+        //$page1->sections()->save(new FormSection(['parent' => null, 'name' => "Section 1b", 'description' => "section 1b", 'order' => 2, 'created_by' => 3, 'updated_by' => 3]));
 
         // Questions - Page 1 / Section 1
         $section1 = $template->sections->where('order', 1)->first();
         $question1 = FormQuestion::create(
-            ['section_id' => $section1->id, 'name' => "Question1", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            ['section_id' => $section1->id, 'name' => "Site conducted", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
              'order'      => 1, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question2 = FormQuestion::create(
-            ['section_id' => $section1->id, 'name' => "Question2", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            ['section_id' => $section1->id, 'name' => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
              'order'      => 2, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
-
-        // Questions - Page 1 / Section 2
-        $section2 = $template->sections->where('order', 2)->first();
         $question3 = FormQuestion::create(
-            ['section_id' => $section2->id, 'name' => "Question3", 'type' => "select", 'type_special' => 'CONN', 'type_version' => 'bs-select',
-             'order'      => 1, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        $question4 = FormQuestion::create(
-            ['section_id' => $section2->id, 'name' => "Question4", 'type' => "select", 'type_special' => 'YN', 'type_version' => 'bs-select',
-             'order'      => 2, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        $question5 = FormQuestion::create(
-            ['section_id' => $section2->id, 'name' => "Question5", 'type' => "select", 'type_special' => 'YrN', 'type_version' => 'bs-select',
+            ['section_id' => $section1->id, 'name' => "Prepared by", 'type' => "select", 'type_special' => 'user', 'type_version' => 'select2',
              'order'      => 3, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        $question6 = FormQuestion::create(
-            ['section_id' => $section2->id, 'name' => "Question6", 'type' => "select", 'type_special' => 'YNNA', 'type_version' => 'bs-select',
+        $question4 = FormQuestion::create(
+            ['section_id' => $section1->id, 'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
              'order'      => 4, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+        $question5 = FormQuestion::create(
+            ['section_id' => $section1->id, 'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'      => 5, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+        $question6 = FormQuestion::create(
+            ['section_id' => $section1->id, 'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'      => 6, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
 
         //
         // Page 2
         //
+        /*
         $page2 = $template->pages->where('order', 2)->first();
         $page2->sections()->save(new FormSection(['parent' => null, 'name' => "Section 2a", 'description' => "section 2a", 'order' => 3, 'created_by' => 3, 'updated_by' => 3]));
         $section3 = FormSection::where('order', 3)->first();
@@ -1785,6 +1783,7 @@ class PagesController extends Controller {
         $question8 = FormQuestion::create(
             ['section_id' => $section3->id, 'name' => "Question8", 'type' => "select", 'type_special' => null, 'type_version' => 'bs-select',
              'order'      => 2, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+        */
 
 
         //

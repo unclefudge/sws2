@@ -9,8 +9,12 @@ use DB;
 use PDF;
 use Mail;
 use Session;
-use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormTemplate;
+use App\Models\Misc\Form\Form;
+use App\Models\Misc\Form\FormPage;
+use App\Models\Misc\Form\FormSection;
+use App\Models\Misc\Form\FormQuestion;
+use App\Models\Misc\Form\FormResponse;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -36,7 +40,7 @@ class FormController extends Controller {
         //if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
         //    return view('errors/404');
 
-        return view('misc/form/list');
+        return view('site/inspection/custom/list');
     }
 
     /**
@@ -80,25 +84,7 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('add.site.scaffold.handover'))
         //    return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'location' => 'required', 'use' => 'required', 'duty' => 'required', 'decks' => 'required'];
-        $mesg = [
-            'site_id.required'  => 'The site field is required.',
-            'location.required' => 'The location field is required.',
-            'use.required'      => 'The intended use field is required.',
-            'duty.required'     => 'The duty classification field is required.',
-            'decks.required'    => 'The no. of decks field is required.',
-        ];
-        request()->validate($rules, $mesg); // Validate
-
-        $report_request = request()->all();
-        $report_request['status'] = 2;
-        //dd($report_request);
-
-        // Create Report
-        $report = SiteScaffoldHandover::create($report_request);
-        Toastr::success("Created certificate");
-
-        return redirect('/site/scaffold/handover/' . $report->id . '/edit');
+        //return redirect('/misc/form/' . $form->id . /edit);
     }
 
     /**
@@ -114,7 +100,7 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
         //    return view('errors/404');
 
-        return view('/misc/form/show', compact('report'));
+        return view('/site/inspection/custom/show', compact('form'));
     }
 
 
@@ -125,7 +111,7 @@ class FormController extends Controller {
      */
     public function update($id)
     {
-        $report = SiteScaffoldHandover::findOrFail($id);
+        /*$report = SiteScaffoldHandover::findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
@@ -140,64 +126,190 @@ class FormController extends Controller {
 
         Toastr::success("Submitted certificate");
 
-        return redirect('site/scaffold/handover');
+        return redirect('site/scaffold/handover');*/
+    }
+
+    /**
+     * Save the Custom Form.
+     */
+    public function saveForm()
+    {
+        //dd(request()->all());
+        $custom_form = request('custom_form');
+        if ($custom_form) {
+            $template = FormTemplate::findOrFail($custom_form['id']);
+
+            if ($template) {
+                // Update Template
+                $template->name = $custom_form['name'];
+                $template->description = $custom_form['description'];
+                $template->save();
+
+                // Save Pages
+                $pages = $custom_form['pages'];
+                for ($i=0; $i < count($pages); $i++) {
+                    if ($pages[$i]['id'] != 'new') {
+                        $page = FormPage::findOrFail($pages[$i]['id']);
+                        if ($page) {
+                            // Update existing Page
+                            $page->name = $pages[$i]['name'];
+                            $page->description = $pages[$i]['description'];
+                            $page->order = $pages[$i]['order'];
+                            $page->save();
+                        }
+                    } else {
+                        // Create new Page
+                    }
+
+                    // Save Sections
+                    $sections = $pages[$i]['sections'];
+                    for ($i=0; $i < count($sections); $i++) {
+                        if ($sections[$i]['id'] != 'new') {
+                            $section = FormSection::findOrFail($sections[$i]['id']);
+                            if ($section) {
+                                // Update existing Section
+                                $section->page_id = $page->id;
+                                $section->name = $sections[$i]['name'];
+                                $section->description = $sections[$i]['description'];
+                                $section->order = $sections[$i]['order'];
+                                $section->save();
+                            }
+                        } else {
+                            // Create new Section
+                        }
+                    }
+                }
+            }
+        }
+
+        Toastr::success("Template saved");
+        return response()->json(['status' => 'ok', 'success' => true,], 200);
+        //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
+        //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
     }
 
 
     /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
+     * Get Custom Form
      */
-    public function uploadAttachment()
+    public function getForm($id)
     {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.scaffold.handover') || Auth::user()->allowed2('edit.site.scaffold.handover', $report)))
-        //    return json_encode("failed");
 
-        //dd(request()->all());
-        // Handle file upload
-        $files = request()->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . request('site_id') . '/scaffold';
-            $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+        $form = Form::findOrFail($id);
+        $template = FormTemplate::findOrFail($form->template_id);
+        //$pages = $template->pages;
+        //return ($pages);
 
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
+        $pages = [];
 
-            $doc_request['scaffold_id'] = request('report_id');
-            $doc_request['category'] = request('category');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['attachment'] = $name;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
 
-            // Create SiteScaffoldHandoverDoc
-            $doc = SiteScaffoldHandoverDoc::create($doc_request);
+        // Create Template Object
+        $template_obj = new \stdClass();
+        $template_obj->id = $template->id;
+        $template_obj->name = $template->name;
+        $template_obj->description = $template->description;
+
+        // Add Pages
+        $template_obj->pages = [];
+        foreach($template->pages as $page) {
+            // Create page Object
+            $page_obj = new \stdClass();
+            $page_obj->id = $page->id;
+            $page_obj->name = $page->name;
+            $page_obj->description = $page->description;
+            $page_obj->order = $page->order;
+
+            // Add Sections
+            $page_obj->sections = [];
+            foreach($page->sections as $section) {
+                // Create Section Object
+                $section_obj = new \stdClass();
+                $section_obj->id = $section->id;
+                $section_obj->name = $section->name;
+                $section_obj->description = $section->description;
+                $section_obj->order = $section->order;
+
+                // Add Questions
+                $section_obj->questions = [];
+                foreach($section->questions as $question) {
+                    // Create Question Object
+                    $question_obj = new \stdClass();
+                    $question_obj->id = $question->id;
+                    $question_obj->name = $question->name;
+                    $question_obj->type = $question->type;
+
+                    // Get Response if exists
+                    $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->where('status', 1)->first();
+                    if ($response) {
+                        $question_obj->response_value = $response->value;
+                        $question_obj->response_option = $response->option_id;
+                    } else {
+                        $question_obj->response_value = null;
+                        $question_obj->response_option = null;
+                    }
+
+                    $question_obj->type_special = $question->type_special;
+                    $question_obj->type_version = $question->type_version;
+                    $question_obj->order = $question->order;
+                    $question_obj->default = $question->default;
+                    $question_obj->multiple = $question->multiple;
+                    $question_obj->required = $question->required;
+                    $question_obj->placeholder = $question->placeholder;
+                    $question_obj->helper = $question->helper;
+                    $question_obj->width = $question->width;
+
+
+                    // Add Question Object to Section
+                    $section_obj->questions[] = $question_obj;
+                }
+                // Add Section Object to Page
+                $page_obj->sections[] = $section_obj;
+            }
+            // Add Page Object to Template
+            $template_obj->pages[] = $page_obj;
         }
 
-        return json_encode("success");
+        // Get Form Responses
+        $responses = $form->responses;
+
+
+        $json[] = $template_obj;
+        $json[] = $responses;
+
+
+        //$json = [];
+        //$json[] = $template;
+        //$json[] = $pages;
+        //$json[] = $template->sections;
+
+        return $json;
     }
+
 
 
     /**
      * Get Templates current user is authorised to manage + Process datatables ajax request.
      */
-    public function getTemplates()
+    public function getSafetyDesignForms()
     {
-        $records = DB::table('form_templates')
-            ->select(['id', 'name', 'description', 'company_id', 'status', 'updated_at'])
-            ->where('company_id', Auth::user()->company_id)
-            ->where('status', 1);
+        $records = Form::select([
+            'forms.id', 'forms.template_id', 'forms.site_id', 'forms.name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
+            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate'),
+            DB::raw('sites.name AS sitename')])
+            ->join('sites', 'forms.site_id', '=', 'sites.id')
+            ->where('forms.template_id', 1)
+            ->where('forms.company_id', Auth::user()->company_id)
+            ->where('forms.status', 1);
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/form/template/{{$id}}"><i class="fa fa-search"></i></a></div>')
-            ->addColumn('action', function ($rec) {
-                return '<a href="/form/template/' . $rec->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+            ->addColumn('view', function ($report) {
+                return ('<div class="text-center"><a href="/site/inspection/custom/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action'])
+            ->addColumn('action', function ($rec) {
+                return '<a href="/site/inspection/custom/' . $rec->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+            })
+            ->rawColumns(['view', 'name', 'updated_at', 'created_at', 'action'])
             ->make(true);
 
         return $dt;

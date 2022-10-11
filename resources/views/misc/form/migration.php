@@ -13,13 +13,14 @@ class CreateFormTables extends Migration
      */
     public function up()
     {
-        /* Template */
-        Schema::create('form_templates', function (Blueprint $table) {
+        //
+        // Form Template
+        //
+        Schema::create('forms_templates', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
             $table->text('notes')->nullable();
-            $table->tinyInteger('master')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->integer('company_id')->unsigned()->nullable();
 
@@ -29,15 +30,20 @@ class CreateFormTables extends Migration
             $table->timestamps();
         });
 
-        /* Template - Page */
-        Schema::create('form_pages', function (Blueprint $table) {
+        //
+        // Form Pages
+        //
+        Schema::create('forms_pages', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('template_id')->unsigned();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
-            $table->tinyInteger('order')->unsigned()->nullable();
+            $table->integer('order')->unsigned()->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
+
+            // Foreign keys
+            //$table->foreign('template_id')->references('id')->on('forms_templates')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -45,18 +51,22 @@ class CreateFormTables extends Migration
             $table->timestamps();
         });
 
-        /* Template - Section */
-        Schema::create('form_sections', function (Blueprint $table) {
+        //
+        // Form Sections
+        //
+        Schema::create('forms_sections', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('template_id')->unsigned();
+            //$table->integer('template_id')->unsigned();
             $table->integer('page_id')->unsigned();
-            $table->integer('parent')->unsigned()->nullable();
+            $table->integer('parent')->nullable();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
-            $table->tinyInteger('order')->unsigned()->nullable();
+            $table->integer('order')->unsigned()->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
+            // Foreign keys
+            //$table->foreign('page_id')->references('id')->on('forms_pages')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -65,44 +75,55 @@ class CreateFormTables extends Migration
         });
 
 
-        /* Template - Question */
-        Schema::create('form_questions', function (Blueprint $table) {
+        //
+        // Form Questions
+        //
+        Schema::create('forms_questions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('template_id')->unsigned();
-            $table->integer('page_id')->unsigned();
+            //$table->integer('template_id')->unsigned();
+            //$table->integer('page_id')->unsigned();
             $table->integer('section_id')->unsigned();
             $table->string('name', 255)->nullable();
             $table->string('type', 50)->nullable();
             $table->string('type_special', 50)->nullable();
             $table->string('type_version', 50)->nullable();
-            $table->tinyInteger('order')->unsigned()->nullable();
+            $table->integer('order')->unsigned()->nullable();
             $table->string('default', 255)->nullable();
             $table->tinyInteger('multiple')->nullable();
             $table->tinyInteger('required')->nullable();
             $table->string('placeholder', 255)->nullable();
             $table->text('helper')->nullable();
-            $table->tinyInteger('width')->default(100);
+            $table->string('width', 25)->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
+            // Foreign keys
+            //$table->foreign('section_id')->references('id')->on('forms_sections')->onDelete('cascade');
+
             // Modify info
             $table->integer('created_by')->unsigned();
             $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
 
-        /* Template - Question Option */
-        Schema::create('form_options', function (Blueprint $table) {
+
+        //
+        // Form Options
+        //
+        Schema::create('forms_options', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('question_id')->unsigned()->nullable();
+            $table->integer('question_id')->unsigned();
             $table->string('text', 255)->nullable();
             $table->string('value', 255)->nullable();
-            $table->tinyInteger('order')->unsigned()->nullable();
+            $table->integer('order')->unsigned()->nullable();
             $table->string('colour', 25)->nullable();
             $table->integer('score')->nullable();
             $table->string('group', 255)->nullable();
-            $table->tinyInteger('master')->nullable();
+            $table->tinyInteger('master')->default(1);
             $table->tinyInteger('status')->default(1);
+
+            // Foreign keys
+            //$table->foreign('question_id')->references('id')->on('forms_questions')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -110,8 +131,11 @@ class CreateFormTables extends Migration
             $table->timestamps();
         });
 
-        /* Template - Logic */
-        Schema::create('form_logic', function (Blueprint $table) {
+
+        //
+        // Form Logic
+        //
+        Schema::create('forms_logic', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('template_id')->unsigned();
             $table->integer('page_id')->unsigned();
@@ -123,43 +147,41 @@ class CreateFormTables extends Migration
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
-            // Foreign keys
-            //$table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
-
             // Modify info
             $table->integer('created_by')->unsigned();
             $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
 
-        /* Form */
+
+        //
+        // Form
+        //
         Schema::create('forms', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('template_id')->unsigned();
+            $table->integer('site_id')->unsigned()->nullable();
             $table->string('name', 255)->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->integer('company_id')->unsigned()->nullable();
 
-            // Foreign keys
-            //$table->foreign('template_id')->references('id')->on('form_templates')->onDelete('cascade');
-
             // Modify info
             $table->integer('created_by')->unsigned();
             $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
 
-        /* Form - Responses*/
-        Schema::create('form_responses', function (Blueprint $table) {
+        //
+        // Form Responses
+        //
+        Schema::create('forms_responses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id')->unsigned();
-            $table->integer('question_id')->unsigned()->nullable();
-            $table->integer('option_id')->unsigned()->nullable();
+            $table->integer('question_id')->unsigned();
+            $table->integer('option_id')->unsigned();
             $table->text('value')->nullable();
-
-            // Foreign keys
-            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            $table->tinyInteger('status')->default(1);
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -167,19 +189,21 @@ class CreateFormTables extends Migration
             $table->timestamps();
         });
 
-        /* Form - File */
-        Schema::create('form_files', function (Blueprint $table) {
+        //
+        // Form Files
+        //
+        Schema::create('forms_files', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id')->unsigned();
-            $table->string('type', 255)->nullable();
-            $table->string('category', 255)->nullable();
+            $table->string('type', 50)->nullable();
             $table->string('name', 255)->nullable();
             $table->string('attachment', 255)->nullable();
-            $table->tinyInteger('order')->unsigned()->nullable();
+            $table->integer('order')->nullable();
             $table->text('notes')->nullable();
+            $table->tinyInteger('status')->default(1);
 
             // Foreign keys
-            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            //$table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -187,18 +211,21 @@ class CreateFormTables extends Migration
             $table->timestamps();
         });
 
-        /* Form - Actions */
-        Schema::create('form_actions', function (Blueprint $table) {
+        //
+        // Form Actions
+        //
+        Schema::create('forms_actions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id')->unsigned();
-            $table->integer('question_id')->unsigned()->nullable();
-            $table->integer('todo_id')->unsigned()->nullable();
+            $table->integer('question_id')->unsigned();
+            $table->integer('todo_id')->unsigned();
             $table->text('action')->nullable();
             $table->string('attachment', 255)->nullable();
             $table->text('notes')->nullable();
+            $table->tinyInteger('status')->default(1);
 
             // Foreign keys
-            //$table->foreign('form_id')->references('id')->on('form')->onDelete('cascade');
+            //$table->foreign('form_id')->references('id')->on('forms')->onDelete('cascade');
 
             // Modify info
             $table->integer('created_by')->unsigned();
@@ -214,15 +241,15 @@ class CreateFormTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('form_actions');
-        Schema::dropIfExists('form_files');
-        Schema::dropIfExists('form_responses');
+        Schema::dropIfExists('forms_actions');
+        Schema::dropIfExists('forms_files');
+        Schema::dropIfExists('forms_responses');
         Schema::dropIfExists('forms');
-        Schema::dropIfExists('form_logic');
-        Schema::dropIfExists('form_options');
-        Schema::dropIfExists('form_questions');
-        Schema::dropIfExists('form_sections');
-        Schema::dropIfExists('form_pages');
-        Schema::dropIfExists('form_templates');
+        Schema::dropIfExists('forms_logic');
+        Schema::dropIfExists('forms_options');
+        Schema::dropIfExists('forms_questions');
+        Schema::dropIfExists('forms_sections');
+        Schema::dropIfExists('forms_pages');
+        Schema::dropIfExists('forms_templates');
     }
 }

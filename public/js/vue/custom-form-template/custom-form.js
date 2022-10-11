@@ -13,7 +13,6 @@ export default {
             active_page: 1,
             active_field: '',
             custom_form: [],
-            responses: [],
         }
     },
     created() {
@@ -27,9 +26,7 @@ export default {
                 //console.log(page);
                 return page;
             }
-            return null;
-            //var page = {name: 'loading'};
-            //return page; //page;
+            return null; //page;
         },
         activeSections() {
             if (this.custom_form.sections) {
@@ -44,9 +41,8 @@ export default {
             // Get template data
             setTimeout(function () {
                 this.loading = true;
-                $.getJSON('/form/data/form/1', function (data) {
+                $.getJSON('/form/template/data/template/1', function (data) {
                     this.custom_form = data[0];
-                    this.responses = data[1];
                     this.loading = false;
                     //console.log(data[1]);
 
