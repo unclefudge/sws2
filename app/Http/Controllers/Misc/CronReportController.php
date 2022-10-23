@@ -55,6 +55,7 @@ class CronReportController extends Controller {
         if (Carbon::today()->isMonday()) {
             CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
+            CronReportController::emailMissingCompanyInfo();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -80,7 +81,6 @@ class CronReportController extends Controller {
         $first_tues = new Carbon('first tuesday of this month');
         if (Carbon::today()->isSameDay($first_tues)) {
             CronReportController::emailOldUsers();
-            CronReportController::emailMissingCompanyInfo();
         }
 
         // Monthly last Friday of the month
