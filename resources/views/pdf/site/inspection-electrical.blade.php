@@ -76,9 +76,7 @@
 <footer>
     <div class="pagenum-container">
         <div class="row" style="padding: 2px 5px 0px 20px">
-            <div class="col-xs-12">
-                <b>If you wish to proceed with the above works, please send a reply email to construct@capecod.com.au to authorise your acceptance.</b>
-            </div>
+            <div class="col-xs-12"></div>
         </div>
     </div>
 </footer>
