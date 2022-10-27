@@ -89,7 +89,7 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.extension'))
             return view('errors/404');
 
-        $extensions = SiteExtension::where('status', 0)->orderBy('date')->get();
+        $extensions = SiteExtension::where('status', 0)->orderBy('date', 'desc')->get();
 
         return view('site/extension/past', compact('extensions'));
     }
