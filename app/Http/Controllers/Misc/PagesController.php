@@ -1743,36 +1743,36 @@ class PagesController extends Controller {
         $pid = $page->id;
 
         // Questions - Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 1, 'parent' => null, 'name' => "Section 1a", 'description' => "section 1a", 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 1a", 'description' => "section 1a", 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Site conducted", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Site conducted", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Prepared by", 'type' => "select", 'type_special' => 'user', 'type_version' => 'select2',
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Prepared by", 'type' => "select", 'type_special' => 'user', 'type_version' => 'select2',
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Contributions by:", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 0, 'created_by' => 3, 'updated_by' => 3]);
 
         //
         // Page 2
@@ -1781,32 +1781,32 @@ class PagesController extends Controller {
         $pid = $page->id;
 
         // Questions - Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 2, 'parent' => null, 'name' => "Section 2a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 2a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Existing structure", 'type' => "media", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Existing structure", 'type' => "media", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Estimated age", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Estimated age", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Type of construction", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Type of construction", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "External Cladding", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "External Cladding", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Roof", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Roof", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Orientation", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Orientation", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
 
         //
@@ -1816,70 +1816,113 @@ class PagesController extends Controller {
         $pid = $page->id;
 
         // Questions -  Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 3, 'parent' => null, 'name' => "Section 3a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 3a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Orientation", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Orientation", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Construction materials", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Construction materials", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
         //
         // Page 4
         //
         $page = FormPage::create(['template_id' => $template->id, 'name' => "Proximity to Adjacent Properties and Infrastructure", 'description' => '', 'order' => 4, 'created_by' => 3, 'updated_by' => 3]);
+        $pid = $page->id;
+
+        // Questions -  Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 4a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $sid = $section->id;
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Property has or is adjacent to battle axe/right of way?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Are there any recreational facilities that exist nearby, such as parks, playgrounds, sporting fields?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Are there any public or government facilities nearby, such as schools, bus stops, recreational centres or community centres?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Are pedestrian paths/walkways in proximity to the property?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Is the site address positioned on or affected by a corner?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $question = FormQuestion::create(
+            ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+             'name'        => "Is the site address positioned on or affected by a busy or main road?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+
+
+        //
+        // Page 5
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Project Position and Conditions", 'description' => '', 'order' => 5, 'created_by' => 3, 'updated_by' => 3]);
+        $pid = $page->id;
 
         // Questions - Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 4, 'parent' => null, 'name' => "Section 4a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 5a", 'description' => null, 'order' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Is the Client to reside in the home for the entirety of the construction, or portion of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Is the Client to reside in the home for the entirety of the construction, or portion of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Is a power supply outlet fitted to the electrical meter board (\"Builder's power\")", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Is a power supply outlet fitted to the electrical meter board (\"Builder's power\")", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Does the Client have any animals or pets residing on, or likely to be residing on the property at the time of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Does the Client have any animals or pets residing on, or likely to be residing on the property at the time of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
         // Questions - Section 2
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 4, 'parent' => null, 'name' => "Section 4b", 'description' => null, 'order' => 2, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 5b", 'description' => null, 'order' => 2, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more pet(s)', 'created_by' => 3, 'updated_by' => 3]);
+        // Add Options
+        FormOption::create(['question_id' => $question->id, 'text' => 'Dog(s)', 'value' => 'Dog(s)', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Cat(s)', 'value' => 'Cat(s)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Pet Bird(s)', 'value' => 'Pet Bird(s)', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Livestock', 'value' => 'Livestock', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Horse(s)', 'value' => 'Horse(s)', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "What is the confinement or restraint practices available to control the risk of loss of pets or potential injury caused by interaction?", 'type' => "text", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "What is the confinement or restraint practices available to control the risk of loss of pets or potential injury caused by interaction?", 'type' => "text", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
         // Questions - Section 3
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => 4, 'parent' => null, 'name' => "Section 4c", 'description' => null, 'order' => 3, 'created_by' => 3, 'updated_by' => 3]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Section 5c", 'description' => null, 'order' => 3, 'created_by' => 3, 'updated_by' => 3]);
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Is the Client aware of any adverse or aggravating factors in relationships with neighbours?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Is the Client aware of any adverse or aggravating factors in relationships with neighbours?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Is the client aware of any adverse conditions related to the property that may affect design or construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "Is the client aware of any adverse conditions related to the property that may affect design or construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "What does the foundation of the structure comprise of?", 'type' => "select", 'type_special' => null, 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'name'        => "What does the foundation of the structure comprise of?", 'type' => "select", 'type_special' => null, 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name' => "Is the project, street or immediate vicinity of the project address subject to sloping?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-             'order'      => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
-
+             'name'        => "Is the project, street or immediate vicinity of the project address subject to sloping?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
 
         //

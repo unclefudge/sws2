@@ -326,7 +326,7 @@
                                         <h4>Accidents</h4>
                                     @endif
                                     <li>
-                                        <a href="/site/accident/{{ $doc->id }}" class="task-title">
+                                        <a href="/site/incident/{{ $doc->id }}" class="task-title">
                                             <div class="col1">
                                                 <div class="cont">
                                                     <div class="cont-col1">

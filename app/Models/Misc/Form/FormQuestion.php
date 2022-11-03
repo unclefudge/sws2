@@ -48,7 +48,7 @@ class FormQuestion extends Model {
 
                 return FormOption::find($option_ids)->sortBy('order');
             } else
-                return FormOption::where('question_id', $this->id)->where('status')->orderBy('order')->get();
+                return FormOption::where('question_id', $this->id)->where('status', 1)->orderBy('order')->get();
         }
 
         return null;
@@ -61,6 +61,7 @@ class FormQuestion extends Model {
     public function optionsArray()
     {
         if ($this->type == 'select')
+            $select_placeholder = ($this->multiple) ? ['' => 'Select one or more options'] : ['' => 'Select option'];
             return $this->options()->pluck('text', 'id')->toArray();
         return [];
     }

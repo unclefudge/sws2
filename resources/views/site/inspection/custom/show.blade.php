@@ -148,25 +148,19 @@
                                                             {!! Form::select("q$question->id", Auth::user()->company->staffSelect(null, '1'), ($val) ? $val : Auth::user()->id, ['class' => 'form-control bs-select', 'name' => "q$question->id", 'id' => "q$question->id",]) !!}
                                                         @endif
 
-                                                        {{-- Other Select--}}
-                                                        @if ($question->type_special == 'YrN')
+                                                        {{-- Special Rest--}}
+                                                        @if ($question->type_special && !in_array($question->type_special, ['site', 'user']))
                                                             <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $val }}">
                                                             {!! customFormSelectButtons($question->id, $val) !!}
+                                                        @endif
 
-                                                            {{--}}
-                                                            <div class="btn-group" style="width:100%;">
-                                                                <button id="q{{$question->id}}-1" class="btn button-resp red" data-qid="{{$question->id}}" data-rid="1" data-btype="red">Yes</button>
-                                                                <button id="q{{$question->id}}-2" class="btn button-resp dark" data-qid="{{$question->id}}" data-rid="2" data-btype="dark">No</button>
-                                                                <button id="q{{$question->id}}-3" class="btn button-resp dark" data-qid="{{$question->id}}" data-rid="3" data-btype="dark">N/A</button>
-                                                            </div>--}}
-
-                                                            {{--}}
-                                                            <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control bs-select select-special" name="q$question->id" tabindex="-98">
-                                                                <option value="" selected="selected">Select option</option>
-                                                                <option value="Yes" class="font-red" @if ($val == 'Yes') selected @endif><span class="font-red"></span>Yes</option>
-                                                                <option value="No" @if ($val == 'No') selected @endif>No</option>
-                                                            </select>--}}
-                                                            {{--}} {!! Form::select("q$question->id",  ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], ($val) ? $val : '', ['class' => 'form-control bs-select', 'name' => "q{{$question->id}}", 'id' => "q{{$question->id}}",]) !!} --}}
+                                                        {{-- Other Selects--}}
+                                                        @if (!$question->type_special)
+                                                            @if ($question->multiple)
+                                                                {!! Form::select("q$question->id", $question->optionsArray(), explode(',', $val), ['class' => "form-control select2", 'name' => "q$question->id[]", 'id' => "q$question->id",  'multiple']) !!}
+                                                            @else
+                                                                {!! Form::select("q$question->id", $question->optionsArray(), $val, ['class' => "form-control select2", 'name' => "q$question->id", 'id' => "q$question->id"]) !!}
+                                                            @endif
                                                         @endif
 
                                                         @break
@@ -250,6 +244,19 @@
         /* Select2 */
         $("#site_id").select2({placeholder: "Select Site"});
 
+        // Define Select 2 questions
+        var select2_ids = @json($s2_ids);
+        var select2_phs = @json($s2_phs);
+        for (var i = 0; i < select2_ids.length; i++) {
+            var id = select2_ids[i];
+            var placeholder = (select2_phs[id]) ? select2_phs[id] : "Select one or more options";
+            $("#q" + id).select2({placeholder: placeholder});
+        }
+
+        console.log(select2_ids)
+        console.log(select2_ids[25]);
+        console.log(select2_ids[25]);
+
         /* $('#nextpage').click(function (e) {
          e.preventDefault(e);
          var name = $(this).attr('name');
@@ -259,29 +266,29 @@
          alert('next:'+ name);
          });*/
 
-        // Prevent form from submitting for current page
+// Prevent form from submitting for current page
         $('#pagebtn-current').click(function (e) {
             e.preventDefault(e);// do nothing
         });
 
-        // Manually submit form new page
+// Manually submit form new page
         $('.pagebtn').click(function (e) {
             e.preventDefault(e);
             var page = $(this).attr('page');
             $('#nextpage').val($(this).attr('page'));
-            //alert('btn:'+ page);
-            //$('#custom_form').submit();
+//alert('btn:'+ page);
+//$('#custom_form').submit();
             document.getElementById('custom_form').submit();
         });
 
-        // Manually submit form new page
+// Manually submit form new page
         $('.button-resp').click(function (e) {
             e.preventDefault(e);
             var qid = $(this).attr('data-qid');
             var rid = $(this).attr('data-rid');
             var btype = $(this).attr('data-btype');
             var bval = $(this).attr('data-bval');
-            //alert('q:'+qid+' r:'+rid);
+//alert('q:'+qid+' r:'+rid);
 
             var buttons = document.querySelectorAll(`[data-qid='${qid}']`);
             for (var i = 0; i < buttons.length; i++) {
@@ -295,7 +302,7 @@
             } else
                 $('#q' + qid).val('');
 
-            //console.log(buttons[0].id);
+//console.log(buttons[0].id);
             console.log(buttons);
 
         });
@@ -321,17 +328,17 @@
 
         $('#custom_form').on('submit', function (e) {
             e.preventDefault(e);
-            //alert('submit');
-            //submit_form();
+//alert('submit');
+//submit_form();
         });
 
 
-        // First register any plugins
-        //$.fn.filepond.registerPlugin(FilePondPluginImagePreview);
-        //$.fn.filepond.registerPlugin(FilePondPluginFileValidateSize);
-        //$.fn.filepond.setDefaults({
-        //    maxFileSize: '3MB',
-        //});
+// First register any plugins
+//$.fn.filepond.registerPlugin(FilePondPluginImagePreview);
+//$.fn.filepond.registerPlugin(FilePondPluginFileValidateSize);
+//$.fn.filepond.setDefaults({
+//    maxFileSize: '3MB',
+//});
 
         /*
          // Turn input element into a pond
@@ -345,10 +352,10 @@
          console.log('file added event', e);
          });*/
 
-        // Manually add a file using the addfile method
-        //$('.my-pond').first().filepond('addFile', 'index.html').then(function(file){
-        //    console.log('file added', file);
-        //});
+// Manually add a file using the addfile method
+//$('.my-pond').first().filepond('addFile', 'index.html').then(function(file){
+//    console.log('file added', file);
+//});
 
 
         updateFields();

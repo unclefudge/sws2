@@ -87,8 +87,11 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
         //    return view('errors/404');
 
+        $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('type_special', null)->where('status', 1)->pluck('id')->toArray();
+        $s2_phs = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('type_special', null)->where('status', 1)->pluck('placeholder', 'id')->toArray();
+
         // Get Page data
-        return view('/site/inspection/custom/show', compact('form', 'page'));
+        return view('/site/inspection/custom/show', compact('form', 'page', 's2_ids', 's2_phs'));
     }
 
     /**
@@ -158,7 +161,7 @@ class FormController extends Controller {
         foreach ($form->questions as $question) {
             $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
             $qid = $question->id;
-            $resp = request("q$qid");
+            $resp = (is_array(request("q$qid"))) ? implode(',',request("q$qid")) : request("q$qid");
             //echo "q$qid<br>";
 
             // Only update questions for current page
