@@ -323,7 +323,7 @@
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
                                     <?php $count ++ ?>
                                     @if ($count == 1)
-                                        <h4>Accidents</h4>
+                                        <h4>Incidents</h4>
                                     @endif
                                     <li>
                                         <a href="/site/incident/{{ $doc->id }}" class="task-title">
