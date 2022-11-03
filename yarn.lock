@@ -5515,6 +5515,11 @@
     "hash-sum" "^2.0.0"
     "loader-utils" "^2.0.0"
 
+"vue-select@^4.0.0-beta.5":
+  "integrity" "sha512-W9alTe9NwVn2GR9QFW5CbrX47yghEaJCpUVs9JTv9Q7CWmsNPp5kIlETdke4aFHphZvyjDUlyvH/7/8XzfVZkw=="
+  "resolved" "https://registry.npmjs.org/vue-select/-/vue-select-4.0.0-beta.5.tgz"
+  "version" "4.0.0-beta.5"
+
 "vue-style-loader@^4.1.3":
   "integrity" "sha512-sFuh0xfbtpRlKfm39ss/ikqs9AbKCoXZBpHeVZ8Tx650o0k0q/YCM7FRvigtxpACezfq6af+a7JeqVTWvncqDg=="
   "resolved" "https://registry.npmjs.org/vue-style-loader/-/vue-style-loader-4.1.3.tgz"
@@ -5523,7 +5528,7 @@
     "hash-sum" "^1.0.2"
     "loader-utils" "^1.0.2"
 
-"vue@^3.2.36", "vue@3.2.36":
+"vue@^3.2.36", "vue@3.2.36", "vue@3.x":
   "integrity" "sha512-5yTXmrE6gW8IQgttzHW5bfBiFA6mx35ZXHjGLDmKYzW6MMmYvCwuKybANRepwkMYeXw2v1buGg3/lPICY5YlZw=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-3.2.36.tgz"
   "version" "3.2.36"

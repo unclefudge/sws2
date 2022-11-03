@@ -1,7 +1,9 @@
-//import SelectPicker from './custom-question.js';
+//import SelectPicker from './select-picker.js';
+import CustomSelect from './custom-select.js';
+import CustomSelect2 from './custom-select2.js';
 
 export default {
-    //components: {SelectPicker},
+    components: {CustomSelect, CustomSelect2},
     template: '#custom-question-template',
     props: {
         active_field: String,

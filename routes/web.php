@@ -535,12 +535,14 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Custom Forms
     Route::get('form/dt/form', 'Misc\Form\FormController@getForms');
+    //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
+    Route::get('form/{form_id}/{page}', 'Misc\Form\FormController@showPage');
     Route::get('form/data/form/{form_id}', 'Misc\Form\FormController@getForm');
     Route::resource('form', 'Misc\Form\FormController');
 
     // Site Inspection Safety Design
-    Route::get('site/inspection/custom/dt/safetydesign', 'Misc\Form\FormController@getSafetyDesignForms');
-    Route::resource('site/inspection/custom', 'Misc\Form\FormController');
+    //Route::get('site/inspection/custom/dt/safetydesign', 'Misc\Form\FormController@getSafetyDesignForms');
+    //Route::resource('site/inspection/custom', 'Misc\Form\FormController');
 
 
     // Configuration

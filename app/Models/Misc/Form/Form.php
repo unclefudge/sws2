@@ -16,7 +16,7 @@ use Carbon\Carbon;
 class Form extends Model {
 
     protected $table = 'forms';
-    protected $fillable = ['template_id', 'name',  'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $fillable = ['template_id', 'name', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
      * A Form belongs to a FormTemplate
@@ -35,7 +35,7 @@ class Form extends Model {
      */
     public function responses()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormResponse',  'form_id',);
+        return $this->hasMany('App\Models\Misc\Form\FormResponse', 'form_id',);
     }
 
 
@@ -68,7 +68,32 @@ class Form extends Model {
      */
     public function questions()
     {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        //$sections_array = $this->sections->pluck('id')->toArray();
+        //return FormQuestion::whereIn('section_id',$sections_array)->where('status', 1)->get();
+        //return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
+    }
+
+
+
+    /**
+     * Page
+     */
+    public function page($page_num)
+    {
+        return FormPage::where('template_id', $this->id)->where('order', $page_num)->first();
+    }
+
+    /**
+     * Page title
+     */
+    public function pageName($page_num)
+    {
+        $page = FormPage::where('template_id', $this->template->id)->where('order', $page_num)->first();
+        if ($page && $page->name)
+            return $page->name;
+
+        return "Page $page_num";
     }
 
 

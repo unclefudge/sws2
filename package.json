@@ -21,5 +21,8 @@
         "sass-loader": "^8.0.2",
         "vue": "^3.2.36",
         "vue-loader": "^17.0.0"
+    },
+    "dependencies": {
+        "vue-select": "^4.0.0-beta.5"
     }
 }

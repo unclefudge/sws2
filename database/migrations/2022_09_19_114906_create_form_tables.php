@@ -56,7 +56,7 @@ class CreateFormTables extends Migration
         //
         Schema::create('forms_sections', function (Blueprint $table) {
             $table->increments('id');
-            //$table->integer('template_id')->unsigned();
+            $table->integer('template_id')->unsigned();
             $table->integer('page_id')->unsigned();
             $table->integer('parent')->nullable();
             $table->string('name', 255)->nullable();
@@ -80,8 +80,8 @@ class CreateFormTables extends Migration
         //
         Schema::create('forms_questions', function (Blueprint $table) {
             $table->increments('id');
-            //$table->integer('template_id')->unsigned();
-            //$table->integer('page_id')->unsigned();
+            $table->integer('template_id')->unsigned();
+            $table->integer('page_id')->unsigned();
             $table->integer('section_id')->unsigned();
             $table->string('name', 255)->nullable();
             $table->string('type', 50)->nullable();
@@ -179,8 +179,9 @@ class CreateFormTables extends Migration
             $table->increments('id');
             $table->integer('form_id')->unsigned();
             $table->integer('question_id')->unsigned();
-            $table->integer('option_id')->unsigned()->nullable();
             $table->text('value')->nullable();
+            $table->integer('option_id')->unsigned()->nullable();
+            $table->dateTime('date')->nullable();
             $table->tinyInteger('status')->default(1);
 
             // Modify info
@@ -195,6 +196,7 @@ class CreateFormTables extends Migration
         Schema::create('forms_files', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id')->unsigned();
+            $table->integer('question_id')->unsigned()->nullable();
             $table->string('type', 50)->nullable();
             $table->string('name', 255)->nullable();
             $table->string('attachment', 255)->nullable();
@@ -217,7 +219,7 @@ class CreateFormTables extends Migration
         Schema::create('forms_actions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('form_id')->unsigned();
-            $table->integer('question_id')->unsigned();
+            $table->integer('question_id')->unsigned()->nullable();
             $table->integer('todo_id')->unsigned();
             $table->text('action')->nullable();
             $table->string('attachment', 255)->nullable();

@@ -54,8 +54,10 @@ class FormTemplate extends Model {
      */
     public function questions()
     {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
-        //return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
+        //$sections_array = $this->sections->pluck('id')->toArray();
+        //return FormQuestion::whereIn('section_id',$sections_array)->where('status', 1)->get();
+        //return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
     }
 
 

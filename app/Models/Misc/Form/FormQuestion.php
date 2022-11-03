@@ -8,6 +8,7 @@ use App\User;
 use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormSection;
+use App\Models\Misc\Form\FormResponse;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ use Carbon\Carbon;
 class FormQuestion extends Model {
 
     protected $table = 'forms_questions';
-    protected $fillable = ['section_id', 'name', 'type', 'type_special', 'type_version', 'order', 'default', 'multiple', 'required',
+    protected $fillable = ['template_id', 'page_id', 'section_id', 'name', 'type', 'type_special', 'type_version', 'order', 'default', 'multiple', 'required',
         'placeholder', 'helper', 'width', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
 
@@ -62,6 +63,15 @@ class FormQuestion extends Model {
         if ($this->type == 'select')
             return $this->options()->pluck('text', 'id')->toArray();
         return [];
+    }
+
+    /**
+     * A FormQuestion 'may' have a response for a certain 'form'
+     *
+     */
+    public function response($form_id)
+    {
+        return FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
     }
 
 

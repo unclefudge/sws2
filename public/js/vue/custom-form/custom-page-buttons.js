@@ -2,6 +2,7 @@
 export default {
     //components: { formPage },
     template: '#custom-page-buttons-template',
+    //emits: ["showpage"],
     props: {
         pages: Object,
         active_page: Number,

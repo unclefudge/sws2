@@ -242,39 +242,6 @@ function getPermissionTypes()
     return $array;
 }
 
-/*
- * Create Select field for Notifications
- *
- * @return string
- */
-/*
- * moved function to DB class
-function notificationSelect($id, $name, $pop_head = '', $pop_info = '', $help_mesg = '')
-{
-    $str = '<div class="row"><div class="col-md-12"><div class="form-group"><div class="col-md-3">';
-    $str .= '<label for="type1" class="control-label">' . $name;
-    if ($pop_head) {
-        $str .= ' <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-        data-original-title="' . $pop_head . '" data-content="' . $pop_info . '"><i class="fa fa-question-circle font-grey-silver"></i></a>';
-    }
-    $str .= '</label></div><div class="col-md-9">';
-
-    // Select Options
-    $options = '';
-    $selected = Auth::user()->company->notificationsUsersTypeArray($id);
-    foreach (Auth::user()->company->staffSelect() as $value => $text) {
-        $options .= (in_array($value, $selected)) ? "<option value='$value' selected='selected'>$text</option>" : "<option value='$value'>$text</option>";
-    }
-
-    $str .= '<select class="form-control select2" name="type' . $id . '[]" width="100%" multiple>';
-    $str .= $options;
-    $str .= '</select>';
-    if ($help_mesg)
-        $str .= '<span class="help-block">' . $help_mesg . '</span>';
-    $str .= '</div></div></div></div><br>';
-
-    return $str;
-} */
 
 /**
  * Create a array of all user emails with specific role
@@ -530,5 +497,51 @@ function get_decorated_diff($old, $new)
     $old = "$start<del style='background-color:#ffcccc'>$old_diff</del>$end";
 
     return array("old" => $old, "new" => $new);
+}
+
+/**
+ * Create Select field for Permission
+ *
+ * @return string
+ */
+function customFormSelectButtons($question_id, $value = null)
+{
+    // get data
+    //$form = \App\Models\Misc\Form\Form::find($form_id);
+    $question = \App\Models\Misc\Form\FormQuestion::find($question_id);
+    //$option = \App\Models\Misc\Form\FormOption::find($option_id);
+
+    //$colours = ['red' => 'btn-danger', 'green' => 'btn-sucess', ]
+
+    // create button html
+    $str = '';
+    $str .= "<div class='btn-group' style='width:100%;'>\n\r";
+    // YrN
+    if ($question->type_special = "YrN") {
+        foreach ($question->options()->sortBy('order') as $option) {
+            $active_class = '';
+            if ($value && $value == $option->text) {
+                $active_class = ($option->colour) ? $option->colour : 'dark';
+            }
+            $str .= "<button class='btn button-resp $active_class' id='q$question->id-"; // begin button
+            $str .= "$option->id'"; // complete button id by adding 'option-id'
+            $str .= "data-qid='$question_id'"; // add question id
+            $str .= "data-rid='$option->id'"; // add option id
+            $str .= "data-bval='$option->value'"; // add option id
+            $str .= ($option->colour) ? "data-btype='$option->colour'" : "data-btype='dark'"; // add button class
+            $str .= ">$option->text</button>\n\r"; // end button
+        }
+    }
+    $str .= "</div>\n\r";
+
+    return $str;
+
+    /*
+    <div class="btn-group" style="width:100%;">
+    <button id="q{{$question->id}}-1" class="btn button-resp btn-danger" style="margin-right: 10px; width:25%" data-qid="{{$question->id}}" data-rid="1" data-btype="btn-danger">Yes</button>
+    <button id="q{{$question->id}}-2" class="btn button-resp dark" style="margin-right: 10px; width:25%" data-qid="{{$question->id}}" data-rid="2" data-btype="dark">No</button>
+    <button id="q{{$question->id}}-3" class="btn button-resp dark" style="margin-right: 10px; width:25%" data-qid="{{$question->id}}" data-rid="3" data-btype="dark">N/A</button>
+    </div>
+    */
 }
 

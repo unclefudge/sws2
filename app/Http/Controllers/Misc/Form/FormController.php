@@ -58,6 +58,40 @@ class FormController extends Controller {
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $form = Form::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
+        //    return view('errors/404');
+
+        return redirect("/form/$id/1");
+        //return view('/site/inspection/custom/show', compact('form'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showPage($id, $page)
+    {
+        $form = Form::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
+        //    return view('errors/404');
+
+        // Get Page data
+        return view('/site/inspection/custom/show', compact('form', 'page'));
+    }
+
+    /**
      * Edit the resource.
      *
      * @return \Illuminate\Http\Response
@@ -87,22 +121,6 @@ class FormController extends Controller {
         //return redirect('/misc/form/' . $form->id . /edit);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $form = Form::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
-        //    return view('errors/404');
-
-        return view('/site/inspection/custom/show', compact('form'));
-    }
-
 
     /**
      * Update the specified resource in storage.
@@ -111,23 +129,71 @@ class FormController extends Controller {
      */
     public function update($id)
     {
-        /*$report = SiteScaffoldHandover::findOrFail($id);
+        $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
-            return view('errors/404');
+        //if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+        //    return view('errors/404');
 
-        $rules = ['inspector_name' => 'required', 'handover_date' => 'required', 'singlefile' => 'required'];
-        $mesg = ['client_name.required'   => 'The name field is required.',
-                 'handover_date.required' => 'The date/time field is required.',
-                 'singlefile.required'    => 'The licence field is required.'];
+        $form_data = request()->all();
+        //dd(request()->all());
+        $nextpage = request('nextpage');
 
-        request()->validate($rules, $mesg); // Validate
+        // update Site Id if present
+        if (request('site_id')) {
+            $site_id = request('site_id');
+            $form->site_id = $site_id;
+            $site_question = FormQuestion::where('template_id', $form->template->id)->where('type_special', 'site')->first();
+            if ($site_question) {
+                $response = FormResponse::where('form_id', $form->id)->where('question_id', $site_question->id)->first();
+                if ($response) {
+                    $response->value = $site_id;
+                    $response->save();
+                } else
+                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $site_question->id, 'value' => $site_id]);
+            }
+        }
 
-        Toastr::success("Submitted certificate");
+        // Loop through ALL form questions
+        foreach ($form->questions as $question) {
+            $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
+            $qid = $question->id;
+            $resp = request("q$qid");
+            //echo "q$qid<br>";
 
-        return redirect('site/scaffold/handover');*/
+            // Only update questions for current page
+            if (request()->has("q$qid")) {
+                // Page has a response to given question not blank/null
+                if ($resp) {
+                    //echo "*q$qid: $resp<br>";
+                    $date = ($question->type == 'datetime') ? $resp : null;
+                    $option_id = ($question->type == 'select') ? $resp : null;
+
+                    if ($question->type == 'select') $option_id = $resp; // set option_id for selects
+                    if ($question->type == 'datetime' && $resp) $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString(); // set date
+
+                    //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();
+
+                    if ($response) {
+                        $response->value = $resp;
+                        $response->option_id = $option_id;
+                        $response->date = $date;
+                        $response->save();
+                    } else
+                        $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
+                } elseif ($response)
+                    $response->delete(); // Response is blank so delete
+
+            }
+        }
+
+        $form->save();
+
+        //dd($form_data);
+
+        return redirect("form/$form->id/$nextpage");
     }
+
 
     /**
      * Save the Custom Form.
@@ -147,7 +213,7 @@ class FormController extends Controller {
 
                 // Save Pages
                 $pages = $custom_form['pages'];
-                for ($i=0; $i < count($pages); $i++) {
+                for ($i = 0; $i < count($pages); $i ++) {
                     if ($pages[$i]['id'] != 'new') {
                         $page = FormPage::findOrFail($pages[$i]['id']);
                         if ($page) {
@@ -163,7 +229,7 @@ class FormController extends Controller {
 
                     // Save Sections
                     $sections = $pages[$i]['sections'];
-                    for ($i=0; $i < count($sections); $i++) {
+                    for ($i = 0; $i < count($sections); $i ++) {
                         if ($sections[$i]['id'] != 'new') {
                             $section = FormSection::findOrFail($sections[$i]['id']);
                             if ($section) {
@@ -183,6 +249,7 @@ class FormController extends Controller {
         }
 
         Toastr::success("Template saved");
+
         return response()->json(['status' => 'ok', 'success' => true,], 200);
         //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
         //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
@@ -211,7 +278,7 @@ class FormController extends Controller {
 
         // Add Pages
         $template_obj->pages = [];
-        foreach($template->pages as $page) {
+        foreach ($template->pages as $page) {
             // Create page Object
             $page_obj = new \stdClass();
             $page_obj->id = $page->id;
@@ -221,7 +288,7 @@ class FormController extends Controller {
 
             // Add Sections
             $page_obj->sections = [];
-            foreach($page->sections as $section) {
+            foreach ($page->sections as $section) {
                 // Create Section Object
                 $section_obj = new \stdClass();
                 $section_obj->id = $section->id;
@@ -231,7 +298,7 @@ class FormController extends Controller {
 
                 // Add Questions
                 $section_obj->questions = [];
-                foreach($section->questions as $question) {
+                foreach ($section->questions as $question) {
                     // Create Question Object
                     $question_obj = new \stdClass();
                     $question_obj->id = $question->id;
@@ -284,7 +351,6 @@ class FormController extends Controller {
 
         return $json;
     }
-
 
 
     /**
