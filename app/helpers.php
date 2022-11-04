@@ -504,7 +504,7 @@ function get_decorated_diff($old, $new)
  *
  * @return string
  */
-function customFormSelectButtons($question_id, $value = null)
+function customFormSelectButtons($question_id, $option_id = null)
 {
     // get data
     //$form = \App\Models\Misc\Form\Form::find($form_id);
@@ -520,7 +520,7 @@ function customFormSelectButtons($question_id, $value = null)
     if ($question->type_special = "YrN") {
         foreach ($question->options()->sortBy('order') as $option) {
             $active_class = '';
-            if ($value && $value == $option->text) {
+            if ($option_id && $option_id == $option->id) {
                 $active_class = ($option->colour) ? $option->colour : 'dark';
             }
             $str .= "<button class='btn button-resp $active_class' id='q$question->id-"; // begin button

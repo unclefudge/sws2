@@ -122,7 +122,11 @@
                 </div>
             </div>
             <div class="col-md-6 col-sm-6 visible-sm visible-xs">
-                <a href="/site/accident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                @if (Auth::user()->hasPermission2('add.site.incident'))
+                    <a href="/site/incident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                @elseif (Auth::user()->hasPermission2('add.site.accident'))
+                    <a href="/site/accident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                @endif
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
                 @if (Session::has('siteID'))
                     <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"></i> Lodge Safety Issue </a>

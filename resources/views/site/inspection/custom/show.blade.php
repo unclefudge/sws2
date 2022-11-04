@@ -102,8 +102,12 @@
                                     <div style="margin-bottom: 0px">
                                         @foreach ($section->questions as $question)
                                             <?php
+                                            $val = null;
                                             $response = $question->response($form->id);
-                                            $val = ($response) ? $response->value : null;
+                                            if (count($response))
+                                                $val = ($question->multiple) ? $response->pluck('id')->toArray() : $response->first()->value;
+
+                                            //$val = ($response) ? $response->value : null;
                                             ?>
                                             <div class="row" style="padding: 0px 10px">
                                                 <div class="col-md-12">
@@ -138,14 +142,14 @@
 
                                                         {{-- Site --}}
                                                         @if ($question->type_special == 'site')
-                                                            <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                                                            <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2" style="width:100%">
                                                                 {!! Auth::user()->authSitesSelect2Options('view.site.list', $val) !!}
                                                             </select>
                                                         @endif
 
                                                         {{-- User --}}
                                                         @if ($question->type_special == 'user')
-                                                            {!! Form::select("q$question->id", Auth::user()->company->staffSelect(null, '1'), ($val) ? $val : Auth::user()->id, ['class' => 'form-control bs-select', 'name' => "q$question->id", 'id' => "q$question->id",]) !!}
+                                                            {!! Form::select("q$question->id", Auth::user()->company->staffSelect(null, '1'), ($val) ? $val : Auth::user()->id, ['class' => 'form-control select2', 'name' => "q$question->id", 'id' => "q$question->id"]) !!}
                                                         @endif
 
                                                         {{-- Special Rest--}}
@@ -242,7 +246,7 @@
 
     $(document).ready(function () {
         /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
+        //$("#site_id").select2({placeholder: "Select Site"});
 
         // Define Select 2 questions
         var select2_ids = @json($s2_ids);
@@ -251,11 +255,9 @@
             var id = select2_ids[i];
             var placeholder = (select2_phs[id]) ? select2_phs[id] : "Select one or more options";
             $("#q" + id).select2({placeholder: placeholder});
+            console.log("s2:"+select2_ids[i]);
         }
 
-        console.log(select2_ids)
-        console.log(select2_ids[25]);
-        console.log(select2_ids[25]);
 
         /* $('#nextpage').click(function (e) {
          e.preventDefault(e);
@@ -266,43 +268,45 @@
          alert('next:'+ name);
          });*/
 
-// Prevent form from submitting for current page
+        // Prevent form from submitting for current page
         $('#pagebtn-current').click(function (e) {
             e.preventDefault(e);// do nothing
         });
 
-// Manually submit form new page
+        // Manually submit form new page
         $('.pagebtn').click(function (e) {
             e.preventDefault(e);
             var page = $(this).attr('page');
             $('#nextpage').val($(this).attr('page'));
-//alert('btn:'+ page);
-//$('#custom_form').submit();
+            //alert('btn:'+ page);
+            // $('#custom_form').submit();
             document.getElementById('custom_form').submit();
         });
 
-// Manually submit form new page
+        // Select Buttons
         $('.button-resp').click(function (e) {
             e.preventDefault(e);
             var qid = $(this).attr('data-qid');
             var rid = $(this).attr('data-rid');
             var btype = $(this).attr('data-btype');
             var bval = $(this).attr('data-bval');
-//alert('q:'+qid+' r:'+rid);
+            //alert('q:'+qid+' r:'+rid);
 
+            // Loop through all buttons for selected question + remove active classes
             var buttons = document.querySelectorAll(`[data-qid='${qid}']`);
             for (var i = 0; i < buttons.length; i++) {
-                console.log(buttons[i].id);
+                //console.log(buttons[i].id);
                 $('#' + buttons[i].id).removeClass('btn-default red dark')
             }
 
+            // Add active class to selected button
             if ($('#q' + qid).val() != bval) {
                 $('#q' + qid + '-' + rid).addClass(btype);
-                $('#q' + qid).val(bval);
+                $('#q' + qid).val(rid);
             } else
                 $('#q' + qid).val('');
 
-//console.log(buttons[0].id);
+            //console.log(buttons[0].id);
             console.log(buttons);
 
         });

@@ -87,8 +87,8 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
         //    return view('errors/404');
 
-        $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('type_special', null)->where('status', 1)->pluck('id')->toArray();
-        $s2_phs = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('type_special', null)->where('status', 1)->pluck('placeholder', 'id')->toArray();
+        $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->where('type_version', 'select2')->pluck('id')->toArray();
+        $s2_phs = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->pluck('placeholder', 'id')->toArray();
 
         // Get Page data
         return view('/site/inspection/custom/show', compact('form', 'page', 's2_ids', 's2_phs'));
@@ -143,7 +143,7 @@ class FormController extends Controller {
         $nextpage = request('nextpage');
 
         // update Site Id if present
-        if (request('site_id')) {
+        /*if (request('site_id')) {
             $site_id = request('site_id');
             $form->site_id = $site_id;
             $site_question = FormQuestion::where('template_id', $form->template->id)->where('type_special', 'site')->first();
@@ -151,32 +151,51 @@ class FormController extends Controller {
                 $response = FormResponse::where('form_id', $form->id)->where('question_id', $site_question->id)->first();
                 if ($response) {
                     $response->value = $site_id;
+                    $response->option_id = $site_id;
                     $response->save();
                 } else
-                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $site_question->id, 'value' => $site_id]);
+                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $site_question->id, 'value' => $site_id, 'option_id' => $site_id]);
             }
-        }
+        }*/
 
         // Loop through ALL form questions
         foreach ($form->questions as $question) {
-            $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
             $qid = $question->id;
-            $resp = (is_array(request("q$qid"))) ? implode(',',request("q$qid")) : request("q$qid");
             //echo "q$qid<br>";
 
             // Only update questions for current page
             if (request()->has("q$qid")) {
-                // Page has a response to given question not blank/null
-                if ($resp) {
-                    //echo "*q$qid: $resp<br>";
-                    $date = ($question->type == 'datetime') ? $resp : null;
-                    $option_id = ($question->type == 'select') ? $resp : null;
+                // Determine if response has multiple answers 'array' or only single
+                if (is_array(request("q$qid"))) {
+                    // Multiple responses
+                    foreach (request("q$qid") as $resp) {
+                        echo "Q:$qid R:$resp T:$question->type<br>";
 
-                    if ($question->type == 'select') $option_id = $resp; // set option_id for selects
-                    if ($question->type == 'datetime' && $resp) $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString(); // set date
+                        $option_id = ($question->type == 'select') ? $resp : null;  // set option_id for select questions
+                        $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
+                        //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
 
-                    //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();
+                        $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->first();
+                        if ($response) {
+                            $response->value = $resp;
+                            $response->option_id = $option_id;
+                            $response->date = $date;
+                            $response->save();
+                        } else
+                            $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
+                    }
+                } elseif (request("q$qid")) {
+                    // Single response + not blank/null
+                    $resp = request("q$qid");
 
+                    if ($question->type_special == 'site') $form->site_id = $resp;  // Add the Site ID to form
+
+                    $option_id = ($question->type == 'select') ? $resp : null;  // set option_id for select questions
+                    $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
+                    //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
+
+                    //echo "Q:$qid R:$resp T:$question->type O:$option_id  D:$date<br>";
+                    $response = $question->response($form->id)->first();
                     if ($response) {
                         $response->value = $resp;
                         $response->option_id = $option_id;
@@ -184,11 +203,15 @@ class FormController extends Controller {
                         $response->save();
                     } else
                         $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
-                } elseif ($response)
-                    $response->delete(); // Response is blank so delete
+                } else
+                    $delete_blank_single_response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->delete();  // Single Response is blank so delete
+
+                //$resp = (is_array(request("q$qid"))) ? implode(',',request("q$qid")) : request("q$qid");
 
             }
         }
+
+        //$delete_blank = FormResponse::whereIn('option_id', array_keys($options_all))->whereNotIn('option_id', $options_selected)->where('table', 'site_incidents')->where('table_id', $incident->id)->delete();
 
         $form->save();
 

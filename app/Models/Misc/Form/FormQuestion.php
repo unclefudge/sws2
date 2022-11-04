@@ -72,7 +72,7 @@ class FormQuestion extends Model {
      */
     public function response($form_id)
     {
-        return FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
+        return FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->get();
     }
 
 

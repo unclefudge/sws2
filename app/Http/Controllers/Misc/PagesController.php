@@ -1748,7 +1748,7 @@ class PagesController extends Controller {
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
              'name'        => "Site conducted", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
-             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
+             'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
              'name'        => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
@@ -1889,7 +1889,7 @@ class PagesController extends Controller {
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name'        => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => null,
+             'name'        => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
              'order'       => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more pet(s)', 'created_by' => 3, 'updated_by' => 3]);
         // Add Options
         FormOption::create(['question_id' => $question->id, 'text' => 'Dog(s)', 'value' => 'Dog(s)', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
@@ -1917,7 +1917,7 @@ class PagesController extends Controller {
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name'        => "What does the foundation of the structure comprise of?", 'type' => "select", 'type_special' => null, 'type_version' => null,
+             'name'        => "What does the foundation of the structure comprise of?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
              'order'       => $pn ++, 'default' => null, 'multiple' => 1, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
