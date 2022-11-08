@@ -186,14 +186,17 @@ class SiteAsbestosController extends Controller {
 
         // Additional Complex Custom Validation for Inspection + Supervisor fields
         $validator = Validator::make($request->all(), []);
-        $validator->after(function ($validator) {
-            if (request()->get('friable') == '0' && request()->get('amount_over') == '1' && request()->get('inspection') != '1')
-                $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
-        });
-
-        if ($validator->fails()) {
-            return redirect("site/asbestos/notification/$asb->id/edit")->withErrors($validator)->withInput();
+        // Only allow Tara or Fudge override the Inspection field to No if friable
+        if (!in_array(Auth::user()->id, [3, 351])) {
+            $validator->after(function ($validator) {
+                if (request()->get('friable') == '0' && request()->get('amount_over') == '1' && request()->get('inspection') != '1')
+                    $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
+            });
         }
+
+        if ($validator->fails())
+            return redirect("site/asbestos/notification/$asb->id/edit")->withErrors($validator)->withInput();
+
 
         $asb_request = removeNullValues($request->all());
 

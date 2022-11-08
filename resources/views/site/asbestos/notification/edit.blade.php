@@ -167,7 +167,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('amount', $errors) !!}">
                                         {!! Form::label('amount', 'Amount to be removed (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ (old('amount')) ? old('amount') : $asb->amount }}" id="amount" name="amount" onkeypress="return isNumber(event)">
+                                        <input type="text" class="form-control" value="{{ (old('amount')) ? old('amount') : $asb->amount }}" id="amount" name="amount"> {{--}} onkeypress="return isNumber(event)">--}}
                                         {!! fieldErrorMessage('amount', $errors) !!}
                                     </div>
                                     <div class="note note-warning" style="display: none;" id="amount_note">
