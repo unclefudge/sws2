@@ -536,8 +536,9 @@ Route::group(['middleware' => 'auth'], function () {
     // Custom Forms
     Route::get('form/dt/form', 'Misc\Form\FormController@getForms');
     //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
-    Route::get('form/{form_id}/{page}', 'Misc\Form\FormController@showPage');
-    Route::get('form/data/form/{form_id}', 'Misc\Form\FormController@getForm');
+    Route::get('form/{form_id}/{pagenumber}', 'Misc\Form\FormController@showPage');
+    Route::post('form/upload', 'Misc\Form\FormController@upload');
+    //Route::get('form/data/form/{form_id}', 'Misc\Form\FormController@getForm');
     Route::resource('form', 'Misc\Form\FormController');
 
     // Site Inspection Safety Design
@@ -660,6 +661,7 @@ Route::get('cron/email-planner-key-tasks', 'Misc\CronController@emailPlannerKeyT
 Route::get('cron/action-planner-key-tasks', 'Misc\CronController@actionPlannerKeyTasks');
 
 Route::get('test/cal', 'Misc\PagesController@testcal');
+Route::get('test/filepond', 'Misc\PagesController@testfilepond');
 Route::get('manage/updateroles', 'Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', 'Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', 'Misc\PagesController@importMaintenance');

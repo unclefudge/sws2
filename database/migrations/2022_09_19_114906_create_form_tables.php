@@ -139,11 +139,11 @@ class CreateFormTables extends Migration
             $table->increments('id');
             $table->integer('template_id')->unsigned();
             $table->integer('page_id')->unsigned();
-            $table->integer('section_id')->unsigned();
             $table->integer('question_id')->unsigned();
             $table->string('match_operation', 25)->nullable();
             $table->string('match_value', 255)->nullable();
             $table->string('trigger', 255)->nullable();
+            $table->integer('trigger_id')->unsigned()->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
@@ -162,6 +162,8 @@ class CreateFormTables extends Migration
             $table->integer('template_id')->unsigned();
             $table->integer('site_id')->unsigned()->nullable();
             $table->string('name', 255)->nullable();
+            $table->datetime('submitted')->nullable();
+            $table->datetime('completed')->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->integer('company_id')->unsigned()->nullable();
@@ -182,6 +184,22 @@ class CreateFormTables extends Migration
             $table->text('value')->nullable();
             $table->integer('option_id')->unsigned()->nullable();
             $table->dateTime('date')->nullable();
+            $table->tinyInteger('status')->default(1);
+
+            // Modify info
+            $table->integer('created_by')->unsigned();
+            $table->integer('updated_by')->unsigned();
+            $table->timestamps();
+        });
+
+        //
+        // Form Notes
+        //
+        Schema::create('forms_notes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('form_id')->unsigned();
+            $table->integer('question_id')->unsigned()->nullable();
+            $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
 
             // Modify info
@@ -245,6 +263,7 @@ class CreateFormTables extends Migration
     {
         Schema::dropIfExists('forms_actions');
         Schema::dropIfExists('forms_files');
+        Schema::dropIfExists('forms_notes');
         Schema::dropIfExists('forms_responses');
         Schema::dropIfExists('forms');
         Schema::dropIfExists('forms_logic');

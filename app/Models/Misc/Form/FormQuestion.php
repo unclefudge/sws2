@@ -30,15 +30,54 @@ class FormQuestion extends Model {
         return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id');
     }
 
+    /**
+     * A FormQuestion has many notes
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function extraNotes()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormNote', 'question_id');
+    }
+
+    /**
+     * A FormQuestion many have notes for a 'certain' form
+     */
+    public function extraNotesForm($form_id)
+    {
+        return FormNote::where('form_id', $form_id)->where('question_id', $this->id)->first();
+    }
+
+    /**
+     * A FormQuestion has many logic
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function logic()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormLogic', 'question_id');
+    }
+
+    /**
+     * A FormQuestion many affected by another questions logic
+     */
+    public function affectedByLogic()
+    {
+        $logic_questions = FormLogic::where('trigger', 'question')->where('trigger_id', $this->id)->pluck('id')->toArray();
+        $logic_sections = FormLogic::where('trigger', 'section')->where('trigger_id', $this->section->id)->pluck('id')->toArray();
+        $logic_ids = array_merge($logic_questions, $logic_sections);
+
+        return FormLogic::find($logic_ids);
+    }
+
 
     /**
      * A FormQuestion 'may' have many options
-     *
      */
     public function options()
     {
         if ($this->type == 'select') {
-            if ($this->type_special) {
+            if (in_array($this->type_special, ['YN', 'YrN', 'YgN'])) {
                 $option_ids = [];
                 if ($this->type_special == 'CONN') $option_ids = [1, 2, 3, 4];
                 if ($this->type_special == 'YN') $option_ids = [5, 6];
@@ -62,7 +101,9 @@ class FormQuestion extends Model {
     {
         if ($this->type == 'select')
             $select_placeholder = ($this->multiple) ? ['' => 'Select one or more options'] : ['' => 'Select option'];
-            return $this->options()->pluck('text', 'id')->toArray();
+
+        return $this->options()->pluck('text', 'id')->toArray();
+
         return [];
     }
 
@@ -74,7 +115,6 @@ class FormQuestion extends Model {
     {
         return FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->get();
     }
-
 
 
     /**

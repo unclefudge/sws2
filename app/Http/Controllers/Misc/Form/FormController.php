@@ -15,6 +15,8 @@ use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormSection;
 use App\Models\Misc\Form\FormQuestion;
 use App\Models\Misc\Form\FormResponse;
+use App\Models\Misc\Form\FormLogic;
+use App\Models\Misc\Form\FormNote;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -79,19 +81,39 @@ class FormController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function showPage($id, $page)
+    public function showPage($id, $pagenumber)
     {
         $form = Form::findOrFail($id);
+        $page = FormPage::where('template_id', $form->template->id)->where('order', $pagenumber)->first();
 
         // Check authorisation and throw 404 if not
         //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
         //    return view('errors/404');
 
+        // Select 2 question ids
         $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->where('type_version', 'select2')->pluck('id')->toArray();
         $s2_phs = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->pluck('placeholder', 'id')->toArray();
 
+        $formlogic = FormLogic::where('template_id', $form->template->id)->where('page_id', $page->id)->where('status', 1)->get();
+
+        // Check is Show Required fields is set 'Form Submitted' field is only valid for same day otherwise reset null
+        $showrequired = 0;
+        $failed_questions = null;
+        $today = Carbon::now()->format('Ymd');
+        if ($form->submitted) {
+            if ($form->submitted->format('Ymd') == $today) {
+                $showrequired = 1;
+                $failed_ids = $this->verifyFormCompleted($form);
+                $failed_questions = FormQuestion::find($failed_ids);
+            } else {
+                $form->submitted = null;
+                $form->save();
+                $showrequired = 0;
+            }
+        }
+
         // Get Page data
-        return view('/site/inspection/custom/show', compact('form', 'page', 's2_ids', 's2_phs'));
+        return view('/site/inspection/custom/show', compact('form', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
 
     /**
@@ -138,44 +160,37 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
         //    return view('errors/404');
 
-        $form_data = request()->all();
-        //dd(request()->all());
         $nextpage = request('nextpage');
-
-        // update Site Id if present
-        /*if (request('site_id')) {
-            $site_id = request('site_id');
-            $form->site_id = $site_id;
-            $site_question = FormQuestion::where('template_id', $form->template->id)->where('type_special', 'site')->first();
-            if ($site_question) {
-                $response = FormResponse::where('form_id', $form->id)->where('question_id', $site_question->id)->first();
-                if ($response) {
-                    $response->value = $site_id;
-                    $response->option_id = $site_id;
-                    $response->save();
-                } else
-                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $site_question->id, 'value' => $site_id, 'option_id' => $site_id]);
-            }
-        }*/
+        $questions_asked = [];
+        $debug = true;
 
         // Loop through ALL form questions
         foreach ($form->questions as $question) {
             $qid = $question->id;
-            //echo "q$qid<br>";
 
             // Only update questions for current page
-            if (request()->has("q$qid")) {
-                // Determine if response has multiple answers 'array' or only single
-                if (is_array(request("q$qid"))) {
-                    // Multiple responses
-                    foreach (request("q$qid") as $resp) {
-                        echo "Q:$qid R:$resp T:$question->type<br>";
+            if ($question->section->page->order == request('page')) {
+                $questions_asked[] = $qid;
+                $responses_given = [];
 
-                        $option_id = ($question->type == 'select') ? $resp : null;  // set option_id for select questions
+                //
+                // Question Responses
+                //  - convert response to an array (Process Single + Multiple response with same code)
+                $resp_array = [];
+                if (request()->has("q$qid")) //ie. request variable exists
+                    $resp_array = (is_array(request("q$qid"))) ? request("q$qid") : [request("q$qid")];
+
+                foreach ($resp_array as $resp) {
+                    if ($resp) { // Response not blank/null
+                        if ($debug) echo "Q:$qid Val:$resp T:$question->type<br>";
+                        if ($question->type_special == 'site') $form->site_id = $resp;  // Add the Site ID to form
+
+                        // Set option_id + date field if required
+                        $option_id = ($question->type == 'select' && !in_array($question->type_special, ['site', 'user'])) ? $resp : null;  // set option_id for select questions
                         $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
                         //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
 
-                        $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->first();
+                        $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $resp)->first();
                         if ($response) {
                             $response->value = $resp;
                             $response->option_id = $option_id;
@@ -183,41 +198,166 @@ class FormController extends Controller {
                             $response->save();
                         } else
                             $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
+                        $responses_given[] = $response->id;
                     }
-                } elseif (request("q$qid")) {
-                    // Single response + not blank/null
-                    $resp = request("q$qid");
+                }
+                $delete_blank_responses = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->whereNotIn('id', $responses_given)->delete();
 
-                    if ($question->type_special == 'site') $form->site_id = $resp;  // Add the Site ID to form
-
-                    $option_id = ($question->type == 'select') ? $resp : null;  // set option_id for select questions
-                    $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
-                    //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
-
-                    //echo "Q:$qid R:$resp T:$question->type O:$option_id  D:$date<br>";
-                    $response = $question->response($form->id)->first();
-                    if ($response) {
-                        $response->value = $resp;
-                        $response->option_id = $option_id;
-                        $response->date = $date;
-                        $response->save();
+                //
+                // Question Notes
+                //
+                $question_notes = request("q$qid-notes");
+                if ($question_notes) {
+                    $note = FormNote::where('form_id', $form->id)->where('question_id', $qid)->first();
+                    if ($note) {
+                        $note->notes = $question_notes;
+                        $note->save();
                     } else
-                        $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
+                        $note = FormNote::create(['form_id' => $form->id, 'question_id' => $qid, 'notes' => $question_notes]);
                 } else
-                    $delete_blank_single_response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->delete();  // Single Response is blank so delete
-
-                //$resp = (is_array(request("q$qid"))) ? implode(',',request("q$qid")) : request("q$qid");
+                    $note = FormNote::where('form_id', $form->id)->where('question_id', $qid)->delete(); // delete existing note if exists
 
             }
         }
 
-        //$delete_blank = FormResponse::whereIn('option_id', array_keys($options_all))->whereNotIn('option_id', $options_selected)->where('table', 'site_incidents')->where('table_id', $incident->id)->delete();
-
         $form->save();
 
-        //dd($form_data);
+        if ($nextpage == request('page')) {
+
+            $failed_questions = $this->verifyFormCompleted($form);
+            if ($debug) var_dump($failed_questions);
+
+            //dd($failed_questions);
+
+            $form->submitted = Carbon::now()->toDateTimeString();
+            if ($failed_questions) {
+                $first_failed = FormQuestion::find(reset($failed_questions)); // get first element of array failed_questions
+                $nextpage = ($first_failed) ? $first_failed->section->page->order : $nextpage;
+                //dd($first_failed);
+            } else {
+                $form->submitted = null;
+                $form->completed = Carbon::now()->toDateTimeString();
+                $form->status = 0;
+            }
+            $form->save();
+        }
+
+        //dd(request()->all());
 
         return redirect("form/$form->id/$nextpage");
+    }
+
+    public function verifyFormCompleted($form)
+    {
+        $debug = true;
+        // Verify all required questions are completed.
+        if ($debug) echo "<br>Form Completed - Verify Required Fields<br>--------------------------------------------------</br>";
+        $required_questions = [];
+        $failed_questions = [];
+        $logic_questions = [];
+        $delete_responses = [];
+        foreach ($form->questions as $question) {
+            if ($question->required) {
+                $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
+                $val = ($response) ? $response->value : '';
+
+                // Check if question is affected by any logic
+                $affectedByLogic = $question->affectedByLogic();
+                if ($affectedByLogic->count() == 0) {
+                    // Standard Question not affected by any logic
+                    $required_questions[] = $question->id;
+                    if (!$val)
+                        $failed_questions[] = $question->id; // Questions has non blank/null response ie FAILS required check
+                } else {
+                    // Question is affected by logic
+                    foreach ($affectedByLogic as $logic) {
+                        // Get Source Question response values
+                        $sourceQuestion = FormQuestion::find($logic->question_id);
+                        $sourceResponseArray = $sourceQuestion->response($form->id)->pluck('value')->toArray();
+                        //$sourceResponseString = implode(',', $sourceResponseArray);
+
+                        $logic_questions[$question->id][$logic->id] = "<br> ===LOGIC[$logic->id] if (Q:$logic->question_id $logic->match_operation $logic->match_value) then Trigger:$logic->trigger[$logic->trigger_id]<br>";
+
+                        if ($logic->trigger == 'question' || true) {
+                            $match_array = explode(',', $logic->match_value);
+
+                            // Loop through each Logic Required Question/Section IDs (match_array) and determine if valid response exists
+                            foreach ($match_array as $match_val) {
+                                if (in_array($match_val, $sourceResponseArray)) {
+                                    $required_questions[] = $question->id;
+                                    if (!$val) {
+                                        $failed_questions[] = $question->id;
+                                    }
+                                    break;
+                                } else {
+                                    // Delete question from Required+Failed Questions as Question must match ALL logic
+                                    //  - this occures when single question has multiple logic statements eg Template 1, Q48
+                                    if (($key = array_search($question->id, $required_questions)) !== false)
+                                        unset($required_questions[$key]);
+
+                                    if (($key = array_search($question->id, $failed_questions)) !== false)
+                                        unset($failed_questions[$key]);
+                                }
+                            }
+                        }
+                    }
+
+                    // If question is affected by logic but a) has value + b) now not required then delete the response
+                    if ($val && !in_array($question->id, $required_questions))
+                        $delete_responses[] = $question->id;
+
+                } // End question is affected by logic
+
+                //
+                // Debug statements
+                //
+                if ($debug) {
+                    $fail = (in_array($question->id, $failed_questions)) ? "*" : '';
+                    $del = (in_array($question->id, $delete_responses)) ? "DELETE" : '';
+                    $req = '';
+                    $logic_mesg = '';
+
+                    // Check if question has an logic from LogicArray and if so then match to current question
+                    //  - a single question can be affected by multiple logic operations
+                    if (array_key_exists($question->id, $logic_questions)) {
+                        foreach ($logic_questions as $qid => $logic_array) {
+                            if ($qid == $question->id) {
+                                $req = (in_array($question->id, $required_questions)) ? " REQUIRED" : '';
+                                foreach ($logic_array as $logic_id => $mesg)
+                                    $logic_mesg .= $mesg;
+                            }
+                        }
+                    }
+                    echo "$fail Q:$question->id Page:$question->page_id Sect:$question->section_id  == [$val] $req $del $logic_mesg <br>";
+                }
+            } // end required question
+        }
+
+        // Remove duplicates - these can occur when a question is affected by multiple logic statements eg Template 1, Q48
+        $required_questions = array_unique($required_questions);
+
+        // Debug values
+        if ($debug) {
+            echo "<br>Required Questions<br>";
+            var_dump($required_questions);
+            echo "<br>Logic Questions<br>";
+            var_dump($logic_questions);
+            echo "<br>Failed Questions<br>";
+            var_dump($failed_questions);
+            echo "<br>Delete Questions<br>";
+            var_dump($delete_responses);
+        }
+
+        // Delete Non Required empty/blank questions
+        if (count($delete_responses)) {
+            //$array1 = FormResponse::where('form_id', $form->id)->whereNotIn('question_id', $required_questions)->pluck('id')->toArray();
+            //$array2 = FormResponse::where('form_id', $form->id)->whereIn('question_id', $delete_responses)->pluck('id')->toArray();
+            //var_dump($array1);
+            //var_dump($array2);
+            $delete_non_required = FormResponse::where('form_id', $form->id)->wherein('question_id', $delete_responses)->delete();
+        }
+
+        return $failed_questions;
     }
 
 
@@ -280,6 +420,17 @@ class FormController extends Controller {
         //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
         //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
     }
+
+
+    /**
+     * Upload Filepond file
+     */
+    public function upload()
+    {
+        dd('here');
+        dd(request()->all());
+    }
+
 
 
     /**

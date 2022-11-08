@@ -507,17 +507,17 @@ function get_decorated_diff($old, $new)
 function customFormSelectButtons($question_id, $option_id = null)
 {
     // get data
-    //$form = \App\Models\Misc\Form\Form::find($form_id);
     $question = \App\Models\Misc\Form\FormQuestion::find($question_id);
-    //$option = \App\Models\Misc\Form\FormOption::find($option_id);
 
-    //$colours = ['red' => 'btn-danger', 'green' => 'btn-sucess', ]
+    // set question logic (if exists)
+    $logic = (count($question->logic)) ? "data-logic='true'" : '';
+
 
     // create button html
     $str = '';
     $str .= "<div class='btn-group' style='width:100%;'>\n\r";
     // YrN
-    if ($question->type_special = "YrN") {
+    if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN'])) {
         foreach ($question->options()->sortBy('order') as $option) {
             $active_class = '';
             if ($option_id && $option_id == $option->id) {
@@ -527,8 +527,9 @@ function customFormSelectButtons($question_id, $option_id = null)
             $str .= "$option->id'"; // complete button id by adding 'option-id'
             $str .= "data-qid='$question_id'"; // add question id
             $str .= "data-rid='$option->id'"; // add option id
-            $str .= "data-bval='$option->value'"; // add option id
+            $str .= "data-bval='$option->value'"; // add option value
             $str .= ($option->colour) ? "data-btype='$option->colour'" : "data-btype='dark'"; // add button class
+            $str .= "$logic"; // add logic if exists
             $str .= ">$option->text</button>\n\r"; // end button
         }
     }

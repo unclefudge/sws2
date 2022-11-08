@@ -428,12 +428,19 @@ class MailgunZohoController extends Controller {
     public function compareSiteData($site, $data, $head, $fields, $datefields, $yesno_fields, $exclude_update, $new_site)
     {
         $diff = "[$site->id] $site->name $new_site\n";
+        $cc = Company::find(3);
 
 
         foreach ($fields as $field) {
             $excluded = (in_array($field, $exclude_update)) ? ' **NOT IMPORTED**' : '';  // Adds Note for not Imported
             if (isset($head[$field])) {
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
+
+                // Project Manager - convert Name into Userid
+                if ($field == 'project_mgr' && $zoho_data) {
+                    $user = $cc->projectManagersMatch($data[$head['project_mgr_name']]);
+                    $zoho_data = ($user) ? $user->id : null;
+                }
 
                 // both SWS + Zoho have data
                 if ($site->{$field} && $zoho_data && strtoupper($site->{$field}) != strtoupper($zoho_data)) {
