@@ -175,7 +175,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
-                                    I have <b>reviewed</b> and am <b>familiar with the site specific Risk Assessment and COVID Safe plan</b> for the project and will apply the specified controls stated <a
+                                    I have <b>reviewed</b> and am <b>familiar with the site specific Risk Assessment</b> for the project and will apply the specified controls stated <a
                                             class="btn default" id="open_docs">view</a>
                                 </div>
                             </div>
