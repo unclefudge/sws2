@@ -293,7 +293,6 @@
                         <ul class="feeds">
                             {{-- Open Site Accidents for CC admin/super --}}
                             <?php $count = 0 ?>
-                            {{--}}
                             @foreach(App\Models\Site\SiteAccident::where('status', '1')->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
                                     <?php $count ++ ?>
@@ -320,11 +319,10 @@
                                         </a>
                                     </li>
                                 @endif
-                            @endforeach --}}
+                            @endforeach
 
                             {{-- Open Site Incidents for CC admin/super --}}
                             <?php $count = 0 ?>
-                            {{--}}
                             @foreach(App\Models\Site\Incident\SiteIncident::where('status', '1')->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
                                     <?php $count ++ ?>
@@ -341,7 +339,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site->name }}</div>
+                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site_name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -351,7 +349,7 @@
                                         </a>
                                     </li>
                                 @endif
-                            @endforeach --}}
+                            @endforeach
 
                             {{-- Open Site Hazards + Taskfor CC admin/super --}}
                             <?php $count = 0 ?>
