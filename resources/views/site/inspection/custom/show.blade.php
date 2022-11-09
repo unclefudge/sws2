@@ -1,4 +1,4 @@
-@extends('layout-stripdown')
+@extends('layout')
 
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
@@ -10,21 +10,6 @@
         <li><span>View Report</span></li>
     </ul>
 @stop
-
-<style>
-    .hoverFinger:hover {
-        cursor: pointer;
-    }
-
-    .button-resp {
-        margin-right: 10px;
-        width: 25%;
-    }
-
-    /*.filepond--root {
-        height: 50px !important;
-    }*/
-</style>
 
 @section('content')
 
@@ -155,7 +140,9 @@
                                                                 @break
 
                                                                 @case('media') {{-- Media --}}
-                                                                <input type="file" class="my-pond" name="{{$question->id}}"/>
+                                                                    <div class="col-md-6">No files</div>
+                                                                    <div class="col-md-6"><input type="file" class="my-filepond" name="q{{$question->id}}" style="margin-top: 10px" multiple /></div>
+                                                                    {{--}}<input type="file" class="my-filepond" name="Quest{{$question->id}}" style="margin-top: 10px" multiple />--}}
                                                                 @break
 
                                                                 @case('select') {{-- Select --}}
@@ -268,7 +255,7 @@
     {{-- Filepond --}}
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>
     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-
+    {{--}}<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">--}}
 
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
@@ -279,8 +266,8 @@
 @section('page-level-plugins')
     {{--<script src="/assets/global/plugins/jquery.min.js" type="text/javascript"></script>--}}
     {{--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>--}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
-    <script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    {{--}}<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>--}}
+    {{--}}<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>--}}
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
@@ -290,9 +277,9 @@
     <!-- FilePond -->
     <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
     <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <!--<script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>-->
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+    <!--<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>-->
     {{--}}<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>--}}
     {{--}}<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
     <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-resize.min.js"></script>
@@ -300,7 +287,8 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<!--<script src="/js/filepond-setup.js"></script>-->>
+<script src="/js/custom-form-filepond.js"></script>
+<script src="/js/filepond-setup.js"></script>
 <script type="text/javascript">
     $.ajaxSetup({
         header: $('meta[name="_token"]').attr('content')
@@ -364,7 +352,9 @@
             var qid = $(this).attr('data-qid');
             $('#editnote-' + qid).hide();
             $('#shownote-' + qid).show();
-            $('#q' + qid + '-notes').val($('#shownote-' + qid + '-div').html()); // Reset val to orig html
+            // Reset val to orig for both value + div html
+            $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val())
+            $('#q' + qid + '-notes').val($('#q' + qid + '-notes-orig').val());
         });
 
         // Delete Note
@@ -507,33 +497,6 @@
         //$('#custom_form').on('submit', function (e) {
         //    e.preventDefault(e);
         //});
-
-
-        //
-        // Filepond
-        //
-        // Turn input element into a pond
-        $('.my-pond').filepond();
-
-        // Turn input element into a pond with configuration options
-        $('.my-pond').filepond({
-            allowMultiple: true,
-        });
-
-        // Set allowMultiple property to true
-        $('.my-pond').filepond('allowMultiple', false);
-
-        // Listen for addfile event
-        $('.my-pond').on('FilePond:addfile', function (e) {
-            console.log('file added event', e);
-        });
-
-        // Manually add a file using the addfile method
-        /*$('.my-pond').filepond('addFile', 'index.html')
-                .then(function (file) {
-                    console.log('file added', file);
-                });*/
-
 
     });
 

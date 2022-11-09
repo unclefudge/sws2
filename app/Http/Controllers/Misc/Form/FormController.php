@@ -427,8 +427,20 @@ class FormController extends Controller {
      */
     public function upload()
     {
-        dd('here');
-        dd(request()->all());
+        //dd('here');
+        $files = request()->allFiles();
+        if ($files) {
+            // FilePond only uploads 1 file at a time (even with multiple) so if array exists then it only has 1 element
+            $firstKey = array_key_first($files);
+            echo "$firstKey<br>";
+
+            var_dump($files);
+            //foreach ($files as $key => $val) {
+            //    echo "$key<br>";
+            //}
+        }
+        //dd($files);
+        //dd(request()->all());
     }
 
 

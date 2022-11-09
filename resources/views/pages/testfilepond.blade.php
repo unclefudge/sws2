@@ -12,6 +12,21 @@
 <body>
 <div><h1>Filepond</h1></div>
 <input type="file" class="my-pond" name="filepond-file" multiple/>
+<div>
+    <style>
+        /*.filepond--item {
+            width: calc(50% - 0.5em);
+        }*/
+        /*.filepond--hopper {
+            height: 250px;
+        }*/
+        /*.filepond--root {
+            min-height: 200px !important;
+        }*/
+    </style>
+    <h4>Gallery</h4>
+    <div id="gallery"></div>
+</div>
 </body>
 </html>
 

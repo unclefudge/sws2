@@ -530,7 +530,7 @@ function customFormSelectButtons($question_id, $option_id = null)
             $str .= "data-bval='$option->value'"; // add option value
             $str .= ($option->colour) ? "data-btype='$option->colour'" : "data-btype='dark'"; // add button class
             $str .= "$logic"; // add logic if exists
-            $str .= ">$option->text</button>\n\r"; // end button
+            $str .= " style='margin-right: 10px;width: 25%;'>$option->text</button>\n\r"; // end button
         }
     }
     $str .= "</div>\n\r";

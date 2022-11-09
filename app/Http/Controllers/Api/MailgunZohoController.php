@@ -382,8 +382,8 @@ class MailgunZohoController extends Controller {
             // Dates
             'Approval Date'       => 'council_approval',
             'CX Sent Date'        => 'contract_sent',
-            'CX Rcvd Date'        => 'contract_received',
             'CX Sign Date'        => 'contract_signed',
+            'CX Rcvd Date'        => 'contract_received',
             'CX Deposit Date'     => 'deposit_paid',
             'Prac Signed'         => 'completion_signed',
             //'Eng Certified'       => 'engineering_cert',
@@ -391,10 +391,10 @@ class MailgunZohoController extends Controller {
             'HBCF Start Date'     => 'hbcf_start',
             'Design Cons'         => 'consultant_initials',
             'Design Cons (user)'  => 'consultant_name',
-            'Job Stage'           => 'job_stage',
-            'Eng FJ Certified?'   => 'engineering',
             'Project Coordinator' => 'project_mgr',
             'Project Coordinator (user)' => 'project_mgr_name',
+            'Eng FJ Certified?'   => 'engineering',
+            'Job Stage'           => 'job_stage',
 
             // Contacts Module
             'Job Name (Job Name)' => 'name',
