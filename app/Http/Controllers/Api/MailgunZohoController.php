@@ -185,6 +185,10 @@ class MailgunZohoController extends Controller {
 
                     if ($job_stage == '950 Sales Dropout') { // Don't import Sales Dropouts
                         $sales_dropouts ++;
+                        if ($site && $site->status != '-2') {
+                            $site->status == '-2';
+                            $site->save();
+                        }
                         continue;
                     }
                     $job_precontruction = '';
