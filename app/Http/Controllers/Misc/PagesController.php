@@ -180,6 +180,7 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        // test
         /*
         echo "<b>Creating Merged PDF</b></br>";
 
