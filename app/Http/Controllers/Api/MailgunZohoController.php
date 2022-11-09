@@ -126,6 +126,7 @@ class MailgunZohoController extends Controller {
         $report_type = '';
         $sites_imported = [];
         $sales_dropouts = 0;
+        $on_holds = 0;
         $differences = '';
         $blankZohoFields = [];
         $newSites = [];
@@ -183,8 +184,10 @@ class MailgunZohoController extends Controller {
                     $site = ($report_type == 'Jobs') ? Site::where('code', $data[$head['code']])->first() : Site::where('name', $data[$head['name']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
 
-                    if ($job_stage == '950 Sales Dropout') { // Don't import Sales Dropouts
-                        $sales_dropouts ++;
+                    // Don't import these Stages but if site exists in SafeWorksite then update Status to 'Cancelled'
+                    if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
+                        if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
+                        if ($job_stage == '160 On Hold') $on_holds ++;
                         if ($site && $site->status != '-2') {
                             $site->status == '-2';
                             $site->save();
@@ -227,6 +230,12 @@ class MailgunZohoController extends Controller {
                         $diffs = $this->compareSiteData($site, $data, $head, $fields, $datefields, $yesno_fields, $exclude_update, $new_site);
                         if ($diffs)
                             $differences .= $diffs;
+
+                        // If site was previously 'Cancelled' then set status to 'Upcoming'
+                        if ($site->status == '-2') {
+                            $site->status = '-1';
+                            $site->save();
+                        }
 
 
                         //
