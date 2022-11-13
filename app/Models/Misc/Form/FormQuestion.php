@@ -5,10 +5,9 @@ namespace App\Models\Misc\Form;
 use URL;
 use Mail;
 use App\User;
-use App\Models\Misc\Form\FormTemplate;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormResponse;
+use App\Models\Comms\Todo;
+use App\Models\Site\Site;
+//use App\Models\Company\Company;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -108,12 +107,74 @@ class FormQuestion extends Model {
     }
 
     /**
-     * A FormQuestion 'may' have a response for a certain 'form'
-     *
+     * A FormQuestion 'may' have files for a certain 'form'
+     */
+    public function files($form_id)
+    {
+        return FormFile::where('form_id', $form_id)->where('question_id', $this->id)->get();
+    }
+
+    /**
+     * A FormQuestion 'may' have action for a certain 'form'
+     */
+    public function actions($form_id, $status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'form')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
+
+        return Todo::where('type', 'form')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
+
+        //return FormAction::where('form_id', $form_id)->where('question_id', $this->id)->get();
+    }
+
+    /**
+     * A FormQuestion 'may' have responses for a certain 'form'
      */
     public function response($form_id)
     {
         return FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->get();
+    }
+
+    /**
+     * A FormQuestion 'may' have responses for a certain 'form'
+     */
+    public function responseFormatted($form_id)
+    {
+        $responses = FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->get();
+        if (count($responses))
+            $values = ($this->multiple) ? $responses->pluck('value')->toArray() : [$responses->first()->value];
+        else
+            return '';
+
+        if ($this->type_special == 'site') {
+            $site = Site::find($values[0]);
+
+            return "$site->name ($site->address, $site->suburb)";
+        }
+
+        if ($this->type_special == 'staff') {
+            $user = User::find($values[0]);
+
+            return "$user->name";
+        }
+        // Custom Buttons
+        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) {
+            return customFormSelectButtons($this->id, $values[0], 0);
+        }
+
+        if (in_array($this->type, ['text', 'textarea']))
+            return $values[0];
+        else {
+            $str = '';
+
+            foreach ($values as $option_id) {
+                $option = FormOption::find($option_id);
+                if ($option)
+                    $str .= "$option->text<br>";
+            }
+
+            return $str;
+        }
     }
 
 

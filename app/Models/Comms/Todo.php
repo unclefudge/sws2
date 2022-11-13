@@ -22,7 +22,7 @@ class Todo extends Model {
 
     protected $table = 'todo';
     protected $fillable = [
-        'name', 'info', 'comments', 'type', 'type_id', 'due_at', 'done_at', 'done_by',
+        'name', 'info', 'comments', 'type', 'type_id', 'type_id2', 'due_at', 'done_at', 'done_by',
         'priority', 'attachment', 'status', 'company_id', 'created_by', 'updated_by'
     ];
 
@@ -132,19 +132,19 @@ class Todo extends Model {
     {
         switch ($this->type) {
             case 'toolbox':
-                return '/safety/doc/toolbox2/' . $this->type_id;
+                return "/safety/doc/toolbox2/$this->type_id";
             case 'qa':
-                return '/site/qa/' . $this->type_id;
+                return "/site/qa/$this->type_id";
             case 'maintenance':
-                return '/site/maintenance/' . $this->type_id;
+                return "/site/maintenance/$this->type_id";
             case 'project supply':
-                return '/site/supply/' . $this->type_id . '/edit';
+                return "/site/supply/$this->type_id/edit";
             case 'scaffold handover':
-                return '/site/scaffold/handover/create/' . $this->type_id;
+                return "/site/scaffold/handover/create/$this->type_id";
             case 'extension signoff':
-                return '/site/extension/' . $this->type_id;
+                return "/site/extension/$this->type_id";
             case 'incident review':
-                return '/site/incident/' . $this->type_id;
+                return "/site/incident/$this->type_id";
             case 'incident witness':
                 $witness = SiteIncidentWitness::find($this->type_id);
                 return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
@@ -155,13 +155,13 @@ class Todo extends Model {
             case 'company doc review':
                 $doc = CompanyDocReview::find($this->type_id);
                 if ($doc)
-                    return '/company/doc/standard/review/' . $doc->id . '/edit';
+                    return "/company/doc/standard/review/$doc->id/edit";
             case 'company ptc':
                 $ptc = CompanyDocPeriodTrade::find($this->type_id);
                 if ($ptc)
-                    return '/company/' . $ptc->for_company_id . '/doc/period-trade-contract/' . $this->type_id;
+                    return "/company/$ptc->for_company_id/doc/period-trade-contract/$this->type_id";
             default:
-                return '/todo/' . $this->id;
+                return "/todo/$this->id";
         }
 
         return '';

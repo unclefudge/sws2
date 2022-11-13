@@ -18,9 +18,8 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\Incident\SiteIncident;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentLocationItem;
-use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\Form\Form;
+use App\Models\Misc\Form\FormQuestion;
 use App\Http\Requests;
 use App\Http\Requests\Comms\TodoRequest;
 use App\Http\Controllers\Controller;
@@ -70,7 +69,11 @@ class TodoController extends Controller {
      */
     public function createType($type, $type_id)
     {
-        return view('comms/todo/create', compact('type', 'type_id'));
+        $type_id2 = null;
+        if ($type == 'form')
+            list($type_id, $type_id2) = explode('-', $type_id, 2);
+
+        return view('comms/todo/create', compact('type', 'type_id', 'type_id2'));
     }
 
 
@@ -79,7 +82,7 @@ class TodoController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(TodoRequest $request)
+    public function store()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.todo'))
@@ -178,7 +181,7 @@ class TodoController extends Controller {
             $hazard->touch(); // update timestamp
             $todo->emailToDo();
 
-            return redirect('/site/hazard/' . $todo->type_id);
+            return redirect("/site/hazard/$todo->type_id");
         }
         if ($todo->type == 'accident') {
             $accident = SiteAccident::find($todo->type_id);
@@ -186,7 +189,7 @@ class TodoController extends Controller {
             $accident->touch(); // update timestamp
             $todo->emailToDo();
 
-            return redirect('/site/accident/' . $todo->type_id);
+            return redirect("/site/accident/$todo->type_id");
         }
 
         if ($todo->type == 'incident') {
@@ -195,7 +198,17 @@ class TodoController extends Controller {
             $incident->touch(); // update timestamp
             $todo->emailToDo();
 
-            return redirect('/site/incident/' . $todo->type_id);
+            return redirect("/site/incident/$todo->type_id");
+        }
+
+        if ($todo->type == 'form') {
+            $form = Form::find($todo->type_id);
+            //$action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_hazards', 'table_id' => $todo->type_id]);
+            $form->touch(); // update timestamp
+            $todo->emailToDo();
+
+            $FomQuestion = FormQuestion::find($todo->type_id2);
+            return redirect("/form/$todo->type_id/".$FomQuestion->section->page->order);
         }
 
         return redirect('/todo');
@@ -249,6 +262,17 @@ class TodoController extends Controller {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.todo', $todo))
             return view('errors/404');
+
+        // Delete ToDoo Task - if status = delete
+        if (request('status') == 'delete') {
+            $type_id = $todo->type_id;
+            $type_id2 = $todo->type_id2;
+            $todo->delete();
+            if ($todo->type == 'form') {
+                $FomQuestion = FormQuestion::find($type_id2);
+                return redirect("/form/$type_id/".$FomQuestion->section->page->order);
+            }
+        }
 
         $old_status = $todo->status;
         $todo_request = request()->all();

@@ -7,6 +7,7 @@ use Validator;
 
 use DB;
 use PDF;
+use File;
 use Mail;
 use Session;
 use App\Models\Misc\Form\FormTemplate;
@@ -17,6 +18,8 @@ use App\Models\Misc\Form\FormQuestion;
 use App\Models\Misc\Form\FormResponse;
 use App\Models\Misc\Form\FormLogic;
 use App\Models\Misc\Form\FormNote;
+use App\Models\Misc\Form\FormFile;
+use App\Models\Misc\TemporaryFile;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -162,7 +165,14 @@ class FormController extends Controller {
 
         $nextpage = request('nextpage');
         $questions_asked = [];
+        $questions_media = [];
         $debug = true;
+
+        // Form has been re-opened
+        if (request('status'))
+            $form->status = request('status');
+
+        //dd(request()->all());
 
         // Loop through ALL form questions
         foreach ($form->questions as $question) {
@@ -181,7 +191,7 @@ class FormController extends Controller {
                     $resp_array = (is_array(request("q$qid"))) ? request("q$qid") : [request("q$qid")];
 
                 foreach ($resp_array as $resp) {
-                    if ($resp) { // Response not blank/null
+                    if ($resp || $resp == '0') { // Response not blank/null
                         if ($debug) echo "Q:$qid Val:$resp T:$question->type<br>";
                         if ($question->type_special == 'site') $form->site_id = $resp;  // Add the Site ID to form
 
@@ -201,7 +211,9 @@ class FormController extends Controller {
                         $responses_given[] = $response->id;
                     }
                 }
-                $delete_blank_responses = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->whereNotIn('id', $responses_given)->delete();
+                // Delete responses excluding non blank/null responses given if Form 'active'
+                if ($form->status)
+                    $delete_blank_responses = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->whereNotIn('id', $responses_given)->delete();
 
                 //
                 // Question Notes
@@ -217,13 +229,59 @@ class FormController extends Controller {
                 } else
                     $note = FormNote::where('form_id', $form->id)->where('question_id', $qid)->delete(); // delete existing note if exists
 
+
+                //
+                // Question Media
+                //
+                $question_media = request("q$qid-media");
+                if ($question_media) {
+                    foreach ($question_media as $tmp_filename) {
+                        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
+                        if ($tempFile) {
+                            // Move temp file to forms directory
+                            $form_dir = "/filebank/form/$form->id";
+                            if (!is_dir(public_path($form_dir))) mkdir(public_path($form_dir), 0777, true);  // Create directory if required
+
+                            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
+                            if (file_exists($tempFilePublicPath)) {
+                                $newFile = "$form_dir/" . $question->id . '-' . $tempFile->filename;
+                                rename($tempFilePublicPath, public_path($newFile));
+                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => 'photo', 'attachment' => $newFile]);
+                                $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file)->first();
+                                if (!$response)
+                                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $form_file->id, 'option_id' => null, 'date' => null]);
+                                $responses_given[] = $response->id;
+                            }
+
+                            // Delete Temporary file directory + record
+                            $tempFile->delete();
+                            rmdir(public_path($tempFile->folder));
+                        }
+                    }
+                }
+            }
+        }
+
+        //
+        // Delete any media
+        //
+        if (request('myGalleryDelete')) {
+            foreach (request('myGalleryDelete') as $filename) {
+                list($qid, $rest) = explode('-', $filename, 2);
+
+                // Delete FormFile + FormResponses
+                $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "/filebank/form/$form->id/$filename")->first();
+                if ($form_file) {
+                    FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file->id)->delete();
+                    $form_file->delete();
+                }
             }
         }
 
         $form->save();
 
-        if ($nextpage == request('page')) {
-
+        // Final Page / Complete Form submitted
+        if ($nextpage == 'complete') {
             $failed_questions = $this->verifyFormCompleted($form);
             if ($debug) var_dump($failed_questions);
 
@@ -233,25 +291,31 @@ class FormController extends Controller {
             if ($failed_questions) {
                 $first_failed = FormQuestion::find(reset($failed_questions)); // get first element of array failed_questions
                 $nextpage = ($first_failed) ? $first_failed->section->page->order : $nextpage;
-                //dd($first_failed);
             } else {
                 $form->submitted = null;
                 $form->completed = Carbon::now()->toDateTimeString();
                 $form->status = 0;
+                $nextpage = 1;
             }
             $form->save();
         }
 
         //dd(request()->all());
 
+        // Create Action for question - redirect to ToDoo
+        if (request('addAction'))
+            return redirect("todo/create/form/$form->id-" . request('addAction'));
+        elseif (request('showAction'))
+            return redirect("todo/" . request('showAction'));
+
         return redirect("form/$form->id/$nextpage");
     }
 
     public function verifyFormCompleted($form)
     {
-        $debug = true;
+        $debug = false;
         // Verify all required questions are completed.
-        if ($debug) echo "<br>Form Completed - Verify Required Fields<br>--------------------------------------------------</br>";
+        if ($debug) echo " <br>Form Completed - Verify Required Fields <br>--------------------------------------------------</br> ";
         $required_questions = [];
         $failed_questions = [];
         $logic_questions = [];
@@ -260,6 +324,13 @@ class FormController extends Controller {
             if ($question->required) {
                 $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
                 $val = ($response) ? $response->value : '';
+
+                // Convert $val to 'zero' in the cases it's '0' for checking if valid response
+                $val = ($val == '0') ? '{zero}' : $val;
+
+                // Media Only Question - check if media found
+                if ($question->type == 'media')
+                    $val = ($question->files($form->id)->count()) ? 'media found' : null;
 
                 // Check if question is affected by any logic
                 $affectedByLogic = $question->affectedByLogic();
@@ -276,7 +347,7 @@ class FormController extends Controller {
                         $sourceResponseArray = $sourceQuestion->response($form->id)->pluck('value')->toArray();
                         //$sourceResponseString = implode(',', $sourceResponseArray);
 
-                        $logic_questions[$question->id][$logic->id] = "<br> ===LOGIC[$logic->id] if (Q:$logic->question_id $logic->match_operation $logic->match_value) then Trigger:$logic->trigger[$logic->trigger_id]<br>";
+                        $logic_questions[$question->id][$logic->id] = "<br> ===LOGIC[$logic->id] if (Q:$logic->question_id $logic->match_operation $logic->match_value) then Trigger:$logic->trigger[$logic->trigger_id] <br>";
 
                         if ($logic->trigger == 'question' || true) {
                             $match_array = explode(',', $logic->match_value);
@@ -312,7 +383,7 @@ class FormController extends Controller {
                 // Debug statements
                 //
                 if ($debug) {
-                    $fail = (in_array($question->id, $failed_questions)) ? "*" : '';
+                    $fail = (in_array($question->id, $failed_questions)) ? " * " : '';
                     $del = (in_array($question->id, $delete_responses)) ? "DELETE" : '';
                     $req = '';
                     $logic_mesg = '';
@@ -328,7 +399,7 @@ class FormController extends Controller {
                             }
                         }
                     }
-                    echo "$fail Q:$question->id Page:$question->page_id Sect:$question->section_id  == [$val] $req $del $logic_mesg <br>";
+                    echo "$fail Q:$question->id Page:$question->page_id Sect:$question->section_id == [$val] $req $del $logic_mesg <br>";
                 }
             } // end required question
         }
@@ -338,13 +409,13 @@ class FormController extends Controller {
 
         // Debug values
         if ($debug) {
-            echo "<br>Required Questions<br>";
+            echo " <br>Required Questions<br>";
             var_dump($required_questions);
-            echo "<br>Logic Questions<br>";
+            echo " <br>Logic Questions <br>";
             var_dump($logic_questions);
-            echo "<br>Failed Questions<br>";
+            echo " <br>Failed Questions <br>";
             var_dump($failed_questions);
-            echo "<br>Delete Questions<br>";
+            echo " <br>Delete Questions <br>";
             var_dump($delete_responses);
         }
 
@@ -362,92 +433,53 @@ class FormController extends Controller {
 
 
     /**
-     * Save the Custom Form.
-     */
-    public function saveForm()
-    {
-        //dd(request()->all());
-        $custom_form = request('custom_form');
-        if ($custom_form) {
-            $template = FormTemplate::findOrFail($custom_form['id']);
-
-            if ($template) {
-                // Update Template
-                $template->name = $custom_form['name'];
-                $template->description = $custom_form['description'];
-                $template->save();
-
-                // Save Pages
-                $pages = $custom_form['pages'];
-                for ($i = 0; $i < count($pages); $i ++) {
-                    if ($pages[$i]['id'] != 'new') {
-                        $page = FormPage::findOrFail($pages[$i]['id']);
-                        if ($page) {
-                            // Update existing Page
-                            $page->name = $pages[$i]['name'];
-                            $page->description = $pages[$i]['description'];
-                            $page->order = $pages[$i]['order'];
-                            $page->save();
-                        }
-                    } else {
-                        // Create new Page
-                    }
-
-                    // Save Sections
-                    $sections = $pages[$i]['sections'];
-                    for ($i = 0; $i < count($sections); $i ++) {
-                        if ($sections[$i]['id'] != 'new') {
-                            $section = FormSection::findOrFail($sections[$i]['id']);
-                            if ($section) {
-                                // Update existing Section
-                                $section->page_id = $page->id;
-                                $section->name = $sections[$i]['name'];
-                                $section->description = $sections[$i]['description'];
-                                $section->order = $sections[$i]['order'];
-                                $section->save();
-                            }
-                        } else {
-                            // Create new Section
-                        }
-                    }
-                }
-            }
-        }
-
-        Toastr::success("Template saved");
-
-        return response()->json(['status' => 'ok', 'success' => true,], 200);
-        //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
-        //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
-    }
-
-
-    /**
      * Upload Filepond file
      */
     public function upload()
     {
-        //dd('here');
+        $folder = '';
+        $company_id = (Auth::check()) ? Auth::user()->company->reportsTo()->id : '3';
+        $path = "filebank/tmp/$company_id/upload";
+
         $files = request()->allFiles();
         if ($files) {
             // FilePond only uploads 1 file at a time (even with multiple) so if array exists then it only has 1 element
+            // - get array key which is the ID of the input ie q1
             $firstKey = array_key_first($files);
-            echo "$firstKey<br>";
 
-            var_dump($files);
-            //foreach ($files as $key => $val) {
-            //    echo "$key<br>";
-            //}
+            if (request()->hasFile($firstKey)) {
+                // As input variable is an array (ie. q1[]) loop through array to save each file
+                // - Filepond will only have 1 element in array but array is required to save the uploaded TemporaryFiles to actual Form on (update/save)
+                foreach (request()->file($firstKey) as $file) {
+                    $filename = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+                    $folder = "$path/" . uniqid() . '-' . now()->timestamp; // create unique folder for tmp file
+                    $file->move($folder, $filename);
+
+                    // Store temporary file to DB
+                    $tempFile = TemporaryFile::create(['folder' => $folder, 'filename' => $filename, 'company_id' => $company_id]);
+                }
+            }
         }
-        //dd($files);
+
+        return $folder;
+    }
+
+    /**
+     * Upload Filepond file
+     */
+    public function deleteUpload()
+    {
+        // Required to remove temporary uploaded Filepond file
         //dd(request()->all());
+        return 'delete upload';
     }
 
 
 
     /**
-     * Get Custom Form
+     * Get Custom Form  - vue3
      */
+    /*
     public function getForm($id)
     {
 
@@ -539,7 +571,68 @@ class FormController extends Controller {
         //$json[] = $template->sections;
 
         return $json;
-    }
+    } */
+
+    /**
+     * Save the Custom Form.  Vue3 version
+     */
+    /*
+    public function saveForm()
+    {
+        //dd(request()->all());
+        $custom_form = request('custom_form');
+        if ($custom_form) {
+            $template = FormTemplate::findOrFail($custom_form['id']);
+
+            if ($template) {
+                // Update Template
+                $template->name = $custom_form['name'];
+                $template->description = $custom_form['description'];
+                $template->save();
+
+                // Save Pages
+                $pages = $custom_form['pages'];
+                for ($i = 0; $i < count($pages); $i ++) {
+                    if ($pages[$i]['id'] != 'new') {
+                        $page = FormPage::findOrFail($pages[$i]['id']);
+                        if ($page) {
+                            // Update existing Page
+                            $page->name = $pages[$i]['name'];
+                            $page->description = $pages[$i]['description'];
+                            $page->order = $pages[$i]['order'];
+                            $page->save();
+                        }
+                    } else {
+                        // Create new Page
+                    }
+
+                    // Save Sections
+                    $sections = $pages[$i]['sections'];
+                    for ($i = 0; $i < count($sections); $i ++) {
+                        if ($sections[$i]['id'] != 'new') {
+                            $section = FormSection::findOrFail($sections[$i]['id']);
+                            if ($section) {
+                                // Update existing Section
+                                $section->page_id = $page->id;
+                                $section->name = $sections[$i]['name'];
+                                $section->description = $sections[$i]['description'];
+                                $section->order = $sections[$i]['order'];
+                                $section->save();
+                            }
+                        } else {
+                            // Create new Section
+                        }
+                    }
+                }
+            }
+        }
+
+        Toastr::success("Template saved");
+
+        return response()->json(['status' => 'ok', 'success' => true,], 200);
+        //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
+        //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
+    }*/
 
 
     /**
@@ -549,8 +642,8 @@ class FormController extends Controller {
     {
         $records = Form::select([
             'forms.id', 'forms.template_id', 'forms.site_id', 'forms.name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
-            DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
-            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate'),
+            DB::raw('DATE_FORMAT(forms.created_at, " % d /%m /%y") AS createddate'),
+            DB::raw('DATE_FORMAT(forms.updated_at, " % d /%m /%y") AS updateddate'),
             DB::raw('sites.name AS sitename')])
             ->join('sites', 'forms.site_id', '=', 'sites.id')
             ->where('forms.template_id', 1)
@@ -559,10 +652,10 @@ class FormController extends Controller {
 
         $dt = Datatables::of($records)
             ->addColumn('view', function ($report) {
-                return ('<div class="text-center"><a href="/site/inspection/custom/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
+                return ('<div class="text - center"><a href=" / site / inspection / custom / ' . $report->id . '"><i class="fa fa - search"></i></a></div>');
             })
             ->addColumn('action', function ($rec) {
-                return '<a href="/site/inspection/custom/' . $rec->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                return '<a href=" / site / inspection / custom / ' . $rec->id . ' / edit" class="btn blue btn - xs btn - outline sbold uppercase margin - bottom"><i class="fa fa - pencil"></i> Edit</a>';
             })
             ->rawColumns(['view', 'name', 'updated_at', 'created_at', 'action'])
             ->make(true);

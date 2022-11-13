@@ -30,6 +30,7 @@
 
                         {!! Form::hidden('company_id', Auth::user()->company_id, ['class' => 'form-control', 'id' => 'company_id']) !!}
                         {!! Form::hidden('type_id', $type_id, ['class' => 'form-control', 'id' => 'type_id']) !!}
+                        {!! Form::hidden('type_id2', $type_id2, ['class' => 'form-control', 'id' => 'type_id2']) !!}
 
                         <div class="form-body">
                             <div class="row">
@@ -45,6 +46,9 @@
                                             @endif
                                             @if ($type == 'incident')
                                                 <input type="text" name="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
+                                            @endif
+                                            @if ($type == 'form')
+                                                <input type="text" name="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
                                             @endif
                                         @else
                                             {!! Form::text('name', null, ['class' => 'form-control']) !!}
@@ -72,17 +76,28 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
                                         @if ($type)
-                                            {!! Form::text('type', $type, ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::hidden('type', $type, ['class' => 'form-control', 'readonly']) !!}
                                         @else
-                                            {!! Form::select('type', ['general' => 'General'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
+                                            {!! Form::select('type', ['general' => 'General'], null, ['class' => 'form-control select2']) !!}
                                         @endif
                                     </div>
-
                                     {!! fieldErrorMessage('type', $errors) !!}
                                 </div>
                             </div>
+                            @if ($type && $type == 'form')
+                                <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            {!! Form::label('question', 'Question', ['class' => 'control-label']) !!}
+                                            {!! Form::text('question', $question->name, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            @endif
 
                             <div class="row">
                                 <div class="col-md-12">
@@ -206,20 +221,10 @@
 
     $(document).ready(function () {
         /* Select2 */
-        $("#user_list").select2({
-            placeholder: "Select",
-            width: '100%',
-        });
-
-        $("#company_list").select2({
-            placeholder: "Select",
-            width: '100%'
-        });
-
-        $("#role_list").select2({
-            placeholder: "Select",
-            width: '100%'
-        });
+        $("#user_list").select2({placeholder: "Select", width: '100%',});
+        $("#company_list").select2({placeholder: "Select", width: '100%'});
+        $("#role_list").select2({placeholder: "Select", width: '100%'});
+        $("#type").select2({width: '100%'});
 
         $("#date-reset").click(function () {
             $('#due_at').val('');

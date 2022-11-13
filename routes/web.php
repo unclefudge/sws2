@@ -538,6 +538,7 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
     Route::get('form/{form_id}/{pagenumber}', 'Misc\Form\FormController@showPage');
     Route::post('form/upload', 'Misc\Form\FormController@upload');
+    Route::delete('form/upload', 'Misc\Form\FormController@deleteUpload');
     //Route::get('form/data/form/{form_id}', 'Misc\Form\FormController@getForm');
     Route::resource('form', 'Misc\Form\FormController');
 

@@ -13,6 +13,7 @@ define('TODO_TYPES', ['incident'              => "Incident Report",
                       'extension'             => 'Contract Time Extensions',
                       'equipment'             => 'Equipment Transfer',
                       'maintenance'           => 'Site Maintenance Requests',
+                      'form'                  => 'Site Inspection',
                       'inspection_electrical' => 'Electrical Inspection Reports',
                       'inspection_plumbing'   => 'Plumbing Inspection Reports',
                       'scaffold handover'     => 'Scaffold Handover Certificate',
@@ -504,17 +505,27 @@ function get_decorated_diff($old, $new)
  *
  * @return string
  */
-function customFormSelectButtons($question_id, $option_id = null)
+function customFormSelectButtons($question_id, $option_id, $formStatus)
 {
-    // get data
-    $question = \App\Models\Misc\Form\FormQuestion::find($question_id);
+    $str = '';
+    $question = \App\Models\Misc\Form\FormQuestion::find($question_id);  // get question
+    if (!$question) return '';
+
+
+    // Form is Complete so return only selected 'active' button
+    if ($formStatus == '0') {
+        $option = \App\Models\Misc\Form\FormOption::find($option_id);
+        if ($option) {
+            $active_class = ($option->colour) ? $option->colour : 'dark';
+            $str = "<div><button class='btn button-resp $active_class' id='q$question->id-$option->id' style='margin-right: 10px;width: 25%; cursor:default'>$option->text</button></div>\n\r";
+        }
+        return $str;
+    }
 
     // set question logic (if exists)
     $logic = (count($question->logic)) ? "data-logic='true'" : '';
 
-
     // create button html
-    $str = '';
     $str .= "<div class='btn-group' style='width:100%;'>\n\r";
     // YrN
     if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN'])) {

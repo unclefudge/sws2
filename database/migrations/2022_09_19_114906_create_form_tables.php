@@ -217,7 +217,7 @@ class CreateFormTables extends Migration
             $table->integer('question_id')->unsigned()->nullable();
             $table->string('type', 50)->nullable();
             $table->string('name', 255)->nullable();
-            $table->string('attachment', 255)->nullable();
+            $table->string('attachment')->nullable();
             $table->integer('order')->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
@@ -252,6 +252,20 @@ class CreateFormTables extends Migration
             $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
+
+        //
+        // Temporary Files
+        //
+        Schema::create('temporary_files', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('folder')->nullable();
+            $table->string('filename')->nullable();
+            $table->integer('company_id')->unsigned()->nullable();
+
+            // Modify info
+            $table->integer('created_by')->unsigned();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -261,6 +275,7 @@ class CreateFormTables extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('temporary_files');
         Schema::dropIfExists('forms_actions');
         Schema::dropIfExists('forms_files');
         Schema::dropIfExists('forms_notes');

@@ -10,6 +10,7 @@ FilePond.registerPlugin(
     //FilePondPluginImageCrop,
     //FilePondPluginImagePreview, // show preview of image within the drag & drop box
     //FilePondPluginImageTransform,
+    //FilePondPluginFileValidateType,
     FilePondPluginImageResize
 );
 
@@ -18,6 +19,7 @@ const inputElement = document.querySelector('input[type="file"]'); // single Fil
 
 // Create a FilePond instance
 const pond = FilePond.create(inputElement, {
+    acceptedFileTypes: ['image/png'],
     imageResizeTargetWidth: 100,
     imageResizeMode: 'contain', // ensure resized image isn't displayed any larger than TargetWidth
     /*imageTransformVariants: {

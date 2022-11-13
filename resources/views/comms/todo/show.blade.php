@@ -29,13 +29,27 @@
                         {!! Form::hidden('delete_attachment', 0, ['class' => 'form-control', 'id' => 'delete_attachment']) !!}
 
                         <div class="form-body">
-                            @if(!$todo->status)
+                            @if($todo->status == '0')
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Completed {!! ($todo->done_at) ? $todo->done_at->format('d/m/Y') : '' !!}</h3>
                                     </div>
                                 </div>
                             @endif
+                            @if($todo->status == '2')
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="pull-right font-yellow uppercase" style="margin:0 0 10px;">In Progress</h3>
+                                    </div>
+                                </div>
+                            @endif
+                                @if($todo->status == '-1')
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Can't do</h3>
+                                        </div>
+                                    </div>
+                                @endif
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group">
@@ -45,10 +59,27 @@
                                 </div>
                                 <div class="col-md-1"></div>
                                 <div class="col-md-3">
+                                    @if (Auth::user()->id == $todo->created_by)
+                                        <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
+                                            {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
+                                            <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
+                                                <input type="text" class="form-control" value="{{($todo->due_at) ? $todo->due_at->format('d/m/Y') : '' }}" readonly style="background:#FFF" id="due_at" name="due_at">
+                                            <span class="input-group-btn">
+                                                <button class="btn default date-reset" type="button" id="date-reset">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                                <button class="btn default" type="button">
+                                                    <i class="fa fa-calendar"></i>
+                                                </button>
+                                            </span>
+                                            </div>
+                                        </div>
+                                        @else
                                     <div class="form-group">
                                         {!! Form::label('s_due_at', 'Due Date', ['class' => 'control-label']) !!}
                                         {!! Form::text('s_due_at', ($todo->due_at) ? $todo->due_at->format('d/m/Y') : 'none', ['class' => 'form-control', 'readonly']) !!}
                                     </div>
+                                        @endif
                                 </div>
                             </div>
 
@@ -56,8 +87,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        {!! Form::label('s_info', 'Description of what to do', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('s_info', $todo->info, ['rows' => '4', 'class' => 'form-control', 'readonly']) !!}
+                                        {!! Form::label('info', 'Description of what to do', ['class' => 'control-label']) !!}
+                                        {!! Form::textarea('info', $todo->info, ['rows' => '4', 'class' => 'form-control', (Auth::user()->id != $todo->created_by) ? 'readonly' : '']) !!}
                                     </div>
                                 </div>
                                 @if ($todo->type == 'equipment' && $todo->location && count($todo->location->items))
@@ -87,19 +118,20 @@
                                 </div>
                             </div>
 
+                            {{-- Attachments --}}
                             @if($todo->type == 'hazard' || $todo->type == 'accident' || $todo->type == 'incident')
-                                @if ($todo->attachment_url) {{-- && file_exists(public_path($todo->attachment_url) --}}
-                                <div class="row" id="attachment_div">
-                                    <div class="col-md-3">
-                                        <div>
-                                            <a href="{{ $todo->attachment_url }}" class="html5lightbox " title="{{ $todo->name }}" data-lityXXX>
-                                                <img src="{{ $todo->attachment_url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                @if ($todo->attachment_url)
+                                    <div class="row" id="attachment_div">
+                                        <div class="col-md-3">
+                                            <div>
+                                                <a href="{{ $todo->attachment_url }}" class="html5lightbox " title="{{ $todo->name }}" data-lityXXX>
+                                                    <img src="{{ $todo->attachment_url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            </div>
+                                            @if ($todo->status && $todo->attachment)
+                                                <button class="btn default" id="delete_attachment_btn">Delete image</button><br><br>
+                                            @endif
                                         </div>
-                                        @if ($todo->status && $todo->attachment)
-                                            <button class="btn default" id="delete">Delete image</button><br><br>
-                                        @endif
                                     </div>
-                                </div>
                                 @endif
                                 @if ($todo->status)
                                     <div class="row" id="uploadfile_div" style="@if ($todo->status && $todo->attachment) display:none @endif">
@@ -131,6 +163,7 @@
                                 </div>
                             @endif
 
+                            {{-- Buttons - for each type of Todoo --}}
                             <div class="form-actions right">
                                 @if($todo->type == 'maintenance')
                                     <a href="/site/maintenance/{{$todo->type_id}}" class="btn green">View Maintenance Request</a>
@@ -181,9 +214,25 @@
                                 @if($todo->type == 'project supply')
                                     <a href="/site/supply/{{ $todo->type_id }}/edit" class="btn blue">Update Supply Info</a>
                                 @endif
-                                    @if($todo->type == 'extension')
-                                        <a href="/site/extension" class="btn blue">View Contract Time Extensions</a>
+                                @if($todo->type == 'extension')
+                                    <a href="/site/extension" class="btn blue">View Contract Time Extensions</a>
+                                @endif
+                                @if($todo->type == 'form')
+                                    <?php
+                                    $form = \App\Models\Misc\Form\Form::find($todo->type_id);
+                                    $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2);
+                                    $page = $question->section->page->order ?>
+                                    <a href="/form/{{ $todo->type_id }}/{{$page}}" class="btn dark">View {{ $form->template->name }}</a>
+                                    @if ($todo->status != '0')
+                                        <button class="btn blue" id="save">Save</button>
+                                        <button class="btn green" id="close">Mark Complete</button>
+                                        <button class="btn btn-warning" id="progress">Mark In Progress</button>
+                                        <button class="btn red" id="cantdo">Mark Can't do</button>
+                                            <button class="btn dark" id="delete"><i class="fa fa-trash"></i> </button>
+                                    @else
+                                        <button class="btn green" id="open">Re-open Task</button>
                                     @endif
+                                @endif
                                 @if($todo->type == 'company doc')
                                     <?php $doc = \App\Models\Company\CompanyDoc::find($todo->type_id) ?>
                                     <a href="/company/{{ $doc->for_company_id }}/doc/{{ $doc->id }}/edit" class="btn dark">View Document</a>
@@ -234,12 +283,14 @@
             <!--<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>-->
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
     @stop
@@ -247,6 +298,7 @@
     @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
             <!--<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>-->
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script>
         $.ajaxSetup({
             headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
@@ -267,7 +319,7 @@
             });
         });
 
-        $("#delete").click(function (e) {
+        $("#delete_attachment_btn").click(function (e) {
             e.preventDefault();
             $('#delete_attachment').val(1);
             $('#uploadfile_div').show();
@@ -284,6 +336,35 @@
             e.preventDefault();
             $('#status').val(0);
             $("#todo_form").submit();
+        });
+
+        $("#progress").click(function (e) {
+            e.preventDefault();
+            $('#status').val(2);
+            $("#todo_form").submit();
+        });
+
+        $("#cantdo").click(function (e) {
+            e.preventDefault();
+            $('#status').val('-1');
+            $("#todo_form").submit();
+        });
+
+        $("#delete").click(function (e) {
+            e.preventDefault();
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this ToDo Task!<br><b>" + $('#s_name').val() + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $('#status').val('delete');
+                $("#todo_form").submit();
+            });
         });
 
     </script>

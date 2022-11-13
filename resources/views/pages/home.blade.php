@@ -220,7 +220,7 @@
 
                             {{-- Outstanding ToDoo Tasks for user --}}
                             @foreach (TODO_TYPES AS $todo_type => $todo_name)
-                                @if (Auth::user()->todoType($todo_type, 1)->count())
+                                @if (Auth::user()->todoType($todo_type, [1,2])->count())
                                     <h4>{{$todo_name}}</h4>
                                     @if ($todo_type == 'qa')
                                         <?php
@@ -252,7 +252,7 @@
                                             </a>
                                         </li>
                                     @else
-                                        @foreach(Auth::user()->todoType($todo_type, 1) as $todo)
+                                        @foreach(Auth::user()->todoType($todo_type, [1,2]) as $todo)
                                             @include('pages/_home-todo')
                                         @endforeach
                                     @endif

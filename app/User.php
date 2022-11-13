@@ -109,7 +109,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
 
-
     /**
      * A User has many SiteAttendance
      *
@@ -219,7 +218,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function siteHazards($status = '')
     {
-        $site_list = (Session::has('siteID')) ?[Session::get('siteID')] : [];
+        $site_list = (Session::has('siteID')) ? [Session::get('siteID')] : [];
         $user_list = [$this->id];
         $company_level = $this->permissionLevel('view.site.hazard', $this->company_id);
         $parent_level = $this->permissionLevel('view.site.hazard', $this->company->reportsTo()->id);
@@ -249,7 +248,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function siteAccidents($status = '')
     {
-        $site_list = (Session::has('siteID')) ?[Session::get('siteID')] : [];
+        $site_list = (Session::has('siteID')) ? [Session::get('siteID')] : [];
         $user_list = [$this->id];
         $company_level = $this->permissionLevel('view.site.accident', $this->company_id);
         $parent_level = $this->permissionLevel('view.site.accident', $this->company->reportsTo()->id);
@@ -278,7 +277,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function siteIncidents($status = '')
     {
-        $site_list = (Session::has('siteID')) ?[Session::get('siteID')] : [];
+        $site_list = (Session::has('siteID')) ? [Session::get('siteID')] : [];
         $user_list = [$this->id];
         $company_level = $this->permissionLevel('view.site.incident', $this->company_id);
         $parent_level = $this->permissionLevel('view.site.incident', $this->company->reportsTo()->id);
@@ -375,6 +374,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function isCCcompany()
     {
         $cc_companies = Company::find(3)->companies()->pluck('id')->toArray();
+
         return ($this->company_id == 3 || in_array($this->company_id, $cc_companies)) ? true : false;
     }
 
@@ -404,21 +404,29 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * A User has multiple ToDoo tasks
      */
-    public function todo($status = '')
+    public function todo($status = null)
     {
         $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
 
-        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->orderBy('due_at')->get();
+        if ($status)
+            $status = (!is_array($status)) ? [$status] : $status; // convert status to an array if not
+
+
+
+        return ($status) ? Todo::whereIn('id', $todo_ids)->wherein('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->orderBy('due_at')->get();
     }
 
     /**
      * A User has multiple ToDoo tasks of Type (x)
      */
-    public function todoType($type, $status = '')
+    public function todoType($type, $status = null)
     {
         $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
 
-        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('type', $type)->where('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->where('type', $type)->orderBy('due_at')->get();
+        if ($status)
+            $status = (!is_array($status)) ? [$status] : $status; // convert status to an array if not
+
+        return ($status != '') ? Todo::whereIn('id', $todo_ids)->where('type', $type)->whereIn('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->where('type', $type)->orderBy('due_at')->get();
     }
 
     /**
