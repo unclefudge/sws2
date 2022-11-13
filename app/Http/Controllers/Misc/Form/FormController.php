@@ -25,6 +25,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Yajra\Datatables\Datatables;
+use Intervention\Image\Facades\Image;
 use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
 
