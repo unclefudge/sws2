@@ -76,8 +76,7 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
         //    return view('errors/404');
 
-        return redirect("/form/$id/1");
-        //return view('/site/inspection/custom/show', compact('form'));
+        return redirect("/site/inspection/$id/1");
     }
 
     /**
@@ -133,7 +132,7 @@ class FormController extends Controller {
         //if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
         //    return view('errors/404');
 
-        return view("/misc/form/edit", compact('form'));
+        return view("/site/inspection/custom/edit", compact('form'));
     }
 
     /**
@@ -240,7 +239,7 @@ class FormController extends Controller {
                         $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
                         if ($tempFile) {
                             // Move temp file to forms directory
-                            $form_dir = "/filebank/form/$form->id";
+                            $form_dir = "/filebank/inspection/$form->id";
                             if (!is_dir(public_path($form_dir))) mkdir(public_path($form_dir), 0777, true);  // Create directory if required
 
                             $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
@@ -271,7 +270,7 @@ class FormController extends Controller {
                 list($qid, $rest) = explode('-', $filename, 2);
 
                 // Delete FormFile + FormResponses
-                $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "/filebank/form/$form->id/$filename")->first();
+                $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "/filebank/inspection/$form->id/$filename")->first();
                 if ($form_file) {
                     FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file->id)->delete();
                     $form_file->delete();
@@ -305,11 +304,11 @@ class FormController extends Controller {
 
         // Create Action for question - redirect to ToDoo
         if (request('addAction'))
-            return redirect("todo/create/form/$form->id-" . request('addAction'));
+            return redirect("todo/create/inspection/$form->id-" . request('addAction'));
         elseif (request('showAction'))
             return redirect("todo/" . request('showAction'));
 
-        return redirect("form/$form->id/$nextpage");
+        return redirect("site/inspection/$form->id/$nextpage");
     }
 
     public function verifyFormCompleted($form)
@@ -457,10 +456,11 @@ class FormController extends Controller {
                     $path_name = $folder . '/' . $filename;
                     $file->move($folder, $filename);
 
-                    // resize the image to a width of 1024 and constrain aspect ratio (auto height)
+                    // resize the image so that the largest side fits within the limit; the smaller
+                    // side will be scaled to maintain the original aspect ratio
                     if (exif_imagetype($path_name)) {
                         Image::make(url($path_name))
-                            ->resize(1024, null, function ($constraint) {
+                            ->resize(1024, 1024, function ($constraint) {
                                 $constraint->aspectRatio();
                                 $constraint->upsize();
                             })
@@ -477,38 +477,6 @@ class FormController extends Controller {
     }
 
     /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachedMedia($file)
-    {
-        $site = Site::findOrFail($this->site_id);
-        $path = "filebank/site/" . $site->id . '/hazard';
-        $name = 'hazard-' . $site->code . '-' . $this->id . '-' . Auth::user()->id . '-1.' . strtolower($file->getClientOriginalExtension());
-
-        // Ensure filename is unique by adding counter to similiar filenames
-        $count = 2;
-        while (file_exists(public_path("$path/$name")))
-            $name = 'hazard-' . $site->code . '-' . $this->id . '-' . Auth::user()->id . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-        if (exif_imagetype($path_name)) {
-            Image::make(url($path_name))
-                ->resize(1024, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->save($path_name);
-        } else
-            Toastr::error("Bad image");
-
-        $this->attachment = $name;
-        $this->save();
-    }
-
-    /**
      * Upload Filepond file
      */
     public function deleteUpload()
@@ -517,166 +485,6 @@ class FormController extends Controller {
         //dd(request()->all());
         return 'delete upload';
     }
-
-
-
-    /**
-     * Get Custom Form  - vue3
-     */
-    /*
-    public function getForm($id)
-    {
-
-        $form = Form::findOrFail($id);
-        $template = FormTemplate::findOrFail($form->template_id);
-        //$pages = $template->pages;
-        //return ($pages);
-
-        $pages = [];
-
-
-        // Create Template Object
-        $template_obj = new \stdClass();
-        $template_obj->id = $template->id;
-        $template_obj->name = $template->name;
-        $template_obj->description = $template->description;
-
-        // Add Pages
-        $template_obj->pages = [];
-        foreach ($template->pages as $page) {
-            // Create page Object
-            $page_obj = new \stdClass();
-            $page_obj->id = $page->id;
-            $page_obj->name = $page->name;
-            $page_obj->description = $page->description;
-            $page_obj->order = $page->order;
-
-            // Add Sections
-            $page_obj->sections = [];
-            foreach ($page->sections as $section) {
-                // Create Section Object
-                $section_obj = new \stdClass();
-                $section_obj->id = $section->id;
-                $section_obj->name = $section->name;
-                $section_obj->description = $section->description;
-                $section_obj->order = $section->order;
-
-                // Add Questions
-                $section_obj->questions = [];
-                foreach ($section->questions as $question) {
-                    // Create Question Object
-                    $question_obj = new \stdClass();
-                    $question_obj->id = $question->id;
-                    $question_obj->name = $question->name;
-                    $question_obj->type = $question->type;
-
-                    // Get Response if exists
-                    $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->where('status', 1)->first();
-                    if ($response) {
-                        $question_obj->response_value = $response->value;
-                        $question_obj->response_option = $response->option_id;
-                    } else {
-                        $question_obj->response_value = null;
-                        $question_obj->response_option = null;
-                    }
-
-                    $question_obj->type_special = $question->type_special;
-                    $question_obj->type_version = $question->type_version;
-                    $question_obj->order = $question->order;
-                    $question_obj->default = $question->default;
-                    $question_obj->multiple = $question->multiple;
-                    $question_obj->required = $question->required;
-                    $question_obj->placeholder = $question->placeholder;
-                    $question_obj->helper = $question->helper;
-                    $question_obj->width = $question->width;
-
-
-                    // Add Question Object to Section
-                    $section_obj->questions[] = $question_obj;
-                }
-                // Add Section Object to Page
-                $page_obj->sections[] = $section_obj;
-            }
-            // Add Page Object to Template
-            $template_obj->pages[] = $page_obj;
-        }
-
-        // Get Form Responses
-        $responses = $form->responses;
-
-
-        $json[] = $template_obj;
-        $json[] = $responses;
-
-
-        //$json = [];
-        //$json[] = $template;
-        //$json[] = $pages;
-        //$json[] = $template->sections;
-
-        return $json;
-    } */
-
-    /**
-     * Save the Custom Form.  Vue3 version
-     */
-    /*
-    public function saveForm()
-    {
-        //dd(request()->all());
-        $custom_form = request('custom_form');
-        if ($custom_form) {
-            $template = FormTemplate::findOrFail($custom_form['id']);
-
-            if ($template) {
-                // Update Template
-                $template->name = $custom_form['name'];
-                $template->description = $custom_form['description'];
-                $template->save();
-
-                // Save Pages
-                $pages = $custom_form['pages'];
-                for ($i = 0; $i < count($pages); $i ++) {
-                    if ($pages[$i]['id'] != 'new') {
-                        $page = FormPage::findOrFail($pages[$i]['id']);
-                        if ($page) {
-                            // Update existing Page
-                            $page->name = $pages[$i]['name'];
-                            $page->description = $pages[$i]['description'];
-                            $page->order = $pages[$i]['order'];
-                            $page->save();
-                        }
-                    } else {
-                        // Create new Page
-                    }
-
-                    // Save Sections
-                    $sections = $pages[$i]['sections'];
-                    for ($i = 0; $i < count($sections); $i ++) {
-                        if ($sections[$i]['id'] != 'new') {
-                            $section = FormSection::findOrFail($sections[$i]['id']);
-                            if ($section) {
-                                // Update existing Section
-                                $section->page_id = $page->id;
-                                $section->name = $sections[$i]['name'];
-                                $section->description = $sections[$i]['description'];
-                                $section->order = $sections[$i]['order'];
-                                $section->save();
-                            }
-                        } else {
-                            // Create new Section
-                        }
-                    }
-                }
-            }
-        }
-
-        Toastr::success("Template saved");
-
-        return response()->json(['status' => 'ok', 'success' => true,], 200);
-        //return response()->json(['status'  => 'error', 'success' => false, 'message' => 'Invalid email'], 406);
-        //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
-    }*/
 
 
     /**

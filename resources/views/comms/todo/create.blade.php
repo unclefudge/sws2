@@ -47,7 +47,7 @@
                                             @if ($type == 'incident')
                                                 <input type="text" name="name" class="form-control" readonly value="Site Incident Task @ {!! \App\Models\Site\Incident\SiteIncident::find($type_id)->site_name !!}">
                                             @endif
-                                            @if ($type == 'form')
+                                            @if ($type == 'inspection')
                                                 <input type="text" name="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
                                             @endif
                                         @else
@@ -86,7 +86,7 @@
                                     {!! fieldErrorMessage('type', $errors) !!}
                                 </div>
                             </div>
-                            @if ($type && $type == 'form')
+                            @if ($type && $type == 'inspection')
                                 <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -96,7 +96,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                             @endif
 
                             <div class="row">

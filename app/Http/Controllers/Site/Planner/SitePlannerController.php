@@ -374,17 +374,52 @@ class SitePlannerController extends Controller {
 
         $site = Site::find($site_id);
 
-        // Sites ordered - Jobstart/Council Approval/Contracts Sent
+        // Sites ordered - Jobstart/Council Approval/Contracts Sent/Deposit Paid/Job#
+        //    - prioritise sites with more fields completed
 
         $site_list = [];
         $pre_sites = Auth::user()->company->sites('-1')->pluck('id')->toArray();
-        $pre_planner = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
+
         // Add Sites that have START JOB to list in date order
-        foreach ($pre_planner as $plan) {
+        $job_starts = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
+        foreach ($job_starts as $plan)
+            if (!in_array($sid, $site_list))
             $site_list[] = $plan->site_id;
+
+        // Add Sites with (council_approval, contract_sent, contract_signed, deposit_paid)
+        $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->sortBy('council_approval')->pluck('id')->toArray();
+        foreach ($pre_sites as $sid)
+            if (!in_array($sid, $site_list))
+            $site_list[] = $sid;
+
+        // Add Sites with (council_approval, contract_sent, contract_signed)
+        $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->whereNotNull('contract_signed')->sortBy('council_approval')->pluck('id')->toArray();
+        foreach ($pre_sites as $sid)
+            if (!in_array($sid, $site_list))
+            $site_list[] = $sid;
+
+        // Add Sites with (council_approval, contract_sent)
+        $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->sortBy('council_approval')->pluck('id')->toArray();
+        foreach ($pre_sites as $sid)
+            if (!in_array($sid, $site_list))
+            $site_list[] = $sid;
+
+        // Add Sites with (council_approval)
+        $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->sortBy('council_approval')->pluck('id')->toArray();
+        foreach ($pre_sites as $sid)
+            if (!in_array($sid, $site_list))
+            $site_list[] = $sid;
+
+        // Add Remaining Pre-construct jobs to the list
+        $pre_sites = Auth::user()->company->sites('-1')->sortBy('code')->pluck('id')->toArray();
+        foreach ($pre_sites as $sid) {
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
         }
 
-        // Add Remaining Pre-contruct jobs to the list
+        /*
+
+        // Add Remaining Pre-construct jobs to the list
         $pre_sites = Auth::user()->company->sites('-1')->sortBy('code')->pluck('id')->toArray();
         $non_start_sites = [];
         foreach ($pre_sites as $site_id) {
@@ -398,14 +433,15 @@ class SitePlannerController extends Controller {
                 } elseif ($site->contract_sent) {
                     $non_start_sites[$site_id] = $site->contract_sent->format('Ymd');
                 } else {
-                    $non_start_sites[$site_id] = '99999999';
+                    $non_start_sites[$site_id] = "99999999-$site->code";
                 }
             }
         }
         asort($non_start_sites);
-        //dd($non_start_sites);
+        dd($non_start_sites);
         foreach ($non_start_sites as $site_id => $date)
             $site_list[] = $site_id;
+        */
 
         //dd($site_list);
 
@@ -446,7 +482,7 @@ class SitePlannerController extends Controller {
             $job_start = SitePlanner::where('site_id', $site_id)->where('task_id', 11)->first();
             $prac_complete = SitePlanner::where('site_id', $site_id)->where('task_id', 265)->first();
             $supervisor_ids = $site->supervisors->pluck('id')->toArray();
-            $supervisor_ids = rtrim(implode(',', $supervisor_ids),',');
+            $supervisor_ids = rtrim(implode(',', $supervisor_ids), ',');
             $array = [
                 'site_id'           => $site_id,
                 'site_name'         => $site->name,

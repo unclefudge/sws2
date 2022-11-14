@@ -120,9 +120,9 @@ class FormQuestion extends Model {
     public function actions($form_id, $status = '')
     {
         if ($status)
-            return Todo::where('status', $status)->where('type', 'form')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
+            return Todo::where('status', $status)->where('type', 'inspection')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
 
-        return Todo::where('type', 'form')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
+        return Todo::where('type', 'inspection')->where('type_id', $form_id)->where('type_id2', $this->id)->get();
 
         //return FormAction::where('form_id', $form_id)->where('question_id', $this->id)->get();
     }

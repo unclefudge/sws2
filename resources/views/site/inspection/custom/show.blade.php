@@ -204,7 +204,7 @@
                                                                 {!! nl2br($question->responseFormatted($form->id)) !!}
                                                                 @if (is_array($val))
                                                                     @foreach ($val as $v)
-                                                                        <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $v }}" disabled>
+                                                                        <input type="hidden" id="q{{$question->id}}[]" name="q{{$question->id}}[]" value="{{ $v }}" disabled>
                                                                     @endforeach
                                                                 @else
                                                                     <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $val }}" disabled>
@@ -231,7 +231,7 @@
                                                     <input type="hidden" id="q{{$question->id}}-notes-orig" value="{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}">
                                                     <div id="shownote-{{$question->id}}" class="row hoverdiv button-note" data-qid="{{$question->id}}" style="margin: 10px 0px; {{ ($question->extraNotesForm($form->id)) ? '' : 'display:none' }}">
                                                         <div class="col-md-12" id="shownote-{{$question->id}}-div" style="padding-left: 0px; margin-bottom: 10px">
-                                                            {!! (!$form->status) ? "<b>Notes:</b><br>" : '' !!}
+                                                            <b>Notes</b><br>
                                                             {!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}
                                                         </div>
                                                     </div>
@@ -254,7 +254,7 @@
                                                     {{-- Actions - Show --}}
                                                     @if ($question->actions($form->id)->count())
                                                         <div class="row">
-                                                            <div class="col-md-12"><h5 style="margin: 0px 0px 0px 0px">Actions</h5></div>
+                                                            <div class="col-md-12"><b>Actions</b><br></div>
                                                         </div>
 
                                                         @foreach($question->actions($form->id) as $todo)
@@ -378,13 +378,8 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/custom-form-filepond.js"></script>
-<script src="/js/filepond-setup.js"></script>
+<script src="/js/site-inspection-filepond.js"></script>
 <script type="text/javascript">
-    $.ajaxSetup({
-        header: $('meta[name="_token"]').attr('content')
-    })
-
     $(document).ready(function () {
         const formStatus = {{ $form->status }};
 
@@ -405,19 +400,21 @@
 
         //
         // Page Previous/Next/Complete/Reopen Buttons
+        //
+
         // Prevent form from submitting for current page
         $('#pagebtn-current').click(function (e) {
             e.preventDefault(e);// do nothing
         });
 
-        // Manually submit form new page
+        // Page buttons
         $('.pagebtn').click(function (e) {
             e.preventDefault(e);
             $('#nextpage').val($(this).attr('gotopage'));
             document.getElementById('custom_form').submit();
         });
 
-        // Manually submit form new page
+        // Re-open button
         $('#reopen').click(function (e) {
             e.preventDefault(e);
             var page = $(this).attr('page');
@@ -495,7 +492,7 @@
         });
 
         //
-        // Action function
+        // Action functions
         //
 
         // add Action
@@ -604,12 +601,6 @@
         }
 
         performLogic();
-
-
-        //$('#custom_form').on('submit', function (e) {
-        //    e.preventDefault(e);
-        //});
-
     });
 
     // Force datepicker to not be able to select dates after today

@@ -43,13 +43,13 @@
                                     </div>
                                 </div>
                             @endif
-                                @if($todo->status == '-1')
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Can't do</h3>
-                                        </div>
+                            @if($todo->status == '-1')
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Can't do</h3>
                                     </div>
-                                @endif
+                                </div>
+                            @endif
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group">
@@ -74,14 +74,26 @@
                                             </span>
                                             </div>
                                         </div>
-                                        @else
-                                    <div class="form-group">
-                                        {!! Form::label('s_due_at', 'Due Date', ['class' => 'control-label']) !!}
-                                        {!! Form::text('s_due_at', ($todo->due_at) ? $todo->due_at->format('d/m/Y') : 'none', ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                        @endif
+                                    @else
+                                        <div class="form-group">
+                                            {!! Form::label('s_due_at', 'Due Date', ['class' => 'control-label']) !!}
+                                            {!! Form::text('s_due_at', ($todo->due_at) ? $todo->due_at->format('d/m/Y') : 'none', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
+
+                            @if ($todo->type && $todo->type == 'inspection')
+                                <?php $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2) ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            {!! Form::label('question', 'Question', ['class' => 'control-label']) !!}
+                                            {!! Form::text('question', $question->name, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
                             {{-- Description + Comment --}}
                             <div class="row">
@@ -217,18 +229,18 @@
                                 @if($todo->type == 'extension')
                                     <a href="/site/extension" class="btn blue">View Contract Time Extensions</a>
                                 @endif
-                                @if($todo->type == 'form')
+                                @if($todo->type == 'inspection')
                                     <?php
                                     $form = \App\Models\Misc\Form\Form::find($todo->type_id);
                                     $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2);
                                     $page = $question->section->page->order ?>
-                                    <a href="/form/{{ $todo->type_id }}/{{$page}}" class="btn dark">View {{ $form->template->name }}</a>
+                                    <a href="/site/inspection/{{ $todo->type_id }}/{{$page}}" class="btn dark">View {{ $form->template->name }}</a>
                                     @if ($todo->status != '0')
                                         <button class="btn blue" id="save">Save</button>
                                         <button class="btn green" id="close">Mark Complete</button>
                                         <button class="btn btn-warning" id="progress">Mark In Progress</button>
                                         <button class="btn red" id="cantdo">Mark Can't do</button>
-                                            <button class="btn dark" id="delete"><i class="fa fa-trash"></i> </button>
+                                        <button class="btn dark" id="delete"><i class="fa fa-trash"></i></button>
                                     @else
                                         <button class="btn green" id="open">Re-open Task</button>
                                     @endif

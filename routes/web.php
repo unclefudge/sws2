@@ -423,6 +423,21 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/site/attendance/dt/attendance', 'Site\SiteAttendanceController@getAttendance');
     Route::resource('/site/attendance', 'Site\SiteAttendanceController');
 
+    // Form Template
+    Route::get('form/template/dt/templates', 'Misc\Form\FormTemplateController@getTemplates');
+    Route::post('form/template/data/save', 'Misc\Form\FormTemplateController@saveTemplate');
+    Route::get('form/template/data/template/{template_id}', 'Misc\Form\FormTemplateController@getTemplate');
+    Route::resource('form/template', 'Misc\Form\FormTemplateController');
+
+    // Site Inspection Forms
+    Route::get('site/inspection/dt/form', 'Misc\Form\FormController@getForms');
+    Route::get('site/inspection/dt/safetydesign', 'Misc\Form\FormController@getSafetyDesignForms');
+    //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
+    Route::get('site/inspection/{form_id}/{pagenumber}', 'Misc\Form\FormController@showPage');
+    Route::post('site/inspection/upload', 'Misc\Form\FormController@upload');
+    Route::delete('site/inspection/upload', 'Misc\Form\FormController@deleteUpload');
+    Route::resource('site/inspection', 'Misc\Form\FormController');
+
 
     // Site Exports
     Route::get('site/export', 'Site\Planner\SitePlannerExportController@index');
@@ -525,26 +540,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('equipment/stocktake/view/{id}', 'Misc\EquipmentStocktakeController@showStocktake');
     Route::get('equipment/stocktake/{id}/edit/{tab}', 'Misc\EquipmentStocktakeController@edit');
     Route::resource('equipment/stocktake', 'Misc\EquipmentStocktakeController');
-
-
-    // Form Template
-    Route::get('form/template/dt/templates', 'Misc\Form\FormTemplateController@getTemplates');
-    Route::post('form/template/data/save', 'Misc\Form\FormTemplateController@saveTemplate');
-    Route::get('form/template/data/template/{template_id}', 'Misc\Form\FormTemplateController@getTemplate');
-    Route::resource('form/template', 'Misc\Form\FormTemplateController');
-
-    // Custom Forms
-    Route::get('form/dt/form', 'Misc\Form\FormController@getForms');
-    //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
-    Route::get('form/{form_id}/{pagenumber}', 'Misc\Form\FormController@showPage');
-    Route::post('form/upload', 'Misc\Form\FormController@upload');
-    Route::delete('form/upload', 'Misc\Form\FormController@deleteUpload');
-    //Route::get('form/data/form/{form_id}', 'Misc\Form\FormController@getForm');
-    Route::resource('form', 'Misc\Form\FormController');
-
-    // Site Inspection Safety Design
-    //Route::get('site/inspection/custom/dt/safetydesign', 'Misc\Form\FormController@getSafetyDesignForms');
-    //Route::resource('site/inspection/custom', 'Misc\Form\FormController');
 
 
     // Configuration

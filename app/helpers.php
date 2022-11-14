@@ -13,7 +13,7 @@ define('TODO_TYPES', ['incident'              => "Incident Report",
                       'extension'             => 'Contract Time Extensions',
                       'equipment'             => 'Equipment Transfer',
                       'maintenance'           => 'Site Maintenance Requests',
-                      'form'                  => 'Site Inspection',
+                      'inspection'            => 'Site Inspection',
                       'inspection_electrical' => 'Electrical Inspection Reports',
                       'inspection_plumbing'   => 'Plumbing Inspection Reports',
                       'scaffold handover'     => 'Scaffold Handover Certificate',
@@ -519,6 +519,7 @@ function customFormSelectButtons($question_id, $option_id, $formStatus)
             $active_class = ($option->colour) ? $option->colour : 'dark';
             $str = "<div><button class='btn button-resp $active_class' id='q$question->id-$option->id' style='margin-right: 10px;width: 25%; cursor:default'>$option->text</button></div>\n\r";
         }
+
         return $str;
     }
 

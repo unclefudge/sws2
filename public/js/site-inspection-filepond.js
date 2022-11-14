@@ -16,20 +16,14 @@ Array.from(inputElements).forEach(inputElement => {
 
     const pond = FilePond.create(inputElement, {
         server: {
-            process: '/form/upload',
-            //revert: null, // remove file from Filepond upload list
-            revert: (filename, load) => {
-                console.log('revert');
-                console.log(filename);
-                console.log(load);
-                //@this.removeUpload('filearray', filename, load)
-            },
+            headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
+            process: '/site/inspection/upload',
+            revert: null, // remove file from Filepond upload list
             restore: null,
             fetch: null,  // used to load files on server
             load: null,
         },
 
-        headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
         labelIdle: `<span class="btn btn-primary filepond--label-action">Add Media</span> &nbsp; or Drag & Drop your picture`,
         acceptedFileTypes: ['image/png', 'image/jpeg', 'image/gif'],
         allowFileTypeValidation: true,
@@ -111,10 +105,10 @@ function closeGalleryPreview() {
 }
 
 function deleteGalleryPreview() {
-    image = document.getElementById("myGalleryImage");
+    var image = document.getElementById("myGalleryImage");
     var host = window.location.protocol + "//" + window.location.host;
     var file_url = image.src.split(host)[1];
-    var file = file_url.split('/filebank/form/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
+    var file = file_url.split('/filebank/inspection/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
     var qid = file.split('-')[0];
 
     // Create new input element with na,e of file to delete and add to DOM
@@ -137,6 +131,19 @@ function deleteGalleryPreview() {
 
 function downloadGalleryPreview() {
     alert('download');
+    var image = document.getElementById("myGalleryImage");
+    var host = window.location.protocol + "//" + window.location.host;
+    var file_url = image.src.split(host)[1];
+    var file = file_url.split('/filebank/inspection/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
+
+    // create temp <a> tag to download file
+    var el = document.createElement("a");
+    el.setAttribute("href", file_url);
+    el.setAttribute("download", file);
+    document.body.appendChild(el);
+    el.click();
+    el.remove();
+
 }
 
 

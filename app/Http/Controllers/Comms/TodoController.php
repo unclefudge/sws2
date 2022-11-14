@@ -70,7 +70,7 @@ class TodoController extends Controller {
     public function createType($type, $type_id)
     {
         $type_id2 = null;
-        if ($type == 'form')
+        if ($type == 'inspection')
             list($type_id, $type_id2) = explode('-', $type_id, 2);
 
         return view('comms/todo/create', compact('type', 'type_id', 'type_id2'));
@@ -201,14 +201,13 @@ class TodoController extends Controller {
             return redirect("/site/incident/$todo->type_id");
         }
 
-        if ($todo->type == 'form') {
+        if ($todo->type == 'inspection') {
             $form = Form::find($todo->type_id);
-            //$action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_hazards', 'table_id' => $todo->type_id]);
             $form->touch(); // update timestamp
             $todo->emailToDo();
 
             $FomQuestion = FormQuestion::find($todo->type_id2);
-            return redirect("/form/$todo->type_id/".$FomQuestion->section->page->order);
+            return redirect("/site/inspection/$todo->type_id/".$FomQuestion->section->page->order);
         }
 
         return redirect('/todo');
@@ -268,9 +267,9 @@ class TodoController extends Controller {
             $type_id = $todo->type_id;
             $type_id2 = $todo->type_id2;
             $todo->delete();
-            if ($todo->type == 'form') {
+            if ($todo->type == 'inspection') {
                 $FomQuestion = FormQuestion::find($type_id2);
-                return redirect("/form/$type_id/".$FomQuestion->section->page->order);
+                return redirect("/site/inspection/$type_id/".$FomQuestion->section->page->order);
             }
         }
 
