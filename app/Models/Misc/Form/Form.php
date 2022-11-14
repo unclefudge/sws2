@@ -47,8 +47,9 @@ class Form extends Model {
      */
     public function pages()
     {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormPage', 'App\Models\Misc\Form\FormTemplate', 'id', 'template_id', 'id', 'id');
-        //return FormPage::where('template_id', $this->template_id)->where('status', 1)->orderBy('order')->get();
+        // FormPage, FormTemplate, Foreign Key on FormTemplate, Foreign Key on FormPage, Local Key on Form, Local Key on FormTemplate
+        //return $this->hasManyThrough('App\Models\Misc\Form\FormPage', 'App\Models\Misc\Form\FormTemplate', 'id', 'template_id', 'id', 'id');
+        return FormPage::where('template_id', $this->template_id)->orderBy('order')->get();
     }
 
     /**
@@ -82,7 +83,7 @@ class Form extends Model {
      */
     public function page($page_num)
     {
-        return FormPage::where('template_id', $this->id)->where('order', $page_num)->first();
+        return FormPage::where('template_id', $this->template_id)->where('order', $page_num)->first();
     }
 
     /**
@@ -90,7 +91,7 @@ class Form extends Model {
      */
     public function pageName($page_num)
     {
-        $page = FormPage::where('template_id', $this->template->id)->where('order', $page_num)->first();
+        $page = FormPage::where('template_id', $this->template_id)->where('order', $page_num)->first();
         if ($page && $page->name)
             return $page->name;
 

@@ -360,6 +360,21 @@ class Site extends Model {
     }
 
     /**
+     * A Design Consultant Initials
+     *
+     * @return string
+     */
+    public function consultantInitials()
+    {
+        $string = '';
+        $words = preg_split("/[\s]+/", $this->consultant_name);
+        foreach ($words as $word)
+            $string .= strtoupper($word[0]);
+
+        return $string;
+    }
+
+    /**
      * Determines if a User is a Supervisor of this site
      *
      * @return string

@@ -44,7 +44,6 @@ class FormTemplate extends Model {
     public function sections()
     {
         return $this->hasManyThrough('App\Models\Misc\Form\FormSection', 'App\Models\Misc\Form\FormPage', 'template_id', 'page_id', 'id', 'id');
-        //return $this->hasMany('App\Models\Misc\Form\FormSection', 'template_id');
     }
 
     /**

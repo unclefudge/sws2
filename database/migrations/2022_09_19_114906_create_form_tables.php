@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFormTables extends Migration
-{
+class CreateFormTables extends Migration {
+
     /**
      * Run the migrations.
      *
@@ -162,6 +162,7 @@ class CreateFormTables extends Migration
             $table->integer('template_id')->unsigned();
             $table->integer('site_id')->unsigned()->nullable();
             $table->string('name', 255)->nullable();
+            $table->integer('prepared_by')->unsigned()->nullable();
             $table->datetime('submitted')->nullable();
             $table->datetime('completed')->nullable();
             $table->text('notes')->nullable();

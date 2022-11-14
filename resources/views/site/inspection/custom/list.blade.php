@@ -5,11 +5,11 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Safety in Design</span></li>
+        <li>{{ $template->name }}</li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
     <div class="page-content-inner">
         {{-- Reports --}}
@@ -19,11 +19,11 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Safety in Design</span>
+                            <span class="caption-subject bold uppercase font-green-haze">{{ $template->name }}</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.site.inspection'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/safetydesign/create" data-original-title="Add">Add</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/create/{{ $template->id }}" data-original-title="Add">Add</a>
                             @endif
                         </div>
                     </div>
@@ -43,10 +43,9 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Site</th>
-                                <th> Prepared by</th>
+                                <th> Inspected by</th>
                                 <th width="10%"> Conducted</th>
                                 <th width="10%"> Completed</th>
-                                <th width="5%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -83,19 +82,19 @@
             processing: true,
             serverSide: true,
             ajax: {
-                'url': '{!! url('site/inspection/custom/dt/safetydesign') !!}',
+                'url': '{!! url("site/inspection/dt/forms") !!}',
                 'type': 'GET',
                 'data': function (d) {
+                    d.template_id = {{ $template->id }};
                     d.status = $('#status').val();
                 }
             },
             columns: [
                 {data: 'view', name: 'view', orderable: false, searchable: false},
                 {data: 'sitename', name: 'sites.name'},
-                {data: 'sitename', name: 'sites.name'},
+                {data: 'prepared', name: 'prepared'},
                 {data: 'createddate', name: 'forms.created_at'},
                 {data: 'updateddate', name: 'forms.updated_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
                 [2, "desc"]

@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><a href="/site/inspection/custom">Safety in Design</a><i class="fa fa-circle"></i></li>
+        <li><a href="/site/inspection/list/{{ $form->template->id }}">{{ $form->template->name }}</a><i class="fa fa-circle"></i></li>
         <li><span>View Report</span></li>
     </ul>
 @stop

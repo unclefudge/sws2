@@ -32,16 +32,19 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="7%">Date</th>
+                                <th width="7%">Start Date</th>
                                 <th width="20%">Site</th>
                                 <th width="5%">Super</th>
                                 <th width="5%">Company</th>
                                 <th width="7%">Deposit Paid</th>
                                 <th width="5%">ENG</th>
                                 <th width="7%">HBCF</th>
+                                <th width="5%">DC</th>
                                 <th>CC</th>
                                 <th>FC Plans</th>
                                 <th>FC Structural</th>
+                                <th>CF-EST</th>
+                                <th>CF-ADM</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -54,6 +57,7 @@
                                     <td>{!! $row['deposit_paid'] !!}</td>
                                     <td>{!! $row['eng'] !!}</td>
                                     <td>{!! $row['hbcf'] !!}</td>
+                                    <td>{!! $row['design_con'] !!}</td>
                                     <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours[$row['cc_stage']] : '' }}">
                                         <div id="cc-{{$row['id']}}">{!! $row['cc'] !!}</div>
                                         <input type="hidden" id="cc-{{$row['id']}}-s" value="{!! $row['cc_stage'] !!}">
@@ -61,6 +65,10 @@
                                     <td class="hoverDiv editField" id="fcp-{{$row['id']}}-td" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours[$row['fc_plans_stage']] : '' }}">
                                         <div id="fcp-{{$row['id']}}">{!! $row['fc_plans'] !!}</div>
                                         <input type="hidden" id="fcp-{{$row['id']}}-s" value="{!! $row['fc_plans_stage'] !!}">
+                                    </td>
+                                    <td class="hoverDiv editField" id="fcs-{{$row['id']}}-td" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours[$row['fc_struct_stage']] : '' }}">
+                                        <div id="fcs-{{$row['id']}}">{!! $row['fc_struct'] !!}</div>
+                                        <input type="hidden" id="fcs-{{$row['id']}}-s" value="{!! $row['fc_struct_stage'] !!}">
                                     </td>
                                     <td class="hoverDiv editField" id="fcs-{{$row['id']}}-td" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours[$row['fc_struct_stage']] : '' }}">
                                         <div id="fcs-{{$row['id']}}">{!! $row['fc_struct'] !!}</div>

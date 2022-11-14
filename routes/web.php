@@ -430,9 +430,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('form/template', 'Misc\Form\FormTemplateController');
 
     // Site Inspection Forms
-    Route::get('site/inspection/dt/form', 'Misc\Form\FormController@getForms');
-    Route::get('site/inspection/dt/safetydesign', 'Misc\Form\FormController@getSafetyDesignForms');
-    //Route::post('form/{form_id}/save', 'Misc\Form\FormController@savePage');
+    Route::get('site/inspection/dt/forms', 'Misc\Form\FormController@getForms');
+    //Route::get('site/inspection/dt/{template_id}', 'Misc\Form\FormController@getTemplateForms');
+    Route::get('site/inspection/list/{template_id}', 'Misc\Form\FormController@listForms');
+    Route::get('site/inspection/create/{template_id}', 'Misc\Form\FormController@createForm');
     Route::get('site/inspection/{form_id}/{pagenumber}', 'Misc\Form\FormController@showPage');
     Route::post('site/inspection/upload', 'Misc\Form\FormController@upload');
     Route::delete('site/inspection/upload', 'Misc\Form\FormController@deleteUpload');

@@ -10,6 +10,7 @@ use PDF;
 use File;
 use Mail;
 use Session;
+use App\User;
 use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormPage;
@@ -49,18 +50,33 @@ class FormController extends Controller {
         return view('site/inspection/custom/list');
     }
 
+    public function listForms($template_id)
+    {
+        $template = FormTemplate::find($template_id);
+
+
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
+        //    return view('errors/404');
+
+        return view('site/inspection/custom/list', compact('template'));
+    }
+
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function createForm($template_id)
     {
         // Check authorisation and throw 404 if not
         //if (!Auth::user()->allowed2('add.site.scaffold.handover'))
         //    return view('errors/404');
 
-        return view('misc/form/create', compact('site'));
+        $form = Form::create(['template_id' => $template_id, 'company_id' => Auth::user()->company->reportsTo()->id]);
+
+        return redirect("/site/inspection/$form->id/1");
     }
 
     /**
@@ -117,22 +133,6 @@ class FormController extends Controller {
 
         // Get Page data
         return view('/site/inspection/custom/show', compact('form', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
-    }
-
-    /**
-     * Edit the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        $form = Form::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
-        //    return view('errors/404');
-
-        return view("/site/inspection/custom/edit", compact('form'));
     }
 
     /**
@@ -490,24 +490,30 @@ class FormController extends Controller {
     /**
      * Get Templates current user is authorised to manage + Process datatables ajax request.
      */
-    public function getSafetyDesignForms()
+    public function getForms()
     {
+        //$template = FormTemplate::find(request('template_id'));
+
         $records = Form::select([
-            'forms.id', 'forms.template_id', 'forms.site_id', 'forms.name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
-            DB::raw('DATE_FORMAT(forms.created_at, " % d /%m /%y") AS createddate'),
-            DB::raw('DATE_FORMAT(forms.updated_at, " % d /%m /%y") AS updateddate'),
+            'forms.id', 'forms.template_id', 'forms.site_id', 'forms.name', 'forms.prepared_by', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            'users.firstname', 'users.lastname',
+            DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
+            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate'),
             DB::raw('sites.name AS sitename')])
             ->join('sites', 'forms.site_id', '=', 'sites.id')
-            ->where('forms.template_id', 1)
-            ->where('forms.company_id', Auth::user()->company_id)
-            ->where('forms.status', 1);
+            ->join('users', 'forms.prepared_by', '=', 'users.id')
+            ->where('forms.template_id', request('template_id'))
+            ->where('forms.company_id', Auth::user()->company->reportsTo()->id)
+            ->where('forms.status', request('status'));
+
+        //$records = Form::where('template_id',request('template_id'))->where('company_id', Auth::user()->company->reportsTo()->id)->where('forms.status', request('status'));
 
         $dt = Datatables::of($records)
             ->addColumn('view', function ($report) {
-                return ('<div class="text - center"><a href=" / site / inspection / custom / ' . $report->id . '"><i class="fa fa - search"></i></a></div>');
+                return ('<div class="text-center"><a href="/site/inspection/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            ->addColumn('action', function ($rec) {
-                return '<a href=" / site / inspection / custom / ' . $rec->id . ' / edit" class="btn blue btn - xs btn - outline sbold uppercase margin - bottom"><i class="fa fa - pencil"></i> Edit</a>';
+            ->addColumn('prepared', function ($report) {
+                return User::find($report->prepared_by)->name;
             })
             ->rawColumns(['view', 'name', 'updated_at', 'created_at', 'action'])
             ->make(true);

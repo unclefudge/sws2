@@ -341,6 +341,7 @@ class SiteUpcomingComplianceController extends Controller {
                     'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
                     'eng'             => ($site->engineering) ? 'Y' : '-',
                     'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                    'design_con'      => $site->consultantInitials(),
                     'cc'              => $cc,
                     'cc_stage'        => $cc_stage,
                     'fc_plans'        => $site->fc_plans,
@@ -367,6 +368,8 @@ class SiteUpcomingComplianceController extends Controller {
                 $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
                 $cc_stage = 1;
             }
+
+            // Consultant Initials
             $startdata[] = [
                 'id'              => $site->id,
                 'date'            => '',
@@ -377,6 +380,7 @@ class SiteUpcomingComplianceController extends Controller {
                 'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
                 'eng'             => ($site->engineering) ? 'Y' : '-',
                 'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                'design_con'      => $site->consultantInitials(),
                 'cc'              => $cc,
                 'cc_stage'        => $cc_stage,
                 'fc_plans'        => $site->fc_plans,
