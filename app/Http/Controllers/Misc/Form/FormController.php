@@ -200,7 +200,6 @@ class FormController extends Controller {
                         }
                         // Add the Inspected At details to form
                         if ($question->name == 'Inspection date') {
-                            $user = User::find($resp);
                             $form->inspected_at =  Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();
                         }
                         // Add the Inspected By details to form

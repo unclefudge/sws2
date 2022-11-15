@@ -158,15 +158,14 @@ class FormQuestion extends Model {
             return "$user->name";
         }
         // Custom Buttons
-        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) {
+        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, button, CONN
             return customFormSelectButtons($this->id, $values[0], 0);
         }
 
-        if (in_array($this->type, ['text', 'textarea']))
+        if (in_array($this->type, ['text', 'textarea', 'datetime']))
             return $values[0];
         else {
             $str = '';
-
             foreach ($values as $option_id) {
                 $option = FormOption::find($option_id);
                 if ($option)
