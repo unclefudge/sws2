@@ -162,7 +162,14 @@ class FormQuestion extends Model {
             return customFormSelectButtons($this->id, $values[0], 0);
         }
 
-        if (in_array($this->type, ['text', 'textarea', 'datetime']))
+        // Datetime
+        if ($this->type == 'datetime') {
+            $response = FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
+            return ($response->date) ? $response->date->formatted('d/m/Y g:i a') : $response->value;
+        }
+
+
+        if (in_array($this->type, ['text', 'textarea']))
             return $values[0];
         else {
             $str = '';
