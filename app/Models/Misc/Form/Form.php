@@ -69,6 +69,15 @@ class Form extends Model {
         return FormQuestion::where('template_id', $this->template_id)->where('status', 1)->orderBy('order')->get();
     }
 
+    /**
+     * A Form has many media
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function files()
+    {
+        return FormFile::where('form_id', $this->id)->where('status', 1)->orderBy('order')->get();
+    }
 
 
     /**

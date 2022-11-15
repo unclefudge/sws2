@@ -91,7 +91,8 @@
                                     @if ($section->name)
                                         <div class="row" style="background: #f0f6fa; margin: 10px 0px 5px 0px; padding: 5px 0px; cursor: pointer" onclick="toggleSection({{$section->id}})">
                                             <div class="col-md-12">
-                                                <h4 class="font-dark"><small><i id="sdiv-{{$section->id}}-arrow" class="fa fa-angle-down font-dark" style="margin-right: 10px"></i></small> {{ $section->name }}
+                                                <h4 class="font-dark">
+                                                    <small><i id="sdiv-{{$section->id}}-arrow" class="fa fa-angle-down font-dark" style="margin-right: 10px"></i></small> {{ $section->name }}
                                                 </h4>
                                             </div>
                                         </div>
@@ -221,7 +222,7 @@
                                                         @if ($question->files($form->id)->count())
                                                             {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
                                                             @foreach ($question->files($form->id) as $file)
-                                                                <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin-right: 20px">
+                                                                <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                                                             @endforeach
                                                         @endif
                                                     </div>
@@ -229,7 +230,7 @@
 
                                                     {{-- Notes - Show --}}
                                                     <input type="hidden" id="q{{$question->id}}-notes-orig" value="{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}">
-                                                    <div id="shownote-{{$question->id}}" class="row hoverdiv button-note" data-qid="{{$question->id}}" style="margin: 10px 0px; {{ ($question->extraNotesForm($form->id)) ? '' : 'display:none' }}">
+                                                    <div id="shownote-{{$question->id}}" class="row button-note" data-qid="{{$question->id}}" style="margin: 10px 0px; cursor: pointer; {{ ($question->extraNotesForm($form->id)) ? '' : 'display:none' }}">
                                                         <b>Notes</b><br>
                                                         <div class="col-md-12" id="shownote-{{$question->id}}-div" style="padding-left: 0px; margin-bottom: 10px">
                                                             {!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}
@@ -305,6 +306,19 @@
                                     </div> {{-- end section-content div --}}
                                 </div> {{-- end section div --}}
                             @endforeach
+
+                            {{-- Media Summary --}}
+                            @if (!$form->status && $pagenumber == '1')
+                                <h3 class="font-green-haze">Media Summary</h3>
+                                @if ($form->files()->count())
+                                    {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
+                                    @foreach ($form->files() as $file)
+                                        <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                    @endforeach
+                                @else
+                                    No media found
+                                @endif
+                            @endif
 
                             <br><br>
                             <div class="form-actions right">
@@ -438,8 +452,13 @@
                 $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes').val());
             }
 
-            $('#shownote-' + qid).toggle();
-            $('#editnote-' + qid).toggle();
+            // If both or hidden then display only the edit
+            if ($('#shownote-' + qid).css('display') == 'none' && $('#editnote-' + qid).css('display') == 'none') {
+                $('#editnote-' + qid).show();
+            } else {
+                $('#shownote-' + qid).toggle();
+                $('#editnote-' + qid).toggle();
+            }
         });
 
         // Save Note
@@ -619,8 +638,8 @@
     // Toggle Sections
     //
     function toggleSection(sid) {
-        var section = document.getElementById('sdiv-'+sid+'-content');
-        var arrow = document.getElementById('sdiv-'+sid+'-arrow');
+        var section = document.getElementById('sdiv-' + sid + '-content');
+        var arrow = document.getElementById('sdiv-' + sid + '-arrow');
         if (section.style.display === 'none') {
             section.style.display = '';
             arrow.classList.remove('fa-angle-right');
