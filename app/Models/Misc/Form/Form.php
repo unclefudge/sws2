@@ -5,10 +5,7 @@ namespace App\Models\Misc\Form;
 use URL;
 use Mail;
 use App\User;
-use App\Models\Misc\Form\FormTemplate;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
+use App\Models\Site\Site;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -16,7 +13,7 @@ use Carbon\Carbon;
 class Form extends Model {
 
     protected $table = 'forms';
-    protected $fillable = ['template_id', 'site_id', 'name', 'submitted', 'completed', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $fillable = ['template_id', 'name', 'site_id', 'site_name', 'prepared_by', 'prepared_by_name', 'submitted', 'completed', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
     protected $dates = ['submitted', 'completed'];
 
     /*
@@ -59,8 +56,7 @@ class Form extends Model {
      */
     public function sections()
     {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormSection', 'App\Models\Misc\Form\FormPage', 'template_id', 'page_id', 'id', 'id');
-        //return FormSection::whereIn('page_id', $this->pages()->pluck('id')->toArray())->where('status', 1)->orderBy('order')->get();
+        return FormSection::whereIn('page_id', $this->pages()->pluck('id')->toArray())->where('status', 1)->orderBy('order')->get();
     }
 
     /**
@@ -70,10 +66,7 @@ class Form extends Model {
      */
     public function questions()
     {
-        //$sections_array = $this->sections->pluck('id')->toArray();
-        //return FormQuestion::whereIn('section_id',$sections_array)->where('status', 1)->get();
-        //return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
-        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
+        return FormQuestion::where('template_id', $this->template_id)->where('status', 1)->orderBy('order')->get();
     }
 
 
@@ -97,7 +90,6 @@ class Form extends Model {
 
         return "Page $page_num";
     }
-
 
     /**
      * The "booting" method of the model.

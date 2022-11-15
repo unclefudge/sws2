@@ -5,26 +5,26 @@
         <li class="dropdown dropdown-extended dropdown-notification dropdown-dark" id="header_notification_bar">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                 <i class="icon-bell"></i>
-                @if (Auth::user()->todo('1')->count())
-                    <span class="badge badge-default">{{ Auth::user()->todo('1')->count() }}</span>
+                @if (Auth::user()->todo([1,2])->count())
+                    <span class="badge badge-default">{{ Auth::user()->todo([1,2])->count() }}</span>
                 @endif
             </a>
             <ul class="dropdown-menu">
                 <li class="external">
-                    <h3>You have <strong>{{ Auth::user()->todo('1')->count() }} outstanding</strong> tasks</h3>
+                    <h3>You have <strong>{{ Auth::user()->todo([1,2])->count() }} outstanding</strong> tasks</h3>
                     <a href="/todo">view all</a>
                 </li>
                 <li>
                     <ul class="dropdown-menu-list scroller" style="height: 250px;" data-handle-color="#637283">
                         {{-- Outstanding ToDoo Type for Users --}}
                         @foreach (TODO_TYPES as $type => $name)
-                            @foreach(Auth::user()->todoType($type, 1) as $todo)
+                            @foreach(Auth::user()->todoType($type, [1, 2]) as $todo)
                                 <li>
                                     <a href="{{ $todo->url() }}">
                                         <span class="time">{!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '' !!}</span>
                                     <span class="details">
                                         <span class="badge badge-success badge-roundless"><i class="fa fa-plus"></i></span>
-                                    <span style="line-height: 25px">&nbsp; {{ $todo->name }} {{ $todo->id }}:</span>
+                                    <span style="line-height: 25px">&nbsp; {{ $todo->name }} [{{ $todo->id }}]</span>
                                 </span>
                                     </a>
                                 </li>
@@ -33,13 +33,13 @@
 
                         <?php $todo_types = ['company doc', 'company ptc', 'company privacy']; ?>
                         @foreach ($todo_types as $type)
-                            @foreach(Auth::user()->todoType($type, 1) as $todo)
+                            @foreach(Auth::user()->todoType($type, [1, 2]) as $todo)
                                 <li>
                                     <a href="{{ $todo->url() }}">
                                         <span class="time">{!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '' !!}</span>
                                     <span class="details">
                                         <span class="badge badge-success badge-roundless"><i class="fa fa-plus"></i></span>
-                                    <span style="line-height: 25px">&nbsp; {{ $todo->name }} {{ $todo->id }}:</span>
+                                    <span style="line-height: 25px">&nbsp; {{ $todo->name }} [{{ $todo->id }}]</span>
                                 </span>
                                     </a>
                                 </li>

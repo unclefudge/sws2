@@ -43,9 +43,10 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Site</th>
-                                <th> Inspected by</th>
+                                <th> Prepared by</th>
                                 <th width="10%"> Conducted</th>
                                 <th width="10%"> Completed</th>
+                                <th width="3%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -91,77 +92,48 @@
             },
             columns: [
                 {data: 'view', name: 'view', orderable: false, searchable: false},
-                {data: 'sitename', name: 'sites.name'},
-                {data: 'prepared', name: 'prepared'},
+                {data: 'site_name', name: 'forms.site_name'},
+                {data: 'prepared_by_name', name: 'forms.prepared_by_name'},
                 {data: 'createddate', name: 'forms.created_at'},
                 {data: 'updateddate', name: 'forms.updated_at'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
                 [2, "desc"]
             ]
         });
 
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this report!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted report');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
+            });
+        });
+
         $('select#status').change(function () {
             table1.ajax.reload();
-        });
-
-        // Warning message for deleting report
-        $('.delete-report').click(function (e) {
-            e.preventDefault();
-            var url = "/site/inspection/plumbing/" + $(this).data('id');
-            var name = $(this).data('name');
-
-            swal({
-                title: "Are you sure?",
-                text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted report');
-                    },
-                }).always(function (data) {
-                    location.reload();
-                });
-            });
-        });
-
-        table1.on('click', '.btn-delete[data-id]', function (e) {
-            e.preventDefault();
-            var url = "/site/inspection/plumbing/" + $(this).data('id');
-            var name = $(this).data('name');
-
-            swal({
-                title: "Are you sure?",
-                text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted report');
-                    },
-                }).always(function (data) {
-                    location.reload();
-                });
-            });
         });
 
     });

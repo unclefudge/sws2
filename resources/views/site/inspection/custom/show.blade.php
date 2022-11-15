@@ -41,7 +41,7 @@
                                 <i class="fa fa-warning"></i><strong> The follwing questions require a response</strong>
                                 <ul>
                                     @foreach ($failed_questions as $question)
-                                        <li style="list-style-type: none;">@if ($form->pages->count() > 1) Page {{ $question->section->page->order }}: @endif{{ $question->name }}</li>
+                                        <li style="list-style-type: none;">@if ($form->pages()->count() > 1) Page {{ $question->section->page->order }}: @endif{{ $question->name }}</li>
                                     @endforeach
                                 </ul>
                             </div>
@@ -70,7 +70,7 @@
                                 <div class="col-md-12">
                                     <h3 class="font-green-haze" style="display: inline-block; margin: 0px">{{ $form->pageName($pagenumber) }}</h3>
                                     <span class="pull-right">
-                                       @for ($x = 1; $x <= $form->pages->count(); $x++)
+                                       @for ($x = 1; $x <= $form->pages()->count(); $x++)
                                             @if ($x == $pagenumber)
                                                 <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">{{ $x }}</button>
                                             @else
@@ -230,8 +230,8 @@
                                                     {{-- Notes - Show --}}
                                                     <input type="hidden" id="q{{$question->id}}-notes-orig" value="{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}">
                                                     <div id="shownote-{{$question->id}}" class="row hoverdiv button-note" data-qid="{{$question->id}}" style="margin: 10px 0px; {{ ($question->extraNotesForm($form->id)) ? '' : 'display:none' }}">
+                                                        <b>Notes</b><br>
                                                         <div class="col-md-12" id="shownote-{{$question->id}}-div" style="padding-left: 0px; margin-bottom: 10px">
-                                                            <b>Notes</b><br>
                                                             {!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}
                                                         </div>
                                                     </div>
@@ -239,6 +239,7 @@
                                                     <div id="editnote-{{$question->id}}" style="margin-top:10px; display:none">
                                                         <div class="row">
                                                             <div class="col-md-12">
+                                                                <b>Notes</b><br>
                                                                 <textarea id="q{{$question->id}}-notes" name="q{{$question->id}}-notes" rows="5" class="form-control" placeholder="Notes">{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}</textarea>
                                                             </div>
                                                         </div>
@@ -310,10 +311,10 @@
                                 @if ($pagenumber != 1)
                                     <button class="btn blue pagebtn" id="prevpage" gotopage="{{ $pagenumber-1 }}">< Previous Page</button>
                                 @endif
-                                @if ($pagenumber < $form->pages->count())
+                                @if ($pagenumber < $form->pages()->count())
                                     <button class="btn blue pagebtn" id="nextpage" gotopage="{{ $pagenumber+1 }}">Next Page ></button>
                                 @endif
-                                @if ($form->status && ($pagenumber == $form->pages->count() || $showrequired))
+                                @if ($form->status && ($pagenumber == $form->pages()->count() || $showrequired))
                                     <button class="btn green pagebtn" id="complete" gotopage="complete">Complete Inspection</button>
                                 @endif
                                 @if (!$form->status)

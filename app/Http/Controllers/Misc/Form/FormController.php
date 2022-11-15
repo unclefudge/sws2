@@ -21,6 +21,7 @@ use App\Models\Misc\Form\FormLogic;
 use App\Models\Misc\Form\FormNote;
 use App\Models\Misc\Form\FormFile;
 use App\Models\Misc\TemporaryFile;
+use App\Models\Site\Site;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -44,8 +45,8 @@ class FormController extends Controller {
     public function index()
     {
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
-        //    return view('errors/404');
+        if (!Auth::user()->hasAnyPermissionType('site.inspection'))
+            return view('errors/404');
 
         return view('site/inspection/custom/list');
     }
@@ -54,11 +55,9 @@ class FormController extends Controller {
     {
         $template = FormTemplate::find($template_id);
 
-
-
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
-        //    return view('errors/404');
+        if (!Auth::user()->hasAnyPermissionType('site.inspection'))
+            return view('errors/404');
 
         return view('site/inspection/custom/list', compact('template'));
     }
@@ -71,8 +70,8 @@ class FormController extends Controller {
     public function createForm($template_id)
     {
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('add.site.scaffold.handover'))
-        //    return view('errors/404');
+        if (!Auth::user()->allowed2('add.site.inspection'))
+            return view('errors/404');
 
         $form = Form::create(['template_id' => $template_id, 'company_id' => Auth::user()->company->reportsTo()->id]);
 
@@ -89,8 +88,8 @@ class FormController extends Controller {
         $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
-        //    return view('errors/404');
+        if (!Auth::user()->allowed2('view.site.inspection', $form))
+            return view('errors/404');
 
         return redirect("/site/inspection/$id/1");
     }
@@ -106,8 +105,8 @@ class FormController extends Controller {
         $page = FormPage::where('template_id', $form->template->id)->where('order', $pagenumber)->first();
 
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('view.site.scaffold.handover', $form))
-        //    return view('errors/404');
+        if (!Auth::user()->allowed2('view.site.inspection', $form))
+            return view('errors/404');
 
         // Select 2 question ids
         $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->where('type_version', 'select2')->pluck('id')->toArray();
@@ -143,7 +142,7 @@ class FormController extends Controller {
     public function store()
     {
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('add.site.scaffold.handover'))
+        //if (!Auth::user()->allowed2('add.site.inspection'))
         //    return view('errors/404');
 
         //return redirect('/misc/form/' . $form->id . /edit);
@@ -160,8 +159,8 @@ class FormController extends Controller {
         $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
-        //    return view('errors/404');
+        if (!Auth::user()->allowed2('edit.site.inspection', $form))
+            return view('errors/404');
 
         $nextpage = request('nextpage');
         $questions_asked = [];
@@ -175,7 +174,7 @@ class FormController extends Controller {
         //dd(request()->all());
 
         // Loop through ALL form questions
-        foreach ($form->questions as $question) {
+        foreach ($form->questions() as $question) {
             $qid = $question->id;
 
             // Only update questions for current page
@@ -193,7 +192,18 @@ class FormController extends Controller {
                 foreach ($resp_array as $resp) {
                     if ($resp || $resp == '0') { // Response not blank/null
                         if ($debug) echo "Q:$qid Val:$resp T:$question->type<br>";
-                        if ($question->type_special == 'site') $form->site_id = $resp;  // Add the Site ID to form
+                        // Add the Site details to form
+                        if ($question->type_special == 'site') {
+                            $site = Site::find($resp);
+                            $form->site_id = $resp;
+                            $form->site_name = $site->name;
+                        }
+                        // Add the Prepared By details to form
+                        if ($question->name == 'Prepared by') {
+                            $user = User::find($resp);
+                            $form->prepared_by = $resp;
+                            $form->prepared_by_name = $user->fullname;
+                        }
 
                         // Set option_id + date field if required
                         $option_id = ($question->type == 'select' && !in_array($question->type_special, ['site', 'user'])) ? $resp : null;  // set option_id for select questions
@@ -263,7 +273,7 @@ class FormController extends Controller {
         }
 
         //
-        // Delete any media
+        // Delete any media marked to delete
         //
         if (request('myGalleryDelete')) {
             foreach (request('myGalleryDelete') as $filename) {
@@ -320,7 +330,7 @@ class FormController extends Controller {
         $failed_questions = [];
         $logic_questions = [];
         $delete_responses = [];
-        foreach ($form->questions as $question) {
+        foreach ($form->questions() as $question) {
             if ($question->required) {
                 $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
                 $val = ($response) ? $response->value : '';
@@ -486,6 +496,35 @@ class FormController extends Controller {
         return 'delete upload';
     }
 
+    /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $form = Form::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2("del.site.inspection", $form))
+            return json_encode("failed");
+
+        // Delete any Form Attachments + remove directory
+        $dir = public_path("/filebank/inspection/$id");
+        if (is_dir($dir)) {
+            array_map('unlink', glob("$dir/*.*"));
+            rmdir($dir);
+        }
+
+        // Delete associated Form records
+        Form::where('id', $id)->delete();
+        FormFile::where('form_id', $id)->delete();
+        FormNote::where('form_id', $id)->delete();
+        FormResponse::where('form_id', $id)->delete();
+
+        return json_encode('success');
+    }
+
 
     /**
      * Get Templates current user is authorised to manage + Process datatables ajax request.
@@ -495,13 +534,9 @@ class FormController extends Controller {
         //$template = FormTemplate::find(request('template_id'));
 
         $records = Form::select([
-            'forms.id', 'forms.template_id', 'forms.site_id', 'forms.name', 'forms.prepared_by', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
-            'users.firstname', 'users.lastname',
+            'forms.id', 'forms.template_id','forms.site_name', 'forms.prepared_by_name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
             DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
-            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate'),
-            DB::raw('sites.name AS sitename')])
-            ->join('sites', 'forms.site_id', '=', 'sites.id')
-            ->join('users', 'forms.prepared_by', '=', 'users.id')
+            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate')])
             ->where('forms.template_id', request('template_id'))
             ->where('forms.company_id', Auth::user()->company->reportsTo()->id)
             ->where('forms.status', request('status'));
@@ -512,8 +547,12 @@ class FormController extends Controller {
             ->addColumn('view', function ($report) {
                 return ('<div class="text-center"><a href="/site/inspection/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            ->addColumn('prepared', function ($report) {
-                return User::find($report->prepared_by)->name;
+            ->addColumn('action', function ($report) {
+                $actions = '';
+                if (Auth::user()->allowed2("del.site.inspection", $report))
+                    $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/inspection/' . $report->id . '" data-name="' . $report->site_name . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
             })
             ->rawColumns(['view', 'name', 'updated_at', 'created_at', 'action'])
             ->make(true);

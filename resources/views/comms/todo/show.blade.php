@@ -83,7 +83,7 @@
                                 </div>
                             </div>
 
-                            @if ($todo->type && $todo->type == 'inspection')
+                            @if ($todo->type && $todo->type_id2 && $todo->type == 'inspection')
                                 <?php $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2) ?>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -229,12 +229,14 @@
                                 @if($todo->type == 'extension')
                                     <a href="/site/extension" class="btn blue">View Contract Time Extensions</a>
                                 @endif
-                                @if($todo->type == 'inspection')
+                                @if($todo->type == 'inspection' && $todo->type_id2)
                                     <?php
                                     $form = \App\Models\Misc\Form\Form::find($todo->type_id);
                                     $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2);
                                     $page = $question->section->page->order ?>
-                                    <a href="/site/inspection/{{ $todo->type_id }}/{{$page}}" class="btn dark">View {{ $form->template->name }}</a>
+                                    @if ($form && $question)
+                                        <a href="/site/inspection/{{ $todo->type_id }}/{{$page}}" class="btn dark">View {{ $form->template->name }}</a>
+                                    @endif
                                     @if ($todo->status != '0')
                                         <button class="btn blue" id="save">Save</button>
                                         <button class="btn green" id="close">Mark Complete</button>
