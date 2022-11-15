@@ -1758,7 +1758,7 @@ class PagesController extends Controller {
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name'        => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+             'name'        => "Inspection date", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,

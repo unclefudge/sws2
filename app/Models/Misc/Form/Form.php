@@ -13,8 +13,8 @@ use Carbon\Carbon;
 class Form extends Model {
 
     protected $table = 'forms';
-    protected $fillable = ['template_id', 'name', 'site_id', 'site_name', 'inspected_by', 'inspected_by_name', 'submitted', 'completed', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['submitted', 'completed'];
+    protected $fillable = ['template_id', 'name', 'site_id', 'site_name', 'inspected_by', 'inspected_by_name', 'inspected_at', 'submitted_at', 'completed_at', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $dates = ['inspected_at', 'submitted_at', 'completed_at'];
 
     /*
      * A Form belongs to a FormTemplate

@@ -118,13 +118,13 @@ class FormController extends Controller {
         $showrequired = 0;
         $failed_questions = null;
         $today = Carbon::now()->format('Ymd');
-        if ($form->submitted) {
-            if ($form->submitted->format('Ymd') == $today) {
+        if ($form->submitted_at) {
+            if ($form->submitted_at->format('Ymd') == $today) {
                 $showrequired = 1;
                 $failed_ids = $this->verifyFormCompleted($form);
                 $failed_questions = FormQuestion::find($failed_ids);
             } else {
-                $form->submitted = null;
+                $form->submitted_at = null;
                 $form->save();
                 $showrequired = 0;
             }
@@ -198,7 +198,12 @@ class FormController extends Controller {
                             $form->site_id = $resp;
                             $form->site_name = $site->name;
                         }
-                        // Add the Prepared By details to form
+                        // Add the Inspected At details to form
+                        if ($question->name == 'Inspection date') {
+                            $user = User::find($resp);
+                            $form->inspected_at =  Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();
+                        }
+                        // Add the Inspected By details to form
                         if ($question->name == 'Inspected by') {
                             $user = User::find($resp);
                             $form->inspected_by = $resp;
@@ -297,13 +302,13 @@ class FormController extends Controller {
 
             //dd($failed_questions);
 
-            $form->submitted = Carbon::now()->toDateTimeString();
+            $form->submitted_at = Carbon::now()->toDateTimeString();
             if ($failed_questions) {
                 $first_failed = FormQuestion::find(reset($failed_questions)); // get first element of array failed_questions
                 $nextpage = ($first_failed) ? $first_failed->section->page->order : $nextpage;
             } else {
-                $form->submitted = null;
-                $form->completed = Carbon::now()->toDateTimeString();
+                $form->submitted_at = null;
+                $form->completed_at = Carbon::now()->toDateTimeString();
                 $form->status = 0;
                 $nextpage = 1;
             }
@@ -534,9 +539,9 @@ class FormController extends Controller {
         //$template = FormTemplate::find(request('template_id'));
 
         $records = Form::select([
-            'forms.id', 'forms.template_id','forms.site_name', 'forms.inspected_by_name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
-            DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
-            DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate')])
+            'forms.id', 'forms.template_id','forms.site_name', 'forms.inspected_by_name',  'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            DB::raw('DATE_FORMAT(forms.inspected_at, "%d/%m/%y") AS inspecteddate'),
+            DB::raw('DATE_FORMAT(forms.completed_at, "%d/%m/%y") AS completeddate')])
             ->where('forms.template_id', request('template_id'))
             ->where('forms.company_id', Auth::user()->company->reportsTo()->id)
             ->where('forms.status', request('status'));

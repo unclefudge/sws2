@@ -94,8 +94,8 @@
                 {data: 'view', name: 'view', orderable: false, searchable: false},
                 {data: 'site_name', name: 'forms.site_name'},
                 {data: 'inspected_by_name', name: 'forms.inspected_by_name'},
-                {data: 'createddate', name: 'forms.created_at'},
-                {data: 'updateddate', name: 'forms.updated_at'},
+                {data: 'inspecteddate', name: 'forms.inspected_at'},
+                {data: 'completeddate', name: 'forms.completed_at'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [

@@ -52,7 +52,7 @@
                             {{-- Template name + description--}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)<span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed) ? $form->completed->format('d/m/Y') : '' }}</span>@endif</h3>
+                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)<span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>@endif</h3>
                                     {{ $form->template->description }}<br><br>
                                 </div>
                             </div>
