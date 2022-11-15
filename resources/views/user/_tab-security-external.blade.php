@@ -336,6 +336,7 @@ $rec = $user;
                             <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid) !!}</td>
                             <td width="15%"></td>
                         </tr>
+
                         <tr>
                             <td>Risk Assessments / Hazardous Materials</td>
                             <td width="15%">{!! permSelect('view.safety.doc', ($plan) ? 'super.plan' : 'super', $rec, $cid) !!}</td>
@@ -405,9 +406,15 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('sig.site.qa', 'sig', $rec, $cid) !!}</td>
                             </tr>
                             <tr>
-                                <td>Inspection Reports</td>
+                                <td>Inspection Reports (Electrical/Plumbing)</td>
                                 <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid) !!}</td>
+                                <td width="45%" colspan="3">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>Inspection Reports (WHS)</td>
+                                <td width="15%">{!! permSelect('view.site.inspection.whs', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.inspection.whs', 'super', $rec, $cid) !!}</td>
                                 <td width="45%" colspan="3">&nbsp;</td>
                             </tr>
                             <tr>

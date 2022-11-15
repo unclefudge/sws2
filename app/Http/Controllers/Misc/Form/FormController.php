@@ -45,7 +45,7 @@ class FormController extends Controller {
     public function index()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.inspection'))
+        if (!Auth::user()->hasAnyPermissionType('site.inspection.whs'))
             return view('errors/404');
 
         return view('site/inspection/custom/list');
@@ -56,7 +56,7 @@ class FormController extends Controller {
         $template = FormTemplate::find($template_id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.inspection'))
+        if (!Auth::user()->hasAnyPermissionType('site.inspection.whs'))
             return view('errors/404');
 
         return view('site/inspection/custom/list', compact('template'));
@@ -70,7 +70,7 @@ class FormController extends Controller {
     public function createForm($template_id)
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.inspection'))
+        if (!Auth::user()->allowed2('add.site.inspection.whs'))
             return view('errors/404');
 
         $form = Form::create(['template_id' => $template_id, 'company_id' => Auth::user()->company->reportsTo()->id]);
@@ -88,7 +88,7 @@ class FormController extends Controller {
         $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.inspection', $form))
+        if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
             return view('errors/404');
 
         return redirect("/site/inspection/$id/1");
@@ -105,7 +105,7 @@ class FormController extends Controller {
         $page = FormPage::where('template_id', $form->template->id)->where('order', $pagenumber)->first();
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.inspection', $form))
+        if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
             return view('errors/404');
 
         // Select 2 question ids
@@ -142,7 +142,7 @@ class FormController extends Controller {
     public function store()
     {
         // Check authorisation and throw 404 if not
-        //if (!Auth::user()->allowed2('add.site.inspection'))
+        //if (!Auth::user()->allowed2('add.site.inspection.whs'))
         //    return view('errors/404');
 
         //return redirect('/misc/form/' . $form->id . /edit);
@@ -159,7 +159,7 @@ class FormController extends Controller {
         $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.inspection', $form))
+        if (!Auth::user()->allowed2('edit.site.inspection.whs', $form))
             return view('errors/404');
 
         $nextpage = request('nextpage');
@@ -517,7 +517,7 @@ class FormController extends Controller {
         $form = Form::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2("del.site.inspection", $form))
+        if (!Auth::user()->allowed2("del.site.inspection.whs", $form))
             return json_encode("failed");
 
         // Delete any Form Attachments + remove directory
@@ -560,7 +560,7 @@ class FormController extends Controller {
             })
             ->addColumn('action', function ($report) {
                 $actions = '';
-                if (Auth::user()->allowed2("del.site.inspection", $report))
+                if (Auth::user()->allowed2("del.site.inspection.whs", $report))
                     $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/inspection/' . $report->id . '" data-name="' . $report->site_name . '"><i class="fa fa-trash"></i></button>';
 
                 return $actions;

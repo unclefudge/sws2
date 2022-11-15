@@ -651,12 +651,20 @@ $cc = 1;*/
                                                     <td width="15%"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inspection Reports<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Inspection Reports (Electrical/Plumbing)<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.inspection', 'add', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('del.site.inspection', 'res', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('sig.site.inspection', 'sig', $rec, $cid, $dis) !!}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Inspection Reports (WHS)<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td width="15%">{!! permSelect('view.site.inspection.whs', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.site.inspection.whs', 'super', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('add.site.inspection.whs', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.site.inspection.whs', 'res', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('sig.site.inspection.whs', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>Scaffold Handover Certificate<br><span class="font-grey-silver">Cape Cod Only</span></td>

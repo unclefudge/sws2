@@ -22,7 +22,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">{{ $template->name }}</span>
                         </div>
                         <div class="actions">
-                            @if(Auth::user()->allowed2('add.site.inspection'))
+                            @if(Auth::user()->allowed2('add.site.inspection.whs'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/create/{{ $template->id }}" data-original-title="Add">Add</a>
                             @endif
                         </div>
