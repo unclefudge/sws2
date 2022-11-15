@@ -1762,7 +1762,7 @@ class PagesController extends Controller {
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name'        => "Prepared by", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
+             'name'        => "Inspected by", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,

@@ -43,7 +43,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Site</th>
-                                <th> Prepared by</th>
+                                <th> Inspected by</th>
                                 <th width="10%"> Conducted</th>
                                 <th width="10%"> Completed</th>
                                 <th width="3%"></th>
@@ -93,7 +93,7 @@
             columns: [
                 {data: 'view', name: 'view', orderable: false, searchable: false},
                 {data: 'site_name', name: 'forms.site_name'},
-                {data: 'prepared_by_name', name: 'forms.prepared_by_name'},
+                {data: 'inspected_by_name', name: 'forms.inspected_by_name'},
                 {data: 'createddate', name: 'forms.created_at'},
                 {data: 'updateddate', name: 'forms.updated_at'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},

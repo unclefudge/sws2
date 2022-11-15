@@ -163,8 +163,8 @@ class CreateFormTables extends Migration {
             $table->string('name', 255)->nullable();
             $table->integer('site_id')->unsigned()->nullable();
             $table->string('site_name', 255)->nullable();
-            $table->integer('prepared_by')->unsigned()->nullable();
-            $table->string('prepared_by_name', 255)->nullable();
+            $table->integer('inspected_by')->unsigned()->nullable();
+            $table->string('inspected_by_name', 255)->nullable();
             $table->datetime('submitted')->nullable();
             $table->datetime('completed')->nullable();
             $table->text('notes')->nullable();

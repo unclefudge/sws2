@@ -199,10 +199,10 @@ class FormController extends Controller {
                             $form->site_name = $site->name;
                         }
                         // Add the Prepared By details to form
-                        if ($question->name == 'Prepared by') {
+                        if ($question->name == 'Inspected by') {
                             $user = User::find($resp);
-                            $form->prepared_by = $resp;
-                            $form->prepared_by_name = $user->fullname;
+                            $form->inspected_by = $resp;
+                            $form->inspected_by_name = $user->fullname;
                         }
 
                         // Set option_id + date field if required
@@ -534,7 +534,7 @@ class FormController extends Controller {
         //$template = FormTemplate::find(request('template_id'));
 
         $records = Form::select([
-            'forms.id', 'forms.template_id','forms.site_name', 'forms.prepared_by_name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            'forms.id', 'forms.template_id','forms.site_name', 'forms.inspected_by_name', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
             DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
             DB::raw('DATE_FORMAT(forms.updated_at, "%d/%m/%y") AS updateddate')])
             ->where('forms.template_id', request('template_id'))
