@@ -165,7 +165,7 @@ class FormQuestion extends Model {
         // Datetime
         if ($this->type == 'datetime') {
             $response = FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
-            return ($response->date) ? $response->date->formatted('d/m/Y g:i a') : $response->value;
+            return ($response->date) ? $response->date->format('d/m/Y g:i a') : $response->value;
         }
 
 

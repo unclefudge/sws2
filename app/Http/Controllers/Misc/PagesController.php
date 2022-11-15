@@ -1754,7 +1754,7 @@ class PagesController extends Controller {
         $sid = $section->id;
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-             'name'        => "Site conducted", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
+             'name'        => "Site", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(
             ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,

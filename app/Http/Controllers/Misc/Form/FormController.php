@@ -167,11 +167,13 @@ class FormController extends Controller {
         $questions_media = [];
         $debug = true;
 
+        //dd(request()->all());
+
         // Form has been re-opened
+        $form_reopened = (request('status') == '1' && $form->status == '0') ? true : false;
+
         if (request('status'))
             $form->status = request('status');
-
-        //dd(request()->all());
 
         // Loop through ALL form questions
         foreach ($form->questions() as $question) {
@@ -179,55 +181,60 @@ class FormController extends Controller {
 
             // Only update questions for current page
             if ($question->section->page->order == request('page')) {
-                $questions_asked[] = $qid;
-                $responses_given = [];
 
-                //
-                // Question Responses
-                //  - convert response to an array (Process Single + Multiple response with same code)
-                $resp_array = [];
-                if (request()->has("q$qid")) //ie. request variable exists
-                    $resp_array = (is_array(request("q$qid"))) ? request("q$qid") : [request("q$qid")];
+                // Only update Form Responses if Form was just re-opened
+                //   - because no input fields will have values
+                if (!$form_reopened) {
+                    $questions_asked[] = $qid;
+                    $responses_given = [];
 
-                foreach ($resp_array as $resp) {
-                    if ($resp || $resp == '0') { // Response not blank/null
-                        if ($debug) echo "Q:$qid Val:$resp T:$question->type<br>";
-                        // Add the Site details to form
-                        if ($question->type_special == 'site') {
-                            $site = Site::find($resp);
-                            $form->site_id = $resp;
-                            $form->site_name = $site->name;
+                    //
+                    // Question Responses
+                    //  - convert response to an array (Process Single + Multiple response with same code)
+                    $resp_array = [];
+                    if (request()->has("q$qid")) //ie. request variable exists
+                        $resp_array = (is_array(request("q$qid"))) ? request("q$qid") : [request("q$qid")];
+
+                    foreach ($resp_array as $resp) {
+                        if ($resp || $resp == '0') { // Response not blank/null
+                            if ($debug) echo "Q:$qid Val:$resp T:$question->type<br>";
+                            // Add the Site details to form
+                            if ($question->type_special == 'site') {
+                                $site = Site::find($resp);
+                                $form->site_id = $resp;
+                                $form->site_name = $site->name;
+                            }
+                            // Add the Inspected At details to form
+                            if ($question->name == 'Inspection date') {
+                                $form->inspected_at = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();
+                            }
+                            // Add the Inspected By details to form
+                            if ($question->name == 'Inspected by') {
+                                $user = User::find($resp);
+                                $form->inspected_by = $resp;
+                                $form->inspected_by_name = $user->fullname;
+                            }
+
+                            // Set option_id + date field if required
+                            $option_id = ($question->type == 'select' && !in_array($question->type_special, ['site', 'user'])) ? $resp : null;  // set option_id for select questions
+                            $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
+                            //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
+
+                            $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $resp)->first();
+                            if ($response) {
+                                $response->value = $resp;
+                                $response->option_id = $option_id;
+                                $response->date = $date;
+                                $response->save();
+                            } else
+                                $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
+                            $responses_given[] = $response->id;
                         }
-                        // Add the Inspected At details to form
-                        if ($question->name == 'Inspection date') {
-                            $form->inspected_at =  Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();
-                        }
-                        // Add the Inspected By details to form
-                        if ($question->name == 'Inspected by') {
-                            $user = User::find($resp);
-                            $form->inspected_by = $resp;
-                            $form->inspected_by_name = $user->fullname;
-                        }
-
-                        // Set option_id + date field if required
-                        $option_id = ($question->type == 'select' && !in_array($question->type_special, ['site', 'user'])) ? $resp : null;  // set option_id for select questions
-                        $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
-                        //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
-
-                        $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $resp)->first();
-                        if ($response) {
-                            $response->value = $resp;
-                            $response->option_id = $option_id;
-                            $response->date = $date;
-                            $response->save();
-                        } else
-                            $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $resp, 'option_id' => $option_id, 'date' => $date]);
-                        $responses_given[] = $response->id;
                     }
+                    // Delete responses excluding non blank/null responses given if Form 'active'
+                    if ($form->status)
+                        $delete_blank_responses = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->whereNotIn('id', $responses_given)->delete();
                 }
-                // Delete responses excluding non blank/null responses given if Form 'active'
-                if ($form->status)
-                    $delete_blank_responses = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->whereNotIn('id', $responses_given)->delete();
 
                 //
                 // Question Notes
@@ -538,7 +545,7 @@ class FormController extends Controller {
         //$template = FormTemplate::find(request('template_id'));
 
         $records = Form::select([
-            'forms.id', 'forms.template_id','forms.site_name', 'forms.inspected_by_name',  'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            'forms.id', 'forms.template_id', 'forms.site_name', 'forms.inspected_by_name', 'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
             DB::raw('DATE_FORMAT(forms.inspected_at, "%d/%m/%y") AS inspecteddate'),
             DB::raw('DATE_FORMAT(forms.completed_at, "%d/%m/%y") AS completeddate')])
             ->where('forms.template_id', request('template_id'))
