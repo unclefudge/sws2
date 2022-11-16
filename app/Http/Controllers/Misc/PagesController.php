@@ -1740,7 +1740,7 @@ class PagesController extends Controller {
 
 
         // Creating Sample Template
-        $template = FormTemplate::create(['name' => 'Safety In Design Checklist', 'description' => 'The following criteria is to be established in order to prompt identification of potential hazards related to the existing conditions of a project and those arising from the associated proposed design and contract works. All identified hazards must be captured within the site-specific risk assessment. ', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
+        $template = FormTemplate::create(['parent_id' => null, 'version' => '1.0', 'name' => 'Safety In Design Checklist', 'description' => 'The following criteria is to be established in order to prompt identification of potential hazards related to the existing conditions of a project and those arising from the associated proposed design and contract works. All identified hazards must be captured within the site-specific risk assessment. ', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
         $tid = $template->id;
         $pn = 1;
         //
@@ -2141,11 +2141,78 @@ class PagesController extends Controller {
              'name'        => "Has asbestos been identified on the property?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
              'order'       => $pn ++, 'default' => null, 'multiple' => null, 'required' => 1, 'created_by' => 3, 'updated_by' => 3]);
 
+
+        //
+        // Duplicate 'Publish' new template
+        //
+        $match_pages = [];
+        $match_sections = [];
+        $match_questions = [];
+        $match_options = [];
+        $t = FormTemplate::create(['parent_id' => $template->id, 'version' => $template->version, 'name' => $template->name, 'description' => $template->description, 'company_id' => $template->company_id, 'created_by' => 3, 'updated_by' => 3]);
+        // Pages
+        foreach ($template->pages as $page) {
+            $p = FormPage::create(['template_id' => $t->id, 'name' => $page->name, 'description' => $page->description, 'order' => $page->order, 'created_by' => 3, 'updated_by' => 3]);
+            $match_pages[$page->id] = $p->id;
+            // Sections
+            foreach ($page->sections as $section) {
+                $s = FormSection::create(['template_id' => $t->id, 'page_id' => $p->id, 'parent' => $section->parent, 'name' => $section->name, 'description' => $section->description, 'order' => $section->order, 'created_by' => 3, 'updated_by' => 3]);
+                $match_sections[$section->id] = $s->id;
+                // Questions
+                foreach ($section->questions as $question) {
+                    $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
+                                               'order'       => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'created_by' => 3, 'updated_by' => 3]);
+                    $match_questions[$question->id] = $q->id;
+                    // Question Options
+                    foreach ($question->options() as $option) {
+                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN)
+                        if (!$option->master) {
+                            $o = FormOption::create(['question_id' => $q->id, 'text' => $option->text, 'value' => $option->value, 'order' => $option->order, 'score' => $option->score, 'colour' => $option->colour, 'group' => $option->group, 'master' => $option->master, 'status' => $option->status, 'created_by' => 3, 'updated_by' => 3]);
+                            $match_options[$option->id] = $o->id;
+                        } else
+                            $match_options[$option->id] = $option->id;
+                    }
+                }
+            }
+        }
+        // Add logic (needs to be done after base templates copied to correct 'match' old question_ids to new
+        // Question Logic
+        foreach ($template->logic as $logic) {
+            $new_match_value = '';
+            $new_trigger_id = $logic->trigger_id;
+            $question = FormQuestion::find($logic->question_id);
+
+            // Convert the orig match_values if Original question is a select with custom values
+            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YNNA'])) {
+                $old_match_value = explode(',', $logic->match_value);
+                foreach ($old_match_value as $val)
+                    $new_match_value .= $match_options[$val] . ',';
+                $new_match_value = rtrim($new_match_value, ',');
+            } else
+                $new_match_value = $logic->match_value;
+
+            if ($logic->trigger == 'question') $new_trigger_id = $match_questions[$logic->trigger_id];
+            if ($logic->trigger == 'section') $new_trigger_id = $match_sections[$logic->trigger_id];
+
+            $l = FormLogic::create(['template_id' => $t->id, 'page_id' => $match_pages[$logic->page_id], 'question_id' => $match_questions[$logic->question_id], 'match_operation' => $logic->match_operation, 'match_value' => $new_match_value, 'trigger' => $logic->trigger, 'trigger_id' => $new_trigger_id, 'created_by' => 3, 'updated_by' => 3]);
+        }
+        $template->current_id = $t->id;
+        $template->save();
+
         //
         // Create User Form
         //
-        $form = Form::create(['template_id' => 1, 'name' => 'MyForm', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
+        $form = Form::create(['template_id' => $t->id, 'name' => 'MyForm', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
 
+        echo "<br>Pages<br>";
+        var_dump($match_pages);
+        echo "<br>Sections<br>";
+        var_dump($match_sections);
+        echo "<br>Questions<br>";
+        var_dump($match_questions);
+        echo "<br>Options<br>";
+        ksort($match_options);
+        var_dump($match_options);
     }
 
     //

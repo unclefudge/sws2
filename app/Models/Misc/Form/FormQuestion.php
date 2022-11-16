@@ -89,7 +89,7 @@ class FormQuestion extends Model {
                 return FormOption::where('question_id', $this->id)->where('status', 1)->orderBy('order')->get();
         }
 
-        return null;
+        return [];
     }
 
     /**

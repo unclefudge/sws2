@@ -102,17 +102,17 @@ class FormController extends Controller {
     public function showPage($id, $pagenumber)
     {
         $form = Form::findOrFail($id);
-        $page = FormPage::where('template_id', $form->template->id)->where('order', $pagenumber)->first();
+        $page = FormPage::where('template_id', $form->template_id)->where('order', $pagenumber)->first();
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
             return view('errors/404');
 
         // Select 2 question ids
-        $s2_ids = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->where('type_version', 'select2')->pluck('id')->toArray();
-        $s2_phs = FormQuestion::where('template_id', $form->template->id)->where('type', 'select')->where('status', 1)->pluck('placeholder', 'id')->toArray();
+        $s2_ids = FormQuestion::where('template_id', $form->template_id)->where('type', 'select')->where('status', 1)->where('type_version', 'select2')->pluck('id')->toArray();
+        $s2_phs = FormQuestion::where('template_id', $form->template_id)->where('type', 'select')->where('status', 1)->pluck('placeholder', 'id')->toArray();
 
-        $formlogic = FormLogic::where('template_id', $form->template->id)->where('page_id', $page->id)->where('status', 1)->get();
+        $formlogic = FormLogic::where('template_id', $form->template_id)->where('page_id', $page->id)->where('status', 1)->get();
 
         // Check is Show Required fields is set 'Form Submitted' field is only valid for same day otherwise reset null
         $showrequired = 0;
@@ -130,8 +130,11 @@ class FormController extends Controller {
             }
         }
 
+        //dd($page);
+        //dd($formlogic);
+
         // Get Page data
-        return view('/site/inspection/custom/show', compact('form', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
+        return view('/site/inspection/custom/show', compact('form', 'page', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
 
     /**
@@ -542,13 +545,14 @@ class FormController extends Controller {
      */
     public function getForms()
     {
-        //$template = FormTemplate::find(request('template_id'));
+        $template_ids = FormTemplate::where('parent_id', request('template_id'))->pluck('id')->toArray();;
+
 
         $records = Form::select([
             'forms.id', 'forms.template_id', 'forms.site_name', 'forms.inspected_by_name', 'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
             DB::raw('DATE_FORMAT(forms.inspected_at, "%d/%m/%y") AS inspecteddate'),
             DB::raw('DATE_FORMAT(forms.completed_at, "%d/%m/%y") AS completeddate')])
-            ->where('forms.template_id', request('template_id'))
+            ->whereIn('forms.template_id', $template_ids)
             ->where('forms.company_id', Auth::user()->company->reportsTo()->id)
             ->where('forms.status', request('status'));
 

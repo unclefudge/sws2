@@ -18,8 +18,11 @@ class CreateFormTables extends Migration {
         //
         Schema::create('forms_templates', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('parent_id')->unsigned();
+            $table->integer('current_id')->unsigned();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
+            $table->string('version', 10)->nullable();
             $table->text('notes')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->integer('company_id')->unsigned()->nullable();

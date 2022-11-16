@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class FormTemplate extends Model {
 
     protected $table = 'forms_templates';
-    protected $fillable = ['name', 'description', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $fillable = ['parent_id', 'current_id', 'name', 'description', 'version', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /**
      * A FormTemplate has many forms
@@ -57,6 +57,16 @@ class FormTemplate extends Model {
         //return FormQuestion::whereIn('section_id',$sections_array)->where('status', 1)->get();
         //return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
         return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'template_id');
+    }
+
+    /**
+     * A FormTemplate has many logic
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function logic()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormLogic', 'template_id');
     }
 
 

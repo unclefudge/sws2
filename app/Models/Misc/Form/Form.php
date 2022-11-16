@@ -26,6 +26,17 @@ class Form extends Model {
         return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id');
     }
 
+    /*
+     * A FormPage belongs to a Original FormTemplate
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function originalTemplate()
+    {
+        return ($this->template->parent_id) ? FormTemplate::find($this->template->parent_id) : FormTemplate::find($this->template_id);
+    }
+
+
     /**
      * A Form has many responses
      *
