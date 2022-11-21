@@ -5,7 +5,7 @@
             <span class="caption-subject font-dark bold uppercase">Injury Details</span>
         </div>
         <div class="actions">
-            @if ($pEdit)
+            @if ($pEdit && $incident->status)
                 <button class="btn btn-circle green btn-outline btn-sm" onclick="editForm('injury')">Edit</button>
             @endif
         </div>

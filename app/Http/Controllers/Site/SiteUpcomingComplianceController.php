@@ -124,6 +124,10 @@ class SiteUpcomingComplianceController extends Controller {
             $site->fc_plans_stage = request('fc_plans_stage');
             $site->fc_struct = request('fc_struct');
             $site->fc_struct_stage = request('fc_struct_stage');
+            $site->cf_est = request('cf_est');
+            $site->cf_est_stage = request('cf_est_stage');
+            $site->cf_adm = request('cf_adm');
+            $site->cf_adm_stage = request('cf_adm_stage');
             $site->save();
         }
 
@@ -348,6 +352,10 @@ class SiteUpcomingComplianceController extends Controller {
                     'fc_plans_stage'  => $site->fc_plans_stage,
                     'fc_struct'       => $site->fc_struct,
                     'fc_struct_stage' => $site->fc_struct_stage,
+                    'cf_est'          => $site->cf_est,
+                    'cf_est_stage'    => $site->cf_est_stage,
+                    'cf_adm'          => $site->cf_adm,
+                    'cf_adm_stage'    => $site->cf_adm_stage,
                 ];
             }
         }
@@ -387,6 +395,10 @@ class SiteUpcomingComplianceController extends Controller {
                 'fc_plans_stage'  => $site->fc_plans_stage,
                 'fc_struct'       => $site->fc_struct,
                 'fc_struct_stage' => $site->fc_struct_stage,
+                'cf_est'          => $site->cf_est,
+                'cf_est_stage'    => $site->cf_est_stage,
+                'cf_adm'          => $site->cf_adm,
+                'cf_adm_stage'    => $site->cf_adm_stage,
             ];
         }
 

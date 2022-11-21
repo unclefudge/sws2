@@ -2204,7 +2204,7 @@ class PagesController extends Controller {
         //
         $form = Form::create(['template_id' => $t->id, 'name' => 'MyForm', 'company_id' => 3, 'created_by' => 3, 'updated_by' => 3]);
 
-        echo "<br>Pages<br>";
+        /*echo "<br>Pages<br>";
         var_dump($match_pages);
         echo "<br>Sections<br>";
         var_dump($match_sections);
@@ -2212,7 +2212,7 @@ class PagesController extends Controller {
         var_dump($match_questions);
         echo "<br>Options<br>";
         ksort($match_options);
-        var_dump($match_options);
+        var_dump($match_options);*/
     }
 
     //

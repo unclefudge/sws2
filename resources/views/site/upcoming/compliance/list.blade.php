@@ -70,9 +70,13 @@
                                         <div id="fcs-{{$row['id']}}">{!! $row['fc_struct'] !!}</div>
                                         <input type="hidden" id="fcs-{{$row['id']}}-s" value="{!! $row['fc_struct_stage'] !!}">
                                     </td>
-                                    <td class="hoverDiv editField" id="fcs-{{$row['id']}}-td" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours[$row['fc_struct_stage']] : '' }}">
-                                        <div id="fcs-{{$row['id']}}">{!! $row['fc_struct'] !!}</div>
-                                        <input type="hidden" id="fcs-{{$row['id']}}-s" value="{!! $row['fc_struct_stage'] !!}">
+                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_est_stage']) ? 'background:'.$settings_colours[$row['cf_est_stage']] : '' }}">
+                                        <div id="cfest-{{$row['id']}}">{!! $row['cf_est'] !!}</div>
+                                        <input type="hidden" id="cfest-{{$row['id']}}-s" value="{!! $row['cf_est_stage'] !!}">
+                                    </td>
+                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_adm_stage']) ? 'background:'.$settings_colours[$row['cf_adm_stage']] : '' }}">
+                                        <div id="cfadm-{{$row['id']}}">{!! $row['cf_adm'] !!}</div>
+                                        <input type="hidden" id="cfadm-{{$row['id']}}-s" value="{!! $row['cf_adm_stage'] !!}">
                                     </td>
                                 </tr>
                             @endforeach
@@ -96,6 +100,7 @@
                 <div class="modal-body">
                     {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteUpcomingComplianceController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                     <input type="hidden" name="site_id" id="site_id" value="">
+                    {{-- CC --}}
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -110,6 +115,7 @@
                             </div>
                         </div>
                     </div>
+                    {{-- FC Plans --}}
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -124,6 +130,7 @@
                             </div>
                         </div>
                     </div>
+                    {{-- FC Struct --}}
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -135,6 +142,36 @@
                             <div class="form-group">
                                 {!! Form::label('fc_struct', 'FC Structural', ['class' => 'control-label']) !!}
                                 {!! Form::text('fc_struct', null, ['class' => 'form-control', 'id' => 'fc_struct']) !!}
+                            </div>
+                        </div>
+                    </div>
+                    {{-- CF-EST --}}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {!! Form::label('cf_est_stage', 'Stage', ['class' => 'control-label']) !!}
+                                {!! Form::select('cf_est_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cf_est_stage', 'width' => '100%']) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                {!! Form::label('cf_est', 'CF-EST', ['class' => 'control-label']) !!}
+                                {!! Form::text('cf_est', null, ['class' => 'form-control', 'id' => 'cf_est']) !!}
+                            </div>
+                        </div>
+                    </div>
+                    {{-- CF-ADM --}}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {!! Form::label('cf_adm_stage', 'Stage', ['class' => 'control-label']) !!}
+                                {!! Form::select('cf_adm_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cf_adm_stage', 'width' => '100%']) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                {!! Form::label('cf_adm', 'CF-ADM', ['class' => 'control-label']) !!}
+                                {!! Form::text('cf_adm', null, ['class' => 'form-control', 'id' => 'cf_adm']) !!}
                             </div>
                         </div>
                     </div>

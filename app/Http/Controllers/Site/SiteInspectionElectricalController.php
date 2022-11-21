@@ -211,6 +211,13 @@ class SiteInspectionElectricalController extends Controller {
                 // Email assigned notification
                 $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
+
+                // Email assigned notification to Next Point
+                if ($company->id == 108) {  // Next Point
+                    //$email_list = (\App::environment('prod')) ? ['admin@nextpointelectrical.com.au'] : [env('EMAIL_DEV')];
+                    $email_list = (\App::environment('prod')) ? ['fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+                    if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssignedTrade($report));
+                }
             }
         }
 

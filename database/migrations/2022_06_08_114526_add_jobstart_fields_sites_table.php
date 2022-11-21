@@ -20,6 +20,10 @@ class AddJobstartFieldsSitesTable extends Migration
             $table->tinyInteger('fc_plans_stage')->nullable();
             $table->string('fc_struct')->nullable();
             $table->tinyInteger('fc_struct_stage')->nullable();
+            $table->string('cf_est')->nullable();
+            $table->tinyInteger('cf_est_stage')->nullable();
+            $table->string('cf_adm')->nullable();
+            $table->tinyInteger('cf_adm_stage')->nullable();
         });
     }
 
@@ -31,6 +35,10 @@ class AddJobstartFieldsSitesTable extends Migration
     public function down()
     {
         Schema::table('sites', function (Blueprint $table) {
+            $table->dropColumn('cf_adm_stage');
+            $table->dropColumn('cf_adm');
+            $table->dropColumn('cf_est_stage');
+            $table->dropColumn('cf_est');
             $table->dropColumn('fc_struct_stage');
             $table->dropColumn('fc_struct');
             $table->dropColumn('fc_plans_stage');

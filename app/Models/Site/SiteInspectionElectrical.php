@@ -35,7 +35,7 @@ class SiteInspectionElectrical extends Model {
     }
 
     /**
-     * A SiteInspectionElectrical assigned to a user
+     * A SiteInspectionElectrical assigned to a company
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */

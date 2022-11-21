@@ -116,6 +116,7 @@ function deleteGalleryPreview() {
     input.type = "text";
     input.name = "myGalleryDelete[]";
     input.value = file;
+    input.style.display = 'none';
     document.getElementById('custom_form').appendChild(input); // put it into the DOM
 
     // hide deleted file from gallery

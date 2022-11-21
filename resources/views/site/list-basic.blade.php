@@ -33,10 +33,10 @@
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
-                                    @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin'))
+                                    @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|whs-manager|web-admin'))
                                         <option value="-1">Upcoming</option>
                                         @endif
-                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin|con-supervisor') || Auth::user()->company_id == 29) <!-- GBT -->
+                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|whs-manager|web-admin|con-supervisor') || Auth::user()->company_id == 29) <!-- GBT -->
                                         <option value="0">Completed</option>
                                         <option value="2">Maintenance</option>
                                     @endif
