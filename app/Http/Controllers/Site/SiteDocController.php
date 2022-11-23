@@ -294,13 +294,13 @@ class SiteDocController extends Controller {
         $type = request('type');
         if ($type == 'ALL')
             $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
+                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 'd.updated_at', 's.id as sid', 's.name as site_name'])
                 ->join('sites as s', 'd.site_id', '=', 's.id')
                 ->whereIn('site_id', $allowedSites)
                 ->where('d.status', '1');
         else
             $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
+                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 'd.updated_at', 's.id as sid', 's.name as site_name'])
                 ->join('sites as s', 'd.site_id', '=', 's.id')
                 ->where('d.type', $type)
                 ->whereIn('site_id', $allowedSites)
@@ -310,6 +310,10 @@ class SiteDocController extends Controller {
 
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->addColumn('updatedDate', function ($doc) {
+                $record = SiteDoc::find($doc->id);
+                return $record->updated_at->format('d/m/Y');
+            })
             ->addColumn('action', function ($doc) {
                 $record = SiteDoc::find($doc->id);
                 $actions = '';

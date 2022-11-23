@@ -69,6 +69,7 @@
                                 <th width="7%"> Type</th>
                                 <th width="20%"> Site</th>
                                 <th> Document</th>
+                                <th width="10%"> Updated</th>
                                 <th width="10%"> Action</th>
                             </tr>
                             </thead>
@@ -138,6 +139,7 @@
             {data: 'type', name: 'd.type'},
             {data: 'site_name', name: 's.name'},
             {data: 'name', name: 'd.name'},
+            {data: 'updatedDate', name: 'updatedDate', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         order: [
