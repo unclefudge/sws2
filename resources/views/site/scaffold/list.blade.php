@@ -5,7 +5,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Scaffold Handover Cerificate</span></li>
+        <li><span>Scaffold Handover Certificate</span></li>
     </ul>
     @stop
 
@@ -19,7 +19,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Scaffold Handover Cerificate</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Scaffold Handover Certificate</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.site.scaffold.handover'))
