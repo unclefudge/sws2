@@ -42,16 +42,23 @@ class SiteUpcomingComplianceController extends Controller {
 
         $startdata = $this->getUpcomingData();
         $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
-        $settings_select = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('name', 'order')->toArray();
-        $colours = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('colour', 'order')->toArray();
-        $settings_colours = [];
-        if ($colours) {
-            foreach ($colours as $order => $colour) {
-                list($col1, $col2, $hex) = explode('-', $colour);
-                $settings_colours[$order] = "#$hex";
+
+        $types = ['opt', 'cfest', 'cfadm'];
+        foreach ($types as $type) {
+            $settings_select[$type] = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('name', 'order')->toArray();
+            $colours = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('colour', 'order')->toArray();
+            $settings_colours[$type] = [];
+            if ($colours) {
+                foreach ($colours as $order => $colour) {
+                    list($col1, $col2, $hex) = explode('-', $colour);
+                    $settings_colours[$type][$order] = "#$hex";
+                }
             }
+            $settings_text[$type] = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('value', 'order')->toArray();
         }
-        $settings_text = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('value', 'order')->toArray();
+        //var_dump($settings_select);
+        //var_dump($settings_colours);
+        //dd($settings_text);
 
 
         return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours'));
@@ -82,7 +89,7 @@ class SiteUpcomingComplianceController extends Controller {
         $cc = DB::table('site_upcoming_settings')->where('field', 'cc')->get();
         $fc_plans = DB::table('site_upcoming_settings')->where('field', 'fc_plans')->get();
         $fc_struct = DB::table('site_upcoming_settings')->where('field', 'fc_struct')->get();
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
+        $settings = SiteUpcomingSettings::whereIn('field', ['opt', 'cfest', 'cfadm'])->where('status', 1)->get();
 
         $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
         $email_list = ($settings_email) ? explode(',', $settings_email->value) : [];
@@ -149,36 +156,43 @@ class SiteUpcomingComplianceController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        if (request('add_field')) {
-            $rules = ['add_field_name' => 'required'];
-            $mesg = ['add_field_name.required' => 'The stage name field is required.'];
-            request()->validate($rules, $mesg); // Validate
-        }
-
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
-        // Get field values from request
-        foreach ($settings as $setting) {
-            if (request()->has("opt-$setting->id")) {
-                if (request("opt-$setting->id")) {
-                    $setting->name = request("opt-$setting->id");
-                    // Default text
-                    if (request("opt-$setting->id-text"))
-                        $setting->value = request("opt-$setting->id-text");
-                    // Colour
-                    if (request("opt-$setting->id-colour"))
-                        $setting->colour = request("opt-$setting->id-colour");
-                    $setting->save();
-                } else
-                    return back()->withErrors(["opt-$setting->id" => "The stage name field is required."]);
-            }
-
-        }
 
         // Add Extra Field
-        if (request('add_field')) {
-            $add_colour = (request('add-field-colour')) ? request('add-field-colour') : null;
-            $add_order = count($settings) + 1;
-            SiteUpcomingSettings::create(['field' => 'opt', 'name' => request('add_field_name'), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+        $types = ['opt', 'cfest', 'cfadm'];
+        foreach ($types as $type) {
+
+            // Validate if adding a option
+            if (request("$type-addfield")) {
+                $rules = ["$type-addfield-name" => 'required'];
+                $mesg = ["$type-addfield-name.required" => 'The stage name field is required.'];
+                request()->validate($rules, $mesg); // Validate
+            }
+
+            $settings = SiteUpcomingSettings::where('field', $type)->where('status', 1)->get();
+            // Get field values from request
+            foreach ($settings as $setting) {
+                if (request()->has("$type-$setting->id")) {
+                    if (request("$type-$setting->id")) {
+                        $setting->name = request("$type-$setting->id");
+                        // Default text
+                        if (request("$type-$setting->id-text"))
+                            $setting->value = request("$type-$setting->id-text");
+                        // Colour
+                        if (request("$type-$setting->id-colour"))
+                            $setting->colour = request("$type-$setting->id-colour");
+                        $setting->save();
+                    } else
+                        return back()->withErrors(["$type-$setting->id" => "The stage name field is required."]);
+                }
+
+            }
+
+            // Add Field
+            if (request("$type-addfield")) {
+                $add_colour = (request("$type-addfield-colour")) ? request("$type-addfield-colour") : null;
+                $add_order = count($settings) + 1;
+                SiteUpcomingSettings::create(['field' => $type, 'name' => request("$type-addfield-name"), 'value' => request("$type-addfield-text"), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+            }
         }
 
         // Update Email List

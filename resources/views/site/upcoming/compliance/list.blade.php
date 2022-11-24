@@ -58,23 +58,23 @@
                                     <td>{!! $row['eng'] !!}</td>
                                     <td>{!! $row['hbcf'] !!}</td>
                                     <td>{!! $row['design_con'] !!}</td>
-                                    <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours[$row['cc_stage']] : '' }}">
+                                    <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours['opt'][$row['cc_stage']] : '' }}">
                                         <div id="cc-{{$row['id']}}">{!! $row['cc'] !!}</div>
                                         <input type="hidden" id="cc-{{$row['id']}}-s" value="{!! $row['cc_stage'] !!}">
                                     </td>
-                                    <td class="hoverDiv editField" id="fcp-{{$row['id']}}-td" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours[$row['fc_plans_stage']] : '' }}">
+                                    <td class="hoverDiv editField" id="fcp-{{$row['id']}}-td" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_plans_stage']] : '' }}">
                                         <div id="fcp-{{$row['id']}}">{!! $row['fc_plans'] !!}</div>
                                         <input type="hidden" id="fcp-{{$row['id']}}-s" value="{!! $row['fc_plans_stage'] !!}">
                                     </td>
-                                    <td class="hoverDiv editField" id="fcs-{{$row['id']}}-td" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours[$row['fc_struct_stage']] : '' }}">
+                                    <td class="hoverDiv editField" id="fcs-{{$row['id']}}-td" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_struct_stage']] : '' }}">
                                         <div id="fcs-{{$row['id']}}">{!! $row['fc_struct'] !!}</div>
                                         <input type="hidden" id="fcs-{{$row['id']}}-s" value="{!! $row['fc_struct_stage'] !!}">
                                     </td>
-                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_est_stage']) ? 'background:'.$settings_colours[$row['cf_est_stage']] : '' }}">
+                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_est_stage']) ? 'background:'.$settings_colours['cfest'][$row['cf_est_stage']] : '' }}">
                                         <div id="cfest-{{$row['id']}}">{!! $row['cf_est'] !!}</div>
                                         <input type="hidden" id="cfest-{{$row['id']}}-s" value="{!! $row['cf_est_stage'] !!}">
                                     </td>
-                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_adm_stage']) ? 'background:'.$settings_colours[$row['cf_adm_stage']] : '' }}">
+                                    <td class="hoverDiv editField" id="cfest-{{$row['id']}}-td" style="{{ ($row['cf_adm_stage']) ? 'background:'.$settings_colours['cfadm'][$row['cf_adm_stage']] : '' }}">
                                         <div id="cfadm-{{$row['id']}}">{!! $row['cf_adm'] !!}</div>
                                         <input type="hidden" id="cfadm-{{$row['id']}}-s" value="{!! $row['cf_adm_stage'] !!}">
                                     </td>
@@ -105,7 +105,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('cc_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('cc_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
+                                {!! Form::select('cc_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -120,7 +120,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('fc_plans_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('fc_plans_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'fc_plans_stage', 'width' => '100%']) !!}
+                                {!! Form::select('fc_plans_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'fc_plans_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -135,7 +135,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('fc_struct_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('fc_struct_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'fc_struct_stage', 'width' => '100%']) !!}
+                                {!! Form::select('fc_struct_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'fc_struct_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -150,7 +150,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('cf_est_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('cf_est_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cf_est_stage', 'width' => '100%']) !!}
+                                {!! Form::select('cf_est_stage', $settings_select['cfest'], null, ['class' => 'form-control bs-select', 'id' => 'cf_est_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -165,7 +165,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 {!! Form::label('cf_adm_stage', 'Stage', ['class' => 'control-label']) !!}
-                                {!! Form::select('cf_adm_stage', $settings_select, null, ['class' => 'form-control bs-select', 'id' => 'cf_adm_stage', 'width' => '100%']) !!}
+                                {!! Form::select('cf_adm_stage', $settings_select['cfadm'], null, ['class' => 'form-control bs-select', 'id' => 'cf_adm_stage', 'width' => '100%']) !!}
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -211,12 +211,19 @@
             // FC Structural
             $("#fc_struct").val($("#fcs-" + site_id).text());
             $("#fc_struct_stage").val($("#fcs-" + site_id + "-s").val()).change();
+            // CF-EST
+            $("#cf_est").val($("#cfest-" + site_id).text());
+            $("#cf_est_stage").val($("#cfest-" + site_id + "-s").val()).change();
+            // CF-ADM
+            $("#cf_adm").val($("#cfadm-" + site_id).text());
+            $("#cf_adm_stage").val($("#cfadm-" + site_id + "-s").val()).change();
 
             $("#modal_edit").modal('show');
         });
 
         $("#cc_stage").change(function (e) {
-            var default_text = @json($settings_text);
+            var default_text = @json($settings_text['opt']);
+            console.log(default_text);
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
@@ -226,7 +233,7 @@
         });
 
         $("#fc_plans_stage").change(function (e) {
-            var default_text = @json($settings_text);
+            var default_text = @json($settings_text['opt']);
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
@@ -236,12 +243,32 @@
         });
 
         $("#fc_struct_stage").change(function (e) {
-            var default_text = @json($settings_text);
+            var default_text = @json($settings_text['opt']);
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
                 if (default_text[$("#fc_struct_stage").val()])
                     $('#fc_struct').val(default_text[$("#fc_struct_stage").val()]);
+            }
+        });
+
+        $("#cf_est_stage").change(function (e) {
+            var default_text = @json($settings_text['cfest']);
+
+            // Only perform action if Modal is open - avoids updating fields when initial modal creation
+            if ($('#modal_edit').hasClass('in')) {
+                if (default_text[$("#cf_est_stage").val()])
+                    $('#cf_est').val(default_text[$("#cf_est_stage").val()]);
+            }
+        });
+
+        $("#cf_adm_stage").change(function (e) {
+            var default_text = @json($settings_text['cfadm']);
+
+            // Only perform action if Modal is open - avoids updating fields when initial modal creation
+            if ($('#modal_edit').hasClass('in')) {
+                if (default_text[$("#cf_adm_stage").val()])
+                    $('#cf_adm').val(default_text[$("#cf_adm_stage").val()]);
             }
         });
 

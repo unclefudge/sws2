@@ -35,11 +35,11 @@
                             //$colours = ['col2-blue-3B67BD', 'col2-green-0A9A5B', 'col2-yellow-FFEC00', 'col2-orange-F77402', 'col2-red-ED0F17', 'col2-purple-A32AA2']
                             //$fields = ['cc' => "CC", 'fc_plans' => "FC Plans", 'fc_struct' => 'FC Structural'];
                             $colours = ['col-blue-C5D1EC', 'col-green-B5E2CD', 'col-yellow-FFFAAE', 'col-orange-FDD7B1', 'col-red-FBB6B9', 'col-purple-E4BFE4'];
-                            $fields = ['opt' => 'Stage Options'];
+                            $fields = ['opt' => 'Standard Stage Options', 'cfest' => 'CF-EST Stage Options', 'cfadm' => 'CF-ADM Stage Options'];
                             ?>
 
                             @foreach ($fields as $field => $title)
-                                <h3>{{ $title }}</h3>
+                                <h3>{{ $title }} <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="{{$field}}-add_btn">Add option</button></small></span></h3>
                                 <hr class="field-hr">
                                 <div class="row">
                                     <div class="col-md-1">&nbsp;</div>
@@ -79,37 +79,38 @@
                                         <hr style="padding: 0px; margin: 10px 0px 10px 0px;">
                                     @endif
                                 @endforeach
-                            @endforeach
 
-                            <div class="row" style="{{ ($errors->has('add_field_name')) ? 'display: none' : '' }}">
-                                <div class="col-md-12">
-                                    <button class="btn blue" id="btn-add-item">Add another option</button>
-                                </div>
-                            </div>
+                                {{-- Additiona field --}}
+                                <div style="{{ ($errors->has("$field-addfield-name")) ? '' : 'display: none' }}" id="{{$field}}-add-items">
+                                    <input type="hidden" name="{{$field}}-addfield" id="{{$field}}-addfield" value="{{ ($errors->has("$field-addfield-name")) ? 1 : 0 }}">
 
-                            {{-- Additiona field --}}
-                            <div style="{{ ($errors->has('add_field_name')) ? '' : 'display: none' }}" id="add-items">
-                                <input type="hidden" name="add_field" id="add_field" value="{{ ($errors->has('add_field_name')) ? 1 : 0 }}">
-
-                                <div class="row">
-                                    <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings) +1 }}. &nbsp; </span></div>
-                                    <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('add_field_name', $errors) !!}">
-                                            {!! Form::text('add_field_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('add_field_name', $errors) !!}
+                                    <div class="row">
+                                        <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings->where('field', $field)) +1 }}. &nbsp; </span></div>
+                                        <div class="col-md-2">
+                                            <div class="form-group {!! fieldHasError("$field-addfield-name", $errors) !!}">
+                                                {!! Form::text("$field-addfield-name", null, ['class' => 'form-control']) !!}
+                                                {!! fieldErrorMessage("$field-addfield-name", $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError("$field-addfield-text", $errors) !!}">
+                                                {!! Form::text("$field-addfield-text", null, ['class' => 'form-control', 'id' => "$field-addfield-text"]) !!}
+                                                {!! fieldErrorMessage("$field-addfield-text", $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            @foreach ($colours as $colour)
+                                                <span class="hoverDiv" style="padding: 3px" id="{{$field}}_addfield_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: 0.2" id="{{$field}}_addfield_{{$colour}}_i"></span>
+                                            @endforeach
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="hidden" name="{{$field}}-addfield-colour" id="{{$field}}-addfield-colour" value="">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        @foreach ($colours as $colour)
-                                            <span class="hoverDiv" style="padding: 3px" id="add_field_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: 0.2" id="add_field_{{$colour}}_i"></span>
-                                        @endforeach
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="hidden" name="add-field-colour" id="add-field-colour" value="">
-                                    </div>
                                 </div>
-                            </div>
-                            <br>
+                                <br>
+                            @endforeach
+
                             {{--}}
                             <h3>Email list</h3>
                             <hr class="field-hr">
@@ -176,12 +177,14 @@
         });
 
         // Add extra items
-        $("#btn-add-item").click(function (e) {
+        $(".btn-add-item").click(function (e) {
             e.preventDefault();
-            $("#add-items").show();
-            //$(".add-item").show();
-            $("#btn-add-item").hide();
-            $("#add_field").val(1);
+            var event_id = e.target.id.split('-');
+            var field = event_id[0];
+            //alert(field);
+            $("#"+field+"-add-items").show();
+            $("#"+field+"-add_btn").hide();
+            $("#"+field+"-addfield").val(1);
         });
     });
 </script>
