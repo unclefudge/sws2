@@ -63,15 +63,22 @@
     <table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
-            <th width="5%" class="pad5">Date</th>
+            <th width="5%" class="pad5">Start Date</th>
             <th width="15%" class="pad5">Site</th>
-            <th width="15%" class="pad5">Supervisor</th>
-            <th class="pad5">Company</th>
+            <th width="5%" class="pad5">Super</th>
+            <th width="5%"class="pad5">Company</th>
+            <th width="5%" class="pad5">Deposit Paid</th>
+            <th width="3%" class="pad5">ENG</th>
+            <th width="5%" class="pad5">HBCF</th>
+            <th width="3%" class="pad5">DC</th>
             <th width="15%" class="pad5">CC</th>
             <th width="15%" class="pad5">FC Plans</th>
             <th width="15%" class="pad5">FC Structural</th>
+            <th width="15%" class="pad5">CF-EST</th>
+            <th width="15%" class="pad5">CF-ADM</th>
         </tr>
         </thead>
+
         <tbody>
         @foreach($startdata as $row)
             <tr>
@@ -79,9 +86,15 @@
                 <td class="pad5">{!! $row['name'] !!}</td>
                 <td class="pad5">{!! $row['supervisor'] !!}</td>
                 <td class="pad5">{!! $row['company'] !!}</td>
-                <td class="pad5" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours[$row['cc_stage']] : '' }}">{!! $row['cc'] !!}</td>
-                <td class="pad5" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours[$row['fc_plans_stage']] : '' }}">{!! $row['fc_plans'] !!}</td>
-                <td class="pad5" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours[$row['fc_struct_stage']] : '' }}">{!! $row['fc_struct'] !!}</td>
+                <td class="pad5">{!! $row['deposit_paid'] !!}</td>
+                <td class="pad5">{!! $row['eng'] !!}</td>
+                <td class="pad5">{!! $row['hbcf'] !!}</td>
+                <td class="pad5">{!! $row['design_con'] !!}</td>
+                <td class="pad5" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours['opt'][$row['cc_stage']] : '' }}">{!! $row['cc'] !!}</td>
+                <td class="pad5" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_plans_stage']] : '' }}">{!! $row['fc_plans'] !!}</td>
+                <td class="pad5" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_struct_stage']] : '' }}">{!! $row['fc_struct'] !!}</td>
+                <td class="pad5" style="{{ ($row['cf_est_stage']) ? 'background:'.$settings_colours['cfest'][$row['cf_est_stage']] : '' }}">{!! $row['cf_est'] !!}</td>
+                <td class="pad5" style="{{ ($row['cf_adm_stage']) ? 'background:'.$settings_colours['cfadm'][$row['cf_adm_stage']] : '' }}">{!! $row['cf_adm'] !!}</td>
             </tr>
         @endforeach
         </tbody>

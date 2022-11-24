@@ -262,12 +262,17 @@ class SiteUpcomingComplianceController extends Controller {
     {
         //dd(request()->all());
 
-        // Colours
-        $colours = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('colour', 'order')->toArray();
-        $settings_colours = [];
-        foreach ($colours as $order => $colour) {
-            list($col1, $col2, $hex) = explode('-', $colour);
-            $settings_colours[$order] = "#$hex";
+        $types = ['opt', 'cfest', 'cfadm'];
+        foreach ($types as $type) {
+            $colours = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('colour', 'order')->toArray();
+            $settings_colours[$type] = [];
+            if ($colours) {
+                foreach ($colours as $order => $colour) {
+                    list($col1, $col2, $hex) = explode('-', $colour);
+                    $settings_colours[$type][$order] = "#$hex";
+                }
+            }
+            $settings_text[$type] = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('value', 'order')->toArray();
         }
 
         $startdata = $this->getUpcomingData();
