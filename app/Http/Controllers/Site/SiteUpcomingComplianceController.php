@@ -382,7 +382,7 @@ class SiteUpcomingComplianceController extends Controller {
         //dd($startdata);
 
         // Search for Sites with Contract Signed
-        $contracts_signed = Site::where('status', '-1')->where('contract_signed', '!=', null)->where('company_id', 3)->pluck('id')->toArray();
+        $contracts_signed = Site::where('status', '-1')->where('contract_signed', '!=', null)->where('company_id', 3)->orderBy('name')->pluck('id')->toArray();
         //var_dump($contracts_signed);
         foreach ($contracts_signed as $site_id) {
             $site = Site::findOrFail($site_id);
