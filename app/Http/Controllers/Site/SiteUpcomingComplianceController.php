@@ -336,6 +336,10 @@ class SiteUpcomingComplianceController extends Controller {
             ->orderBy('p.from')->orderBy('p.site_id')->get();
 
         //dd($planner);
+
+        //
+        // Sort by Start Job
+        //
         $startdata = [];
         foreach ($planner as $plan) {
             $site = Site::findOrFail($plan->site_id);
@@ -381,10 +385,23 @@ class SiteUpcomingComplianceController extends Controller {
 
         //dd($startdata);
 
-        // Search for Sites with Contract Signed
-        $contracts_signed = Site::where('status', '-1')->where('contract_signed', '!=', null)->where('company_id', 3)->orderBy('name')->pluck('id')->toArray();
-        //var_dump($contracts_signed);
-        foreach ($contracts_signed as $site_id) {
+        $site_list = [];
+
+        // Add Sites with (contract_signed, deposit_paid)
+        $contracts_signed = Site::where('status', '-1')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
+        foreach ($contracts_signed as $sid)
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
+
+        // Add Sites with (contract_signed, deposit_paid)
+        $contracts_signed = Site::where('status', '-1')->whereNotNull('contract_signed')->where('company_id', 3)->orderBy('contract_signed')->pluck('id')->toArray();
+        foreach ($contracts_signed as $sid)
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
+
+
+        //var_dump($site_list);
+        foreach ($site_list as $site_id) {
             $site = Site::findOrFail($site_id);
 
             $cc = $cc_stage = null;
