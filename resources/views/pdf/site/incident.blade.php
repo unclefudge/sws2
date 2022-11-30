@@ -213,17 +213,17 @@
                 <div class="col-xs-2">Conversation between</div>
                 <div class="col-xs-3">{{ $conversation->name }}</div>
                 <div class="col-xs-1">Started at</div>
-                <div class="col-xs-6">{{ ($conversation->start) ? $conversation->start->format('d/m/Y H:i') : '' }}</div>
+                <div class="col-xs-5">{{ ($conversation->start) ? $conversation->start->format('d/m/Y H:i') : '' }}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Witness</div>
                 <div class="col-xs-3">{{ $conversation->witness }}</div>
                 <div class="col-xs-1">Ended at</div>
-                <div class="col-xs-6">{{ ($conversation->end) ? $conversation->end->format('d/m/Y H:i') : '' }}</div>
+                <div class="col-xs-5">{{ ($conversation->end) ? $conversation->end->format('d/m/Y H:i') : '' }}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Conversation Details</div>
-                <div class="col-xs-10">{!! nl2br($conversation->details) !!}<br><br></div>
+                <div class="col-xs-9">{!! nl2br($conversation->details) !!}<br><br></div>
             </div>
             @if (!$loop->last)
                 <hr style="margin: 0px">
@@ -239,25 +239,25 @@
             <div class="col-xs-2">Risk Potential</div>
             <div class="col-xs-3">{!! $incident->riskRatingText('risk_potential') !!}</div>
             <div class="col-xs-1">Risk Actual</div>
-            <div class="col-xs-6">{!! $incident->riskRatingText('risk_actual') !!}</div>
+            <div class="col-xs-4">{!! $incident->riskRatingText('risk_actual') !!}</div>
         </div>
         <div class="row">
             <div class="col-xs-2">Incident Summary</div>
-            <div class="col-xs-10">{!! nl2br($incident->exec_summary) !!}<br><br></div>
+            <div class="col-xs-9">{!! nl2br($incident->exec_summary) !!}<br><br></div>
         </div>
         <div class="row">
             <div class="col-xs-2">Description</div>
-            <div class="col-xs-10">{!! nl2br($incident->exec_describe) !!}<br><br></div>
+            <div class="col-xs-9">{!! nl2br($incident->exec_describe) !!}<br><br></div>
         </div>
         <div class="row">
             <div class="col-xs-2">Immediate actions</div>
-            <div class="col-xs-10">{!! nl2br($incident->exec_actions) !!}<br><br></div>
+            <div class="col-xs-9">{!! nl2br($incident->exec_actions) !!}<br><br></div>
         </div>
         <div class="row">
             <div class="col-xs-2">Notifiable incident?</div>
             <div class="col-xs-3">@if ($incident->notifiable != null){!! ($incident->notifiable) ? 'Yes' : 'No'!!}@endif</div>
             <div class="col-xs-2">@if ($incident->notifiable) Notifiable Context @endif </div>
-            <div class="col-xs-5">@if ($incident->notifiable) {!! nl2br($incident->notifiable_reason) !!} @endif </div>
+            <div class="col-xs-4">@if ($incident->notifiable) {!! nl2br($incident->notifiable_reason) !!} @endif </div>
         </div>
 
         {{-- Notifiable --}}
@@ -269,17 +269,17 @@
                 <div class="col-xs-2">Regulator</div>
                 <div class="col-xs-3">{!! $incident->regulator !!}</div>
                 <div class="col-xs-1">Regulator Ref</div>
-                <div class="col-xs-6">{!! $incident->regulator_ref !!}</div>
+                <div class="col-xs-5">{!! $incident->regulator_ref !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Notified Date</div>
                 <div class="col-xs-3">{!! ($incident->regulator_date) ? $incident->regulator_date->format('d/m/Y') : '' !!}</div>
                 <div class="col-xs-1">Inspector</div>
-                <div class="col-xs-6">{!! $incident->inspector !!}</div>
+                <div class="col-xs-5">{!! $incident->inspector !!}</div>
             </div>
             <div class="row">
                 <div class="col-xs-2">Notes</div>
-                <div class="col-xs-10">{!! nl2br($incident->notes) !!}<br><br></div>
+                <div class="col-xs-9">{!! nl2br($incident->notes) !!}<br><br></div>
             </div>
         @endif
 
@@ -292,19 +292,19 @@
                 <div class="col-xs-2">Treatment</div>
                 <div class="col-xs-3">{!! $qTreatment->responsesCSV('site_incidents', $incident->id) !!}</div>
                 <div class="col-xs-1">Part(s) Injured</div>
-                <div class="col-xs-6">{!! $qInjuredPart->responsesCSV('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-5">{!! $qInjuredPart->responsesCSV('site_incidents', $incident->id) !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Nature of injury</div>
-                <div class="col-xs-10">{!! $qInjuredNature->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qInjuredNature->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Mechanism of injury</div>
-                <div class="col-xs-10">{!! $qInjuredMechanism->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qInjuredMechanism->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Agency of injury</div>
-                <div class="col-xs-10">{!! $qInjuredAgency->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qInjuredAgency->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
         @endif
 
@@ -321,7 +321,7 @@
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Repair Details</div>
-                <div class="col-xs-10">{!! nl2br($incident->damage_repair) !!}</div>
+                <div class="col-xs-9">{!! nl2br($incident->damage_repair) !!}</div>
             </div>
         @endif
 
@@ -347,17 +347,17 @@
             @foreach ($incident->todos() as $todo)
                 <div class="row">
                     <div class="col-xs-2">Action</div>
-                    <div class="col-xs-10">{{ $todo->info }}</div>
+                    <div class="col-xs-9">{{ $todo->info }}</div>
                 </div>
                 @if ($todo->comments)
                 <div class="row">
                     <div class="col-xs-2">Comments</div>
-                    <div class="col-xs-10">{{ $todo->comments }}</div>
+                    <div class="col-xs-9">{{ $todo->comments }}</div>
                 </div>
                 @endif
                 <div class="row">
                     <div class="col-xs-2">Completed By</div>
-                    <div class="col-xs-10">
+                    <div class="col-xs-9">
                         @if ($todo->status && !$todo->done_by)
                             Outstanding
                         @else
@@ -418,7 +418,7 @@
                 @if ($qConditions->responseOther('site_incidents', $incident->id, $id))
                     <div class="row">
                         <div class="col-xs-2">{{ $label }}</div>
-                        <div class="col-xs-10">{!! $qConditions->responseOther('site_incidents', $incident->id, $id) !!}</div>
+                        <div class="col-xs-9">{!! $qConditions->responseOther('site_incidents', $incident->id, $id) !!}</div>
                     </div>
                 @endif
             @endforeach
@@ -435,25 +435,25 @@
         @if ($qConFactorDefences->responsesCSV('site_incidents', $incident->id))
             <div class="row">
                 <div class="col-xs-2">Absent / Failed Defences</div>
-                <div class="col-xs-10">{!! $qConFactorDefences->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qConFactorDefences->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
         @endif
         @if ($qConFactorITactions->responsesCSV('site_incidents', $incident->id))
             <div class="row">
                 <div class="col-xs-2">Individual / Team Actions</div>
-                <div class="col-xs-10">{!! $qConFactorITactions->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qConFactorITactions->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
         @endif
         @if ($qConFactorWorkplace->responsesCSV('site_incidents', $incident->id))
             <div class="row">
                 <div class="col-xs-2">Workplace Conditions</div>
-                <div class="col-xs-10">{!! $qConFactorWorkplace->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qConFactorWorkplace->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
         @endif
         @if ($qConFactorHuman->responsesCSV('site_incidents', $incident->id))
             <div class="row">
                 <div class="col-xs-2">Human Factors</div>
-                <div class="col-xs-10">{!! $qConFactorHuman->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qConFactorHuman->responsesBullet2('site_incidents', $incident->id) !!}</div>
             </div>
         @endif
         @if (!$qConFactorDefences->responsesCSV('site_incidents', $incident->id) && !$qConFactorITactions->responsesCSV('site_incidents', $incident->id) &&
@@ -472,7 +472,7 @@
                 @if ($qRootCause->responseOther('site_incidents', $incident->id, $id))
                     <div class="row">
                         <div class="col-xs-2">{{ $label }}</div>
-                        <div class="col-xs-10">{!! $qRootCause->responseOther('site_incidents', $incident->id, $id) !!}</div>
+                        <div class="col-xs-9">{!! $qRootCause->responseOther('site_incidents', $incident->id, $id) !!}</div>
                     </div>
                 @endif
             @endforeach
@@ -489,9 +489,9 @@
         <div class="row">
             <div class="col-xs-2">Preventive Strategies:</div>
             @if ($qPreventive->responsesCSV('site_incidents', $incident->id))
-                <div class="col-xs-10">{!! $qPreventive->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                <div class="col-xs-9">{!! $qPreventive->responsesBullet2('site_incidents', $incident->id) !!}</div>
             @else
-                <div class="col-xs-10">No actions specified</div>
+                <div class="col-xs-9">No actions specified</div>
             @endif
         </div>
         <hr style="margin: 0px">
