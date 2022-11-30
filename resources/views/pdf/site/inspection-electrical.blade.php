@@ -154,7 +154,7 @@
             <div class="col-xs-12">
                 The following work is required so that Existing Electrical Wiring will comply to the requirements of S.A.A Codes and the local Council:<br>
                 {!! nl2br($report->required) !!}
-                @if ($report->required_cost)
+                @if (false && $report->required_cost)
                     <br>
                     <hr style="margin: 0px"><span style="float: right;"> <b> at a cost of ${{ $report->required_cost }} Incl GST</b></span>
                 @endif
@@ -170,7 +170,7 @@
             <div class="col-xs-12">
                 Work not essential but strongly recommended to be carried out to prevent the necessity of costly maintenance in the future when access to same:<br>
                 {!! nl2br($report->recommend) !!}
-                @if ($report->recommend_cost)
+                @if (false && $report->recommend_cost)
                     <br>
                     <hr style="margin: 0px"><span style="float: right;"> <b> at a cost of ${{ $report->recommend_cost }} Incl GST</b></span>
                 @endif
