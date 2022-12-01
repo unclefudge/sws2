@@ -353,8 +353,13 @@ class Site extends Model {
     {
         $string = '';
         foreach ($this->supervisors as $user) {
-            if ($user->status)
-                $string .= strtoupper($user->firstname[0]) . strtoupper($user->lastname[0]) . ', ';
+            if ($user->status) {
+                if ($user->id == '136') // Super8 - To Be Allocated
+                    $string .= '-, ';
+                else
+                    $string .= strtoupper($user->firstname[0]) . strtoupper($user->lastname[0]) . ', ';
+            }
+
         }
 
         return rtrim($string, ', ');

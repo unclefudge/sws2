@@ -382,13 +382,13 @@
                     <div class="col-xs-2">Name</div>
                     <div class="col-xs-3">{!! ($review->assignedToBySBC()) ? $review->assignedToBySBC() : '' !!}</div>
                     <div class="col-xs-1">Role</div>
-                    <div class="col-xs-6">{{ $review_role }}</div>
+                    <div class="col-xs-5">{{ $review_role }}</div>
                 </div>
                 <div class="row" style="padding: 0px;">
                     <div class="col-xs-2">Date Signed</div>
                     <div class="col-xs-3">{!! ($review->done_at) ? $review->done_at->format('d/m/Y') : '' !!}</div>
                     <div class="col-xs-1">{!! ($review->comments) ? 'Comments' : '' !!}</div>
-                    <div class="col-xs-6">{!! ($review->comments) ? $review->comments : '' !!}</div>
+                    <div class="col-xs-5">{!! ($review->comments) ? $review->comments : '' !!}</div>
                 </div>
                 @if (!$loop->last)
                     <hr style="margin: 0px">
