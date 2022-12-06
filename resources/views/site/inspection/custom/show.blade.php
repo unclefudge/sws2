@@ -160,7 +160,7 @@
                                                                     {{-- Site --}}
                                                                     @if ($question->type_special == 'site')
                                                                         <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2" style="width:100%">
-                                                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', $val) !!}
+                                                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', $val, '-1') !!}
                                                                         </select>
                                                                     @endif
 
