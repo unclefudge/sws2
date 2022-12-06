@@ -248,7 +248,7 @@
                                                             <option value="{{ $super->id }}">{{ $super->name }}</option>
                                                         @endforeach
                                                         <optgroup label="External Users"></optgroup>
-                                                        <option value="75">Geoff Barbuto (G.B.T Carpentry Services)</option>
+                                                        <option value="2023" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Jason Habib (Prolific Projects)</option>
                                                     </select>
                                                     {!! fieldErrorMessage('super_id', $errors) !!}
                                                 </div>
