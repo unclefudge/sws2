@@ -50,8 +50,11 @@ class SiteUpcomingComplianceController extends Controller {
             $settings_colours[$type] = [];
             if ($colours) {
                 foreach ($colours as $order => $colour) {
-                    list($col1, $col2, $hex) = explode('-', $colour);
-                    $settings_colours[$type][$order] = "#$hex";
+                    if ($colour) {
+                        list($col1, $col2, $hex) = explode('-', $colour);
+                        $settings_colours[$type][$order] = "#$hex";
+                    } else
+                        $settings_colours[$type][$order] = '';
                 }
             }
             $settings_text[$type] = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('value', 'order')->toArray();
