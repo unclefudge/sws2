@@ -305,6 +305,7 @@ class SiteProjectSupplyController extends Controller {
             $project->closeToDo();
             $project->manager_sign_by = Auth::user()->id;
             $project->manager_sign_at = Carbon::now();
+            $project->status = 0;
 
             // Email completion
             $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
@@ -384,10 +385,10 @@ class SiteProjectSupplyController extends Controller {
         $status = (request('status') == 0) ? [0] : [1];
         //dd(request('status'));
         $records = DB::table('project_supply AS p')
-            ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 's.name as sitename', 's.code', 's.status'])
+            ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 'p.status', 's.name as sitename', 's.code'])
             ->join('sites AS s', 'p.site_id', '=', 's.id')
             ->whereIn('p.site_id', $site_list)
-            ->whereIn('s.status', $status);
+            ->whereIn('p.status', $status);
 
         $dt = Datatables::of($records)
             ->editColumn('id', function ($project) {
