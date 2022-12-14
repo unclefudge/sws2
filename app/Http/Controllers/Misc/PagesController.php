@@ -180,6 +180,22 @@ class PagesController extends Controller {
 
     public function quick()
     {
+        echo "<b>Adding Site Incident Con Factors ToDo Type2 </b><br></br>";
+
+        $todos = Todo::where('type', 'incident prevent')->get();
+        foreach ($todos as $todo) {
+            $incident = SiteIncident::find($todo->type_id);
+            echo "[$incident->id] $incident->site_name<br>";
+            echo " [$todo->id] $todo->name<br>";
+            list($crap, $rest) = explode('(', $todo->name);
+            list($option_id, $crap) = explode(')', $rest);
+            $resp = \App\Models\Misc\FormQuestion::find($option_id);
+            echo " ($option_id) $resp->name<br>";
+            echo "------<br><br>";
+            $todo->type_id2 = $option_id;
+            $todo->save();
+        }
+
         // test
         /*
         echo "<b>Creating Merged PDF</b></br>";

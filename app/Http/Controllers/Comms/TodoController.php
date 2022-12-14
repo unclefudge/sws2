@@ -360,7 +360,9 @@ class TodoController extends Controller {
         Toastr::success("Saved ToDo");
 
         if ($todo->type == 'incident')
-            return redirect('/site/incident/' . $todo->type_id);
+            return redirect("/site/incident/$todo->type_id");
+        if ($todo->type == 'incident prevent')
+            return redirect("/site/incident/$todo->type_id/analysis");
 
         return redirect('todo/' . $todo->id);
     }

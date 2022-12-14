@@ -4,7 +4,7 @@
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><a href="/todo/">Todo</a><i class="fa fa-circle"></i></li>
-        <li><span>Create Todo</span></li>
+        <li><span>Edit Todo</span></li>
     </ul>
 @stop
 
@@ -33,7 +33,11 @@
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
                                         {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control', 'readonly']) !!}
+                                        @if (in_array($todo->type, ['incident prevent']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
+                                            {!! Form::text('name', null, ['class' => 'form-control']) !!}
+                                        @else
+                                            {!! Form::text('name', null, ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
                                         {!! fieldErrorMessage('name', $errors) !!}
                                     </div>
                                 </div>

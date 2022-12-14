@@ -281,6 +281,9 @@
                                 @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident', 'incident prevent']) && Auth::user()->allowed2('edit.todo', $todo))))
                                     <button class="btn green" id="open">Re-open Task</button>
                                 @endif
+                                @if ($todo->status != '0' && in_array($todo->type, ['incident prevent']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
+                                        <button class="btn dark" id="delete"><i class="fa fa-trash"></i></button>
+                                    @endif
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}

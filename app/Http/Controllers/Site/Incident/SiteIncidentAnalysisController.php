@@ -179,6 +179,7 @@ class SiteIncidentAnalysisController extends Controller {
                         $name = "Site Incident Preventive Task ($option_id)";
                         $action = Todo::where('type', 'incident prevent')->where('type_id', $incident->id)->where('name', 'LIKE', "%$name%")->first();
                         $action_name = "$name : ".$response->question->name." - $response->optionText";
+                        //$action_name = "$name : ".$response->question->name." - $response->optionText";
                         if (!$action)
                             Todo::create(['name' => $action_name, 'info' => '', 'type' => 'incident prevent', 'type_id' => $incident->id, 'company_id' => Auth::user()->company_id]);
                     }
