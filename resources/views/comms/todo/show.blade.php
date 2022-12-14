@@ -108,7 +108,7 @@
                                     <div class="col-md-9">&nbsp;</div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('completed_at', $errors) !!}">
-                                            {!! Form::label('completed_at', 'Completed Date', ['class' => 'control-label']) !!}
+                                            {!! Form::label('completed_at', 'Completed Date (optional)', ['class' => 'control-label']) !!}
                                             <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-reset>
                                                 <input type="text" class="form-control" value="{{($todo->completed_at) ? $todo->completed_at->format('d/m/Y') : '' }}" readonly style="background:#FFF" id="completed_at" name="completed_at">
                                             <span class="input-group-btn">
