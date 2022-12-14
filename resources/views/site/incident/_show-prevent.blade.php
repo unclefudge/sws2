@@ -37,12 +37,19 @@
                     </thead>
                     <tbody>
                     @foreach ($incident->preventActions() as $action)
-                        <?php list($crap, $action_name) = explode(' : ', $action->name); ?>
+                        <?php
+                        //list($crap, $action_name) = explode(' : ', $action->name);
+                        //$question = \App\Models\Misc\FormQuestion::find($action->type_id2);
+
+                        //$action_name = $question->name;
+                        //if ($question->parent)
+                        //    $action_name = $question->question->name . " - $action_name";
+                        ?>
                         <tr>
                             <td>
                                 <div class="text-center"><a href="/todo/{{ $action->id  }}"><i class="fa fa-search"></i></a></div>
                             </td>
-                            <td>{{ $action_name }}</td>
+                            <td>{{ $action->name }}</td>
                             <td>{!! ($action->info) ? $action->info."<br>" : '' !!}{!! ($action->comments) ? "<b>Notes:</b> $action->comments<br>" : '' !!}</td>
                             <td>{!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : "<a href='/todo/".$action->id."/edit/' class='font-red'>Unassigned</span>" !!}</td>
                             <td>{{ ($action->due_at) ? $action->due_at->format('d/m/Y') : '' }}</td>

@@ -13,7 +13,7 @@
             <div class="col-md-12">
                 <div class="form-group {!! fieldHasError('response_219', $errors) !!}">
                     {!! Form::label('response_219', 'Root Cause:', ['class' => 'control-label']) !!}
-                    {!! Form::select('response_219', $qRootCause->optionsArray(), $qRootCause->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable', 'required', 'width' => '100%', 'name' => 'response_219[]', 'id' => 'response_219']) !!}
+                    {!! Form::select('response_219', $qRootCause->optionsArray(), $qRootCause->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable', 'width' => '100%', 'name' => 'response_219[]', 'id' => 'response_219']) !!}
                     {!! fieldErrorMessage('response_219', $errors) !!}
                 </div>
             </div>

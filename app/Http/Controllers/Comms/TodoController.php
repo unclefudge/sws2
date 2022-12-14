@@ -274,13 +274,15 @@ class TodoController extends Controller {
         }
 
         $old_status = $todo->status;
+        //dd(request()->all());
         $todo_request = request()->all();
         $todo_request['due_at'] = (request('due_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('due_at') . '00:00')->toDateTimeString() : null;
+        (request('completed_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('completed_at') . '00:00')->toDateTimeString() : null;
 
         // Recently closed ToDoo
-        if ($todo->status && request('status') == 0) {
+        if ($todo->status && request()->has('status') && request('status') == 0) {  // required extra check has'status' variable existed because not present == 0
             $todo_request['done_by'] = Auth::user()->id;
-            $todo_request['done_at'] = Carbon::now()->toDateTimeString();
+            $todo_request['done_at'] = (request('completed_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('completed_at') . '00:00')->toDateTimeString() : Carbon::now()->toDateTimeString();
         }
         // Recently re-opened ToDoo
         if (!$todo->status && request('status') == 1) {

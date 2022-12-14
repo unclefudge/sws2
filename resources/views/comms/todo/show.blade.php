@@ -50,16 +50,35 @@
                                     </div>
                                 </div>
                             @endif
+
+                            {{-- Display question name for Incidents Prevents --}}
+                            @if ($todo->type && $todo->type_id2 && $todo->type == 'incident prevent')
+                                <?php
+                                $question = \App\Models\Misc\FormQuestion::find($todo->type_id2);
+                                $qtext = $question->name;
+                                if ($question->parent)
+                                    $qtext = $question->question->name . " - $qtext";
+                                ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            {!! Form::label('question', 'Incident Root Cause / Contributing Factor ', ['class' => 'control-label']) !!}
+                                            {!! Form::text('question', $qtext, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group">
-                                        {!! Form::label('s_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('s_name', $todo->name, ['class' => 'form-control', 'readonly']) !!}
+                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
+                                        {!! Form::text('name', $todo->name, ['class' => 'form-control', ($todo->status && Auth::user()->id == $todo->created_by) ? '' : 'readonly']) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-1"></div>
                                 <div class="col-md-3">
-                                    @if (Auth::user()->id == $todo->created_by)
+                                    @if ($todo->status && Auth::user()->id == $todo->created_by)
                                         <div class="form-group {!! fieldHasError('due_at', $errors) !!}">
                                             {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
                                             <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
@@ -83,6 +102,30 @@
                                 </div>
                             </div>
 
+                            {{-- Completed at --}}
+                            @if ($todo->status && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
+                                <div class="row">
+                                    <div class="col-md-9">&nbsp;</div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('completed_at', $errors) !!}">
+                                            {!! Form::label('completed_at', 'Completed Date', ['class' => 'control-label']) !!}
+                                            <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-reset>
+                                                <input type="text" class="form-control" value="{{($todo->completed_at) ? $todo->completed_at->format('d/m/Y') : '' }}" readonly style="background:#FFF" id="completed_at" name="completed_at">
+                                            <span class="input-group-btn">
+                                                <button class="btn default date-reset" type="button" id="date-reset">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                                <button class="btn default" type="button">
+                                                    <i class="fa fa-calendar"></i>
+                                                </button>
+                                            </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Display question name for Inspection --}}
                             @if ($todo->type && $todo->type_id2 && $todo->type == 'inspection')
                                 <?php $question = \App\Models\Misc\Form\FormQuestion::find($todo->type_id2) ?>
                                 <div class="row">
@@ -100,7 +143,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         {!! Form::label('info', 'Description of what to do', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('info', $todo->info, ['rows' => '4', 'class' => 'form-control', (Auth::user()->id != $todo->created_by) ? 'readonly' : '']) !!}
+                                        {!! Form::textarea('info', $todo->info, ['rows' => '4', 'class' => 'form-control', ($todo->status && Auth::user()->id == $todo->created_by) ? '' : 'readonly']) !!}
                                     </div>
                                 </div>
                                 @if ($todo->type == 'equipment' && $todo->location && count($todo->location->items))
@@ -207,7 +250,7 @@
                                 @if($todo->type == 'incident prevent')
                                     <?php $incident = \App\Models\Site\Incident\SiteIncident::find($todo->type_id) ?>
                                     @if (Auth::user()->allowed2('view.site.incident', $incident))
-                                        <a href="/site/incident/{{$todo->type_id}}" class="btn dark">View Site Incident</a>
+                                        <a href="/site/incident/{{$todo->type_id}}/analysis" class="btn dark">View Site Incident</a>
                                     @endif
                                     @if ($todo->status && Auth::user()->allowed2('edit.site.incident', $incident))
                                         <a href="/todo/{{$todo->id}}/edit" class="btn red">Edit Task</a>
@@ -282,8 +325,8 @@
                                     <button class="btn green" id="open">Re-open Task</button>
                                 @endif
                                 @if ($todo->status != '0' && in_array($todo->type, ['incident prevent']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
-                                        <button class="btn dark" id="delete"><i class="fa fa-trash"></i></button>
-                                    @endif
+                                    <button class="btn dark" id="delete"><i class="fa fa-trash"></i></button>
+                                @endif
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}

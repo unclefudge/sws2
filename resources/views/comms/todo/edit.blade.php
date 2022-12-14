@@ -29,6 +29,24 @@
                         {!! Form::hidden('type_id', $todo->type_id, ['class' => 'form-control', 'id' => 'type_id']) !!}
 
                         <div class="form-body">
+                            {{-- Display question name for Incidents Prevents --}}
+                            @if ($todo->type && $todo->type_id2 && $todo->type == 'incident prevent')
+                                <?php
+                                $question = \App\Models\Misc\FormQuestion::find($todo->type_id2);
+                                $qtext = $question->name;
+                                if ($question->parent)
+                                    $qtext = $question->question->name . " - $qtext";
+                                ?>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            {!! Form::label('question', 'Incident Root Cause / Contributing Factor ', ['class' => 'control-label']) !!}
+                                            {!! Form::text('question', $qtext, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="row">
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
@@ -99,7 +117,9 @@
 
                             <div class="form-actions right">
                                 @if ($todo->type == 'incident')
-                                    <a href="/site/incident/{{ $type_id }}" class="btn default"> Back</a>
+                                    <a href="/site/incident/{{ $todo->type_id }}" class="btn default"> Back</a>
+                                @elseif ($todo->type == 'incident prevent')
+                                    <a href="/site/incident/{{ $todo->type_id }}/analysis" class="btn default"> Back</a>
                                 @else
                                     <a href="/todo" class="btn default"> Back</a>
                                 @endif
