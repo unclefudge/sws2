@@ -647,7 +647,7 @@ class SitePlannerController extends Controller {
         } else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
-            $this_mon_2->addDays(34);  // was 13
+            $this_mon_2->addDays(62);  // was 34
             $allowedSites = Auth::user()->company->sitesPlannedFor([1, 2], $this_mon->format('Y-m-d'), $this_mon_2->format('Y-m-d'))->pluck('id')->toArray();
 
             // Hack to allow Split Companies NRW (57,202,255) + Solid Foundations (120,121) to see their other Sites
