@@ -796,10 +796,11 @@ class SitePlannerExportController extends Controller {
                     $m->subject('Upcoming Job Start Dates');
                     $m->attach($file);
                 });
-                if (count(Mail::failures()) > 0) {
-                    foreach (Mail::failures as $email_address)
-                        Toastr::error("Failed to send to $email_address");
-                } else
+                // Comment out code as Mail::failures no longer works in laravel 9
+                //if (count(Mail::failures()) > 0) {
+                //    foreach (Mail::failures as $email_address)
+                //        Toastr::error("Failed to send to $email_address");
+                //} else
                     Toastr::success("Sent email");
 
                 return view('site/export/start');
@@ -865,10 +866,11 @@ class SitePlannerExportController extends Controller {
                     $m->to($email_list);
                     $m->subject('Practical Completion List');
                 });
-                if (count(Mail::failures()) > 0) {
-                    foreach (Mail::failures as $email_address)
-                        Toastr::error("Failed to send to $email_address");
-                } else
+                // Comment out code as Mail::failures no longer works in laravel 9
+                //if (count(Mail::failures()) > 0) {
+                //    foreach (Mail::failures as $email_address)
+                //        Toastr::error("Failed to send to $email_address");
+                //} else
                     Toastr::success("Sent email");
 
                 return view('site/export/completion');

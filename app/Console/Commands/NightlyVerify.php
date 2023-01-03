@@ -39,5 +39,7 @@ class NightlyVerify extends Command
     {
         \Log::info('Verifying Nightly');
         \App\Http\Controllers\Misc\CronController::verifyNightly();
+
+        return 0;
     }
 }

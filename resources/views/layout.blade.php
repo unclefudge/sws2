@@ -94,7 +94,7 @@
 @yield('custom-page-scripts')
 
 {!! Toastr::render() !!}
-@include('sweet::alert')
+@include('sweetalert::alert')    {{--}}removed sweet alert as part of laravel 8->9 upgrade--}}
 
 </body>
 

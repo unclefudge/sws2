@@ -39,5 +39,7 @@ class NightlyUpdate extends Command
     {
         \Log::info('Nightly update of roster + non-compliance');
         \App\Http\Controllers\Misc\CronController::nightly();
+
+        return 0;
     }
 }

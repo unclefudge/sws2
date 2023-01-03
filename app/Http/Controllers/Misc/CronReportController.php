@@ -291,11 +291,21 @@ class CronReportController extends Controller {
 
 
         // Colours
-        $colours = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->pluck('colour', 'order')->toArray();
-        $settings_colours = [];
-        foreach ($colours as $order => $colour) {
-            list($col1, $col2, $hex) = explode('-', $colour);
-            $settings_colours[$order] = "#$hex";
+        $types = ['opt', 'cfest', 'cfadm'];
+        foreach ($types as $type) {
+            $settings_select[$type] = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('name', 'order')->toArray();
+            $colours = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('colour', 'order')->toArray();
+            $settings_colours[$type] = [];
+            if ($colours) {
+                foreach ($colours as $order => $colour) {
+                    if ($colour) {
+                        list($col1, $col2, $hex) = explode('-', $colour);
+                        $settings_colours[$type][$order] = "#$hex";
+                    } else
+                        $settings_colours[$type][$order] = '';
+                }
+            }
+            $settings_text[$type] = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('value', 'order')->toArray();
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();

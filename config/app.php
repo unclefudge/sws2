@@ -186,7 +186,8 @@ return [
         Yajra\Datatables\DatatablesServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         nilsenj\Toastr\ToastrServiceProvider::class,
-        UxWeb\SweetAlert\SweetAlertServiceProvider::class,
+        //UxWeb\SweetAlert\SweetAlertServiceProvider::class,  // no longer works with laravel 9
+        RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         //Barryvdh\Snappy\ServiceProvider::class,   old version prior laravel 5.5
         Barryvdh\DomPDF\ServiceProvider::class,
@@ -249,7 +250,8 @@ return [
         'Form' => Collective\Html\FormFacade::class,
         'Html' => Collective\Html\HtmlFacade::class,
         'Toastr' => nilsenj\Toastr\Facades\Toastr::class,
-        'Alert' => UxWeb\SweetAlert\SweetAlert::class,
+        //'Alert' => UxWeb\SweetAlert\SweetAlert::class, no longer works with laravel 9
+        'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'Image' => Intervention\Image\Facades\Image::class,
         //'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,  older version prior laravel 5.5
         'PDF' => Barryvdh\DomPDF\Facade::class,

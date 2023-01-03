@@ -113,7 +113,7 @@
 
 {{--}}
 {!! Toastr::render() !!}
-@include('sweet::alert')
+@include('sweetalert::alert')
 --}}
 
 </body>

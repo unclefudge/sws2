@@ -3,7 +3,8 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
-use Fideloper\Proxy\TrustProxies as Middleware;
+// use Fideloper\Proxy\TrustProxies as Middleware;   comment out as part of laravel 8->9 upgrade
+use Illuminate\Http\Middleware\TrustProxies as Middleware;
 
 class TrustProxies extends Middleware
 {
@@ -19,7 +20,13 @@ class TrustProxies extends Middleware
      *
      * @var string
      */
-    protected $headers = Request::HEADER_X_FORWARDED_ALL;
+    //protected $headers = Request::HEADER_X_FORWARDED_ALL;  comment out as part of laravel 8->9 upgrade
+    protected $headers =
+        Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_HOST |
+        Request::HEADER_X_FORWARDED_PORT |
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB;
 
     //
     //  Below commented out for laravel 5.5 tp 5.6 upgrade  5/1/21

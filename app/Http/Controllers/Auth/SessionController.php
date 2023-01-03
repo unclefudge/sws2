@@ -88,8 +88,7 @@ class SessionController extends Controller {
                 }
             }*/
 
-            //alert()->message('login', 'here')->persistent('Ok');
-            ///dd(redirect()->intended('home')->getTargetUrl());
+
             // Display User Specific Alerts
             if (Auth::user()->notify()->count()) {
                 $user = Auth::user();
@@ -110,10 +109,10 @@ class SessionController extends Controller {
             if (Auth::user()->todoType('toolbox', 1)->count()) {
                 if (Auth::user()->todoType('toolbox', 1)->count() == 1) {
                     $todo = (Auth::user()->todoType('toolbox', 1)->first());
-                    alert()->message($todo->name, 'You have an outstanding Toolbox Talk')->persistent('Ok');
+                    alert()->info($todo->name, 'You have an outstanding Toolbox Talk')->persistent('Ok');
                     return redirect($todo->url());
                 } else {
-                    alert()->message('Please complete them before you work on site', 'You have outstanding Toolbox Talks')->persistent('Ok');
+                    alert()->info('Please complete them before you work on site', 'You have outstanding Toolbox Talks')->persistent('Ok');
                     return redirect('/safety/doc/toolbox2');
                 }
             }

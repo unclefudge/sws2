@@ -103,7 +103,7 @@
                             </div>
 
                             {{-- Completed at --}}
-                            @if ($todo->status && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
+                            @if ($todo->status && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin') && !in_array($todo->type, ['equipment']))
                                 <div class="row">
                                     <div class="col-md-9">&nbsp;</div>
                                     <div class="col-md-3">

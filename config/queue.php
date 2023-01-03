@@ -80,6 +80,7 @@ return [
     'failed' => [
         'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
+        //'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),  used for Job Batching in laravel 8.0 added during upgrade 7-9 Dec 2022
     ],
 
 ];
