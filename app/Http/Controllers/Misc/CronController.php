@@ -763,6 +763,7 @@ class CronController extends Controller {
         $log = '';
         echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
         $log .= "\nTodo QA doc completed/hold but still active\n";
+        $log .= "------------------------------------------------------------------------\n\n";
         $todos = Todo::all();
         foreach ($todos as $todo) {
             if ($todo->status && $todo->type == 'qa') {
@@ -807,6 +808,7 @@ class CronController extends Controller {
         $log = '';
         echo "<br><br>Fixing broken QA items<br><br>";
         $log .= "\nFixing broken QA items\n";
+        $log .= "------------------------------------------------------------------------\n\n";
         $qas = SiteQa::where('status', '>', 0)->where('master', 0)->get();
 
         foreach ($qas as $qa) {
@@ -1080,23 +1082,31 @@ class CronController extends Controller {
         $successful = '';
         $logfile = public_path("filebank/log/zoho/$yesterday.txt");
 
-        $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
-        $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
+        if (file_exists($logfile)) {
+            $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
+            $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
 
-        if ($jobs_complete && $contacts_complete) {
-            $log .= "Import successful\n";
-        } else {
-            $reason = '';
-            if ($jobs_complete) {
-                $reason .= "Import of Contacts failed\n";
-            } elseif ($contacts_complete) {
-                $reason .= "Import of Jobs failed\n";
+            if ($jobs_complete && $contacts_complete) {
+                $log .= "Import successful\n";
             } else {
-                $reason .= "Import of Jobs + Contacts failed\n";
+                $reason = '';
+                if ($jobs_complete) {
+                    $reason .= "Import of Contacts failed\n";
+                } elseif ($contacts_complete) {
+                    $reason .= "Import of Jobs failed\n";
+                } else {
+                    $reason .= "Import of Jobs + Contacts failed\n";
+                }
+                $log .= $reason;
+                Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
             }
+        } else {
+            $reason = "couldn't find logfile: $logfile";
             $log .= $reason;
             Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
         }
+
+
 
 
         echo "<h4>Completed</h4>";

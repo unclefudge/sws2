@@ -252,8 +252,8 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <ul class="mega-menu-submenu">
-                                                    <li><h3 class="h3-submenu">Client</h3></li>
                                                     @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                                                        <li><h3 class="h3-submenu">Client</h3></li>
                                                         <li><a href="/client/planner/email" class="nav-link"> Email Planner </a></li>
                                                     @endif
                                                 </ul>

@@ -16,7 +16,7 @@ use App\Http\Controllers\Controller;
 
 class MailgunZohoController extends Controller {
 
-    public $debug = false;
+    public $debug = true;
     public $countSites = 0;
     public $siteDiffs = [];
     public $blankZohoFields = [];

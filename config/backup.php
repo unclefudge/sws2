@@ -82,6 +82,8 @@ return [
      */
     'notifications' => [
 
+        /*
+         * Comment below out after upgrading to laravel 9.0 with MySql 8.0 + Spatie\laravel-backup ver 8
         'notifications' => [
             \Spatie\Backup\Notifications\Notifications\BackupHasFailed::class         => ['mail'],
             \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFound::class => ['mail'],
@@ -89,6 +91,14 @@ return [
             \Spatie\Backup\Notifications\Notifications\BackupWasSuccessful::class     => [],
             \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFound::class   => [],
             \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessful::class    => [],
+        ],*/
+        'notifications' => [
+            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['mail'],
         ],
 
         /*
