@@ -28,7 +28,7 @@ class MailgunZohoController extends Controller {
     public function store(Request $request)
     {
         if ($this->debug) app('log')->debug("========= Zoho Import ==========");
-        if ($this->debug) app('log')->debug(request()->all());
+        //if ($this->debug) app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
