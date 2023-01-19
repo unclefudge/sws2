@@ -234,8 +234,6 @@ class PagesController extends Controller {
         echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
         echo "Count:" . $companies->count() . "<br><br>";
         foreach ($companies as $company) {
-            $archive = '';
-
             if ($company->updated_at->lt($archive_date))
                 $archive_company[] = $company->id;
         }
@@ -249,7 +247,33 @@ class PagesController extends Controller {
             $size = fgets ( $io, 4096);
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
             pclose ( $io );
-            echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + (int)$size;
+        }
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        //
+        //  Users
+        //
+        $users = User::where('status', 0)->whereIn('company_id', $archive_company)->get();
+        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
+        echo "Count:" . $users->count() . "<br><br>";
+        foreach ($users as $user) {
+            if ($user->updated_at && $user->updated_at->lt($archive_date))
+                $archive_user[] = $user->id;
+        }
+
+        echo "<br><br>---------- Archived Users --------------<br>";
+        echo "Count: ". count($archive_user)."<br>";
+        $size_count = 0;
+        foreach ($archive_user as $user_id) {
+            $f = public_path("filebank/users/$user_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
             $size_count = $size_count + (int)$size;
         }
         echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
