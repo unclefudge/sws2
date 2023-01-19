@@ -201,7 +201,7 @@ class PagesController extends Controller {
                 $archive = "*";
                 $last_date = "NoPlan";
             }
-            echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
+            //echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
             if ($archive)
                 $archive_sites[] = $site->id;
         }
@@ -216,8 +216,9 @@ class PagesController extends Controller {
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
             pclose ( $io );
             echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + $size;
+            $size_count = $size_count + (int)$size;
         }
+        echo "<br><br>-------------<br>Total size: ${size_count}k,  ". round($size_count/1024) . "mb <br>";
 
         // test
         /*
