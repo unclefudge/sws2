@@ -180,20 +180,43 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        echo "<b>Adding Site Incident Con Factors ToDo Type2 </b><br></br>";
+        echo "<b>List Old Sites </b><br></br>";
 
-        $todos = Todo::where('type', 'incident prevent')->get();
-        foreach ($todos as $todo) {
-            $incident = SiteIncident::find($todo->type_id);
-            echo "[$incident->id] $incident->site_name<br>";
-            echo " [$todo->id] $todo->name<br>";
-            list($crap, $rest) = explode('(', $todo->name);
-            list($option_id, $crap) = explode(')', $rest);
-            $resp = \App\Models\Misc\FormQuestion::find($option_id);
-            echo " ($option_id) $resp->name<br>";
-            echo "------<br><br>";
-            $todo->type_id2 = $option_id;
-            $todo->save();
+        $today = Carbon::now();
+        $archive_date = $today->subYears(2);
+        $archive_sites = [];
+        $sites = Site::where('status', 0)->where('company_id', 3)->get();
+        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
+        echo "Count:" . $sites->count() . "<br><br>";
+        foreach ($sites as $site) {
+            $archive = '';
+            $completed = ($site->completed_at) ? $site->completed_at->format('d/m/Y') : 'NA';
+            $last_planner = SitePlanner::where('site_id', $site->id)->orderByDesc('to')->first();
+
+            if ($last_planner) {
+                $last_date = $last_planner->to->format('d/m/Y');
+                if ($last_planner->to->lt($archive_date))
+                    $archive = '*';
+            } else {
+                $archive = "*";
+                $last_date = "NoPlan";
+            }
+            echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
+            if ($archive)
+                $archive_sites[] = $site->id;
+        }
+
+        echo "<br><br>---------- Archived Sites --------------<br>";
+        echo "Count: ". count($archive_sites)."<br>";
+        $size_count = 0;
+        foreach ($archive_sites as $site_id) {
+            $f = public_path("filebank/site/$site_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + $size;
         }
 
         // test

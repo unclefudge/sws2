@@ -22,7 +22,11 @@ return [
                     base_path('public/filebank/support'),
                     base_path('public/filebank/user'),
                     base_path('public/filebank/company'),
-                    base_path('public/filebank/site'),
+                    //base_path('public/filebank/site'),
+                    base_path('public/filebank/incident'),
+                    base_path('public/filebank/inspection'),
+                    base_path('public/filebank/form'),
+                    base_path('public/filebank/whs'),
                 ],
 
                 /*
@@ -166,7 +170,7 @@ return [
             /*
              * The number of days for which daily backups must be kept.
              */
-            'keepDailyBackupsForDays' => 16,
+            'keepDailyBackupsForDays' => 7,
 
             /*
              * The number of weeks for which one weekly backup must be kept.
@@ -187,7 +191,7 @@ return [
              * After cleaning up the backups remove the oldest backup until
              * this amount of megabytes has been reached.
              */
-            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 100000,
+            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 120000,   // 120Gb
         ],
     ],
 ];
