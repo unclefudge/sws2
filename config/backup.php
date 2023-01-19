@@ -18,11 +18,13 @@ return [
                  * The list of directories and files that will be included in the backup.
                  */
                 'include' => [
-                    base_path('public/filebank/site/*/hazard'),
                     base_path('public/filebank/support'),
                     base_path('public/filebank/user'),
                     base_path('public/filebank/company'),
-                    //base_path('public/filebank/site'),
+                    //base_path('public/filebank/site/*/hazard'),
+                    //base_path('public/filebank/site/*/maintenance'),
+                    //base_path('public/filebank/site/*/inspection'),
+                    base_path('public/filebank/site'),
                     base_path('public/filebank/incident'),
                     base_path('public/filebank/inspection'),
                     base_path('public/filebank/form'),
@@ -39,6 +41,7 @@ return [
                     base_path('node_modules'),
                     storage_path(),
                     base_path('source'),
+                    base_path('public/filebank/site/*/docs'),
                 ],
 
                 /*

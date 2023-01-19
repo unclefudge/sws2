@@ -180,7 +180,7 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        echo "<b>List Old Sites </b><br></br>";
+        echo "<b>Archive Old Data </b><br></br>";
 
         $today = Carbon::now();
         $archive_date = $today->subYears(2);
@@ -188,11 +188,12 @@ class PagesController extends Controller {
         $archive_company = [];
         $archive_size = 0;
 
+        echo "Archive from: ".$archive_date->format('d/m/Y')."<br><br>";
+
         //
         //  Sites
         //
         $sites = Site::where('status', 0)->where('company_id', 3)->get();
-        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
         echo "Count:" . $sites->count() . "<br><br>";
         foreach ($sites as $site) {
             $archive = '';
@@ -231,7 +232,6 @@ class PagesController extends Controller {
         //  Companies
         //
         $companies = Company::where('status', 0)->where('parent_company', 3)->get();
-        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
         echo "Count:" . $companies->count() . "<br><br>";
         foreach ($companies as $company) {
             if ($company->updated_at->lt($archive_date))
@@ -257,7 +257,6 @@ class PagesController extends Controller {
         //  Users
         //
         $users = User::where('status', 0)->whereIn('company_id', $archive_company)->get();
-        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
         echo "Count:" . $users->count() . "<br><br>";
         foreach ($users as $user) {
             if ($user->updated_at && $user->updated_at->lt($archive_date))
