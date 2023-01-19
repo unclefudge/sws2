@@ -218,7 +218,7 @@ class PagesController extends Controller {
             echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
             $size_count = $size_count + (int)$size;
         }
-        echo "<br><br>-------------<br>Total size: ${size_count}k,  ". round($size_count/1024) . "mb <br>";
+        echo "<br><br>-------------<br>Total size: ${size_count}k,  ". round($size_count/10000) . "Bg <br>";
 
         // test
         /*
