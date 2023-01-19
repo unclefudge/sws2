@@ -185,6 +185,12 @@ class PagesController extends Controller {
         $today = Carbon::now();
         $archive_date = $today->subYears(2);
         $archive_sites = [];
+        $archive_company = [];
+        $archive_size = 0;
+
+        //
+        //  Sites
+        //
         $sites = Site::where('status', 0)->where('company_id', 3)->get();
         echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
         echo "Count:" . $sites->count() . "<br><br>";
@@ -215,10 +221,41 @@ class PagesController extends Controller {
             $size = fgets ( $io, 4096);
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
             pclose ( $io );
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + (int)$size;
+        }
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        //
+        //  Companies
+        //
+        $companies = Company::where('status', 0)->where('parent_company', 3)->get();
+        echo "Archive from: ".$archive_date->format('d/m/Y')."<br>";
+        echo "Count:" . $companies->count() . "<br><br>";
+        foreach ($companies as $company) {
+            $archive = '';
+
+            if ($company->updated_at->lt($archive_date))
+                $archive_company[] = $company->id;
+        }
+
+        echo "<br><br>---------- Archived Companies --------------<br>";
+        echo "Count: ". count($archive_company)."<br>";
+        $size_count = 0;
+        foreach ($archive_company as $company_id) {
+            $f = public_path("filebank/company/$company_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
             echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
             $size_count = $size_count + (int)$size;
         }
-        echo "<br><br>-------------<br>Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gg <br>";
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        echo "<br>------------------<br>Total Archive: ".round($archive_size/1000000, 2)."Gb<br>";
 
         // test
         /*
