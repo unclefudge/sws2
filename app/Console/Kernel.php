@@ -27,8 +27,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         if (\App::environment('prod')) {
-            $schedule->command('backup:clean')->weekly()->mondays()->at('00:01');
-            $schedule->command('backup:run')->daily()->at('00:02');
+            $schedule->command('backup:clean -n')->weekly()->mondays()->at('00:01');
+            $schedule->command('backup:run -n')->daily()->at('00:02');
             $schedule->command('app:nightly-update')->daily()->at('00:05');
             $schedule->command('app:nightly-verify')->daily()->at('00:30');
         }
