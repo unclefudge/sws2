@@ -175,8 +175,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
-                                    I have <b>reviewed</b> and am <b>familiar with the site specific Risk Assessment</b> for the project and will apply the specified controls stated <a
-                                            class="btn default" id="open_docs">view</a>
+                                    I have <b>reviewed</b> and am <b>familiar with the site specific Risk Assessment</b> for the project and will apply the specified controls stated <a class="btn default" id="open_docs">view</a>
                                 </div>
                             </div>
                             <div class="row visible-xs">&nbsp;</div>
@@ -211,8 +210,7 @@
                                                                             @if ($worksite->docsOfType('RISK')->first())
                                                                                 @foreach($worksite->docsOfType('RISK') as $doc)
                                                                                     <li class="mt-list-item" style="padding: 10px 0px">
-                                                                                        <div class="list-icon-container"><a href="/filebank/site/{{$worksite->id}}/docs/{{ $doc->attachment }}"><i
-                                                                                                        class="fa fa-file-text-o"></i></a></div>
+                                                                                        <div class="list-icon-container"><a href="/filebank/site/{{$worksite->id}}/docs/{{ $doc->attachment }}"><i class="fa fa-file-text-o"></i></a></div>
                                                                                         <div class="list-item-content">{{ $doc->name }}</div>
                                                                                     </li>
                                                                                 @endforeach
@@ -324,9 +322,7 @@
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
                                         {!! Form::checkbox('question6', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                         ['class' => 'make-switch', 'data-size' => 'small', 'data-on-text'=>'Yes', 'data-on-color'=>'success','data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">

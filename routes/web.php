@@ -67,6 +67,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('checkin', '\App\Http\Controllers\Site\SiteCheckinController@getQuestions');
     Route::get('checkin/whs/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@showQuestions');
     Route::post('checkin/whs/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@processCheckin');
+    Route::get('checkin/supervisor/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@showQuestionsSupervisor');
+    Route::post('checkin/supervisor/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@processCheckinSupervisor');
 
 
     // Pages

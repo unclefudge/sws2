@@ -47,7 +47,7 @@ return [
                 /*
                  * Determines if symlinks should be followed.
                  */
-                'followLinks' => false,
+                'follow_links' => false,
             ],
 
             /*
@@ -133,12 +133,12 @@ return [
      * If a backup does not meet the specified requirements the
      * UnHealthyBackupWasFound event will be fired.
      */
-    'monitorBackups' => [
+    'monitor_backups' => [
         [
             'name' => config('app.name'),
             'disks' => ['local'],
-            'newestBackupsShouldNotBeOlderThanDays' => 1,
-            'storageUsedMayNotBeHigherThanMegabytes' => 5000,
+            'newest_backups_should_not_be_older_than_days' => 1,
+            'storage_used_may_not_be_higher_than_megabytes' => 5000,
         ],
     ],
 
@@ -154,7 +154,7 @@ return [
          */
         'strategy' => \Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy::class,
 
-        'defaultStrategy' => [
+        'default_strategy' => [
 
             /*
              * The number of days for which backups must be kept.
