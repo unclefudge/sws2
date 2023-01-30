@@ -305,7 +305,7 @@ class SiteInspectionElectricalController extends Controller {
                 $email_list = [env('EMAIL_DEV')];
                 $company = Company::find($report->assigned_to);
                 if (\App::environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
-                    $email_list = [$company->primary_contact()->email];
+                    $email_list = [$company->primary_contact()->email, 'support@openhands.com.au'];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReportTrade($report, $file));
 
                 Toastr::success("Report Signed Off");
@@ -319,7 +319,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();
-                $report->createContructionReviewToDo([1164]); // Brianna
+                $report->createContructionReviewToDo([1164, 3]); // Brianna
                 Toastr::error("Report Rejected");
 
             }
