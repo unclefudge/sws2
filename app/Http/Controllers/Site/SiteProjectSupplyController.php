@@ -368,7 +368,7 @@ class SiteProjectSupplyController extends Controller {
         // Generate PDF
         //
         //return view('pdf/site/supply-info', compact('project'));
-        //return PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4')->stream();
+        return PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4')->stream();
         $pdf = PDF::loadView('pdf/site/supply-info', compact('project'));
         $pdf->setPaper('A4');
         $pdf->save(public_path("$path/$filename"));
