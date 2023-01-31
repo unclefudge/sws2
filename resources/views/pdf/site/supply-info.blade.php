@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -45,7 +45,7 @@
             padding-bottom: 999px;
         }
 
-        td.pad5, th.pad5 {
+        td.pad5 {
             padding: 5px !important;
             line-height: 1em !important;
         }
@@ -68,7 +68,10 @@
 <footer>
     <div class="pagenum-container">
         <hr style="margin: 0px">
-        {{ $project->site->address }}, {{  $project->site->suburb_state_postcode }} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>
+        <div class="row">
+            <div class="col-xs-10">{{ $project->site->address }}, {{  $project->site->suburb_state_postcode }}</div>
+            <div class="col-xs-2">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </div>
+        </div>
     </div>
 </footer>
 <div class="container">
@@ -79,7 +82,7 @@
                 <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40">
             </div>
             <div class="col-xs-9">
-               <h3 style="text-align: right">Project Information Sheet</h3>
+                <h3 style="text-align: right">Project Information Sheet</h3>
             </div>
         </div>
         <hr style="margin: 5px 0px">
@@ -93,18 +96,18 @@
     <table class="table table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold;">
-            <th width="25%" class="pad5">{{ $project->titles()->name }}</th>
-            <th width="25%" class="pad5">{{ $project->titles()->supplier }}</th>
-            <th width="25%" class="pad5">{{ $project->titles()->type }}</th>
-            <th width="15%" class="pad5">{{ $project->titles()->colour }}</th>
+            <th width="10%" class="pad5">{{ $project->titles()->name }}</th>
+            <th width="10%" class="pad5">{{ $project->titles()->supplier }}</th>
+            <th width="10%" class="pad5">{{ $project->titles()->type }}</th>
+            <th width="10%" class="pad5">{{ $project->titles()->colour }}</th>
         </tr>
         </thead>
         @foreach ($project->itemsOrdered() as $item)
             <tr>
-                <td width="25%" class="pad5">{!! $item->product !!}</td>
-                <td width="25%" class="pad5">{!! $item->supplier !!}</td>
-                <td width="25%" class="pad5">{!! $item->type !!}</td>
-                <td width="15%" class="pad5">{!! $item->colour !!}</td>
+                <td width="10%" class="pad5">{!! $item->product !!}</td>
+                <td width="10%" class="pad5">{!! $item->supplier !!}</td>
+                <td width="10%" class="pad5">{!! $item->type !!}</td>
+                <td width="10%" class="pad5">{!! $item->colour !!}</td>
             </tr>
         @endforeach
     </table>

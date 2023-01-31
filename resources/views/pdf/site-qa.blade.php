@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -49,8 +49,23 @@
             padding: 5px !important;
             line-height: 1em !important;
         }
-        header { position: fixed; top: -60px; left: 0px; right: 0px; height: 50px; }
-        footer { position: fixed; bottom: 0px; left: 0px; right: 0px; height: 20px; }
+
+        header {
+            position: fixed;
+            top: -60px;
+            left: 0px;
+            right: 0px;
+            height: 50px;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            height: 20px;
+        }
+
         footer .pagenum:before {
             content: counter(page);
         }
@@ -154,9 +169,9 @@
             <div class="col-xs-3" style="text-align: right">Construction Manager</div>
             <div class="col-xs-9">@if ($qa->manager_sign_by){{ $qa->manager_sign_by }}, &nbsp; {{ $qa->manager_sign_at }}@endif</div>
         </div>
-            @if ($pagecount < count($data))
-                <div class="page"></div>
-            @endif
+        @if ($pagecount < count($data))
+            <div class="page"></div>
+        @endif
     @endforeach
 </div>
 </body>

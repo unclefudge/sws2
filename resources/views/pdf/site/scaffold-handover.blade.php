@@ -45,17 +45,13 @@
             padding-bottom: 999px;
         }
 
-        tr {
-            border: none !important;
-        }
-
-        .table2 {
-            padding: 2px;
-        }
-
         td.pad5 {
             padding: 5px !important;
             line-height: 1em !important;
+        }
+
+        tr {
+            border: none !important;
         }
 
         footer {
