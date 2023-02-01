@@ -2,7 +2,7 @@
 
 @section('pagetitle')
     <div class="page-title">
-        <h1>Dashboard3
+        <h1>Dashboard
             <small>information</small>
         </h1>
     </div>

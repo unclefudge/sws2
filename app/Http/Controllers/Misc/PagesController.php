@@ -180,105 +180,19 @@ class PagesController extends Controller {
 
     public function quick()
     {
-        echo "<b>Archive Old Data </b><br></br>";
 
-        $today = Carbon::now();
-        $archive_date = $today->subYears(2);
-        $archive_sites = [];
-        $archive_company = [];
-        $archive_size = 0;
+        echo "<b>Open Project Supply ToDo</b></br>";
 
-        echo "Archive from: ".$archive_date->format('d/m/Y')."<br><br>";
-
-        //
-        //  Sites
-        //
-        $sites = Site::where('status', 0)->where('company_id', 3)->get();
-        echo "Count:" . $sites->count() . "<br><br>";
-        foreach ($sites as $site) {
-            $archive = '';
-            $completed = ($site->completed_at) ? $site->completed_at->format('d/m/Y') : 'NA';
-            $last_planner = SitePlanner::where('site_id', $site->id)->orderByDesc('to')->first();
-
-            if ($last_planner) {
-                $last_date = $last_planner->to->format('d/m/Y');
-                if ($last_planner->to->lt($archive_date))
-                    $archive = '*';
-            } else {
-                $archive = "*";
-                $last_date = "NoPlan";
+        $open = Todo::where('type', 'project supply')->where('status', '1')->get();
+        foreach ($open as $todo) {
+            $p = SiteProjectSupply::find($todo->type_id);
+            echo "[$todo->id] ($p->status - $p->id) $todo->name<br>";
+            if (!$p->status) {
+                echo "close (".$todo->assignedToBySBC().") s:" . $p->supervisor_sign_at->format('d/m/Y') . " m:" . $p->manager_sign_at->format('d/m/Y') . "<br>";
+                $p->closeToDo();
             }
-            //echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
-            if ($archive)
-                $archive_sites[] = $site->id;
         }
 
-        echo "<br><br>---------- Archived Sites --------------<br>";
-        echo "Count: ". count($archive_sites)."<br>";
-        $size_count = 0;
-        foreach ($archive_sites as $site_id) {
-            $f = public_path("filebank/site/$site_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
-
-        //
-        //  Companies
-        //
-        $companies = Company::where('status', 0)->where('parent_company', 3)->get();
-        echo "Count:" . $companies->count() . "<br><br>";
-        foreach ($companies as $company) {
-            if ($company->updated_at->lt($archive_date))
-                $archive_company[] = $company->id;
-        }
-
-        echo "<br><br>---------- Archived Companies --------------<br>";
-        echo "Count: ". count($archive_company)."<br>";
-        $size_count = 0;
-        foreach ($archive_company as $company_id) {
-            $f = public_path("filebank/company/$company_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
-
-        //
-        //  Users
-        //
-        $users = User::where('status', 0)->whereIn('company_id', $archive_company)->get();
-        echo "Count:" . $users->count() . "<br><br>";
-        foreach ($users as $user) {
-            if ($user->updated_at && $user->updated_at->lt($archive_date))
-                $archive_user[] = $user->id;
-        }
-
-        echo "<br><br>---------- Archived Users --------------<br>";
-        echo "Count: ". count($archive_user)."<br>";
-        $size_count = 0;
-        foreach ($archive_user as $user_id) {
-            $f = public_path("filebank/users/$user_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
-
-        echo "<br>------------------<br>Total Archive: ".round($archive_size/1000000, 2)."Gb<br>";
 
         // test
         /*
@@ -1085,9 +999,107 @@ class PagesController extends Controller {
 
     }
 
-    public function quick2()
+    public function archiveOldData()
     {
+        echo "<b>Archive Old Data </b><br></br>";
 
+        $today = Carbon::now();
+        $archive_date = $today->subYears(2);
+        $archive_sites = [];
+        $archive_company = [];
+        $archive_size = 0;
+
+        echo "Archive from: ".$archive_date->format('d/m/Y')."<br><br>";
+
+        //
+        //  Sites
+        //
+        $sites = Site::where('status', 0)->where('company_id', 3)->get();
+        echo "Count:" . $sites->count() . "<br><br>";
+        foreach ($sites as $site) {
+            $archive = '';
+            $completed = ($site->completed_at) ? $site->completed_at->format('d/m/Y') : 'NA';
+            $last_planner = SitePlanner::where('site_id', $site->id)->orderByDesc('to')->first();
+
+            if ($last_planner) {
+                $last_date = $last_planner->to->format('d/m/Y');
+                if ($last_planner->to->lt($archive_date))
+                    $archive = '*';
+            } else {
+                $archive = "*";
+                $last_date = "NoPlan";
+            }
+            //echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
+            if ($archive)
+                $archive_sites[] = $site->id;
+        }
+
+        echo "<br><br>---------- Archived Sites --------------<br>";
+        echo "Count: ". count($archive_sites)."<br>";
+        $size_count = 0;
+        foreach ($archive_sites as $site_id) {
+            $f = public_path("filebank/site/$site_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + (int)$size;
+        }
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        //
+        //  Companies
+        //
+        $companies = Company::where('status', 0)->where('parent_company', 3)->get();
+        echo "Count:" . $companies->count() . "<br><br>";
+        foreach ($companies as $company) {
+            if ($company->updated_at->lt($archive_date))
+                $archive_company[] = $company->id;
+        }
+
+        echo "<br><br>---------- Archived Companies --------------<br>";
+        echo "Count: ". count($archive_company)."<br>";
+        $size_count = 0;
+        foreach ($archive_company as $company_id) {
+            $f = public_path("filebank/company/$company_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + (int)$size;
+        }
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        //
+        //  Users
+        //
+        $users = User::where('status', 0)->whereIn('company_id', $archive_company)->get();
+        echo "Count:" . $users->count() . "<br><br>";
+        foreach ($users as $user) {
+            if ($user->updated_at && $user->updated_at->lt($archive_date))
+                $archive_user[] = $user->id;
+        }
+
+        echo "<br><br>---------- Archived Users --------------<br>";
+        echo "Count: ". count($archive_user)."<br>";
+        $size_count = 0;
+        foreach ($archive_user as $user_id) {
+            $f = public_path("filebank/users/$user_id/");
+            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
+            $size = fgets ( $io, 4096);
+            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
+            pclose ( $io );
+            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
+            $size_count = $size_count + (int)$size;
+        }
+        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        $archive_size += $size_count;
+
+        echo "<br>------------------<br>Total Archive: ".round($archive_size/1000000, 2)."Gb<br>";
     }
 
     public function completedQA()

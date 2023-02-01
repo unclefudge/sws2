@@ -314,6 +314,7 @@ class SiteProjectSupplyController extends Controller {
         }
         $project->save();
 
+
         if ($project->status)
             return redirect("/site/supply/$project->id/edit");
 
