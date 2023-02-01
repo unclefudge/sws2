@@ -412,10 +412,11 @@ class SiteUpcomingComplianceController extends Controller {
                 $site_list[] = $sid;
 
         // Add Sites with (council_approval)
-        $extra_sites = Site::where('status', '-1')->whereNotNull('council_approval')->where('company_id', 3)->orderBy('council_approval')->pluck('id')->toArray();
+        /*$extra_sites = Site::where('status', '-1')->whereNotNull('council_approval')->where('company_id', 3)->orderBy('council_approval')->pluck('id')->toArray();
         foreach ($extra_sites as $sid)
             if (!in_array($sid, $site_list))
                 $site_list[] = $sid;
+        */
 
 
         foreach ($site_list as $site_id) {
