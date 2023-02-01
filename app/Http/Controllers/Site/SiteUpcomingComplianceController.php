@@ -394,24 +394,30 @@ class SiteUpcomingComplianceController extends Controller {
         $site_list = [];
 
         // Add Sites with (contract_signed, deposit_paid)
-        $contracts_signed = Site::where('status', '-1')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
-        foreach ($contracts_signed as $sid)
+        $extra_sites = Site::where('status', '-1')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
+        foreach ($extra_sites as $sid)
             if (!in_array($sid, $site_list))
                 $site_list[] = $sid;
 
         // Add Sites with (deposit_paid)
-        $contracts_signed = Site::where('status', '-1')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
-        foreach ($contracts_signed as $sid)
+        $extra_sites = Site::where('status', '-1')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
+        foreach ($extra_sites as $sid)
             if (!in_array($sid, $site_list))
                 $site_list[] = $sid;
 
         // Add Sites with (contract_signed)
-        $contracts_signed = Site::where('status', '-1')->whereNotNull('contract_signed')->where('company_id', 3)->orderBy('contract_signed')->pluck('id')->toArray();
-        foreach ($contracts_signed as $sid)
+        $extra_sites = Site::where('status', '-1')->whereNotNull('contract_signed')->where('company_id', 3)->orderBy('contract_signed')->pluck('id')->toArray();
+        foreach ($extra_sites as $sid)
             if (!in_array($sid, $site_list))
                 $site_list[] = $sid;
 
-        
+        // Add Sites with (council_approval)
+        $extra_sites = Site::where('status', '-1')->whereNotNull('council_approval')->where('company_id', 3)->orderBy('council_approval')->pluck('id')->toArray();
+        foreach ($extra_sites as $sid)
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
+
+
         foreach ($site_list as $site_id) {
             $site = Site::findOrFail($site_id);
 
@@ -449,7 +455,7 @@ class SiteUpcomingComplianceController extends Controller {
             ];
         }
 
-        dd($startdata);
+        //dd($startdata);
 
         return $startdata;
     }
