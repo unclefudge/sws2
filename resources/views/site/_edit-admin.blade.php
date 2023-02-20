@@ -185,6 +185,24 @@
                     </div>
                 </div>
             </div>
+            <hr class="field-hr">
+
+            {{-- Jobstart Estimate--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('hbcf', $errors) !!}">
+                    {!! Form::label('jobstart_estimate', 'Start Estimate:', ['class' => 'col-md-6 control-label']) !!}
+                    <div class="col-md-6">
+                        <div class="input-group date date-picker">
+                            {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                            'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                            <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                            {!! fieldErrorMessage('jobstart_estimate', $errors) !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endif
         <br>
         <div class="form-actions right">

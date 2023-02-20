@@ -28,9 +28,8 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
-                                {{--}}<th width="5%"> Job#</th>--}}
                                 <th> Site Name</th>
-                                <th> Start Est.</th>
+                                <th width="12%"> Start Estimate</th>
                                 <th> Supervisor</th>
                                 <th> Council Approval</th>
                                 <th> Contracts Sent</th>
@@ -47,11 +46,17 @@
                                     <td>
                                         <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i class="fa fa-search"></i></a></div>
                                     </td>
-                                    {{--}}<td>{{ $site->code }}</td>--}}
                                     <td>{{ $site->name }}</td>
-                                    <td>{{ ($site->JobStart) ? $site->JobStart->format('d/m/Y') : '' }}</td>
                                     <td>
-                                       <select id="{{ $site->id }}" class="form-control bs-select" name="supervisor" title="Select supervisor">
+                                        <div class="input-group date date-picker">
+                                            {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "s$site->id"]) !!}
+                                            <span class="input-group-btn">
+                                                <button class="btn default date-set" type="button" style="padding: 0"></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select id="{{ $site->id }}" class="form-control bs-select" name="supervisor" title="Select supervisor">
                                             @foreach(Auth::user()->company->supervisorsSelect() as $id => $name)
                                                 <option value="{{ $id }}" @if ($site->supervisors->first() && $id == $site->supervisors->first()->id) selected @endif>{{ $name }}</option>
                                             @endforeach
@@ -76,10 +81,12 @@
 
 
 @section('page-level-plugins-head')
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
@@ -89,31 +96,32 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        $('select').change(function() {
+        $('select').change(function () {
             //alert(this.value + ' : ' + this.id);
             $.ajax({
                 url: '/site/' + this.id + '/supervisor/' + this.value,
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                   console.log('updated supervisor for Site:')
+                    console.log('updated supervisor for Site:')
                 },
             })
         });
-
-        //$("button").click(function(){
-            // /planner/preconstruction/{{ $site->id }}
-
-            //$.post("demo_test_post.asp",
-             //       {
-             //           name: "Donald Duck",
-              //          city: "Duckburg"
-              //      },
-              //      function(data,status){
-              //          alert("Data: " + data + "\nStatus: " + status);
-              //      });
-
-        //});
+        $('.startEst').change(function () {
+            //alert(this.value + ' : ' + this.id);
+            var site_id = this.id.substring(1);
+            var date = this.value.split('/');
+            var date_formated = date[2]+'-'+date[1]+'-'+date[0];
+            //alert(date_formated);
+            $.ajax({
+                url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log('updated supervisor for Site:')
+                },
+            })
+        });
     });
 
     function go2preconstruction(site_id) {
@@ -131,5 +139,11 @@
         $('body').append(formElement);
         $(formElement).submit();
     }
+
+    $('.date-picker').datepicker({
+        autoclose: true,
+        clearBtn: true,
+        format: 'dd/mm/yyyy',
+    });
 </script>
 @stop

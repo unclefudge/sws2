@@ -226,8 +226,9 @@ class SiteController extends Controller {
         $site_request['engineering_cert'] = (request('engineering_cert')) ? Carbon::createFromFormat('d/m/Y H:i', request('engineering_cert') . '00:00')->toDateTimeString() : null;
         $site_request['construction_rcvd'] = (request('construction_rcvd')) ? Carbon::createFromFormat('d/m/Y H:i', request('construction_rcvd') . '00:00')->toDateTimeString() : null;
         $site_request['hbcf_start'] = (request('hbcf_start')) ? Carbon::createFromFormat('d/m/Y H:i', request('hbcf_start') . '00:00')->toDateTimeString() : null;
+        $site_request['jobstart_estimate'] = (request('jobstart_estimate')) ? Carbon::createFromFormat('d/m/Y H:i', request('jobstart_estimate') . '00:00')->toDateTimeString() : null;
 
-        // Project Cooinator
+        // Project Coodinator
         if (request('project_mgr')) {
             $mgr = User::find(request('project_mgr'));
             $site_request['project_mgr_name'] = $mgr->fullname;
@@ -274,7 +275,7 @@ class SiteController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function updatesupervisor($site_id, $super_id)
+    public function updateSupervisor($site_id, $super_id)
     {
         $site = Site::findOrFail($site_id);
 
@@ -285,6 +286,28 @@ class SiteController extends Controller {
         $site->supervisors()->sync([$super_id]);
 
         Toastr::success("Updated Supervisor");
+        if (request()->ajax())
+            return response()->json(['success'=> '1']);
+        return redirect('/site/' . $site->id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateJobstartEstimate($site_id, $date)
+    {
+        $site = Site::findOrFail($site_id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
+            return view('errors/404');
+
+        $site->jobstart_estimate = Carbon::createFromFormat('Y-m-d H:i',$date . '00:00')->toDateTimeString();
+        $site->save();
+
+        Toastr::success("Updated Start Estimate");
         if (request()->ajax())
             return response()->json(['success'=> '1']);
         return redirect('/site/' . $site->id);

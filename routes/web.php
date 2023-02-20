@@ -463,6 +463,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/{id}/client', '\App\Http\Controllers\Site\SiteController@updateClient');
     Route::get('site/{id}/doc', '\App\Http\Controllers\Site\SiteController@showDocs');
     Route::get('site/{site_id}/supervisor/{super_id}', '\App\Http\Controllers\Site\SiteController@updateSupervisor');
+    Route::get('site/{site_id}/jobstart_estimate/{date}', '\App\Http\Controllers\Site\SiteController@updateJobstartEstimate');
     Route::get('site/{site_id}/whs-management-plan', '\App\Http\Controllers\Site\SiteController@createWhsManagementPlan');
     Route::get('site/data/doc/dt', '\App\Http\Controllers\Site\SiteController@getSiteDocs');
     Route::get('site/data/details/{id}', '\App\Http\Controllers\Site\SiteController@getSiteDetails');
