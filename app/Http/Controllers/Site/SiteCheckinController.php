@@ -244,10 +244,10 @@ class SiteCheckinController extends Controller {
             $no_action_req = [115, 117, 124];
 
             // Create ToDoo for each 'yes' answers
+            $todo_created = [];
             foreach ($super_questions as $qid => $qtext) {
                 if (!in_array($qid, $no_action_req)) {
                     if (!request("question$qid")) {
-                        echo "$qid - $qtext<br>";
                         $todo = Todo::where('type_id', $site->id)->where('type_id2', $qid)->where('status', 1)->first();
                         if (!$todo) {
                             $todo_request = [
@@ -265,10 +265,15 @@ class SiteCheckinController extends Controller {
                             $todo = Todo::create($todo_request);
                             $todo->assignUsers($site->supervisors->pluck('id')->toArray());
                             //$todo->emailToDo();
+                            $todo_created[$todo->id] = $qtext;
                         }
                     }
                 }
             }
+
+            if ($todo_created)
+                return view('site/checkinSupervisorTasks', compact('todo_created', 'site'));
+
             //dd(request()->all());
         } else {
             // if Today add them to Roster if Company is on Planer but user not on Roster
