@@ -873,8 +873,7 @@ class SitePlannerController extends Controller {
     /**
      * Get Site Roster for specific site
      */
-    public
-    function getSiteRoster($date, $super_id)
+    public function getSiteRoster($date, $super_id)
     {
         if ($super_id == 'all')
             $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
@@ -1961,15 +1960,15 @@ class SitePlannerController extends Controller {
             if (!$project) {
                 $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
                 $project->initialise();
-                $project->createToDo($project->site->supervisors->pluck('id')->toArray());
+                $project->createReviewToDo($project->site->supervisors->pluck('id')->toArray());
             }
 
             return redirect("/planner/site/$site->id");
         }
 
         // Move from Pre-construction to Cancelled
-        if ($site->status == - 1 && $status == - 2) {
-            $site->status = - 2;
+        if ($site->status == '-1' && $status == '-2') {
+            $site->status = '-2';
             $site->save();
             Toastr::error("Site Cancelled");
 
@@ -1978,7 +1977,7 @@ class SitePlannerController extends Controller {
 
         // Move from Active (prior Jobstart) to Pre-construction
         if ($site->status == 1 && $status == 0) {
-            $site->status = - 1;
+            $site->status = '-1';
             $site->save();
 
             return redirect("/planner/preconstruction/$site->id");

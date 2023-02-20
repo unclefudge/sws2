@@ -105,7 +105,7 @@ Vue.component('app-weekly', {
             postAndRedirect('/planner/trade', this.xx.params);
         },
         weeklyHeader: function (date, days) {
-            console.log('hh');
+            //console.log('hh');
             /*
             if (moment(date).month() == moment(date).days(5).month())
                 return moment(date).format('MMMM DD') + ' - ' + moment(date).days(5).format('DD') + moment(date).format(', YYYY');

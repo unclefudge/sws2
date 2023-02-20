@@ -308,7 +308,7 @@ class SiteProjectSupplyController extends Controller {
             $project->status = 0;
 
             // Email completion
-            $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             $report_file = ($project->attachment) ? public_path($project->attachmentUrl) : '';
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }

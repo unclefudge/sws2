@@ -30,7 +30,7 @@
                                 <th width="5%"> #</th>
                                 {{--}}<th width="5%"> Job#</th>--}}
                                 <th> Site Name</th>
-                                <th> Job Start</th>
+                                <th> Start Est.</th>
                                 <th> Supervisor</th>
                                 <th> Council Approval</th>
                                 <th> Contracts Sent</th>

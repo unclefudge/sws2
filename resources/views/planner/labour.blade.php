@@ -64,7 +64,22 @@
                                 <input type="text" class="form-control disabled" value='Labourer' id="trade_id2" disabled readonly>
                                 <!--<select-picker :name.sync="xx.params.supervisor_id" :options.sync="xx.sel_super" :selected="xx.params.supervisor_id" :function="updateSupervisor"></select-picker>-->
                             </div>
-                            <div class="col-md-5 text-center"><h4 class="bold font-green-haze">@{{ weeklyHeader(xx.mon_now, 0) }}</h4></div>
+                            <div class="col-md-5 text-center">
+                                {{--}}<h4 class="bold font-green-haze">@{{ weeklyHeader(xx.mon_now, 0) }}</h4>--}}
+                                <select v-model="xx.week_selected" class="form-control bs-select" v-on:change="changeWeekSelected" id="week_selected">
+                                    <option value="-14">@{{ weeklyHeader(xx.mon_now, -14) }}</option>
+                                    <option value="-7">@{{ weeklyHeader(xx.mon_now, -7) }}</option>
+                                    <option value="0" selected>@{{ weeklyHeader(xx.mon_now, 0) }}</option>
+                                    <option value="7">@{{ weeklyHeader(xx.mon_now, 7) }}</option>
+                                    <option value="14">@{{ weeklyHeader(xx.mon_now, 14) }}</option>
+                                    <option value="21">@{{ weeklyHeader(xx.mon_now, 21) }}</option>
+                                    <option value="28">@{{ weeklyHeader(xx.mon_now, 28) }}</option>
+                                    <option value="35">@{{ weeklyHeader(xx.mon_now, 35) }}</option>
+                                    <option value="42">@{{ weeklyHeader(xx.mon_now, 42) }}</option>
+                                    <option value="49">@{{ weeklyHeader(xx.mon_now, 49) }}</option>
+                                    <option value="56">@{{ weeklyHeader(xx.mon_now, 56) }}</option>
+                                </select>
+                            </div>
                             <div class="col-md-4 pull-right">
                                 <div class="btn-group btn-group-circle pull-right">
                                     <!--<a href="/planner/weekly/@{{ weekDate(xx.mon_now, -7) }}" class="btn blue-hoki">Prev Week</a>-->

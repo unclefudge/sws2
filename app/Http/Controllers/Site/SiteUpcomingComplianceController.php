@@ -155,7 +155,7 @@ class SiteUpcomingComplianceController extends Controller {
     public function updateSettings()
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
         //dd(request()->all());
@@ -223,7 +223,7 @@ class SiteUpcomingComplianceController extends Controller {
     public function deleteSetting($id)
     {
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.project.supply'))
+        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
         //dd(request()->all());

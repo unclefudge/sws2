@@ -6,7 +6,7 @@ $('#supervisor_id').change(function () {
 var xx = {
     dev: dev, permission: '', user_company_id: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'),
+    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'),  week_selected: '',
     mon_now: '', mon_this: '', mon_prev: '', mon_next: '',
     sel_super: [], maxjobs: [], leave: [], sites: [],
     plan: [], non_rostered: [], entity_all_onsite: [],
@@ -23,10 +23,11 @@ Vue.component('app-weekly', {
     },
     methods: {
         weeklyHeader: function (date, days) {
-            if (moment(date).month() == moment(date).days(5).month())
+            /*if (moment(date).month() == moment(date).days(5).month())
                 return moment(date).format('MMMM DD') + ' - ' + moment(date).days(5).format('DD') + moment(date).format(', YYYY');
             else
-                return moment(date).format('MMM DD') + ' - ' + moment(date).days(5).format('MMM DD') + moment(date).format(', YYYY');
+                return moment(date).format('MMM DD') + ' - ' + moment(date).days(5).format('MMM DD') + moment(date).format(', YYYY');*/
+            return moment(date).add(days, 'days').format('MMM DD') + ' - ' + moment(date).add(days, 'days').days(5).format('MMM DD') + moment(date).add(days, 'days').format(', YYYY');
         },
         weekDateHeader: function (date, days) {
             return moment(date).add(days, 'days').format('DD/MM');
@@ -289,10 +290,16 @@ var myApp = new Vue({
     },
     methods: {
         weeklyHeader: function (date, days) {
-            if (moment(date).month() == moment(date).days(5).month())
-                return moment(date).format('MMMM DD') + ' - ' + moment(date).days(5).format('DD') + moment(date).format(', YYYY');
-            else
-                return moment(date).format('MMM DD') + ' - ' + moment(date).days(5).format('MMM DD') + moment(date).format(', YYYY');
+            /*if (moment(date).month() == moment(date).days(5).month())
+             return moment(date).format('MMMM DD') + ' - ' + moment(date).days(5).format('DD') + moment(date).format(', YYYY');
+             else
+             return moment(date).format('MMM DD') + ' - ' + moment(date).days(5).format('MMM DD') + moment(date).format(', YYYY');*/
+            return moment(date).add(days, 'days').format('MMM DD') + ' - ' + moment(date).add(days, 'days').days(5).format('MMM DD') + moment(date).add(days, 'days').format(', YYYY');
+        },
+        changeWeekSelected: function () {
+            //alert(this.xx.week_selected);
+            this.xx.params.date = moment(this.xx.mon_now).add(this.xx.week_selected, 'days').format('YYYY-MM-DD');
+            postAndRedirect('/planner/weekly', this.xx.params);
         },
         weekDateHeader: function (date, days) {
             return moment(date).add(days, 'days').format('DD/MM');

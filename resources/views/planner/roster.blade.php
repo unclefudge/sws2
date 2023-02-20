@@ -68,7 +68,9 @@
                                 <div class="col-md-3">
                                     {!! Form::select('supervisor_id', $supervisors, $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor_id',]) !!}
                                 </div>--}}
-                                <div class="col-md-5 text-center"><h4 class="bold font-green-haze">@{{ xx.current_date | formatDateFull }}</h4></div>
+                                <div class="col-md-5 text-center">
+                                    <h4 class="bold font-green-haze">@{{ xx.current_date | formatDateFull }}</h4>
+                                </div>
                                 <div class="col-md-4 pull-right">
                                     <div class="btn-group btn-group-circle pull-right">
                                         <button v-on:click="changeDay('-')" class="btn blue-hoki">Prev Day</button>

@@ -181,6 +181,19 @@ class PagesController extends Controller {
     public function quick()
     {
 
+        echo "<b>Prac Completion</b></br>";
+
+        $today = Carbon::now(); //265 Prac Complete
+        $sites = Site::where('status', 1)->where('company_id', 3)->orderBy('code')->get();
+
+        echo "Site Name,Prac Completion<br>";
+        foreach ($sites as $site) {
+            $p = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
+            $date = ($p) ? $p->to->format('d/m/Y') : '';
+            echo "$site->name, $date<br>";
+        }
+
+        /*
         echo "<b>Open Project Supply ToDo</b></br>";
 
         $open = Todo::where('type', 'project supply')->where('status', '1')->get();
@@ -191,7 +204,7 @@ class PagesController extends Controller {
                 echo "close (".$todo->assignedToBySBC().") s:" . $p->supervisor_sign_at->format('d/m/Y') . " m:" . $p->manager_sign_at->format('d/m/Y') . "<br>";
                 $p->closeToDo();
             }
-        }
+        }*/
 
 
         // test

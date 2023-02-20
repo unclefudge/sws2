@@ -38,7 +38,7 @@
                                 <?php $u = \App\User::find($user->user_id) ?>
                                 <?php $r = \App\Models\Misc\Role2::find($user->role_id)?>
                                 <tr>
-                                    <td><div class="text-center"><a href="/user/{{$user->id}}/security"><i class="fa fa-search"></i></a></div></td>
+                                    <td><div class="text-center"><a href="/user/{{$u->id}}/security"><i class="fa fa-search"></i></a></div></td>
                                     <td>{{ $u->username }}</td>
                                     <td>{{ $u->fullname }}</td>
                                     <td>{{ $r->name }}</td>

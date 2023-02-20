@@ -7,7 +7,7 @@ $('#supervisor_id').change(function () {
 var xx = {
     dev: dev, permission: '', user_company_id: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    today: moment().format('YYYY-MM-DD'), current_date: moment().format('YYYY-MM-DD'),
+    today: moment().format('YYYY-MM-DD'), current_date: moment().format('YYYY-MM-DD'),  week_selected: '',
     showSpinner: false,
     rostered: [], unrostered: [], plan: [], sel_super: [], sites: [],
 };
@@ -57,6 +57,14 @@ Vue.component('app-attend', {
                 this.$broadcast('refreshWeekPlanEvent');
 
             }.bind(this), 100);
+        },
+        weeklyHeader: function (date, days) {
+            return moment(date).add(days, 'days').format('MMM DD') + ' - ' + moment(date).add(days, 'days').days(5).format('MMM DD') + moment(date).add(days, 'days').format(', YYYY');
+        },
+        changeWeekSelected: function () {
+            //alert(this.xx.week_selected);
+            this.xx.params.date = moment(this.xx.mon_now).add(this.xx.week_selected, 'days').format('YYYY-MM-DD');
+            postAndRedirect('/planner/roster', this.xx.params);
         },
         changeDay: function (direction) {
             // Change current day to Today or go forward or backwards a day
