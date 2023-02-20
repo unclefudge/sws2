@@ -274,10 +274,9 @@ class UserController extends Controller {
 
         $old_status = $user->status;
         $user_request = removeNullValues(request()->all());
-        //dd(request('$user_request'));
 
         // If user being made inactive then update email
-        if (request('status') == 0) {
+        if (request()->has('status') && request('status') == 0) {
             // Delete outstanding ToDoos (except Toolbox)
             $user->todoDeleteAllActive();
 
