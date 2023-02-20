@@ -1430,7 +1430,7 @@ class SitePlannerController extends Controller {
     public function getSites()
     {
         if (Auth::user()->company->addon('planner'))
-            $allowedSites = Auth::user()->company->sites([1, 2, - 1])->pluck('id')->toArray();
+            $allowedSites = Auth::user()->company->sites([1, 2])->pluck('id')->toArray();
         else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
@@ -1445,7 +1445,7 @@ class SitePlannerController extends Controller {
             }
         }
 
-        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2, - 1])->whereIn('id', $allowedSites)->orderBy('name')->get();
+        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->orderBy('name')->get();
 
         $site_details = [];
         foreach ($sites as $site) {
