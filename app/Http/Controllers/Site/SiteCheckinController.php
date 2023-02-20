@@ -11,6 +11,8 @@ use App\Models\Site\Site;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\SiteHazard;
+use App\Models\Comms\Todo;
+use App\Models\Comms\TodoUser;
 use App\Models\Misc\Action;
 use App\Http\Requests;
 
@@ -86,7 +88,7 @@ class SiteCheckinController extends Controller {
 
         // Check if user is a Supervisor or requires their login qustions
         $supers = Auth::user()->company->reportsTo()->supervisors()->pluck('id')->toArray();
-        $special_users = [3, 108]; // Fudge, Kirstie
+        $special_users = [3, 108, 351]; // Fudge, Kirstie, Tara
         $super_login = array_merge($supers, $special_users);
 
         if (in_array(Auth::user()->id, $super_login))
@@ -239,18 +241,35 @@ class SiteCheckinController extends Controller {
                 '131' => 'Electrical wires or apparatus that pass through a scaffold have been de-energised or fully enclosed to the requirements of the network operator',
 
             ];
-            $require_action = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114];
-            if (request('question115')) // Ladders being used
-                $require_action = array_merge($require_action, [116]);
+            $no_action_req = [115, 117, 124];
 
-            if (request('question117')) // Falling Objects + Heights
-                $require_action = array_merge($require_action, [118, 119, 120, 121, 122, 123]);
+            // Create ToDoo for each 'yes' answers
+            foreach ($super_questions as $qid => $qtext) {
+                if (!in_array($qid, $no_action_req)) {
+                    if (!request("question$qid")) {
+                        echo "$qid - $qtext<br>";
+                        $todo = Todo::where('type_id', $site->id)->where('type_id2', $qid)->where('status', 1)->first();
+                        if (!$todo) {
+                            $todo_request = [
+                                'type'       => 'supervisor',
+                                'type_id'    => $site->id,
+                                'type_id2'   => $qid,
+                                'name'       => "Site Supervisor Task : $site->name",
+                                'info'       => "Please review + complete the following task which has been created at Supervisor Site Checkin for $site->name\r\n\r\n- $qtext",
+                                'priority'   => '1',
+                                'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                                'company_id' => '3',
+                            ];
 
-            if (request('question124')) // Falling Objects + Heights
-                $require_action = array_merge($require_action, [125, 126, 127, 128, 129, 130, 131]);
-
-            //dd($require_action);
-
+                            // Create ToDoo and assign to Site Supervisors
+                            $todo = Todo::create($todo_request);
+                            $todo->assignUsers($site->supervisors->pluck('id')->toArray());
+                            //$todo->emailToDo();
+                        }
+                    }
+                }
+            }
+            //dd(request()->all());
         } else {
             // if Today add them to Roster if Company is on Planer but user not on Roster
             $today = Carbon::now()->format('Y-m-d');
