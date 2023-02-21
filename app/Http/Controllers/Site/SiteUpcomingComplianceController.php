@@ -128,16 +128,17 @@ class SiteUpcomingComplianceController extends Controller {
 
         if (request('site_id')) {
             $site = Site::findOrFail(request('site_id'));
-            $site->cc = request('cc');
-            $site->cc_stage = request('cc_stage');
-            $site->fc_plans = request('fc_plans');
-            $site->fc_plans_stage = request('fc_plans_stage');
-            $site->fc_struct = request('fc_struct');
-            $site->fc_struct_stage = request('fc_struct_stage');
-            $site->cf_est = request('cf_est');
-            $site->cf_est_stage = request('cf_est_stage');
-            $site->cf_adm = request('cf_adm');
-            $site->cf_adm_stage = request('cf_adm_stage');
+
+            if (request('cc')) $site->cc = request('cc');
+            if (request('cc_stage')) $site->cc_stage = request('cc_stage');
+            if (request('fc_plans')) $site->fc_plans = request('fc_plans');
+            if (request('fc_plans_stage')) $site->fc_plans_stage = request('fc_plans_stage');
+            if (request('fc_struct')) $site->fc_struct = request('fc_struct');
+            if (request('fc_struct_stage')) $site->fc_struct_stage = request('fc_struct_stage');
+            if (request('cf_est')) $site->cf_est = request('cf_est');
+            if (request('cf_est_stage')) $site->cf_est_stage = request('cf_est_stage');
+            if (request('cf_adm')) $site->cf_adm = request('cf_adm');
+            if (request('cf_adm_stage')) $site->cf_adm_stage = request('cf_adm_stage');
             $site->save();
         }
 
