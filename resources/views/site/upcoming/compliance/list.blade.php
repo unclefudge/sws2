@@ -234,11 +234,12 @@
 
         $("#cc_stage").change(function (e) {
             var default_text = @json($settings_text['opt']);
-            console.log(default_text);
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (default_text[$("#cc_stage").val()])
+                if (!$("#cc_stage").val())
+                    $('#cc').val('');
+                else if (default_text[$("#cc_stage").val()])
                     $('#cc').val(default_text[$("#cc_stage").val()]);
             }
         });
@@ -248,7 +249,9 @@
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (default_text[$("#fc_plans_stage").val()])
+                if (!$("#fc_plans_stage").val()
+                    $('#fc_plans').val('');
+                else if (default_text[$("#fc_plans_stage").val()])
                     $('#fc_plans').val(default_text[$("#fc_plans_stage").val()]);
             }
         });
@@ -258,7 +261,9 @@
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (default_text[$("#fc_struct_stage").val()])
+                if (!$("#fc_struct_stage").val())
+                    $('#fc_struct').val('');
+                else if (default_text[$("#fc_struct_stage").val()])
                     $('#fc_struct').val(default_text[$("#fc_struct_stage").val()]);
             }
         });
@@ -268,7 +273,9 @@
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (default_text[$("#cf_est_stage").val()])
+                if (!$("#cf_est_stage").val())
+                    $('#cf_est').val('');
+                else if (default_text[$("#cf_est_stage").val()])
                     $('#cf_est').val(default_text[$("#cf_est_stage").val()]);
             }
         });
@@ -278,7 +285,9 @@
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (default_text[$("#cf_adm_stage").val()])
+                if (!$("#cf_adm_stage").val())
+                    $('#cf_adm').val('');
+                else if (default_text[$("#cf_adm_stage").val()])
                     $('#cf_adm').val(default_text[$("#cf_adm_stage").val()]);
             }
         });

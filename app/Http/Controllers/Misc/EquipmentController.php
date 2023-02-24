@@ -447,6 +447,8 @@ class EquipmentController extends Controller {
             ->whereIn('equipment.category_id', $cat_ids)
             ->where('equipment.status', 1);
 
+        //dd($equipment->get());
+
         $dt = Datatables::of($equipment)
             ->editColumn('id', function ($equip) {
                 return '<div class="text-center"><a href="/equipment/' . $equip->id . '"><i class="fa fa-search"></i></a></div>';
