@@ -249,7 +249,7 @@
 
             // Only perform action if Modal is open - avoids updating fields when initial modal creation
             if ($('#modal_edit').hasClass('in')) {
-                if (!$("#fc_plans_stage").val()
+                if (!$("#fc_plans_stage").val())
                     $('#fc_plans').val('');
                 else if (default_text[$("#fc_plans_stage").val()])
                     $('#fc_plans').val(default_text[$("#fc_plans_stage").val()]);
