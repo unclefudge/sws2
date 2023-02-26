@@ -129,16 +129,29 @@ class SiteUpcomingComplianceController extends Controller {
         if (request('site_id')) {
             $site = Site::findOrFail(request('site_id'));
 
-            if (request('cc')) $site->cc = request('cc');
-            if (request('cc_stage')) $site->cc_stage = request('cc_stage');
-            if (request('fc_plans')) $site->fc_plans = request('fc_plans');
-            if (request('fc_plans_stage')) $site->fc_plans_stage = request('fc_plans_stage');
-            if (request('fc_struct')) $site->fc_struct = request('fc_struct');
-            if (request('fc_struct_stage')) $site->fc_struct_stage = request('fc_struct_stage');
-            if (request('cf_est')) $site->cf_est = request('cf_est');
-            if (request('cf_est_stage')) $site->cf_est_stage = request('cf_est_stage');
-            if (request('cf_adm')) $site->cf_adm = request('cf_adm');
-            if (request('cf_adm_stage')) $site->cf_adm_stage = request('cf_adm_stage');
+            // Drafting
+            if (Auth::user()->hasAnyRole2('dra-draftsperson|dra-drafting-manager|mgt-general-manager|web-admin')) {
+                $site->cc = (request('cc')) ? request('cc') : null;
+                $site->cc_stage = (request('cc_stage')) ? request('cc_stage') : null;
+                $site->fc_plans = (request('fc_plans')) ? request('fc_plans') : null;
+                $site->fc_plans_stage = (request('fc_plans_stage')) ? request('fc_plans_stage') : null;
+                $site->fc_struct = (request('fc_struct')) ? request('fc_struct') : null;
+                $site->fc_struct_stage = (request('fc_struct_stage')) ? request('fc_struct_stage') : null;
+            }
+
+            // Estimators
+            if (Auth::user()->hasAnyRole2('est-estimator|est-estimating-manager|mgt-general-manager|web-admin')) {
+                $site->cf_est = (request('cf_est')) ? request('cf_est') : null;
+                $site->cf_est_stage = (request('cf_est_stage')) ? request('cf_est_stage') : null;
+
+            }
+
+            // Admins
+            if (Auth::user()->hasAnyRole2('gen-administrator|gen-admin-manager|con-administrator|mgt-general-manager|web-admin')) {
+                $site->cf_adm = (request('cf_adm')) ? request('cf_adm') : null;
+                $site->cf_adm_stage = (request('cf_adm_stage')) ? request('cf_adm_stage') : null;
+            }
+
             $site->save();
         }
 
