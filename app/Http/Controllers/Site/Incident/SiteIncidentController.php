@@ -756,6 +756,7 @@ class SiteIncidentController extends Controller {
     public function getIncidents()
     {
         $incidents_ids = Auth::user()->siteIncidents(request('status'))->pluck('id')->toArray();
+        //dd($incidents_ids);
         $incident_records = SiteIncident::select([
             'site_incidents.id', 'site_incidents.site_name', 'site_incidents.site_supervisor', 'site_incidents.describe', 'site_incidents.exec_summary', 'site_incidents.status',
             DB::raw('DATE_FORMAT(site_incidents.date, "%d/%m/%y") AS nicedate'),

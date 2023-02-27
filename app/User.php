@@ -279,6 +279,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         $site_list = (Session::has('siteID')) ? [Session::get('siteID')] : [];
         $user_list = [$this->id];
+        if ($this->company_id == 3 && $this->hasAnyRole2('whs-manager|whs-administrator|mgt-general-manager|mgt-company-director|web-admin'))
+            $user_list = $user_list = Auth::user()->authUsers('view.user')->pluck('id')->toArray();
+
         $company_level = $this->permissionLevel('view.site.incident', $this->company_id);
         $parent_level = $this->permissionLevel('view.site.incident', $this->company->reportsTo()->id);
         if ($company_level == 99 || $parent_level == 99)
