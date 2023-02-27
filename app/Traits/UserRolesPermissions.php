@@ -646,6 +646,7 @@ trait UserRolesPermissions {
         if ($permissiontype == 'todo') {
             if ($action == 'add') return true; // User can always add todoo
             if ($record->assignedTo()->contains('id', $this->id)) return true; // Todoo is assigned to user
+            if ($record->created_by == $this->id) return true; // Todoo is assigned to user
             if ($record->type == 'hazard') {
                 $hazard = SiteHazard::find($record->type_id);
                 if ($action == 'view' && $this->allowed2('view.site.hazard', $hazard)) return true; // User is allowed to view Site Hazard
