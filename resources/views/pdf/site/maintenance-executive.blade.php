@@ -62,7 +62,11 @@
 <body>
 <footer>
     <div class="pagenum-container">
-        Document created {!! date('\ d/m/Y\ ') !!} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>
+        <hr style="margin: 0px">
+        <div class="row">
+            <div class="col-xs-10">Document created {!! date('\ d/m/Y\ ') !!}</div>
+            <div class="col-xs-2">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </div>
+        </div>
     </div>
 </footer>
 <div class="container">

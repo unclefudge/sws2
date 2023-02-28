@@ -192,7 +192,7 @@
                                     <div class="col-md-6">
                                         @if ($report->supervisor_sign_by)
                                             {!! \App\User::find($report->supervisor_sign_by)->full_name !!}, &nbsp;{{ $report->supervisor_sign_at->format('d/m/Y') }}
-                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->id == 1164 || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager')))
+                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->id == 1164 || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator')))
                                             <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
                                                 {!! Form::select('supervisor_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor_sign_by']) !!}
                                             </div>

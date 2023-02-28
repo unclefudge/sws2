@@ -4626,6 +4626,7 @@ tbody.collapse.in {
     background-color: transparent;
     border: 0;
     box-shadow: none;
+    /*z-index: 2222;*/
   }
   .navbar-nav .open .dropdown-menu > li > a,
 .navbar-nav .open .dropdown-menu .dropdown-header {
