@@ -418,6 +418,9 @@ class SiteController extends Controller {
 
                 return $string;
             })
+            ->editColumn('address', function ($site) {
+                return $site->full_address;
+            })
             ->addColumn('supervisor', function ($site) {
                 return $site->supervisorsSBC();
             })
