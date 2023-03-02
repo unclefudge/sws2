@@ -73,6 +73,28 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/users_nowhitecard', compact('users'));
     }
 
+    public function users_nowhitecardCSV()
+    {
+        $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
+        $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
+        $csv = "Username, User, Company, Email\r\n";
+
+        foreach ($users as $user) {
+            $csv .= "$user->username, ";
+            $csv .= "$user->full_name, ";
+            $csv .= $user->company->name_alias . ", ";
+            $csv .= "$user->email, ";
+            $csv .= "\r\n";
+        }
+
+        //echo $csv;
+        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_no_whitecard.csv';
+        $bytes_written = File::put(public_path($filename), $csv);
+        if ($bytes_written === false) die("Error writing to file");
+
+        return redirect($filename);
+    }
+
     public function usersLastLogin()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
@@ -100,7 +122,51 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/users_lastlogin', compact('users', 'over_1_week', 'over_2_week', 'over_3_week', 'over_4_week', 'over_3_month'));
     }
 
-    public function usersContactInfo()
+    public function usersLastLoginCSV()
+    {
+        $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
+        $users = User::where('status', 1)->whereIn('id', $allowed_users)->orderBy('company_id', 'ASC')->get();
+        $date_1_week = Carbon::today()->subWeeks(1)->format('Y-m-d');
+        $over_1_week = User::where('status', 1)->whereIn('id', $allowed_users)
+            ->wheredate('last_login', '<', $date_1_week)->orderBy('company_id', 'ASC')->get();
+        $csv = "Username, Name, Company, Company on Planner, Last Login Date\r\n";
+
+        //dd($users);
+
+        foreach ($over_1_week as $user) {
+            $lastDate = ($user->company->lastDateOnPlanner()) ? $user->company->lastDateOnPlanner() : Carbon::now()->subYears(10);
+            if (in_array($user->company->category, [1]) && $user->company->status == 1 && $user->last_login->lt($user->company->lastDateOnPlanner()) && $user->hasAnyRole2('ext-leading-hand|tradie|labourers')) {
+                $csv .= "$user->username, ";
+                $csv .= "$user->full_name, ";
+                $csv .= $user->company->name_alias . ", ";
+                $csv .= $lastDate->format('d/m/Y') . ", ";
+                $csv .= $user->last_login->format('d/m/Y') . ", ";
+                $csv .= "\r\n";
+            }
+        }
+
+        foreach ($users as $user) {
+            $lastDate = ($user->company->lastDateOnPlanner()) ? $user->company->lastDateOnPlanner()->format('d/m/Y') : 'Never';
+            if (in_array($user->company->category, [1]) && $user->company->status == 1 && (!$user->last_login || $user->last_login->format('d/m/Y') == '30/11/-0001')) {
+                $csv .= "$user->username, ";
+                $csv .= "$user->full_name, ";
+                $csv .= $user->company->name_alias . ", ";
+                $csv .= "$lastDate, ";
+                $csv .= "Never, ";
+                $csv .= "\r\n";
+            }
+        }
+        
+        //echo $csv;
+        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_lastlogin.csv';
+        $bytes_written = File::put(public_path($filename), $csv);
+        if ($bytes_written === false) die("Error writing to file");
+
+        return redirect($filename);
+    }
+
+    public
+    function usersContactInfo()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
@@ -108,7 +174,8 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/users_contactinfo', compact('users'));
     }
 
-    public function usersContactInfoCSV()
+    public
+    function usersContactInfoCSV()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
@@ -134,7 +201,8 @@ class ReportUserCompanyController extends Controller {
      * Company Reports
      *****************************/
 
-    public function newcompanies()
+    public
+    function newcompanies()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::where('created_at', '>', '2016-08-27 12:00:00')->whereIn('id', $allowed_companies)->orderBy('created_at', 'DESC')->get();
@@ -142,7 +210,8 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_contactinfo', compact('companies'));
     }
 
-    public function companyContactInfo()
+    public
+    function companyContactInfo()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -150,7 +219,8 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_contactinfo', compact('companies'));
     }
 
-    public function companyContactInfoCSV()
+    public
+    function companyContactInfoCSV()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -160,7 +230,7 @@ class ReportUserCompanyController extends Controller {
             $csv .= "$company->name, ";
             $csv .= ($company->primary_user && $company->primary_contact()->phone) ? $company->primary_contact()->phone . ', ' : $company->phone . ', ';
             $csv .= ($company->primary_user && $company->primary_contact()->email) ? $company->primary_contact()->email . ', ' : $company->email . ', ';
-            $csv .= ($company->primary_user) ? $company->primary_contact()->fullname . ', ': ', ';
+            $csv .= ($company->primary_user) ? $company->primary_contact()->fullname . ', ' : ', ';
             $csv .= $company->tradesSkilledInSBH();
             $csv .= "\r\n";
         }
@@ -173,7 +243,8 @@ class ReportUserCompanyController extends Controller {
         return redirect($filename);
     }
 
-    public function companySWMS()
+    public
+    function companySWMS()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -181,14 +252,16 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_swms', compact('companies'));
     }
 
-    public function missingCompanyInfo()
+    public
+    function missingCompanyInfo()
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
 
         return view('manage/report/company/missing_company_info', compact('companies'));
     }
 
-    public function missingCompanyInfoCSV()
+    public
+    function missingCompanyInfoCSV()
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
 
@@ -206,7 +279,8 @@ class ReportUserCompanyController extends Controller {
         return redirect('/manage/report/recent');
     }
 
-    public function companyUsers()
+    public
+    function companyUsers()
     {
         $companies_allowed = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $all_companies = Company::where('status', '1')->whereIn('id', $companies_allowed)->orderBy('name')->get();
@@ -227,7 +301,8 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_users', compact('all_companies', 'user_companies'));
     }
 
-    public function companyPrivacy()
+    public
+    function companyPrivacy()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -235,7 +310,8 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_privacy', compact('companies'));
     }
 
-    public function companyPrivacySend($type)
+    public
+    function companyPrivacySend($type)
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -281,7 +357,8 @@ class ReportUserCompanyController extends Controller {
     /*
      * Expired Company Docs Report
      */
-    public function expiredCompanyDocs()
+    public
+    function expiredCompanyDocs()
     {
         return view('manage/report/company/expired_company_docs');
     }
@@ -292,7 +369,8 @@ class ReportUserCompanyController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function getExpiredCompanyDocs()
+    public
+    function getExpiredCompanyDocs()
     {
         $company_id = (request('company_id') == 'all') ? '' : request('company_id');
         $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
@@ -389,7 +467,8 @@ class ReportUserCompanyController extends Controller {
     /******************************
      * Security Reports
      *****************************/
-    public function roleusers()
+    public
+    function roleusers()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = DB::table('role_user')->whereIn('user_id', $allowed_users)->orderBy('role_id')->get();
@@ -397,14 +476,16 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/roleusers', compact('users'));
     }
 
-    public function usersExtraPermissions()
+    public
+    function usersExtraPermissions()
     {
         $permissions = DB::table('permission_user')->where('company_id', Auth::user()->company_id)->orderBy('user_id')->get();
 
         return view('manage/report/user/users_extra_permissions', compact('permissions'));
     }
 
-    public function usersWithPermission($type)
+    public
+    function usersWithPermission($type)
     {
         $permission_list = [];
         $ignore_list = ['client', 'client.doc'];

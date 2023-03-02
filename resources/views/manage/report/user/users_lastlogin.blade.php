@@ -21,6 +21,9 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Onsite Users Last Login</span>
                         </div>
+                        <div class="actions">
+                            <a href="/manage/report/users_lastlogin_csv" class="btn btn-circle btn-outline btn-sm green" id="view_csv"> Download CSV</a>
+                        </div>
                     </div>
                     <div class="portlet-body">
                         <?php

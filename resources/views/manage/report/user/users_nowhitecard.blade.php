@@ -22,14 +22,19 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Users Without White card</span>
                         </div>
+                        <div class="actions">
+                            <a href="/manage/report/users_nowhitecard_csv" class="btn btn-circle btn-outline btn-sm green" id="view_csv"> Download CSV</a>
+                        </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
+                                <th> Username</th>
                                 <th> Name</th>
                                 <th> Company</th>
+                                <th> Email</th>
                                 <th> Trades(s)</th>
                             </tr>
                             </thead>
@@ -39,8 +44,10 @@
                                     <td>
                                         <div class="text-center"><a href="/user/{{$user->id}}"><i class="fa fa-search"></i></a></div>
                                     </td>
+                                    <td>{{ $user->username }}</td>
                                     <td>{{ $user->fullname }}</td>
                                     <td>{{ $user->company->name_alias }}</td>
+                                    <td>{{ $user->email }}</td>
                                     <td>{{ $user->tradesSkilledInSBC() }}</td>
                                 </tr>
                             @endforeach
