@@ -156,7 +156,7 @@ class ReportUserCompanyController extends Controller {
                 $csv .= "\r\n";
             }
         }
-        
+
         //echo $csv;
         $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_lastlogin.csv';
         $bytes_written = File::put(public_path($filename), $csv);

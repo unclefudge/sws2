@@ -373,7 +373,7 @@ trait UserRolesPermissions {
         if ($parent_level == '10') $parent_ids = [$this->id]; // Individual Only
         if ($parent_level == '1') $parent_ids = $this->company->reportsTo()->users()->pluck('id')->toArray(); // Delete / Sign Off All
 
-        $merged_ids = array_merge($company_ids, $parent_ids);
+        $merged_ids = array_merge($company_ids, $parent_ids, [$this->id]);
 
         return ($status != '') ? User::where('status', $status)->whereIn('id', $merged_ids)->get() : User::whereIn('id', $merged_ids)->get();
     }
