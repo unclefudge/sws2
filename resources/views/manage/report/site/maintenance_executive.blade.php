@@ -57,7 +57,7 @@
                         </div>
                         <hr>
                         <div class="row">
-                            <div class="col-md-4">Date Range (90 days)</div>
+                            <div class="col-md-4">Date Range ({{ $from->diff($to)->days }} days)</div>
                             <div class="col-md-4">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
                             <div class="col-md-2">Total Requests</div>
                             <div class="col-md-2">{{ ($mains->count() + $mains_old->count()) }}</div>
