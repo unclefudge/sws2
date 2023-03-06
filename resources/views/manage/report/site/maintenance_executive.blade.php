@@ -27,6 +27,35 @@
                         </div>
                     </div>
                     <div class="portlet-body">
+                        <!-- BEGIN FORM-->
+                        {!! Form::model('report', ['method' => 'POST', 'action' => ['Misc\ReportController@maintenanceExecutive']]) !!}
+                        @include('form-error')
+
+                        {{-- Categories / Date Range --}}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group {!! fieldHasError('date_from', $errors) !!}">
+                                    {!! Form::label('date_from', 'Date range', ['class' => 'control-label']) !!}
+                                    <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
+                                        {!! Form::text('date_from', $from->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                        <span class="input-group-addon"> to </span>
+                                        {!! Form::text('date_to', $to->format('d/m/Y'), ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                    </div>
+                                    {!! fieldErrorMessage('date_from', $errors) !!}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
+                                    {!! Form::label('categories', 'Categories', ['class' => 'control-label']) !!}
+                                    {!! Form::select('categories', ['all' => 'All'] + (\App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), $categories, ['class' => 'form-control select2', 'name' => 'categories[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
+                                    {!! fieldErrorMessage('categories', $errors) !!}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn green" style="margin-top: 25px"> Run report</button>
+                            </div>
+                        </div>
+                        <hr>
                         <div class="row">
                             <div class="col-md-4">Date Range (90 days)</div>
                             <div class="col-md-4">{{ $from->format('d M') }} - {{ $to->format('d M Y') }}</div>
@@ -204,6 +233,7 @@
                             @endforeach
                             </tbody>
                         </table>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
@@ -214,10 +244,25 @@
 
 
 @section('page-level-plugins-head')
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+
+<script>
+    $(document).ready(function () {
+        /* Select2 */
+        $("#categories").select2({
+            placeholder: "Select Category(s)",
+        });
+    });
+</script>
 @stop

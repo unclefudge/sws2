@@ -71,7 +71,11 @@
 <header></header>
 <footer>
     <div class="pagenum-container">
-        Document created {!! date('\ d/m/Y\ ') !!} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>
+        {{--}}Document created {!! date('\ d/m/Y\ ') !!} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span>--}}
+        <div class="row">
+            <div class="col-xs-10">&nbsp;</div>
+            <div class="col-xs-2">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </div>
+        </div>
     </div>
 </footer>
 <div class="container">

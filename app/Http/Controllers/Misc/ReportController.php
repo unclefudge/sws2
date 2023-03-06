@@ -367,12 +367,27 @@ class ReportController extends Controller {
 
     public function maintenanceExecutive()
     {
-        $to = Carbon::now();
-        $from = Carbon::now()->subDays(90);
+        if (!request('date_from')) {
+            $from = Carbon::now()->subDays(90);
+            $to = Carbon::now();
+        } else {
+            $from = Carbon::createFromFormat('d/m/Y H:i', request('date_from') . '00:00');
+            $to = Carbon::createFromFormat('d/m/Y H:i', request('date_to') . '00:00');
+        }
 
-        $mains = SiteMaintenance::whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->where('status', '<>', 2)->get();
-        $mains_old = SiteMaintenance::whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1, 3])->get();
-        $mains_created = SiteMaintenance::whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
+        if (!request('categories') || (request('categories') && in_array('all', request('categories')))) {
+            $categories = ['all']; //SiteMaintenanceCategory::all()->pluck('id')->toArray();
+            $category_ids = SiteMaintenanceCategory::where('status', 1)->pluck('id')->toArray();
+        } else {
+            $categories = request('categories');
+            $category_ids = request('categories');
+        }
+
+        //dd(request()->all());
+
+        $mains = SiteMaintenance::whereIn('category_id', $category_ids)->whereDate('updated_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->where('status', '<>', 2)->get();
+        $mains_old = SiteMaintenance::whereIn('category_id', $category_ids)->whereDate('updated_at', '<', $from->format('Y-m-d'))->whereIn('status', [1, 3])->get();
+        $mains_created = SiteMaintenance::whereIn('category_id', $category_ids)->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('updated_at', '<=', $to->format('Y-m-d'))->get();
 
         $count = $excluded = 0;
         $total_allocated = $total_completed = $total_contacted = $total_appoint = 0;
@@ -462,7 +477,7 @@ class ReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
+        return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'categories', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
 
     }
 
