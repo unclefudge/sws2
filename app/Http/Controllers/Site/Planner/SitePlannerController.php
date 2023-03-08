@@ -383,7 +383,7 @@ class SitePlannerController extends Controller {
         // Add Sites that have START JOB to list in date order
         $job_starts = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
         foreach ($job_starts as $plan)
-            if (!in_array($sid, $site_list))
+            if (!in_array($site_id, $site_list))
             $site_list[] = $plan->site_id;
 
         // Add Sites with (council_approval, contract_sent, contract_signed, deposit_paid)
