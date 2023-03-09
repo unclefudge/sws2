@@ -110,11 +110,14 @@
                                                     <td>{{ $loc->qty }}</td>
                                                     <td>
                                                         <div class="itemactual-" id="itemactual-{{ $loc->id }}">
+                                                            <input type="text" class="form-control" value="{{ $loc->qty }}" id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" onkeypress="return isNumber(event)"/>
+                                                            {{--}}
                                                             <select id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" class="form-control bs-select" width="100%">
                                                                 @for ($i = 0; $i < 100; $i++)
                                                                     <option value="{{ $i }}" @if ($i == $loc->qty) selected @endif>{{ $i }}</option>
                                                                 @endfor
                                                             </select>
+                                                            --}}
                                                         </div>
                                                     </td>
                                                     <td class="excludeitems">
@@ -360,5 +363,14 @@
             ]
         });
     });
+
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ((charCode > 31 && charCode < 48) || charCode > 57) {
+            return false;
+        }
+        return true;
+    }
 </script>
 @stop
