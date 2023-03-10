@@ -562,6 +562,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
+     * Get the User Initials (first + last)   (getter)
+     *
+     * @return string;
+     */
+    public function getInitialsAttribute()
+    {
+        return strtoupper($this->firstname[0]) . strtoupper($this->lastname[0]);
+    }
+
+    /**
      * Get the Employment Typetext   (getter)
      *
      * @return string;

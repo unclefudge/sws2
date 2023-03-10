@@ -2,7 +2,7 @@
 
 # Contract Time Extensions Report
 
-Please find attached the Contract Time Extensions Report for week of {{ $report->date->format('d/m/Y') }}.
+Please find attached the Contract Time Extensions Report for week of {{ $report->date->format('d/m/Y') }} to be processed.
 
 @component('mail::button', ['url' => config('app.url').'/site/extension/'.$report->id])
 View Report

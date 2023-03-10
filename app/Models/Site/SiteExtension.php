@@ -5,6 +5,7 @@ namespace App\Models\Site;
 use PDF;
 use URL;
 use Mail;
+use App\Models\Comms\Todo;
 use App\Jobs\SiteExtensionPdf;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -29,17 +30,33 @@ class SiteExtension extends Model {
     }
 
     /*
-    * List of items completed
+    * List of sites completed
     */
     public function sitesCompleted()
     {
         $completed = [];
-        foreach ($this->sites as $site) {
-            if ($site->reasons)
-                $completed[] = $site->id;
+        foreach ($this->sites as $site_ext) {
+            if ($site_ext->reasons)
+                $completed[] = $site_ext->id;
         }
 
         return SiteExtensionSite::find($completed);
+    }
+
+    /*
+    * List of sites not completed for supervisor
+    */
+    public function sitesNotCompletedBySupervisor($user)
+    {
+        $not_completed = [];
+        foreach ($this->sites as $site_ext) {
+            if ($site_ext->site->isUserSupervisor($user)) {
+                if (!$site_ext->reasons)
+                    $not_completed[] = $site_ext->id;
+            }
+        }
+
+        return SiteExtensionSite::find($not_completed);
     }
 
     /**
@@ -72,7 +89,7 @@ class SiteExtension extends Model {
         if (file_exists($file))
             unlink($file);
 
-        SiteExtensionPdf::dispatch('pdf/site/contract-extension', $data, $file);
+        SiteExtensionPdf::dispatch('pdf/site/contract-extension', $this, $data, $file);
 
         //$pdf = PDF::loadView('pdf/site/contract-extension', compact('data'));
         //$pdf->setPaper('A4', 'landscape');
@@ -90,7 +107,7 @@ class SiteExtension extends Model {
         $todo_request = [
             'type'       => 'extension',
             'type_id'    => $this->id,
-            'name'       => 'Contract Time Extensions - ' . $this->date->format('d/m/Y'),
+            'name'       => 'Authorise Contract Time Extensions - ' . $this->date->format('d/m/Y'),
             'info'       => 'Please sign off on completed items',
             'due_at'     => Carbon::today()->toDateTimeString(),
             'company_id' => 3,

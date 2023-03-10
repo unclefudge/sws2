@@ -141,6 +141,8 @@ class Todo extends Model {
                 return "/site/supply/$this->type_id/edit";
             case 'scaffold handover':
                 return "/site/scaffold/handover/create/$this->type_id";
+            case 'extension':
+                return "/site/extension/$this->type_id";
             case 'extension signoff':
                 return "/site/extension/$this->type_id";
             case 'incident review':
@@ -241,6 +243,17 @@ class Todo extends Model {
             $record->opened_at = Carbon::now();
             $record->save();
         }
+    }
+
+    /**
+     * Close Todoo
+     */
+    public function close()
+    {
+            $this->status = 0;
+            $this->done_at = Carbon::now();
+            $this->done_by = (Auth::check()) ? Auth::user()->id : 1;
+            $this->save();
     }
 
     /**

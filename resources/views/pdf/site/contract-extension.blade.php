@@ -59,7 +59,7 @@
         </div>
     </div>
     <hr style="margin: 5px 0px 15px 0px">
-
+    <h3>Week of {{ $extension->date->format('d/m/Y') }}</h3>
     <table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">

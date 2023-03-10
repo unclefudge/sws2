@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteExtension extends Mailable implements ShouldQueue {
+class SiteExtensionReport extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
@@ -35,6 +35,6 @@ class SiteExtension extends Mailable implements ShouldQueue {
         if ($this->file_attachment && file_exists($this->file_attachment))
             return $this->markdown('emails/site/contract-extension')->subject('SafeWorksite - Contract Time Extension')->attach($this->file_attachment);
 
-        return $this->markdown('emails/site/contract-extension')->subject('SafeWorksite -Contract Time Extension');
+        return $this->markdown('emails/site/contract-extension')->subject('SafeWorksite - Contract Time Extension');
     }
 }

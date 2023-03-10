@@ -96,8 +96,9 @@
                     <h4 class="modal-title" id="site_name"></h4>
                 </div>
                 <div class="modal-body">
-                    {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
+                    {!! Form::model('extension', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                     <input type="hidden" name="site_id" id="site_id" value="">
+                    <input type="text" name="approved_by" id="approved_by" value="{{ $extension->approved_by }}">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -106,6 +107,7 @@
                             </div>
                         </div>
                     </div>
+                    kkkkk
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -144,20 +146,23 @@
         $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
 
         $(".editField").click(function (e) {
-            var event_id = e.target.id.split('-');
-            var site_id = event_id[1];
-            $("#site_id").val(site_id);
-            $("#site_name").text($("#sitename-" + site_id).text());
+            console.log('hhhh');
+            if (!$("#approved_by").val()) {
+                var event_id = e.target.id.split('-');
+                var site_id = event_id[1];
+                $("#site_id").val(site_id);
+                $("#site_name").text($("#sitename-" + site_id).text());
 
-            // Extension reason + notes
-            $("#extension_notes").val($("#note-" + site_id).text());
-            var reason_array_str = $("#reason-" + site_id + "-array").val();
-            var reason_array = reason_array_str.split(',');
+                // Extension reason + notes
+                $("#extension_notes").val($("#note-" + site_id).text());
+                var reason_array_str = $("#reason-" + site_id + "-array").val();
+                var reason_array = reason_array_str.split(',');
 
-            $("#reasons").val(reason_array);
-            $("#reasons").trigger('change');
+                $("#reasons").val(reason_array);
+                $("#reasons").trigger('change');
 
-            $("#modal_edit").modal('show');
+                $("#modal_edit").modal('show');
+            }
         });
 
         $(".signoff").click(function (e) {

@@ -12,6 +12,7 @@ use Input;
 use Session;
 use App\User;
 use App\Jobs\SiteExtensionPdf;
+use App\Comms\Todo;
 use App\Models\Site\Site;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
@@ -143,7 +144,20 @@ class SiteExtensionController extends Controller {
                 $site_ext->reasons = implode(',', request('reasons'));
             $site_ext->save();
             $site_ext->extension->createPDF();
-        }
+
+            // Close ToDoo task for Supervisor if all completed
+            $site = Site::findOrFail($site_ext->site_id);
+            foreach ($site->supervisors as $super) {
+                if (!$site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
+                    $todo = $super->todoType('extension')->first();
+                    $todo->close();
+                }
+            }
+
+            // Create ToDoo task for Con Mgr if all sites completed
+            if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
+                $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+         }
 
         Toastr::success("Updated extension");
 
@@ -164,11 +178,11 @@ class SiteExtensionController extends Controller {
         $extension->approved_by = Auth::user()->id;
         $extension->approved_at = Carbon::now();
 
-        //$extension->closeToDo();
-        //$project->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+        $extension->closeToDo();
 
-        $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
-        if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
+        $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
         Toastr::success("Report Signed Off");
 
         $extension->save();

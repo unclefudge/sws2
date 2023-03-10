@@ -65,9 +65,19 @@ class CronController extends Controller {
         CronController::siteExtensions();
         CronController::verifyZohoImport();
 
-        // Only run on week days otherwise get same email multiple times over weekend
+        // Monday
         if (Carbon::today()->isMonday())
             CronController::overdueToDo();
+
+        // Tuesday
+        if (Carbon::today()->isTuesday())
+            CronController::siteExtensionsSupervisorTask();
+
+        // Thursday
+        if (Carbon::today()->isThursday())
+            CronController::siteExtensionsSupervisorTaskReminder();
+
+
 
         // Email Nightly Reports
         CronReportController::nightly();
@@ -1024,6 +1034,7 @@ class CronController extends Controller {
         echo "$mesg week: " . $mon->format('d/m/Y') . "<br>";
         $log .= "$mesg week: " . $mon->format('d/m/Y') . "\n";
 
+        // Create individual extension record for each site
         foreach ($data as $site) {
             $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
             if (!$ext_site)
@@ -1032,19 +1043,15 @@ class CronController extends Controller {
 
         $ext->createPDF();
 
-
-        if ($ext->sites->count() != $ext->sitesCompleted()->count()) {
-            /*foreach ($ext->site as $site) {
-                if (!$site->reasons) {
-                    $superInitials = $site->site->supervisorsInitialsSBC();
+        // Close any Supervisor ToDoo tasks if all their sites completed
+        foreach ($ext->sites as $site_ext) {
+            $site = Site::findOrFail($site_ext->site_id);
+            foreach ($site->supervisors as $super) {
+                if (!$site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
+                    $todo = $super->todoType('extension')->first();
+                    $todo->close();
                 }
-                $completed[] = $site->id;
-            }*/
-
-        } elseif (!$ext->approved_by) {
-            // Report is complete but yet to be signed.
-            $ext->closeToDo();
-            $ext->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray()); // Con Mgr Role
+            }
         }
 
 
@@ -1065,6 +1072,101 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension Supervisor Task
+     */
+    static public function siteExtensionsSupervisorTask()
+    {
+        $log = '';
+        $email_name = "Creating Site Extension Supervisor Task for Active Sites";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $extension = SiteExtension::where('status', 1)->first();
+
+        $super_list = [];
+        // Create List of Supervisors assigned to which Active Sites
+        foreach ($extension->sites as $site_ext) {
+            foreach ($site_ext->site->supervisors as $super) {
+                if (!isset($super_list[$super->id]))
+                    $super_list[$super->id] = [$site_ext->site_id];
+                else
+                    $super_list[$super->id][] = $site_ext->site_id;
+            }
+        }
+
+        foreach ($super_list as $super_id => $site_array) {
+            $super = User::findOrFail($super_id);
+            $site_list = '';
+            foreach ($site_array as $site_id) {
+                $site = Site::findOrFail($site_id);
+                $site_list .= "- $site->name\r\n";
+            }
+
+            // Create task for Supervisor
+            $todo_request = [
+                'type'       => 'extension',
+                'type_id'    => $extension->id,
+                //'type_id2'    => $extension->id,
+                'name'       => 'Contract Time Extensions',
+                'info'       => "Please complete the Contract Time Extensions for the following sites:\r\n" . $site_list,
+                'priority'   => '1',
+                'due_at'     => Carbon::tomorrow()->format('Y-m-d') . ' 17:00:00',
+                'company_id' => '3',
+                'created_by' => '1',
+                'updated_by' => '1'
+            ];
+
+            // Create ToDoo and assign to Site Supervisors
+            $todo = Todo::create($todo_request);
+            $todo->assignUsers($super_id);
+            $todo->emailToDo();
+        }
+    }
+
+    /*
+     * Site Contract Extension Supervisor Task
+     */
+    static public function siteExtensionsSupervisorTaskReminder()
+    {
+        $log = '';
+        $email_name = "Creating Site Extension Supervisor Task Reminder for Active Sites";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $extension = SiteExtension::where('status', 1)->first();
+
+        $super_list = [];
+        // Create List of Supervisors assigned to which Active Sites
+        foreach ($extension->sites as $site_ext) {
+            if (!$site_ext->reason) {
+                foreach ($site_ext->site->supervisors as $super) {
+                    if (!isset($super_list[$super->id]))
+                        $super_list[$super->id] = [$site_ext->site_id];
+                    else
+                        $super_list[$super->id][] = $site_ext->site_id;
+                }
+            }
+        }
+
+        foreach ($super_list as $super_id => $site_array) {
+            $super = User::findOrFail($super_id);
+            $site_list = '';
+            foreach ($site_array as $site_id) {
+                $site = Site::findOrFail($site_id);
+                $site_list .= "- $site->name<br>";
+            }
+
+            if ($site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
+                $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'gary@capecod.com.au'] : [env('EMAIL_DEV')];
+                if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
+            }
+        }
     }
 
     /*
