@@ -70,12 +70,12 @@ class CronController extends Controller {
             CronController::overdueToDo();
 
         // Tuesday
-        if (Carbon::today()->isTuesday())
-            CronController::siteExtensionsSupervisorTask();
+        //if (Carbon::today()->isTuesday())
+        //    CronController::siteExtensionsSupervisorTask();
 
         // Thursday
-        if (Carbon::today()->isThursday())
-            CronController::siteExtensionsSupervisorTaskReminder();
+        //if (Carbon::today()->isThursday())
+        //    CronController::siteExtensionsSupervisorTaskReminder();
 
 
 
@@ -1125,6 +1125,12 @@ class CronController extends Controller {
             $todo->assignUsers($super_id);
             $todo->emailToDo();
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 
     /*
@@ -1167,6 +1173,12 @@ class CronController extends Controller {
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 
     /*

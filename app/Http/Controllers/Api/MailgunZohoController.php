@@ -523,10 +523,18 @@ class MailgunZohoController extends Controller {
             }
         }
 
-        /*
-        // Y / N
-        $site->engineering = $data[$head['engineering']];
-        */
+        // Job Stage ie Site Status
+        if (isset($head['job_stage'])) {
+            $zoho_data = ($data[$head['job_stage']] == '-') ? '' : $data[$head['job_stage   ']];
+            if (in_array($zoho_data, ['950 Sales Dropout', '160 On Hold'])) {
+                if ($site && $site->status != '-2')
+                    $diff .= "  status: -2  <= $site->status\n";
+            } else {
+                if ($site && $site->status == '-2')
+                    $diff .= "  status: -1  <= $site->status\n";
+            }
+
+        }
 
         if ($diff != "[$site->id] $site->name $new_site\n") {
             $this->siteDiffs[$site->id] = "$site->name";
