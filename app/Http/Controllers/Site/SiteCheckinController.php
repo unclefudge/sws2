@@ -139,6 +139,7 @@ class SiteCheckinController extends Controller {
             //'question20.required' => 'Please acknowledge you have signed in to the NSW service Covid safe checkin', // Covid
             //'question21.required' => 'Please acknowledge you wear a mask and observe Gov directives', // Covid
             //'question22.required' => 'Please acknowledge you understand the current NSW Health orders and will comply with its requirements in relation covid', // Covid
+            'question23.required' => 'Please acknowledge you will immediately address/report all incidents, near misses, unsafe work practices and conditions.',
             'location.required'   => 'Please provide the location of hazard.',
             'rating.required'     => 'Please provide the risk rating of hazard.',
             'reason.required'     => 'Please provide the reason for unsafe worksite.',
@@ -158,7 +159,7 @@ class SiteCheckinController extends Controller {
         elseif (request('checkinStore'))   // Store Checkin questions
             $questions = [2, 7, 9, 10, 11, 12, 13];
         elseif (request('checkinSupervisor'))   // Store Checkin questions
-            $questions = [];
+            $questions = [1, 2, 4, 23];
 
         // create validation rules
         foreach ($questions as $q)
@@ -205,6 +206,7 @@ class SiteCheckinController extends Controller {
 
         // Store Checkin questions
         if (request('checkinSupervisor')) {
+            /*
             // Determine if any ressponses to questions require further actions
             $super_questions = [
                 '100' => 'Is the site adequately secured against entry by unauthorised persons.',
@@ -275,6 +277,7 @@ class SiteCheckinController extends Controller {
                 return view('site/checkinSupervisorTasks', compact('todo_created', 'site'));
 
             //dd(request()->all());
+            */
         } else {
             // if Today add them to Roster if Company is on Planer but user not on Roster
             $today = Carbon::now()->format('Y-m-d');

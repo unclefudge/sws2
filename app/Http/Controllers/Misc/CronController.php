@@ -1049,7 +1049,8 @@ class CronController extends Controller {
             foreach ($site->supervisors as $super) {
                 if (!$site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
                     $todo = $super->todoType('extension')->first();
-                    $todo->close();
+                    if ($todo)
+                        $todo->close();
                 }
             }
         }
