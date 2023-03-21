@@ -553,7 +553,8 @@ class SitePlannerExportController extends Controller {
         } else {
             //dd('company rep');
             $user_ids = $company->staff->pluck('id')->toArray();
-            $attendance = SiteAttendance::whereIn('user_id', $user_ids)->orderBy('date')->get();
+            $attendance = ($from) ? SiteAttendance::whereIn('user_id', $user_ids)->whereDate('date', '>=', $from)->whereDate('date', '<=', $to)->orderBy('date')->get() : SiteAttendance::where('site_id', $site_id)->orderBy('date')->get();
+
             $data = [];
 
             //dd($attendance);
@@ -567,14 +568,12 @@ class SitePlannerExportController extends Controller {
 
             }
 
-            //$sitedata[] = $obj_site;
-            //dd($company_attendance);
-
             $output_file = public_path($dir . '/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/company-attendance', compact('data', 'company', 'from', 'to'));
             //return PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->stream();
+            //$pdf = PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->save($this->output_file);
             CompanyAttendancePdf::dispatch($data, $company, $from, $to, $output_file);
         }
 

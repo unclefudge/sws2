@@ -350,8 +350,12 @@ class Company extends Model {
     public function companiesSelect($prompt = '', $status = '')
     {
         $array = [];
-        foreach ($this->companies($status) as $company)
-            $array[$company->id] = $company->name_alias;
+        foreach ($this->companies($status) as $company) {
+            if ($status == '') {
+                $array[$company->id] = ($company->status == 0) ? $company->name_alias . " - INACTIVE" : $company->name_alias;
+            }else
+                $array[$company->id] = $company->name_alias;
+        }
 
         asort($array);
 
