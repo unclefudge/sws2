@@ -94,7 +94,7 @@
                                     <th width="20%"> Updated by</th>
                                     <th> Name</th>
                                     <th width="5%"> Priority</th>
-                                    <th width="5%"> Time</th>
+                                    <th width="5%"> Assigned To</th>
                                     <th width="5%"> ETA</th>
                                 </tr>
                                 </thead>
@@ -174,7 +174,8 @@
             {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
             {data: 'name', name: 't.name'},
             {data: 'priority', name: 't.priority'},
-            {data: 'hours', name: 't.hours'},
+            {data: 'assigned_to', name: 't.assigned_to'},
+            //{data: 'hours', name: 't.hours'},
             {data: 'niceeta', name: 't.eta'},
         ],
         order: [

@@ -42,22 +42,22 @@
                         {!! Form::text('eta', ($ticket->eta) ? $ticket->eta->format('d/m/Y') : 'to be reviewed', ['class' => 'form-control', 'disabled']) !!}
                     </div>
                     @if (Auth::user()->id == '3') {{-- Only Fudge to edit ETA --}}
-                        <div class="col-md-3">
-                            <div class="col-md-9">
-                                <div class="form-group">
-                                    <div class="input-group date date-picker">
-                                        {!! Form::text('eta_set', $ticket->eta, ['class' => 'form-control form-control-inline', 'readonly',
-                                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'id' => 'eta_set']) !!}
-                                        <span class="input-group-btn">
+                    <div class="col-md-3">
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <div class="input-group date date-picker">
+                                    {!! Form::text('eta_set', $ticket->eta, ['class' => 'form-control form-control-inline', 'readonly',
+                                    'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'id' => 'eta_set']) !!}
+                                    <span class="input-group-btn">
                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                             </span>
-                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <button class="btn dark" id="eta_update"><i class="fa fa-save"></i></button>
-                            </div>
                         </div>
+                        <div class="col-md-3">
+                            <button class="btn blue" id="eta_update">Save</button>
+                        </div>
+                    </div>
                     @else
                         <div class="col-md-1">Hours</div>
                         <div class="col-md-2">
@@ -73,19 +73,28 @@
                     @endif
                 </div>
             </div>
-            @if (Auth::user()->id == '3' && $ticket->type)
-                <div class="row">
-                    <div class="col-md-4"></div>
+            <div class="row">
+                <div class="col-xs-1">Assigned</div>
+                <div class="col-md-2">
+                    <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}">
+                        @if ($ticket->status)
+                            {!! Form::select('assigned_to', ['' => 'None', '3' => 'Fudge', '108' => 'Kirstie', '351' =>'Tara', '1155' =>'Ross'], $ticket->assigned_to, ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                        @else
+                            {!! Form::text('assign_to_text', $ticket->assigned_to ? $ticket->assigned->fullname : 'None', ['class' => 'form-control', 'disabled']) !!}
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                @if (Auth::user()->id == '3' && $ticket->type)
                     <div class="col-md-1">Time</div>
                     <div class="col-md-2">
                         {!! Form::text('hours', ($ticket->hours < 8) ? $ticket->hours . ' hr' : $ticket->hours / 8 .' day'.' ('.$ticket->hours.' hr)', ['class' => 'form-control', 'id' => 'hours']) !!}
                     </div>
                     <div class="col-md-3">
-                        <button class="btn dark" id="hour_update"><i class="fa fa-save"></i></button>
+                        <button class="btn blue" id="hour_update">Save</button>
                     </div>
-
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -183,31 +192,30 @@
 
     $(document).ready(function () {
         $('#priority').change(function () {
-            window.location.href = '/support/ticket/'+{{ $ticket->id }}+
-            '/priority/' + $('#priority').val();
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/priority/' + $('#priority').val();
+        });
+
+        $('#assigned_to').change(function () {
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/assigned/' + $('#assigned_to').val();
         });
 
         $('#eta_update').click(function (e) {
             e.preventDefault();
-            window.location.href = '/support/ticket/'+{{ $ticket->id }}+
-            '/eta/' + $('#eta_set').val();
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/eta/' + $('#eta_set').val();
         });
 
         $('#hour_update').click(function (e) {
             e.preventDefault();
             //alert($('#hours').val());
-            window.location.href = '/support/ticket/'+{{ $ticket->id }}+
-            '/hours/' + $('#hours').val();
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/hours/' + $('#hours').val();
         });
 
         $('#ticket_close').click(function () {
-            window.location.href = '/support/ticket/'+{{ $ticket->id }}+
-            '/status/0';
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/0';
         });
 
         $('#ticket_open').click(function () {
-            window.location.href = '/support/ticket/'+{{ $ticket->id }}+
-            '/status/1';
+            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/1';
         });
     });
 </script>

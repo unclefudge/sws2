@@ -13,7 +13,7 @@ class SupportTicket extends Model {
 
     protected $table = 'support_tickets';
     protected $fillable = [
-        'name', 'summary', 'type', 'priority', 'eta', 'hours', 'attachment', 'notes', 'status', 'resolved_at', 'company_id',
+        'name', 'summary', 'type', 'priority', 'eta', 'hours', 'attachment', 'assigned_to', 'notes', 'status', 'resolved_at', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
 
@@ -37,6 +37,16 @@ class SupportTicket extends Model {
     public function createdBy()
     {
         return $this->belongsTo('App\User', 'created_by');
+    }
+
+    /**
+     * A Support Ticket assigned to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function assigned()
+    {
+        return $this->belongsTo('App\User', 'assigned_to');
     }
 
     /**

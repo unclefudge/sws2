@@ -62,6 +62,7 @@ class SupportTicketController extends Controller {
         $ticket_request = removeNullValues($request->all());
         $ticket_request['company_id'] = Auth::user()->company_id;
         $ticket_request['attachment'] = '';  // clear attachment as it's attached to Action
+        $ticket_request['assigned_to'] = (request('type') == 0) ? 3 : null;  // Auto assign new standard requests to Fudge
 
         //dd($ticket_request);
         $ticket = SupportTicket::create($ticket_request);
@@ -77,7 +78,7 @@ class SupportTicketController extends Controller {
 
             // Email ticket
             if (!$ticket->type)
-            $ticket->emailTicket($action);
+                $ticket->emailTicket($action);
 
         }
         Toastr::success("Created support ticket");
@@ -140,7 +141,7 @@ class SupportTicketController extends Controller {
     /**
      * Update Priority of existing ticket
      */
-    public function updatePriority(Request $request, $id, $priority)
+    public function updatePriority($id, $priority)
     {
         $ticket = SupportTicket::findorFail($id);
 
@@ -151,6 +152,24 @@ class SupportTicketController extends Controller {
         $action->emailAction();
         $ticket->save();
         Toastr::success("Updated priority to " . $ticket->priority_text);
+
+        return redirect('support/ticket/' . $id);
+    }
+
+    /**
+     * Update Assigned of existing ticket
+     */
+    public function updateAssigned($id, $assigned)
+    {
+        $ticket = SupportTicket::findorFail($id);
+        $user = User::findorFail($assigned);
+
+        $ticket->assigned_to = $assigned;
+        $action_request = ['action' => "Assigned ticket to " . $user->fullname];
+        $action = $ticket->actions()->save(new SupportTicketAction($action_request));
+        $action->emailAction();
+        $ticket->save();
+        Toastr::success("Updated assigned to " . $user->firstname);
 
         return redirect('support/ticket/' . $id);
     }
@@ -196,6 +215,7 @@ class SupportTicketController extends Controller {
             $action->emailAction();
             Toastr::success("Re-opened ticket");
             $ticket->save();
+
             return redirect('support/ticket/' . $id);
         } else {
             $ticket->resolved_at = Carbon::now();
@@ -204,6 +224,7 @@ class SupportTicketController extends Controller {
             $action->emailAction();
             Toastr::success("Resolved ticket");
             $ticket->save();
+
             return redirect('support/ticket');
         }
 
@@ -266,7 +287,7 @@ class SupportTicketController extends Controller {
         $company_list = Auth::user()->company->companies()->pluck('id')->toArray();
         //$user_list = Auth::user()->company->users($request->get('status'))->pluck('id')->toArray();
         $ticket_records = DB::table('support_tickets AS t')
-            ->select(['t.id', 't.name', 't.created_by', 't.attachment', 't.priority', 't.status', 't.resolved_at', 't.eta', 't.hours',
+            ->select(['t.id', 't.name', 't.created_by', 't.attachment', 't.priority', 't.status', 't.resolved_at', 't.eta', 't.hours', 't.assigned_to',
                 DB::raw('DATE_FORMAT(t.updated_at, "%d/%m/%y") AS nicedate'),
                 DB::raw('DATE_FORMAT(t.eta, "%d/%m/%y") AS niceeta'),
                 DB::raw('CONCAT(users.firstname, " ", users.lastname) AS fullname'),
@@ -297,9 +318,14 @@ class SupportTicketController extends Controller {
                     return '?';
 
                 if ($ticket->hours >= 8)
-                    return $ticket->hours/8 . ' day';
+                    return $ticket->hours / 8 . ' day';
 
                 return $ticket->hours . ' hr';
+            })
+            ->editColumn('assigned_to', function ($ticket) {
+                $user = User::find($ticket->assigned_to);
+
+                return ($user) ? $user->firstname : '-';
             })
             //->filterColumn('fullname', 'whereRaw', "CONCAT(users . firstname, ' ', users . lastname) like ? ", [" % $1 % "])
             ->rawColumns(['view'])

@@ -612,6 +612,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('support/ticket/{id}/status/{status}', '\App\Http\Controllers\Support\SupportTicketController@updateStatus');
     Route::get('support/ticket/{id}/hours/{hours}', '\App\Http\Controllers\Support\SupportTicketController@updateHours');
     Route::get('support/ticket/{id}/priority/{priority}', '\App\Http\Controllers\Support\SupportTicketController@updatePriority');
+    Route::get('support/ticket/{id}/assigned/{assigned}', '\App\Http\Controllers\Support\SupportTicketController@updateAssigned');
     Route::resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
 
 
