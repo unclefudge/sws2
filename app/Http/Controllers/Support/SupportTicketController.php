@@ -242,7 +242,7 @@ class SupportTicketController extends Controller {
         else
             $user_list = [Auth::user()->id];
         $ticket_records = DB::table('support_tickets AS t')
-            ->select(['t.id', 't.name', 't.created_by', 't.attachment', 't.priority', 't.status', 't.resolved_at', 't.eta',
+            ->select(['t.id', 't.name', 't.created_by', 't.attachment', 't.priority', 't.status', 't.resolved_at', 't.eta', 't.assigned_to',
                 DB::raw('DATE_FORMAT(t.updated_at, "%d/%m/%y") AS nicedate'),
                 DB::raw('DATE_FORMAT(t.eta, "%d/%m/%y") AS niceeta'),
                 DB::raw('CONCAT(users.firstname, " ", users.lastname) AS fullname'),
@@ -265,6 +265,11 @@ class SupportTicketController extends Controller {
                 if ($ticket->priority == '2') return 'med';
                 if ($ticket->priority == '3') return 'high';
                 if ($ticket->priority == '4') return 'progress';
+            })
+            ->editColumn('assigned_to', function ($ticket) {
+                $user = User::find($ticket->assigned_to);
+
+                return ($user) ? $user->firstname : '-';
             })
             ->editColumn('niceeta', function ($ticket) {
                 if (!$ticket->eta) return 'none';

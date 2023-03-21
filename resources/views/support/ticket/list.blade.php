@@ -50,6 +50,7 @@
                                 <th width="20%"> Updated by</th>
                                 <th> Name</th>
                                 <th width="5%"> Priority</th>
+                                <th width="5%"> Assigned To</th>
                             </tr>
                             </thead>
                         </table>
@@ -142,6 +143,7 @@
             {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
             {data: 'name', name: 't.name'},
             {data: 'priority', name: 't.priority', orderable: false, searchable: false},
+            {data: 'assigned_to', name: 't.assigned_to'},
         ],
         order: [
             [2, "desc"]
