@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>On Hold QA Checklists</title>
+    <title>Maintenance Under Review</title>
     <link href="{{ asset('/') }}/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/') }}/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <style>
@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -52,54 +52,52 @@
     <div class="page22">
         <?php $row_count = 0; ?>
         <?php $page_count = 1; ?>
-        @foreach ($supers as $super)
-            @foreach ($qas as $qa)
+        @if ($mains->count())
+            @foreach ($mains as $main)
                 @if ($row_count == 0)
                     {{-- New Page - Show header --}}
                     <div class="row">
-                        <div class="col-xs-9"><h3 style="margin: 0px">On Hold QA Checklists ({{ $qas->count() }})</h3></div>
+                        <div class="col-xs-9"><h3 style="margin: 0px">Maintenance Under Review</h3></div>
                         <div class="col-xs-3"><h6>Report generated {{ $today->format('d/m/Y') }}</h6></div>
                     </div>
                     <hr style="margin: 5px 0px">
                     <div class="row">
-                        <div class="col-xs-2">Site</div>
-                        <div class="col-xs-4">Name</div>
-                        <div class="col-xs-2">Supervisor</div>
+                        <div class="col-xs-1">#</div>
+                        <div class="col-xs-1">Reported</div>
+                        <div class="col-xs-5">Site</div>
+                        <div class="col-xs-3">Supervisor</div>
                         <div class="col-xs-1">Updated</div>
-                        <div class="col-xs-2">Completed</div>
                     </div>
                     <hr style="margin: 5px 0px">
-                    <?php $row_count++; ?>
+                    <?php $row_count ++; ?>
                 @endif
 
-                @if ($qa->site->supervisorsSBC() == $super)
-                    <?php
-                    $row_count ++;
-                    $total = $qa->items()->count();
-                    $completed = $qa->itemsCompleted()->count();
-                    $pending = '';
-                    if ($total == $completed && $total != 0) {
-                        if (!$qa->supervisor_sign_by)
-                            $pending = ' - Pending Supervisor';
-                        elseif (!$qa->manager_sign_by)
-                            $pending = ' - Pending Manager';
-                    }
-                    ?>
-                    <div class="row">
-                        <div class="col-xs-2">{{ $qa->site->name }}</div>
-                        <div class="col-xs-4">{{ $qa->name }}</div>
-                        <div class="col-xs-2">{{ $qa->site->supervisorsSBC() }}</div>
-                        <div class="col-xs-1">{{ $qa->updated_at->format('d/m/Y') }}</div>
-                        <div class="col-xs-2">{{ $completed }} / {{ $total }} {!! $pending !!}</div>
-                    </div>
-                @endif
+                <?php $row_count ++; ?>
+                <div class="row">
+                    <div class="col-xs-1">M{{ $main->code }}</div>
+                    <div class="col-xs-1">{{ $main->created_at->format('d/m/Y') }}</div>
+                    <div class="col-xs-5">{{ $main->site->name }}</div>
+                    <div class="col-xs-3">{{ $main->supervisor }}</div>
+                    <div class="col-xs-1">{{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</div>
+                </div>
 
                 @if ($row_count > 28) {{-- New Page if no of lines exceed max --}}
                 <div class="page"></div>
                 <?php $row_count = 0; $page_count ++ ?>
                 @endif
             @endforeach
-        @endforeach
+        @else
+            <div class="row">
+                <div class="col-xs-9"><h3 style="margin: 0px">Maintenance Under Review</h3></div>
+                <div class="col-xs-3"><h6>Report generated {{ $today->format('d/m/Y') }}</h6></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-9"><br><br> There are currently no Maintenance Requests under review</div>
+            </div>
+
+        @endif
+
+
     </div>
 </div>
 </body>

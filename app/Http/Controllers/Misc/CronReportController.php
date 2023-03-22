@@ -437,7 +437,92 @@ class CronReportController extends Controller {
 
 
     /*
-    * Email Maintenance With Appointment
+    * Email Maintenance Under Review
+    */
+    static public function emailMaintenanceUnderReview()
+    {
+        $log = '';
+        $email_name = "Maintenance Under Review";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
+        $today = Carbon::now();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
+        //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
+        $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Email Maintenance Supervisor No Action
+    */
+    static public function emailMaintenanceSupervisorNoAction()
+    {
+        $log = '';
+        $email_name = "Maintenance Supervisor No Action";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+        //$app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $today = Carbon::now();
+
+        // Supervisors list
+        $supers = [];
+        foreach ($mains as $main) {
+            if (!isset($supers[$main->super_id]))
+                $supers[$main->super_id] = $main->taskOwner->fullname;
+        }
+        asort($supers);
+
+        // Create PDF
+        $file = public_path('filebank/tmp/maintenance-supervisor-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
+        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Email Maintenance Without Appointment
     */
     static public function emailMaintenanceAppointment()
     {
@@ -453,7 +538,6 @@ class CronReportController extends Controller {
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
         $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
-        $mains2 = SiteMaintenance::where('status', 1)->where('client_contacted', null)->orderBy('reported')->get();
         $data = ['data' => $app_requests];
 
         if ($email_list) {

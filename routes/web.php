@@ -658,6 +658,9 @@ Route::get('cron/email-outstanding-qa', '\App\Http\Controllers\Misc\CronReportCo
 Route::get('cron/email-onhold-qa', '\App\Http\Controllers\Misc\CronReportController@emailOnHoldQA');
 Route::get('cron/email-maintenance-executive', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceExecutive');
 Route::get('cron/email-maintenance-aftercare', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingAftercare');
+Route::get('cron/email-maintenance-appointment', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceAppointment');
+Route::get('cron/email-maintenance-under-review', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceUnderReview');
+Route::get('cron/email-maintenance-supervisor-noaction', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceSupervisorNoAction');
 Route::get('cron/email-outstanding-privacy', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingPrivacy');
 Route::get('cron/email-oldusers', '\App\Http\Controllers\Misc\CronReportController@emailOldUsers');
 Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfo');
