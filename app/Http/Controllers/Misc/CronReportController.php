@@ -55,6 +55,8 @@ class CronReportController extends Controller {
         if (Carbon::today()->isMonday()) {
             CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
+            CronReportController::emailMaintenanceSupervisorNoAction();
+            CronReportController::emailMaintenanceUnderReview();
             CronReportController::emailMissingCompanyInfo();
         }
 
@@ -486,7 +488,8 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.super.noaction');
+        $email_list = ['fudge@jordan.net.au'];
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -508,11 +511,11 @@ class CronReportController extends Controller {
             unlink($file);
 
         //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
-        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
         $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
         $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionReport($file, $mains));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

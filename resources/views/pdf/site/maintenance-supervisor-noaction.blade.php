@@ -54,7 +54,7 @@
         <?php $page_count = 1; ?>
         {{-- New Page - Show header --}}
         <div class="row">
-            <div class="col-xs-9"><h3 style="margin: 0px">Maintenance Supervisor No Action</h3></div>
+            <div class="col-xs-9"><h3 style="margin: 0px">Maintenance Requests With No Appointment or Action in last 14 days</h3></div>
             <div class="col-xs-3"><h6>Report generated {{ $today->format('d/m/Y') }}</h6></div>
         </div>
         <hr style="margin: 5px 0px">

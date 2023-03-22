@@ -11,7 +11,7 @@ class SiteQaItem extends Model {
     protected $table = 'site_qa_items';
     protected $fillable = [
         'doc_id', 'name', 'task_id', 'super', 'certification', 'order', 'status', 'master', 'master_id',
-        'sign_by', 'sign_at', 'done_by', 'created_by', 'updated_by', 'created_at', 'updated_at'];
+        'sign_by', 'sign_at', 'done_by', 'done_by_other', 'created_by', 'updated_by', 'created_at', 'updated_at'];
     protected $dates = ['sign_at'];
 
     /**

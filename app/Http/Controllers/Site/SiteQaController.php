@@ -281,7 +281,7 @@ class SiteQaController extends Controller {
         //if (!Auth::user()->allowed2('edit.site.qa', $qa))
         //    return view('errors/404');
 
-        $item_request = $request->only(['status', 'done_by']);
+        $item_request = $request->only(['status', 'done_by', 'done_by_other']);
         //dd($item_request);
 
         // Update resolve date if just modified
@@ -529,7 +529,11 @@ class SiteQaController extends Controller {
                                 $companies[$item->done_by] = Company::find($item->done_by);
                             $company = $companies[$item->done_by];
                         }
-                        $obj_qa->items[$item->order]['done_by'] = $company->name_alias . " (lic. $company->licence_no)";
+                        if ($company->id == 1) // Done by 'Other' company
+                            $obj_qa->items[$item->order]['done_by'] = $item->done_by_other . " (lic. )";
+                        else
+                            $obj_qa->items[$item->order]['done_by'] = $company->name_alias . " (lic. $company->licence_no)";
+
                         $obj_qa->items[$item->order]['sign_by'] = $user_signed->fullname;
                         $obj_qa->items[$item->order]['sign_at'] = $item->sign_at->format('d/m/Y');
                     }
@@ -561,7 +565,7 @@ class SiteQaController extends Controller {
                         "â€”", "â€“", ",", "<", ".", ">", "/", "?");
                     $clean = trim(str_replace($strip, "", strip_tags($qa->name)));
                     //$clean = preg_replace('/\s+/', "-", $clean);
-                    $qa_name = $clean." QA Checklist";
+                    $qa_name = $clean . " QA Checklist";
                     $filename = "$site->name $qa_name.pdf";
                     $doc = ClientPlannerEmailDoc::create(['email_id' => $client_planner_id, 'name' => $qa_name, 'attachment' => $filename]);
 
@@ -647,16 +651,23 @@ class SiteQaController extends Controller {
             $array['done_by_company'] = '';
             $array['done_by_licence'] = '';
             if ($array['done_by']) {
-                // Company Info - Array of unique companies (store previous companies to speed up)
-                if (isset($companies[$item->done_by])) {
-                    $company = $companies[$array['done_by']];
+                if ($array['done_by'] == 1) {
+                    // Done by 'Other Company'
+                    $array['done_by_other'] = $item->done_by_other;
+                    $array['done_by_company'] = $item->done_by_other;
+                    $array['done_by_licence'] = '???????';
                 } else {
-                    $company = Company::find($array['done_by']);
-                    $companies[$array['done_by']] = (object) ['id' => $company->id, 'name_alias' => $company->name_alias, 'licence_no' => $company->licence_no];
+                    // Company Info - Array of unique companies (store previous companies to speed up)
+                    if (isset($companies[$item->done_by])) {
+                        $company = $companies[$array['done_by']];
+                    } else {
+                        $company = Company::find($array['done_by']);
+                        $companies[$array['done_by']] = (object) ['id' => $company->id, 'name_alias' => $company->name_alias, 'licence_no' => $company->licence_no];
+                    }
+                    //$array['done_by'] = $item->done_by;
+                    $array['done_by_company'] = $company->name_alias;
+                    $array['done_by_licence'] = $company->licence_no;
                 }
-                //$array['done_by'] = $item->done_by;
-                $array['done_by_company'] = $company->name_alias;
-                $array['done_by_licence'] = $company->licence_no;
             }
 
 
@@ -715,6 +726,7 @@ class SiteQaController extends Controller {
         foreach ($companies as $company) {
             $array[] = ['value' => $company->id, 'text' => $company->name_alias, 'licence' => $company->licence_no];
         }
+        $array[] = ['value' => '1', 'text' => 'Other Company (specify)'];
 
         return $array;
     }

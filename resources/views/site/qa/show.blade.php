@@ -207,8 +207,8 @@
         </div>
     </div>
 
-    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
--->
+    <pre v-if="xx.dev">@{{ $data | json }}</pre>
+    -->
 
     <!-- loading Spinner -->
     <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
@@ -306,11 +306,18 @@
                         <select-picker :name.sync="xx.done_by" :options.sync="xx.sel_company" :function="doNothing"></select-picker>
                     </div>
                 </div>
+                <div v-show="xx.done_by == 1">
+                    Specify other company
+                    <div class="row" style="padding-bottom: 10px">
+                        <div class="col-md-8">
+                            <input v-model="xx.done_by_other" type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.showSignOff = false">&nbsp; No &nbsp;</button>
-                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)" :disabled="! xx.done_by"
-                ">&nbsp; Save &nbsp;</button>
+                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)" :disabled="(!xx.done_by || (xx.done_by == 1 && !xx.done_by_other))">&nbsp; Save &nbsp;</button>
             </div>
         </confirm-Signoff>
     </template>
@@ -397,7 +404,7 @@
         action: '', loaded: false,
         table_name: 'site_qa', table_id: '', record_status: '', record_resdate: '',
         created_by: '', created_by_fullname: '',
-        done_by: '',
+        done_by: '', done_by_other: '',
         itemList: [],
         actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
     };
@@ -477,6 +484,7 @@
                 $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
                     this.xx.sel_company = companies;
                     this.xx.done_by = record.done_by;
+                    this.xx.done_by_other = record.done_by_other;
                     this.xx.showSignOff = true;
                     this.xx.record = record;
 
@@ -485,20 +493,28 @@
             updateItemCompany: function (record, response) {
                 if (response) {
                     record.done_by = this.xx.done_by;
-//alert('by:'+record.done_by);
+                    alert('by:'+record.done_by);
+                    if (this.xx.done_by != 1) {
+                        // Get company name + licence from dropdown menu array
+                        var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
+                        record.done_by_company = company.text;
+                        record.done_by_licence = company.licence;
+                        record.done_by_other = '';
+                    } else {
+                        alert('other:'+this.xx.done_by_other);
+                        record.done_by_other = this.xx.done_by_other;
+                        record.done_by_company = this.xx.done_by_other;
+                        record.done_by_licence = '??????';
+                    }
 
-// Get company name + licence from dropdown menu array
-                    var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
-                    record.done_by_company = company.text;
-                    record.dony_by_licence = company.licence;
-
-// Get original item from list
+                    // Get original item from list
                     var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
                     obj = record;
                     this.updateItemDB(obj);
                 }
                 this.xx.record = {};
                 this.xx.done_by = '';
+                this.xx.done_by_other = '';
                 this.xx.showSignOff = false;
             },
             updateItemDB: function (record) {
