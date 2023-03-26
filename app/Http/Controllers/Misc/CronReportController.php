@@ -489,7 +489,6 @@ class CronReportController extends Controller {
 
         $cc = Company::find(3);
         $email_list = $cc->notificationsUsersEmailType('site.maintenance.super.noaction');
-        $email_list = ['fudge@jordan.net.au'];
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
