@@ -228,7 +228,8 @@ class MailgunZohoController extends Controller {
 
                         // For Stages '950 + 160' update Status to 'Cancelled'
                         if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
-                            if ($this->debug) app('log')->debug("$site->name *$job_stage* Update status to -2");$site->status = '-2';
+                            if ($this->debug) app('log')->debug("$site->name *$job_stage* Update status to -2");
+                            $site->status = '-2';
                             $site->save();
 
                             if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
