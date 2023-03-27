@@ -146,7 +146,7 @@ class SiteCheckinController extends Controller {
             'action.required'     => 'Please provide the actions to have taken to make the site safe.',
         ];
 
-        $rules = ['media' => 'mimes:jpg,jpeg,png,gif,bmp,m4v,avi,flv,mp4,mov'];
+        $rules = [];//['media' => 'mimes:jpg,jpeg,png,gif,bmp,m4v,avi,flv,mp4,mov'];
         $questions = [];
 
         //

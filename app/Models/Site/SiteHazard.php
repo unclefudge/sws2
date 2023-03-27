@@ -111,8 +111,8 @@ class SiteHazard extends Model {
                     $constraint->upsize();
                 })
                 ->save($path_name);
-        } else
-            Toastr::error("Bad image");
+        }// else
+        //    Toastr::error("Bad image");
 
         $this->attachment = $name;
         $this->save();

@@ -107,7 +107,12 @@
                                     @if($hazard->attachment_url)
                                         <div style="padding-bottom: 20px">
                                             <a href="{{ $hazard->attachment_url }}" class="html5lightbox " title="{{ $hazard->reason }}" data-lityXXX>
+                                                <?php $ext = pathinfo($hazard->attachment_url, PATHINFO_EXTENSION); ?>
+                                                @if ($ext == 'pdf')
+                                                    <i class="fa fa-4x fa-file-pdf-o"></i>
+                                                    @else
                                                 <img src="{{ $hazard->attachment_url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>

@@ -29,7 +29,7 @@ class SiteHazardRequest extends Request {
             'reason'  => 'required',
             'rating'  => 'required',
             'action'  => 'required',
-            'media'   => 'mimes:jpg,jpeg,png,gif,m4v,avi,mp4,mov',
+            //'media'   => 'mimes:jpg,jpeg,png,gif,m4v,avi,mp4,mov,pdf',
         ];
     }
 

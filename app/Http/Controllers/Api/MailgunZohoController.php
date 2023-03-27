@@ -186,11 +186,18 @@ class MailgunZohoController extends Controller {
 
                     // Don't import these Stages but if site exists in SafeWorksite then update Status to 'Cancelled'
                     if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
+                        app('log')->debug(" ** $job_stage **");
+                        app('log')->debug($data);
+                        app('log')->debug($site);
+
                         if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
                         if ($job_stage == '160 On Hold') $on_holds ++;
                         if ($site && $site->status != '-2') {
                             $site->status == '-2';
                             $site->save();
+                            app('log')->debug("Update status to -2");
+                        } else {
+                            app('log')->debug("No status change");
                         }
                         continue;
                     }
