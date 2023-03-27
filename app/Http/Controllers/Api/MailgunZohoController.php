@@ -186,7 +186,7 @@ class MailgunZohoController extends Controller {
 
                     $new_site = '';
                     // Create new site except for Stages '950 + 160'
-                    if (!$site && $report_type == 'Jobs' && in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
+                    if (!$site && $report_type == 'Jobs' && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                         // Create Site + Equipment Location
                         if ($save_enabled) {
                             $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'state' => 'NSW', 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
