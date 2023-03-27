@@ -184,27 +184,9 @@ class MailgunZohoController extends Controller {
                     $site = ($report_type == 'Jobs') ? Site::where('code', $data[$head['code']])->first() : Site::where('name', $data[$head['name']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
 
-                    // Don't import these Stages but if site exists in SafeWorksite then update Status to 'Cancelled'
-                    if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
-                        app('log')->debug(" ** $job_stage **");
-                        app('log')->debug($data);
-                        app('log')->debug($site);
-
-                        if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
-                        if ($job_stage == '160 On Hold') $on_holds ++;
-                        if ($site && $site->status != '-2') {
-                            $site->status == '-2';
-                            $site->save();
-                            app('log')->debug("Update status to -2");
-                        } else {
-                            app('log')->debug("No status change");
-                        }
-                        continue;
-                    }
-                    $job_precontruction = '';
-
                     $new_site = '';
-                    if (!$site && $report_type == 'Jobs') {
+                    // Create new site except for Stages '950 + 160'
+                    if (!$site && $report_type == 'Jobs' && in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                         // Create Site + Equipment Location
                         if ($save_enabled) {
                             $site = Site::create(['name' => $data[$head['name']], 'code' => $data[$head['code']], 'state' => 'NSW', 'status' => "-1", 'company_id' => 3, 'created_by' => 1, 'updated_by' => 1]);
@@ -242,6 +224,19 @@ class MailgunZohoController extends Controller {
                         if ($site->status == '-2') {
                             $site->status = '-1';
                             $site->save();
+                        }
+
+                        // For Stages '950 + 160' update Status to 'Cancelled'
+                        if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
+                            app('log')->debug(" *** $job_stage ***");
+                            app('log')->debug($data);
+                            app('log')->debug($site);
+                            $site->status = '-2';
+                            $site->save();
+                            app('log')->debug("*Update status to -2");
+
+                            if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
+                            if ($job_stage == '160 On Hold') $on_holds ++;
                         }
 
 
