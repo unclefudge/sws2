@@ -444,12 +444,11 @@ class MailgunZohoController extends Controller {
         ];
         sort($required_headers_jobs);
         sort($headers_jobs);
-        if ($report_type == 'Jobs' && $headers_jobs != $required_headers_jobs) {
-            $missing = array_diff($required_headers_jobs, $headers_jobs);
-            $missing_csv = implode(', ', $missing);
+        $diff = array_diff($required_headers_jobs, $headers_jobs);
+        if ($report_type == 'Jobs' && count($diff)) {
+            $missing_csv = implode(', ', $diff);
             $missing_csv = "Missing fields: $missing_csv";
-            if ($this->debug) app('log')->debug("** Missing Fields **");
-            if ($this->debug) app('log')->debug($missing);
+            if ($this->debug) app('log')->debug("** $missing_csv **");
             Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportMissingFields($missing_csv));
         }
 
