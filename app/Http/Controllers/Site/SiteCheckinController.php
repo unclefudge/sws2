@@ -159,7 +159,7 @@ class SiteCheckinController extends Controller {
         elseif (request('checkinStore'))   // Store Checkin questions
             $questions = [2, 7, 9, 10, 11, 12, 13];
         elseif (request('checkinSupervisor'))   // Store Checkin questions
-            $questions = [1, 2, 4, 23];
+            $questions = [1, 4,];
 
         // create validation rules
         foreach ($questions as $q)

@@ -68,42 +68,8 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
-                                    I have read and <b>understood</b> the <b>Site Specific Health & Safety Rules</b>
-                                    <small>(located on site)</small>
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question2', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I declare I am <b>fit for work</b> including:
-                                    <ul>
-                                        <li>I am appropriately authorised and competent to attend the site</li>
-                                        <li>I am not under the influence of alcohol, drugs or prescription medication that affect my capacity</li>
-                                        <li>I am not affected by any pre-existing medical conditions that may be aggraveted by my work duties OR</li>
-                                        <li>I have declared any pre-existing medical conditions yo my employer and I will work in accordance with the arranged suitable duties</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question23', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                   I will <b>immediately address/report all incidents, near misses, unsafe work practices and conditions</b> that I am involved with or that come to my attention
+                                    I have <b>read</b>, <b>understood</b> and will <b>adhere</b> to the <b>Site Health & Safety Rules</b>
+                                    <small><a href="/Site Safety Rules.pdf" target="_blank">(site rules)</a></small>
                                 </div>
                             </div>
                             <div class="row visible-xs">&nbsp;</div>

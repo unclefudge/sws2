@@ -443,7 +443,7 @@ class MailgunZohoController extends Controller {
         ];
         sort($required_headers_jobs);
         sort($headers_jobs);
-        $diff = array_diff($required_headers_jobs, $headers_jobs);
+        $diff = array_diff($required_headers_jobs, $headers_jobs); // checks if all elements of required are found in header_jobs
         if ($report_type == 'Jobs' && count($diff)) {
             $missing_csv = implode(', ', $diff);
             $missing_csv = "Missing fields: $missing_csv";

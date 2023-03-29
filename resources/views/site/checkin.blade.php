@@ -131,8 +131,8 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
-                                    I have read and <b>understood</b> the <b>Site Specific Health & Safety Rules</b>
-                                    <small>(located on site)</small>
+                                    I have <b>read</b>, <b>understood</b> and will <b>adhere</b> to the <b>Site Health & Safety Rules</b>
+                                    <small><a href="/Site Safety Rules.pdf" target="_blank">(site rules)</a></small>
                                 </div>
                             </div>
                             <div class="row visible-xs">&nbsp;</div>
