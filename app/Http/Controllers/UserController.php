@@ -15,7 +15,7 @@ use App\Models\Misc\Permission2;
 use App\Models\Misc\ComplianceOverride;
 use App\Models\Misc\PermissionRoleCompany;
 use App\Models\Misc\SettingsNotificationCategory;
-use App\Http\Utilities\SettingsNotificationTypes;
+use App\Http\Utilities\OverrideTypesTypes;
 use App\Http\Requests;
 use App\Http\Requests\UserRequest;
 use App\Http\Controllers\Controller;
@@ -485,7 +485,7 @@ class UserController extends Controller {
         if ($existing_same_type) {
             Toastr::error("User already has a Compliance Override of same type");
 
-            $type_name = OverrideTypes::name(request('compliance_type'));
+            //$type_name = OverrideTypes::name(request('compliance_type'));
 
             return back()->withErrors(['FORM' => 'compliance.add', 'duplicate_override' => "This user currently has a override of same type and the old one MUST be deleted first."])->withInput();
         }

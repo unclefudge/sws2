@@ -286,7 +286,7 @@ class SiteMaintenance extends Model {
         //if ($email_to && $email_user)
         //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
         //elseif ($email_to)
-        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        Mail::to($email_to)->bcc(env('EMAIL_DEV'))->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
 
     }
 
