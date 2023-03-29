@@ -139,7 +139,6 @@ class SiteCheckinController extends Controller {
             //'question20.required' => 'Please acknowledge you have signed in to the NSW service Covid safe checkin', // Covid
             //'question21.required' => 'Please acknowledge you wear a mask and observe Gov directives', // Covid
             //'question22.required' => 'Please acknowledge you understand the current NSW Health orders and will comply with its requirements in relation covid', // Covid
-            'question23.required' => 'Please acknowledge you will immediately address/report all incidents, near misses, unsafe work practices and conditions.',
             'location.required'   => 'Please provide the location of hazard.',
             'rating.required'     => 'Please provide the risk rating of hazard.',
             'reason.required'     => 'Please provide the reason for unsafe worksite.',
@@ -159,7 +158,7 @@ class SiteCheckinController extends Controller {
         elseif (request('checkinStore'))   // Store Checkin questions
             $questions = [2, 7, 9, 10, 11, 12, 13];
         elseif (request('checkinSupervisor'))   // Store Checkin questions
-            $questions = [1, 4,];
+            $questions = [1, 4];
 
         // create validation rules
         foreach ($questions as $q)
