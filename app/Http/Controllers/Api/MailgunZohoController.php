@@ -228,7 +228,6 @@ class MailgunZohoController extends Controller {
 
                         // For Stages '950 + 160' update Status to 'Cancelled'
                         if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
-                            if ($this->debug) app('log')->debug("$site->name *$job_stage* Update status to -2");
                             $site->status = '-2';
                             $site->save();
 
@@ -438,7 +437,7 @@ class MailgunZohoController extends Controller {
 
         // Verify Correct Headers are all present for Jobs import
         $required_headers_jobs = [
-            'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
+            'Job Name1', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
             'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date',
             'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Job Stage'
         ];
