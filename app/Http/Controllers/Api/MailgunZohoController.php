@@ -100,9 +100,9 @@ class MailgunZohoController extends Controller {
     {
         $logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
         if (strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false)
-            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
+            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         else
-            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed(''));
+            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportFailed(''));
     }
 
     /**
@@ -169,7 +169,7 @@ class MailgunZohoController extends Controller {
                 //
                 if (!$row_header && in_array('Modified Time', $data) && (in_array('Job Name', $data) || in_array('Job Name (Job Name)', $data)) && (in_array('CX Sent Date', $data) || in_array('First Name 1', $data))) {
                     $row_header = $row;
-                    $head = $this->reportHeaders($data);
+                    $head = $this->reportHeaders($data, $report_type);
                     continue;
                 }
 
@@ -179,7 +179,7 @@ class MailgunZohoController extends Controller {
                 //
                 //if (stripos($data[0], "zcrm_") === 0) {
                 if ($row_report_type && $row_header && stripos($data[0], "zcrm_") === 0) {  // || $data[$head['code']] && $data[$head['name']]
-                    $row_data++;
+                    $row_data ++;
                     $this->countSites ++;
                     $site = ($report_type == 'Jobs') ? Site::where('code', $data[$head['code']])->first() : Site::where('name', $data[$head['name']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
@@ -266,23 +266,23 @@ class MailgunZohoController extends Controller {
                                     if (in_array($field, $datefields)) {
                                         // Date fields
                                         //if (preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
-                                            list($d, $m, $y) = explode('/', $zoho_data);
-                                            $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
-                                            //if ($site->{$field})
-                                            //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
-                                            $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
+                                        list($d, $m, $y) = explode('/', $zoho_data);
+                                        $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
+                                        //if ($site->{$field})
+                                        //    echo " &nbsp; $field: [" . $site->{$field}->format('j/n/y') . "] [$date_with_leading_zeros]<br>";
+                                        $newData = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00')->toDateTimeString();
                                         //}
 
                                     } elseif (in_array($field, $yesno_fields)) {
                                         // Yes / No fields
                                         //$newData = ($zoho_data == 'YES') ? 1 : 0;
                                         $newData = ($zoho_data == 'YES') ? 1 : $site->{$field};  // temp only import YES dat for Eng FJ Cert ?
-                                    } elseif ($field == 'project_mgr' && $head['project_mgr_name']){
+                                    } elseif ($field == 'project_mgr' && $head['project_mgr_name']) {
                                         // Project Manager - convert Name into Userid
                                         $project_mgr_name = $data[$head['project_mgr_name']];
                                         if ($project_mgr_name) {
                                             $user = $cc->projectManagersMatch($project_mgr_name);
-                                                $newData = ($user) ? $user->id : null;
+                                            $newData = ($user) ? $user->id : null;
                                         }
                                     } else
                                         $newData = $zoho_data;
@@ -362,7 +362,7 @@ class MailgunZohoController extends Controller {
         }
 
 
-        $log .= "\n\n------------------------------------------------------\nALL DONE - ZOHO IMPORT ".strtoupper($report_type)." COMPLETE\n\n\n\n";
+        $log .= "\n\n------------------------------------------------------\nALL DONE - ZOHO IMPORT " . strtoupper($report_type) . " COMPLETE\n\n\n\n";
 
         echo nl2br($log);
 
@@ -376,52 +376,53 @@ class MailgunZohoController extends Controller {
      * Get Report Headers
      * - the headers array records the column in the CSV the field is found
      */
-    public function reportHeaders($data)
+    public function reportHeaders($data, $report_type = null)
     {
         $this->convertHeaderFields = [
             // Jobs Module
-            'Record id'           => 'zoho_id',
-            'Job Number'          => 'code',
-            'ASC:Job Number'      => 'code',
-            'Job Name'            => 'name',
+            'Record id'                  => 'zoho_id',
+            'Job Number'                 => 'code',
+            'ASC:Job Number'             => 'code',
+            'Job Name'                   => 'name',
             // Address
-            'Street'              => 'address',
-            'Suburb'              => 'suburb',
-            'Post Code'           => 'postcode',
+            'Street'                     => 'address',
+            'Suburb'                     => 'suburb',
+            'Post Code'                  => 'postcode',
             // Supervisor
-            'Super'               => 'super_initials',
-            'Super Name'          => 'super_name',
+            'Super'                      => 'super_initials',
+            'Super Name'                 => 'super_name',
             // Dates
-            'Approval Date'       => 'council_approval',
-            'CX Sent Date'        => 'contract_sent',
-            'CX Sign Date'        => 'contract_signed',
-            'CX Rcvd Date'        => 'contract_received',
-            'CX Deposit Date'     => 'deposit_paid',
-            'Prac Signed'         => 'completion_signed',
+            'Approval Date'              => 'council_approval',
+            'CX Sent Date'               => 'contract_sent',
+            'CX Sign Date'               => 'contract_signed',
+            'CX Rcvd Date'               => 'contract_received',
+            'CX Deposit Date'            => 'deposit_paid',
+            'Prac Signed'                => 'completion_signed',
             //'Eng Certified'       => 'engineering_cert',
-            'CC Rcvd Date'        => 'construction_rcvd',
-            'HBCF Start Date'     => 'hbcf_start',
-            'Design Cons'         => 'consultant_initials',
-            'Design Cons (user)'  => 'consultant_name',
-            'Project Coordinator' => 'project_mgr',
+            'CC Rcvd Date'               => 'construction_rcvd',
+            'HBCF Start Date'            => 'hbcf_start',
+            'Design Cons'                => 'consultant_initials',
+            'Design Cons (user)'         => 'consultant_name',
+            'Project Coordinator'        => 'project_mgr',
             'Project Coordinator (user)' => 'project_mgr_name',
-            'Eng FJ Certified?'   => 'engineering',
-            'Job Stage'           => 'job_stage',
+            'Eng FJ Certified?'          => 'engineering',
+            'Job Stage'                  => 'job_stage',
 
             // Contacts Module
-            'Job Name (Job Name)' => 'name',
-            'First Name 1'        => 'client1_firstname',
-            'Last Name 1'         => 'client1_lastname',
-            'Mobile'              => 'client1_mobile',
-            'Email'               => 'client1_email',
-            'First Name 2'        => 'client2_firstname',
-            'Last Name 2'         => 'client2_lastname',
-            'Mobile 2'            => 'client2_mobile',
-            'Email 2'             => 'client2_email',
-            'Letter Intro'        => 'client_intro'
+            'Job Name (Job Name)'        => 'name',
+            'First Name 1'               => 'client1_firstname',
+            'Last Name 1'                => 'client1_lastname',
+            'Mobile'                     => 'client1_mobile',
+            'Email'                      => 'client1_email',
+            'First Name 2'               => 'client2_firstname',
+            'Last Name 2'                => 'client2_lastname',
+            'Mobile 2'                   => 'client2_mobile',
+            'Email 2'                    => 'client2_email',
+            'Letter Intro'               => 'client_intro'
         ];
 
         $headers = [];
+        $headers_jobs = [];
         $col = 0;
 
         // Loop through the data + match the appropiate Zoho Header field to SWS field
@@ -429,6 +430,27 @@ class MailgunZohoController extends Controller {
             if (isset($this->convertHeaderFields[$name]))
                 $headers[$this->convertHeaderFields[$name]] = $col;
             $col ++;
+
+            if ($report_type == 'Jobs')
+                $headers_jobs[] = $name;
+        }
+
+
+        // Verify Correct Headers are all present for Jobs import
+        $required_headers_jobs = [
+            'Job Name', 'Street2', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
+            'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date',
+            'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Job Stage'
+        ];
+        sort($required_headers_jobs);
+        sort($headers_jobs);
+        if ($report_type == 'Jobs' && $headers_jobs != $required_headers_jobs) {
+            $missing = array_diff($required_headers_jobs, $headers_jobs);
+            $missing_csv = implode(', ', $missing);
+            $missing_csv = "Missing fields: $missing_csv";
+            if ($this->debug) app('log')->debug("** Missing Fields **");
+            if ($this->debug) app('log')->debug($missing);
+            Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportMissingFields($missing_csv));
         }
 
         return $headers;
@@ -479,15 +501,15 @@ class MailgunZohoController extends Controller {
                     $zoho_data = ($zoho_data == 'YES') ? 1 : 0;
 
                 // both SWS + Zoho have data
-                if ($site->{$field} != NULL && $zoho_data && $site->{$field} != $zoho_data) {
+                if ($site->{$field} != null && $zoho_data && $site->{$field} != $zoho_data) {
                     $diff .= "  $field: " . $site->{$field} . " <= $zoho_data $excluded\n";
                     $this->diffFields["$site->id:$field"] = $site->{$field} . " <= $zoho_data";
                 } // only SWS has data
-                else if ($site->{$field} != NULL && !$zoho_data) {
+                else if ($site->{$field} != null && !$zoho_data) {
                     //$diff .= "  $field: " . $site->{$field} . " -- {empty}\n";
                     $this->blankZohoFields["$site->id:$field"] = ($site->{$field}) ? 'YES' : 'NO';
                 } // only Zoho has data
-                else if ($site->{$field} == NULL && $zoho_data && !in_array($field, $exclude_update)) {
+                else if ($site->{$field} == null && $zoho_data && !in_array($field, $exclude_update)) {
                     $diff .= "  $field: {empty} <= $zoho_data $excluded\n";
                     $this->blankSWSFields["$site->id:$field"] = ($zoho_data) ? 'YES' : 'NO';
                 }
