@@ -438,7 +438,7 @@ class MailgunZohoController extends Controller {
 
         // Verify Correct Headers are all present for Jobs import
         $required_headers_jobs = [
-            'Job Name', 'Street2', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
+            'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
             'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date',
             'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Job Stage'
         ];
