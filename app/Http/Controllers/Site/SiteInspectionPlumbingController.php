@@ -373,27 +373,29 @@ class SiteInspectionPlumbingController extends Controller {
         //dd(request()->all());
         // Handle file upload
         $files = $request->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . $request->get('site_id') . '/inspection';
-            $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                $path = "filebank/site/" . $request->get('site_id') . '/inspection';
+                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
 
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
+                // Ensure filename is unique by adding counter to similiar filenames
+                $count = 1;
+                while (file_exists(public_path("$path/$name")))
+                    $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $file->move($path, $name);
 
-            $doc_request = $request->only('site_id');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['company_id'] = Auth::user()->company_id;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
+                $doc_request = $request->only('site_id');
+                $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $doc_request['company_id'] = Auth::user()->company_id;
+                $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
 
-            // Create SiteMaintenanceDoc
-            $doc = SiteInspectionDoc::create($doc_request);
-            $doc->table = 'plumbing';
-            $doc->inspect_id = $request->get('report_id');
-            $doc->attachment = $name;
-            $doc->save();
+                // Create SiteMaintenanceDoc
+                $doc = SiteInspectionDoc::create($doc_request);
+                $doc->table = 'plumbing';
+                $doc->inspect_id = $request->get('report_id');
+                $doc->attachment = $name;
+                $doc->save();
+            }
         }
 
         return json_encode("success");
