@@ -504,9 +504,9 @@ trait UserRolesPermissions {
                 //app('log')->debug("=== AuthSites ===");
                 // Site Checkin and either Company or Parent Company has Planner
                 $sites_planned = [];
-                foreach ($this->company->sitesPlannedFor([1,2], Carbon::today(), Carbon::today()) as $site) {
+                foreach ($this->company->sitesPlannedFor([1, 2], Carbon::today(), Carbon::today()) as $site) {
                     $site = Site::findOrFail($site->id);
-                    if (in_array($site->status, [1,2]) && $site->show_checkin)
+                    if (in_array($site->status, [1, 2]) && $site->show_checkin)
                         $sites_planned[$site->id] = "$site->name ($site->address, $site->suburb)";
                 }
                 asort($sites_planned);
@@ -547,7 +547,7 @@ trait UserRolesPermissions {
         $sites_company_array = [];
         foreach ($sites_company as $site)
             $sites_company_array[$site->id] = "$site->name ($site->address, $site->suburb)";
-        
+
         asort($sites_company_array);
 
         if (count($sites_company_array)) {
@@ -825,11 +825,20 @@ trait UserRolesPermissions {
                 // check users
                 if ($this->authUsers($permission)->contains('id', $record->created_by)) return true;
 
-                // User always allowed to view own Incident / Hazard
-                if ($action == 'view' && $this->id == $record->created_by) return true;
+                if ($record->site_id == '809') { // 0003-Vehicles Cape Cod
+                    // Fudge, Gary, Kirstie, Tara, Georgie, Ross
+                    if ($action == 'view' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '7', '108', '351', '458', '1155'])) return true;
+                    // Fudge, Gary, Kirstie, Tara, Ross
+                    if ($action == 'edit' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '7', '108', '351', '1155'])) return true;
+                    // Fudge, Kirstie, Tara, Ross
+                    if ($action == 'del' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '1155'])) return true;
+                } else {
+                    // User always allowed to view own Incident / Hazard
+                    if ($action == 'view' && $this->id == $record->created_by) return true;
 
-                // User always allowed to view Hazard of site they currently logged into
-                if ($action == 'view' && $permissiontype == 'site.hazard' && Session::has('siteID') && Session::get('siteID') == $record->site_id) return true;
+                    // User always allowed to view Hazard of site they currently logged into
+                    if ($action == 'view' && $permissiontype == 'site.hazard' && Session::has('siteID') && Session::get('siteID') == $record->site_id) return true;
+                }
 
                 return false;
             }
@@ -877,7 +886,7 @@ trait UserRolesPermissions {
 
             // Site (Doc, QA, Asbestos, Export, ProjectSupply) + Attendance + Compliance + Safety Doc
             if ($permissiontype == 'site.doc' || $permissiontype == 'site.qa' || $permissiontype == 'site.asbestos' || $permissiontype == 'site.export' || $permissiontype == 'site.project.supply' ||
-                 $permissiontype == 'roster' || $permissiontype == 'compliance' || $permissiontype == 'safety.doc'
+                $permissiontype == 'roster' || $permissiontype == 'compliance' || $permissiontype == 'safety.doc'
             ) {
                 if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
 

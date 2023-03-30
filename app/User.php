@@ -224,8 +224,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         $parent_level = $this->permissionLevel('view.site.hazard', $this->company->reportsTo()->id);
         if ($company_level == 30 || $company_level == 40 || $parent_level == 30 || $parent_level == 40)
             $site_list = $site_list + $this->authSites('view.site.hazard')->pluck('id')->toArray(); // Planned For or Supervisor For so  - check site
-        else
+        else {
             $user_list = $user_list + $this->authUsers('view.site.hazard')->pluck('id')->toArray(); // Else - check users
+        }
+
+        // For special site 0003-Vehicles Cape Cod '809' allow specific users access to it.
+        if (in_array($this->id, ['3', '7', '108', '351', '458', '1155'])) // Fudge, Gary, Kirstie, Tara, Georgie, Ross
+            $site_list[] = '809';
 
         if ($status != '')
             return SiteHazard::where('status', '=', $status)

@@ -66,19 +66,19 @@ class SiteAsbestosRegisterController extends Controller {
 
         foreach ($sites_active as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
+            if (!$reg && !in_array($site->code, ['0002', '0003', '0005', '0006', '0007']))
                 $sitelist[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
         }
 
         foreach ($sites_maint as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
+            if (!$reg && !in_array($site->code, ['0002', '0003', '0005', '0006', '0007']))
                 $sitelist[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
         }
 
         foreach ($sites_upcom as $site) {
             $reg = SiteAsbestosRegister::where('site_id', $site->id)->first();
-            if (!$reg && !in_array($site->code, ['0002', '0005', '0006', '0007']))
+            if (!$reg && !in_array($site->code, ['0002', '0003', '0005', '0006', '0007']))
                 $sitelist[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code:$site->name)";
         }
 

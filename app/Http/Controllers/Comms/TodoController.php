@@ -175,39 +175,42 @@ class TodoController extends Controller {
 
         Toastr::success("Created ToDo");
 
-        if ($todo->type == 'hazard') {
-            $hazard = SiteHazard::find($todo->type_id);
-            $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_hazards', 'table_id' => $todo->type_id]);
-            $hazard->touch(); // update timestamp
-            $todo->emailToDo();
+        if ($todo) {
+            if ($todo->type == 'hazard') {
+                $hazard = SiteHazard::find($todo->type_id);
+                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_hazards', 'table_id' => $todo->type_id]);
+                $hazard->touch(); // update timestamp
+                $todo->emailToDo();
 
-            return redirect("/site/hazard/$todo->type_id");
-        }
-        if ($todo->type == 'accident') {
-            $accident = SiteAccident::find($todo->type_id);
-            $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_accidents', 'table_id' => $todo->type_id]);
-            $accident->touch(); // update timestamp
-            $todo->emailToDo();
+                return redirect("/site/hazard/$todo->type_id");
+            }
+            if ($todo->type == 'accident') {
+                $accident = SiteAccident::find($todo->type_id);
+                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_accidents', 'table_id' => $todo->type_id]);
+                $accident->touch(); // update timestamp
+                $todo->emailToDo();
 
-            return redirect("/site/accident/$todo->type_id");
-        }
+                return redirect("/site/accident/$todo->type_id");
+            }
 
-        if ($todo->type == 'incident') {
-            $incident = SiteIncident::find($todo->type_id);
-            $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_incidents', 'table_id' => $todo->type_id]);
-            $incident->touch(); // update timestamp
-            $todo->emailToDo();
+            if ($todo->type == 'incident') {
+                $incident = SiteIncident::find($todo->type_id);
+                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_incidents', 'table_id' => $todo->type_id]);
+                $incident->touch(); // update timestamp
+                $todo->emailToDo();
 
-            return redirect("/site/incident/$todo->type_id");
-        }
+                return redirect("/site/incident/$todo->type_id");
+            }
 
-        if ($todo->type == 'inspection') {
-            $form = Form::find($todo->type_id);
-            $form->touch(); // update timestamp
-            $todo->emailToDo();
+            if ($todo->type == 'inspection') {
+                $form = Form::find($todo->type_id);
+                $form->touch(); // update timestamp
+                $todo->emailToDo();
 
-            $FomQuestion = FormQuestion::find($todo->type_id2);
-            return redirect("/site/inspection/$todo->type_id/".$FomQuestion->section->page->order);
+                $FomQuestion = FormQuestion::find($todo->type_id2);
+
+                return redirect("/site/inspection/$todo->type_id/" . $FomQuestion->section->page->order);
+            }
         }
 
         return redirect('/todo');

@@ -103,7 +103,7 @@ $rec = $user;
                         </tr>
 
                         <tr>
-                            <td>Company Leave</td> 
+                            <td>Company Leave</td>
                             <td width="15%">{!! permSelect('view.company.leave', ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                             <td width="15%">{!! permSelect('edit.company.leave', ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                             <td width="45%" colspan="3"></td>
