@@ -55,6 +55,39 @@
                         <?php $qType = App\Models\Misc\FormQuestion::find(1); ?>
 
                         <div class="form-body">
+                            {{-- Incident Summary Details --}}
+                            <div class="row">
+                                <div class="col-md-2"><b>Incident Date:</b></div>
+                                <div class="col-xs-10">{{  $incident->date->format('d/m/Y G:i a') }}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"><b>{{ ($incident->site_id) ? 'Site:' : 'Place of incident:'}}</b></div>
+                                <div class="col-xs-10">
+                                    @if ($incident->site)
+                                        <b>{!! $incident->site_name !!}</b><br>
+                                        {!! $incident->site->address_formatted !!}
+                                    @else
+                                        {!! $incident->site_name !!}
+                                    @endif</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"><b>Location:</b></div>
+                                <div class="col-xs-10">{!! $incident->location !!}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"><b>Incident Type:</b></div>
+                                <div class="col-xs-10">{!! $qType->responsesCSV('site_incidents', $incident->id) !!}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"><b>What occured:</b></div>
+                                <div class="col-xs-10">{!! nl2br($incident->describe) !!}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2"><b>Actions taken:</b></div>
+                                <div class="col-xs-10">{!! nl2br($incident->actions_taken) !!}</div>
+                            </div>
+                            <hr class="field-hr">
+
                             @if ($incident->people->count())
                                 <div class="note note-warning">
                                     Once you've finished adding all the people invloved continue onto <a href="/site/incident/{{ $incident->id }}/docs" class="btn green btn-outline btn-xs"> Next Step</a> to add Photos / Documents of the incident.
