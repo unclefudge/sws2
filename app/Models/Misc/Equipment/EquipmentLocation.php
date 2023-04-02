@@ -32,7 +32,7 @@ class EquipmentLocation extends Model {
      */
     public function site()
     {
-        return ($this->site_id) ? $this->belongsTo('App\Models\Site\Site') : NULL;
+        return ($this->site_id) ? $this->belongsTo('App\Models\Site\Site') : null;
     }
 
     /**
@@ -66,6 +66,7 @@ class EquipmentLocation extends Model {
         foreach ($this->items as $item) {
             $str .= "($item->qty) $item->item_name<br>";
         }
+
         return $str;
     }
 
@@ -80,6 +81,7 @@ class EquipmentLocation extends Model {
         foreach ($this->items as $item) {
             $str .= "$item->qty:$item->item_name, ";
         }
+
         return rtrim($str, ', ');
     }
 
@@ -110,8 +112,10 @@ class EquipmentLocation extends Model {
     public function equipmentQty($equipment_id)
     {
         $item = EquipmentLocationItem::where('location_id', $this->id)->where('equipment_id', $equipment_id)->first();
+
         return ($item) ? $item->qty : 0;
     }
+
     /**
      * A Equipment in Transfer is assigned to a User.
      */
@@ -120,6 +124,7 @@ class EquipmentLocation extends Model {
         list($location_id, $site_other, $site_other_id, $user_id) = explode(':', $this->notes);
         if ($user_id)
             return User::find($user_id);
+
         return null;
     }
 
@@ -137,7 +142,15 @@ class EquipmentLocation extends Model {
      */
     public function getNameAttribute()
     {
-        return ($this->site_id) ? $this->site->suburb . ' (' . $this->site->name . ')' : $this->other;
+        if ($this->site_id) {
+            if ($this->site)
+                return $this->site->suburb . ' (' . $this->site->name . ')';
+            else
+                return $this->site_id .'(???)';
+
+        } else
+            return $this->other;
+        //return ($this->site_id) ? $this->site->suburb . ' (' . $this->site->name . ')' : $this->other;
     }
 
     /**
@@ -145,7 +158,7 @@ class EquipmentLocation extends Model {
      */
     public function getName2Attribute()
     {
-        return ($this->site_id) ? $this->site->code . ' &nbsp; ' . $this->site->name  : $this->other;
+        return ($this->site_id) ? $this->site->code . ' &nbsp; ' . $this->site->name : $this->other;
     }
 
     /**
@@ -153,7 +166,7 @@ class EquipmentLocation extends Model {
      */
     public function getName3Attribute()
     {
-        return ($this->site_id) ? $this->site->name  : $this->other;
+        return ($this->site_id) ? $this->site->name : $this->other;
     }
 
     /**
@@ -161,7 +174,7 @@ class EquipmentLocation extends Model {
      */
     public function getName4Attribute()
     {
-        return ($this->site_id) ? $this->site->suburb . ' (' .$this->site->code.':' . $this->site->name . ')' : 'Other: '.$this->other;
+        return ($this->site_id) ? $this->site->suburb . ' (' . $this->site->code . ':' . $this->site->name . ')' : 'Other: ' . $this->other;
     }
 
     /**
@@ -169,7 +182,7 @@ class EquipmentLocation extends Model {
      */
     public function getName5Attribute()
     {
-        return ($this->site_id) ? $this->site->name .' ('.$this->site->code.')' : 'Other: '.$this->other;
+        return ($this->site_id) ? $this->site->name . ' (' . $this->site->code . ')' : 'Other: ' . $this->other;
     }
 
 
