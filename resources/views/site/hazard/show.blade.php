@@ -110,9 +110,10 @@
                                                 <?php $ext = pathinfo($hazard->attachment_url, PATHINFO_EXTENSION); ?>
                                                 @if ($ext == 'pdf')
                                                     <i class="fa fa-4x fa-file-pdf-o"></i>
-                                                    @else
-                                                <img src="{{ $hazard->attachment_url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                            @endif
+                                                @else
+                                                    <img src="{{ $hazard->attachment_url }}" class="thumbnail img-responsive img-thumbnail">
+                                                @endif
+                                            </a>
                                         </div>
                                     @endif
                                 </div>
