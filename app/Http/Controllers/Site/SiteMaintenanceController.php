@@ -407,6 +407,7 @@ class SiteMaintenanceController extends Controller {
         $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
         $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
         //dd($main_request);
+        $main->update($main_request);
 
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $main->super_id) {
@@ -418,7 +419,7 @@ class SiteMaintenanceController extends Controller {
 
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
-                $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString();
+                $main->assigned_super_at = Carbon::now()->toDateTimeString();
 
             if (!$main->assigned_to) {
                 $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
@@ -435,7 +436,7 @@ class SiteMaintenanceController extends Controller {
 
             // Set Assigned to date field if not set
             if (!$main->assigned_at)
-                $main_request['assigned_at'] = Carbon::now()->toDateTimeString();
+                $main->assigned_at = Carbon::now()->toDateTimeString();
 
             $main->closeToDo();
         }
@@ -445,10 +446,10 @@ class SiteMaintenanceController extends Controller {
             $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
         if (request('status') && $main->status != 1 && request('status') == 1) {
             $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-            $main_request['supervisor_sign_by'] = null;
-            $main_request['supervisor_sign_at'] = null;
-            $main_request['manager_sign_by'] = null;
-            $main_request['manager_sign_at'] = null;
+            $main->supervisor_sign_by = null;
+            $main->supervisor_sign_at = null;
+            $main->manager_sign_by = null;
+            $main->manager_sign_at = null;
         }
         if (request('status') && $main->status != - 1 && request('status') == - 1)
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
@@ -460,12 +461,8 @@ class SiteMaintenanceController extends Controller {
             $action = Action::create(['action' => "Request category updated from $from to $to", 'table' => 'site_maintenance', 'table_id' => $main->id]);
         }
 
-
-        //dd($main_request);
-        $main->update($main_request);
+        $main->save();
         Toastr::success("Updated Request");
-
-        //dd('here');
 
         return redirect('site/maintenance/' . $main->id);
     }

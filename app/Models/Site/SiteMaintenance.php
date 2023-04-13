@@ -241,7 +241,7 @@ class SiteMaintenance extends Model {
             'type'       => 'maintenance',
             'type_id'    => $this->id,
             'name'       => 'Maintenance Request Assigned - ' . $this->name . ' (' . $site->name . ')',
-            'info'       => 'Please review request and assign a company to carry out the work',
+            'info'       => 'Please review request and assign a company to carry out the work if required.',
             'priority'   => '1',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => '3',
