@@ -374,11 +374,17 @@ class SitePlannerController extends Controller {
 
         $site = Site::find($site_id);
 
-        // Sites ordered - Jobstart/Council Approval/Contracts Sent/Deposit Paid/Job#
+        // Sites ordered - Start Estimate, Jobstart, Council Approval, Contracts Sent, Deposit Paid, Job#
         //    - prioritise sites with more fields completed
 
         $site_list = [];
         $pre_sites = Auth::user()->company->sites('-1')->pluck('id')->toArray();
+
+        // Add Sites that have Start Estimate to list in date order
+        $start_est = Auth::user()->company->sites('-1')->whereNotNull('jobstart_estimate')->sortBy('jobstart_estimate')->pluck('id')->toArray();
+        foreach ($start_est as $sid)
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
 
         // Add Sites that have START JOB to list in date order
         $job_starts = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
