@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('view.weekly.planner'))
             <li><a href="/planner/weekly">Weekly Planner</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Up and Coming Projects</span></li>
+        <li><span>Upcoming Projects</span></li>
     </ul>
 @stop
 
@@ -18,7 +18,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Up and Coming Projects</span>
+                            <span class="caption-subject bold uppercase font-green-haze">Upcoming Projects</span>
                         </div>
                         <div class="actions">
                         </div>

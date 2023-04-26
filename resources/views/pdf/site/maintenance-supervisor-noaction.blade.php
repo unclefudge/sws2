@@ -73,10 +73,11 @@
                 </tr>
                 </thead>
                 <tbody>
+                <?php $super_count = 0 ?>
                 @foreach ($mains as $main)
-                    @if ($main->super_id == $super_id)
+                    @if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0'))
                         @if (!$main->client_appointment || $main->lastUpdated()->lt(\Carbon\Carbon::now()->subDays(14)))
-                            <?php $row_count ++; ?>
+                            <?php $row_count ++; $super_count++; ?>
                             <tr>
                                 <td class="pad5">M{{ $main->code }}</td>
                                 <td class="pad5">{{ $main->created_at->format('d/m/Y') }}</td>
@@ -90,6 +91,10 @@
                         @endif
                     @endif
                 @endforeach
+
+                @if ($super_count == 0)
+                    <tr><td colspan="7">No Maintenance Requests found matching required criteria</td></tr>
+                    @endif
                 </tbody>
             </table>
         @endforeach

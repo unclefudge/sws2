@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upcoming Job Start Dates</title>
+    <title>Upcoming Jobs</title>
     <link href="{{ asset('/') }}/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('/') }}/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <style>
@@ -55,7 +55,7 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12">
-            <h3 style="margin: 0px">Upcoming Jobs Compliance Data</h3>
+            <h3 style="margin: 0px">Upcoming Jobs</h3>
         </div>
     </div>
     <hr style="margin: 5px 0px 15px 0px">

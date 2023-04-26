@@ -390,31 +390,31 @@ class SitePlannerController extends Controller {
         $job_starts = SitePlanner::where('task_id', 11)->whereIn('site_id', $pre_sites)->orderBy('from')->get();
         foreach ($job_starts as $plan)
             if (!in_array($site_id, $site_list))
-            $site_list[] = $plan->site_id;
+                $site_list[] = $plan->site_id;
 
         // Add Sites with (council_approval, contract_sent, contract_signed, deposit_paid)
         $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->sortBy('council_approval')->pluck('id')->toArray();
         foreach ($pre_sites as $sid)
             if (!in_array($sid, $site_list))
-            $site_list[] = $sid;
+                $site_list[] = $sid;
 
         // Add Sites with (council_approval, contract_sent, contract_signed)
         $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->whereNotNull('contract_signed')->sortBy('council_approval')->pluck('id')->toArray();
         foreach ($pre_sites as $sid)
             if (!in_array($sid, $site_list))
-            $site_list[] = $sid;
+                $site_list[] = $sid;
 
         // Add Sites with (council_approval, contract_sent)
         $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->whereNotNull('contract_sent')->sortBy('council_approval')->pluck('id')->toArray();
         foreach ($pre_sites as $sid)
             if (!in_array($sid, $site_list))
-            $site_list[] = $sid;
+                $site_list[] = $sid;
 
         // Add Sites with (council_approval)
         $pre_sites = Auth::user()->company->sites('-1')->whereNotNull('council_approval')->sortBy('council_approval')->pluck('id')->toArray();
         foreach ($pre_sites as $sid)
             if (!in_array($sid, $site_list))
-            $site_list[] = $sid;
+                $site_list[] = $sid;
 
         // Add Remaining Pre-construct jobs to the list
         $pre_sites = Auth::user()->company->sites('-1')->sortBy('code')->pluck('id')->toArray();
@@ -1924,6 +1924,98 @@ class SitePlannerController extends Controller {
                 ->orderBy('from')->get();
         }
     }
+
+    // Add Start task to planner + all the associated tasks with it
+    public function addStartTaskToPlanner($site_id, $date) {
+
+        $today = Carbon::now();
+        $start_date = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
+        $site = Site::findOrFail($site_id);
+
+        // 5 days prior
+        $date = nextWorkDate($start_date, '-', 5);
+        if ($date->lte($today))
+            $date = nextWorkDate($today, '+', 1);
+
+        // Pre-construction  entity_name: 'Supervisors', task_code: 'Pre', task_name: 'Pre Construction'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 31, 'task_id' => 264,  'from' => $date->toDateTimeString(), 'to' => $date->toDateTimeString(), 'days' => 1]);
+
+        //
+        // Same Day
+        //
+        // StartJob - entity_name: 'Carpenter', task_id: 11, task_code: 'START', task_name: 'Start Job'
+         SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 264,  'from' => $start_date->toDateTimeString(), 'to' => $start_date->toDateTimeString(), 'days' => 1]);
+        // LoadJob - entity_name: 'Labourer', task_id: 200, task_code: 'Load', task_name: 'Load Job'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 21, 'task_id' => 200,  'from' => $start_date->toDateTimeString(), 'to' => $start_date->toDateTimeString(), 'days' => 1]);
+        // ErrectScaff - entity_name: 'Ashbys Scaffolding', task_code: 'E', task_name: 'Erect Scaffold'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 'c', 'entity_id' => 9, 'task_id' => 116,  'from' => $start_date->toDateTimeString(), 'to' => $start_date->toDateTimeString(), 'days' => 1]);
+        // RoofMaint - entity_name: 'Roofworx', task_code: 'Maint', task_name: 'Roof Maintenance'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 'c', 'entity_id' => 118, 'task_id' => 107,  'from' => $start_date->toDateTimeString(), 'to' => $start_date->toDateTimeString(), 'days' => 1]);
+
+
+        // 1 day after
+        // StartCarp - entity_name: 'Carpenter', task_code: 'STARTCarp',task_name: 'Start Carpentry'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 22,  'from' =>  nextWorkDate($start_date, '+', 1, 'dts'), 'to' => nextWorkDate($start_date, '+', 1, 'dts'), 'days' => 1]);
+
+
+        // 2 days after
+        // LayFloor - entity_name: 'Carpenter', task_code: 'LF', task_name: 'Lay Floor'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 4,  'from' =>  nextWorkDate($start_date, '+', 2, 'dts'), 'to' => nextWorkDate($start_date, '+', 5, 'dts'), 'days' => 4]);
+        // ElectDriveby - entity_name: 'Electrician', task_code: 'DB', task_name: 'Drive By'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 4, 'task_id' => 51,  'from' =>  nextWorkDate($start_date, '+', 2, 'dts'), 'to' => nextWorkDate($start_date, '+', 2, 'dts'), 'days' => 1]);
+        // PlumbDriveby - entity_name: 'Plumber', task_code: 'DB',task_name: 'Drive By'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 8, 'task_id' => 86,  'from' =>  nextWorkDate($start_date, '+', 2, 'dts'), 'to' => nextWorkDate($start_date, '+', 2, 'dts'), 'days' => 1]);
+
+        // 4 days after
+        // FloorInspect - entity_name: 'Cocert', task_code: 'Fl',task_name: 'Floor Inspection'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 'c', 'entity_id' => 359, 'task_id' => 183,  'from' =>  nextWorkDate($start_date, '+', 4, 'dts'), 'to' => nextWorkDate($start_date, '+', 4, 'dts'), 'days' => 1]);
+
+        // 5 days after
+        // FrameRoof - entity_name: 'Carpenter', task_code: 'FR/FF', task_name: 'Frame & Roof FF'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 7,  'from' =>  nextWorkDate($start_date, '+', 5, 'dts'), 'to' => nextWorkDate($start_date, '+', 8, 'dts'), 'days' => 4]);
+
+        // 7 days after
+        // LoadPlatform - entity_name: 'Labourer', task_code: 'LP', task_name: 'Load Platform'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 21, 'task_id' => 224,  'from' =>  nextWorkDate($start_date, '+', 7, 'dts'), 'to' => nextWorkDate($start_date, '+', 7, 'dts'), 'days' => 1]);
+
+        // 8 days after
+        // PlatformUpLab - entity_name: 'Labourer', task_code: 'PU', task_name: 'Platform Up'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 21, 'task_id' => 220,  'from' =>  nextWorkDate($start_date, '+', 8, 'dts'), 'to' => nextWorkDate($start_date, '+', 8, 'dts'), 'days' => 1]);
+        // PlatformUpCarp - entity_name: 'Carpenter', task_code: 'PU', task_name: 'Platform Up'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 24,  'from' =>  nextWorkDate($start_date, '+', 8, 'dts'), 'to' => nextWorkDate($start_date, '+', 8, 'dts'), 'days' => 1]);
+
+        // 9 days after
+        // FasciaGutter - entity_name: 'Roof Plumber', task_code: 'F&GFF', task_name: 'Fascia Gutter First Floor'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 20, 'task_id' => 191,  'from' =>  nextWorkDate($start_date, '+', 9, 'dts'), 'to' => nextWorkDate($start_date, '+', 9, 'dts'), 'days' => 1]);
+
+        // 10 days after
+        // FloorCover - entity_name: 'Roofer', task_code: 'T', task_name: 'Tiles'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 9, 'task_id' => 100,  'from' =>  nextWorkDate($start_date, '+', 10, 'dts'), 'to' => nextWorkDate($start_date, '+', 10, 'dts'), 'days' => 1]);
+
+        // 11 days after
+        // Pointing - entity_name: 'Roofer', task_code: 'P', task_name: 'Pointing'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 9, 'task_id' => 108,  'from' =>  nextWorkDate($start_date, '+', 11, 'dts'), 'to' => nextWorkDate($start_date, '+', 11, 'dts'), 'days' => 1]);
+
+        // 12 days after
+        // PlatformDnLab - entity_name: 'Labourer', task_code: 'PD', task_name: 'Platform Down'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 21, 'task_id' => 221,  'from' =>  nextWorkDate($start_date, '+', 12, 'dts'), 'to' => nextWorkDate($start_date, '+', 12, 'dts'), 'days' => 1]);
+        // PlatformDnCarp - entity_name: 'Carpenter', task_code: 'PD', task_name: 'Platform Down'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 25,  'from' =>  nextWorkDate($start_date, '+', 12, 'dts'), 'to' => nextWorkDate($start_date, '+', 12, 'dts'), 'days' => 1]);
+        // PolEaves - entity_name: 'Carpenter', task_code: 'PEW', task_name: 'Polastic Eaves Windows'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 10,  'from' =>  nextWorkDate($start_date, '+', 12, 'dts'), 'to' => nextWorkDate($start_date, '+', 13, 'dts'), 'days' => 2]);
+        // CatwalkUp - entity_name: 'Carpenter', task_code: 'CU', task_name: 'Catwalk Up'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 2, 'task_id' => 27,  'from' =>  nextWorkDate($start_date, '+', 12, 'dts'), 'to' => nextWorkDate($start_date, '+', 12, 'dts'), 'days' => 1]);
+
+        // 13 days after
+        // FrameInspect - entity_name: 'Cocert', task_code: 'FF/Fi',task_name: 'FF Frame Inspection'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 'c', 'entity_id' => 359, 'task_id' => 184,  'from' =>  nextWorkDate($start_date, '+', 13, 'dts'), 'to' => nextWorkDate($start_date, '+', 13, 'dts'), 'days' => 1]);
+
+        // 14 days after
+        // GenClean - entity_name: 'Labourer', task_code: 'GC-EXT', task_name: 'General Clean EXT'
+        SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 21, 'task_id' => 198,  'from' =>  nextWorkDate($start_date, '+', 14, 'dts'), 'to' => nextWorkDate($start_date, '+', 14, 'dts'), 'days' => 1]);
+
+    }
+
 
     /**
      * Email Jobstart

@@ -455,7 +455,7 @@ function sanitizeFilename($string, $force_lowercase = false, $anal = false)
  *      $direction - either +/-
  *      $days - number of days
  */
-function nextWorkDate($date, $direction, $days)
+function nextWorkDate($date, $direction, $days, $format = null)
 {
     // Determine next 'work' day ie mon-fri (x) days from given date
     // either before (-) or after (+) given date
@@ -474,6 +474,9 @@ function nextWorkDate($date, $direction, $days)
                 $date->subDays(2);
         }
     }
+
+    if ($format == 'dts')
+        return $date->toDateTimeString();
 
     return $date;
 }

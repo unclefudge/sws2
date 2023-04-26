@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Upcoming Jobs Compliance Data</span></li>
+        <li><span>Upcoming Jobs</span></li>
     </ul>
 @stop
 
@@ -18,7 +18,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Upcoming Jobs Compliance Data</span>
+                            <span class="caption-subject bold uppercase font-green-haze">Upcoming Jobs</span>
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/pdf" data-original-title="PDF">PDF</a>

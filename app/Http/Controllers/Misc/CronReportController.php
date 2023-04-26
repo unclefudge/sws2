@@ -499,8 +499,11 @@ class CronReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($mains as $main) {
-            if (!isset($supers[$main->super_id]))
-                $supers[$main->super_id] = $main->taskOwner->fullname;
+            if ($main->super_id) {
+                if (!isset($supers[$main->super_id]))
+                    $supers[$main->super_id] = $main->taskOwner->fullname;
+            } else
+                $supers[0] = 'Unassigned';
         }
         asort($supers);
 
@@ -509,7 +512,7 @@ class CronReportController extends Controller {
         if (file_exists($file))
             unlink($file);
 
-        //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
+        return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
         //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
         $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
         $pdf->save($file);

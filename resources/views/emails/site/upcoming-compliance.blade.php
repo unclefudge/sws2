@@ -3,7 +3,7 @@
 <table class="v1inner-body" align="center" width="90%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; margin: 0 auto; padding: 0; width: 90%;">
     <tr>
         <td class="v1content-cell" style="padding: 35px">
-            <h1>Upcoming Jobs Compliance Data</h1>
+            <h1>Upcoming Jobs</h1>
             <p>Please find attached a report for Upcoming Jobs.</p>
             <table style="border: 1px solid; border-collapse: collapse">
                 <tr style="border: 1px solid; background-color: #F6F6F6; font-weight: bold;">

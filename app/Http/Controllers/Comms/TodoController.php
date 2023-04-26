@@ -93,6 +93,7 @@ class TodoController extends Controller {
 
         $assign_to = request('assign_to');
         $assign_list = [];
+        $todo = null;
 
         // Users
         if ($assign_to == 'user') {
