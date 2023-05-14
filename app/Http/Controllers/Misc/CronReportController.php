@@ -513,7 +513,7 @@ class CronReportController extends Controller {
             unlink($file);
 
         //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
-        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
         $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
         $pdf->save($file);
 
