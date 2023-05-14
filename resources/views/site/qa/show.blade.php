@@ -302,14 +302,22 @@
                 <p><b>@{{ xx.record.name }}</b></p>
                 Completed by
                 <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-8">
+                    <div class="col-md-7">
                         <select-picker :name.sync="xx.done_by" :options.sync="xx.sel_company" :function="doNothing"></select-picker>
+                    </div>
+                    <div class="col-md-5">
+                        Assign to all unassigned
+                        <select v-model="xx.done_by_all" class='form-control bs-select'>
+                            <option value="1" selected>Yes</option>
+                            <option value="0">No</option>
+                        </select>
                     </div>
                 </div>
                 <div v-show="xx.done_by == 1">
-                    Specify other company
+
                     <div class="row" style="padding-bottom: 10px">
-                        <div class="col-md-8">
+                        <div class="col-md-7">
+                            Specify other company
                             <input v-model="xx.done_by_other" type="text" class="form-control">
                         </div>
                     </div>
@@ -404,7 +412,7 @@
         action: '', loaded: false,
         table_name: 'site_qa', table_id: '', record_status: '', record_resdate: '',
         created_by: '', created_by_fullname: '',
-        done_by: '', done_by_other: '',
+        done_by: '', done_by_other: '', done_by_all : '',
         itemList: [],
         actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
     };
@@ -493,15 +501,17 @@
             updateItemCompany: function (record, response) {
                 if (response) {
                     record.done_by = this.xx.done_by;
-                    alert('by:'+record.done_by);
+                    //alert('by:'+record.done_by);
                     if (this.xx.done_by != 1) {
                         // Get company name + licence from dropdown menu array
                         var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
+                        record.done_by_all = this.xx.done_by_other_all;
+                        record.done_by_other = '';
                         record.done_by_company = company.text;
                         record.done_by_licence = company.licence;
-                        record.done_by_other = '';
                     } else {
-                        alert('other:'+this.xx.done_by_other);
+                        //alert('other:'+this.xx.done_by_other);
+                        record.done_by_all = this.xx.done_by_other_all;
                         record.done_by_other = this.xx.done_by_other;
                         record.done_by_company = this.xx.done_by_other;
                         record.done_by_licence = '??????';
@@ -515,6 +525,7 @@
                 this.xx.record = {};
                 this.xx.done_by = '';
                 this.xx.done_by_other = '';
+                this.xx.done_by_other_all = '';
                 this.xx.showSignOff = false;
             },
             updateItemDB: function (record) {

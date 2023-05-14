@@ -281,15 +281,14 @@ class SiteQaController extends Controller {
         //if (!Auth::user()->allowed2('edit.site.qa', $qa))
         //    return view('errors/404');
 
-        $item_request = $request->only(['status', 'done_by', 'done_by_other']);
-        //dd($item_request);
+        $item_request = $request->only(['status', 'done_by']);
+        dd($item_request);
 
         // Update resolve date if just modified
         if (!request('status')) {
             $item->status = 0;
             $item->sign_by = null;
             $item->sign_at = null;
-            //echo 'no stat';
             //dd($item_request);
             $item->save();
         } else {
@@ -298,8 +297,27 @@ class SiteQaController extends Controller {
                 $item_request['sign_by'] = Auth::user()->id;
                 $item_request['sign_at'] = Carbon::now()->toDateTimeString();
             }
-            //dd($item_request);
             $item->update($item_request);
+        }
+
+        // Custom Assign Company for item done_by_company
+        if (request('done_by_other')) {
+            // Only assign selected item to specified custom company
+            $item->done_by = 1;
+            $item->done_by_other = request('done_by_other');
+            $item->save();
+        }
+
+        if (request('done_by_all') && request('done_by_all') == 1) {
+            // Assign all unassigned items to specified custom company also
+            foreach ($qa->items as $qaItem) {
+                if ($qaItem->status == 0 && !$qaItem->done_by) {
+                    //echo "[$qaItem->id] $qaItem->name s:$qaItem->status dby:$qaItem->done_by <br>";
+                    $qaItem->done_by = 1;
+                    $qaItem->done_by_other = request('done_by_other');
+                    $qaItem->save();
+                }
+            }
         }
 
         // Update modified timestamp on QA Doc
