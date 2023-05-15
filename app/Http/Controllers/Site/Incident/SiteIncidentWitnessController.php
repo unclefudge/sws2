@@ -102,6 +102,7 @@ class SiteIncidentWitnessController extends Controller {
         if (request('assign_task')) {
             $todo = Todo::create(['name' => "Witness Statement for Incident @ $incident->site_name", 'info' => 'Please complete a Witness Statement for an incident that you witnessed', 'type' => 'incident witness', 'type_id' => $witness->id, 'company_id' => Auth::user()->company_id]);
             $todo->assignUsers(request('user_id'));
+            $todo->emailToDo();
         }
 
         Toastr::success("Added witness statment");

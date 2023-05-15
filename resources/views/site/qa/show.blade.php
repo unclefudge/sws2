@@ -207,7 +207,7 @@
         </div>
     </div>
 
-    <pre v-if="xx.dev">@{{ $data | json }}</pre>
+    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
     -->
 
     <!-- loading Spinner -->
@@ -500,27 +500,47 @@
             },
             updateItemCompany: function (record, response) {
                 if (response) {
+                    record.update_company = 1;
                     record.done_by = this.xx.done_by;
+                    record.done_by_all = this.xx.done_by_all;
                     //alert('by:'+record.done_by);
                     if (this.xx.done_by != 1) {
                         // Get company name + licence from dropdown menu array
                         var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
-                        record.done_by_all = this.xx.done_by_other_all;
                         record.done_by_other = '';
                         record.done_by_company = company.text;
                         record.done_by_licence = company.licence;
                     } else {
                         //alert('other:'+this.xx.done_by_other);
-                        record.done_by_all = this.xx.done_by_other_all;
                         record.done_by_other = this.xx.done_by_other;
                         record.done_by_company = this.xx.done_by_other;
-                        record.done_by_licence = '??????';
+                        record.done_by_licence = '?????';
                     }
 
                     // Get original item from list
                     var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
                     obj = record;
                     this.updateItemDB(obj);
+
+                    // If Done_By_All then Assign all unassigned items to specified custom company also
+                    if (record.done_by_all == 1) {
+                        for (var i = 0; i < this.xx.itemList.length; i++) {
+                            if (this.xx.itemList[i]['status'] == 0 && !this.xx.itemList[i]['done_by']) {
+                                // Get original item from list
+                                var obj = objectFindByKey(this.xx.itemList, 'id', this.xx.itemList[i]['id']);
+                                obj.update_company = 1;
+                                obj.done_by = record.done_by;
+                                obj.done_by_all = record.done_by_all;
+                                obj.done_by_other = (record.done_by_other) ? record.done_by_other : null;
+                                this.updateItemDB(obj);
+                                this.xx.itemList[i]['done_by'] = record.done_by;
+                                this.xx.itemList[i]['done_by_all'] = record.done_by;
+                                this.xx.itemList[i]['done_by_other'] = (record.done_by_other) ? record.done_by_other : null;
+                                this.xx.itemList[i]['done_by_company'] = record.done_by_company;
+                                this.xx.itemList[i]['done_by_license'] = record.done_by_license;
+                            }
+                        }
+                    }
                 }
                 this.xx.record = {};
                 this.xx.done_by = '';

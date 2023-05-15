@@ -282,7 +282,7 @@ class SiteQaController extends Controller {
         //    return view('errors/404');
 
         $item_request = $request->only(['status', 'done_by']);
-        //dd($item_request);
+        //dd(request()->all());
 
         // Update resolve date if just modified
         if (!request('status')) {
@@ -292,7 +292,6 @@ class SiteQaController extends Controller {
             //dd($item_request);
             $item->save();
         } else {
-            //echo "stat";
             if ($item_request['status'] == 1 && $item->status != 1) {
                 $item_request['sign_by'] = Auth::user()->id;
                 $item_request['sign_at'] = Carbon::now()->toDateTimeString();
@@ -301,24 +300,25 @@ class SiteQaController extends Controller {
         }
 
         // Custom Assign Company for item done_by_company
-        if (request('done_by_other')) {
+        if (request('update_company')) {
             // Only assign selected item to specified custom company
-            $item->done_by = 1;
-            $item->done_by_other = request('done_by_other');
+            $item->done_by = request('done_by');
+            $item->done_by_other = (request('done_by_other')) ? request('done_by_other') : null;
             $item->save();
         }
 
-        if (request('done_by_all') && request('done_by_all') == 1) {
+        // Below code now taken care of by vue function UpdateItemCompany
+        /*if (request('done_by_all') && request('done_by_all') == 1) {
             // Assign all unassigned items to specified custom company also
             foreach ($qa->items as $qaItem) {
                 if ($qaItem->status == 0 && !$qaItem->done_by) {
                     //echo "[$qaItem->id] $qaItem->name s:$qaItem->status dby:$qaItem->done_by <br>";
-                    $qaItem->done_by = 1;
-                    $qaItem->done_by_other = request('done_by_other');
+                    $qaItem->done_by = request('done_by');
+                    $qaItem->done_by_other = (request('done_by_other')) ? request('done_by_other') : null;
                     $qaItem->save();
                 }
             }
-        }
+        }*/
 
         // Update modified timestamp on QA Doc
         $qa = SiteQa::findOrFail($item->doc_id);
