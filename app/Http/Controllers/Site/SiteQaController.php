@@ -282,7 +282,7 @@ class SiteQaController extends Controller {
         //    return view('errors/404');
 
         $item_request = $request->only(['status', 'done_by']);
-        dd($item_request);
+        //dd($item_request);
 
         // Update resolve date if just modified
         if (!request('status')) {

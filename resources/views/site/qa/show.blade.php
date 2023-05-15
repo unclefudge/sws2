@@ -300,9 +300,9 @@
             </div>
             <div slot="modal-body" class="modal-body">
                 <p><b>@{{ xx.record.name }}</b></p>
-                Completed by
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-7">
+                        Completed by
                         <select-picker :name.sync="xx.done_by" :options.sync="xx.sel_company" :function="doNothing"></select-picker>
                     </div>
                     <div class="col-md-5">
