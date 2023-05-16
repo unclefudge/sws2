@@ -139,6 +139,7 @@ class SiteExtensionController extends Controller {
 
         if (request('site_id')) {
             $site_ext = SiteExtensionSite::findOrFail(request('site_id'));
+            $site_ext->days = request('days');
             $site_ext->notes = request('extension_notes');
             if (request('reasons'))
                 $site_ext->reasons = implode(',', request('reasons'));
@@ -157,7 +158,7 @@ class SiteExtensionController extends Controller {
             // Create ToDoo task for Con Mgr if all sites completed
             if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
                 $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
-         }
+        }
 
         Toastr::success("Updated extension");
 
@@ -352,6 +353,7 @@ class SiteExtensionController extends Controller {
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
+                    'days'                 => $site->days,
                     'notes'                => $site->notes
                 ];
             }

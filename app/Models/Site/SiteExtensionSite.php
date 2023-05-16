@@ -13,7 +13,7 @@ use Carbon\Carbon;
 class SiteExtensionSite extends Model {
 
     protected $table = 'site_extensions_sites';
-    protected $fillable = ['extension_id', 'site_id', 'completion_date', 'reasons', 'notes', 'updated_by'];
+    protected $fillable = ['extension_id', 'site_id', 'completion_date', 'reasons', 'days', 'notes', 'updated_by'];
 
     protected $dates = ['completion_date'];
 

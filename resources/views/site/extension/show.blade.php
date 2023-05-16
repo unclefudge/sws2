@@ -37,6 +37,7 @@
                                 <th width="5%">Supervisor</th>
                                 <th width="8%">Forecast Completion</th>
                                 <th width="25%">Extend Reasons</th>
+                                <th width="5%">Days</th>
                                 <th>Extend Notes</th>
                             </tr>
                             </thead>
@@ -50,6 +51,9 @@
                                         {{ $row['extend_reasons_text'] }}
                                         <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="{{ $row['extend_reasons'] }}">
                                     </td>
+                                    <td class="hoverDiv editField" id="days-{{$row['id']}}-td">
+                                        <div id="days-{{$row['id']}}">{!! $row['days'] !!}</div>
+                                        <input type="hidden" id="days-{{$row['days']}}-s" value="{!! $row['days'] !!}"></td>
                                     <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
                                         <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
                                         <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
@@ -109,6 +113,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
+                                {!! Form::label('days', 'Days', ['class' => 'control-label']) !!}
+                                <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeypress="return isNumber(event)"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 {!! Form::label('extension_notes', 'Extend notes', ['class' => 'control-label']) !!}
                                 {!! Form::textarea('extension_notes', null, ['class' => 'form-control', 'rows' => 5, 'id' => 'extension_notes']) !!}
                             </div>
@@ -148,6 +160,7 @@
             var site_id = event_id[1];
             $("#site_id").val(site_id);
             $("#site_name").text($("#sitename-" + site_id).text());
+            $("#days").val($("#days-" + site_id).text());
 
             // Extension reason + notes
             $("#extension_notes").val($("#note-" + site_id).text());
@@ -166,6 +179,15 @@
         });
 
     });
+
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ((charCode > 31 && charCode < 48) || charCode > 57) {
+            return false;
+        }
+        return true;
+    }
 
 
 </script>
