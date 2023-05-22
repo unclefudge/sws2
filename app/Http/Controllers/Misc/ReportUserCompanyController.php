@@ -80,11 +80,13 @@ class ReportUserCompanyController extends Controller {
         $csv = "Username, User, Company, Email\r\n";
 
         foreach ($users as $user) {
-            $csv .= "$user->username, ";
-            $csv .= "$user->full_name, ";
-            $csv .= $user->company->name_alias . ", ";
-            $csv .= "$user->email, ";
-            $csv .= "\r\n";
+            if ($user && $user->requiresUserDoc(1) && !$user->activeUserDoc(1)) {
+                $csv .= "$user->username, ";
+                $csv .= "$user->full_name, ";
+                $csv .= $user->company->name_alias . ", ";
+                $csv .= "$user->email, ";
+                $csv .= "\r\n";
+            }
         }
 
         //echo $csv;
