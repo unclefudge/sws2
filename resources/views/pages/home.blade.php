@@ -48,8 +48,8 @@
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-xs-4">
-                                <a href="{{ url('/logout') }}" class="btn btn-lg default hidden-sm hidden-xs"></i> Log out </a>
-                                <a href="{{ url('/logout') }}" class="btn btn-sm default visible-sm visible-xs" style="margin-top: -15px"></i> Log out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"></i> Site Check out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs" style="margin-top: -15px"></i> Site Check out </a>
                             </div>
                         </div>
                     </div>

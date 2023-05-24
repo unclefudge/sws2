@@ -54,6 +54,18 @@ class SiteCheckinController extends Controller {
     }
 
     /**
+     * Check-in to Site.
+     */
+    public function checkout()
+    {
+        Session::pull('siteID'); //
+        $worksite = '';
+        Toastr::success("Checked out");
+
+        return redirect('/home');
+    }
+
+    /**
      * Get Check-in Questions.
      *
      * @return \Illuminate\Http\Response

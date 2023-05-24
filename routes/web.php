@@ -63,6 +63,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/signup/cancel/{id}', '\App\Http\Controllers\Company\CompanySignUpController@cancel');
 
     // Site Checkin
+    Route::get('checkout', '\App\Http\Controllers\Site\SiteCheckinController@checkout');
     Route::get('checkin', '\App\Http\Controllers\Site\SiteCheckinController@checkin');
     Route::post('checkin', '\App\Http\Controllers\Site\SiteCheckinController@getQuestions');
     Route::get('checkin/whs/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@showQuestions');
@@ -666,6 +667,7 @@ Route::get('cron/email-oldusers', '\App\Http\Controllers\Misc\CronReportControll
 Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfo');
 Route::get('cron/email-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@emailPlannerKeyTasks');
 Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@actionPlannerKeyTasks');
+Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@siteExtensions');
 Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTask');
 Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskReminder');
 

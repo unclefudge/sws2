@@ -1000,19 +1000,25 @@ class CronController extends Controller {
         $prac_yes = $prac_no = [];
         foreach ($sites as $site) {
             $start_job = SitePlanner::where('site_id', $site->id)->where('task_id', 11)->first();
+
             // Show only site which Job Start has before today
             if ($start_job && $start_job->from->lte($mon)) {
                 $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
-                $site_data = [
-                    'id'              => $site->id,
-                    'name'            => $site->name,
-                    'completion_date' => ($prac_completion) ? $prac_completion->from : '',
-                    'completion_ymd'  => ($prac_completion) ? $prac_completion->from->format('ymd') : '',
-                ];
-                if ($prac_completion)
-                    $prac_yes[] = $site_data;
-                else
-                    $prac_no[] = $site_data;
+                if ($prac_completion && $prac_completion->from->lte($mon)) {
+                    // don't add sites that have Prac Complete before current monday
+                } else {
+                    $site_data = [
+                        'id'              => $site->id,
+                        'name'            => $site->name,
+                        'completion_date' => ($prac_completion) ? $prac_completion->from : null,
+                        'completion_ymd'  => ($prac_completion) ? $prac_completion->from->format('ymd') : '',
+                    ];
+                    if ($prac_completion)
+                        $prac_yes[] = $site_data;
+                    else
+                        $prac_no[] = $site_data;
+                }
+
             }
         }
 
