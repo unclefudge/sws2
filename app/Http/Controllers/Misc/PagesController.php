@@ -1198,37 +1198,41 @@ class PagesController extends Controller {
 
             foreach ($site_ids as $site_id) {
                 $site = Site::findOrFail($site_id);
-                echo "Creating QA [$qa_master->name] for site [$site->name]";
+                if (!$site->hasTemplateQa($master_qa)) {
+                    echo "Creating QA [$qa_master->name] for site [$site->name]";
 
-                // Create new QA Report for Site
-                $newQA = SiteQa::create([
-                    'name'       => $qa_master->name,
-                    'site_id'    => $site->id,
-                    'version'    => $qa_master->version,
-                    'master'     => '0',
-                    'master_id'  => $qa_master->id,
-                    'company_id' => $qa_master->company_id,
-                    'status'     => '1',
-                    'created_by' => '1',
-                    'updated_by' => '1',
-                ]);
+                    // Create new QA Report for Site
+                    $newQA = SiteQa::create([
+                        'name'       => $qa_master->name,
+                        'site_id'    => $site->id,
+                        'version'    => $qa_master->version,
+                        'master'     => '0',
+                        'master_id'  => $qa_master->id,
+                        'company_id' => $qa_master->company_id,
+                        'status'     => '1',
+                        'created_by' => '1',
+                        'updated_by' => '1',
+                    ]);
 
-                // Copy items from template
-                foreach ($qa_master->items as $item) {
-                    $newItem = SiteQaItem::create(
-                        ['doc_id'     => $newQA->id,
-                         'task_id'    => $item->task_id,
-                         'name'       => $item->name,
-                         'order'      => $item->order,
-                         'super'      => $item->super,
-                         'master'     => '0',
-                         'master_id'  => $item->id,
-                         'created_by' => '1',
-                         'updated_by' => '1',
-                        ]);
+                    // Copy items from template
+                    foreach ($qa_master->items as $item) {
+                        $newItem = SiteQaItem::create(
+                            ['doc_id'     => $newQA->id,
+                             'task_id'    => $item->task_id,
+                             'name'       => $item->name,
+                             'order'      => $item->order,
+                             'super'      => $item->super,
+                             'master'     => '0',
+                             'master_id'  => $item->id,
+                             'created_by' => '1',
+                             'updated_by' => '1',
+                            ]);
+                    }
+                    echo "....created QA [$newQA->id]<br>";
+                    $newQA->createToDo($site->supervisors->pluck('id')->toArray());
+                } else {
+                    echo "Existing QA [$qa_master->name] for site [$site->name]<br>";
                 }
-                echo "....created QA [$newQA->id]<br>";
-                $newQA->createToDo($site->supervisors->pluck('id')->toArray());
             }
         }
         echo "<br><br>Completed<br>-------------<br>";
