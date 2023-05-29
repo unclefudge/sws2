@@ -1190,7 +1190,7 @@ class PagesController extends Controller {
     {
         echo "Manually trigger QA creation<br><br>";
         $master_qas = ['2581', '2563']; // Handover, On Completion
-        $site_ids = ['668']; // Grant-Tiekle
+        $site_ids = ['684']; // Grant-Tiekle
 
         foreach ($master_qas as $master_qa) {
             // Create new QA by copying required template
