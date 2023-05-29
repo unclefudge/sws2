@@ -1065,13 +1065,9 @@
             },
             methods: {
                 updateTaskOptions: function () {
-                    alert('a:'+this.xx.main.assigned_to);
                     if (this.xx.main.assigned_to) {
                         $.getJSON('/planner/data/company/' + this.xx.main.assigned_to + '/tasks/trade/all', function (tasks) {
                             this.xx.sel_task = tasks;
-                            // Find name of company from day array
-                            //var result = objectFindByKey(this.xx.sel_company, 'value', this.xx.day_eid);
-                            //this.xx.day_ename = result.name;
                         }.bind(this));
                     } else {
                         this.xx.main.planner_task_id = '';
