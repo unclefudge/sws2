@@ -48,8 +48,8 @@
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-xs-4">
-                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"></i> Site Check out </a>
-                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs" style="margin-top: -15px"></i> Site Check out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site Check-out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs" style="margin-top: -15px"> Site Check-out </a>
                             </div>
                         </div>
                     </div>
@@ -71,14 +71,14 @@
                                 Every worker MUST check in and acknowledge the work health and safety requirements before entering any worksite.<br><br>
                             </div>
                             <div class="col-xs-12 text-center">
-                                <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"></i> Site Check-in </a>
+                                <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-sm-6 visible-sm visible-xs">
-                <a href="/checkin" class="btn btn-lg dark center-block" style="margin-bottom: 5px"></i> Site Check-in </a>
+                <a href="/checkin" class="btn btn-lg dark center-block" style="margin-bottom: 5px"> Site Check-in </a>
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
             </div>
 
@@ -97,22 +97,22 @@
                         <div class="row">
                             <div class="col-md-6">
                                 @if (Auth::user()->hasPermission2('add.site.incident'))
-                                    <a href="/site/incident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
                                 @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                                    <a href="/site/accident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
                                 @endif
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-md-6">
                                 @if (Auth::user()->hasPermission2('add.site.hazard'))
-                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"></i> Report Hazard </a>
+                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report Hazard </a>
                                 @endif
                             </div>
                         </div>
                         @if (Auth::user()->hasPermission2('add.site.asbestos'))
                             <div class="row" style="margin-top: 10px">
                                 <div class="col-md-12">
-                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"></i> Lodge Asbestos Notification </a>
+                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
                                 </div>
                             </div>
                         @endif
@@ -121,15 +121,15 @@
             </div>
             <div class="col-md-6 col-sm-6 visible-sm visible-xs">
                 @if (Auth::user()->hasPermission2('add.site.incident'))
-                    <a href="/site/incident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
                 @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                    <a href="/site/accident/create" class="btn btn-lg red center-block"></i> Report Accident </a>
+                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
                 @endif
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
                 @if (Session::has('siteID'))
-                    <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"></i> Lodge Safety Issue </a>
+                    <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge Safety Issue </a>
                 @endif
-                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"></i> Lodge Asbestos Notification </a>
+                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
             </div>
         @endif

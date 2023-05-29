@@ -20,7 +20,7 @@ class SiteMaintenance extends Model {
 
     protected $table = 'site_maintenance';
     protected $fillable = [
-        'site_id', 'code', 'super_id', 'assigned_super_at', 'supervisor', 'completed', 'category_id', 'warranty', 'goodwill', 'assigned_to', 'assigned_at', 'further_works',
+        'site_id', 'code', 'super_id', 'assigned_super_at', 'supervisor', 'completed', 'category_id', 'warranty', 'goodwill', 'assigned_to', 'assigned_at', 'planner_id', 'further_works',
         'contact_name', 'contact_phone', 'contact_email', 'step', 'reported', 'resolved', 'client_contacted', 'client_appointment', 'ac_form_sent',
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
@@ -66,6 +66,16 @@ class SiteMaintenance extends Model {
     public function assignedTo()
     {
         return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
+    }
+
+    /**
+     * A Site Maintenance 'may' have a Planner task.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function planner()
+    {
+        return $this->belongsTo('App\Models\Site\Planner\SitePlanner', 'planner_id');
     }
 
     /**
@@ -286,7 +296,7 @@ class SiteMaintenance extends Model {
         //if ($email_to && $email_user)
         //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
         //elseif ($email_to)
-        Mail::to($email_to)->bcc(env('EMAIL_DEV'))->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
 
     }
 
@@ -350,6 +360,15 @@ class SiteMaintenance extends Model {
 
         return ($lastAction) ? $lastAction->action : '';
 
+    }
+    /**
+     * Get the planner task date if it exists  (getter)
+     *
+     * @return string;
+     */
+    public function getPlannerTaskDateAttribute()
+    {
+        return ($this->planner) ? $this->planner->from : null;
     }
 
     /**

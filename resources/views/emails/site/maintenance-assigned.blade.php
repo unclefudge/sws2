@@ -15,6 +15,9 @@ A maintenance request has been assigned for {{ $main->site->name }}.
 | **Site Name**  | {{ $main->site->name  }} |
 | **Site Address**  | {{ $main->site->address }}, {{ $main->site->SuburbStatePostcode }} |
 | **Assigned to**  | {{ ($main->assignedTo) ? $main->assignedTo->name : 'N/A' }} |
+@if ($main->planner_id)
+| **Task Date**  | {{ ($main->planner) ? $main->planner->from->format('d/m/Y') : '' }} |
+@endif
 
 
 

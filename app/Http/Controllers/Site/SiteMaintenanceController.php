@@ -12,12 +12,12 @@ use Session;
 use App\User;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
+use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\Planner\SitePlanner;
 use App\Models\Misc\Action;
 use App\Models\Company\Company;
 use App\Models\Comms\Todo;
@@ -376,13 +376,17 @@ class SiteMaintenanceController extends Controller {
     public function update($id)
     {
         $main = SiteMaintenance::findOrFail($id);
+        $planner_id_orig = $main->planner_id;
+        $super_id_orig = $main->super_id;
+        $assigned_to_orig = $main->assigned_to;
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.maintenance', $main))
             return view('errors/404');
 
-        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,3'];
-        $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.', 'onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
+        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,3', 'planner_task_date' => 'required_with:planner_task_id'];
+        $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
+                 'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
         request()->validate($rules, $mesg); // Validate
 
         $main_request = request()->all();
@@ -406,11 +410,29 @@ class SiteMaintenanceController extends Controller {
             $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
         $main_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
         $main_request['client_appointment'] = (request('client_appointment')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_appointment') . '00:00')->toDateTimeString() : null;
+
         //dd($main_request);
         $main->update($main_request);
 
+        // Update Planer Task
+        $planner_id = request('planner_id');
+        $planner_task_id = request('planner_task_id');
+        $planner_task_date = (request('planner_task_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('planner_task_date') . '00:00')->toDateTimeString() : null;
+        if ($planner_task_id) {
+           if ($planner_id_orig && $planner_id_orig != $planner_task_id)
+                $delTask = SitePlanner::findOrFail($planner_id_orig)->delete();  // Delete old planner task
+
+            // Create new
+            $planner = SitePlanner::create(['site_id' => $main->site_id, 'from' => $planner_task_date, 'to' => $planner_task_date, 'days' => 1, 'entity_type' => 'c', 'entity_id' => $main->assigned_to, 'task_id' => $planner_task_id]);
+            if ($planner) {
+                $main->planner_id = $planner->id;
+                $main->save();
+            }
+        }
+
+
         // Email if Super Assigned is updated
-        if (request('super_id') && request('super_id') != $main->super_id) {
+        if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($main_request['super_id']);
             $main->emailAssigned($super);
             $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
@@ -421,14 +443,14 @@ class SiteMaintenanceController extends Controller {
             if (!$main->assigned_super_at)
                 $main->assigned_super_at = Carbon::now()->toDateTimeString();
 
-            if (!$main->assigned_to) {
+            //if (!$main->assigned_to) {
                 $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
-            }
+            //}
             $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
         }
 
         // Email if Company Assigned is updated
-        if (request('assigned_to') && request('assigned_to') != $main->assigned_to) {
+        if (request('assigned_to') && request('assigned_to') != $assigned_to_orig) {
             $company = Company::find($main_request['assigned_to']);
             if ($company && $company->primary_contact())
                 $main->emailAssigned($company->primary_contact());
@@ -839,10 +861,53 @@ class SiteMaintenanceController extends Controller {
         $actions2[] = ['value' => '0', 'text' => 'Incomplete'];
         $actions2[] = ['value' => '1', 'text' => 'Sign Off'];
 
+        // Companies
+        $company_list = Auth::user()->company->reportsTo()->companies('1')->sortBy('name')->pluck('name', 'id')->toArray();
+        $company_list = ['' => 'Select company'] + $company_list;
+
+        $sel_company = [];
+        foreach ($company_list as $cid => $name) {
+            $sel_company[] = ['value' => $cid, 'text' => $name];
+        }
+
+        // Company tasks
+        $sel_task = [];
+        $sel_task[] = ['value' => '', 'text' => 'Select task'];
+
+        if ($main->assigned_to) {
+            // Create array in specific Vuejs 'select' format.
+            //echo "As:$main->assigned_to<br>";
+            //dd($main->assignedTo->tradesSkilledIn);
+            $trade_count = count($main->assignedTo->tradesSkilledIn);
+            foreach ($main->assignedTo->tradesSkilledIn as $trade) {
+                $tasks = Task::where('trade_id', '=', $trade->id)->orderBy('name')->get();
+                foreach ($tasks as $task) {
+                    if ($task->status) {
+                        $text = $task->name;
+
+                        if ($trade_count > 1)
+                            $text = $trade->name . ':' . $task->name;
+
+                        $sel_task[] = [
+                            'value'      => $task->id,
+                            'text'       => $text,
+                            'name'       => $task->name,
+                            'code'       => $task->code,
+                            'trade_id'   => $trade->id,
+                            'trade_name' => $trade->name,
+                        ];
+                    }
+                }
+            }
+        }
+
+
         $json = [];
         $json[] = $items;
         $json[] = $actions;
         $json[] = $actions2;
+        $json[] = $sel_company;
+        $json[] = $sel_task;
 
         return $json;
         //}

@@ -54,9 +54,13 @@
                             <input v-model="xx.main.id" type="hidden" id="main_id" value="{{ $main->id }}">
                             <input v-model="xx.main.name" type="hidden" id="main_name" value="{{ $main->name }}">
                             <input v-model="xx.main.site_id" type="hidden" id="main_site_id" value="{{ $main->site_id }}">
-
                             <input v-model="xx.main.status" type="hidden" id="main_status" value="{{ $main->status }}">
                             <input v-model="xx.main.warranty" type="hidden" id="main_warranty" value="{{ $main->warranty }}">
+                            <input v-model="xx.main.assigned_to" type="hidden" id="main_assigned_to" name="assigned_to" value="{{ $main->assigned_to }}">
+                            <input v-model="xx.main.planner_id" type="hidden" id="main_planner_id" name="planner_id" value="{!! ($main->planner) ? $main->planner->id : '' !!}">
+                            <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date" value="{!! ($main->planner) ? $main->planner->from : '' !!}">
+                            <input v-model="xx.main.planner_task_id" type="hidden" id="main_planner_task_id" value="{!! ($main->planner) ? $main->planner->task_id : '' !!}">
+                            <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date" value="{!! ($main->planner) ? $main->planner->from : '' !!}">
                             <input v-model="xx.main.signed" type="hidden" id="main_signed" value="{{ $main->isSigned() }}">
                             <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $main->id }}">
                             <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $main->status }}">
@@ -86,17 +90,26 @@
                                         <div class="col-md-12">
                                             <h4>Site Details
                                                 @if ($main->status > 0)
-                                                    <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-site">Edit</button>@endif
+                                                    <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-site">Edit</button>
+                                                @endif
                                             </h4>
                                         </div>
                                     </div>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->site) <b>{{ $main->site->name }}</b> @endif<br>
-                                    @if ($main->site) {{ $main->site->full_address }}<br> @endif
+                                    @if ($main->site)
+                                        <b>{{ $main->site->name }}</b>
+                                    @endif<br>
+                                    @if ($main->site)
+                                        {{ $main->site->full_address }}<br>
+                                    @endif
                                     <br>
-                                    @if ($main->completed)<b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br> @endif
+                                    @if ($main->completed)
+                                        <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
+                                    @endif
                                     <div id="site-show">
-                                        @if ($main->supervisor)<b>Supervisor:</b> {{ $main->supervisor }} @endif
+                                        @if ($main->supervisor)
+                                            <b>Supervisor:</b> {{ $main->supervisor }}
+                                        @endif
                                     </div>
                                     <div id="site-edit">
                                         <div class="form-group {!! fieldHasError('completed', $errors) !!}">
@@ -115,13 +128,14 @@
 
                                 <div class="col-md-6">
                                     <div class="row">
-                                        <div class="col-md-6">
+                                        <div class="col-md-5">
                                             <h4>Client Details
                                                 @if ($main->status > 0)
-                                                    <button class="btn dark btn-outline btn-sm" style="margin: -10px 0px 0px 100px; border: 0px" id="edit-client">Edit</button>@endif
+                                                    <button class="btn dark btn-outline btn-sm pull-right" style="margin: -10px 0px 0px 50px; border: 0px" id="edit-client">Edit</button>
+                                                @endif
                                             </h4>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-7">
                                             <h2 style="margin: 0px; padding-right: 20px">
                                                 @if($main->status == '-1')
                                                     <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
@@ -148,9 +162,15 @@
                                     </div>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                     <div id="client-show">
-                                        @if ($main->contact_name) <b>{{ $main->contact_name }}</b> @endif<br>
-                                        @if ($main->contact_phone) {{ $main->contact_phone }}<br> @endif
-                                        @if ($main->contact_email) {{ $main->contact_email }}<br> @endif
+                                        @if ($main->contact_name)
+                                            <b>{{ $main->contact_name }}</b>
+                                        @endif<br>
+                                        @if ($main->contact_phone)
+                                            {{ $main->contact_phone }}<br>
+                                        @endif
+                                        @if ($main->contact_email)
+                                            {{ $main->contact_email }}<br>
+                                        @endif
                                         @if($main->nextClientVisit())
                                             <br><b>Scheduled Visit:</b> {{ ($main->nextClientVisit()->entity_type == 'c' && $main->nextClientVisit()->company ) ? $main->nextClientVisit()->company->name : 'Unassigned Company'}} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
                                         @endif
@@ -380,12 +400,13 @@
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <select id="assigned_to" name="assigned_to" class="form-control select2" style="width:100%">
+                                            {{--}}<select id="assigned_to" name="assigned_to" class="form-control select2" style="width:100%">
                                                 <option value="">Select company</option>
                                                 @foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company)
                                                     <option value="{{ $company->id }}" {!! ($company->id == $main->assigned_to) ? 'selected' : ''  !!}>{{ $company->name }}</option>
                                                 @endforeach
-                                            </select>
+                                            </select>--}}
+                                            <select-picker :name.sync="xx.main.assigned_to" :options.sync="xx.sel_company" :function="updateTaskOptions"></select-picker>
                                         @else
                                             {!! Form::text('assigned_text', ($main->assignedTo) ? $main->assignedTo->name : 'Unassigned', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
@@ -393,7 +414,31 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-1">&nbsp;</div>
+                                {{-- Planner Task --}}
+                                <div class="col-md-3" v-show="xx.main.assigned_to != ''">
+                                    <div class="form-group">
+                                        {!! Form::label('planner_task_id', 'Planner Task', ['class' => 'control-label']) !!}
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <select-picker :name.sync="xx.main.planner_task_id" :options.sync="xx.sel_task" :function="doNothing"></select-picker>
+                                            <input v-model="xx.main.planner_task_id" type="hidden" name="planner_task_id" value="{{  ($main->planner) ? $main->planner->task_id : ''}}">
+                                        @else
+                                            {!! Form::text('planner_task_id_text', ($main->planner) ? $main->planner->task->name : 'None', ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
+                                        {!! fieldErrorMessage('planner_task_id', $errors) !!}
+                                    </div>
+                                </div>
+
+                                {{-- Planner Task Date --}}
+                                <div class="col-md-3" v-show="xx.main.planner_task_id != ''">
+                                    <div class="form-group">
+                                        {!! Form::label('planner_task_date', 'Task Date', ['class' => 'control-label']) !!}
+                                        <div class="input-group">
+                                            <datepicker :value.sync="xx.main.planner_task_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                        </div>
+                                        <input v-model="xx.main.planner_task_date" type="hidden" name="planner_task_date" value="{{  ($main->planner) ? $main->planner->from->format('d/m/Y') : ''}}">
+                                        {!! fieldErrorMessage('planner_task_date', $errors) !!}
+                                    </div>
+                                </div>
 
                                 @if (Auth::user()->allowed2('edit.site.maintenance', $main))
                                     <div class="col-md-1 pull-right">
@@ -484,12 +529,10 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-    </div>
 
-    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+    <pre v-if="xx.dev">@{{ $data | json }}</pre>
     -->
 
     <!-- loading Spinner -->
@@ -523,7 +566,7 @@
                     <td style="padding-top: 15px;">@{{ item.name }}</td>
                     {{-- Completed --}}
                     <td>
-                        <div v-if="item.done_by">l
+                        <div v-if="item.done_by">
                             @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }} <a v-if="xx.main.status != 0 && xx.main.signed != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
                         </div>
                         <div v-else>
@@ -570,8 +613,7 @@
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.showSignOff = false">&nbsp; No &nbsp;</button>
-                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)" :disabled="! xx.done_by"
-                ">&nbsp; Save &nbsp;</button>
+                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)" :disabled="! xx.done_by">&nbsp; Save &nbsp;</button>
             </div>
         </confirm-Signoff>
     </template>
@@ -649,252 +691,246 @@
     <!--<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>-->
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-basic-functions.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-basic-functions.js"></script>
 
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
-        $("#assigned_to").select2({placeholder: "Select company", width: '100%'});
-        $("#category_id").select2({placeholder: "Select category", width: "100%"});
-
-        $("#status").change(function () {
-            $('#onhold-div').hide();
-
-            if ($("#status").val() == '3') {
-                $('#onhold-div').show();
-            }
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $("#warranty").change(function () {
-            //alert('gg');
-            $('#goodwill-div').hide();
+        $(document).ready(function () {
+            /* Select2 */
+            $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
+            $("#assigned_to").select2({placeholder: "Select company", width: '100%'});
+            $("#category_id").select2({placeholder: "Select category", width: "100%"});
 
-            if ($("warranty").val() == 'other') {
-                $('#goodwill-div').show();
-            }
-        });
+            $("#status").change(function () {
+                $('#onhold-div').hide();
 
-        $('#site-edit').hide();
-        $('#client-edit').hide();
-        $('#photos-edit').hide();
+                if ($("#status").val() == '3') {
+                    $('#onhold-div').show();
+                }
+            });
 
-        $("#edit-site").click(function (e) {
-            e.preventDefault();
-            $('#edit-site').hide();
-            $('#site-show').hide();
-            $('#site-edit').show();
-        });
+            $("#warranty").change(function () {
+                //alert('gg');
+                $('#goodwill-div').hide();
 
-        $("#edit-client").click(function (e) {
-            e.preventDefault();
-            $('#edit-client').hide();
-            $('#client-show').hide();
-            $('#client-edit').show();
-        });
-        $("#edit-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#edit-docs").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#view-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').show();
+                if ($("warranty").val() == 'other') {
+                    $('#goodwill-div').show();
+                }
+            });
+
+            $('#site-edit').hide();
+            $('#client-edit').hide();
             $('#photos-edit').hide();
+
+            $("#edit-site").click(function (e) {
+                e.preventDefault();
+                $('#edit-site').hide();
+                $('#site-show').hide();
+                $('#site-edit').show();
+            });
+
+            $("#edit-client").click(function (e) {
+                e.preventDefault();
+                $('#edit-client').hide();
+                $('#client-show').hide();
+                $('#client-edit').show();
+            });
+            $("#edit-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#edit-docs").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#view-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').show();
+                $('#photos-edit').hide();
+            });
+
+            $("#ac_form_mark_na").click(function (e) {
+                e.preventDefault();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#multifile").fileinput({
+                uploadUrl: "/site/maintenance/upload/", // server upload action
+                uploadAsync: true,
+                //allowedFileExtensions: ["image"],
+                //allowedFileTypes: ["image"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn red",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn dark",
+                uploadIcon: "<i class=\"fa fa-upload\"></i> ",
+                uploadExtraData: {
+                    "site_id": site_id,
+                    "main_id": main_id,
+                },
+                layoutTemplates: {
+                    main1: '<div class="input-group {class}">\n' +
+                        '   {caption}\n' +
+                        '   <div class="input-group-btn">\n' +
+                        '       {remove}\n' +
+                        '       {upload}\n' +
+                        '       {browse}\n' +
+                        '   </div>\n' +
+                        '</div>\n' +
+                        '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
+                        '{preview}\n'
+                },
+            });
+
+            $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
+                data.form.append("site_id", $("#site_id").val());
+                data.form.append("main_id", $("#main_id").val());
+            });
         });
+    </script>
+    <script>
+        var xx = {
+            dev: dev,
+            main: {
+                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', planner_id: '', planner_task_id: '', planner_task_date: '',
+                signed: '', items_total: 0, items_done: 0
+            },
+            spinner: false, showSignOff: false, showAction: false,
+            record: {},
+            action: '', loaded: false,
+            table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
+            created_by: '', created_by_fullname: '',
+            done_by: '',
+            itemList: [],
+            actionList: [], sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
+            ac_form_sent: '', client_contacted: '', client_appointment: ''
+        };
 
-        $("#ac_form_mark_na").click(function (e) {
-            e.preventDefault();
-        });
+        //
+        // QA Items
+        //
+        Vue.component('app-main', {
+            template: '#main-template',
 
-        /* Bootstrap Fileinput */
-        $("#multifile").fileinput({
-            uploadUrl: "/site/maintenance/upload/", // server upload action
-            uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn red",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn dark",
-            uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-            uploadExtraData: {
-                "site_id": site_id,
-                "main_id": main_id,
+            created: function () {
+                this.getMain();
             },
-            layoutTemplates: {
-                main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
+            data: function () {
+                return {xx: xx};
             },
-        });
-
-        $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-            data.form.append("site_id", $("#site_id").val());
-            data.form.append("main_id", $("#main_id").val());
-        });
-    });
-</script>
-<script>
-    var xx = {
-        dev: dev,
-        main: {id: '', name: '', site_id: '', status: '', warranty: '', signed: '', items_total: 0, items_done: 0},
-        spinner: false, showSignOff: false, showAction: false,
-        record: {},
-        action: '', loaded: false,
-        table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
-        created_by: '', created_by_fullname: '',
-        done_by: '',
-        itemList: [],
-        actionList: [], sel_checked: [], sel_checked2: [], sel_company: [],
-        ac_form_sent: '', client_contacted: '', client_appointment: ''
-    };
-
-    //
-    // QA Items
-    //
-    Vue.component('app-main', {
-        template: '#main-template',
-
-        created: function () {
-            this.getMain();
-        },
-        data: function () {
-            return {xx: xx};
-        },
-        events: {
-            'updateReportStatus': function (status) {
-                this.xx.main.status = status;
-                this.updateReportDB(this.xx.main, true);
+            events: {
+                'updateReportStatus': function (status) {
+                    this.xx.main.status = status;
+                    this.updateReportDB(this.xx.main, true);
+                },
+                'signOff': function (type) {
+                    this.xx.main.signoff = type;
+                    this.updateReportDB(this.xx.main, true);
+                },
+                'ac_form_na': function (status) {
+                    this.xx.ac_form_sent = 'N/A';
+                },
             },
-            'signOff': function (type) {
-                this.xx.main.signoff = type;
-                this.updateReportDB(this.xx.main, true);
+            components: {
+                confirmSignoff: VueStrap.modal,
             },
-            'ac_form_na': function (status) {
-                this.xx.ac_form_sent = 'N/A';
+            filters: {
+                formatDate: function (date) {
+                    return moment(date).format('DD/MM/YYYY');
+                },
             },
-        },
-        components: {
-            confirmSignoff: VueStrap.modal,
-        },
-        filters: {
-            formatDate: function (date) {
-                return moment(date).format('DD/MM/YYYY');
-            },
-        },
-        methods: {
-            getMain: function () {
-                this.xx.spinner = true;
-                setTimeout(function () {
-                    this.xx.load_plan = true;
-                    $.getJSON('/site/maintenance/' + this.xx.main.id + '/items', function (data) {
-                        this.xx.itemList = data[0];
-                        this.xx.sel_checked = data[1];
-                        this.xx.sel_checked2 = data[2];
-                        this.xx.spinner = false;
-                        this.itemsCompleted();
-                    }.bind(this));
-                }.bind(this), 100);
-            },
-            itemsCompleted: function () {
-                this.xx.main.items_total = 0;
-                this.xx.main.items_done = 0;
-                for (var i = 0; i < this.xx.itemList.length; i++) {
-                    if ((this.xx.itemList[i]['done_by'])) { // || this.xx.itemList[i]['status'] == -1)) && this.xx.itemList[i]['sign_by']) {
-                        this.xx.main.items_done++;
+            methods: {
+                getMain: function () {
+                    this.xx.spinner = true;
+                    setTimeout(function () {
+                        this.xx.load_plan = true;
+                        $.getJSON('/site/maintenance/' + this.xx.main.id + '/items', function (data) {
+                            this.xx.itemList = data[0];
+                            this.xx.sel_checked = data[1];
+                            this.xx.sel_checked2 = data[2];
+                            this.xx.sel_company = data[3];
+                            this.xx.sel_task = data[4];
+                            this.xx.spinner = false;
+                            this.itemsCompleted();
+                        }.bind(this));
+                    }.bind(this), 100);
+                },
+                itemsCompleted: function () {
+                    this.xx.main.items_total = 0;
+                    this.xx.main.items_done = 0;
+                    for (var i = 0; i < this.xx.itemList.length; i++) {
+                        if ((this.xx.itemList[i]['done_by'])) { // || this.xx.itemList[i]['status'] == -1)) && this.xx.itemList[i]['sign_by']) {
+                            this.xx.main.items_done++;
+                        }
+                        this.xx.main.items_total++;
                     }
-                    this.xx.main.items_total++;
-                }
-            },
-            itemStatus: function (record) {
-                if (record.status == '1') {
-                    record.done_at = moment().format('YYYY-MM-DD');
-                    record.done_by = this.xx.user_id;
-                    record.done_by_name = this.xx.user_fullname;
-                }
-                this.updateItemDB(record);
-            },
-            itemStatusReset: function (record) {
-                record.status = '';
-                record.done_at = '';
-                record.done_by = '';
-                record.done_by_name = '';
-                this.updateItemDB(record);
-            },
-            itemSign: function (record) {
-                if (record.super == '1') {
-                    record.sign_at = moment().format('YYYY-MM-DD');
-                    record.sign_by = this.xx.user_id;
-                    record.sign_by_name = this.xx.user_fullname;
+                },
+                itemStatus: function (record) {
+                    if (record.status == '1') {
+                        record.done_at = moment().format('YYYY-MM-DD');
+                        record.done_by = this.xx.user_id;
+                        record.done_by_name = this.xx.user_fullname;
+                    }
                     this.updateItemDB(record);
-                } else
-                    this.itemStatusReset(record);
-            },
-            itemSignReset: function (record) {
-                record.sign_at = '';
-                record.sign_by = '';
-                record.sign_by_name = '';
-                this.updateItemDB(record);
-            },
-            /*
-             itemCompany: function (record) {
-             this.xx.sel_company = [];
-             // Get Company list
-             $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
-             this.xx.sel_company = companies;
-             this.xx.done_by = record.done_by;
-             this.xx.showSignOff = true;
-             this.xx.record = record;
+                },
+                itemStatusReset: function (record) {
+                    record.status = '';
+                    record.done_at = '';
+                    record.done_by = '';
+                    record.done_by_name = '';
+                    this.updateItemDB(record);
+                },
+                itemSign: function (record) {
+                    if (record.super == '1') {
+                        record.sign_at = moment().format('YYYY-MM-DD');
+                        record.sign_by = this.xx.user_id;
+                        record.sign_by_name = this.xx.user_fullname;
+                        this.updateItemDB(record);
+                    } else
+                        this.itemStatusReset(record);
+                },
+                itemSignReset: function (record) {
+                    record.sign_at = '';
+                    record.sign_by = '';
+                    record.sign_by_name = '';
+                    this.updateItemDB(record);
+                },
+                updateItemCompany: function (record, response) {
+                    if (response) {
+                        record.done_by = this.xx.done_by;
+                        //alert('by:'+record.done_by);
 
-             }.bind(this));
-             },*/
-            updateItemCompany: function (record, response) {
-                if (response) {
-                    record.done_by = this.xx.done_by;
-                    //alert('by:'+record.done_by);
+                        // Get company name + licence from dropdown menu array
+                        var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
+                        record.done_by_company = company.text;
+                        record.dony_by_licence = company.licence;
 
-                    // Get company name + licence from dropdown menu array
-                    var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
-                    record.done_by_company = company.text;
-                    record.dony_by_licence = company.licence;
-
-                    // Get original item from list
-                    var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
-                    obj = record;
-                    this.updateItemDB(obj);
-                }
-                this.xx.record = {};
-                this.xx.done_by = '';
-                this.xx.showSignOff = false;
-            },
-            updateItemDB: function (record) {
-                //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
-                this.$http.patch('/site/maintenance/item/' + record.id, record)
+                        // Get original item from list
+                        var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
+                        obj = record;
+                        this.updateItemDB(obj);
+                    }
+                    this.xx.record = {};
+                    this.xx.done_by = '';
+                    this.xx.showSignOff = false;
+                },
+                updateItemDB: function (record) {
+                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
+                    this.$http.patch('/site/maintenance/item/' + record.id, record)
                         .then(function (response) {
                             this.itemsCompleted();
                             toastr.success('Updated record');
@@ -906,9 +942,9 @@
                             record.done_by_name = '';
                             alert('failed to update item');
                         });
-            },
-            updateReportDB: function (record, redirect) {
-                this.$http.patch('/site/maintenance/' + record.id + '/update', record)
+                },
+                updateReportDB: function (record, redirect) {
+                    this.$http.patch('/site/maintenance/' + record.id + '/update', record)
                         .then(function (response) {
                             this.itemsCompleted();
                             if (redirect)
@@ -916,86 +952,86 @@
                             toastr.success('Updated record');
 
                         }.bind(this)).catch(function (response) {
-                    alert('failed to update report');
-                });
+                        alert('failed to update report');
+                    });
+                },
+                textColour: function (record) {
+                    if (record.status == '-1')
+                        return 'font-grey-silver';
+                    if (record.status == '0' && record.signed_by != '0')
+                        return 'leaveBG';
+                    return '';
+                },
+                doNothing: function () {
+                    //
+                },
             },
-            textColour: function (record) {
-                if (record.status == '-1')
-                    return 'font-grey-silver';
-                if (record.status == '0' && record.signed_by != '0')
-                    return 'leaveBG';
-                return '';
-            },
-            doNothing: function () {
-                //
-            },
-        },
-    });
+        });
 
 
-    Vue.component('app-actions', {
-        template: '#actions-template',
-        props: ['table', 'table_id', 'status'],
+        Vue.component('app-actions', {
+            template: '#actions-template',
+            props: ['table', 'table_id', 'status'],
 
-        created: function () {
-            this.getActions();
-        },
-        data: function () {
-            return {xx: xx, actionList: []};
-        },
-        events: {
-            'addActionEvent': function (action) {
-                this.actionList.unshift(action);
+            created: function () {
+                this.getActions();
             },
-        },
-        methods: {
-            getActions: function () {
-                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                    this.actionList = actions;
-                }.bind(this));
+            data: function () {
+                return {xx: xx, actionList: []};
             },
-        },
-    });
+            events: {
+                'addActionEvent': function (action) {
+                    this.actionList.unshift(action);
+                },
+            },
+            methods: {
+                getActions: function () {
+                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                        this.actionList = actions;
+                    }.bind(this));
+                },
+            },
+        });
 
-    Vue.component('ActionModal', {
-        template: '#actionModal-template',
-        props: ['show'],
-        data: function () {
-            var action = {};
-            return {xx: xx, action: action, oAction: ''};
-        },
-        events: {
-            'add-action-modal': function () {
-                var newaction = {};
-                this.oAction = '';
-                this.action = newaction;
-                this.xx.action = 'add';
-                this.show = true;
+        Vue.component('ActionModal', {
+            template: '#actionModal-template',
+            props: ['show'],
+            data: function () {
+                var action = {};
+                return {xx: xx, action: action, oAction: ''};
             },
-            'edit-action-modal': function (action) {
-                this.oAction = action.action;
-                this.action = action;
-                this.xx.action = 'edit';
-                this.show = true;
-            }
-        },
-        methods: {
-            close: function () {
-                this.show = false;
-                this.action.action = this.oAction;
+            events: {
+                'add-action-modal': function () {
+                    var newaction = {};
+                    this.oAction = '';
+                    this.action = newaction;
+                    this.xx.action = 'add';
+                    this.show = true;
+                },
+                'edit-action-modal': function (action) {
+                    this.oAction = action.action;
+                    this.action = action;
+                    this.xx.action = 'edit';
+                    this.show = true;
+                }
             },
-            addAction: function (action) {
-                var actiondata = {
-                    action: action.action,
-                    table: this.xx.table_name,
-                    table_id: this.xx.table_id,
-                    niceDate: moment().format('DD/MM/YY'),
-                    created_by: this.xx.created_by,
-                    fullname: this.xx.created_by_fullname,
-                };
+            methods: {
+                close: function () {
+                    this.show = false;
+                    this.action.action = this.oAction;
+                },
+                addAction: function (action) {
+                    var actiondata = {
+                        action: action.action,
+                        table: this.xx.table_name,
+                        table_id: this.xx.table_id,
+                        niceDate: moment().format('DD/MM/YY'),
+                        created_by: this.xx.created_by,
+                        fullname: this.xx.created_by_fullname,
+                    };
 
-                console.log(actiondata);
-                this.$http.post('/action', actiondata)
+                    console.log(actiondata);
+                    this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
                             actiondata.id = response.data.id;
@@ -1005,29 +1041,48 @@
                             alert('failed adding new action');
                         });
 
-                this.close();
-            },
-            updateAction: function (action) {
-                this.$http.patch('/action/' + action.id, action)
+                    this.close();
+                },
+                updateAction: function (action) {
+                    this.$http.patch('/action/' + action.id, action)
                         .then(function (response) {
                             toastr.success('Saved Action');
                         }.bind(this))
                         .catch(function (response) {
                             alert('failed to save action [' + action.id + ']');
                         });
-                this.show = false;
+                    this.show = false;
+                },
+            }
+        });
+
+
+        var myApp = new Vue({
+            el: 'body',
+            data: {xx: xx},
+            components: {
+                datepicker: VueStrap.datepicker,
             },
-        }
-    });
-
-
-    var myApp = new Vue({
-        el: 'body',
-        data: {xx: xx},
-        components: {
-            datepicker: VueStrap.datepicker,
-        },
-    });
-</script>
+            methods: {
+                updateTaskOptions: function () {
+                    alert('a:'+this.xx.main.assigned_to);
+                    if (this.xx.main.assigned_to) {
+                        $.getJSON('/planner/data/company/' + this.xx.main.assigned_to + '/tasks/trade/all', function (tasks) {
+                            this.xx.sel_task = tasks;
+                            // Find name of company from day array
+                            //var result = objectFindByKey(this.xx.sel_company, 'value', this.xx.day_eid);
+                            //this.xx.day_ename = result.name;
+                        }.bind(this));
+                    } else {
+                        this.xx.main.planner_task_id = '';
+                        this.xx.main.planner_task_date = '';
+                    }
+                },
+                doNothing: function () {
+                    //
+                },
+            },
+        });
+    </script>
 @stop
 

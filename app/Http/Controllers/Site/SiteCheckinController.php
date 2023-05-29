@@ -59,7 +59,6 @@ class SiteCheckinController extends Controller {
     public function checkout()
     {
         Session::pull('siteID'); //
-        $worksite = '';
         Toastr::success("Checked out");
 
         return redirect('/home');
