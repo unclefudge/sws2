@@ -432,9 +432,13 @@
                                 <div class="col-md-3" v-show="xx.main.planner_task_id != ''">
                                     <div class="form-group">
                                         {!! Form::label('planner_task_date', 'Task Date', ['class' => 'control-label']) !!}
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                         <div class="input-group">
                                             <datepicker :value.sync="xx.main.planner_task_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>
+                                        @else
+                                            {!! Form::text('planner_task_date_text', ($main->planner) ? $main->planner->from->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        @endif
                                         <input v-model="xx.main.planner_task_date" type="hidden" name="planner_task_date" value="{{  ($main->planner) ? $main->planner->from->format('d/m/Y') : ''}}">
                                         {!! fieldErrorMessage('planner_task_date', $errors) !!}
                                     </div>
