@@ -1186,6 +1186,54 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
+    public function triggerQA()
+    {
+        echo "Manually trigger QA creation<br><br>";
+        $master_qas = ['2581', '2563']; // Handover, On Completion
+        $site_ids = ['668']; // Grant-Tiekle
+
+        foreach ($master_qas as $master_qa) {
+            // Create new QA by copying required template
+            $qa_master = SiteQa::findOrFail($master_qa);
+
+            foreach ($site_ids as $site_id) {
+                $site = Site::findOrFail($site_id);
+                echo "Creating QA [$qa_master->name] for site [$site->name]";
+
+                // Create new QA Report for Site
+                $newQA = SiteQa::create([
+                    'name'       => $qa_master->name,
+                    'site_id'    => $site->id,
+                    'version'    => $qa_master->version,
+                    'master'     => '0',
+                    'master_id'  => $qa_master->id,
+                    'company_id' => $qa_master->company_id,
+                    'status'     => '1',
+                    'created_by' => '1',
+                    'updated_by' => '1',
+                ]);
+
+                // Copy items from template
+                foreach ($qa_master->items as $item) {
+                    $newItem = SiteQaItem::create(
+                        ['doc_id'     => $newQA->id,
+                         'task_id'    => $item->task_id,
+                         'name'       => $item->name,
+                         'order'      => $item->order,
+                         'super'      => $item->super,
+                         'master'     => '0',
+                         'master_id'  => $item->id,
+                         'created_by' => '1',
+                         'updated_by' => '1',
+                        ]);
+                }
+                echo "....created QA [$newQA->id]<br>";
+                $newQA->createToDo($site->supervisors->pluck('id')->toArray());
+            }
+        }
+        echo "<br><br>Completed<br>-------------<br>";
+    }
+
     public function importCompany(Request $request)
     {
         echo "Importing Companies<br><br>";

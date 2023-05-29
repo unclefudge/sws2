@@ -680,6 +680,7 @@ Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesControlle
 Route::get('manage/initform', '\App\Http\Controllers\Misc\PagesController@initFormTemplate');
 Route::get('manage/resetform', '\App\Http\Controllers\Misc\PagesController@resetFormTemplate');
 Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@showTemplate');
+Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
 
 
 Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');
