@@ -22,7 +22,6 @@
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="{{ $extension->attachmentUrl }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>
-
                             @if(Auth::user()->hasPermission2('del.site.extension'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
                             @endif

@@ -445,6 +445,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('site/inspection/upload', '\App\Http\Controllers\Misc\Form\FormController@deleteUpload');
     Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
 
+    // Supervisor Checklist
+
+    Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');
+    Route::get('supervisor/checklist/past', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeeks');
+    Route::get('supervisor/checklist/{checklist_id}/weekly', '\App\Http\Controllers\Misc\SuperChecklistController@showSuperWeekly');
+    Route::get('supervisor/checklist/{checklist_id}/weekly/signoff', '\App\Http\Controllers\Misc\SuperChecklistController@signoff');
+    Route::get('supervisor/checklist/{checklist_id}/{day}', '\App\Http\Controllers\Misc\SuperChecklistController@showResponse');
+    Route::resource('supervisor/checklist', '\App\Http\Controllers\Misc\SuperChecklistController');
+
 
     // Site Exports
     Route::get('site/export', '\App\Http\Controllers\Site\Planner\SitePlannerExportController@index');
@@ -681,6 +690,7 @@ Route::get('manage/initform', '\App\Http\Controllers\Misc\PagesController@initFo
 Route::get('manage/resetform', '\App\Http\Controllers\Misc\PagesController@resetFormTemplate');
 Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@showTemplate');
 Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
+Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesController@initSuperChecklist');
 
 
 Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');

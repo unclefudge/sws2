@@ -922,9 +922,16 @@ trait UserRolesPermissions {
                 return false;
             }
 
-            // Site Extension (Contract Time
+            // Site Extension (Contract Time)
             if ($permissiontype == 'site.extension') {
                 if ($this->hasPermission2($permission)) return true; // User has the permission
+                return false;
+            }
+
+            // Weekly Supervisor Checklist
+            if ($permissiontype == 'super.checklist') {
+                if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
+                if ($record->super_id == $this->id) return true; // Super permission so record must be 'for' themelves
                 return false;
             }
 

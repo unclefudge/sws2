@@ -139,6 +139,8 @@ class Todo extends Model {
                 return "/site/maintenance/$this->type_id";
             case 'project supply':
                 return "/site/supply/$this->type_id/edit";
+            case 'super checklist signoff':
+                return "/supervisor/checklist/$this->type_id/weekly";
             case 'scaffold handover':
                 return "/site/scaffold/handover/create/$this->type_id";
             case 'extension':

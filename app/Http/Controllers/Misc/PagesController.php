@@ -57,6 +57,10 @@ use App\Models\Misc\Form\FormSection;
 use App\Models\Misc\Form\FormQuestion;
 use App\Models\Misc\Form\FormOption;
 use App\Models\Misc\Form\FormLogic;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Misc\Supervisor\SuperChecklistCategory;
+use App\Models\Misc\Supervisor\SuperChecklistQuestion;
+use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
 use App\Http\Requests;
@@ -1022,7 +1026,7 @@ class PagesController extends Controller {
         $archive_company = [];
         $archive_size = 0;
 
-        echo "Archive from: ".$archive_date->format('d/m/Y')."<br><br>";
+        echo "Archive from: " . $archive_date->format('d/m/Y') . "<br><br>";
 
         //
         //  Sites
@@ -1048,18 +1052,18 @@ class PagesController extends Controller {
         }
 
         echo "<br><br>---------- Archived Sites --------------<br>";
-        echo "Count: ". count($archive_sites)."<br>";
+        echo "Count: " . count($archive_sites) . "<br>";
         $size_count = 0;
         foreach ($archive_sites as $site_id) {
             $f = public_path("filebank/site/$site_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
+            $io = popen('/usr/bin/du -sk ' . $f, 'r');
+            $size = fgets($io, 4096);
+            $size = substr($size, 0, strpos($size, "\t"));
+            pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
+            $size_count = $size_count + (int) $size;
         }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
 
         //
@@ -1073,18 +1077,18 @@ class PagesController extends Controller {
         }
 
         echo "<br><br>---------- Archived Companies --------------<br>";
-        echo "Count: ". count($archive_company)."<br>";
+        echo "Count: " . count($archive_company) . "<br>";
         $size_count = 0;
         foreach ($archive_company as $company_id) {
             $f = public_path("filebank/company/$company_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
+            $io = popen('/usr/bin/du -sk ' . $f, 'r');
+            $size = fgets($io, 4096);
+            $size = substr($size, 0, strpos($size, "\t"));
+            pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
+            $size_count = $size_count + (int) $size;
         }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
 
         //
@@ -1098,21 +1102,21 @@ class PagesController extends Controller {
         }
 
         echo "<br><br>---------- Archived Users --------------<br>";
-        echo "Count: ". count($archive_user)."<br>";
+        echo "Count: " . count($archive_user) . "<br>";
         $size_count = 0;
         foreach ($archive_user as $user_id) {
             $f = public_path("filebank/users/$user_id/");
-            $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
-            $size = fgets ( $io, 4096);
-            $size = substr ( $size, 0, strpos ( $size, "\t" ) );
-            pclose ( $io );
+            $io = popen('/usr/bin/du -sk ' . $f, 'r');
+            $size = fgets($io, 4096);
+            $size = substr($size, 0, strpos($size, "\t"));
+            pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
+            $size_count = $size_count + (int) $size;
         }
-        echo "Total size: ${size_count}k,  ". round($size_count/1000000, 2) . "Gb <br>------------------<br>";
+        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
 
-        echo "<br>------------------<br>Total Archive: ".round($archive_size/1000000, 2)."Gb<br>";
+        echo "<br>------------------<br>Total Archive: " . round($archive_size / 1000000, 2) . "Gb<br>";
     }
 
     public function completedQA()
@@ -1190,7 +1194,7 @@ class PagesController extends Controller {
     {
         echo "Manually trigger QA creation<br><br>";
         $master_qas = ['2581', '2563']; // Handover, On Completion
-        $site_ids = ['684']; // Grant-Tiekle
+        $site_ids = ['684'];
 
         foreach ($master_qas as $master_qa) {
             // Create new QA by copying required template
@@ -2419,14 +2423,91 @@ class PagesController extends Controller {
         }
     }
 
+    /*
+    * Initilise Supervisor Checklist
+    */
+    public function initSuperChecklist()
+    {
+        $now = Carbon::now()->format('d/m/Y g:i a');
+        echo "<b>Reseting Super Checklist - $now</b></br>";
+        DB::table('supervisor_checklist')->truncate();
+        DB::table('supervisor_checklist_categories')->truncate();
+        DB::table('supervisor_checklist_questions')->truncate();
+        DB::table('supervisor_checklist_responses')->truncate();
+        DB::table('supervisor_checklist_notes')->truncate();
+        echo "<b>Creating Super Checklist Questions - $now</b></br>";
+
+        //
+        // Categories
+        //
+        $order = 1;
+        $cat = SuperChecklistCategory::create(['name' => 'Daily Activities', 'description' => 'as a reminder and update of the days activities', 'parent' => null, 'order' => $order ++]);
+        $cat = SuperChecklistCategory::create(['name' => 'Forward Planning and Confirmation', 'description' => null, 'parent' => null, 'order' => $order ++]);
+        $cat = SuperChecklistCategory::create(['name' => 'Clean ups & Labour', 'description' => null, 'parent' => null, 'order' => $order ++]);
+        $cat = SuperChecklistCategory::create(['name' => 'New Project', 'description' => null, 'parent' => null, 'order' => $order ++]);
+        $cat = SuperChecklistCategory::create(['name' => 'Maintenance', 'description' => null, 'parent' => null, 'order' => $order ++]);
+
+        //
+        // Questions
+        //
+
+        $order = 1;
+        $question = SuperChecklistQuestion::create(['cat_id' => 1, 'name' => "Download photos taken at each project", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 1, 'name' => "Check weekly planner that all trades have signed in for the day for compliance", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 1, 'name' => "Review and check all QA Checklists considering what may need checking next visit", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 1, 'name' => "Have any inspections been carried out today that require confirmation and documentation", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 1, 'name' => "Are inspections needing to be booked & scheduled in Site Planners", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $order = 1;
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "Check tomorrows planner and consider whether anyone needs a call to confirm that the project is ready for them, in most cases this has been done a week or so earlier however an extra call to
+let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "While in the planner look further forward with a mindset as to what may need organising at least one, two and three weeks in advance", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "Are any variations required to be raised?", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "Are any materials required to be released?", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "Are any Orders or contracts required to be sent?", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 2, 'name' => "Are any clients required to be contacted to provide updates or confirmation either by phone or by email", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $order = 1;
+        $question = SuperChecklistQuestion::create(['cat_id' => 3, 'name' => "Organise all clean ups & labours for tomorrow and if possible for days in advance. Example for final cleans, strip days or large demolition. Plan with relevant supervisor", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $order = 1;
+        $question = SuperChecklistQuestion::create(['cat_id' => 4, 'name' => "Once allocated new project take time to study plans and specifications in full", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 4, 'name' => "Consider all pre-construction requirements, book pre-construction meeting", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 4, 'name' => "Plan project out as far as possible in Site planner", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 4, 'name' => "Organise job set up requirements with Aaron", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 4, 'name' => "Book Ashby’s scaffold", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $order = 1;
+        $question = SuperChecklistQuestion::create(['cat_id' => 5, 'name' => "Action Maintenance requests", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 5, 'name' => "Make appointments", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = SuperChecklistQuestion::create(['cat_id' => 5, 'name' => "Organise rectification", 'type' => 'YNNA', 'order' => $order ++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+        $mon = new Carbon('monday this week');
+        foreach (Company::find(3)->supervisors() as $super) {
+            if ($super->name == "TO BE ALLOCATED")
+                continue;
+
+            $mesg = "Existing";
+            $checklist = SuperChecklist::where('super_id', $super->id)->whereDate('date', $mon->format('Y-m-d'))->first();
+            if (!$checklist) {
+                $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
+                $mesg = "Creating new";
+
+                for ($day = 1; $day < 6; $day++) {
+                    foreach ($checklist->questions()->sortBy('id') as $question)
+                        $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                }
+            }
+
+            echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
+            //$log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
+        }
+    }
+
 
     public function createPermission()
     {
         //
         // Creating Permission
         //
-        $name = 'Site Inspection WHS';
-        $slug = 'site.inspection.whs';
+        $name = 'Supervisor Checklist';
+        $slug = 'super.checklist';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

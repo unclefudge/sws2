@@ -5,25 +5,28 @@
  */
 
 define("VALID_EMAIL_PATTERN", '/^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/iD');
-define('TODO_TYPES', ['incident'              => "Incident Report",
-                      'incident prevent'      => "Incident Preventative Action",
-                      'incident witness'      => "Incident Witness",
-                      'incident review'       => "Incident Review",
-                      'project supply'        => 'Project Supply Information',
-                      'extension'             => 'Contract Time Extensions',
-                      'equipment'             => 'Equipment Transfer',
-                      'maintenance'           => 'Site Maintenance Requests',
-                      'inspection'            => 'Site Inspection',
-                      'supervisor'            => 'Supervisor Checkin',
-                      'inspection_electrical' => 'Electrical Inspection Reports',
-                      'inspection_plumbing'   => 'Plumbing Inspection Reports',
-                      'scaffold handover'     => 'Scaffold Handover Certificate',
-                      'toolbox'               => 'Toolbox Talks',
-                      'swms'                  => 'Safe Work Method Statements',
-                      'qa'                    => 'Quality Assurance Reports',
-                      'company doc'           => 'Company Document',
-                      'company doc review'    => 'Standard Details Review',
-                      'user doc'              => 'User Documents',]);
+define('TODO_TYPES', ['incident'                => "Incident Report",
+                      'incident prevent'        => "Incident Preventative Action",
+                      'incident witness'        => "Incident Witness",
+                      'incident review'         => "Incident Review",
+                      'project supply'          => 'Project Supply Information',
+                      'extension'               => 'Contract Time Extensions',
+                      'extension signoff'       => 'Contract Time Extensions',
+                      'super checklist'         => 'Supervisor Checklist',
+                      'super checklist signoff' => 'Supervisor Checklist',
+                      'equipment'               => 'Equipment Transfer',
+                      'maintenance'             => 'Site Maintenance Requests',
+                      'inspection'              => 'Site Inspection',
+                      'supervisor'              => 'Supervisor Checkin',
+                      'inspection_electrical'   => 'Electrical Inspection Reports',
+                      'inspection_plumbing'     => 'Plumbing Inspection Reports',
+                      'scaffold handover'       => 'Scaffold Handover Certificate',
+                      'toolbox'                 => 'Toolbox Talks',
+                      'swms'                    => 'Safe Work Method Statements',
+                      'qa'                      => 'Quality Assurance Reports',
+                      'company doc'             => 'Company Document',
+                      'company doc review'      => 'Standard Details Review',
+                      'user doc'                => 'User Documents',]);
 define('PROJECT_MGRS', ['Kirstie Silk'       => 108, 'Jo Moerman' => 109, 'Scott Morrell' => 462, 'Nadia Lay' => 465,
                         'Clinton Strickland' => 467, 'Jim Kapodistrias' => 511, 'Juliana Choufani' => 528]);
 
@@ -153,6 +156,9 @@ function permOptions($action, $type = '')
                 break;
             case 'own' :
                 $array = ['0' => 'No', '99' => "All", '20' => "Own Company"];
+                break;
+            case 'individual' :
+                $array = ['0' => 'No', '99' => "All", '10' => 'Individual Only'];
                 break;
             case 'super' :
                 $array = ['0' => 'No', '99' => "All", '40' => 'Supervisor for'];

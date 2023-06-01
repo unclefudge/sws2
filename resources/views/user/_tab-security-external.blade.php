@@ -449,6 +449,14 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('del.site.extension', 'res', $rec, $cid) !!}</td>
                                 <td width="15%"></td>
                             </tr>
+                            <tr>
+                                <td>Supervisor Checklist</td>
+                                <td width="15%">{!! permSelect('view.super.checklist', 'individual', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.super.checklist', 'individual', $rec, $cid) !!}</td>
+                                <td width="15%"></td>
+                                <td width="15%">{!! permSelect('del.super.checklist', 'res', $rec, $cid) !!}</td>
+                                <td width="15%"></td>
+                            </tr>
                         </table>
                     @endif
                 </div>

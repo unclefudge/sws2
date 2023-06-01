@@ -13,6 +13,7 @@ use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Company\CompanyDocReview;
+use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -66,6 +67,7 @@ class ActionController extends Controller {
                 case 'site_inspection_plumbing': $record = SiteInspectionPlumbing::find(request('table_id')); break;
                 case 'site_inspection_electrical': $record = SiteInspectionElectrical::find(request('table_id')); break;
                 case 'company_docs_review': $record = CompanyDocReview::find(request('table_id')); break;
+                case 'supervisor_checklist': $record = SuperChecklist::find(request('table_id')); break;
             }
             $record->emailAction($action);
 
