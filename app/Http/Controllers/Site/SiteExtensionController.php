@@ -156,8 +156,8 @@ class SiteExtensionController extends Controller {
             }
 
             // Create ToDoo task for Con Mgr if all sites completed
-            if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
-                $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            //if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
+            //    $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
         }
 
         Toastr::success("Updated extension");
@@ -173,7 +173,7 @@ class SiteExtensionController extends Controller {
         $extension = SiteExtension::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+        if (!Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
             return view('errors/404');
 
         $extension->approved_by = Auth::user()->id;
