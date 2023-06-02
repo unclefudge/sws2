@@ -44,13 +44,16 @@ class SuperChecklistController extends Controller {
             return view('errors/404');
 
         $mon = new Carbon('monday this week');
+        $mon_prev = new Carbon('monday last week');
         $fri = new Carbon('friday this week');
         $today = Carbon::now();
         $checklists = SuperChecklist::select(['supervisor_checklist.*', 'users.firstname as super_name'])
             ->join('users', 'supervisor_checklist.super_id', '=', 'users.id')
-            ->whereDate('date', $mon->format('Y-m-d'))
-            ->orderBy('users.firstname')
-            ->get();
+            ->whereDate('date', $mon->format('Y-m-d'))->orderBy('users.firstname')->get();
+
+        $checklists_previous_week = SuperChecklist::select(['supervisor_checklist.*', 'users.firstname as super_name'])
+            ->join('users', 'supervisor_checklist.super_id', '=', 'users.id')
+            ->whereDate('date', $mon_prev->format('Y-m-d'))->where('supervisor_checklist.status', 1)->orderBy('users.firstname')->get();
 
         // Set Supervisor seen
         if (Auth::user()->permissionLevel('view.super.checklist', 3) == 99)
@@ -69,7 +72,7 @@ class SuperChecklistController extends Controller {
 
         }
 
-        return view('supervisor/checklist/list', compact('checklists', 'fri', 'today', 'classes', 'supervisors'));
+        return view('supervisor/checklist/list', compact('checklists', 'checklists_previous_week', 'fri', 'today', 'classes', 'supervisors'));
     }
 
     /**
@@ -77,7 +80,60 @@ class SuperChecklistController extends Controller {
      */
     public function pastWeeks()
     {
-        return view('supervisor/checklist/past');
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('super.checklist'))
+            return view('errors/404');
+
+        $mon = new Carbon('monday this week');
+        $pastWeeks = [];
+        foreach (SuperChecklist::whereDate('date', '<', $mon->format('Y-m-d'))->get() as $checklist) {
+            if (!in_array($checklist->date->format('Y-m-d'), $pastWeeks))
+                $pastWeeks[$checklist->date->format('d/m/Y')] = $checklist->date->format('Y-m-d');
+        }
+
+        //
+        // Create list of Checklist for each Past Week
+        //
+        $data = [];
+        foreach ($pastWeeks as $week => $date) {
+            //$ymd = Carbon::createFromFormat('d/m/Y H:i', $date . '00:00')->toDateTimeString()
+            $checklists = SuperChecklist::select(['supervisor_checklist.*', 'users.firstname as super_name'])
+                ->join('users', 'supervisor_checklist.super_id', '=', 'users.id')
+                ->whereDate('date', $date)->orderBy('users.firstname')->get();
+
+            $checklists = SuperChecklist::whereDate('date', $date)->orderBy('super_id')->get();
+            $str = '';
+            foreach ($checklists as $checklist) {
+                // Only add Supervisor Checklist authorised to view
+                if (Auth::user()->permissionLevel('view.super.checklist', 3) == 99 || Auth::user()->id == $checklist->super_id)
+                    $str .= $checklist->supervisor->initials . " (" . $checklist->weeklySummary() . "), ";
+            }
+            $str = rtrim($str, ', ');
+            $data[$date] = $str;
+        }
+        //dd($data);
+        return view('supervisor/checklist/past', compact('data'));
+    }
+
+    public function pastWeek($date)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('super.checklist'))
+            return view('errors/404');
+
+        $fri = Carbon::createFromDate($date)->addDays(5);
+        $checklists = SuperChecklist::select(['supervisor_checklist.*', 'users.firstname as super_name'])
+            ->join('users', 'supervisor_checklist.super_id', '=', 'users.id')
+            ->whereDate('date', $date)->orderBy('users.firstname')->get();
+
+
+        // Set Supervisor seen
+        if (Auth::user()->permissionLevel('view.super.checklist', 3) == 99)
+            $supervisors = Auth::user()->company->supervisors()->pluck('id')->toArray(); // All supers
+        else
+            $supervisors = [Auth::user()->id]; // Only 'own' id
+
+        return view('supervisor/checklist/pastweek', compact('checklists', 'fri', 'supervisors'));
     }
 
     /**
@@ -112,6 +168,7 @@ class SuperChecklistController extends Controller {
         if (!Auth::user()->allowed2('view.super.checklist', $checklist))
             return view('errors/404');
 
+        $mon = new Carbon('monday this week');
         $cat_ids = [];
         foreach ($checklist->responses as $response) {
             if (!in_array($response->question->category->id, $cat_ids))
@@ -119,7 +176,7 @@ class SuperChecklistController extends Controller {
         }
         $categories = SuperChecklistCategory::find($cat_ids)->sortBy('order');
 
-        return view("/supervisor/checklist/weekly", compact('checklist', 'categories'));
+        return view("/supervisor/checklist/weekly", compact('checklist', 'categories', 'mon'));
     }
 
     /**

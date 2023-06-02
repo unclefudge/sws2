@@ -449,6 +449,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');
     Route::get('supervisor/checklist/past', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeeks');
+    Route::get('supervisor/checklist/past/{date}', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeek');
     Route::get('supervisor/checklist/{checklist_id}/weekly', '\App\Http\Controllers\Misc\SuperChecklistController@showSuperWeekly');
     Route::get('supervisor/checklist/{checklist_id}/weekly/signoff', '\App\Http\Controllers\Misc\SuperChecklistController@signoff');
     Route::get('supervisor/checklist/{checklist_id}/{day}', '\App\Http\Controllers\Misc\SuperChecklistController@showResponse');
@@ -691,6 +692,7 @@ Route::get('manage/resetform', '\App\Http\Controllers\Misc\PagesController@reset
 Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@showTemplate');
 Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
 Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesController@initSuperChecklist');
+Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesController@newSuperChecklist');
 
 
 Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');

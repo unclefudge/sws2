@@ -2499,6 +2499,35 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
             //$log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
         }
     }
+    /*
+    * New Supervisor Checklist
+    */
+    public function newSuperChecklist()
+    {
+        $now = Carbon::now()->format('d/m/Y g:i a');
+        echo "<b>New Super Checklists - $now</b></br>";
+
+        $mon = new Carbon('monday this week');
+        foreach (Company::find(3)->supervisors() as $super) {
+            if ($super->name == "TO BE ALLOCATED")
+                continue;
+
+            $mesg = "Existing";
+            $checklist = SuperChecklist::where('super_id', $super->id)->whereDate('date', $mon->format('Y-m-d'))->first();
+            if (!$checklist) {
+                $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
+                $mesg = "Creating new";
+
+                for ($day = 1; $day < 6; $day++) {
+                    foreach ($checklist->questions()->sortBy('id') as $question)
+                        $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                }
+            }
+
+            echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
+            //$log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
+        }
+    }
 
 
     public function createPermission()

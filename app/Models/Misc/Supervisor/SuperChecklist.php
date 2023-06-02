@@ -72,7 +72,7 @@ class SuperChecklist extends Model {
     /**
      * Responses Completed
      */
-    public function dayCompleted($day)
+    public function dayIcon($day)
     {
         $total = $this->responses->where('day', $day)->count();
         $completed = $this->responsesCompleted($day)->count();
@@ -84,6 +84,71 @@ class SuperChecklist extends Model {
         else
             return '<i class="fa fa-2x fa-circle-o font-grey" id="d-' . $this->id . '-' . $day . '">';
     }
+
+    /**
+     * Days Completed
+     */
+    public function daysCompleted()
+    {
+        $count = 0;
+        $total = $this->responses->where('day', 1)->count();
+        for ($day = 1; $day < 6; $day ++) {
+            $completed = $this->responsesCompleted($day)->count();
+            if ($completed == $total)
+                $count ++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Days Half Completed
+     */
+    public function daysHalfCompleted()
+    {
+        $count = 0;
+        $total = $this->responses->where('day', 1)->count();
+        for ($day = 1; $day < 6; $day ++) {
+            $completed = $this->responsesCompleted($day)->count();
+            if ($completed && $completed != $total)
+                $count ++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Weekly Summary
+     */
+    public function weeklySummary()
+    {
+        $total_responses = $this->responses->where('day', 1)->count();
+        $summary = '';
+        $days_completed = 0;
+        for ($day = 1; $day < 6; $day ++) {
+            $completed = $this->responsesCompleted($day)->count();
+            if ($completed == $total_responses) {
+                $days_completed ++;
+                $summary .= '<i class="fa fa-star font-green"></i>';
+            } elseif ($completed)
+                $summary .= '<i class="fa fa-star-half-o"></i>';
+            else
+                $summary .= '<i class="fa fa-star-o font-red"></i>';
+        }
+
+        if ($days_completed == 5)
+            $summary = '<i class="fa fa-star font-yellow-saffron"></i>';
+
+        if ($this->supervisor_sign_by && $this->manager_sign_by)
+            $summary .= '<i class="fa fa-check-circle font-green"></i>';
+        elseif ($this->supervisor_sign_by)
+            $summary .= '<i class="fa fa-check-circle"></i>';
+        else
+            $summary .= '<i class="fa fa-times-circle font-red"></i>';
+
+        return $summary;
+    }
+
 
     /**
      * Create ToDoo for Super Checklist and assign to given user(s)

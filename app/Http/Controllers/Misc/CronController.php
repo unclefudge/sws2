@@ -34,6 +34,8 @@ use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentStocktake;
 use App\Models\Misc\Equipment\EquipmentStocktakeItem;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Comms\SafetyTip;
@@ -63,6 +65,7 @@ class CronController extends Controller {
         CronController::emailPlannerKeyTasks();
         //CronController::actionPlannerKeyTasks();
         CronController::siteExtensions();
+        CronController::superChecklists();
         CronController::verifyZohoImport();
 
         // Monday
@@ -845,7 +848,6 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-
     /*
     * Email Planner Key Tasks
     */
@@ -1068,9 +1070,9 @@ class CronController extends Controller {
             foreach ($old_extensions as $ext) {
                 $ext->status = 0;
                 $ext->save();
-                echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
-                $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
             }
+            echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
+            $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
         }
 
 
@@ -1180,6 +1182,56 @@ class CronController extends Controller {
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    static public function superChecklists()
+    {
+        $log = '';
+        $email_name = "Creating Supervisor Checklists for Active Supervisors";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $mon = new Carbon('monday this week');
+
+        foreach (Company::find(3)->supervisors() as $super) {
+            if ($super->name == "TO BE ALLOCATED")
+                continue;
+
+            $mesg = "Existing";
+            $checklist = SuperChecklist::where('super_id', $super->id)->whereDate('date', $mon->format('Y-m-d'))->first();
+            if (!$checklist) {
+                $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
+                $mesg = "Creating new";
+
+                for ($day = 1; $day < 6; $day++) {
+                    foreach ($checklist->questions()->sortBy('id') as $question)
+                        $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                }
+            }
+
+            echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
+            $log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
+        }
+
+
+        // Archive old active checklists
+        $old_checklists = SuperChecklist::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
+        if ($old_checklists) {
+            foreach ($old_checklists as $checklist) {
+                $checklist->status = 0;
+                $checklist->save();
+            }
+            echo "Archiving week: " . $checklist->date->format('d/m/Y') . "<br>";
+            $log .= "Archiving week: " . $checklist->date->format('d/m/Y') . "\n";
+        }
+
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

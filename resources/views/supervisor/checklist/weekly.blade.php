@@ -115,7 +115,7 @@
                                 <div class="col-sm-9">
                                     @if ($checklist->manager_sign_by)
                                         {!! \App\User::find($checklist->manager_sign_by)->full_name !!}, &nbsp;{{ $checklist->manager_sign_at->format('d/m/Y') }}
-                                   @elseif (!$checklist->supervisor_sign_by)
+                                    @elseif (!$checklist->supervisor_sign_by)
                                         <span class="font-red">Waiting for Site Supervisor Sign Off</span>
                                     @elseif (Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
                                         <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
@@ -125,7 +125,11 @@
                             <br><br>
 
                             <div class="form-actions right">
-                                <a href="/supervisor/checklist" class="btn default"> Back</a>
+                                @if ($checklist->date == $mon)
+                                    <a href="/supervisor/checklist" class="btn default"> Back</a>
+                                @else
+                                    <a href="/supervisor/checklist/past/{{ $checklist->date->format('Y-m-d') }}" class="btn default"> Back</a>
+                                @endif
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
                         </div>

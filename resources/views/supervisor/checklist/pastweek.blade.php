@@ -20,36 +20,44 @@
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Supervisor Checklist</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist" data-original-title="Curremt">Current Week</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist" data-original-title="Past">Current Week</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist/past" data-original-title="Past">Past Weeks</a>
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <h3>Past Weeks</h3>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <i class="fa fa-star font-yellow-saffron"></i> Weekly completed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-star font-green"></i> Day completed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-star-half-o"></i> Day part completed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-star-o font-red"></i> Day none completed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-check-circle font-green"></i> Manager Signed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-check-circle"></i> Supervisor Signed &nbsp; &nbsp; &nbsp;
-                                <i class="fa fa-times-circle font-red"></i> Unsigned &nbsp; &nbsp; &nbsp;
-                            </div>
-                        </div>
+                        <h3>Weekending: {{ $fri->format('j F, Y') }}</h3>
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="10%"> Week</th>
-                                <th> Checklist Summary</th>
+                                <th> Supervisor</th>
+                                <th width="7%"> Mon</th>
+                                <th width="7%"> Tue</th>
+                                <th width="7%"> Wed</th>
+                                <th width="7%"> Thu</th>
+                                <th width="7%"> Fri</th>
+                                <th width="20%"> Signed by</th>
+                                <th width="7%"></th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach ($data as $week => $summary)
-                                <?php $date = Carbon\Carbon::createFromDate($week); ?>
-                                <tr>
-                                    <td><a href="/supervisor/checklist/past/{{$week}}">{{ $date->format('d/m/Y') }}</a></td>
-                                    <td>{!! $summary !!}</td>
-                                </tr>
+
+                            @foreach ($checklists as $checklist)
+                                @if (in_array($checklist->super_id, $supervisors))
+                                    <tr>
+                                        <td>{{$checklist->supervisor->name}}</td>
+                                        <td id="d-{{$checklist->id}}-1">{!! $checklist->dayIcon(1) !!}</td>
+                                        <td id="d-{{$checklist->id}}-2">{!! $checklist->dayIcon(2) !!}</td>
+                                        <td id="d-{{$checklist->id}}-3">{!! $checklist->dayIcon(3) !!}</td>
+                                        <td id="d-{{$checklist->id}}-4">{!! $checklist->dayIcon(4) !!}</td>
+                                        <td id="d-{{$checklist->id}}-5">{!! $checklist->dayIcon(5) !!}</td>
+                                        <td>
+                                            {!! $checklist->signed_by_field !!}
+                                        </td>
+                                        <td>
+                                            <a href="/supervisor/checklist/{{$checklist->id}}/weekly" class="btn blue btn-sm sbold uppercase">Weekly</a>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                             </tbody>
                         </table>

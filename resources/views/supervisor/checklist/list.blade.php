@@ -54,11 +54,11 @@
                                 @if (in_array($checklist->super_id, $supervisors))
                                     <tr>
                                         <td>{{$checklist->supervisor->name}}</td>
-                                        <td id="d-{{$checklist->id}}-1" class="{{ $classes[1] }}">{!! ($classes[1]) ? $checklist->dayCompleted(1) : '' !!}</td>
-                                        <td id="d-{{$checklist->id}}-2" class="{{ $classes[2] }}">{!! ($classes[2]) ? $checklist->dayCompleted(2) : '' !!}</td>
-                                        <td id="d-{{$checklist->id}}-3" class="{{ $classes[3] }}">{!! ($classes[3]) ? $checklist->dayCompleted(3) : '' !!}</td>
-                                        <td id="d-{{$checklist->id}}-4" class="{{ $classes[4] }}">{!! ($classes[4]) ? $checklist->dayCompleted(4) : '' !!}</td>
-                                        <td id="d-{{$checklist->id}}-5" class="{{ $classes[5] }}">{!! ($classes[5]) ? $checklist->dayCompleted(5) : '' !!}</td>
+                                        <td id="d-{{$checklist->id}}-1" class="{{ $classes[1] }}">{!! ($classes[1]) ? $checklist->dayIcon(1) : '' !!}</td>
+                                        <td id="d-{{$checklist->id}}-2" class="{{ $classes[2] }}">{!! ($classes[2]) ? $checklist->dayIcon(2) : '' !!}</td>
+                                        <td id="d-{{$checklist->id}}-3" class="{{ $classes[3] }}">{!! ($classes[3]) ? $checklist->dayIcon(3) : '' !!}</td>
+                                        <td id="d-{{$checklist->id}}-4" class="{{ $classes[4] }}">{!! ($classes[4]) ? $checklist->dayIcon(4) : '' !!}</td>
+                                        <td id="d-{{$checklist->id}}-5" class="{{ $classes[5] }}">{!! ($classes[5]) ? $checklist->dayIcon(5) : '' !!}</td>
                                         <td>
                                             {!! $checklist->signed_by_field !!}
                                         </td>
@@ -70,6 +70,50 @@
                             @endforeach
                             </tbody>
                         </table>
+
+
+                        <?php $found = 0 ?>
+                        @foreach ($checklists_previous_week as $checklist)
+                            @if (in_array($checklist->super_id, $supervisors))
+                                @if (!$found)
+                                        <?php $found ++ ?>
+                                    <h3>Outstanding Last Week: {{ $fri->subWeek()->format('j F, Y') }}</h3>
+                                    <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                        <thead>
+                                        <tr class="mytable-header">
+                                            <th> Supervisor</th>
+                                            <th width="7%"> Mon</th>
+                                            <th width="7%"> Tue</th>
+                                            <th width="7%"> Wed</th>
+                                            <th width="7%"> Thu</th>
+                                            <th width="7%"> Fri</th>
+                                            <th width="20%"> Signed by</th>
+                                            <th width="7%"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @endif
+                                        <tr>
+                                            <td>{{$checklist->supervisor->name}}</td>
+                                            <td id="d-{{$checklist->id}}-1" class="{{ $classes[1] }}">{!! ($classes[1]) ? $checklist->dayIcon(1) : '' !!}</td>
+                                            <td id="d-{{$checklist->id}}-2" class="{{ $classes[2] }}">{!! ($classes[2]) ? $checklist->dayIcon(2) : '' !!}</td>
+                                            <td id="d-{{$checklist->id}}-3" class="{{ $classes[3] }}">{!! ($classes[3]) ? $checklist->dayIcon(3) : '' !!}</td>
+                                            <td id="d-{{$checklist->id}}-4" class="{{ $classes[4] }}">{!! ($classes[4]) ? $checklist->dayIcon(4) : '' !!}</td>
+                                            <td id="d-{{$checklist->id}}-5" class="{{ $classes[5] }}">{!! ($classes[5]) ? $checklist->dayIcon(5) : '' !!}</td>
+                                            <td>
+                                                {!! $checklist->signed_by_field !!}
+                                            </td>
+                                            <td>
+                                                <a href="/supervisor/checklist/{{$checklist->id}}/weekly" class="btn blue btn-sm sbold uppercase">Weekly</a>
+                                            </td>
+                                        </tr>
+                                        @endif
+                                        @endforeach
+
+                                        @if ($found)
+                                        </tbody>
+                                    </table>
+                                @endif
                     </div>
                 </div>
             </div>
