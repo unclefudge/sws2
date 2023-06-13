@@ -375,7 +375,8 @@ class Site extends Model {
         $string = '';
         $words = preg_split("/[\s]+/", $this->consultant_name);
         foreach ($words as $word)
-            $string .= strtoupper($word[0]);
+            if ($word)
+                $string .= strtoupper($word[0]);
 
         return $string;
     }
@@ -770,7 +771,7 @@ class Site extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
