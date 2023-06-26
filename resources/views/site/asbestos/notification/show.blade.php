@@ -207,6 +207,11 @@
                                 <div class="col-md-2"><b>Type:</b></div>
                                 <div class="col-md-10">{{ $asb->type }}</div>
                             </div>
+                            {{-- Removalist --}}
+                            <div class="row" style="line-height: 2">
+                                <div class="col-md-2"><b>Licensed Asbestos Removalist:</b></div>
+                                <div class="col-md-10">{{ $asb->removalist_name }}</div>
+                            </div>
 
 
                             {{-- Asbestos Removal --}}
