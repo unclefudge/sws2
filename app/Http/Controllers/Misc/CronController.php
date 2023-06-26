@@ -995,7 +995,6 @@ class CronController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
-
         $mon = new Carbon('monday this week');
 
         $data = [];
@@ -1008,7 +1007,9 @@ class CronController extends Controller {
                 $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
                 if ($prac_completion && $prac_completion->from->lte($mon)) {
                     // don't add sites that have Prac Complete before current monday
+                    //echo "Ignore PC [$site->id] $site->name<br>";
                 } else {
+                    //echo "Add [$site->id] $site->name<br>";
                     $site_data = [
                         'id'              => $site->id,
                         'name'            => $site->name,
@@ -1021,6 +1022,8 @@ class CronController extends Controller {
                         $prac_no[] = $site_data;
                 }
 
+            } else {
+                //echo "No START[$site->id] $site->name<br>";
             }
         }
 
@@ -1030,7 +1033,9 @@ class CronController extends Controller {
         usort($prac_no, function ($a, $b) {
             return $a['name'] <=> $b['name'];
         });
-        $data = $prac_yes + $prac_no;
+
+        //$data = $prac_yes + $prac_no;
+        $data = array_merge($prac_yes, $prac_no);
 
         //dd($data);
         $mesg = "Existing";
@@ -1045,8 +1050,11 @@ class CronController extends Controller {
         // Create individual extension record for each site
         foreach ($data as $site) {
             $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
-            if (!$ext_site)
+            if (!$ext_site) {
                 $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
+                echo "Adding site [".$site['id']."] ".$site['name']."<br>";
+                $log .= "Adding site [".$site['id']."] ".$site['name']."\n";
+            }
         }
 
         $ext->createPDF();
@@ -1070,12 +1078,11 @@ class CronController extends Controller {
             foreach ($old_extensions as $ext) {
                 $ext->status = 0;
                 $ext->save();
+                echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
+                $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
             }
-            echo "Archiving week: " . $ext->date->format('d/m/Y') . "<br>";
-            $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
         }
-
-
+        
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 

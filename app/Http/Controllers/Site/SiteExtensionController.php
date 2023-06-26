@@ -141,8 +141,7 @@ class SiteExtensionController extends Controller {
             $site_ext = SiteExtensionSite::findOrFail(request('site_id'));
             $site_ext->days = request('days');
             $site_ext->notes = request('extension_notes');
-            if (request('reasons'))
-                $site_ext->reasons = implode(',', request('reasons'));
+            $site_ext->reasons = (request('reasons')) ? implode(',', request('reasons')) : null;
             $site_ext->save();
             $site_ext->extension->createPDF();
 
