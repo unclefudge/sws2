@@ -20,7 +20,7 @@ class SiteAsbestos extends Model {
         'assessor_name','assessor_phone', 'assessor_cert', 'assessor_lic', 'assessor_dept', 'assessor_state', 'safework', 'safework_ref',
         'equip_overalls', 'equip_mask', 'equip_gloves', 'equip_half_face', 'equip_full_face', 'equip_other',
         'method_fencing', 'method_signage', 'method_water', 'method_pva', 'method_barriers', 'method_plastic', 'method_vacuum', 'method_other',
-        'isolation', 'register', 'swms', 'inspection', 'supervisor_id',
+        'isolation', 'register', 'swms', 'inspection', 'supervisor_id', 'removalist', 'removalist_name',
         'safework_at', 'supervisor_at', 'neighbours_at', 'removal_at', 'reg_updated_at',
         'attachment', 'company_id', 'status', 'resolved_at',
         'created_by', 'updated_by', 'created_at', 'updated_at',
@@ -151,7 +151,8 @@ class SiteAsbestos extends Model {
         if (\App::environment('prod')) {
             $email_list = $this->site->company->notificationsUsersEmailType('site.asbestos');
             $email_supers = $this->site->supervisorsEmails();
-            $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $handy_email = ($this->removalist == '385') ? ['handyfirst01@gmail.com'] : [];
+            $email_to = array_unique(array_merge($email_list, $email_supers, $handy_email), SORT_REGULAR);
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
