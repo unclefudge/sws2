@@ -1082,7 +1082,7 @@ class CronController extends Controller {
                 $log .= "Archiving week: " . $ext->date->format('d/m/Y') . "\n";
             }
         }
-        
+
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 

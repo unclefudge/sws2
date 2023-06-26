@@ -155,8 +155,9 @@ class SiteExtensionController extends Controller {
             }
 
             // Create ToDoo task for Con Mgr if all sites completed
-            //if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
-            //    $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
+                $site_ext->extension->createSignOffToDo(['325']);  // Michelle, Courtney 1359
+            //$site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
         }
 
         Toastr::success("Updated extension");
