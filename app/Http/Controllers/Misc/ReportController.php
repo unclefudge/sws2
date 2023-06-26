@@ -365,6 +365,24 @@ class ReportController extends Controller {
         return view('manage/report/site/maintenance_aftercare', compact('mains'));
     }
 
+    public function maintenanceSupervisorNoAction()
+    {
+        $today = Carbon::now();
+        $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+
+        // Supervisors list
+        $supers = [];
+        foreach ($mains as $main) {
+            if ($main->super_id) {
+                if (!isset($supers[$main->super_id]))
+                    $supers[$main->super_id] = $main->taskOwner->fullname;
+            } else
+                $supers[0] = 'Unassigned';
+        }
+        asort($supers);
+        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+    }
+
     public function maintenanceExecutive()
     {
         if (!request('date_from')) {

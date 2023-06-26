@@ -120,6 +120,9 @@
                                 <td><a href="/manage/report/maintenance_aftercare">Without After Care</a></td>
                             </tr>
                             <tr>
+                                <td><a href="/manage/report/maintenance_supervisor_no_action">Supervisor No Appointmentt/ Action 14 days</a></td>
+                            </tr>
+                            <tr>
                                 <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                             </tr>
                             @if (Auth::user()->isCC())
