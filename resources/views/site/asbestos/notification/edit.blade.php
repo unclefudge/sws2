@@ -222,10 +222,30 @@
                             </div>
 
 
+                            <div id="non_friable_removal" style="display: none">
+                                <h3><br>Asbestos Removal</h3>
+                                <hr>
+                                {{-- Asbestos Removalist --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
+                                            {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
+                                            {!! Form::select('removalist', ['' => 'Select removalist', '385' => 'Handy 1st Pty Ltd AD2122895', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('removalist', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="removalist_name_div" style="display: none">
+                                        <div class="form-group {!! fieldHasError('removalist_name', $errors) !!}">
+                                            {!! Form::label('removalist_name', 'Name of Removalist', ['class' => 'control-label']) !!}
+                                            {!! Form::text('removalist_name', null, ['class' => 'form-control bs-select']) !!}
+                                            {!! fieldErrorMessage('removalist_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Non Friable Extra Fields --}}
                             <div id="non_friable_fields" style="display: none">
-                                <h3><br>Cape Cod to perform Asbestos Removal</h3>
-                                <hr>
                                 {{-- Workers --}}
                                 <div class="row">
                                     <div class="col-md-6">
@@ -401,7 +421,9 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div id="non_friable_fields_part2" style="display: none">
                                 {{-- Reviewed Asbestos Register --}}
                                 <div class="row">
                                     <div class="col-md-12">
@@ -580,13 +602,33 @@
                 $("#amount_fields").hide();
                 $("#amount_over").val('0');
             }
+
             // Class 'Friable'
             $("#friable_note").hide();
             $("#non_friable_fields").hide();
+            $("#non_friable_fields_part2").hide();
             if ($("#friable").val() == '1')
                 $("#friable_note").show();
             if ($("#friable").val() == '0')
+                $("#non_friable_removal").show();
+
+            // Removalist
+            $("#removalist_name_div").hide();
+            if ($("#removalist").val() == '3') {
+                $("#removalist_name").val('Cape Cod Australia Pty Ltd AD205686');
                 $("#non_friable_fields").show();
+                $("#non_friable_fields_part2").show();
+            }
+            if ($("#removalist").val() == '385') {
+                $("#removalist_name").val('Handy 1st Pty Ltd AD2122895');
+                $("#non_friable_fields_part2").show();
+            }
+            if ($("#removalist").val() == 'other') {
+                $("#non_friable_fields_part2").show();
+                $("#removalist_name_div").show();
+            }
+
+
 
             // Hygiene Report
             $("#hygiene_report_div").hide();
@@ -632,6 +674,12 @@
 
         // On Change Class 'Friable'
         $("#friable").change(function () {
+            displayFields();
+        });
+
+        // On Change Class 'Friable'
+        $("#removalist").change(function () {
+            $("#removalist_name").val('');
             displayFields();
         });
 
