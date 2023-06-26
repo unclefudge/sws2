@@ -272,7 +272,7 @@ class ToolboxTalkController extends Controller {
                 if (!in_array($user_id, $current_users)) {
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($user_id);
-                    //$todo->emailToDo();
+                    $todo->emailToDo();
                 }
             }
 

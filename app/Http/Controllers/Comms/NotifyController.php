@@ -57,27 +57,27 @@ class NotifyController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(NotifyRequest $request)
+    public function store()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.notify'))
             return view('errors/404');
 
-        $notify_request = $request->all();
-        $notify_request['from'] = Carbon::createFromFormat('d/m/Y H:i', $request->get('from') . '00:00')->toDateTimeString();
-        $notify_request['to'] = Carbon::createFromFormat('d/m/Y H:i', $request->get('to') . '00:00')->toDateTimeString();
+        $notify_request = request()->all();
+        $notify_request['from'] = Carbon::createFromFormat('d/m/Y H:i', request('from') . '00:00')->toDateTimeString();
+        $notify_request['to'] = Carbon::createFromFormat('d/m/Y H:i', request('to') . '00:00')->toDateTimeString();
 
-        $assign_to = $request->get('assign_to');
+        $assign_to = request('assign_to');
         $assign_list = [];
 
         //dd($notify_request);
 
         // Users
         if ($assign_to == 'user') {
-            if (in_array('all', $request->get('user_list')))
+            if (in_array('all', request('user_list')))
                 $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
             else
-                foreach ($request->get('user_list') as $id)
+                foreach (request('user_list') as $id)
                     $assign_list[] = $id;
             $notify = Notify::create($notify_request);
             $notify->assignUsers($assign_list);
@@ -85,10 +85,10 @@ class NotifyController extends Controller {
 
         // Companies
         if ($assign_to == 'company') {
-            if (in_array('all', $request->get('company_list')))
+            if (in_array('all', request('company_list')))
                 $assign_list = Auth::user()->company->companies('1')->pluck('id')->toArray();
             else
-                foreach ($request->get('company_list') as $id)
+                foreach (request('company_list') as $id)
                     $assign_list[] = $id;
 
             $user_list = [];
@@ -105,14 +105,14 @@ class NotifyController extends Controller {
 
         // Roles
         if ($assign_to == 'role') {
-            $assign_list = $request->get('role_list');
+            $assign_list = request('role_list');
             $user_list = [];
             $users = DB::table('role_user')->select('user_id')->whereIn('role_id', $assign_list)->distinct('user_id')->orderBy('user_id')->get();
+            $active_users = Auth::user()->company->users('1')->pluck('id')->toArray();
             foreach ($users as $u) {
-                if (in_array($u->user_id, Auth::user()->company->users('1')->pluck('id')->toArray()))
+                if (in_array($u->user_id, $active_users))
                     $user_list[] = $u->user_id;
             }
-
 
             $notify = Notify::create($notify_request);
             $notify->assignUsers($user_list);
@@ -120,10 +120,10 @@ class NotifyController extends Controller {
 
         // Sites
         if ($assign_to == 'site') {
-            if (in_array('all', $request->get('site_list')))
+            if (in_array('all', request('site_list')))
                 $assign_list = Auth::user()->company->sites('1')->pluck('id')->toArray();
             else
-                foreach ($request->get('site_list') as $id)
+                foreach (request('site_list') as $id)
                     $assign_list[] = $id;
 
             foreach ($assign_list as $site_id) {
