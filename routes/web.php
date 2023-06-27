@@ -278,13 +278,14 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::get('manage/report/upcoming_compliance/{id}/createpdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');
     Route::resource('site/upcoming/compliance', '\App\Http\Controllers\Site\SiteUpcomingComplianceController');
 
-    // Prac Complete Extention
+    // Site Extention
     Route::post('site/extension/update_job', '\App\Http\Controllers\Site\SiteExtensionController@updateJob');
     Route::get('site/extension/past', '\App\Http\Controllers\Site\SiteExtensionController@past');
     Route::get('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@settings');
     Route::post('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@updateSettings');
     Route::get('site/extension/settings/del/{id}', '\App\Http\Controllers\Site\SiteExtensionController@deleteSetting');
     Route::get('site/extension/{id}/signoff', '\App\Http\Controllers\Site\SiteExtensionController@signoff');
+    Route::get('site/extension/{id}/{supervisor_id}', '\App\Http\Controllers\Site\SiteExtensionController@showExtensions');
     Route::resource('site/extension', '\App\Http\Controllers\Site\SiteExtensionController');
 
     // Site Hazards

@@ -493,7 +493,6 @@ class CronReportController extends Controller {
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
-        //$app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
         $today = Carbon::now();
 
         // Supervisors list
@@ -507,13 +506,53 @@ class CronReportController extends Controller {
         }
         asort($supers);
 
+        foreach ($supers as $super_id => $super_name) {
+            $body = "<b>No Appointment</b><br>";
+            $body .= '<table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">';
+            $super_count = 0;
+            foreach ($mains as $main) {
+                if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
+                    if (!$main->client_appointment) {
+                        if ($super_count == 0) {
+                            $body .= '<thead>';
+                            $body .= '<tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">';
+                            $body .= '<th width="5%">#</th>';
+                            $body .= '<th width="5%">Reported</th>';
+                            $body .= '<th width="15%">Site</th>';
+                            $body .= '<th width="10%">Client Contacted</th>';
+                            $body .= '<th width="5%">Appointment</th>';
+                            $body .= '<th width="5%">Last Action</th>';
+                            $body .= '<th width="50%">Note</th>';
+                            $body .= '</tr>';
+                            $body .= '</thead>';
+                            $body .= '<tbody>';
+                        }
+                        $super_count ++;
+                        $body .= "<tr>";
+                        $body .= "<td>M$main->code</td>";
+                        $body .= "<td>" . $main->created_at->format('d/m/Y') . "</td>";
+                        $body .= "<td>" . $main->site->name . "</td>";
+                        //$body .= "<td>" . ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-' . "</td>";
+                        $body .= "<td>" . $main->client_contacted . "</td>";
+                        //$body .= "<td>" . ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-' . "</td>";
+                        $body .= "<td>" . $main->client_appointment . "</td>";
+                        $body .= "<td>" . ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') . "</td>";
+                        $body .= "<td>" . $main->lastActionNote() . "</td>";
+                        $body .= "</tr>";
+                    }
+                }
+            }
+            dd($body);
+        }
+        dd('here');
+
         // Create PDF
         $file = public_path('filebank/tmp/maintenance-supervisor-cron.pdf');
         if (file_exists($file))
             unlink($file);
 
-        return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
+        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
         $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
         $pdf->save($file);
 

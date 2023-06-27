@@ -46,7 +46,7 @@ class SiteExtensionController extends Controller {
 
         $extension = SiteExtension::where('status', 1)->latest()->first();
         if ($extension)
-            return redirect("/site/extension/$extension->id");
+            return redirect("/site/extension/$extension->id/0");
 
         return view('errors/404');
         //$data = $this->getData($extension);
@@ -61,7 +61,7 @@ class SiteExtensionController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function showExtensions($id, $supervisor_id)
     {
         $extension = SiteExtension::findOrFail($id);
 
@@ -75,7 +75,7 @@ class SiteExtensionController extends Controller {
 
         //dd($data);
 
-        return view('site/extension/show', compact('extension', 'data', 'extend_reasons'));
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons'));
     }
 
     /**
@@ -349,6 +349,7 @@ class SiteExtensionController extends Controller {
                     'id'                   => $site->id,
                     'name'                 => $site->site->name,
                     'super_initials'       => $site->site->supervisorsInitialsSBC(),
+                    'super_ids'             => $site->site->supervisors->pluck('id')->toArray(),
                     'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),

@@ -138,39 +138,40 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
 
-        $(".editField").click(function (e) {
-            console.log('hhhh');
-            if (!$("#approved_by").val()) {
-                var event_id = e.target.id.split('-');
-                var site_id = event_id[1];
-                $("#site_id").val(site_id);
-                $("#site_name").text($("#sitename-" + site_id).text());
+            $(".editField").click(function (e) {
+                console.log('hhhh');
+                if (!$("#approved_by").val()) {
+                    var event_id = e.target.id.split('-');
+                    var site_id = event_id[1];
+                    $("#site_id").val(site_id);
+                    $("#site_name").text($("#sitename-" + site_id).text());
 
-                // Extension reason + notes
-                $("#extension_notes").val($("#note-" + site_id).text());
-                var reason_array_str = $("#reason-" + site_id + "-array").val();
-                var reason_array = reason_array_str.split(',');
+                    // Extension reason + notes
+                    $("#extension_notes").val($("#note-" + site_id).text());
+                    var reason_array_str = $("#reason-" + site_id + "-array").val();
+                    var reason_array = reason_array_str.split(',');
 
-                $("#reasons").val(reason_array);
-                $("#reasons").trigger('change');
+                    $("#reasons").val(reason_array);
+                    $("#reasons").trigger('change');
 
-                $("#modal_edit").modal('show');
-            }
+                    $("#modal_edit").modal('show');
+                }
+            });
+
+            $(".signoff").click(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/extension/{{$extension->id}}/signoff";
+            });
+
         });
 
-        $(".signoff").click(function (e) {
-            e.preventDefault();
-            window.location.href = "/site/extension/{{$extension->id}}/signoff";
-        });
 
-    });
-
-
-</script>
+    </script>
 @stop

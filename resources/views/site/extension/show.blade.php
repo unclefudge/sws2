@@ -29,7 +29,11 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <h3>Week of {{ $extension->date->format('d/m/Y') }}</h3>
+                        <h3>Week of {{ $extension->date->format('d/m/Y') }}
+                            @if (in_array(Auth::user()->id, [3, 108, 7, 325, 1359])) {{-- Fudge, Kirstie, Gary, Michelle, Courtney --}}
+                                <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
+                            @endif
+                        </h3>
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
@@ -43,22 +47,24 @@
                             </thead>
                             <tbody>
                             @foreach ($data as $row)
-                                <tr>
-                                    <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
-                                    <td>{{ $row['super_initials'] }}</td>
-                                    <td>{{ $row['completion_date'] }}</td>
-                                    <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
-                                        {{ $row['extend_reasons_text'] }}
-                                        <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="{{ $row['extend_reasons'] }}">
-                                    </td>
-                                    <td class="hoverDiv editField" id="days-{{$row['id']}}-td">
-                                        <div id="days-{{$row['id']}}">{!! $row['days'] !!}</div>
-                                        <input type="hidden" id="days-{{$row['days']}}-s" value="{!! $row['days'] !!}"></td>
-                                    <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
-                                        <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
-                                        <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
-                                    </td>
-                                </tr>
+                                @if ($supervisor_id == 0 || in_array($supervisor_id, $row['super_ids']))
+                                    <tr>
+                                        <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
+                                        <td>{{ $row['super_initials'] }}</td>
+                                        <td>{{ $row['completion_date'] }}</td>
+                                        <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
+                                            {{ $row['extend_reasons_text'] }}
+                                            <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="{{ $row['extend_reasons'] }}">
+                                        </td>
+                                        <td class="hoverDiv editField" id="days-{{$row['id']}}-td">
+                                            <div id="days-{{$row['id']}}">{!! $row['days'] !!}</div>
+                                            <input type="hidden" id="days-{{$row['days']}}-s" value="{!! $row['days'] !!}"></td>
+                                        <td class="hoverDiv editField" id="note-{{$row['id']}}-td">
+                                            <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
+                                            <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                             </tbody>
                         </table>
@@ -149,46 +155,52 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
 
-        $(".editField").click(function (e) {
-            var event_id = e.target.id.split('-');
-            var site_id = event_id[1];
-            $("#site_id").val(site_id);
-            $("#site_name").text($("#sitename-" + site_id).text());
-            $("#days").val($("#days-" + site_id).text());
+            $(".editField").click(function (e) {
+                var event_id = e.target.id.split('-');
+                var site_id = event_id[1];
+                $("#site_id").val(site_id);
+                $("#site_name").text($("#sitename-" + site_id).text());
+                $("#days").val($("#days-" + site_id).text());
 
-            // Extension reason + notes
-            $("#extension_notes").val($("#note-" + site_id).text());
-            var reason_array_str = $("#reason-" + site_id + "-array").val();
-            var reason_array = reason_array_str.split(',');
+                // Extension reason + notes
+                $("#extension_notes").val($("#note-" + site_id).text());
+                var reason_array_str = $("#reason-" + site_id + "-array").val();
+                var reason_array = reason_array_str.split(',');
 
-            $("#reasons").val(reason_array);
-            $("#reasons").trigger('change');
+                $("#reasons").val(reason_array);
+                $("#reasons").trigger('change');
 
-            $("#modal_edit").modal('show');
+                $("#modal_edit").modal('show');
+            });
+
+            $(".signoff").click(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/extension/{{$extension->id}}/signoff";
+            });
+
+            $("#supervisor").change(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/extension/{{$extension->id}}/" + $("#supervisor").val();
+            });
+
         });
 
-        $(".signoff").click(function (e) {
-            e.preventDefault();
-            window.location.href = "/site/extension/{{$extension->id}}/signoff";
-        });
-
-    });
-
-    function isNumber(evt) {
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if ((charCode > 31 && charCode < 48) || charCode > 57) {
-            return false;
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
 
 
-</script>
+    </script>
 @stop
