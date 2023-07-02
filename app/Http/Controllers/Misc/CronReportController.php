@@ -55,7 +55,6 @@ class CronReportController extends Controller {
         if (Carbon::today()->isMonday()) {
             CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
-            CronReportController::emailMaintenanceSupervisorNoAction();
             CronReportController::emailMaintenanceUnderReview();
             CronReportController::emailMissingCompanyInfo();
         }
@@ -63,6 +62,7 @@ class CronReportController extends Controller {
         if (Carbon::today()->isTuesday()) {
             CronReportController::emailOutstandingQA();
             CronReportController::emailUpcomingJobCompilance();
+            CronReportController::emailMaintenanceSupervisorNoAction();
         }
 
         if (Carbon::today()->isThursday()) {
@@ -507,56 +507,133 @@ class CronReportController extends Controller {
         asort($supers);
 
         foreach ($supers as $super_id => $super_name) {
-            $body = "<b>No Appointment</b><br>";
-            $body .= '<table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">';
-            $super_count = 0;
-            foreach ($mains as $main) {
-                if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
-                    if (!$main->client_appointment) {
-                        if ($super_count == 0) {
-                            $body .= '<thead>';
-                            $body .= '<tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">';
-                            $body .= '<th width="5%">#</th>';
-                            $body .= '<th width="5%">Reported</th>';
-                            $body .= '<th width="15%">Site</th>';
-                            $body .= '<th width="10%">Client Contacted</th>';
-                            $body .= '<th width="5%">Appointment</th>';
-                            $body .= '<th width="5%">Last Action</th>';
-                            $body .= '<th width="50%">Note</th>';
-                            $body .= '</tr>';
-                            $body .= '</thead>';
-                            $body .= '<tbody>';
+            $body = '';
+            $found_request = false;
+            if ($super_id) {
+                $super = User::find($super_id);
+
+                $body .= "$super_name<br>";
+                //
+                // No Appointments
+                //
+                $body .= "<h3>No Appointment</h3><br>";
+                $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
+                $body .= "<thead>";
+                $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
+                $body .= "<th width='50' style='border: 1px solid'>#</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
+                $body .= "<th width='200' style='border: 1px solid'>Site</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
+                $body .= "<th width='400' style='border: 1px solid'>Note</th>";
+                $body .= "</tr>";
+                $body .= "</thead>";
+                $body .= "<tbody>";
+                $super_count = 0;
+                foreach ($mains as $main) {
+                    if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
+                        if (!$main->client_appointment) {
+                            $super_count ++;
+                            $found_request = true;
+
+                            $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
+                            $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
+                            $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
+
+                            $body .= "<tr>";
+                            $body .= "<td style='border: 1px solid'>M$main->code</td>";
+                            $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
+                            $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
+                            $body .= "<td style='border: 1px solid'>$client_contacted</td>";
+                            $body .= "<td style='border: 1px solid'>$client_appointment</td>";
+                            $body .= "<td style='border: 1px solid'>$last_action</td>";
+                            $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
+                            $body .= "</tr>";
                         }
-                        $super_count ++;
-                        $body .= "<tr>";
-                        $body .= "<td>M$main->code</td>";
-                        $body .= "<td>" . $main->created_at->format('d/m/Y') . "</td>";
-                        $body .= "<td>" . $main->site->name . "</td>";
-                        //$body .= "<td>" . ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-' . "</td>";
-                        $body .= "<td>" . $main->client_contacted . "</td>";
-                        //$body .= "<td>" . ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-' . "</td>";
-                        $body .= "<td>" . $main->client_appointment . "</td>";
-                        $body .= "<td>" . ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') . "</td>";
-                        $body .= "<td>" . $main->lastActionNote() . "</td>";
-                        $body .= "</tr>";
                     }
                 }
+                if ($super_count == 0)
+                    $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
+
+                $body .= "</tbody></table>";
+
+                //
+                // No Action 14 Days
+                //
+                $body .= "<br><br><h3>No Actions in last 14 days</h3><br>";
+                $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
+                $body .= "<thead>";
+                $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
+                $body .= "<th width='50' style='border: 1px solid'>#</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
+                $body .= "<th width='200' style='border: 1px solid'>Site</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
+                $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
+                $body .= "<th width='400' style='border: 1px solid'>Note</th>";
+                $body .= "</tr>";
+                $body .= "</thead>";
+                $body .= "<tbody>";
+                $super_count = 0;
+                foreach ($mains as $main) {
+                    if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
+                        if ($main->lastUpdated()->lt(Carbon::now()->subDays(14))) {
+                            $super_count ++;
+                            $found_request = true;
+
+                            $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
+                            $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
+                            $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
+
+                            $body .= "<tr>";
+                            $body .= "<td style='border: 1px solid'>M$main->code</td>";
+                            $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
+                            $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
+                            $body .= "<td style='border: 1px solid'>$client_contacted</td>";
+                            $body .= "<td style='border: 1px solid'>$client_appointment</td>";
+                            $body .= "<td style='border: 1px solid'>$last_action</td>";
+                            $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
+                            $body .= "</tr>";
+                        }
+                    }
+                }
+                if ($super_count == 0)
+                    $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
+
+                $body .= "</tbody></table>";
+
+                //echo $body;
+
+                //
+                // Send email to Supervisors
+                //
+                if ($found_request) {
+                    $email_to = [env('EMAIL_DEV')];
+                    $email_user = '';
+                    if (\App::environment('prod')) {
+                        $email_to = (validEmail($super->email)) ? $super->email : '';
+                        $email_cc = ['kistie@capecod.com.au', 'gary@capecod.com.au'];
+                    }
+                    //if ($email_to)
+                    //Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+                }
             }
-            dd($body);
         }
-        dd('here');
+
+        //dd('here');
 
         // Create PDF
-        $file = public_path('filebank/tmp/maintenance-supervisor-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
+        //$file = public_path('filebank/tmp/maintenance-supervisor-cron.pdf');
+        //if (file_exists($file))
+        //    unlink($file);
 
         //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
-        return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-        $pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
-        $pdf->save($file);
+        //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //$pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
+        //$pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionReport($file, $mains));
+        //Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionReport($file, $mains));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
