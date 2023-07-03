@@ -360,6 +360,10 @@ class SiteExtensionController extends Controller {
             }
         }
 
+        usort($data, function ($a, $b) {
+            return $a['name'] <=> $b['name'];
+        });
+
         /*
         $hide_site_code = ['0000', '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '1234', '1235'];
         $sites = Auth::user()->authSites('view.site.extension', '1')->whereNotIn('code', $hide_site_code);
