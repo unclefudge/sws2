@@ -616,7 +616,7 @@ class CronReportController extends Controller {
                         $email_cc = ['kistie@capecod.com.au', 'gary@capecod.com.au'];
                     }
                     if ($email_to)
-                        Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+                        Mail::to($email_to)->cc($email_cc)->bcc('fudge@jordan.net.au')->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
                 }
             }
         }
