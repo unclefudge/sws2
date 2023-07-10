@@ -43,6 +43,16 @@ trait CompanyDocs {
     }
 
     /**
+     * First active CompanyDoc of a specific type for certain date
+     *
+     * @return CompanyDoc record
+     */
+    public function activeCompanyDocDate($category_id, $date)
+    {
+        return CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('status', '>', '0')->first();
+    }
+
+    /**
      * Expired CompanyDoc of a specific type
      *
      * @return CompanyDoc record

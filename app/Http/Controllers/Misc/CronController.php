@@ -490,7 +490,7 @@ class CronController extends Controller {
                         if ($standard_details) {
                             // Standard Details Documents
 
-                            // Check if allready under review else add it
+                            // Check if already under review else add it
                             $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
                             $doc->emailRenewal($email_to);
                             echo "Emailed " . implode("; ", $email_to) . "<br>";
