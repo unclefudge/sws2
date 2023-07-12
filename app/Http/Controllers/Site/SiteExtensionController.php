@@ -362,7 +362,8 @@ class SiteExtensionController extends Controller {
         }
 
         usort($data, function ($a, $b) {
-            return $a['name'] <=> $b['name'];
+            //return $a['name'] <=> $b['name'];
+            return $a['name'] < $b['name'];
         });
 
         /*
