@@ -61,7 +61,7 @@
                                             </td>
                                             <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
                                             <td>{{ $name }}</td>
-                                            <td>{!! ($doc != 'N/A') ? $doc->expiry->format('d/m/Y') : 'never' !!} </td>
+                                            <td>{!! ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never' !!} </td>
                                         </tr>
                                     @endforeach
                                 @endif
