@@ -52,7 +52,7 @@ class CompanyMissingInfoCsv implements ShouldQueue
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
                     $csv .= "$company->name, $name, ";
-                    $csv .= ($doc != 'N/A') ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never';
+                    $csv .= ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never';
                     $csv .= "\r\n";
                 }
         }
