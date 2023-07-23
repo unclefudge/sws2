@@ -30,7 +30,8 @@
                     </div>
                     <div class="portlet-body">
                         <h3>Week of {{ $extension->date->format('d/m/Y') }}
-                            @if (in_array(Auth::user()->id, [3, 108, 7, 325, 1359])) {{-- Fudge, Kirstie, Gary, Michelle, Courtney --}}
+                            @if (in_array(Auth::user()->id, [3, 108, 7, 325, 1359]))
+                                {{-- Fudge, Kirstie, Gary, Michelle, Courtney --}}
                                 <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
                             @endif
                         </h3>
@@ -119,7 +120,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                {!! Form::label('days', 'Days', ['class' => 'control-label']) !!}
+                                {!! Form::label('days', 'Days', ['class' => 'control-label', 'id' => 'days_label']) !!}
                                 <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeypress="return isNumber(event)"/>
                             </div>
                         </div>
@@ -127,7 +128,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                {!! Form::label('extension_notes', 'Extend notes', ['class' => 'control-label']) !!}
+                                {!! Form::label('extension_notes', 'Extend notes', ['class' => 'control-label', 'id' => 'extension_notes_label']) !!}
                                 {!! Form::textarea('extension_notes', null, ['class' => 'form-control', 'rows' => 5, 'id' => 'extension_notes']) !!}
                             </div>
                         </div>
@@ -135,7 +136,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
-                    <button type="submit" class="btn green">Save</button>
+                    <button type="submit" class="btn green" id="savenote">Save</button>
                 </div>
                 {!! Form::close() !!}
             </div>
@@ -189,6 +190,41 @@
                 e.preventDefault();
                 window.location.href = "/site/extension/{{$extension->id}}/" + $("#supervisor").val();
             });
+
+            $("#reasons").change(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            $("#days").keyup(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            $("#extension_notes").keyup(function (e) {
+                e.preventDefault();
+                validateForm();
+            });
+
+            function validateForm() {
+                $("#savenote").show();
+                $("#days_label").text('Days');
+                $("#extension_notes_label").text('Extend notes');
+
+                if ($("#reasons option:selected").length) {
+                    if ($("#reasons").val().includes('1')) {
+                        // NA selected so clear all other options and leave NA only
+                        $("#reasons").val(['1']).trigger('change.select2'); // update select2 val without triggering change
+                    } else {
+                        // Enforce Days + Notes are required
+                        $("#days_label").html("Days <span class='font-red'>(required)</span>");
+                        $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
+                        if (!$("#days").val() || !$("#extension_notes").val())
+                            $("#savenote").hide();
+                    }
+                }
+            }
+
 
         });
 

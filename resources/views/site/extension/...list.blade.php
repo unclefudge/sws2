@@ -106,7 +106,6 @@
                             </div>
                         </div>
                     </div>
-                    kkkkk
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -146,7 +145,6 @@
             $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
 
             $(".editField").click(function (e) {
-                console.log('hhhh');
                 if (!$("#approved_by").val()) {
                     var event_id = e.target.id.split('-');
                     var site_id = event_id[1];
@@ -168,6 +166,17 @@
             $(".signoff").click(function (e) {
                 e.preventDefault();
                 window.location.href = "/site/extension/{{$extension->id}}/signoff";
+            });
+
+
+            $("#reasons").change(function (e) {
+                e.preventDefault();
+                alert('kk');
+            });
+
+            $("#extension_notes").change(function (e) {
+                e.preventDefault();
+                alert('kk-notes');
             });
 
         });
