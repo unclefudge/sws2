@@ -181,7 +181,7 @@ class CronReportController extends Controller {
             if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
-                    $comps[] = [$company->name, $name, ($doc != 'N/A') ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
+                    $comps[] = [$company->name, $name, ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
                 }
         }
 
