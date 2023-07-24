@@ -48,7 +48,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach ($startdata as $row) FDD7B1
+                            @foreach ($startdata as $row)
                                 <tr>
                                     <td>{!! $row['date'] !!}</td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
