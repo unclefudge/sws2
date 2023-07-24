@@ -48,13 +48,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach ($startdata as $row)
+                            @foreach ($startdata as $row) FDD7B1
                                 <tr>
                                     <td>{!! $row['date'] !!}</td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
                                     <td>{!! $row['supervisor'] !!}</td>
                                     <td>{!! $row['company'] !!}</td>
-                                    <td>{!! $row['deposit_paid'] !!}</td>
+                                    <td style="{{ ($row['deposit_paid'] == '-') ? 'background:#FDD7B1' : '' }}">{!! $row['deposit_paid'] !!}</td>
                                     <td>{!! $row['eng'] !!}</td>
                                     <td>{!! $row['hbcf'] !!}</td>
                                     <td>{!! $row['design_con'] !!}</td>
