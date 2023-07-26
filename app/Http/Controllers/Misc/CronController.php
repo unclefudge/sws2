@@ -564,12 +564,14 @@ class CronController extends Controller {
 
                 if (!$review_doc) {
                     echo "$doc->name [$expire_date] added to renewal cycle<br>";
+                    $log .= "$doc->name [$expire_date] added to renewal cycle\n";
                     $newRenewals[] = $doc->id;
                     $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
                     $review_doc->createAssignToDo(7); // Gary
                     $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
                 } else {
                     echo "$doc->name [$expire_date] already on renewal cycle<br>";
+                    $log .= "$doc->name [$expire_date] already on renewal cycle\n";
                 }
             }
             //dd($newRenewals);
@@ -588,6 +590,12 @@ class CronController extends Controller {
                 $log .= "Emailed " . implode("; ", $email_to) . "\n";
             }
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 
     /*

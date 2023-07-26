@@ -286,7 +286,7 @@ class PagesController extends Controller {
                 $ext->createPDF();
 
         */
-        $today = Carbon::today();
+        /*$today = Carbon::today();
         $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
 
         echo "<b>Creating Standard Details for Review $one_year</b></br>";
@@ -303,7 +303,7 @@ class PagesController extends Controller {
                 $review_doc->createAssignToDo(7); // Gary
                 $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
             }
-        }
+        }*/
         /*
         // Update Old Single Line Client Name into Title-First-Last fields
 
