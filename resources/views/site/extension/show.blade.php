@@ -218,8 +218,13 @@
                     } else {
                         // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
-                        $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
-                        if (!$("#days").val() || !$("#extension_notes").val())
+                        let arr = ['2', '4', '5', '6', '7', '8', '9', '10'];  // all except Public Holidays
+                        let required = false;
+                        if (containsAny($("#reasons").val(), arr)) {
+                            $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
+                            required = true;
+                        }
+                        if (!$("#days").val() || (required && !$("#extension_notes").val()))
                             $("#savenote").hide();
                     }
                 }
@@ -227,6 +232,12 @@
 
 
         });
+
+        function containsAny(source,target)
+        {
+            var result = source.filter(function(item){ return target.indexOf(item) > -1});
+            return (result.length > 0);
+        }
 
         function isNumber(evt) {
             evt = (evt) ? evt : window.event;
