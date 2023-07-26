@@ -286,7 +286,6 @@ class PagesController extends Controller {
                 $ext->createPDF();
 
         */
-        /*
         $today = Carbon::today();
         $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
 
@@ -305,7 +304,6 @@ class PagesController extends Controller {
                 $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
             }
         }
-        */
         /*
         // Update Old Single Line Client Name into Title-First-Last fields
 

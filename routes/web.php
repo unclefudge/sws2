@@ -660,6 +660,7 @@ Route::get('cron/roster', '\App\Http\Controllers\Misc\CronController@roster');
 Route::get('cron/qa', '\App\Http\Controllers\Misc\CronController@qa');
 Route::get('cron/overdue-todo', '\App\Http\Controllers\Misc\CronController@overdueToDo');
 Route::get('cron/expired-companydoc', '\App\Http\Controllers\Misc\CronController@expiredCompanyDoc');
+Route::get('cron/expired-standarddoc', '\App\Http\Controllers\Misc\CronController@expiredStandardDetailsDoc');
 Route::get('cron/expired-swms', '\App\Http\Controllers\Misc\CronController@expiredSWMS');
 Route::get('cron/archive-toolbox', '\App\Http\Controllers\Misc\CronController@archiveToolbox');
 Route::get('cron/email-jobstart', '\App\Http\Controllers\Misc\CronReportController@emailJobstart');

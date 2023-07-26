@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
+use App\Models\Company\CompanyDocCategory;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Planner\Task;
@@ -29,6 +30,7 @@ use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
+use App\Models\Misc\Action;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentStocktake;
@@ -59,6 +61,7 @@ class CronController extends Controller {
         CronController::completeToDoCompanyDoc();
         CronController::completedToDoQA();
         CronController::expiredCompanyDoc();
+        CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
         CronController::archiveToolbox();
         CronController::brokenQaItem();
@@ -79,7 +82,6 @@ class CronController extends Controller {
         // Thursday
         //if (Carbon::today()->isThursday())
         //    CronController::siteExtensionsSupervisorTaskReminder();
-
 
 
         // Email Nightly Reports
@@ -458,11 +460,11 @@ class CronController extends Controller {
             foreach ($docs as $doc) {
                 $company = Company::find($doc->for_company_id);
                 $standard_details = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
-                echo "id[$doc->id] $company->name_alias ($doc->name) $standard_details [" . $doc->expiry->format('d/m/Y') . "]<br>";
-                $log .= "id[$doc->id] $company->name_alias ($doc->name) $standard_details [" . $doc->expiry->format('d/m/Y') . "]\n";
 
                 // Expire document unless it's a Standard Details doc
                 if (!$standard_details) {
+                    echo "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]<br>";
+                    $log .= "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]\n";
                     $doc->updated_by = 1;
                     $doc->updated_at = Carbon::now()->toDateTimeString();
                     $doc->status = 0;
@@ -487,16 +489,7 @@ class CronController extends Controller {
                         $log .= "id[$doc->id] $company->name_alias ($doc->name) [" . $doc->expiry->format('d/m/Y') . "]\n";
 
                         $standard_details = ($doc->category_id == 22 || $doc->category->parent == 22) ? 'Renew' : '';
-                        if ($standard_details) {
-                            // Standard Details Documents
-
-                            // Check if already under review else add it
-                            $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
-                            $doc->emailRenewal($email_to);
-                            echo "Emailed " . implode("; ", $email_to) . "<br>";
-                            $log .= "Emailed " . implode("; ", $email_to) . "\n";
-
-                        } else {
+                        if (!$standard_details) {
                             // Send out reminder Email of expired doc
                             // - @ 2 weeks also send parent company an email
                             if ($date == Carbon::today()->addDays(14)->format('Y-m-d')) {
@@ -524,6 +517,13 @@ class CronController extends Controller {
                                     }
                                 }
                             }
+                        } else {
+                            // Standard Details Documents
+                            // Check if already under review else add it
+                            //$email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
+                            //$doc->emailRenewal($email_to);
+                            //echo "Emailed " . implode("; ", $email_to) . "<br>";
+                            //$log .= "Emailed " . implode("; ", $email_to) . "\n";
                         }
                     }
                 }
@@ -539,6 +539,55 @@ class CronController extends Controller {
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Check for Expired Company Docs
+    */
+    static public function expiredStandardDetailsDoc()
+    {
+        $log = '';
+        echo "<h2>Checking for Expired Standard Details Documents</h2>";
+        $log .= "Checking for Expired Standard Details Documents\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $company = Company::find(3);
+        $today = Carbon::today();
+        $standard_ids = array_merge([22], CompanyDocCategory::where('parent', 22)->pluck('id')->toArray());
+        $docs = CompanyDoc::whereIn('category_id', $standard_ids)->where('status', 1)->whereDate('expiry', '<', $today->format('Y-m-d'))->get();
+
+        $newRenewals = [];
+        if ($docs->count()) {
+            foreach ($docs as $doc) {
+                $expire_date = $doc->expiry->format('d/m/Y');
+                $review_doc = CompanyDocReview::where('doc_id', $doc->id)->first();
+
+                if (!$review_doc) {
+                    echo "$doc->name [$expire_date] added to renewal cycle<br>";
+                    $newRenewals[] = $doc->id;
+                    $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
+                    $review_doc->createAssignToDo(7); // Gary
+                    $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
+                } else {
+                    echo "$doc->name [$expire_date] already on renewal cycle<br>";
+                }
+            }
+            //dd($newRenewals);
+            if ($newRenewals) {
+                $docs = "The following documents expired $expire_date and are due for renewal:\r\n";
+                foreach ($newRenewals as $doc_id) {
+                    $doc = CompanyDoc::findOrFail($doc_id);
+                    $docs .= "$doc->name\r\n";
+                }
+                //dd($docs);
+
+                $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
+                if (!\App::environment('prod')) $email_to = [env('EMAIL_DEV')];
+                if ($email_to) Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocRenewalMulti($docs));
+                echo "Emailed " . implode("; ", $email_to) . "<br>";
+                $log .= "Emailed " . implode("; ", $email_to) . "\n";
+            }
+        }
     }
 
     /*
@@ -1052,8 +1101,8 @@ class CronController extends Controller {
             $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
             if (!$ext_site) {
                 $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
-                echo "Adding site [".$site['id']."] ".$site['name']."<br>";
-                $log .= "Adding site [".$site['id']."] ".$site['name']."\n";
+                echo "Adding site [" . $site['id'] . "] " . $site['name'] . "<br>";
+                $log .= "Adding site [" . $site['id'] . "] " . $site['name'] . "\n";
             }
         }
 
@@ -1217,7 +1266,7 @@ class CronController extends Controller {
                 $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
                 $mesg = "Creating new";
 
-                for ($day = 1; $day < 6; $day++) {
+                for ($day = 1; $day < 6; $day ++) {
                     foreach ($checklist->questions()->sortBy('id') as $question)
                         $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
                 }
@@ -1285,8 +1334,6 @@ class CronController extends Controller {
             $log .= $reason;
             Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
         }
-
-
 
 
         echo "<h4>Completed</h4>";

@@ -6,7 +6,8 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Contract Time Extensions</span></li>
+        <li><a href="/site/extension">Contract Time Extensions</a><i class="fa fa-circle"></i></li>
+        <li><span>Past</span></li>
     </ul>
 @stop
 
