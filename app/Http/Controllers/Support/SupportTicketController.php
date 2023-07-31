@@ -235,7 +235,7 @@ class SupportTicketController extends Controller {
      */
     public function getTickets(Request $request)
     {
-        if (in_array(Auth::user()->id, [3, 109])) // Fudge + Jo
+        if (in_array(Auth::user()->id, [3, 351, 1359])) // Fudge, Tara, Courtney,
             $user_list = User::all()->pluck('id')->toArray();
         else if (Auth::user()->hasPermission2('edit.user.security'))
             $user_list = Auth::user()->company->users()->pluck('id')->toArray();
