@@ -452,7 +452,7 @@ class SitePlannerController extends Controller {
         //dd($site_list);
 
         // Remove certain sites from list - 758 1-test-job
-        $siteList = array_diff($site_list, [758]);
+        $site_list = array_diff($site_list, ['758']);
 
         return view('planner/upcoming', compact('date', 'site_id', 'supervisor_id', 'site_start', 'site', 'site_list'));
     }
