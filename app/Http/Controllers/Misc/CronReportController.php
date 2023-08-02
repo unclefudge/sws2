@@ -18,6 +18,8 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\SiteUpcomingSettings;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
@@ -68,6 +70,7 @@ class CronReportController extends Controller {
         if (Carbon::today()->isThursday()) {
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailOnHoldQA();
+            CronReportController::emailOpenElectricalPlumbing();
         }
 
         if (Carbon::today()->isFriday())
@@ -429,6 +432,49 @@ class CronReportController extends Controller {
         //dd($file);
 
         Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    /*
+     * Email Open Electrical & Plumbing
+     */
+    static public function emailActiveElectricalPlumbing()
+    {
+        $log = '';
+        $email_name = "Open Electrical Plumbing Inspection Reports";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $electrical = SiteInspectionElectrical::where('status', 1)->get();
+        $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
+
+        // Create PDF
+        //$file = public_path('filebank/tmp/inspection-reports.pdf');
+        //if (file_exists($file))
+        //    unlink($file);
+
+
+        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //$pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        //$pdf->setPaper('A4', 'landscape');
+        //$pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
