@@ -25,7 +25,7 @@ class CompanyDocReviewFile extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
-    public function company_doc()
+    public function reviewdoc()
     {
         return $this->belongsTo('App\Models\Company\CompanyDocReview', 'review_id');
     }
@@ -48,7 +48,7 @@ class CompanyDocReviewFile extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company->id . '/docs/review/' . $this->attributes['attachment'];
+            return '/filebank/company/' . $this->reviewdoc->company_doc->company_id . '/docs/review/' . $this->attributes['attachment'];
 
         return '';
     }
