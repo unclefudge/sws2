@@ -133,7 +133,7 @@
                                     @if (count($doc->files))
                                         <?php $counter = 2; ?>
                                         @foreach($doc->files as $file)
-                                            {{ $counter++ }}. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->fullname }})</i><br>
+                                            {{ $counter++ }}. &nbsp; <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->attachment_url }}" target="_blank"> {{ $file->attachment }}</a> <i>({{ $file->updatedBy->initials }})</i><br>
                                         @endforeach
                                     @endif
                                 </div>
