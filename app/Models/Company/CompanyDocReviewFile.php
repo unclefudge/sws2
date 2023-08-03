@@ -45,7 +45,7 @@ class CompanyDocReviewFile extends Model {
     /**
      * Get the Attachment URL (setter)
      */
-    public function getCurrentDocUrlAttribute()
+    public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
             return '/filebank/company/' . $this->company->id . '/docs/review/' . $this->attributes['attachment'];

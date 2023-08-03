@@ -70,7 +70,7 @@ class CronReportController extends Controller {
         if (Carbon::today()->isThursday()) {
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailOnHoldQA();
-            CronReportController::emailOpenElectricalPlumbing();
+            CronReportController::emailActiveElectricalPlumbing();
         }
 
         if (Carbon::today()->isFriday())
@@ -99,104 +99,16 @@ class CronReportController extends Controller {
 
     }
 
-    /*
-    * Email Outstanding QA checklists
-    */
-    static public function emailOutstandingQA()
-    {
-        $log = '';
-        $email_name = "Outstanding QA Checklists";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
-        $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
-
-        $today = Carbon::now();
-        $weekago = Carbon::now()->subWeek();
-        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
-
-        // Supervisors list
-        $supers = [];
-        foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
-        }
-        sort($supers);
-
-        // Create PDF
-        $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-
-        $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->save($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    /*
-    * Email Missing Company Info
-    */
-    static public function emailMissingCompanyInfo()
-    {
-        $log = '';
-        $email_name = "Missing Company Info";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('company.missing.info');
-        $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
-
-
-        $all_companies = $cc->companies(1);
-        $cids = [];
-        foreach ($all_companies as $company) {
-            //if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
-            if (!preg_match('/cc-/', strtolower($company->name)))
-                $cids[] = $company->id;
-        }
-        $companies = Company::find($cids)->sortBy('name');
-
-        $comps = [];
-        foreach ($companies as $company) {
-            if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
-                $comps[] = [$company->name, $company->missingInfo(), $company->updated_at->format('d/m/Y')];
-
-            if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
-                foreach ($company->missingDocs() as $type => $name) {
-                    $doc = $company->expiredCompanyDoc($type);
-                    $comps[] = [$company->name, $name, ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
-                }
-        }
-
-        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($comps));
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
+    //
+    //  Monday Reports
+    //
+    // CronReportController::emailJobstart();
+    // CronReportController::emailMaintenanceAppointment();
+    // CronReportController::emailMaintenanceUnderReview();
+    // CronReportController::emailMissingCompanyInfo();
+    //
+    // Fortnightly
+    // CronReportController::emailFortnightlyReports();
 
     /*
     * Email Jobstart
@@ -278,8 +190,256 @@ class CronReportController extends Controller {
     }
 
     /*
-   * Email UpcomingJobCompliance
+     * Email Maintenance Without Appointment
+     */
+    static public function emailMaintenanceAppointment()
+    {
+        $log = '';
+        $email_name = "Maintenance Without Appointment";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $data = ['data' => $app_requests];
+
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests Without Appointment');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Email Maintenance Under Review
+    */
+    static public function emailMaintenanceUnderReview()
+    {
+        $log = '';
+        $email_name = "Maintenance Under Review";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
+        $today = Carbon::now();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
+        //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
+        $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    /*
+    * Email Missing Company Info
+    */
+    static public function emailMissingCompanyInfo()
+    {
+        $log = '';
+        $email_name = "Missing Company Info";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('company.missing.info');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+
+        $all_companies = $cc->companies(1);
+        $cids = [];
+        foreach ($all_companies as $company) {
+            //if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
+            if (!preg_match('/cc-/', strtolower($company->name)))
+                $cids[] = $company->id;
+        }
+        $companies = Company::find($cids)->sortBy('name');
+
+        $comps = [];
+        foreach ($companies as $company) {
+            if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
+                $comps[] = [$company->name, $company->missingInfo(), $company->updated_at->format('d/m/Y')];
+
+            if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
+                foreach ($company->missingDocs() as $type => $name) {
+                    $doc = $company->expiredCompanyDoc($type);
+                    $comps[] = [$company->name, $name, ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
+                }
+        }
+
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($comps));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+   * Email Fortnightly Reports
    */
+    static public function emailFortnightlyReports()
+    {
+        $log = '';
+        echo "<h2>Email Fortnightly Reports</h2>";
+        $log .= "Email Fortnightly Reports\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_name = "Maintenance No Actions";
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+
+        //
+        // Active Requests with No Action 14 Days
+        //
+        $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+        $mains = [];
+        foreach ($active_requests as $main) {
+            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
+                $mains[$main->lastAction()->updated_at->format('Ymd')] = $main;
+        }
+        ksort($mains);
+
+        $data = ['data' => $mains];
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests No Action');
+            });
+        }
+
+        //
+        // On Hold Requests
+        //
+        $email_name = "Maintenance On Hold";
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $hold_requests = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
+        $data = ['data' => $hold_requests];
+
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests On Hold');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    //
+    //  Tuesday Reports
+    //
+    //  CronReportController::emailOutstandingQA();
+    //  CronReportController::emailUpcomingJobCompilance();
+    //  CronReportController::emailMaintenanceSupervisorNoAction();//
+    //
+    //  First Tuesday of the Month
+    //  CronReportController::emailOldUsers();
+
+
+    /*
+    * Email Outstanding QA checklists
+    */
+    static public function emailOutstandingQA()
+    {
+        $log = '';
+        $email_name = "Outstanding QA Checklists";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $weekago = Carbon::now()->subWeek();
+        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
+
+        // Supervisors list
+        $supers = [];
+        foreach ($qas as $qa) {
+            if (!in_array($qa->site->supervisorsSBC(), $supers))
+                $supers[] .= $qa->site->supervisorsSBC();
+        }
+        sort($supers);
+
+        // Create PDF
+        $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+
+        $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Email UpcomingJobCompliance
+    */
     static public function emailUpcomingJobCompilance()
     {
         $log = '';
@@ -337,183 +497,6 @@ class CronReportController extends Controller {
                 $m->attach($file);
             });
         }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-
-    /*
-    * Email Equipment Transfers
-    */
-    static public function emailEquipmentTransfers()
-    {
-        $log = '';
-        $email_name = "Equipment Transfers";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
-        $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
-
-        $to = Carbon::now();
-        $from = Carbon::now()->subDays(7);
-        $transactions = EquipmentLog::where('action', 'T')->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
-
-        // Create PDF
-        $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
-        //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
-
-        $pdf = PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
-        $pdf->setPaper('A4', 'portrait');
-        $pdf->save($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-
-    /*
-     * Email OnHold QA checklists
-    */
-    static public function emailOnHoldQA()
-    {
-        $log = '';
-        $email_name = "On Hold QA Checklists";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.qa.onhold');
-        $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
-
-        $today = Carbon::now();
-        $qas = SiteQa::where('status', 2)->where('master', 0)->orderBy('updated_at')->get();
-
-        // Create PDF
-        $file = public_path('filebank/tmp/qa-onhold-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        // Supervisors list
-        $supers = [];
-        foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
-        }
-        sort($supers);
-
-        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-
-        $pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->save($file);
-
-        //dd($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-
-    /*
-     * Email Open Electrical & Plumbing
-     */
-    static public function emailActiveElectricalPlumbing()
-    {
-        $log = '';
-        $email_name = "Open Electrical Plumbing Inspection Reports";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
-        $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
-
-        $today = Carbon::now();
-        $electrical = SiteInspectionElectrical::where('status', 1)->get();
-        $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
-
-        // Create PDF
-        //$file = public_path('filebank/tmp/inspection-reports.pdf');
-        //if (file_exists($file))
-        //    unlink($file);
-
-
-        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-        //$pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //$pdf->setPaper('A4', 'landscape');
-        //$pdf->save($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing));
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-
-    /*
-    * Email Maintenance Under Review
-    */
-    static public function emailMaintenanceUnderReview()
-    {
-        $log = '';
-        $email_name = "Maintenance Under Review";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
-        $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
-        $today = Carbon::now();
-
-        // Create PDF
-        $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
-        //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
-        $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
-        $pdf->save($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -689,143 +672,6 @@ class CronReportController extends Controller {
     }
 
     /*
-    * Email Maintenance Without Appointment
-    */
-    static public function emailMaintenanceAppointment()
-    {
-        $log = '';
-        $email_name = "Maintenance Without Appointment";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
-        $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
-        $data = ['data' => $app_requests];
-
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests Without Appointment');
-            });
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    /*
-   * Email Outstanding After Care
-   */
-    static public function emailOutstandingAftercare()
-    {
-        $log = '';
-        $email_name = "Outstanding After Care";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
-        $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
-        $data = ['data' => $mains];
-
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-aftercare', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests Without After Care');
-            });
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    /*
-   * Email Fortnightly Reports
-   */
-    static public function emailFortnightlyReports()
-    {
-        $log = '';
-        echo "<h2>Email Fortnightly Reports</h2>";
-        $log .= "Email Fortnightly Reports\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_name = "Maintenance No Actions";
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
-        $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-
-        //
-        // Active Requests with No Action 14 Days
-        //
-        $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
-        $mains = [];
-        foreach ($active_requests as $main) {
-            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
-                $mains[$main->lastAction()->updated_at->format('Ymd')] = $main;
-        }
-        ksort($mains);
-
-        $data = ['data' => $mains];
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests No Action');
-            });
-        }
-
-
-        //
-        // On Hold Requests
-        //
-        $email_name = "Maintenance On Hold";
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
-        $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $hold_requests = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
-        $data = ['data' => $hold_requests];
-
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests On Hold');
-            });
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-
-    /*
     * Email Old Users
     */
     static public function emailOldUsers()
@@ -870,6 +716,161 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
+
+    //
+    //  Thursday Reports
+    //
+    //  CronReportController::emailEquipmentTransfers();
+    //  CronReportController::emailOnHoldQA();
+    //  CronReportController::emailActiveElectricalPlumbing();
+
+    /*
+    * Email Equipment Transfers
+    */
+    static public function emailEquipmentTransfers()
+    {
+        $log = '';
+        $email_name = "Equipment Transfers";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $to = Carbon::now();
+        $from = Carbon::now()->subDays(7);
+        $transactions = EquipmentLog::where('action', 'T')->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+        //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
+
+        $pdf = PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    /*
+     * Email OnHold QA checklists
+    */
+    static public function emailOnHoldQA()
+    {
+        $log = '';
+        $email_name = "On Hold QA Checklists";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.qa.onhold');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $qas = SiteQa::where('status', 2)->where('master', 0)->orderBy('updated_at')->get();
+
+        // Create PDF
+        $file = public_path('filebank/tmp/qa-onhold-cron.pdf');
+        if (file_exists($file))
+            unlink($file);
+
+        // Supervisors list
+        $supers = [];
+        foreach ($qas as $qa) {
+            if (!in_array($qa->site->supervisorsSBC(), $supers))
+                $supers[] .= $qa->site->supervisorsSBC();
+        }
+        sort($supers);
+
+        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+
+        $pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->save($file);
+
+        //dd($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    /*
+     * Email Open Electrical & Plumbing
+     */
+    static public function emailActiveElectricalPlumbing()
+    {
+        $log = '';
+        $email_name = "Open Electrical Plumbing Inspection Reports";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
+        $emails = implode("; ", $email_list);
+        echo "Sending email to $emails";
+        $log .= "Sending email to $emails";
+
+        $today = Carbon::now();
+        $electrical = SiteInspectionElectrical::where('status', 1)->get();
+        $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
+
+        // Create PDF
+        //$file = public_path('filebank/tmp/inspection-reports.pdf');
+        //if (file_exists($file))
+        //    unlink($file);
+
+
+        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+        //$pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+        //$pdf->setPaper('A4', 'landscape');
+        //$pdf->save($file);
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    //
+    // Friday Reports
+    //
+    // CronReportController::emailEquipmentRestock();
+    //
+    //  Last Friday of the month
+    //  CronReportController::emailOutstandingAftercare();
+
+
     /*
     * Email Equipment Restock
     */
@@ -906,6 +907,48 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
+
+    /*
+   * Email Outstanding After Care
+   */
+    static public function emailOutstandingAftercare()
+    {
+        $log = '';
+        $email_name = "Outstanding After Care";
+        echo "<h2>Email $email_name</h2>";
+        $log .= "Email $email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
+        $emails = implode("; ", $email_list);
+        echo "Sending $email_name email to $emails<br>";
+        $log .= "Sending $email_name email to $emails";
+        $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
+        $data = ['data' => $mains];
+
+        if ($email_list) {
+            Mail::send('emails/site/maintenance-aftercare', $data, function ($m) use ($email_list, $data) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Maintenance Requests Without After Care');
+            });
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+
+    //
+    //  Quarterly - First of the Month
+    //
+    //  emailMaintenanceExecutive
+    //
 
     /*
     * Email Site Maintenance Executive Report
