@@ -116,7 +116,7 @@
                     </tbody>
                 </table>
 
-                <pre>@{{ $data | json }}</pre>
+                <!--<pre>@{{ $data | json }}</pre>
                 -->
 
             </div>
