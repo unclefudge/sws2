@@ -123,14 +123,24 @@ class ReportTasksController extends Controller {
             $rec = $this->todoRecord($task, [0, 1]);
             if (!$rec) continue;
 
-            $task_title = $task->name;
             $info .= $this->todoNotes($rec, $task);
 
-
             // Rename some Site Titles
+            $task_title = $task->name;
             $titles2rename = ['hazard' => 'Site Hazard', 'incident' => 'Site Incident'];
             if (in_array($task->type, $titles2rename))
                 $task_title = $titles2rename[$task->type] . " - " . $rec->site->name;
+
+            // Last Updated
+            $lastupdated = $rec->updated_at->format('Y-m-d');
+            $lastupdated_human = $rec->updated_at->diffForHumans();
+                if (!in_array($task_type, ['incident', 'company doc review'])) {
+                    $last_action = ($rec->actions) ? $rec->actions->sortByDesc('created_at')->first() : '';
+                    if ($last_action && $last_action->created_at->gt($rec->updated_at)) {
+                        $lastupdated = $last_action->updated_at->format('Y-m-d');
+                        $lastupdated_human = $last_action->updated_at->diffForHumans();
+                    }
+                }
 
             $array = [
                 'id'                => $task->id,
@@ -140,8 +150,8 @@ class ReportTasksController extends Controller {
                 'info'              => $info,
                 'type'              => $task_type,
                 'due_at'            => ($task->due_at) ? $task->due_at->format('Y-m-d') : '',
-                'lastupdated'       => $rec->updated_at->format('Y-m-d'),
-                'lastupdated_human' => $rec->updated_at->diffForHumans(),
+                'lastupdated'       => $lastupdated,
+                'lastupdated_human' => $lastupdated_human,
                 //'done_at' => ($task_done_at) ? $task->done_at->format('d/m/Y') : '',
                 //'done_by' => $task->done_by,
                 'status'            => $task->status,
@@ -182,13 +192,13 @@ class ReportTasksController extends Controller {
         //$sel_assigned_types[] = ['value' => 'supervisor', 'text' => 'Supervisor Checkin'];
         //$sel_assigned_types[] = ['value' => 'scaffold handover', 'text' => 'Scaffold Handover'];
         $sel_assigned_types[] = ['value' => 'project supply', 'text' => 'Project Supply Information'];
+        $sel_assigned_types[] = ['value' => 'qa', 'text' => 'Quality Assurance'];
         $sel_assigned_types[] = ['value' => 'extension', 'text' => 'Contract Time Extensions'];
         $sel_assigned_types[] = ['value' => 'equipment', 'text' => 'Equipment Transfer'];
         $sel_assigned_types[] = ['value' => 'toolbox', 'text' => 'Toolbox Talks'];
         $sel_assigned_types[] = ['value' => 'swms', 'text' => 'Safe Work Method Statements'];
-        $sel_assigned_types[] = ['value' => 'qa', 'text' => 'Quality Assurance'];
-        $sel_assigned_types[] = ['value' => 'company doc', 'text' => 'Company Document'];
         $sel_assigned_types[] = ['value' => 'company doc review', 'text' => 'Standard Details Review'];
+        $sel_assigned_types[] = ['value' => 'company doc', 'text' => 'Company Document'];
         $sel_assigned_types[] = ['value' => 'user doc', 'text' => 'User Documents'];
 
 
@@ -223,6 +233,7 @@ class ReportTasksController extends Controller {
         if ($task_type == 'swms') return WmsDoc::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'company doc') return CompanyDoc::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'company doc review') return CompanyDocReview::where('id', $type_id)->whereIn('status', $status)->first();
+        if ($task_type == 'user doc') return UserDoc::where('id', $type_id)->whereIn('status', $status)->first();
     }
 
     public function todoNotes($record, $task)
