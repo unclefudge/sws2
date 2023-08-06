@@ -166,7 +166,7 @@ class ReportTasksController extends Controller {
         // Assigned Cape Code
         $sel_assigned_cc[] = ['value' => '1', 'text' => 'Cape Cod Tasks Only'];
         $sel_assigned_cc[] = ['value' => '0', 'text' => 'External Tasks Only'];
-        $sel_assigned_cc[] = ['value' => 'all', 'text' => 'Both Cape Code + External Tasks'];
+        $sel_assigned_cc[] = ['value' => 'all', 'text' => 'Both Cape Cod + External Tasks'];
 
         // Active Record
         $sel_active_record[] = ['value' => '1', 'text' => 'Active/Open Record'];
