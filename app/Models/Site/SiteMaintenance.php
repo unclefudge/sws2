@@ -228,7 +228,7 @@ class SiteMaintenance extends Model {
         $todo_request = [
             'type'       => 'maintenance',
             'type_id'    => $this->id,
-            'name'       => 'Maintenance Request Sign Off - ' . $this->name . ' (' . $site->name . ')',
+            'name'       => "Maintenance Request Sign Off - $site->name",
             'info'       => 'Please sign off on completed items',
             'priority'   => '1',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
@@ -250,7 +250,7 @@ class SiteMaintenance extends Model {
         $todo_request = [
             'type'       => 'maintenance',
             'type_id'    => $this->id,
-            'name'       => 'Maintenance Request Assigned - ' . $this->name . ' (' . $site->name . ')',
+            'name'       => "Maintenance Request Assigned - $site->name",
             'info'       => 'Please review request and assign a company to carry out the work if required.',
             'priority'   => '1',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),

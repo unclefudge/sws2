@@ -69,6 +69,7 @@ class ActionController extends Controller {
                 case 'company_docs_review': $record = CompanyDocReview::find(request('table_id')); break;
                 case 'supervisor_checklist': $record = SuperChecklist::find(request('table_id')); break;
             }
+            $record->touch();
             $record->emailAction($action);
 
             return response()->json($action);

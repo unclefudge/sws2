@@ -99,16 +99,17 @@ class CronReportController extends Controller {
 
     }
 
-    //
-    //  Monday Reports
-    //
-    // CronReportController::emailJobstart();
-    // CronReportController::emailMaintenanceAppointment();
-    // CronReportController::emailMaintenanceUnderReview();
-    // CronReportController::emailMissingCompanyInfo();
-    //
-    // Fortnightly
-    // CronReportController::emailFortnightlyReports();
+    /****************************************************
+     *  Monday Reports
+     *
+     * CronReportController::emailJobstart();
+     * CronReportController::emailMaintenanceAppointment();
+     * CronReportController::emailMaintenanceUnderReview();
+     * CronReportController::emailMissingCompanyInfo();
+     *
+     * Fortnightly
+     * CronReportController::emailFortnightlyReports();
+     ***************************************************/
 
     /*
     * Email Jobstart
@@ -376,15 +377,17 @@ class CronReportController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    //
-    //  Tuesday Reports
-    //
-    //  CronReportController::emailOutstandingQA();
-    //  CronReportController::emailUpcomingJobCompilance();
-    //  CronReportController::emailMaintenanceSupervisorNoAction();//
-    //
-    //  First Tuesday of the Month
-    //  CronReportController::emailOldUsers();
+
+    /****************************************************
+     * Tuesday Reports
+     *
+     * CronReportController::emailOutstandingQA();
+     * CronReportController::emailUpcomingJobCompilance();
+     * CronReportController::emailMaintenanceSupervisorNoAction();
+     *
+     * First Tuesday of the Month
+     * CronReportController::emailOldUsers();
+     ***************************************************/
 
 
     /*
@@ -717,12 +720,13 @@ class CronReportController extends Controller {
     }
 
 
-    //
-    //  Thursday Reports
-    //
-    //  CronReportController::emailEquipmentTransfers();
-    //  CronReportController::emailOnHoldQA();
-    //  CronReportController::emailActiveElectricalPlumbing();
+    /****************************************************
+     * Thursday Reports
+     *
+     * CronReportController::emailEquipmentTransfers();
+     * CronReportController::emailOnHoldQA();
+     * CronReportController::emailActiveElectricalPlumbing();
+     ***************************************************/
 
     /*
     * Email Equipment Transfers
@@ -862,14 +866,14 @@ class CronReportController extends Controller {
     }
 
 
-    //
-    // Friday Reports
-    //
-    // CronReportController::emailEquipmentRestock();
-    //
-    //  Last Friday of the month
-    //  CronReportController::emailOutstandingAftercare();
-
+    /****************************************************
+     * Friday Reports
+     *
+     * CronReportController::emailEquipmentRestock();
+     *
+     * Last Friday of the month
+     * CronReportController::emailOutstandingAftercare();
+     ***************************************************/
 
     /*
     * Email Equipment Restock

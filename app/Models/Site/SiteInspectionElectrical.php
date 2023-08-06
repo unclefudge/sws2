@@ -83,7 +83,7 @@ class SiteInspectionElectrical extends Model {
         $todo_request = [
             'type'       => 'inspection_electrical',
             'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Electrical Inspection Report - ' . $this->site->name,
             'info'       => 'Please complete the inspection report',
             'priority'   => '1',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
@@ -105,7 +105,7 @@ class SiteInspectionElectrical extends Model {
         $todo_request = [
             'type'       => 'inspection_electrical',
             'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Created - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Electrical Inspection Report Created - ' . $this->site->name,
             'info'       => 'Please review inspection and assign to a company',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
@@ -125,7 +125,7 @@ class SiteInspectionElectrical extends Model {
         $todo_request = [
             'type'       => 'inspection_electrical',
             'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Electrical Inspection Report Completed - ' . $this->site->name,
             'info'       => 'Please review the Report and sign off on the Task',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
@@ -146,7 +146,7 @@ class SiteInspectionElectrical extends Model {
         $todo_request = [
             'type'       => 'inspection_electrical',
             'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Electrical Inspection Report Completed - ' . $this->site->name,
             'info'       => 'Please process the Variation and sign off on the Task',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,

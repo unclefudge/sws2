@@ -149,6 +149,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/maintenance_aftercare', '\App\Http\Controllers\Misc\ReportController@maintenanceAftercare');
     Route::get('/manage/report/site_inspections', '\App\Http\Controllers\Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', '\App\Http\Controllers\Misc\ReportController@getSiteInspections');
+    // Report - Tasks
+    Route::get('/manage/report/todo', '\App\Http\Controllers\Misc\ReportTasksController@todo');
+    Route::get('/manage/report/todo/tasks', '\App\Http\Controllers\Misc\ReportTasksController@todoTasks');
 
 
     // User Docs

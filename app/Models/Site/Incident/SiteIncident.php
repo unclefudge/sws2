@@ -93,10 +93,20 @@ class SiteIncident extends Model {
      */
     public function todos($status = '')
     {
-        if ($status)
-            return Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->get();
+        if ($status) {
+            $standard = Todo::where('status', $status)->where('type', 'incident')->where('type_id', $this->id)->pluck('id')->toArray();
+            $prevent = Todo::where('status', $status)->where('type', 'incident prevent')->where('type_id', $this->id)->pluck('id')->toArray();
+            $review = Todo::where('status', $status)->where('type', 'incident review')->where('type_id', $this->id)->pluck('id')->toArray();
+            //$witness = Todo::where('status', $status)->where('type', 'incident witness')->where('type_id', $this->id)->pluck('id')->toArray();
+        } else {
+            $standard = Todo::where('type', 'incident')->where('type_id', $this->id)->pluck('id')->toArray();
+            $prevent = Todo::where('type', 'incident prevent')->where('type_id', $this->id)->pluck('id')->toArray();
+            $review = Todo::where('type', 'incident review')->where('type_id', $this->id)->pluck('id')->toArray();
+            //$witness = Todo::where('type', 'incident witness')->where('type_id', $this->id)->pluck('id')->toArray();
+        }
+        $todo_ids = array_merge($standard, $prevent, $review);
 
-        return Todo::where('type', 'incident')->where('type_id', $this->id)->get();
+        return Todo::whereIn('id', $todo_ids)->get();
     }
 
     /**
@@ -321,7 +331,7 @@ class SiteIncident extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

@@ -137,6 +137,10 @@ class Todo extends Model {
                 return "/site/qa/$this->type_id";
             case 'maintenance':
                 return "/site/maintenance/$this->type_id";
+            case 'inspection_electrical':
+                return "/site/inspection/electrical/$this->type_id";
+            case 'inspection_plumbing':
+                return "/site/inspection/plumbing/$this->type_id";
             case 'project supply':
                 return "/site/supply/$this->type_id/edit";
             case 'super checklist signoff':

@@ -10,12 +10,23 @@ use App\User;
 use App\Models\Site\Site;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaItem;
+use App\Models\Site\SiteAccident;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteProjectSupply;
+use App\Models\Site\SiteExtension;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Safety\WmsDoc;
+use App\Models\Safety\SafetyDoc;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Company\Company;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
@@ -25,6 +36,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\Datatables\Datatables;
 use Carbon\Carbon;
+
 
 class ReportController extends Controller {
 
@@ -380,6 +392,7 @@ class ReportController extends Controller {
                 $supers[0] = 'Unassigned';
         }
         asort($supers);
+
         return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
     }
 
@@ -448,7 +461,7 @@ class ReportController extends Controller {
                     $count ++;
                 } else {
                     //echo "$main->id : ". $main->created_at->format('d/m/Y') . "<br>";
-                    $excluded++;
+                    $excluded ++;
                 }
 
 

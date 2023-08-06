@@ -86,7 +86,7 @@ class SiteInspectionPlumbing extends Model {
         $todo_request = [
             'type'       => 'inspection_plumbing',
             'type_id'    => $this->id,
-            'name'       => 'Plumbing Inspection Report - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Plumbing Inspection Report - ' . $this->site->name,
             'info'       => 'Please complete the inspection report',
             'priority'   => '1',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
@@ -108,7 +108,7 @@ class SiteInspectionPlumbing extends Model {
         $todo_request = [
             'type'       => 'inspection_plumbing',
             'type_id'    => $this->id,
-            'name'       => 'Plumbing Inspection Report Created - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Plumbing Inspection Report Created - ' . $this->site->name,
             'info'       => 'Please review inspection and assign to a company',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
@@ -128,7 +128,7 @@ class SiteInspectionPlumbing extends Model {
         $todo_request = [
             'type'       => 'inspection_plumbing',
             'type_id'    => $this->id,
-            'name'       => 'Plumbing Inspection Report Completed - ' . ' (' . $this->site->name . ')',
+            'name'       => 'Plumbing Inspection Report Completed - ' . $this->site->name,
             'info'       => 'Please review the Report and sign off on the Task',
             'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,

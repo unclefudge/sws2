@@ -5,11 +5,11 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Management Reports</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -155,6 +155,15 @@
                                 <tr>
                                     <td><a href="/manage/report/payroll">Payroll</a></td>
                                 </tr>
+                                @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                    {{-- Tasks --}}
+                                    <tr style="background-color: #f0f6fa">
+                                        <th> Tasks</th>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="/manage/report/todo">Active Todo Tasks</a></td>
+                                    </tr>
+                                @endif
                             @endif
                             {{-- Security --}}
                             <tr style="background-color: #f0f6fa">
@@ -198,5 +207,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
