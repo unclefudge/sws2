@@ -75,9 +75,9 @@
                 <table v-show="xx.list.length" class="table table-striped table-bordered table-nohover order-column">
                     <thead>
                     <tr class="mytable-header">
-                        <th><a href="#" class="mytable-header-link" v-on:click="sortBy('task_name')"> Task Name</a>
-                            <i v-if="xx.sortKey == 'task_name' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
-                            <i v-if="xx.sortKey == 'task_name' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
+                        <th><a href="#" class="mytable-header-link" v-on:click="sortBy('title')"> Task Name</a>
+                            <i v-if="xx.sortKey == 'title' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
+                            <i v-if="xx.sortKey == 'title' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
                         <th style="width: 25%"><a href="#" class="mytable-header-link" v-on:click="sortBy('assigned_names')"> Task Owner(s)</a>
                             <i v-if="xx.sortKey == 'assigned_names' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
@@ -87,7 +87,7 @@
                             <i v-if="xx.sortKey == 'due_at' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'due_at' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
-                        <th style="width:10%"><a href="#" class="mytable-header-link" v-on:click="sortBy('lastupdated')"> Last updated</a>
+                        <th style="width:12%"><a href="#" class="mytable-header-link" v-on:click="sortBy('lastupdated')"> Last updated</a>
                             <i v-if="xx.sortKey == 'lastupdated' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'lastupdated' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
                         </th>
@@ -116,7 +116,7 @@
                     </tbody>
                 </table>
 
-                <!--<pre>@{{ $data | json }}</pre>
+                <pre v-if="xx.dev">@{{ $data | json }}</pre>
                 -->
 
             </div>
@@ -142,8 +142,8 @@
 
         var xx = {
             record: {},
-            spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', active_record: 1, tasks_found: 0, status: 0,
-            sortKey: 'date', sortOrder: -1, search: '',
+            dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', active_record: 1, tasks_found: 0, status: 0,
+            sortKey: 'title', sortOrder: 1, search: '',
             today: moment().format('YYYY-MM-DD'), days7past:  moment().subtract(7, 'days').format('YYYY-MM-DD'), days28past:  moment().subtract(28, 'days').format('YYYY-MM-DD'),
             list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_active_record: [],
         };
