@@ -690,6 +690,7 @@ Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Mi
 
 Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
 Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');
+Route::get('test/blankptc/{cid}', '\App\Http\Controllers\Company\CompanyPeriodTradeController@blankPtcPDF');
 Route::get('manage/updateroles', '\App\Http\Controllers\Misc\PagesController@updateRoles');
 Route::get('manage/import-payroll', '\App\Http\Controllers\Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', '\App\Http\Controllers\Misc\PagesController@importMaintenance');

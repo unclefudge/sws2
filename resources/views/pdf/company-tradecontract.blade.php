@@ -170,8 +170,8 @@
             <td class="pad0" style="border: 0px; line-height: 10px">
                 In consideration of:
                 <ol type="a" style="padding:5px 0px 0px 25px; margin: 0px;">
-                    <li>the <b>trade contractor</b> agreeing to quote for <b>trade works</b> whenever asked by the <b>principal contractor</b>, and</li>
-                    <li>the <b>principal contractor</b> agreeing to pay, on demand by the <b>trade contractor</b>, the sum of $1,</li>
+                    <li>the <b>trade contractor</b> agreeing to quote for <b>trade works</b> requested by the <b>principal contractor</b>, and</li>
+                    <li>the <b>principal contractor</b> agreeing to pay, on demand by the <b>trade contractor</b>, the invoiced amount relating and compliant to Item 6,</li>
                 </ol>
                 the parties agree that the period trade contract conditions overleaf are deemed to be incorporated into each <b>trade contract</b> for a period of 12 months from the date of this agreement.
             </td>

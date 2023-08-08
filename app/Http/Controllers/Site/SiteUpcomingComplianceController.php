@@ -62,7 +62,7 @@ class SiteUpcomingComplianceController extends Controller {
         //var_dump($settings_select);
         //var_dump($settings_colours);
         //dd($settings_text);
-
+        //dd($startdata);
 
         return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours'));
     }
@@ -201,7 +201,6 @@ class SiteUpcomingComplianceController extends Controller {
                     } else
                         return back()->withErrors(["$type-$setting->id" => "The stage name field is required."]);
                 }
-
             }
 
             // Add Field
@@ -243,15 +242,19 @@ class SiteUpcomingComplianceController extends Controller {
         //dd(request()->all());
 
         // Delete setting
-        $setting = SiteUpcomingSettings::findOrFail($id)->delete();
+        $setting = SiteUpcomingSettings::findOrFail($id);
+        $field = $setting->field;
+        $setting->delete();
 
-        // Re-orer settings
-        $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->orderBy('order')->get();
+        // Re-order settings
+        $settings = SiteUpcomingSettings::where('field', $field)->where('status', 1)->orderBy('order')->get();
         $order = 1;
         foreach ($settings as $setting) {
             $setting->order = $order ++;
             $setting->save();
+            //echo "updated [$setting->id][$field] $order<br>";
         }
+
 
         Toastr::success("Updated settings");
 

@@ -90,12 +90,14 @@ class CompanyPeriodTradeController extends Controller {
         $ptc_request['principle_phone'] = $company->reportsTo()->phone;
         $ptc_request['principle_email'] = ($company->reportsTo()->id == 3) ? 'accounts1@capecod.com.au' : $company->reportsTo()->email;
         $ptc_request['principle_abn'] = $company->reportsTo()->abn;
+        $ptc_request['principle_acn'] = ($company->reportsTo()->id == 3) ? '000 605 407' : '';
         $ptc_request['contractor_id'] = $company->id;
         $ptc_request['contractor_name'] = $company->name;
         $ptc_request['contractor_address'] = $company->address_formatted;
         $ptc_request['contractor_phone'] = $company->phone;
         $ptc_request['contractor_email'] = $company->email;
         $ptc_request['contractor_abn'] = $company->abn;
+        $ptc_request['contractor_acn'] = $company->acn;
         $ptc_request['contractor_gst'] = $company->gst;
         $ptc_request['contractor_licence'] = ($company->activeCompanyDoc('7') && $company->activeCompanyDoc('7')->status == 1) ? $company->activeCompanyDoc('7')->ref_no : null;
         $ptc_request['contractor_pl_name'] = ($company->activeCompanyDoc('1') && $company->activeCompanyDoc('1')->status == 1) ? $company->activeCompanyDoc('1')->ref_name : null;
@@ -245,6 +247,29 @@ class CompanyPeriodTradeController extends Controller {
         //return view('pdf/company-tradecontract', compact('data', 'company'));
         //$pdf = PDF::loadView('pdf/company-tradecontract', compact('data', 'company'));
         $pdf = PDF::loadView('pdf/company-tradecontract', compact('company'));
+        $pdf->setPaper('a4');
+        //$pdf->setOption('page-width', 200)->setOption('page-height', 287);
+        //$pdf->setOption('margin-bottom', 10);
+        //->setOption('footer-font-size', '7')
+        //->setOption('footer-left', utf8_decode('Document created ' . date('\ d/m/Y\ ')))
+        //->setOption('footer-center', utf8_decode('Page [page] / [topage]'))
+        //->setOption('footer-right', utf8_decode("Initials:     "))
+        //->setOrientation('portrait');
+
+        //if ($request->has('view_pdf'))
+        return $pdf->stream();
+    }
+
+    /**
+     * Create PDF
+     */
+    public function blankPtcPDF($cid)
+    {
+        $company = Company::findOrFail($cid);
+        //$data[] = ['company_name' => 'cname', 'status' => 'status',];
+        //return view('pdf/company-tradecontract', compact('data', 'company'));
+        //$pdf = PDF::loadView('pdf/company-tradecontract', compact('data', 'company'));
+        $pdf = PDF::loadView('pdf/company-tradecontract-blank', compact('company'));
         $pdf->setPaper('a4');
         //$pdf->setOption('page-width', 200)->setOption('page-height', 287);
         //$pdf->setOption('margin-bottom', 10);

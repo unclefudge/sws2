@@ -1111,6 +1111,10 @@ class CronController extends Controller {
                 $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
                 echo "Adding site [" . $site['id'] . "] " . $site['name'] . "<br>";
                 $log .= "Adding site [" . $site['id'] . "] " . $site['name'] . "\n";
+            } elseif ($ext_site->completion_date != $site['completion_date']) {
+                $ext_site->completion_date = $site['completion_date'];
+                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . " -". "<br>";
+                $log .= "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "\n";
             }
         }
 
