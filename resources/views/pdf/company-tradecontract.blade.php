@@ -149,7 +149,7 @@
                 <div style="width: 100%; display: table;">
                     <span style="display: table-cell; width: 90px;">ABN </span>
                     <span style="display: table-cell; width: 200px;">{{ $ptc->contractor_abn }}</span>
-                    <span style="display: table-cell;">ACN </span>
+                    <span style="display: table-cell;">ACN &nbsp; &nbsp; {{ $ptc->contractor_acn }}</span>
                 </div>
                 <div style="width: 100%; display: table;">
                     <span style="display: table-cell; width: 90px;">PHONE </span>
@@ -209,19 +209,6 @@
         </tr>
     </table>
 
-    {{-- Page 2 --}}
-    <div class="page"></div>
-
-    <div class="row">
-        <div class="col-xs-12">
-            <h3 style="margin: 0px">Period Trade Contract
-                <small>continued</small>
-                <span class="pull-right" style="font-size:18px"></span></h3>
-            <hr style="margin: 5px 0px 10px 0px">
-            <h5>SCHEDULE</h5><br>
-        </div>
-    </div>
-
     {{-- Schedule 7 --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
@@ -245,8 +232,19 @@
         </tr>
     </table>
 
+    {{-- Page 2 --}}
+    <div class="page"></div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h3 style="margin: 0px">Period Trade Contract
+                <small>continued</small>
+                <span class="pull-right" style="font-size:18px"></span></h3>
+            <hr style="margin: 5px 0px 10px 0px">
+            <h5>SCHEDULE</h5><br>
+        </div>
+    </div>
+
     {{-- Schedule 9 --}}
-    <hr style="margin: 5px 0px 5px 0px">
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">9.</h5></td>
@@ -324,7 +322,9 @@
 
     {{-- Signature --}}
     <br><br><br><br>
-    THE PARTIES AGREE that the period trade contract conditions referred to above are those that appear on the next page (see conditions)<br><br><br><br><br>
+    <h4 style="margin-bottom: 3px">AGREEMENT</h4>
+    <br>This document serves as a formal agreement between the <b>Principal Contractor</b> and <b>Trade Contractor</b> as identified at 2 and 3 of the Schedule, hereby referred to as the 'parties,' representing their mutual understanding and acceptance of the terms and conditions outlined herein as the Period Trade Contract Conditions. By signing below each party acknowledges their full comprehension of the <b>Period Trade Contract</b> contents and willingly enters a legally binding contract.<br><br>
+    <br><br><br><br><br>
     <div style="width: 100%; display: table;">
         <span style="display: table-cell; width: 280px; border-bottom: 1px solid #eee; border-top: 0px; background-color: #eee; padding:10px;">{!! nl2br($ptc->principle_signed_name) !!}</span>
         <span style="display: table-cell; width: 80px;">&nbsp;</span>
@@ -356,7 +356,8 @@
                 <ol type="a" style="padding:0px 0px 0px 15px">
                     <li>The <b>trade contractor</b> must carry out and complete the <b> trade works</b>:
                         <ol type="i" style="padding:0px 0px 0px 15px; line-height: 4px; margin: 0px">
-                            <li style="line-height: 9px; padding: 0px; margin: 0px">in a proper, skilful and tradesperson like manner to the satisfaction of the <b>principal contractor</b> acting reasonably;</li>
+                            <li style="line-height: 9px; padding: 0px; margin: 0px">in a proper, skillful and tradesperson like manner to the satisfaction of the <b>principal contractor</b></li>
+                            <li style="line-height: 9px; padding: 0px; margin: 0px">acting reasonably;</li>
                             <li style="line-height: 9px; padding: 0px; margin: 0px">in accordance with the specifications and the law; and</li>
                             <li style="line-height: 9px; padding: 0px; margin: 0px">at the reasonable times directed by the <b> principal contractor</b>.</li>
                         </ol>
@@ -365,7 +366,7 @@
                         immediately seek the <b>principal contractor's</b> direction as to the interpretation to be followed.
                     </li>
                     <li>The <b>trade contractor</b> must supply everything necessary to carry out the <b>trade works</b>.</li>
-                    <li>The <b>trade contractor</b> may employ or engage others to carry out some or all of the <b>trade works</b>. Use of sub-contractors does not relieve the trade contractor from liability under
+                    <li>The <b>trade contractor</b> may employ or engage others to carry out some or all of the <b>trade works</b>. Use of subcontractors does not relieve the trade contractor from liability under
                         this <b>trade contract.</b>
                     </li>
                 </ol>
@@ -423,7 +424,7 @@
                 <h6 style="margin-bottom: 1px">4. WARRANTIES</h6>
                 The <b>trade contractor</b> warrants that:
                 <ol type="a" style="padding-left:15px">
-                    <li>the <b>trade works</b> will be carried out in a proper, skilful and tradesperson like manner and in accordance with the contract;</li>
+                    <li>the <b>trade works</b> will be carried out in a proper, skillful and tradesperson like manner and in accordance with the contract;</li>
                     <li>materials supplied by it will be suitable, new and free of defects; and</li>
                     <li>it holds all licences required to carry out the <b>trade works</b>,</li>
                 </ol>
@@ -491,7 +492,14 @@
 
                 <h6 style="margin-bottom: 1px">8. HEALTH AND SAFETY</h6>
                 <ol type="a" style="padding-left:15px">
-                    <li>In carrying out the <b>trade works</b>, the <b>trade contractor</b> and its agents and employees must observe all relevant workplace health and safety laws.</li>
+                    <li>In carrying out the <b>trade works</b>, the <b>trade contractor</b> must observe all relevant workplace health and safety laws.</li>
+                    <li>The <b>trade contractor</b> must meet and demonstrate continued compliance with:
+                        <ol type="i" style="padding-left:15px">
+                            <li>the Safety Management System as designated by the <b>principal contractor</b></li>
+                            <li>site safety rules and Work Health & Safety Management Plans</li>
+                            <li>any reasonable instructions, policies and procedures given by the <b>principal contractor</b></li>
+                        </ol>
+                    </li>
                     <li>The <b>trade contractor</b> must, whenever carrying out the <b>trade works</b>, ensure that:
                         <ol type="i" style="padding-left:15px">
                             <li>no person (whether employed or not) is exposed to risk to their health and safety; and</li>
@@ -504,7 +512,7 @@
                 <ol type="a" style="padding-left:15px">
                     <li>The <b>trade contractor</b> is responsible for:
                         <ol type="i" style="padding-left:15px">
-                            <li>any damage caused by the <b>trade contractor</b> and its agents or employees;</li>
+                            <li>any damage caused by the <b>trade contractor</b>;</li>
                             <li>keeping the <b>trade contractor's</b> areas clear and tidy at all times; and</li>
                             <li>the removal of its tools, plant and equipment, and if required the removal of debris and refuse, arising out of the <b>trade works</b>.</li>
                         </ol>
@@ -526,10 +534,11 @@
             <td width="50%" class="pad0" style="border: 0px">
                 <h6 style="margin-bottom: 1px">10. PAYMENT</h6>
                 <ol type="a" style="padding-left:15px">
-                    <li>The <b>principal contractor</b> may require from the <b>trade contractor</b>, as a precondition to payment:
+                    <li>The <b>principal contractor</b> may require from the <b>trade contractor</b>, as a precondition to payment of the relevant applicable billing period:
                         <ol type="i" style="padding-left:15px">
                             <li>a signed statutory declaration that all its subcontractors and employees have been paid all amounts then due for work under this <b>trade contract</b>;</li>
                             <li>an appropriate statutory declaration regarding payment of all workers compensation premiums and payroll tax in connection with the <b>trade works</b>.</li>
+                            <li>demonstrated compliance or remediation of compliance as identified at clause 8(b)</li>
                         </ol>
                     </li>
                     <li>Any payment, other than a final payment, by the <b>principal contractor</b> to the <b>trade contractor</b> is payment on account only and is not evidence of the value of work
@@ -624,8 +633,9 @@
                 In this <b>trade contract</b>:<br><br>
                 <p>"<b>base work</b>" means the <b>site</b> conditions including work carried out by others on or over which the <b>trade contractor</b> is to carry out the <b>trade works</b>;</p>
                 <p>"<b>head contract</b>" means the contract between the <b>principal contractor</b> and its client which includes the <b>trade works</b> as part of its scope of work,</p>
+                <p>“<b>principal contractor</b>" means Cape Cod Australia Pty Ltd and it’s employees</p>
                 <p>"<b>intellectual property rights</b>" means any patent, registered design, trademark or name, copyright or other protected right;</p>
-                <p>"<b>Security of Payment legislation</b>" means the security of payment Acts in force as at 1 October 2016 in the following Australian jurisdictions or its
+                <p>"<b>Security of Payment legislation</b>" means the security of payment Acts in force as at the date of this <b>trade contract</b> in the following Australian jurisdictions or its
                     equivalent, updated, amended or replacement legislation:
                 <ol type="a" style="padding-left:15px">
                     <li>New South Wales: Building and Construction Industry Security of Payment Act 1999;</li>
@@ -638,8 +648,9 @@
                     <li>Australian Capital Territory: Building and Construction Industry (Security of Payment) Act 2009;</li>
                 </ol>
                 </p>
-                <p>"<b>site</b>" means the address in the Schedule where the works under the <b>head contract</b> are carried out;</p>
+                <p>"<b>site</b>" means any address managed or controlled by the Principal Contractor where the works under the <b>head contract</b> are carried out;</p>
                 <p>"<b>trade contract</b>" means this agreement between the <b>principal contractor</b> and the <b>trade contractor</b>,</p>
+                <p>“<b>trade contractor</b>" means the entity or individual/Person Conducting Business or Undertaking (PCBU) as nominated in (3) of the Schedule, or any persons, employees, contractors or others otherwise engaged by the <b>Trade Contractor</b> to perform the <b>trade works</b>;</p>
                 <p>"<b>trade works</b>" means the work to be carried out by the <b>trade contractor</b> as described in the schedule;</p>
                 <p>"<b>variation</b>" means to vary the scope of the <b>trade works</b> described in the Schedule by:
                 <ol type="a" style="padding-left:15px">

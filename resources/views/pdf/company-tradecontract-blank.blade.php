@@ -149,7 +149,7 @@
                 <div style="width: 100%; display: table;">
                     <span style="display: table-cell; width: 90px;">ABN </span>
                     <span style="display: table-cell; width: 200px;">{{ $company->abn }}</span>
-                    <span style="display: table-cell;">ACN </span>
+                    <span style="display: table-cell;">ACN &nbsp; &nbsp; {{ $company->acn }}</span>
                 </div>
                 <div style="width: 100%; display: table;">
                     <span style="display: table-cell; width: 90px;">PHONE </span>
@@ -232,7 +232,6 @@
         </tr>
     </table>
 
-    {{-- Schedule 9 --}}
     {{-- Page 2 --}}
     <div class="page"></div>
     <div class="row">
@@ -245,6 +244,7 @@
         </div>
     </div>
 
+    {{-- Schedule 9 --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">9.</h5></td>
@@ -322,7 +322,9 @@
 
     {{-- Signature --}}
     <br><br><br><br>
-    THE PARTIES AGREE that the period trade contract conditions referred to above are those that appear on the next page (see conditions)<br><br><br><br><br>
+    <h4 style="margin-bottom: 3px">AGREEMENT</h4>
+    <br>This document serves as a formal agreement between the <b>Principal Contractor</b> and <b>Trade Contractor</b> as identified at 2 and 3 of the Schedule, hereby referred to as the 'parties,' representing their mutual understanding and acceptance of the terms and conditions outlined herein as the Period Trade Contract Conditions. By signing below each party acknowledges their full comprehension of the <b>Period Trade Contract</b> contents and willingly enters a legally binding contract.<br><br>
+    <br><br><br><br><br>
     <div style="width: 100%; display: table;">
         <span style="display: table-cell; width: 300px; border-bottom: 1px solid #eee; border-top: 0px">&nbsp;</span>
         <span style="display: table-cell; width: 100px;">&nbsp;</span>
@@ -545,7 +547,7 @@
                     </li>
                 </ol>
 
-                <h6 style="margin-bottom: 1px">11. EXTENSON OF TIME</h6>
+                <h6 style="margin-bottom: 1px">11. EXTENSION OF TIME</h6>
                 The <b>trade contractor</b> is entitled to an extension of time to complete the <b>trade works</b> as determined by the <b>principal contractor</b> acting reasonably if:
                 <ol type="a" style="padding-left:15px">
                     <li>the trade works are delayed by:
@@ -563,7 +565,7 @@
                     </li>
                 </ol>
 
-                <h6 style="margin-bottom: 1px">11. FREEDOM OF ASSOCATION AND COMPLIANCE WITH INDUSTRIAL LAWS</h6>
+                <h6 style="margin-bottom: 1px">11. FREEDOM OF ASSOCIATION AND COMPLIANCE WITH INDUSTRIAL LAWS</h6>
                 A party or its agent must not support an industrial organisation to:
                 <ol type="a" style="padding-left:15px">
                     <li>participate in any form of unauthorised industrial action or secondary boycott that affects the <b>trade works</b>, or</li>
@@ -595,7 +597,7 @@
                     </li>
                 </ol>
 
-                <h6 style="margin-bottom: 1px">15. ENDING THS TRADE CONTRACT</h6>
+                <h6 style="margin-bottom: 1px">15. ENDING THIS TRADE CONTRACT</h6>
                 If a party remains in default 3 working days after the other party has given it written notice requiring the default to be remedied then, without prejudice to any other rights or
                 remedies, the other party may, by giving a further written notice, end this trade Contract.<br><br>
 
@@ -619,7 +621,7 @@
                     <li>co-operate with all workers and other contractors on the <b>site</b>.</li>
                 </ol>
 
-                <h6 style="margin-bottom: 1px">18. INTELECTUAL PROPERTY RIGHTS</h6>
+                <h6 style="margin-bottom: 1px">18. INTELLECTUAL PROPERTY RIGHTS</h6>
                 <ol type="a" style="padding-left:15px">
                     <li><b>Intellectual property rights</b> in any plans or designs supplied by the <b>principal contractor</b> to the <b>trade contractor</b> remains with the <b>principal
                             contractor</b>.
