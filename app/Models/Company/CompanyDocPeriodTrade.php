@@ -17,8 +17,8 @@ class CompanyDocPeriodTrade extends Model {
     protected $table = 'company_doc_ptc';
     protected $fillable = [
         'date', 'period', 'attachment', 'expiry', 'principle_id', 'principle_name', 'principle_address',
-        'principle_phone', 'principle_email', 'principle_abn', 'principle_hia', 'principle_signed_id', 'principle_signed_at', 'principle_signed_name',
-        'contractor_id', 'contractor_name', 'contractor_address', 'contractor_phone', 'contractor_email', 'contractor_abn', 'contractor_gst', 'contractor_licence',
+        'principle_phone', 'principle_email', 'principle_abn', 'principle_acn', 'principle_hia', 'principle_signed_id', 'principle_signed_at', 'principle_signed_name',
+        'contractor_id', 'contractor_name', 'contractor_address', 'contractor_phone', 'contractor_email', 'contractor_abn', 'contractor_acn', 'contractor_gst', 'contractor_licence',
         'contractor_pl_name', 'contractor_pl_ref', 'contractor_pl_expiry', 'contractor_wc_name', 'contractor_wc_ref', 'contractor_wc_expiry',
         'contractor_sa_name', 'contractor_sa_ref', 'contractor_sa_expiry', 'contractor_signed_id', 'contractor_signed_at', 'contractor_signed_name',
         'share', 'notes', 'for_company_id', 'company_id', 'status', 'created_by', 'updated_by'];

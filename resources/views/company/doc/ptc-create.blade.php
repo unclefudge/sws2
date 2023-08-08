@@ -316,9 +316,6 @@
                                     <span style="display: table-cell; width: 60px;">ABN</span>
                                     <span style="display: table-cell; width: 150px; border-bottom: 1px solid #eee; border-top: 0px">{{ $company->abn }}</span>
                                     <span style="display: table-cell; width: 50px;">&nbsp;</span>
-                                    <span style="display: table-cell; width: 60px;">ACN</span>
-                                    <span style="display: table-cell; width: 150px; border-bottom: 1px solid #eee; border-top: 0px">{{ $company->acn }}</span>
-                                    <span style="display: table-cell; width: 50px;">&nbsp;</span>
                                     <span style="display: table-cell; width: 250px;">ARE YOU REGISTERED FOR GST?</span>
                                     <span style="display: table-cell; width: 150px; border-bottom: 1px solid #eee; border-top: 0px">@if($company->gst)
                                             Yes

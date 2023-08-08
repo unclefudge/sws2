@@ -6,7 +6,7 @@
         "normal": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/glyphicons_halflings_normal_3666f2c75721d5d4133b57247675becf"
     },
     "pt sans": {
-        "normal": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/pt_sans_normal_e76a836bdb9b639f8f8481b37cb34a7a"
+        "normal": "pt_sans_normal_e76a836bdb9b639f8f8481b37cb34a7a"
     },
     "martel sans": {
         "normal": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/1968e2aa7a241d74a376e858af398b02"
@@ -19,5 +19,8 @@
     },
     "open sans": {
         "300": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/open_sans_300_b238a082ddaafa8f804813f71033ff2c"
+    },
+    "pt sana": {
+        "normal": "pt_sana_normal_d94f9c611d8761de20bac651ad27f4d5"
     }
 }

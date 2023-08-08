@@ -267,8 +267,7 @@ class CompanyPeriodTradeController extends Controller {
     {
         $company = Company::findOrFail($cid);
         //$data[] = ['company_name' => 'cname', 'status' => 'status',];
-        //return view('pdf/company-tradecontract', compact('data', 'company'));
-        //$pdf = PDF::loadView('pdf/company-tradecontract', compact('data', 'company'));
+        //return view('pdf/company-tradecontract-blank', compact('company'));
         $pdf = PDF::loadView('pdf/company-tradecontract-blank', compact('company'));
         $pdf->setPaper('a4');
         //$pdf->setOption('page-width', 200)->setOption('page-height', 287);
