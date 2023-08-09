@@ -227,6 +227,7 @@ class SiteController extends Controller {
         $site_request['construction_rcvd'] = (request('construction_rcvd')) ? Carbon::createFromFormat('d/m/Y H:i', request('construction_rcvd') . '00:00')->toDateTimeString() : null;
         $site_request['hbcf_start'] = (request('hbcf_start')) ? Carbon::createFromFormat('d/m/Y H:i', request('hbcf_start') . '00:00')->toDateTimeString() : null;
         $site_request['jobstart_estimate'] = (request('jobstart_estimate')) ? Carbon::createFromFormat('d/m/Y H:i', request('jobstart_estimate') . '00:00')->toDateTimeString() : null;
+        $site_request['forecast_completion'] = (request('forecast_completion')) ? Carbon::createFromFormat('d/m/Y H:i', request('forecast_completion') . '00:00')->toDateTimeString() : null;
 
         // Project Coodinator
         if (request('project_mgr')) {
