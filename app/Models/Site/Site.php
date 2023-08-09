@@ -29,10 +29,12 @@ class Site extends Model {
         'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email',
         'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
         'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start',
-        'consultant_name', 'project_mgr', 'project_mgr_name', 'extension_notes', 'completion_signed', 'completed', 'jobstart_estimate',
+        'consultant_name', 'project_mgr', 'project_mgr_name', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
         'status', 'company_id', 'created_by', 'updated_by'];
-    protected $dates = ['completed', 'jobstart_estimate', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start',];
+    protected $dates = [
+        'completed', 'jobstart_estimate', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval',
+        'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start', 'forecast_completion'];
 
     /**
      * A Site belongs to a company

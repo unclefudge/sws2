@@ -12,17 +12,18 @@ class SiteInspectionActive extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $electrical, $plumbing;
+    public $electrical, $plumbing, $type;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($electrical, $plumbing)
+    public function __construct($electrical, $plumbing, $type)
     {
         $this->electrical = $electrical;
         $this->plumbing = $plumbing;
+        $this->type = $type;
 
     }
 
@@ -33,6 +34,7 @@ class SiteInspectionActive extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        return $this->markdown('emails/site/inspection-active')->subject('SafeWorksite - Open Inspection Reports');
+        $type = $this->type;
+        return $this->markdown('emails/site/inspection-active')->subject("SafeWorksite - Open $type Inspection Reports");
     }
 }

@@ -123,7 +123,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.jobstartexport');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.jobstartexport');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -202,7 +204,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -237,7 +241,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -276,7 +282,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('company.missing.info');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('company.missing.info');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -324,7 +332,9 @@ class CronReportController extends Controller {
 
         $cc = Company::find(3);
         $email_name = "Maintenance No Actions";
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -354,7 +364,9 @@ class CronReportController extends Controller {
         // On Hold Requests
         //
         $email_name = "Maintenance On Hold";
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -402,7 +414,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -452,7 +466,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.upcoming.compliance');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.upcoming.compliance');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -520,7 +536,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.super.noaction');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.super.noaction');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -686,7 +704,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('user.oldusers');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('user.oldusers');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails";
         $log .= "Sending $email_name email to $emails";
@@ -740,7 +760,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -783,7 +805,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.qa.onhold');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.qa.onhold');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -835,7 +859,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
@@ -856,7 +882,9 @@ class CronReportController extends Controller {
         //$pdf->setPaper('A4', 'landscape');
         //$pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing));
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+        //Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing'));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -887,7 +915,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('equipment.restock');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('equipment.restock');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails";
         $log .= "Sending $email_name email to $emails";
@@ -924,7 +954,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
         $emails = implode("; ", $email_list);
         echo "Sending $email_name email to $emails<br>";
         $log .= "Sending $email_name email to $emails";
@@ -966,7 +998,9 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.maintenance.executive');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.maintenance.executive');
         $emails = implode("; ", $email_list);
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";

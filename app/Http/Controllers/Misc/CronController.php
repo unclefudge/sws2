@@ -916,7 +916,9 @@ class CronController extends Controller {
         $log .= "Email $email_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $cc = Company::find(3);
-        $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
+        $email_list = [env('EMAIL_DEV')];
+        if (\App::environment('prod'))
+            $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
         $emails = implode("; ", $email_list);
 
         $date = Carbon::now()->format('Y-m-d');
@@ -1113,7 +1115,7 @@ class CronController extends Controller {
                 $log .= "Adding site [" . $site['id'] . "] " . $site['name'] . "\n";
             } elseif ($ext_site->completion_date != $site['completion_date']) {
                 $ext_site->completion_date = $site['completion_date'];
-                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . " -". "<br>";
+                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . " -" . "<br>";
                 $log .= "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "\n";
             }
         }

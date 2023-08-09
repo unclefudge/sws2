@@ -210,7 +210,7 @@ class MailgunZohoController extends Controller {
                             'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                         $datefields = [
                             'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
-                            'construction_rcvd', 'hbcf_start'];
+                            'construction_rcvd', 'hbcf_start', 'forecast_completion'];
                         $yesno_fields = ['engineering'];
                         $exclude_update = ['completion_signed'];
                         $all_fields = array_merge($fields, $datefields, $yesno_fields, $exclude_update);
@@ -400,6 +400,8 @@ class MailgunZohoController extends Controller {
             //'Eng Certified'       => 'engineering_cert',
             'CC Rcvd Date'               => 'construction_rcvd',
             'HBCF Start Date'            => 'hbcf_start',
+            'Fcst Comp Date'             => 'forecast_completion',
+            // Other info
             'Design Cons'                => 'consultant_initials',
             'Design Cons (user)'         => 'consultant_name',
             'Project Coordinator'        => 'project_mgr',
@@ -438,7 +440,7 @@ class MailgunZohoController extends Controller {
         // Verify Correct Headers are all present for Jobs import
         $required_headers_jobs = [
             'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
-            'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date',
+            'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date', 'Fcst Comp Date',
             'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Job Stage'
         ];
         sort($required_headers_jobs);
