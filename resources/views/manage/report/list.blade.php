@@ -126,9 +126,9 @@
                                 <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                             </tr>
                             @if (Auth::user()->isCC())
-                                {{-- Inspections Reports --}}
+                                {{-- Inspection Reports --}}
                                 <tr style="background-color: #f0f6fa">
-                                    <th> Inspections Reports</th>
+                                    <th> Inspection Reports</th>
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/inspection_electrical_plumbing">Open Electrical / Plumbing Inspections</a></td>

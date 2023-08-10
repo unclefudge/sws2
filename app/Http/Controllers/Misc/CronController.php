@@ -50,7 +50,7 @@ class CronController extends Controller {
     static public function nightly()
     {
         echo "<h1> Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
-        $log = "Nightly Update\n--------------\n\n";
+        $log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
         $bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 

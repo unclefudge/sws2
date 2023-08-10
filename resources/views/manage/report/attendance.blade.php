@@ -33,8 +33,8 @@
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                         <select name="status" id="status" class="form-control bs-select">
-                                            <option value="" selected>Any</option>
-                                            <option value="1">Active</option>
+                                            <option value="">Any</option>
+                                            <option value="1" selected>Active</option>
                                             <option value="0">Completed</option>
                                         </select>
                                     </div>
@@ -63,7 +63,7 @@
                                 <div class="col-md-2"></div>
                                 <div class="col-md-4">
                                     {!! Form::label('company_id', 'Company', ['class' => 'control-label']) !!}
-                                    {!! Form::select('company_id', Auth::user()->company->companiesSelect('ALL'), null, ['class' => 'form-control select2', 'id' => 'company_id']) !!}
+                                    {!! Form::select('company_id', Auth::user()->company->companiesSelect('ALL'), '3', ['class' => 'form-control select2', 'id' => 'company_id']) !!}
                                 </div>
                                 <div class="col-md-1"></div>
                                 <div class="col-md-4">
