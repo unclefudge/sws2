@@ -351,7 +351,7 @@ class SiteExtensionController extends Controller {
                     'name'                 => $site->site->name,
                     'super_initials'       => $site->site->supervisorsInitialsSBC(),
                     'super_ids'             => $site->site->supervisors->pluck('id')->toArray(),
-                    'completion_date'      => ($site->forecast_completion) ? $site->forecast_completion->format('d/m/y') : '',
+                    'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),

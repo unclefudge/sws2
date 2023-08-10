@@ -1115,7 +1115,8 @@ class CronController extends Controller {
                 $log .= "Adding site [" . $site['id'] . "] " . $site['name'] . "\n";
             } elseif ($ext_site->completion_date != $site['completion_date']) {
                 $ext_site->completion_date = $site['completion_date'];
-                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . " -" . "<br>";
+                $ext_site->save();
+                echo "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "<br>";
                 $log .= "Updating site completion date[" . $site['id'] . "] " . $site['name'] . "\n";
             }
         }
