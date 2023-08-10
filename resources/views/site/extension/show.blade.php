@@ -38,13 +38,13 @@
                         <table class="table table-striped table-bordered table-nohover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="25%">Site</th>
-                                <th width="5%">Supervisor</th>
-                                <th width="8%">Forecast Completion</th>
-                                <th width="25%">Extend Reasons</th>
-                                <th width="5%">Days</th>
+                                <th style="width:25%">Site</th>
+                                <th style="width:5%">Supervisor</th>
+                                <th style="width:8%">Forecast Completion</th>
+                                <th style="width:25%">Extend Reasons</th>
+                                <th style="width:5%">Days</th>
                                 <th>Extend Notes</th>
-                                <th width="5%">Total Days</th>
+                                <th style="width:5%">Total Days</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -83,7 +83,7 @@
                                         @endif
                                     </tr>
                                     <tr id="extrainfo-{{$row['id']}}" style="display: none">
-                                        <td colspan="7" style="width: 100%; background: #333; color: #fff">
+                                        <td colspan="7" style="background: #333; color: #fff">
                                             <b>Summary of existing Extensions</b>
                                             <div style="background: #fff; color:#636b6f;  padding: 20px">
                                                 {!! $row['past_extentions'] !!}
@@ -91,7 +91,6 @@
                                         </td>
                                     </tr>
                                     <tr style="display: none">
-                                        <td colspan="7"></td>
                                     </tr>
                                 @endif
                             @endforeach
