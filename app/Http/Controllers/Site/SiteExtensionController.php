@@ -350,13 +350,15 @@ class SiteExtensionController extends Controller {
                     'id'                   => $site->id,
                     'name'                 => $site->site->name,
                     'super_initials'       => $site->site->supervisorsInitialsSBC(),
-                    'super_ids'             => $site->site->supervisors->pluck('id')->toArray(),
+                    'super_ids'            => $site->site->supervisors->pluck('id')->toArray(),
                     'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
                     'days'                 => $site->days,
-                    'notes'                => $site->notes
+                    'notes'                => $site->notes,
+                    'total_days'           => $site->totalExtensionDays(),
+                    'past_extentions'      => $site->pastExtensions()
                 ];
             }
         }

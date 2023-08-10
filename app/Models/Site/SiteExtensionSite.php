@@ -38,6 +38,34 @@ class SiteExtensionSite extends Model {
     }
 
     /**
+     * TotalExtensionDays
+     */
+    public function totalExtensionDays()
+    {
+        $days = 0;
+        $past_extensions = SiteExtensionSite::where('site_id', $this->site_id)->where('days', '>', 0)->get();
+        foreach ($past_extensions as $site_ext) {
+            $days = $days + $site_ext->days;
+        }
+        return $days;
+    }
+
+    /**
+     * PastExtensions
+     */
+    public function pastExtensions()
+    {
+        $text = '';
+        $extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $past_extensions = SiteExtensionSite::where('site_id', $this->site_id)->where('days', '>', 0)->orderBy('created_at')->get();
+        foreach ($past_extensions as $site_ext) {
+            $day = ($site_ext->days == 1) ? 'day' : 'days';
+            $text .= $site_ext->updated_at->format('d/m/y') . " - " . $site_ext->days . " $day <b>" . $site_ext->reasonsSBC() . ":</b> $site_ext->notes<br>";
+        }
+        return $text;
+    }
+
+    /**
      * SiteExtensionSite Reasons Text
      */
     public function reasonsSBC()

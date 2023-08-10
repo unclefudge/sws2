@@ -35,7 +35,7 @@
                                 <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
                             @endif
                         </h3>
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                        <table class="table table-striped table-bordered table-nohover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
                                 <th width="25%">Site</th>
@@ -44,15 +44,25 @@
                                 <th width="25%">Extend Reasons</th>
                                 <th width="5%">Days</th>
                                 <th>Extend Notes</th>
+                                <th width="5%">Total Days</th>
                             </tr>
                             </thead>
                             <tbody>
+                            <?php $today = \Carbon\Carbon::now(); $completion_date = null; ?>
+                            Today: {{ $today->format('d/m/Y') }}
+
                             @foreach ($data as $row)
+                                    <?php
+                                    $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
+                                    $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
+                                    ?>
                                 @if ($supervisor_id == 0 || in_array($supervisor_id, $row['super_ids']))
                                     <tr>
                                         <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>
-                                        <td>{{ $row['completion_date'] }}</td>
+                                        <td style="{{ ($completion_date && $complete_date_sub2month->lte($today)) ? 'background:#FDD7B1' : '' }}">
+                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ $row['completion_date'] }}</span>
+                                        </td>
                                         <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
                                             {{ $row['extend_reasons_text'] }}
                                             <input type="hidden" id="reason-{{$row['id']}}-array" name="reason-{{$row['id']}}-array[]" value="{{ $row['extend_reasons'] }}">
@@ -64,6 +74,24 @@
                                             <div id="note-{{$row['id']}}">{!! nl2br($row['notes']) !!}</div>
                                             <input type="hidden" id="note-{{$row['id']}}-s" value="{!! $row['notes'] !!}">
                                         </td>
+                                        @if ($row['total_days'])
+                                            <td class="hoverDiv toggleTotalDays" id="total-{{$row['id']}}">
+                                                {{ $row['total_days'] }}
+                                            </td>
+                                        @else
+                                            <td>-</td>
+                                        @endif
+                                    </tr>
+                                    <tr id="extrainfo-{{$row['id']}}" style="display: none">
+                                        <td colspan="7" style="width: 100%; background: #333; color: #fff">
+                                            <b>Summary of existing Extensions</b>
+                                            <div style="background: #fff; color:#636b6f;  padding: 20px">
+                                                {!! $row['past_extentions'] !!}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr style="display: none">
+                                        <td colspan="7"></td>
                                     </tr>
                                 @endif
                             @endforeach
@@ -163,6 +191,13 @@
             /* Select2 */
             $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
 
+            $(".toggleTotalDays").click(function (e) {
+                var event_id = e.target.id.split('-');
+                var site_id = event_id[1];
+
+                $("#extrainfo-"+site_id).toggle();
+            });
+
             $(".editField").click(function (e) {
                 var event_id = e.target.id.split('-');
                 var site_id = event_id[1];
@@ -233,9 +268,10 @@
 
         });
 
-        function containsAny(source,target)
-        {
-            var result = source.filter(function(item){ return target.indexOf(item) > -1});
+        function containsAny(source, target) {
+            var result = source.filter(function (item) {
+                return target.indexOf(item) > -1
+            });
             return (result.length > 0);
         }
 
