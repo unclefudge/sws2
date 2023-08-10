@@ -12,18 +12,19 @@ class SiteInspectionActive extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $electrical, $plumbing, $type;
+    public $electrical, $plumbing, $type, $overdue_date;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($electrical, $plumbing, $type)
+    public function __construct($electrical, $plumbing, $type, $overdue_date = null)
     {
         $this->electrical = $electrical;
         $this->plumbing = $plumbing;
         $this->type = $type;
+        $this->overdue_date = $overdue_date;
 
     }
 

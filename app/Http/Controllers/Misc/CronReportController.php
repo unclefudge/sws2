@@ -870,21 +870,27 @@ class CronReportController extends Controller {
         $electrical = SiteInspectionElectrical::where('status', 1)->get();
         $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
 
-        // Create PDF
-        //$file = public_path('filebank/tmp/inspection-reports.pdf');
-        //if (file_exists($file))
-        //    unlink($file);
-
-
-        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-        //$pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //$pdf->setPaper('A4', 'landscape');
-        //$pdf->save($file);
-
         Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
         Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
-        //Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing'));
+
+        // Inspections 8 weeks over
+        $overdue_date = Carbon::now()->subWeek(8);
+        $eids = [];
+        foreach ($electrical as $report) {
+            if ($report->assigned_at->lte($overdue_date))
+                $eids[] = $report->id;
+        }
+        $electrical = SiteInspectionElectrical::find($eids);
+        $pids = [];
+        foreach ($plumbing as $report) {
+            if ($report->assigned_at->lte($overdue_date))
+                $pids[] = $report->id;
+        }
+        $plumbing = SiteInspectionPlumbing::find($pids);
+
+        if (\App::environment('prod'))
+            $email_list = ['gary@capecod.com.au'];
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

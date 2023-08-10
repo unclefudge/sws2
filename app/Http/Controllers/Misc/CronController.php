@@ -1063,24 +1063,16 @@ class CronController extends Controller {
 
             // Show only site which Job Start has before today
             if ($start_job && $start_job->from->lte($mon)) {
-                //$prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
-                //if ($site->forecast_completion && $site->forecast_completion->lte($mon)) {
-                    // don't add sites that have Prac Complete before current monday
-                    //echo "Ignore PC [$site->id] $site->name<br>";
-                //} else {
-                    //echo "Add [$site->id] $site->name<br>";
-                    $site_data = [
-                        'id'              => $site->id,
-                        'name'            => $site->name,
-                        'completion_date' => $site->forecast_completion,
-                        'completion_ymd'  => ($site->forecast_completion) ? $site->forecast_completion->format('ymd') : '',
-                    ];
-                    if ($site->forecast_completion)
-                        $prac_yes[] = $site_data;
-                    else
-                        $prac_no[] = $site_data;
-                //}
-
+                $site_data = [
+                    'id'              => $site->id,
+                    'name'            => $site->name,
+                    'completion_date' => $site->forecast_completion,
+                    'completion_ymd'  => ($site->forecast_completion) ? $site->forecast_completion->format('ymd') : '',
+                ];
+                if ($site->forecast_completion)
+                    $prac_yes[] = $site_data;
+                else
+                    $prac_no[] = $site_data;
             } else {
                 //echo "No START[$site->id] $site->name<br>";
             }
@@ -1093,7 +1085,6 @@ class CronController extends Controller {
             return $a['name'] <=> $b['name'];
         });
 
-        //$data = $prac_yes + $prac_no;
         $data = array_merge($prac_yes, $prac_no);
 
         //dd($data);

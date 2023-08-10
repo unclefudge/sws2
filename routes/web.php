@@ -129,6 +129,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/equipment/dt/transfers', '\App\Http\Controllers\Misc\ReportEquipmentController@getEquipmentTransfers');
     Route::get('/manage/report/equipment_restock', '\App\Http\Controllers\Misc\ReportEquipmentController@equipmentRestock');
     // Reports - Other
+    Route::get('/manage/report/inspection_electrical_plumbing', '\App\Http\Controllers\Misc\ReportController@inspectionReports');
     Route::get('/manage/report/licence_override', '\App\Http\Controllers\Misc\ReportController@licenceOverride');
     Route::get('/manage/report/attendance', '\App\Http\Controllers\Misc\ReportController@attendance');
     Route::get('/manage/report/attendance/dt/attendance', '\App\Http\Controllers\Misc\ReportController@getAttendance');

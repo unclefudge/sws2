@@ -49,8 +49,6 @@
                             </thead>
                             <tbody>
                             <?php $today = \Carbon\Carbon::now(); $completion_date = null; ?>
-                            Today: {{ $today->format('d/m/Y') }}
-
                             @foreach ($data as $row)
                                     <?php
                                     $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;

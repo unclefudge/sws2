@@ -5,6 +5,9 @@
         <td class="v1content-cell" style="padding: 35px">
             <h1>Open {{ $type }} Inspection Reports</h1>
 
+            @if ($overdue_date)
+                The following inspection reports are 8 weeks past their assigned date<br><br>
+            @endif
             @if (str_contains($type, 'Electrical'))
                 <h3>Electrical Inspection Reports</h3>
                 <table style="border: 1px solid; border-collapse: collapse">

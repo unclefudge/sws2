@@ -513,6 +513,20 @@ class ReportController extends Controller {
     }
 
     /****************************************************
+     * Maintenance
+     ***************************************************/
+
+    public function inspectionReports()
+    {
+        $today = Carbon::now();
+        $electrical = SiteInspectionElectrical::where('status', 1)->get();
+        $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
+
+        return view('manage/report/site/inspection_electrical_plumbing_open', compact('electrical', 'plumbing'));
+
+    }
+
+    /****************************************************
      * Accounting
      ***************************************************/
 
