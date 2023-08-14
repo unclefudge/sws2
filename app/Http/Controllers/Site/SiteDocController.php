@@ -105,9 +105,9 @@ class SiteDocController extends Controller {
 
         // Check authorisation and throw 404 if not
         if ($doc->type == 'PLAN' && !Auth::user()->allowed2('del.site.doc', $doc))
-            return json_encode('failed');
-        else if (!Auth::user()->allowed2('del.safety.doc', $doc))
-            return json_encode('failed');
+            return json_encode('failed1');
+        else if ($doc->type != 'PLAN' && !Auth::user()->allowed2('del.safety.doc', $doc))
+            return json_encode('failed2');
 
 
         // Log the delete action
