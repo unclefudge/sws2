@@ -95,8 +95,10 @@ class CompanyController extends Controller {
         else
             Mail::to(request('email'))->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         // Mail notification to parent company
-        if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))
-            Mail::to($newCompany->reportsTo()->notificationsUsersType('company.signup.sent'))->send(new \App\Mail\Company\CompanyCreated($newCompany));
+        if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent')) {
+            $email_list =  (\App::environment('prod')) ? $newCompany->reportsTo()->notificationsUsersType('company.signup.sent') : [env('EMAIL_DEV')];
+            Mail::to($email_list)->send(new \App\Mail\Company\CompanyCreated($newCompany));
+        }
 
         Toastr::success("Company signup sent");
 

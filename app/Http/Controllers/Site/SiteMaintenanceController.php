@@ -385,11 +385,12 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,3', 'planner_task_date' => 'required_with:planner_task_id'];
-        $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
+        $mesg = ['supervisor.required'       => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
                  'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
         request()->validate($rules, $mesg); // Validate
 
         $main_request = request()->all();
+        //echo "[$super_id_orig]<br>";
         //dd($main_request);
 
         // Verify prac completed date
@@ -419,7 +420,7 @@ class SiteMaintenanceController extends Controller {
         $planner_task_id = request('planner_task_id');
         $planner_task_date = (request('planner_task_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('planner_task_date') . '00:00')->toDateTimeString() : null;
         if ($planner_task_id) {
-           if ($planner_id_orig && $planner_id_orig != $planner_task_id)
+            if ($planner_id_orig && $planner_id_orig != $planner_task_id)
                 $delTask = SitePlanner::findOrFail($planner_id_orig)->delete();  // Delete old planner task
 
             // Create new
@@ -430,7 +431,7 @@ class SiteMaintenanceController extends Controller {
             }
         }
 
-
+        
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($main_request['super_id']);
@@ -443,9 +444,7 @@ class SiteMaintenanceController extends Controller {
             if (!$main->assigned_super_at)
                 $main->assigned_super_at = Carbon::now()->toDateTimeString();
 
-            //if (!$main->assigned_to) {
-                $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
-            //}
+            $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
             $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
         }
 

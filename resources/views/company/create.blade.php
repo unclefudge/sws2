@@ -61,7 +61,7 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group {!! fieldHasError('category', $errors) !!}">
-                                            <label for="category" class="control-label">Category *</label>
+                                            <label for="category" class="control-label">Category</label>
                                             <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
                                                data-content="Used to determine which documents are required to be WHS compliant. Public Liability, Workers Comp. Sickness & Accident, Contractors Licence etc"
                                                data-original-title="Category"> <i class="fa fa-question-circle font-grey-silver"></i> </a>

@@ -1187,7 +1187,7 @@ class CronController extends Controller {
                 'name'       => 'Contract Time Extensions',
                 'info'       => "Please complete the Contract Time Extensions for the following sites:\r\n" . $site_list,
                 'priority'   => '1',
-                'due_at'     => Carbon::tomorrow()->format('Y-m-d') . ' 17:00:00',
+                'due_at'     => Carbon::tomorrow()->format('Y-m-d') . ' 14:00:00',
                 'company_id' => '3',
                 'created_by' => '1',
                 'updated_by' => '1'

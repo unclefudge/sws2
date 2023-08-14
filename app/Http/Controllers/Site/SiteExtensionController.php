@@ -182,9 +182,12 @@ class SiteExtensionController extends Controller {
 
         $extension->closeToDo();
 
+        $email_cc = '';
         $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
-        $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        //$email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
+        elseif ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
         Toastr::success("Report Signed Off");
 
         $extension->save();
