@@ -273,7 +273,7 @@ class SiteIncident extends Model {
                 $email_supers = $this->site->supervisorsEmails();
                 $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
             } else
-                $email_to = Auth::user()->company->reportTo()->notificationsUsersEmailType('site.accident');
+                $email_to = Auth::user()->company->reportsTo()->notificationsUsersEmailType('site.accident');
 
             // CC Email user that logged request
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';

@@ -77,7 +77,7 @@
                     <div class="col-xs-1">M{{ $main->code }}</div>
                     <div class="col-xs-1">{{ $main->created_at->format('d/m/Y') }}</div>
                     <div class="col-xs-5">{{ $main->site->name }}</div>
-                    <div class="col-xs-3">{{ $main->supervisor }}</div>
+                    <div class="col-xs-3">{{ ($main->taskOwner) ? $main->taskOwner->name  : '-'}}</div>
                     <div class="col-xs-1">{{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</div>
                 </div>
 

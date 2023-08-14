@@ -431,7 +431,7 @@ class SiteMaintenanceController extends Controller {
             }
         }
 
-        
+
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($main_request['super_id']);
