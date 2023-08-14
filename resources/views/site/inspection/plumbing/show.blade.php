@@ -86,13 +86,12 @@
                                 </div>
                             </div>
                             <hr>
-                            @if ($report->info)
-                                <h4 class="font-green-haze">Admin Notes</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12 ">{!! nl2br($report->info) !!}</div>
-                                </div>
-                            @endif
+
+                            <h4 class="font-green-haze">Admin Notes</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-12 ">{!! ($report->info) ? nl2br($report->info) : 'none' !!}</div>
+                            </div>
 
                             {{-- Gallery --}}
                             <br>
@@ -394,91 +393,92 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/moment.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-basic-functions.js"></script>
-<script>
-    Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-basic-functions.js"></script>
+    <script>
+        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
 
-    var host = window.location.hostname;
-    var dev = true;
-    if (host == 'safeworksite.com.au')
-        dev = false;
+        var host = window.location.hostname;
+        var dev = true;
+        if (host == 'safeworksite.com.au')
+            dev = false;
 
-    var xx = {
-        dev: dev,
-        action: '', loaded: false,
-        table_name: 'site_inspection_plumbing', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
-        created_by: '', created_by_fullname: '',
-    };
+        var xx = {
+            dev: dev,
+            action: '', loaded: false,
+            table_name: 'site_inspection_plumbing', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
+            created_by: '', created_by_fullname: '',
+        };
 
-    Vue.component('app-actions', {
-        template: '#actions-template',
-        props: ['table', 'table_id', 'status'],
+        Vue.component('app-actions', {
+            template: '#actions-template',
+            props: ['table', 'table_id', 'status'],
 
-        created: function () {
-            this.getActions();
-        },
-        data: function () {
-            return {xx: xx, actionList: []};
-        },
-        events: {
-            'addActionEvent': function (action) {
-                this.actionList.unshift(action);
+            created: function () {
+                this.getActions();
             },
-        },
-        methods: {
-            getActions: function () {
-                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                    this.actionList = actions;
-                }.bind(this));
+            data: function () {
+                return {xx: xx, actionList: []};
             },
-        },
-    });
+            events: {
+                'addActionEvent': function (action) {
+                    this.actionList.unshift(action);
+                },
+            },
+            methods: {
+                getActions: function () {
+                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                        this.actionList = actions;
+                    }.bind(this));
+                },
+            },
+        });
 
-    Vue.component('ActionModal', {
-        template: '#actionModal-template',
-        props: ['show'],
-        data: function () {
-            var action = {};
-            return {xx: xx, action: action, oAction: ''};
-        },
-        events: {
-            'add-action-modal': function (e) {
-                var newaction = {};
-                this.oAction = '';
-                this.action = newaction;
-                this.xx.action = 'add';
-                this.show = true;
+        Vue.component('ActionModal', {
+            template: '#actionModal-template',
+            props: ['show'],
+            data: function () {
+                var action = {};
+                return {xx: xx, action: action, oAction: ''};
             },
-            'edit-action-modal': function (action) {
-                this.oAction = action.action;
-                this.action = action;
-                this.xx.action = 'edit';
-                this.show = true;
-            }
-        },
-        methods: {
-            close: function () {
-                this.show = false;
-                this.action.action = this.oAction;
+            events: {
+                'add-action-modal': function (e) {
+                    var newaction = {};
+                    this.oAction = '';
+                    this.action = newaction;
+                    this.xx.action = 'add';
+                    this.show = true;
+                },
+                'edit-action-modal': function (action) {
+                    this.oAction = action.action;
+                    this.action = action;
+                    this.xx.action = 'edit';
+                    this.show = true;
+                }
             },
-            addAction: function (action) {
-                var actiondata = {
-                    action: action.action,
-                    table: this.xx.table_name,
-                    table_id: this.xx.table_id,
-                    niceDate: moment().format('DD/MM/YY'),
-                    created_by: this.xx.created_by,
-                    fullname: this.xx.created_by_fullname,
-                };
-                //alert('add action');
+            methods: {
+                close: function () {
+                    this.show = false;
+                    this.action.action = this.oAction;
+                },
+                addAction: function (action) {
+                    var actiondata = {
+                        action: action.action,
+                        table: this.xx.table_name,
+                        table_id: this.xx.table_id,
+                        niceDate: moment().format('DD/MM/YY'),
+                        created_by: this.xx.created_by,
+                        fullname: this.xx.created_by_fullname,
+                    };
+                    //alert('add action');
 
-                this.$http.post('/action', actiondata)
+                    this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
                             actiondata.id = response.data.id;
@@ -488,29 +488,29 @@
                             alert('failed adding new action');
                         });
 
-                this.close();
-            },
-            updateAction: function (action) {
-                this.$http.patch('/action/' + action.id, action)
+                    this.close();
+                },
+                updateAction: function (action) {
+                    this.$http.patch('/action/' + action.id, action)
                         .then(function (response) {
                             toastr.success('Saved Action');
                         }.bind(this))
                         .catch(function (response) {
                             alert('failed to save action [' + action.id + ']');
                         });
-                this.show = false;
+                    this.show = false;
+                },
+            }
+        });
+
+        var myApp = new Vue({
+            el: 'body',
+            data: {xx: xx},
+            components: {
+                datepicker: VueStrap.datepicker,
             },
-        }
-    });
+        });
 
-    var myApp = new Vue({
-        el: 'body',
-        data: {xx: xx},
-        components: {
-            datepicker: VueStrap.datepicker,
-        },
-    });
-
-</script>
+    </script>
 @stop
 

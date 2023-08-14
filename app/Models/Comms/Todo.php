@@ -154,8 +154,9 @@ class Todo extends Model {
             case 'incident review':
                 return "/site/incident/$this->type_id";
             case 'incident witness':
-                $witness = SiteIncidentWitness::find($this->type_id);
-                return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
+                $witness = SiteIncghidentWitness::find($this->type_id);
+                if ($witness)
+                    return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
             case 'company doc':
                 $doc = CompanyDoc::find($this->type_id);
                 if ($doc)
@@ -256,10 +257,10 @@ class Todo extends Model {
      */
     public function close()
     {
-            $this->status = 0;
-            $this->done_at = Carbon::now();
-            $this->done_by = (Auth::check()) ? Auth::user()->id : 1;
-            $this->save();
+        $this->status = 0;
+        $this->done_at = Carbon::now();
+        $this->done_by = (Auth::check()) ? Auth::user()->id : 1;
+        $this->save();
     }
 
     /**
@@ -310,9 +311,9 @@ class Todo extends Model {
         if (is_array($email_list))
             if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
                 unset($email_list[$key]);
-        else
-            if ($email_list == 'gary@capecod.com.au')
-                $email_list = '';
+            else
+                if ($email_list == 'gary@capecod.com.au')
+                    $email_list = '';
 
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';

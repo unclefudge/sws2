@@ -4,6 +4,8 @@ namespace App\Models\Company;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+
+use Mail;
 use App\User;
 use App\Models\Site\Site;
 use App\Models\Site\Planner\SitePlanner;
@@ -1340,6 +1342,23 @@ class Company extends Model {
 
         return $email_array;
     }
+
+    /**
+     * Email Leave
+     */
+    public function emailLeave($email_list, $action)
+    {
+        $email_to = [env('EMAIL_DEV')];
+        $email_user = '';
+
+        if (\App::environment('prod')) {
+            $email_to = ($email_list) ? $email_list : [env('EMAIL_DEV')];
+        }
+
+        if ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Company\CompanyLeave($this, $action));
+    }
+
 
     /**
      * Checks if company has certain 'addon'

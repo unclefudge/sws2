@@ -470,6 +470,9 @@ class CompanyController extends Controller {
         CompanyLeave::create($leave_request);
         Toastr::success("Created new leave");
 
+        // Email Leave
+        $company->emailLeave(['gary@capecod.com.au'], 'added new');
+
         return redirect("company/$company->id");
     }
 
@@ -493,7 +496,12 @@ class CompanyController extends Controller {
                 $leave_request['to'] = Carbon::createFromFormat('d/m/Y H:i', request("to-$leave_id") . '00:00')->toDateTimeString();
                 $leave_request['notes'] = request("notes-$leave_id");
                 $leave = CompanyLeave::find($leave_id);
-                $leave->update($leave_request);
+
+                // determine if changed
+                if ($leave && $leave_request['from'] != $leave->from || $leave_request['to'] != $leave->to || $leave_request['notes'] != $leave->notes) {
+                    $leave->update($leave_request);
+                    $company->emailLeave(['gary@capecod.com.au'], 'updated existing');
+                }
             }
         }
 
