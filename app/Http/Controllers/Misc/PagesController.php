@@ -188,7 +188,8 @@ class PagesController extends Controller {
         echo "<b>Incident Report Email</b></br>";
 
         $incident = SiteIncident::find(185);
-        $incident->emailIncident();
+        if ($incident)
+            $incident->emailIncident();
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
