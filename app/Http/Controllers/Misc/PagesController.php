@@ -185,11 +185,11 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "<b>Incident Report Email</b></br>";
+        //echo "<b>Incident Report Email</b></br>";
 
-        $incident = SiteIncident::find(185);
-        if ($incident)
-            $incident->emailIncident();
+        //$incident = SiteIncident::find(185);
+        //if ($incident)
+        //    $incident->emailIncident();
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
