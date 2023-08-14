@@ -304,7 +304,8 @@ class ToolboxTalk extends Model {
     {
         $email_to = [env('EMAIL_ME')];
         if (\App::environment('prod')) {
-            $email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
+            //$email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
+            $email_to = ['tara@capecod.com.au']; // only to Tara
             // Send to User who created
             if ($this->createdBy && validEmail($this->createdBy->email))
                 $email_to[] = $this->createdBy->email;
