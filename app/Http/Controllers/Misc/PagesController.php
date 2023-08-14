@@ -185,22 +185,10 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "<b>Primary users</b></br>";
+        echo "<b>Incident Report Email</b></br>";
 
-
-        $cc = Company::find(3);
-        foreach ($cc->companies() as $company) {
-
-            $tag = '';
-            if ($company->status == 1) {
-                if ($company->primary_contact()) {
-                    $tag =  ($company->primary_contact()->hasRole2('ext-leading-hand')) ? 'Y' : '**N**';
-                    echo "$tag $company->name  [" . $company->primary_contact()->name . "]<br>";
-                } else {
-                    //echo "XXX $company->name  [ **** **** **** ]<br>";
-                }
-            }
-        }
+        $incident = SiteIncident::find(185);
+        $incident->emailIncident();
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
