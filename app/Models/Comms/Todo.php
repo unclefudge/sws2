@@ -154,7 +154,7 @@ class Todo extends Model {
             case 'incident review':
                 return "/site/incident/$this->type_id";
             case 'incident witness':
-                $witness = SiteIncghidentWitness::find($this->type_id);
+                $witness = SiteIncidentWitness::find($this->type_id);
                 if ($witness)
                     return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
             case 'company doc':
