@@ -79,6 +79,7 @@ class ReportTasksController extends Controller {
 
         $tasks = [];
         $companies_with_tasks = [];
+        $users_with_tasks = [];
         $count = 0;
         foreach ($todo_tasks as $task) {
             $count ++;
@@ -109,6 +110,10 @@ class ReportTasksController extends Controller {
                     // List of Companies with ToDoo tasks
                     if (!in_array($user->company_id, $companies_with_tasks))
                         $companies_with_tasks[] = $user->company_id;
+
+                    // List of Users with ToDoo tasks
+                    if (!in_array($user->id, $users_with_tasks))
+                        $users_with_tasks[] = $user->id;
                 }
             }
             $assigned_names = rtrim($assigned_names, ', ');
@@ -216,10 +221,10 @@ class ReportTasksController extends Controller {
 
         $users = $cc->users()->where('status', 1)->sortBy('name');
         foreach ($users as $user) {
-            if (in_array($user->company_id, $companies_with_tasks)) {
+            if (in_array($user->id, $users_with_tasks)) {
                 if (in_array($user->company_id, $company_list)) {
                     $sel_user_cc[] = ['value' => $user->name, 'text' => $user->name];
-                    $sel_user_all[] = ['value' => $user->name, 'text' => $user->name];
+                    $sel_user_all[] = ['value' => $user->name, 'text' => "-".$user->name];
                 }
             }
         }

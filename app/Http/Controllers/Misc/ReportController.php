@@ -224,6 +224,7 @@ class ReportController extends Controller {
         $site_id_active = (request('site_id_active') == 'all') ? '' : request('site_id_active');
         $site_id_completed = (request('site_id_completed') == 'all') ? '' : request('site_id_completed');
         $company_id = (request('company_id') == 'all') ? '' : request('company_id');
+        $user_id = (request('user_id') == 'all') ? '' : request('user_id');
 
         if (request('status') == 1)
             $site_ids = ($site_id_active) ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id')->toArray();
@@ -239,6 +240,7 @@ class ReportController extends Controller {
         //dd(request('site_id_all'));
 
         $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
+        $user_ids = ($user_id) ? [$user_id] : Auth::user()->company->users()->pluck('id')->toArray();
 
         $attendance_records = SiteAttendance::select([
             'site_attendance.site_id', 'site_attendance.user_id', 'site_attendance.date', 'sites.name',
@@ -250,6 +252,7 @@ class ReportController extends Controller {
             ->join('companys', 'users.company_id', '=', 'companys.id')
             ->whereIn('site_attendance.site_id', $site_ids)
             ->whereIn('companys.id', $company_ids)
+            ->whereIn('users.id', $user_ids)
             ->whereDate('site_attendance.date', '>=', $date_from)
             ->whereDate('site_attendance.date', '<=', $date_to);
 
