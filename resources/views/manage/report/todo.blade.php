@@ -46,6 +46,7 @@
         <input v-model="xx.assigned_tasks" type="hidden" id="assigned_tasks" value="1">
         <input v-model="xx.assigned_cc" type="hidden" id="assigned_cc" value="1">
         <input v-model="xx.task_type" type="hidden" id="task_type" value="all">
+        <input v-model="xx.username" type="hidden" id="user" value="all">
         <input v-model="xx.active_record" type="hidden" id="task_type" value="1">
 
         <div class="row">
@@ -53,9 +54,11 @@
                 <select-picker :name.sync="xx.assigned_tasks" :options.sync="xx.sel_assigned_tasks" :function="doNothing"></select-picker>
             </div>
             <div class="col-md-3">
-                <select-picker :name.sync="xx.assigned_cc" :options.sync="xx.sel_assigned_cc" :function="doNothing"></select-picker>
+                <select-picker :name.sync="xx.assigned_cc" :options.sync="xx.sel_assigned_cc" :function="updateUserList"></select-picker>
             </div>
-            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <select-picker :name.sync="xx.username" :options.sync="xx.sel_users" :function="doNothing"></select-picker>
+            </div>
             <div class="col-md-3">
                 <select-picker :name.sync="xx.active_record" :options.sync="xx.sel_active_record" :function="doNothing"></select-picker>
             </div>
@@ -142,10 +145,10 @@
 
         var xx = {
             record: {},
-            dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', active_record: 1, tasks_found: 0, status: 0,
+            dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', username: 'all', active_record: 1, tasks_found: 0, status: 0,
             sortKey: 'title', sortOrder: 1, search: '',
-            today: moment().format('YYYY-MM-DD'), days7past:  moment().subtract(7, 'days').format('YYYY-MM-DD'), days28past:  moment().subtract(28, 'days').format('YYYY-MM-DD'),
-            list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_active_record: [],
+            today: moment().format('YYYY-MM-DD'), days7past: moment().subtract(7, 'days').format('YYYY-MM-DD'), days28past: moment().subtract(28, 'days').format('YYYY-MM-DD'),
+            list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_active_record: [], sel_users_cc: [], sel_users_ext: [], sel_users_all: [], sel_users: []
         };
 
         Vue.component('app-tasks', {
@@ -187,6 +190,14 @@
                             return task.assigned_cc == '0';
                         });
 
+                    // Filter Users
+                    if (this.xx.username != 'all')
+                        result = result.filter(task => {
+                            //return task.assigned_names.toLowerCase().includes(this.username.toLowerCase);
+                            return task.assigned_names.includes(this.xx.username);
+                        });
+
+
                     // Filter Task type
                     if (this.xx.task_type != 'all')
                         result = result.filter(task => {
@@ -223,6 +234,10 @@
                             this.xx.sel_assigned_cc = data[2];
                             this.xx.sel_task_types = data[3];
                             this.xx.sel_active_record = data[4];
+                            this.xx.sel_users_cc = data[5];
+                            this.xx.sel_users_ext = data[6];
+                            this.xx.sel_users_all = data[7];
+                            this.xx.sel_users = data[5];
                             this.xx.spinner = false;
                         }.bind(this));
                     }.bind(this), 100);
@@ -234,6 +249,14 @@
                 dueDateColour: function (task) {
                     if (moment(task.due_at).isBefore(this.xx.today))
                         return 'font-red';
+                },
+                updateUserList: function () {
+                    if (this.xx.assigned_cc == 1)
+                        this.xx.sel_users = this.xx.sel_users_cc;
+                    if (this.xx.assigned_cc == 0)
+                        this.xx.sel_users = this.xx.sel_users_ext;
+                    if (this.xx.assigned_cc == 'all')
+                        this.xx.sel_users = this.xx.sel_users_all;
                 },
                 lastUpdateColour: function (task) {
                     /*if (moment(task.lastupdated).isBefore(this.xx.days28past))

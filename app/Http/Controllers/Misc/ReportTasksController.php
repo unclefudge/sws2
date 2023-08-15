@@ -78,6 +78,7 @@ class ReportTasksController extends Controller {
         $todo_tasks = Todo::where('status', $status)->whereIn('company_id', $company_list)->get();
 
         $tasks = [];
+        $companies_with_tasks = [];
         $count = 0;
         foreach ($todo_tasks as $task) {
             $count ++;
@@ -104,6 +105,10 @@ class ReportTasksController extends Controller {
                         } else
                             $assigned_names = "$assigned_count users";
                     }
+
+                    // List of Companies with ToDoo tasks
+                    if (!in_array($user->company_id, $companies_with_tasks))
+                        $companies_with_tasks[] = $user->company_id;
                 }
             }
             $assigned_names = rtrim($assigned_names, ', ');
@@ -134,13 +139,13 @@ class ReportTasksController extends Controller {
             // Last Updated
             $lastupdated = $rec->updated_at->format('Y-m-d');
             $lastupdated_human = $rec->updated_at->diffForHumans();
-                if (!in_array($task_type, ['incident', 'company doc review'])) {
-                    $last_action = ($rec->actions) ? $rec->actions->sortByDesc('created_at')->first() : '';
-                    if ($last_action && $last_action->created_at->gt($rec->updated_at)) {
-                        $lastupdated = $last_action->updated_at->format('Y-m-d');
-                        $lastupdated_human = $last_action->updated_at->diffForHumans();
-                    }
+            if (!in_array($task_type, ['incident', 'company doc review'])) {
+                $last_action = ($rec->actions) ? $rec->actions->sortByDesc('created_at')->first() : '';
+                if ($last_action && $last_action->created_at->gt($rec->updated_at)) {
+                    $lastupdated = $last_action->updated_at->format('Y-m-d');
+                    $lastupdated_human = $last_action->updated_at->diffForHumans();
                 }
+            }
 
             $array = [
                 'id'                => $task->id,
@@ -201,6 +206,33 @@ class ReportTasksController extends Controller {
         $sel_assigned_types[] = ['value' => 'company doc', 'text' => 'Company Document'];
         $sel_assigned_types[] = ['value' => 'user doc', 'text' => 'User Documents'];
 
+        // User Lists
+        $sel_user_cc = [];
+        $sel_user_ext = [];
+        $sel_user_all = [];
+        $sel_user_cc[] = ['value' => 'all', 'text' => 'All Cape Cod Users'];
+        $sel_user_ext[] = ['value' => 'all', 'text' => 'All External Companies'];
+        $sel_user_all[] = ['value' => 'all', 'text' => 'All Users/Companies'];
+
+        $users = $cc->users()->where('status', 1)->sortBy('name');
+        foreach ($users as $user) {
+            if (in_array($user->company_id, $companies_with_tasks)) {
+                if (in_array($user->company_id, $company_list)) {
+                    $sel_user_cc[] = ['value' => $user->name, 'text' => $user->name];
+                    $sel_user_all[] = ['value' => $user->name, 'text' => $user->name];
+                }
+            }
+        }
+        $companies = $cc->companies()->where('status', 1)->sortBy('name');
+        foreach ($companies as $company) {
+            if (in_array($company->id, $companies_with_tasks)) {
+                if (!in_array($company->id, $company_list)) {
+                    $sel_user_ext[] = ['value' => $company->name_alias, 'text' => $company->name_alias];
+                    $sel_user_all[] = ['value' => $company->name_alias, 'text' => $company->name_alias];
+                }
+            }
+        }
+
 
         $json = [];
         $json[] = $tasks;
@@ -208,8 +240,24 @@ class ReportTasksController extends Controller {
         $json[] = $sel_assigned_cc;
         $json[] = $sel_assigned_types;
         $json[] = $sel_active_record;
+        $json[] = $sel_user_cc;
+        $json[] = $sel_user_ext;
+        $json[] = $sel_user_all;
 
         return $json;
+    }
+
+    public function userList($company_id)
+    {
+
+        $sel_user_list = [];
+        $cc = Company::find(3);
+        $users = $cc->users();
+        foreach ($users as $user) {
+
+        }
+
+
     }
 
     public function todoRecord($task, $status = [1])
@@ -311,7 +359,7 @@ class ReportTasksController extends Controller {
             if ($actions) {
                 $info .= "<br><b>Notes:</b><br>";
                 foreach ($record->actions->sortByDesc('created_at') as $action)
-                    $info .= $action->created_at->format('d/m/Y') . " - $action->action (".$action->user->name.")<br>";
+                    $info .= $action->created_at->format('d/m/Y') . " - $action->action (" . $action->user->name . ")<br>";
             }
         }
 
