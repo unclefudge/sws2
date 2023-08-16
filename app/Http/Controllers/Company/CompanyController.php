@@ -751,6 +751,9 @@ class CompanyController extends Controller {
 
                 return $name;
             })
+            ->addColumn('contact', function ($company) {
+                return "$company->phoneEmailFormatted";
+            })
             ->addColumn('trade', function ($company) {
                 if (preg_match('/[0-9]/', $company->category))
                     return "<b>" . CompanyTypes::name($company->category) . ":</b></span> " . $company->tradesSkilledInSBC();
@@ -763,7 +766,7 @@ class CompanyController extends Controller {
 
                 return 'N/A';
             })
-            ->rawColumns(['id', 'name', 'trade', 'manager'])
+            ->rawColumns(['id', 'name', 'trade', 'manager', 'contact'])
             ->make(true);
 
         return $dt;

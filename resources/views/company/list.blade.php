@@ -42,6 +42,7 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Name</th>
+                                <th> Phone / Email</th>
                                 <th> Category: Trade(s)</th>
                                 <th> Senior Users(s)</th>
                             </tr>
@@ -86,6 +87,7 @@
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
             {data: 'name', name: 'name'},
+            {data: 'contact', name: 'contact'},
             {data: 'trade', name: 'trade'},
             {data: 'manager', name: 'manager'},
         ],

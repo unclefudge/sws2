@@ -1600,6 +1600,21 @@ class Company extends Model {
     }
 
     /**
+     * Get the phone, email  (getter)
+     */
+    public function getPhoneEmailFormattedAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['phone'])
+            $string = $this->attributes['phone'] . "<br>";
+        if ($this->attributes['email'])
+            $string .= $this->attributes['email'];
+
+        return ($string) ? $string : '-';
+    }
+
+    /**
      * Get the upcoming leave for company  (getter)
      */
     public function getLeaveUpcomingDatesAttribute()
