@@ -28,55 +28,66 @@
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
-                            <thead>
+                            {{--}}<thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
                                 <th> Name</th>
                                 <th> Missing Info / Document</th>
                                 <th> Expired / Last Updated</th>
                                 <th> Next on Planner</th>
                             </tr>
-                            </thead>
+                            </thead>--}}
                             <tbody>
                             <?php $today = \Carbon\Carbon::today(); $weekago = \Carbon\Carbon::today()->subWeeks(1); ?>
                             @foreach($companies as $company)
-                                    <?php $planner_date = $company->nextDateOnPlanner() ?>
-                                @if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
+                                    <?php $planner_date = $company->nextDateOnPlanner(); ?>
+                                @if (!preg_match('/cc-/', strtolower($company->name)) && ($company->missingInfo() || $company->isMissingDocs()))
+                                    <tr style="background: #f0f6fa !important">
+                                        <td>
+                                            <b>{{ $company->name }}</b> <span class="pull-right">Next on Planner in {!! $planner_date->longAbsoluteDiffForHumans() !!}</span>
+                                            {!! ($company->nickname) ? "&nbsp; &nbsp; <span class='font-grey-cascade'>$company->nickname</span>" : '' !!}
+                                        </td>
+                                    </tr>
                                     <tr>
                                         <td>
-                                            <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
+                                            {!! ($company->missingInfo()) ? $company->missingInfo()."<br>" : '' !!}
+                                            @foreach ($company->missingDocs() as $type => $name)
+                                                    <?php $doc = $company->expiredCompanyDoc($type) ?>
+                                                @if ($doc && ($doc == 'N/A' || $doc->expiry->lt($weekago)))
+                                                    <span style="width: 100px; display: inline-block"> {!! ($doc != 'N/A' && $doc->expiry) ?  $doc->expiry->longAbsoluteDiffForHumans() : 'never' !!}</span>
+                                                    <span>{{ $name }}</span><br>
+                                                @endif
+                                            @endforeach
+
                                         </td>
-                                        <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                        <td>{!! $company->missingInfo() !!}</td>
-                                        <td>{!! $company->updated_at->diffForHumans() !!}</td>
-                                        <td>{!! $planner_date->longAbsoluteDiffForHumans() !!}</td>
+                                        {{--}}<td>{!! $company->updated_at->diffForHumans() !!}</td>
+                                        <td>Next Planned: {!! $planner_date->longAbsoluteDiffForHumans() !!}</td>--}}
                                     </tr>
-                                @endif
-                                @if ($company->isMissingDocs() && !preg_match('/cc-/', strtolower($company->name)))
-                                    @foreach($company->missingDocs() as $type => $name)
-                                            <?php $doc = $company->expiredCompanyDoc($type) ?>
-                                        @if ($doc && ($doc == 'N/A' || $doc->expiry->lt($weekago)))
-                                            <tr>
-                                                <td>
-                                                    @if ($doc != 'N/A')
-                                                        <div class="text-center"><a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit"><i class="fa fa-file-text-o"></i></a></div>
-                                                    @else
-                                                        <div class="text-center"><a href="/company/{{ $company->id }}/doc"><i class="fa fa-search"></i></a></div>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                                <td>{{ $name }}</td>
-                                                <td>
-                                                    @if ($doc != 'N/A' && $doc->expiry)
-                                                        {!! $doc->expiry->diffForHumans() !!}
-                                                    @else
-                                                        never
-                                                    @endif
-                                                </td>
-                                                <td>{!! $planner_date->longAbsoluteDiffForHumans($today) !!}</td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
+                                    @if (false && $company->isMissingDocs() && !preg_match('/cc-/', strtolower($company->name)))
+                                        @foreach($company->missingDocs() as $type => $name)
+                                                <?php $doc = $company->expiredCompanyDoc($type) ?>
+                                            @if ($doc && ($doc == 'N/A' || $doc->expiry->lt($weekago)))
+                                                <tr>
+                                                    <td>
+                                                        @if ($doc != 'N/A')
+                                                            <div class="text-center"><a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit"><i class="fa fa-file-text-o"></i></a></div>
+                                                        @else
+                                                            <div class="text-center"><a href="/company/{{ $company->id }}/doc"><i class="fa fa-search"></i></a></div>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
+                                                    <td>{{ $name }}</td>
+                                                    <td>
+                                                        @if ($doc != 'N/A' && $doc->expiry)
+                                                            {!! $doc->expiry->diffForHumans() !!}
+                                                        @else
+                                                            never
+                                                        @endif
+                                                    </td>
+                                                    <td>{!! $planner_date->longAbsoluteDiffForHumans($today) !!}</td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 @endif
                             @endforeach
                             </tbody>
