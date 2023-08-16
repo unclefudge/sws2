@@ -54,7 +54,13 @@
                                                     <?php $doc = $company->expiredCompanyDoc($type) ?>
                                                 @if ($doc && ($doc == 'N/A' || $doc->expiry->lt($weekago)))
                                                     <span style="width: 100px; display: inline-block"> {!! ($doc != 'N/A' && $doc->expiry) ?  $doc->expiry->longAbsoluteDiffForHumans() : 'never' !!}</span>
-                                                    <span>{{ $name }}</span><br>
+                                                    <span>
+                                                        @if ($doc != 'N/A')
+                                                            <a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit">{{ $name }}</a>
+                                                        @else
+                                                            <a href="/company/{{ $company->id }}/doc">{{ $name }}</a>
+                                                        @endif
+                                                    </span><br>
                                                 @endif
                                             @endforeach
 

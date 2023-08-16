@@ -1633,6 +1633,19 @@ class Company extends Model {
     }
 
     /**
+     * Get the upcoming leave for company  (getter)
+     */
+    public function getNextDateOnPlannerValueAttribute()
+    {
+        $planner = SitePlanner::where('entity_type', 'c')->where('entity_id', $this->id)
+            ->where('to', '>=', Carbon::today()->format('Y-m-d'))
+            ->orderBy('to', 'desc')->first();
+
+        return ($planner) ? $planner->from->format('Ymd') : '';
+    }
+
+
+    /**
      * The "booting" method of the model.
      *
      * Overrides parent function

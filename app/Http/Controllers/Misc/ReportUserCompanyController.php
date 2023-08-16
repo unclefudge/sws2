@@ -354,10 +354,15 @@ class ReportUserCompanyController extends Controller {
         foreach ($companies as $company) {
             $planner_date = $company->nextDateOnPlanner();
             if ($planner_date)
-                $cids[] = $company->id;
+                $cids[$company->id] = $planner_date->format('ymd');
         }
 
-        $companies = Company::whereIn('id', $cids)->orderBy('name')->get();
+        asort($cids);
+        $companies = [];
+        foreach ($cids as $key => $value)
+            $companies[] = Company::find($key);
+        
+        //$companies = Company::whereIn('id', $cids)->orderBy('name')->get();
 
         return view('manage/report/company/missing_company_info_planner', compact('companies'));
     }
