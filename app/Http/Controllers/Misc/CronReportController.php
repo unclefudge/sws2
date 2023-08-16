@@ -559,8 +559,8 @@ class CronReportController extends Controller {
         foreach ($supers as $super_id => $super_name) {
             $body = '';
             $found_request = false;
-            if ($super_id) {
-                $super = User::find($super_id);
+            //if ($super_id) {
+                $super = ($super_id) ? User::find($super_id) : null;
 
                 $body .= "$super_name<br>";
                 //
@@ -662,13 +662,18 @@ class CronReportController extends Controller {
                     $email_to = [env('EMAIL_DEV')];
                     $email_cc = '';
                     if (\App::environment('prod')) {
-                        $email_to = (validEmail($super->email)) ? $super->email : '';
-                        $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
+                        if ($super && validEmail($super->email)) {
+                            $email_to = $super->email;
+                            $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
+                        } else
+                            $email_to = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
                     }
-                    if ($email_to)
+                    if ($email_to && $email_cc)
                         Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+                    elseif ($email_to)
+                        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
                 }
-            }
+            //}
         }
 
         //dd('here');

@@ -2,7 +2,7 @@
     <ul class="nav navbar-nav pull-right">
         <!-- BEGIN NOTIFICATION DROPDOWN -->
 
-        <li class="dropdown dropdown-extended dropdown-notification dropdown-dark" id="header_notification_bar">
+        <li class="dropdown dropdown-extended dropdown-notification dropdown-dark" id="header_notification_bar" style="z-index: 999">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                 <i class="icon-bell"></i>
                 @if (Auth::user()->todo([1,2])->count())
@@ -118,7 +118,7 @@
         </li>
         <!-- END INBOX DROPDOWN -->
         <!-- BEGIN USER LOGIN DROPDOWN -->
-        <li class="dropdown dropdown-user dropdown-dark">
+        <li class="dropdown dropdown-user dropdown-dark hidden-xs">
             <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                 <img alt="" class="img" src="/img/user_icon.png">
                 <span class="username username-hide-mobile">

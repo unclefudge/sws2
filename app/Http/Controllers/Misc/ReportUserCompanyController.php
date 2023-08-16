@@ -325,7 +325,73 @@ class ReportUserCompanyController extends Controller {
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
 
-        return view('manage/report/company/missing_company_info', compact('companies'));
+        $missing_info = [];
+        $expired_docs1 = [];
+        $expired_docs2 = [];
+        $expired_docs3 = [];
+        foreach ($companies as $company) {
+            if (!preg_match('/cc-/', strtolower($company->name))) { // exclude fake cc- companies
+                // Missing Info
+                if ($company->missingInfo()) {
+                    $missing_info[] = [
+                        'id'               => $company->id,
+                        'company_name'     => $company->name,
+                        'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                        'data'             => $company->missingInfo(),
+                        'date'             => $company->updated_at->format('d/m/Y'),
+                        'link'             => "/company/$company->id"
+                    ];
+                }
+
+                // Expired Docs
+                // Doc types
+                // 1  PL - Public Liabilty
+                // 2  WC - Workers Comp
+                // 3  SA - Sickness & Accident
+                // 4  Sub - Subcontractors Statement
+                // 5  PTC - Period Trade Contract
+                // 6  TT - Test & Tag
+                // 7  CL - Contractors Licence
+                // 12 PP - Privacy Policy
+                if ($company->isMissingDocs()) {
+                    foreach ($company->missingDocs() as $type => $name) {
+                        $doc = $company->expiredCompanyDoc($type);
+                        if (in_array($type, [1, 2, 3, 7, 12])) {
+                            $expired_docs1[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        } elseif (in_array($type, [4, 5])) {
+                            $expired_docs2[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        } elseif (in_array($type, [6])) {
+                            $expired_docs3[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        //dd($expired_docs1);
+
+        return view('manage/report/company/missing_company_info', compact('companies', 'missing_info', 'expired_docs1', 'expired_docs2', 'expired_docs3'));
     }
 
     public function missingCompanyInfoCSV()
@@ -361,7 +427,7 @@ class ReportUserCompanyController extends Controller {
         $companies = [];
         foreach ($cids as $key => $value)
             $companies[] = Company::find($key);
-        
+
         //$companies = Company::whereIn('id', $cids)->orderBy('name')->get();
 
         return view('manage/report/company/missing_company_info_planner', compact('companies'));

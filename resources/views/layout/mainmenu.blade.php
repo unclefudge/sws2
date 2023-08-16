@@ -22,6 +22,26 @@
                 <li class="menu-dropdown classic-menu-dropdown {{ (Request::is('dashboard') ? 'active' : '') }}">
                     <a href="/"><i class="fa fa-home"></i> Home </a>
                 </li>
+                <li class="menu-dropdown classic-menu-dropdown visible-sm visible-xs">
+                    <a href="javascript:;"><i class="fa fa-user"></i> Profile &nbsp; ({!! (Auth::user()->firstname) ? Auth::user()->firstname : Auth::user()->username !!})
+                        <span class="arrow"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-default">
+                        <li><a href="/user/{{ Auth::user()->id }}"><i class="fa fa-user"></i> My Profile </a></li>
+                        @if(Auth::user()->hasAnyPermission2('view.company|edit.company'))
+                            <li><a href="/company/{{ Auth::user()->company_id }}"><i class="fa fa-users"></i> Company Profile </a></li>
+                        @endif
+                        <li class="divider"></li>
+                        @if (Auth::user()->id == 3)
+                            <li><a href="/userlog"><i class="fa fa-users"></i> Login as User </a></li>
+                            <li class="divider"></li>
+                        @endif
+                        <li>
+                            <a href="/logout">
+                                <i class="fa fa-key"></i> Log Out </a>
+                        </li>
+                    </ul>
+                </li>
 
                 @if (Auth::user()->company->status == 1)
                     {{-----------------------------------------------------------------------------------

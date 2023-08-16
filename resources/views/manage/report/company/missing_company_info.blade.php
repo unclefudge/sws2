@@ -8,11 +8,11 @@
         @endif
         <li><span>Missing Company Information</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,44 +27,111 @@
                         </div>
                     </div>
                     <div class="portlet-body">
+                        <h4>Missing Company Info</h4>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width: 5%"> #</th>
                                 <th> Name</th>
                                 <th> Missing Info / Document</th>
-                                <th> Expiry / Last Updated</th>
+                                <th style="width: 10%"> Expiry / Last Updated</th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($companies as $company)
-                                @if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
-                                    <tr>
-                                        <td>
-                                            <div class="text-center"><a href="/company/{{ $company->id }}"><i class="fa fa-search"></i></a></div>
-                                        </td>
-                                        <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                        <td>{!! $company->missingInfo() !!}</td>
-                                        <td>{!! $company->updated_at->format('d/m/Y')!!}</td>
-                                    </tr>
-                                @endif
-                                @if ($company->isMissingDocs() && !preg_match('/cc-/', strtolower($company->name)))
-                                    @foreach($company->missingDocs() as $type => $name)
-                                        <?php $doc = $company->expiredCompanyDoc($type) ?>
-                                        <tr>
-                                            <td>
-                                                @if ($doc != 'N/A')
-                                                <div class="text-center"><a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit"><i class="fa fa-file-text-o"></i></a></div>
-                                                    @else
-                                                    <div class="text-center"><a href="/company/{{ $company->id }}/doc"><i class="fa fa-search"></i></a></div>
-                                                @endif
-                                            </td>
-                                            <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
-                                            <td>{{ $name }}</td>
-                                            <td>{!! ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never' !!} </td>
-                                        </tr>
-                                    @endforeach
-                                @endif
+                            @foreach($missing_info as $row)
+                                <tr>
+                                    <td>
+                                        <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
+                                    </td>
+                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
+                                    <td>{!! $row['data'] !!}</td>
+                                    <td>{!! $row['date']!!}</td>
+                                </tr>
+                            </tbody>
+                            @endforeach
+                        </table>
+
+                        <h4>Contractors Licence, Workers Compensation, Sickness & Accident, Public Liability, Privacy Policy</h4>
+                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th style="width: 5%"> #</th>
+                                <th> Name</th>
+                                <th> Missing Info / Document</th>
+                                <th style="width: 10%"> Expiry / Last Updated</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($expired_docs1 as $row)
+                                <tr>
+                                    <td>
+                                        @if ($row['date'] != 'never')
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-file-text-o"></i></a></div>
+                                        @else
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
+                                    <td>{!! $row['data'] !!}</td>
+                                    <td>{!! $row['date']!!}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+
+
+                        <h4>Subcontractors Statement, Period Trade Contract</h4>
+                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th style="width: 5%"> #</th>
+                                <th> Name</th>
+                                <th> Missing Info / Document</th>
+                                <th style="width: 10%"> Expiry / Last Updated</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($expired_docs2 as $row)
+                                <tr>
+                                    <td>
+                                        @if ($row['date'] != 'never')
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-file-text-o"></i></a></div>
+                                        @else
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
+                                    <td>{!! $row['data'] !!}</td>
+                                    <td>{!! $row['date']!!}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+
+                        <h4>Electrical Test & Tagging</h4>
+                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th style="width: 5%"> #</th>
+                                <th> Name</th>
+                                <th> Missing Info / Document</th>
+                                <th style="width: 10%"> Expiry / Last Updated</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($expired_docs3 as $row)
+                                <tr>
+                                    <td>
+                                        @if ($row['date'] != 'never')
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-file-text-o"></i></a></div>
+                                        @else
+                                            <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
+                                    <td>{!! $row['data'] !!}</td>
+                                    <td>{!! $row['date']!!}</td>
+                                </tr>
                             @endforeach
                             </tbody>
                         </table>
@@ -83,5 +150,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
