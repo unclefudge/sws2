@@ -499,6 +499,18 @@ class Company extends Model {
     }
 
     /**
+     *  Next date company was on the planner
+     */
+    public function nextDateOnPlanner()
+    {
+        $planner = SitePlanner::where('entity_type', 'c')->where('entity_id', $this->id)
+            ->where('to', '>=', Carbon::today()->format('Y-m-d'))
+            ->orderBy('to', 'desc')->first();
+
+        return ($planner) ? $planner->from : null;
+    }
+
+    /**
      *  Determine if company is on the planner for a certain trade
      */
     public function onPlannerForTrade($trade_id, $past = false)

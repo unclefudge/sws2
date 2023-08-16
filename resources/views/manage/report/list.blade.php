@@ -74,6 +74,9 @@
                                 <td><a href="/manage/report/missing_company_info">Companies with missing information or expired documents</a></td>
                             </tr>
                             <tr>
+                                <td><a href="/manage/report/missing_company_info_planner">Planned Companies with missing information or expired documents 7 days+</a></td>
+                            </tr>
+                            <tr>
                                 <td><a href="/manage/report/expired_company_docs">Expired Company Documents</a></td>
                             </tr>
                             {{-- Site --}}

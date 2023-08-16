@@ -15,6 +15,7 @@ use App\Models\Misc\Role2;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Jobs\CompanyMissingInfoCsv;
+use App\Jobs\CompanyMissingInfoPlannerCsv;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -167,8 +168,7 @@ class ReportUserCompanyController extends Controller {
         return redirect($filename);
     }
 
-    public
-    function usersContactInfo()
+    public function usersContactInfo()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
@@ -176,8 +176,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/user/users_contactinfo', compact('users'));
     }
 
-    public
-    function usersContactInfoCSV()
+    public function usersContactInfoCSV()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = User::whereIn('id', $allowed_users)->orderBy('company_id')->get();
@@ -203,8 +202,7 @@ class ReportUserCompanyController extends Controller {
      * Company Reports
      *****************************/
 
-    public
-    function newcompanies()
+    public function newcompanies()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::where('created_at', '>', '2016-08-27 12:00:00')->whereIn('id', $allowed_companies)->orderBy('created_at', 'DESC')->get();
@@ -212,8 +210,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_contactinfo', compact('companies'));
     }
 
-    public
-    function companyContactInfo()
+    public function companyContactInfo()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -221,8 +218,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_contactinfo', compact('companies'));
     }
 
-    public
-    function companyContactInfoCSV()
+    public function companyContactInfoCSV()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -245,8 +241,7 @@ class ReportUserCompanyController extends Controller {
         return redirect($filename);
     }
 
-    public
-    function companySWMS()
+    public function companySWMS()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -254,35 +249,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_swms', compact('companies'));
     }
 
-    public
-    function missingCompanyInfo()
-    {
-        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-
-        return view('manage/report/company/missing_company_info', compact('companies'));
-    }
-
-    public
-    function missingCompanyInfoCSV()
-    {
-        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-
-
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
-        touch($output_file);
-
-        //dd('here');
-        CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
-
-        return redirect('/manage/report/recent');
-    }
-
-    public
-    function companyUsers()
+    public function companyUsers()
     {
         $companies_allowed = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $all_companies = Company::where('status', '1')->whereIn('id', $companies_allowed)->orderBy('name')->get();
@@ -303,8 +270,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_users', compact('all_companies', 'user_companies'));
     }
 
-    public
-    function companyPrivacy()
+    public function companyPrivacy()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -312,8 +278,7 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_privacy', compact('companies'));
     }
 
-    public
-    function companyPrivacySend($type)
+    public function companyPrivacySend($type)
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
@@ -356,11 +321,69 @@ class ReportUserCompanyController extends Controller {
         return view('manage/report/company/company_privacy_send', compact('companies', 'sent_to_company', 'sent_to_user'));
     }
 
+    public function missingCompanyInfo()
+    {
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+
+        return view('manage/report/company/missing_company_info', compact('companies'));
+    }
+
+    public function missingCompanyInfoCSV()
+    {
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+
+
+        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+        // Create directory if required
+        if (!is_dir(public_path($dir)))
+            mkdir(public_path($dir), 0777, true);
+        $output_file = public_path($dir . "/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
+        touch($output_file);
+
+        //dd('here');
+        CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
+
+        return redirect('/manage/report/recent');
+    }
+
+    public function missingCompanyInfoPlanner()
+    {
+        $today = Carbon::today();
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->get();
+        $cids = [];
+        foreach ($companies as $company) {
+            $planner_date = $company->nextDateOnPlanner();
+            if ($planner_date)
+                $cids[] = $company->id;
+        }
+
+        $companies = Company::whereIn('id', $cids)->orderBy('name')->get();
+
+        return view('manage/report/company/missing_company_info_planner', compact('companies'));
+    }
+
+    public function missingCompanyInfoPlannerCSV()
+    {
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+
+
+        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
+        // Create directory if required
+        if (!is_dir(public_path($dir)))
+            mkdir(public_path($dir), 0777, true);
+        $output_file = public_path($dir . "/company_missinginfo_planned " . Carbon::now()->format('YmdHis') . '.csv');
+        touch($output_file);
+
+        //dd('here');
+        CompanyMissingInfoPlannerCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
+
+        return redirect('/manage/report/recent');
+    }
+
     /*
      * Expired Company Docs Report
      */
-    public
-    function expiredCompanyDocs()
+    public function expiredCompanyDocs()
     {
         return view('manage/report/company/expired_company_docs');
     }
@@ -371,8 +394,7 @@ class ReportUserCompanyController extends Controller {
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public
-    function getExpiredCompanyDocs()
+    public function getExpiredCompanyDocs()
     {
         $company_id = (request('company_id') == 'all') ? '' : request('company_id');
         $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
