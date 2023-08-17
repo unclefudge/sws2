@@ -271,10 +271,17 @@ class TodoController extends Controller {
             $type_id = $todo->type_id;
             $type_id2 = $todo->type_id2;
             $todo->delete();
+            Toastr::error("Task Deleted");
             if ($todo->type == 'inspection') {
                 $FomQuestion = FormQuestion::find($type_id2);
                 return redirect("/site/inspection/$type_id/".$FomQuestion->section->page->order);
             }
+            if ($todo->type == 'hazard')
+                return redirect("/site/hazard/$type_id");
+            if ($todo->type == 'incident')
+                return redirect("/site/incident/$type_id");
+            if ($todo->type == 'incident prevent')
+                return redirect("/site/incident/$type_id/analysis");
         }
 
         $old_status = $todo->status;

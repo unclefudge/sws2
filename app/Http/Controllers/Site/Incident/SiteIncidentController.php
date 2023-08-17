@@ -12,6 +12,10 @@ use Session;
 use App\Models\Site\Site;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentDoc;
+use App\Models\Site\Incident\SiteIncidentPeople;
+use App\Models\Site\Incident\SiteIncidentReview;
+use App\Models\Site\Incident\SiteIncidentWitness;
+use App\Models\Site\Incident\SiteIncidentConversation;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
 use App\Models\Misc\Action;
@@ -697,6 +701,7 @@ class SiteIncidentController extends Controller {
             if (file_exists($file))
                 unlink($file);
             $pdf->save($file);
+
             return $pdf->stream();
         }
     }
@@ -725,13 +730,12 @@ class SiteIncidentController extends Controller {
                 unlink($zip_file);
 
             $zip = new ZipArchive();
-            if ($zip->open($zip_file, ZipArchive::CREATE) === TRUE)
-            {
+            if ($zip->open($zip_file, ZipArchive::CREATE) === true) {
                 $zip->addFile($report_file, "Incident Report $incident->id.pdf"); // Incident Report
 
                 // Photos / Docs
                 foreach ($incident->docs as $doc) {
-                    $file =  public_path('/filebank/incident/'.$doc->incident_id.'/'.$doc->attachment);
+                    $file = public_path('/filebank/incident/' . $doc->incident_id . '/' . $doc->attachment);
                     if (file_exists($file))
                         $zip->addFile($file, $doc->attachment);
                 }
@@ -748,6 +752,67 @@ class SiteIncidentController extends Controller {
             }
         }
     }
+
+    /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $incident = SiteIncident::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+            return json_encode("failed");
+
+        // Delete ToDoo task
+        $deleted = ToDo::where('type', 'incident')->where('type_id', $incident->id)->delete();
+        $deleted = ToDo::where('type', 'incident review')->where('type_id', $incident->id)->delete();
+        $deleted = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->delete();
+        foreach ($incident->witness as $witness)
+            $deleted = ToDo::where('type', 'incident witness')->where('type_id', $witness->id)->delete();
+
+
+        // Delete associated records
+        $deleted = SiteIncidentDoc::where('incident_id', $incident->id)->delete();
+        $deleted = SiteIncidentPeople::where('incident_id', $incident->id)->delete();
+        $deleted = SiteIncidentDoc::where('incident_id', $incident->id)->delete();
+        $deleted = SiteIncidentReview::where('incident_id', $incident->id)->delete();
+        $deleted = SiteIncidentWitness::where('incident_id', $incident->id)->delete();
+        $deleted = SiteIncidentConversation::where('incident_id', $incident->id)->delete();
+
+        // Delete attached files
+        $dir = "/filebank/incident/$incident->id";
+
+        if (is_dir(public_path($dir))) {
+            $files = scandir(public_path($dir));
+            foreach ($files as $file) {
+                if (($file[0] != '.')) {
+                    unlink(public_path("$dir/$file"));
+                }
+            }
+            rmdir(public_path($dir));
+        }
+
+        $incident->delete();
+
+        return json_encode('success');
+    }
+    /**
+     * Delete the specified resource in storage.
+     */
+    /*public function delete($id)
+    {
+        $result = $this->destroy($id);
+
+        if ($result)
+            Toastr::error("Deleted incident");
+        else
+            Toastr::error("Failed to delete incident");
+
+        return redirect('site/incident');
+    }*/
 
 
     /**
@@ -774,6 +839,14 @@ class SiteIncidentController extends Controller {
             })
             ->editColumn('nicedate2', function ($incident) {
                 return ($incident->nicedate2 == '00/00/00') ? '' : $incident->nicedate2;
+            })
+            ->addColumn('action', function ($incident) {
+                $actions = '';
+
+                if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                    $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/incident/' . $incident->id . '" data-name="Incident ID:' . $incident->id . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

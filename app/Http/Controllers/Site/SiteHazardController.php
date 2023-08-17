@@ -152,6 +152,29 @@ class SiteHazardController extends Controller {
     }
 
     /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $hazard = SiteHazard::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+            return json_encode("failed");
+
+        // Delete attached file
+        if ($hazard->attachment && file_exists('filebank/site/' . $hazard->site_id . '/hazard/' . $hazard->attachment))
+            unlink(public_path('/filebank/site/' . $hazard->site_id . '/hazard/' . $hazard->attachment));
+
+        $hazard->delete();
+
+        return json_encode('success');
+    }
+
+
+    /**
      * Get Sites current user is authorised to manage + Process datatables ajax request.
      */
     public function getHazards(Request $request)
@@ -206,8 +229,16 @@ class SiteHazardController extends Controller {
 
                 return '';
             })
+            ->addColumn('action', function ($issue) {
+                $actions = '';
+
+                if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                    $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/hazard/' . $issue->id . '" data-name="' . $issue->name . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
+            })
             //->filterColumn('fullname', 'whereRaw', "CONCAT(users . firstname, ' ', users . lastname) like ? ", [" % $1 % "])
-            ->rawColumns(['view', 'action', 'attachment'])
+            ->rawColumns(['view', 'action', 'attachment', 'action'])
             ->make(true);
 
         return $dt;

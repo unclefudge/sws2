@@ -8,11 +8,11 @@
         @endif
         <li><span>Hazard Register</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -66,6 +66,9 @@
                                 <th>Source</th>
                                 <th width="5%"> Rating</th>
                                 <th width="2%"></th>
+                                @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                                    <th width="2%"></th>
+                                @endif
                             </tr>
                             </thead>
                         </table>
@@ -88,55 +91,93 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-<script type="text/javascript">
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('/site/hazard/dt/hazards') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.site_group = $('#site_group').val();
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'id', name: 'site_hazards.id', orderable: false, searchable: false},
-            {data: 'nicedate', name: 'site_hazards.created_at'},
-            {data: 'nicedate2', name: 'site_hazards.resolved_at', visible: false,},
-            {data: 'name', name: 'sites.name', orderable: false},
-            {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
-            {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
-            {data: 'reason', name: 'site_hazards.reason', orderable: false},
-            {data: 'location', name: 'site_hazards.location', orderable: false},
-            {data: 'source', name: 'site_hazards.source', orderable: false},
-            {data: 'rating', name: 'rating'},
-            {data: 'attachment', name: 'site_hazards.attachment', orderable: false, searchable: false},
-        ],
-        order: [
-            [2, "desc"]
-        ]
-    });
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('/site/hazard/dt/hazards') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.site_group = $('#site_group').val();
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'id', name: 'site_hazards.id', orderable: false, searchable: false},
+                {data: 'nicedate', name: 'site_hazards.created_at'},
+                {data: 'nicedate2', name: 'site_hazards.resolved_at', visible: false,},
+                {data: 'name', name: 'sites.name', orderable: false},
+                {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
+                {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
+                {data: 'reason', name: 'site_hazards.reason', orderable: false},
+                {data: 'location', name: 'site_hazards.location', orderable: false},
+                {data: 'source', name: 'site_hazards.source', orderable: false},
+                {data: 'rating', name: 'rating'},
+                {data: 'attachment', name: 'site_hazards.attachment', orderable: false, searchable: false},
+                    @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                {
+                    data: 'action', name: 'action', orderable: false, searchable: false
+                },
+                @endif
+            ],
+            order: [
+                [2, "desc"]
+            ]
+        });
 
-    $('select#site_group').change(function () {
-        table_list.ajax.reload();
-    });
+        table_list.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-    $('select#status').change(function () {
-        if ($('#status').val() == 0)
-            table_list.column('3').visible(true);
-        else
-            table_list.column('3').visible(false);
-        table_list.ajax.reload();
-    });
-</script>
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this record!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table_list').DataTable().draw(false);
+                });
+            });
+        });
 
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+        $('select#site_group').change(function () {
+            table_list.ajax.reload();
+        });
+
+        $('select#status').change(function () {
+            if ($('#status').val() == 0)
+                table_list.column('3').visible(true);
+            else
+                table_list.column('3').visible(false);
+            table_list.ajax.reload();
+        });
+    </script>
+
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop

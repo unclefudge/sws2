@@ -324,7 +324,7 @@
                                 @if(!$todo->status && ($todo->type == 'general' || (in_array($todo->type, ['hazard', 'accident', 'incident', 'incident prevent']) && Auth::user()->allowed2('edit.todo', $todo))))
                                     <button class="btn green" id="open">Re-open Task</button>
                                 @endif
-                                @if ($todo->status != '0' && in_array($todo->type, ['incident prevent']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
+                                @if ($todo->status != '0' && in_array($todo->type, ['incident', 'incident prevent', 'hazard']) && Auth::user()->hasAnyRole2('whs-manager|mgt-general-manager|web-admin'))
                                     <button class="btn dark" id="delete"><i class="fa fa-trash"></i></button>
                                 @endif
                             </div>
@@ -414,7 +414,7 @@
             e.preventDefault();
             swal({
                 title: "Are you sure?",
-                text: "You will not be able to recover this ToDo Task!<br><b>" + $('#s_name').val() + "</b>",
+                text: "You will not be able to recover this ToDo Task!<br><b>" + $('#name').val() + "</b>",
                 showCancelButton: true,
                 cancelButtonColor: "#555555",
                 confirmButtonColor: "#E7505A",

@@ -34,12 +34,27 @@ class SupportTicketCreated extends Mailable implements ShouldQueue {
      */
     public function build()
     {
+        /*$this->action->files->count();
         $file_path = public_path($this->action->attachment_url);
         if ($this->action->attachment && file_exists($file_path))
             return $this->view('emails/misc/support-ticket-created2')->subject('SafeWorksite - New Support Ticket')->attach($file_path);
         //return $this->markdown('emails/misc/support-ticket-created')->subject('SafeWorksite - New Support Ticket')->attach($file_path);
 
         //return $this->markdown('emails/misc/support-ticket-created')->subject('SafeWorksite - New Support Ticket');
-        return $this->view('emails/misc/support-ticket-created2')->subject('SafeWorksite - New Support Ticket');
+        return $this->view('emails/misc/support-ticket-created2')->subject('SafeWorksite - New Support Ticket');*/
+
+        $email = $this->markdown('emails/misc/support-ticket-created2')->subject('SafeWorksite - New Support Ticket');
+        app('log')->debug("[".$this->ticket->id."] Ticket email \n\r");
+        // Attachments
+        if ($this->action->files()->count()) {
+            foreach ($this->action->files() as $file) {
+                app('log')->debug($file->attachment_url."\n\r");
+                app('log')->debug(public_path($file->attachment_url)."\n\r");
+                app('log')->debug($file);
+                if (file_exists(substr($file->attachment_url, 1)))
+                    $email->attach(public_path($file->attachment_url));
+            }
+        }
+        return $email;
     }
 }

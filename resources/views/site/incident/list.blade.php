@@ -28,10 +28,14 @@
                                 <thead>
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
+                                    <th width="5%"> ID</th>
                                     <th> Incident Date</th>
                                     <th> Site</th>
                                     <th> Reported by</th>
                                     <th> Reported date</th>
+                                    @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                                        <th style="width: 5%"> Action</th>
+                                    @endif
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -40,10 +44,14 @@
                                         <td width="5%">
                                             <div class="text-center"><a href="/site/incident/{{ $p->id }}"><i class="fa fa-search"></i></a></div>
                                         </td>
+                                        <td>{{ $p->id }}</td>
                                         <td width="15%">{{ $p->date->format('d/m/Y') }}</td>
                                         <td>{{ ($p->site) ? $p->site->name : '' }}</td>
                                         <td>{{ $p->createdBy->name }}</td>
                                         <td width="15%">{{ $p->created_at->format('d/m/Y') }}</td>
+                                        @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                                            <td style="width:5%"><button data-id="{{ $p->id }}" class="btn dark btn-xs sbold deleteRec"><i class="fa fa-trash"></i></button></td>
+                                        @endif
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -98,6 +106,9 @@
                                 <th> Site</th>
                                 <th> Supervisor</th>
                                 <th> Description</th>
+                                @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+                                    <th style="width: 5%"> Action</th>
+                                @endif
                             </tr>
                             </thead>
                         </table>
@@ -123,6 +134,9 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script type="text/javascript">
+    $.ajaxSetup({
+        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+    });
 
     var status = $('#status').val();
 
@@ -146,10 +160,44 @@
             {data: 'site_name', name: 'site_incidents.site_name'},
             {data: 'site_supervisor', name: 'site_incidents.site_supervisor', orderable: false, searchable: false},
             {data: 'description', name: 'description', orderable: false},
+                @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
+            {
+                data: 'action', name: 'action', orderable: false, searchable: false
+            },
+            @endif
         ],
         order: [
             [2, "desc"]
         ]
+    });
+
+    table_list.on('click', '.btn-delete[data-remote]', function (e) {
+        e.preventDefault();
+        var url = $(this).data('remote');
+        var name = $(this).data('name');
+
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this record!<br><b>" + name + "</b>",
+            showCancelButton: true,
+            cancelButtonColor: "#555555",
+            confirmButtonColor: "#E7505A",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: true,
+            html: true,
+        }, function () {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                dataType: 'json',
+                data: {method: '_DELETE', submit: true},
+                success: function (data) {
+                    toastr.error('Deleted document');
+                },
+            }).always(function (data) {
+                $('#table_list').DataTable().draw(false);
+            });
+        });
     });
 
     $('select#site_group').change(function () {
@@ -162,6 +210,35 @@
         else
             table_list.column('3').visible(false);
         table_list.ajax.reload();
+    });
+
+    $('.deleteRec').click(function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        var url = "/site/incident/"+id;
+
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover this record!<br><b>Incident ID:" + id + "</b>",
+            showCancelButton: true,
+            cancelButtonColor: "#555555",
+            confirmButtonColor: "#E7505A",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: true,
+            html: true,
+        }, function () {
+            $.ajax({
+                url: url,
+                type: 'DELETE',
+                dataType: 'json',
+                data: {method: '_DELETE', submit: true},
+                success: function (data) {
+                    toastr.error('Deleted incident');
+                },
+            }).always(function (data) {
+                location.reload();
+            });
+        });
     });
 </script>
 @stop

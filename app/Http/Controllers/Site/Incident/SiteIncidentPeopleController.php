@@ -157,4 +157,23 @@ class SiteIncidentPeopleController extends Controller {
 
         return redirect('site/incident/' . $incident->id);
     }
+
+    /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($incident_id, $id)
+    {
+        $incident = SiteIncident::findorFail($incident_id);
+        $person = SiteIncidentPeople::findorFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2("del.site.incident", $incident))
+            return json_encode("failed");
+
+        $person->delete();
+
+        return json_encode('success');
+    }
 }

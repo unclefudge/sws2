@@ -152,6 +152,9 @@
 
                         <div class="form-actions right">
                             <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
+                            @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                <button id="btn-delete" class="btn red"> Delete</button>
+                            @endif
                             @if (Auth::user()->allowed2('edit.site.incident', $incident) || $person->user_id == Auth::user()->id)
                                 <button type="submit" class="btn green"> Save</button>
                             @endif
@@ -189,6 +192,8 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
         /* Select2 */
         //$("#type").select2({placeholder: "Check all applicable"});
         $("#user_id").select2({placeholder: "Select user"});
@@ -242,6 +247,32 @@
             if ($("#type").val() == '13')
                 $("#field_type_other").show();
         }
+
+        $("#btn-delete").click(function (e) {
+            e.preventDefault();
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this person involved!<br><b>" + $('#name').val() + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: '/site/incident/{{ $incident->id }}/people/{{ $person->id }}',
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted person');
+                        window.location.href = "/site/incident/{{ $incident->id }}";
+                    },
+                });
+            });
+        });
 
     });
 

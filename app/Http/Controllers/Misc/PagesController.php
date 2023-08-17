@@ -186,7 +186,7 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "<b>Attach Support ticket files</b></br>";
+        /*echo "<b>Attach Support ticket files</b></br>";
         DB::table('support_tickets_actions_files')->truncate();
 
         $tickets = SupportTicket::all();
@@ -199,7 +199,7 @@ class PagesController extends Controller {
                     $new = SupportTicketActionFile::create(['action_id' => $action->id, 'type' => $type, 'name' => $file, 'attachment' => $action->attachment]);
                 }
             }
-        }
+        }*/
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
