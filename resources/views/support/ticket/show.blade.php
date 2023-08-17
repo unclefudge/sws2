@@ -142,7 +142,7 @@
                                             {!! nl2br(e($action->action)) !!}<br><br>
 
                                             {{-- Attachments --}}
-                                            @if ($action->files)
+                                            @if ($action->files->count())
                                                 <h5><b>Attachments</b></h5>
                                                 <hr style="margin: 10px 0px; padding: 0px;">
                                                 {{-- Image attachments --}}
