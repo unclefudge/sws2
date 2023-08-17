@@ -63,6 +63,7 @@ use App\Models\Misc\Supervisor\SuperChecklistQuestion;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
+use App\Models\Support\SupportTicketActionFile;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -185,11 +186,20 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        //echo "<b>Incident Report Email</b></br>";
+        echo "<b>Attach Support ticket files</b></br>";
+        DB::table('support_tickets_actions_files')->truncate();
 
-        //$incident = SiteIncident::find(185);
-        //if ($incident)
-        //    $incident->emailIncident();
+        $tickets = SupportTicket::all();
+        foreach ($tickets as $ticket) {
+            foreach ($ticket->actions as $action) {
+                if ($action->attachment) {
+                    list($file, $ext) = explode('.', $action->attachment);
+                    $type = (in_array($ext,['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+                    echo "[$ext] [$type] $file<br>";
+                    $new = SupportTicketActionFile::create(['action_id' => $action->id, 'type' => $type, 'name' => $file, 'attachment' => $action->attachment]);
+                }
+            }
+        }
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
@@ -222,7 +232,7 @@ class PagesController extends Controller {
         $mergedPDF->merge();
         $mergedPDF->save(public_path('/filebank/tmp/merged_result.pdf'));
 
-*/
+    */
         /*
                 echo "<b>Creating Site Extension for Active Sites</b></br>";
 
@@ -1008,8 +1018,7 @@ class PagesController extends Controller {
 
     }
 
-    public
-    function archiveOldData()
+    public function archiveOldData()
     {
         echo "<b>Archive Old Data </b><br></br>";
 
@@ -1112,8 +1121,7 @@ class PagesController extends Controller {
         echo "<br>------------------<br>Total Archive: " . round($archive_size / 1000000, 2) . "Gb<br>";
     }
 
-    public
-    function completedQA()
+    public function completedQA()
     {
         echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
         $todos = \App\Models\Comms\Todo::all();
@@ -1149,8 +1157,7 @@ class PagesController extends Controller {
     }
 
 
-    public
-    function refreshQA()
+    public function refreshQA()
     {
         echo "Updating Current QA Reports to match new QA template with Supervisor tick<br><br>";
         $items = SiteQaItem::all();
@@ -1185,8 +1192,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function triggerQA()
+    public function triggerQA()
     {
         echo "Manually trigger QA creation<br><br>";
         $master_qas = ['2581', '2563']; // Handover, On Completion
@@ -1238,8 +1244,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importCompany(Request $request)
+    public function importCompany(Request $request)
     {
         echo "Importing Companies<br><br>";
         $row = 0;
@@ -1326,8 +1331,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function fixplanner()
+    public function fixplanner()
     {
         set_time_limit(120);
 
@@ -1434,8 +1438,7 @@ class PagesController extends Controller {
 
     }
 
-    public
-    function workDaysBetween($from, $to, $debug = false)
+    public function workDaysBetween($from, $to, $debug = false)
     {
         if ($from == $to)
             return 1;
@@ -1463,8 +1466,7 @@ class PagesController extends Controller {
     }
 
 
-    public
-    function importMaterials()
+    public function importMaterials()
     {
         echo "Importing Materials<br><br>";
         $row = 0;
@@ -1527,8 +1529,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importPayroll()
+    public function importPayroll()
     {
         echo "Importing Payroll<br>---------------------<br><br>";
         $row = 0;
@@ -1601,8 +1602,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importQuestions()
+    public function importQuestions()
     {
         echo "Importing Questions<br>---------------------<br><br>";
         $row = 0;
@@ -1637,8 +1637,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function importMaintenance()
+    public function importMaintenance()
     {
         echo "Importing Maintenance<br>---------------------<br><br>";
         $row = 0;
@@ -1795,8 +1794,7 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
-    public
-    function disabledTasks()
+    public function disabledTasks()
     {
 
         echo "List of Disabled Tasks currently still in use<br>--------------------------------------------------------<br><br>";
@@ -1875,8 +1873,7 @@ class PagesController extends Controller {
     /*
      * Reset Template Form
      */
-    public
-    function resetFormTemplate()
+    public function resetFormTemplate()
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Reseting Sample Form Template - $now</b></br>";
@@ -1896,8 +1893,7 @@ class PagesController extends Controller {
     /*
      * Initilise Template Form
      */
-    public
-    function initFormTemplate()
+    public function initFormTemplate()
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Creating Sample Form Template - $now</b></br>";
@@ -2404,8 +2400,7 @@ class PagesController extends Controller {
 
     //
     // Show FormTemplate
-    public
-    function showTemplate($id)
+    public function showTemplate($id)
     {
         $template = FormTemplate::find($id);
 
@@ -2433,8 +2428,7 @@ class PagesController extends Controller {
     /*
     * Initilise Supervisor Checklist
     */
-    public
-    function initSuperChecklist()
+    public function initSuperChecklist()
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Reseting Super Checklist - $now</b></br>";
@@ -2511,8 +2505,7 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
     /*
     * New Supervisor Checklist
     */
-    public
-    function newSuperChecklist()
+    public function newSuperChecklist()
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>New Super Checklists - $now</b></br>";
@@ -2540,8 +2533,7 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
     }
 
 
-    public
-    function createPermission()
+    public function createPermission()
     {
         //
         // Creating Permission

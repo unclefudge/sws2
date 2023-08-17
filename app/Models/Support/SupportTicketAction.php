@@ -2,6 +2,7 @@
 
 namespace App\Models\Support;
 
+use App\Models\Misc\TemporaryFile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -21,6 +22,16 @@ class SupportTicketAction extends Model {
     public function ticket()
     {
         return $this->belongsTo('App\Models\Support\SupportTicket', 'ticket_id');
+    }
+
+    /**
+     * A SupportTicketAction has many SupportTicketActionFiles
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function files()
+    {
+        return $this->hasMany('App\Models\Support\SupportTicketActionFile', 'action_id');
     }
 
     /**
@@ -46,8 +57,32 @@ class SupportTicketAction extends Model {
     /**
      * Save attachment to existing Issue
      */
-    public function saveAttachment($file)
+    public function saveAttachment($tmp_filename)
     {
+        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
+        if ($tempFile) {
+            // Move temp file to support ticket directory
+            $dir = "/filebank/support/ticket";
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+
+            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
+            if (file_exists($tempFilePublicPath)) {
+                $newFile = "ticket-" . $this->ticket_id . '-' . $this->id . '-' . $tempFile->filename;
+                rename($tempFilePublicPath, public_path("$dir/$newFile"));
+
+                // Determine file extension and set type
+                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
+                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
+                $type = (in_array($ext,['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+                $new = SupportTicketActionFile::create(['action_id' => $this->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
+            }
+
+            // Delete Temporary file directory + record
+            $tempFile->delete();
+            rmdir(public_path($tempFile->folder));
+        }
+
+/*
         $path = "filebank/support/ticket/";
         $name = 'ticket-' . $this->ticket->id . '-' . Auth::user()->id . '-' . sha1(time()) . '.' . strtolower($file->getClientOriginalExtension());
         $path_name = $path . '/' . $name;
@@ -65,6 +100,7 @@ class SupportTicketAction extends Model {
 
         $this->attachment = $name;
         $this->save();
+*/
     }
 
     /**
@@ -81,14 +117,11 @@ class SupportTicketAction extends Model {
                 $email_to[] = $ticket->createdBy->email; // email ticket owner
 
             // Email user who updated ticket
-            if (Auth::check() && validEmail($this->createdBy->email) && !in_array($this->createdBy->email, $email_to ))
+            if (Auth::check() && validEmail($this->createdBy->email) && !in_array($this->createdBy->email, $email_to))
                 $email_to[] = $this->createdBy->email;
         }
 
-        //if ($email_to && $email_user)
-        //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Misc\SupportTicketUpdated($ticket, $this));
-        //elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Misc\SupportTicketUpdated($ticket, $this));
+        Mail::to($email_to)->send(new \App\Mail\Misc\SupportTicketUpdated($ticket, $this));
     }
 
     /**

@@ -71,6 +71,9 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <h5>Attachments</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/>
+                                    {{--}}
                                     <div class="form-group">
                                         <div class="fileinput fileinput-new" data-provides="fileinput">
                                             <div class="fileinput-preview fileinput-exists thumbnail"
@@ -84,7 +87,7 @@
                                                 <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput">Remove </a>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>--}}
                                 </div>
                             </div>
 
@@ -104,16 +107,34 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
+    {{--}}<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+<script>
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
+        },
+        allowMultiple: true,
+    });
+</script>
 @stop
 

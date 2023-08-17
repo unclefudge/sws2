@@ -627,6 +627,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('support/ticket/dt/upgrades', '\App\Http\Controllers\Support\SupportTicketController@getUpgrades');
     Route::get('support/ticket/create', '\App\Http\Controllers\Support\SupportTicketController@create');
     Route::post('support/ticket/action', '\App\Http\Controllers\Support\SupportTicketController@addAction');
+    //Route::post('support/ticket/upload', '\App\Http\Controllers\Support\SupportTicketController@upload');
     Route::get('support/ticket/{id}/eta/{date}', '\App\Http\Controllers\Support\SupportTicketController@updateETA');
     Route::get('support/ticket/{id}/status/{status}', '\App\Http\Controllers\Support\SupportTicketController@updateStatus');
     Route::get('support/ticket/{id}/hours/{hours}', '\App\Http\Controllers\Support\SupportTicketController@updateHours');
@@ -634,6 +635,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('support/ticket/{id}/assigned/{assigned}', '\App\Http\Controllers\Support\SupportTicketController@updateAssigned');
     Route::resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
 
+    // Temp File Uploads
+    Route::post('file/upload', '\App\Http\Controllers\Misc\FileUploadController@upload');
 
     // Comms
     Route::get('todo/dt/todo', '\App\Http\Controllers\Comms\TodoController@getTodo');

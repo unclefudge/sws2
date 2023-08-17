@@ -41,23 +41,24 @@
                     <div class="col-md-2">
                         {!! Form::text('eta', ($ticket->eta) ? $ticket->eta->format('d/m/Y') : 'to be reviewed', ['class' => 'form-control', 'disabled']) !!}
                     </div>
-                    @if (Auth::user()->id == '3') {{-- Only Fudge to edit ETA --}}
-                    <div class="col-md-3">
-                        <div class="col-md-9">
-                            <div class="form-group">
-                                <div class="input-group date date-picker">
-                                    {!! Form::text('eta_set', $ticket->eta, ['class' => 'form-control form-control-inline', 'readonly',
-                                    'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'id' => 'eta_set']) !!}
-                                    <span class="input-group-btn">
+                    @if (Auth::user()->id == '3')
+                        {{-- Only Fudge to edit ETA --}}
+                        <div class="col-md-3">
+                            <div class="col-md-9">
+                                <div class="form-group">
+                                    <div class="input-group date date-picker">
+                                        {!! Form::text('eta_set', $ticket->eta, ['class' => 'form-control form-control-inline', 'readonly',
+                                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'id' => 'eta_set']) !!}
+                                        <span class="input-group-btn">
                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                             </span>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <button class="btn blue" id="eta_update">Save</button>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn blue" id="eta_update">Save</button>
-                        </div>
-                    </div>
                     @else
                         <div class="col-md-1">Hours</div>
                         <div class="col-md-2">
@@ -119,23 +120,13 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="fileinput fileinput-new" data-provides="fileinput">
-                                            <div class="fileinput-preview fileinput-exists thumbnail"
-                                                 style="max-width: 200px; max-height: 150px;">
-                                            </div>
-                                            <div>
-                                            <span class="btn default btn-file">
-                                                <span class="fileinput-new"> Attach Photo/Document</span>
-                                                <span class="fileinput-exists"> Change </span>
-                                                <input type="file" name="attachment">
-                                            </span>
-                                                <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput">Remove </a>
-                                            </div>
-                                        </div>
+                                    <div>
+                                        <h5><b>Attachments</b></h5>
+                                        <input type="file" class="filepond" name="filepond[]" multiple/>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
+                                    <br><br>
                                     <button type="submit" class="btn green pull-right">Save Action</button>
                                     <br><br>
                                 </div>
@@ -148,10 +139,33 @@
                                     <div class="panel panel-default">
                                         <div class="panel-heading">{{ $action->created_at->format('d/m/Y g:i a') }} <span class="pull-right"><a href="/user/{{ $action->user->id }}">{{ $action->user->fullname }}</a></span></div>
                                         <div class="panel-body">
-                                            {!! nl2br(e($action->action)) !!}
-                                            @if ($action->attachment && file_exists('filebank/support/ticket/' . $action->attachment))
-                                                <br><br><a href="/filebank/support/ticket/{{ $action->attachment }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i> Attachment</a>
-                                            @endif</div>
+                                            {!! nl2br(e($action->action)) !!}<br><br>
+
+                                            {{-- Attachments --}}
+                                            @if ($action->files)
+                                                <h5><b>Attachments</b></h5>
+                                                <hr style="margin: 10px 0px; padding: 0px;">
+                                                {{-- Image attachments --}}
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($action->files as $file)
+                                                        @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                            <div style="width: 60px; float: left; padding-right: 5px">
+                                                                <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
+                                                                    <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                                {{-- File attachments  --}}
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($action->files as $file)
+                                                        @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -170,7 +184,11 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
+
+    {{--}}<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">--}}
+
+    {{--}}<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
@@ -178,46 +196,64 @@
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $('.date-picker').datepicker({
-        autoclose: true,
-        format: 'yyyy-mm-dd',
-    });
-
-    $(document).ready(function () {
-        $('#priority').change(function () {
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/priority/' + $('#priority').val();
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    {{--}}<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>--}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            format: 'yyyy-mm-dd',
         });
 
-        $('#assigned_to').change(function () {
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/assigned/' + $('#assigned_to').val();
+        // Get a reference to the file input element
+        const inputElement = document.querySelector('input[type="file"]');
+
+        // Create a FilePond instance
+        const pond = FilePond.create(inputElement);
+        FilePond.setOptions({
+            server: {
+                url: '/file/upload',
+                fetch: null,
+                revert: null,
+                headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
+            },
+            allowMultiple: true,
         });
 
-        $('#eta_update').click(function (e) {
-            e.preventDefault();
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/eta/' + $('#eta_set').val();
+        $(document).ready(function () {
+            $('#priority').change(function () {
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/priority/' + $('#priority').val();
+            });
+
+            $('#assigned_to').change(function () {
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/assigned/' + $('#assigned_to').val();
+            });
+
+            $('#eta_update').click(function (e) {
+                e.preventDefault();
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/eta/' + $('#eta_set').val();
+            });
+
+            $('#hour_update').click(function (e) {
+                e.preventDefault();
+                //alert($('#hours').val());
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/hours/' + $('#hours').val();
+            });
+
+            $('#ticket_close').click(function () {
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/0';
+            });
+
+            $('#ticket_open').click(function () {
+                window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/1';
+            });
         });
 
-        $('#hour_update').click(function (e) {
-            e.preventDefault();
-            //alert($('#hours').val());
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/hours/' + $('#hours').val();
-        });
-
-        $('#ticket_close').click(function () {
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/0';
-        });
-
-        $('#ticket_open').click(function () {
-            window.location.href = '/support/ticket/' + {{ $ticket->id }} + '/status/1';
-        });
-    });
-</script>
+    </script>
 @stop
 

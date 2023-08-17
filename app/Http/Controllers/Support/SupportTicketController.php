@@ -12,6 +12,7 @@ use Session;
 use App\User;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
+use App\Models\Misc\TemporaryFile;
 use App\Http\Requests;
 use App\Http\Requests\Support\SupportTicketRequest;
 use App\Http\Controllers\Controller;
@@ -72,9 +73,12 @@ class SupportTicketController extends Controller {
             $action_request = ['action' => $request->get('summary')];
             $action = $ticket->actions()->save(new SupportTicketAction($action_request));
 
-            // Handle attachment
-            if ($request->hasFile('attachment'))
-                $action->saveAttachment($request->file('attachment'));
+            // Handle attachments
+            $attachments = request("filepond");
+            if ($attachments) {
+                foreach ($attachments as $tmp_filename)
+                    $action->saveAttachment($tmp_filename);
+            }
 
             // Email ticket
             if (!$ticket->type)
@@ -111,19 +115,24 @@ class SupportTicketController extends Controller {
     /**
      * Add action to existing ticket
      */
-    public function addAction(Request $request)
+    public function addAction()
     {
         $ticket_id = request('ticket_id');
         $ticket = SupportTicket::findorFail($ticket_id);
 
+        request()->validate(['action' => 'required']); // Validate
+
+        //dd(request()->all());
         //Add action to ticket
         if ($ticket) {
             $action = $ticket->actions()->save(new SupportTicketAction(['action' => request('action')]));
-            //$action = SupportTicketAction::create(['ticket_id' => $ticket->id, 'action' => request('action')]);
 
-            // Handle attachment
-            if ($request->hasFile('attachment'))
-                $action->saveAttachment($request->file('attachment'));
+            // Handle attachments
+            $attachments = request("filepond");
+            if ($attachments) {
+                foreach ($attachments as $tmp_filename)
+                    $action->saveAttachment($tmp_filename);
+            }
 
             // Email action
             $action->emailAction();
@@ -137,6 +146,7 @@ class SupportTicketController extends Controller {
 
         return redirect('support/ticket/' . $ticket_id);
     }
+
 
     /**
      * Update Priority of existing ticket

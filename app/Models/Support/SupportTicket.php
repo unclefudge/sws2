@@ -62,15 +62,41 @@ class SupportTicket extends Model {
     /**
      * Save attachment to existing Issue
      */
-    public function saveAttachment($file)
+    public function saveAttachment($tmp_filename)
     {
+        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
+        if ($tempFile) {
+            // Move temp file to support ticket directory
+            $dir = "/filebank/support/ticket";
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+
+            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
+            if (file_exists($tempFilePublicPath)) {
+                $newFile = "$dir/ticket-" . $ticket->id . '-' . $action->id . '-' . $tempFile->filename;
+                rename($tempFilePublicPath, public_path($newFile));
+                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => 'photo', 'attachment' => $newFile]);
+                $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file)->first();
+                if (!$response)
+                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $form_file->id, 'option_id' => null, 'date' => null]);
+                $responses_given[] = $response->id;
+            }
+
+            // Delete Temporary file directory + record
+            $tempFile->delete();
+            rmdir(public_path($tempFile->folder));
+        }
+
+
+
+
+
         $path = "filebank/support/ticket/";
         $name = 'ticket-' . $this->id . '-' . Auth::user()->id . '-' . sha1(time()) . '.' . strtolower($file->getClientOriginalExtension());
         $path_name = $path . '/' . $name;
         $file->move($path, $name);
 
         // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-        if (exif_imagetype($path_name)) {
+        /*if (exif_imagetype($path_name)) {
             Image::make(url($path_name))
                 ->resize(1024, null, function ($constraint) {
                     $constraint->aspectRatio();
@@ -78,7 +104,7 @@ class SupportTicket extends Model {
                 })
                 ->save($path_name);
         } //else
-        //  Toastr::error("Bad image");
+        //  Toastr::error("Bad image");*/
 
         $this->attachment = $name;
         $this->save();
