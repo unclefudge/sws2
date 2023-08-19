@@ -186,20 +186,47 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        /*echo "<b>Attach Support ticket files</b></br>";
-        DB::table('support_tickets_actions_files')->truncate();
+        echo "<b>Assign Site Supers</b></br>";
 
-        $tickets = SupportTicket::all();
-        foreach ($tickets as $ticket) {
-            foreach ($ticket->actions as $action) {
-                if ($action->attachment) {
-                    list($file, $ext) = explode('.', $action->attachment);
-                    $type = (in_array($ext,['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                    echo "[$ext] [$type] $file<br>";
-                    $new = SupportTicketActionFile::create(['action_id' => $action->id, 'type' => $type, 'name' => $file, 'attachment' => $action->attachment]);
+        $sites = Site::all();
+        foreach ($sites as $site) {
+            if ($site->supervisors->count()) {
+                $pid = '';
+                $active = 0;
+                if ($site->supervisors->count() > 1) {
+                    foreach ($site->supervisors as $super) {
+                        if ($super->status) {
+                            $active ++;
+                            if (!$pid)
+                                $pid = $super->id;
+                        }
+                    }
+                    $all_inactive = ($pid) ? '' : '*** ALL INACTIVE ***';
+                    $active_site = ($site->status) ? "*** Active Site ***" : '';
+                    echo "[$site->id] $site->name &nbsp; &nbsp; - " . $site->supervisorsSBC() . "$all_inactive $active_site<br>";
+                    if ($active > 1) {
+                        foreach ($site->supervisors as $super) {
+                            $status = ($super->status) ? '' : " ***";
+                            $primary = ($pid == $super->id) ? "*" : '-';
+                            echo " &nbsp; $primary [$super->id] $super->name $status<br>";
+                        }
+                    }
+                } else {
+                    $super = $site->supervisors->first();
+                    if ($super)
+                        $pid = $super->id;
                 }
+
+                if ($pid) {
+                    $site->supervisor_id = $pid;
+                    $site->save();
+                }
+            } else {
+                $cc = ($site->company_id == 3) ? "CC" : "*** External ***";
+                $active = ($site->status) ? "*** Active Site ***" : '';
+                echo "** NO SUPERS ** [$site->id] $site->name $cc $active<br>";
             }
-        }*/
+        }
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
@@ -1235,7 +1262,7 @@ class PagesController extends Controller {
                             ]);
                     }
                     echo "....created QA [$newQA->id]<br>";
-                    $newQA->createToDo($site->supervisors->pluck('id')->toArray());
+                    $newQA->createToDo($site->supervisor_id);
                 } else {
                     echo "Existing QA [$qa_master->name] for site [$site->name]<br>";
                 }

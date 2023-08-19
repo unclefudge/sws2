@@ -21,7 +21,8 @@
                             <span class="caption-subject bold uppercase font-green-haze">Contract Time Extensions</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="{{ $extension->attachmentUrl }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                            {{--}}<a class="btn btn-circle green btn-outline btn-sm" href="{{ $extension->attachmentUrl }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>--}}
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/{{$extension->id}}/pdf" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> PDF</a>
                             <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/past" data-original-title="Past">Past Weeks</a>
                             @if(Auth::user()->hasPermission2('del.site.extension'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/extension/settings" data-original-title="Setting">Settings</a>
@@ -54,7 +55,7 @@
                                     $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
                                     $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
                                     ?>
-                                @if ($supervisor_id == 0 || in_array($supervisor_id, $row['super_ids']))
+                                @if ($supervisor_id == 0 || $supervisor_id == $row['super_id'])
                                     <tr>
                                         <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>

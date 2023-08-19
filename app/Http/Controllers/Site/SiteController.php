@@ -170,9 +170,10 @@ class SiteController extends Controller {
         $site->update($site_request);
 
         // Update supervisors for site
-        if (request('supervisors'))
-            $site->supervisors()->sync(request('supervisors'));
-        else
+        if (request('supervisors')) {
+            $super_list = array_diff(request('supervisors'), [request('supervisor_id')]); // Don't include primary supervisor
+            $site->supervisors()->sync($super_list);
+        } else
             $site->supervisors()->detach();
 
         // Email Site if status change
@@ -284,7 +285,8 @@ class SiteController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->supervisors()->sync([$super_id]);
+        $site->supervisors_id = $super_id;
+        $site->save();
 
         Toastr::success("Updated Supervisor");
         if (request()->ajax())
@@ -376,7 +378,7 @@ class SiteController extends Controller {
                 return $string;
             })
             ->addColumn('supervisor', function ($site) {
-                return $site->supervisorsSBC();
+                return $site->supervisorName;
             })
             ->rawColumns(['id', 'client_phone'])
             ->make(true);
@@ -423,7 +425,7 @@ class SiteController extends Controller {
                 return $site->full_address;
             })
             ->addColumn('supervisor', function ($site) {
-                return $site->supervisorsSBC();
+                return $site->supervisorName;
             })
             ->rawColumns(['id', 'client_phone'])
             ->make(true);

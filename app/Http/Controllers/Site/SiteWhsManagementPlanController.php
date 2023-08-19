@@ -131,7 +131,7 @@ class SiteWhsManagementPlanController extends Controller {
             ->addColumn('supervisor', function ($doc) {
                 $s = Site::find($doc->site_id);
 
-                return ($s->supervisorsSBC());
+                return ($s->supervisorName);
             })
             ->addColumn('action', function ($doc) {
                 //if ($doc->status && Auth::user()->allowed2('edit.site.asbestos', $doc))

@@ -14,7 +14,7 @@ A accident has been updated for {{ $accident->site->name }}.
 | **ID**  | {{ $accident->id  }} |
 | **Site Name**  | {{ $accident->site->name  }} |
 | **Site Address**  | {{ $accident->site->address }}, {{ $accident->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $accident->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $accident->site->supervisorName }} |
 | **Actions Taken**  | {{ $action->action }} |
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |
 | **Submitted at**  | {{ $action->created_at->format('d/m/Y g:i a') }} |

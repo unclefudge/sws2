@@ -216,7 +216,7 @@ class SiteMaintenance extends Model {
 
         // Create ToDoo for QA
         $site = Site::findOrFail($this->site_id);
-        $this->createToDo($site->supervisors->pluck('id')->toArray());
+        $this->createToDo($site->supervisor_id);
     }
 
     /**
@@ -309,10 +309,7 @@ class SiteMaintenance extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            //$email_list = $this->site->company->notificationsUsersEmailType('site.qa');
-            //$email_supers = $this->site->supervisorsEmails();
-            //$email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
-            $email_to = $this->site->supervisorsEmails();
+            $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 

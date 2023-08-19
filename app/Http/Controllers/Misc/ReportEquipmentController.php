@@ -87,26 +87,29 @@ class ReportEquipmentController extends Controller {
 
         // Locations without supervisors
         $sites_without_super = [];
-        $active_sites = Site::where('status', 1)->where('company_id', 3)->get();
-        foreach ($active_sites as $site) {
-            if (!$site->supervisorsSBC())
-                $sites_without_super[] = $site->id;
-        }
+        $sites_without_super[] = Site::where('status', 1)->where('company_id', 3)->where('supervisor_id', null)->pluck('id')->toArray();
+        //foreach ($active_sites as $site) {
+        //    if (!$site->supervisor_id)
+        //        $sites_without_super[] = $site->id;
+        //}
         $locations_nosuper = EquipmentLocation::whereIn('site_id', $sites_without_super)->where('status', 1)->pluck('id')->toArray();
         foreach ($locations_nosuper as $loc)
             $locations[$loc] = 'no-super';
 
         // Locations with super
+        $locations_super = [];
         $supervisors = Company::find(3)->supervisors()->sortBy('lastname');
         foreach ($supervisors as $super) {
             $sites = $super->supervisorsSites()->sortBy('code')->pluck('id')->toArray();
             foreach ($sites as $site) {
                 $location = EquipmentLocation::where('site_id', $site)->where('status', 1)->where('site_id', '<>', 25)->first();
                 if ($location)
-                    $locations[$location->id] = $super->name;
+                    $locations_super[$location->id] = $super->name;
             }
         }
 
+        asort($locations_super);
+        $locations = $locations + $locations_super;
         //dd($locations);
 
         return view('manage/report/equipment/equipment-site', compact('locations'));
@@ -127,7 +130,7 @@ class ReportEquipmentController extends Controller {
         $sites_without_super = [];
         $active_sites = Site::where('status', 1)->where('company_id', 3)->get();
         foreach ($active_sites as $site) {
-            if (!$site->supervisorsSBC())
+            if (!$site->supervisorName)
                 $sites_without_super[] = $site->id;
         }
         $locations_nosuper = EquipmentLocation::whereIn('site_id', $sites_without_super)->where('status', 1)->pluck('id')->toArray();

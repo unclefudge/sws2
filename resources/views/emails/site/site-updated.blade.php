@@ -15,7 +15,7 @@
 | **Job #**  | {{ $site->code  }} |
 | **Site Name**  | {{ $site->name  }} |
 | **Address**  | {{ $site->address }}, {{ $site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $site->supervisorName }} |
 | **Status**  | {!! $site->statusText() !!} |
 | **Updated by**  | {!! \App\User::find($site->updated_by)->name !!} |
 | **Updated at**  | {{ $site->updated_at->format('d/m/Y g:i a') }} |

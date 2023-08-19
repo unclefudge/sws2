@@ -37,8 +37,8 @@
                                 <tr>
                                     <td>{{ $report->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $report->site->name }}</td>
-                                    <td>{{ $report->assigned_at->format('d/m/Y') }}</td>
-                                    <td>{{ $report->assignedTo->name }}</td>
+                                    <td>{{ ($report->assigned_at) ? $report->assigned_at->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ ($report->assignedTo) ? $report->assignedTo->name : '-' }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -58,8 +58,8 @@
                                 <tr>
                                     <td>{{ $report->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $report->site->name }}</td>
-                                    <td>{{ $report->assigned_at->format('d/m/Y') }}</td>
-                                    <td>{{ $report->assignedTo->name }}</td>
+                                    <td>{{ ($report->assigned_at) ? $report->assigned_at->format('d/m/Y') : '-' }}</td>
+                                    <td>{{ ($report->assignedTo) ? $report->assignedTo->name : '-' }}</td>
                                 </tr>
                             @endforeach
                             </tbody>

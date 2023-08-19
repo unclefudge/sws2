@@ -313,7 +313,8 @@ class SiteMaintenanceController extends Controller {
             $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
 
             // Update Site with new Maintenance Supervisor
-            $main->site->supervisors()->sync([request('super_id')]);
+            $main->site->supervisor_id = request('super_id');
+            $main->site->save();
 
             // Add to Client Visit planner
             /*
@@ -445,7 +446,8 @@ class SiteMaintenanceController extends Controller {
                 $main->assigned_super_at = Carbon::now()->toDateTimeString();
 
             $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
-            $main->site->supervisors()->sync([request('super_id')]); // Update Site supervisor
+            $main->site->supervisor_id = request('super_id'); // Update Site supervisor
+            $main->site->save();
         }
 
         // Email if Company Assigned is updated
@@ -633,7 +635,7 @@ class SiteMaintenanceController extends Controller {
     public function getSiteSupervisor()
     {
         $site = Site::find(request('site_id'));
-        $supers = [$site->supervisorsSBC()];
+        $supers = [$site->supervisorName];
 
         return ($site) ? $supers : '';
     }

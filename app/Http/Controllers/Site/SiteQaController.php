@@ -383,7 +383,7 @@ class SiteQaController extends Controller {
             ->addColumn('supervisor', function ($doc) {
                 $site = Site::find($doc->site_id);
 
-                return $site->supervisorsSBC();
+                return $site->supervisorName;
             })
             ->editColumn('updated_at', function ($doc) {
                 if ($doc->status == 1) {

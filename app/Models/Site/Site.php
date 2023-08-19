@@ -22,7 +22,7 @@ class Site extends Model {
 
     protected $table = 'sites';
     protected $fillable = [
-        'name', 'code', 'slug',
+        'name', 'code', 'slug', 'supervisor_id',
         'address', 'address2', 'suburb', 'state', 'postcode', 'country',
         'photo', 'notes', 'client_id', 'client_intro',
         'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
@@ -252,7 +252,17 @@ class Site extends Model {
     }
 
     /**
-     * A Site has many supervisors
+     * A Site has a Primary supervisor
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function supervisor()
+    {
+        return $this->belongsTo('App\User', 'supervisor_id');
+    }
+
+    /**
+     * A Site has many secondary supervisors
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
@@ -269,6 +279,12 @@ class Site extends Model {
     public function supervisorsSelect($prompt = '')
     {
         $array = [];
+
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status && validEmail($this->supervisor->email))
+            $array[$this->supervisor_id] = $this->supervisor->fullname;
+
+        // Add secondary supervisors
         foreach ($this->supervisors as $user) {
             if ($user->status)
                 $array[$user->id] = $user->fullname;
@@ -279,18 +295,24 @@ class Site extends Model {
     }
 
     /**
-     * An array of supervisors emails for this site
+     * An array of all supervisors emails for this site
      *
      * @return string
      */
     public function supervisorsEmails()
     {
-        $array = [];   // || in_array($super->id, $user->subSupervisors()->pluck('id')->toArray()
+        $array = [];
+
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status && validEmail($this->supervisor->email))
+            $array[] = $this->supervisor->email;
+
+        // Add secondary supervisors
         foreach ($this->supervisors as $user) {
-            if ($user->status && validEmail($user->email))
+            if ($user->status && validEmail($user->email) && !in_array($user->email, $array))
                 $array[] = $user->email;
             foreach ($user->areaSupervisors() as $area) {
-                if ($area->status && validEmail($area->email))
+                if ($area->status && validEmail($area->email) && !in_array($user->email, $array))
                     $array[] = $area->email;
             }
         }
@@ -299,19 +321,51 @@ class Site extends Model {
     }
 
     /**
-     * A list of supervisors for this site
+     * A list of all supervisors for this site
      *
      * @return string
      */
     public function supervisorsSBC()
     {
-        $string = '';
+        $array = [];
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status)
+            $array[$this->supervisor->id] = $this->supervisor->fullname;
+
+        // Add secondary supervisors
         foreach ($this->supervisors as $user) {
-            if ($user->status)
-                $string .= $user->fullname . ', ';
+            if ($user->status && !isset($array[$user->id]))
+                $array[$user->id] = $user->fullname;
         }
 
+        $string = '';
+        foreach ($array as $uid => $name)
+            $string .= "$name, ";
+
         return rtrim($string, ', ');
+    }
+
+    /**
+     * A list of secondary supervisors for this site
+     *
+     * @return string
+     */
+    public function supervisorsSecondarySBC()
+    {
+        $array = [];
+        // Add secondary supervisors
+        foreach ($this->supervisors as $user) {
+            if ($user->status && !isset($array[$user->id]))
+                $array[$user->id] = $user->fullname;
+        }
+
+        $string = '';
+        foreach ($array as $uid => $name)
+            $string .= "$name, ";
+
+        $string = rtrim($string, ', ');
+
+        return ($string) ? $string : '-';
     }
 
     /**
@@ -321,11 +375,20 @@ class Site extends Model {
      */
     public function supervisorsContactSBC()
     {
-        $string = '';
+        $array = [];
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status)
+            $array[$this->supervisor->id] = $this->supervisor->fullname . ' (' . $this->supervisor->phone . ')';
+
+        // Add secondary supervisors
         foreach ($this->supervisors as $user) {
-            if ($user->status)
-                $string .= $user->fullname . ' (' . $user->phone . '), ';
+            if ($user->status && !isset($array[$user->id]))
+                $array[$user->id] = $user->fullname . ' (' . $user->phone . ')';
         }
+
+        $string = '';
+        foreach ($array as $uid => $contact)
+            $string .= "$contact, ";
 
         return rtrim($string, ', ');
     }
@@ -337,11 +400,20 @@ class Site extends Model {
      */
     public function supervisorsFirstNameSBC()
     {
-        $string = '';
+        $array = [];
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status)
+            $array[$this->supervisor->id] = $this->supervisor->firstname;
+
+        // Add secondary supervisors
         foreach ($this->supervisors as $user) {
-            if ($user->status)
-                $string .= $user->firstname . ', ';
+            if ($user->status && !isset($array[$user->id]))
+                $array[$user->id] = $user->firstname;
         }
+
+        $string = '';
+        foreach ($array as $uid => $name)
+            $string .= "$name, ";
 
         return rtrim($string, ', ');
     }
@@ -353,15 +425,22 @@ class Site extends Model {
      */
     public function supervisorsInitialsSBC()
     {
-        $string = '';
-        foreach ($this->supervisors as $user) {
-            if ($user->status) {
-                if ($user->id == '136') // Super8 - To Be Allocated
-                    $string .= '-, ';
-                else
-                    $string .= strtoupper($user->firstname[0]) . strtoupper($user->lastname[0]) . ', ';
-            }
+        $array = [];
+        // Add primary supervisor
+        if ($this->supervisor && $this->supervisor->status)
+            $array[$this->supervisor->id] = strtoupper($this->supervisor->firstname[0]) . strtoupper($this->supervisor->lastname[0]);
 
+        // Add secondary supervisors
+        foreach ($this->supervisors as $user) {
+            if ($user->status && !isset($array[$user->id]))
+                $array[$user->id] = strtoupper($user->firstname[0]) . strtoupper($user->lastname[0]);
+        }
+
+        $string = '';
+        foreach ($array as $uid => $name) {
+            if ($uid == '136') // Super8 - To Be Allocated
+                $name = 'TBA';
+            $string .= "$name, ";
         }
 
         return rtrim($string, ', ');
@@ -390,6 +469,11 @@ class Site extends Model {
      */
     public function isUserSupervisor($user)
     {
+        // Primary supervisor
+        if ($this->supervisor_id == $user->id)
+            return true;
+
+        // Secondary supervisors
         foreach ($this->supervisors as $super) {
             if ($user->id == $super->id)
                 return true;
@@ -405,6 +489,11 @@ class Site extends Model {
      */
     public function isSupervisorOrAreaSupervisor($user)
     {
+        // Primary supervisor
+        if ($this->supervisor_id == $user->id)
+            return true;
+
+        // Secondary of subSupervisor
         foreach ($this->supervisors as $super) {
             if ($user->id == $super->id || in_array($super->id, $user->subSupervisors()->pluck('id')->toArray()))
                 return true;
@@ -421,6 +510,15 @@ class Site extends Model {
     public function areaSupervisors()
     {
         $area_super_ids = [];
+
+        // Primary supervisor
+        if ($this->supervisor_id) {
+            foreach ($this->supervisor->areaSupervisors() as $area_super) {
+                $area_super_ids[] = $area_super->id;
+            }
+        }
+
+        // Secondary supervisor
         foreach ($this->supervisors as $super) {
             foreach ($super->areaSupervisors() as $area_super) {
                 $area_super_ids[] = $area_super->id;
@@ -438,8 +536,15 @@ class Site extends Model {
     public function areaSupervisorsEmails()
     {
         $array = [];
+
+        // Primary supervisor
+        if ($this->supervisor_id && $this->supervisor->status && validEmail($this->supervisor->email)) {
+            $array[] = $this->supervisor->email;
+        }
+
+        // Secondary supervisor
         foreach ($this->areaSupervisors() as $user) {
-            if ($user->status && validEmail($user->email))
+            if ($user->status && validEmail($user->email) && !in_array($user->email, $array))
                 $array[] = $user->email;
         }
 
@@ -1046,6 +1151,45 @@ class Site extends Model {
             $string .= $this->attributes['state'];
         if ($this->attributes['postcode'])
             $string .= ' ' . $this->attributes['postcode'];
+
+        return ($string) ? $string : '-';
+    }
+
+    /**
+     * Get the supervisor name  (getter)
+     */
+    public function getSupervisorNameAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['supervisor_id'])
+            $string = $this->supervisor->fullname;
+
+        return ($string) ? $string : '-';
+    }
+
+    /**
+     * Get the supervisor Initials  (getter)
+     */
+    public function getSupervisorInitialsAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['supervisor_id'])
+            $string = $this->supervisor->initials;
+
+        return ($string) ? $string : '-';
+    }
+
+    /**
+     * Get the supervisor Email  (getter)
+     */
+    public function getSupervisorEmailAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['supervisor_id'])
+            $string = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
 
         return ($string) ? $string : '-';
     }

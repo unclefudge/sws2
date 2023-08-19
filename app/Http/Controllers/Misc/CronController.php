@@ -54,6 +54,7 @@ class CronController extends Controller {
         $bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 
+        CronController::blessing();
         CronController::nonattendees();
         CronController::roster();
         CronController::qa();
@@ -105,6 +106,29 @@ class CronController extends Controller {
             //echo "failed";
             Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
         }
+    }
+
+    /*
+    * Blessing
+    */
+    static public function blessing()
+    {
+        $log = "+----------------------+\n";
+        $log .= "|  Prayer of Blessing  |\n";
+        $log .= "+----------------------+\n";
+        $log .= " " . Carbon::now()->format('d/m/Y g:i a') . "\n\n";
+        $log .= "May each of the following workers be blessed, may they be protected from injuries,\n";
+        $log .= "may they experience a clarity of heart and mind while they work and their spirits be at peace.\n";
+        $log .= "Today is a new day, and may they experience a freshness and freedom from past troubles and hurts,\n";
+        $log .= "a restoration + healing of their minds, bodies and souls, plus a deeper understanding of Father God's love for them.\n\n";
+        $log .= "";
+
+        $users = User::all();
+        foreach ($users->sortBy('firstname') as $user) {
+            $log .= "$user->name (" . $user->company->name . ")\n";
+        }
+        $log .= "\n\nAmen.";
+        $bytes_written = File::put(public_path('filebank/log/nightly/blessing.txt'), $log);
     }
 
     /*
@@ -325,7 +349,7 @@ class CronController extends Controller {
                             $newTemplate = ($qa_master->id > 100) ? ' *NEW*' : '';
                             echo "Created QA [$newQA->id] Task:$plan->task_code ($plan->task_id) - $newQA->name - Site:$site->name $newTemplate<br>";
                             $log .= "Created QA [$newQA->id] Task:$plan->task_code ($plan->task_id) - $newQA->name - Site:$site->name $newTemplate\n";
-                            $newQA->createToDo($site->supervisors->pluck('id')->toArray());
+                            $newQA->createToDo($site->supervisor_id);
                         } else {
                             // Existing QA for site - make Active if currently On Hold
                             $qa = SiteQa::where('site_id', $site->id)->where('master_id', $qa_id)->first();
@@ -334,7 +358,7 @@ class CronController extends Controller {
                                 if ($plan->to->format('Y-m-d') == Carbon::yesterday()->format('Y-m-d')) {
                                     $qa->status = 1;
                                     $qa->save();
-                                    $qa->createToDo($site->supervisors->pluck('id')->toArray());
+                                    $qa->createToDo($site->supervisor_id);
                                     echo "Existing QA[$qa->id] Task:$plan->task_code ($plan->task_id) - $qa->name  Site:$site->name - reactived<br>";
                                     $log .= "Existing QA[$qa->id] Task:$plan->task_code ($plan->task_id) - $qa->name  Site:$site->name - reactived\n";
                                 } else {
@@ -361,7 +385,7 @@ class CronController extends Controller {
                     if ($qa->status == '2') {
                         $qa->status = 1;
                         $qa->save();
-                        $qa->createToDo($site->supervisors->pluck('id')->toArray());
+                        $qa->createToDo($site->supervisor_id);
                         echo "Existing QA[$qa->id] Task:$plan->task_code ($plan->task_id) - $qa->name  Site:$site->name - reactived due to PRAC Complete<br>";
                         $log .= "Existing QA[$qa->id] Task:$plan->task_code ($plan->task_id) - $qa->name  Site:$site->name - reactived due to PRAC Complete\n";
                     }
@@ -1024,7 +1048,7 @@ class CronController extends Controller {
                     $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
                     $project->initialise();
                 }
-                $project->createReviewToDo($project->site->supervisors->pluck('id')->toArray());
+                $project->createReviewToDo($project->site->supervisor_id);
                 $found_tasks ++;
             }
         }
@@ -1055,6 +1079,8 @@ class CronController extends Controller {
 
         $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
         $mon = new Carbon('monday this week');
+        $week2ago = new Carbon('monday this week');
+        $week2ago->subWeeks(2);
 
         $data = [];
         $prac_yes = $prac_no = [];
@@ -1063,7 +1089,7 @@ class CronController extends Controller {
             // Show only site which Job Start has before today
             if ($start_job && $start_job->from->lte($mon)) {
                 $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
-                if ($prac_completion && $prac_completion->from->lte($mon))
+                if ($prac_completion && $prac_completion->from->lte($week2ago))
                     continue;
                 $site_data = [
                     'id'              => $site->id,
@@ -1119,15 +1145,12 @@ class CronController extends Controller {
         // Close any Supervisor ToDoo tasks if all their sites completed
         foreach ($ext->sites as $site_ext) {
             $site = Site::findOrFail($site_ext->site_id);
-            foreach ($site->supervisors as $super) {
-                if (!$site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
-                    $todo = $super->todoType('extension')->first();
-                    if ($todo)
-                        $todo->close();
-                }
+            if ($site->supervisor_id && !$site_ext->extension->sitesNotCompletedBySupervisor($site->supervisor_id)->count()) {
+                $todo = $site->supervisor->todoType('extension')->first();
+                if ($todo)
+                    $todo->close();
             }
         }
-
 
         // Archive old active extensions
         $old_extensions = SiteExtension::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
@@ -1163,11 +1186,12 @@ class CronController extends Controller {
         $super_list = [];
         // Create List of Supervisors assigned to which Active Sites
         foreach ($extension->sites as $site_ext) {
-            foreach ($site_ext->site->supervisors as $super) {
-                if (!isset($super_list[$super->id]))
-                    $super_list[$super->id] = [$site_ext->site_id];
+            if (!$site_ext->reasons) {
+                $super_id = $site_ext->site->supervisor_id;
+                if (!isset($super_list[$super_id]))
+                    $super_list[$super_id] = [$site_ext->site_id];
                 else
-                    $super_list[$super->id][] = $site_ext->site_id;
+                    $super_list[$super_id][] = $site_ext->site_id;
             }
         }
 
@@ -1183,7 +1207,6 @@ class CronController extends Controller {
             $todo_request = [
                 'type'       => 'extension',
                 'type_id'    => $extension->id,
-                //'type_id2'    => $extension->id,
                 'name'       => 'Contract Time Extensions',
                 'info'       => "Please complete the Contract Time Extensions for the following sites:\r\n" . $site_list,
                 'priority'   => '1',
@@ -1192,6 +1215,10 @@ class CronController extends Controller {
                 'created_by' => '1',
                 'updated_by' => '1'
             ];
+
+            // Close any existing
+            $todo = $site->supervisor->todoType('extension', 1)->first();
+            if ($todo) $todo->close();
 
             // Create ToDoo and assign to Site Supervisors
             $todo = Todo::create($todo_request);
@@ -1222,13 +1249,12 @@ class CronController extends Controller {
         $super_list = [];
         // Create List of Supervisors assigned to which Active Sites
         foreach ($extension->sites as $site_ext) {
-            if (!$site_ext->reason) {
-                foreach ($site_ext->site->supervisors as $super) {
-                    if (!isset($super_list[$super->id]))
-                        $super_list[$super->id] = [$site_ext->site_id];
-                    else
-                        $super_list[$super->id][] = $site_ext->site_id;
-                }
+            if (!$site_ext->reasons) {
+                $super_id = $site_ext->site->supervisor_id;
+                if (!isset($super_list[$super_id]))
+                    $super_list[$super_id] = [$site_ext->site_id];
+                else
+                    $super_list[$super_id][] = $site_ext->site_id;
             }
         }
 

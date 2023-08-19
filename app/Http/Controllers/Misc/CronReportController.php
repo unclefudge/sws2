@@ -151,7 +151,7 @@ class CronReportController extends Controller {
                     'code'            => $site->code,
                     'name'            => $site->name,
                     'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorsSBC(),
+                    'supervisor'      => $site->supervisorName,
                     'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
                     'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
                     'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
@@ -428,8 +428,8 @@ class CronReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 
@@ -828,8 +828,8 @@ class CronReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 

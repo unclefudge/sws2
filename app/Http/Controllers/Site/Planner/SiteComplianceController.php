@@ -47,8 +47,8 @@ class SiteComplianceController extends Controller {
                     $supers = $site->supers;
                 } else {
                     $site = Site::find($comply->site_id);
-                    $sites[$comply->site_id] = (object) ['id' => $site->id, 'name' => $site->name, 'supers' => $site->supervisorsSBC()];
-                    $supers = $site->supervisorsSBC();
+                    $sites[$comply->site_id] = (object) ['id' => $site->id, 'name' => $site->name, 'supers' => $site->supervisorName];
+                    $supers = $site->supervisorName;
                 }
                 $array['site_id'] = $site->id;
                 $array['site_name'] = $site->name;

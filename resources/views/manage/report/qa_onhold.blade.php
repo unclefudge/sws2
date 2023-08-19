@@ -41,7 +41,7 @@
                             <tbody>
                             @foreach ($supers as $super)
                                 @foreach ($qas as $qa)
-                                    @if ($qa->site->supervisorsSBC() == $super)
+                                    @if ($qa->site->supervisorName == $super)
                                         <?php
                                         $total = $qa->items()->count();
                                         $completed = $qa->itemsCompleted()->count();
@@ -56,7 +56,7 @@
                                         <tr>
                                             <td>{{ $qa->site->name }}</td>
                                             <td>{{ $qa->name }}</td>
-                                            <td>{{ $qa->site->supervisorsSBC() }}</td>
+                                            <td>{{ $qa->site->supervisorName }}</td>
                                             <td>{{ $qa->updated_at->format('d/m/Y') }}</td>
                                             <td>{{ $completed }} / {{ $total }} {!! $pending !!}</td>
                                         </tr>

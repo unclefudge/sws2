@@ -45,7 +45,7 @@
                                         <h2 class="font-red pull-right" style="margin-top: 0px">COMPLETED</h2>
                                     @endif
                                     <b>Job #:</b> {{ $project->site->code }}<br>
-                                    <b>Supervisor(s):</b> {{ $project->site->supervisorsSBC() }}<br>
+                                    <b>Supervisor:</b> {{ $project->site->supervisorName }}<br>
                                 </div>
                             </div>
                             <hr style="padding: 0px; margin: 0px 0px 30px 0px">

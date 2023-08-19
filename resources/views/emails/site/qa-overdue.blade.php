@@ -13,7 +13,7 @@ A Quality Assurance is currently overdue for {{ $qa->name }} on site {{ $qa->sit
 | ---------------------:|--------|
 | **Site Name**  | {{ $qa->site->name  }} |
 | **Site Address**  | {{ $qa->site->address }}, {{ $qa->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $qa->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $qa->site->supervisorName }} |
 | **QA Name**  | {{ $qa->name  }} |
 
 

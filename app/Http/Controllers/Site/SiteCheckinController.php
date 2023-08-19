@@ -275,7 +275,7 @@ class SiteCheckinController extends Controller {
 
                             // Create ToDoo and assign to Site Supervisors
                             $todo = Todo::create($todo_request);
-                            $todo->assignUsers($site->supervisors->pluck('id')->toArray());
+                            $todo->assignUsers($site->supervisor_id);
                             //$todo->emailToDo();
                             $todo_created[$todo->id] = $qtext;
                         }

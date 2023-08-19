@@ -57,7 +57,7 @@
                     <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
                 <div class="col-xs-4">
                     <h6>
-                        <b>Supervisor:</b> {{ $site->supervisorsSBC() }}
+                        <b>Supervisor:</b> {{ $site->supervisorName }}
                         {!! ($company) ? "<br><b>Company:</b> $company->name" : '' !!}
                         {!! ($from) ? "<br><b>Dates:</b> ".$from->format('d/m/Y')." - ".$to->format('d/m/Y') : '' !!}
                     </h6>

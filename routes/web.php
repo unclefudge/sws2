@@ -291,6 +291,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@updateSettings');
     Route::get('site/extension/settings/del/{id}', '\App\Http\Controllers\Site\SiteExtensionController@deleteSetting');
     Route::get('site/extension/{id}/signoff', '\App\Http\Controllers\Site\SiteExtensionController@signoff');
+    Route::get('site/extension/{id}/pdf', '\App\Http\Controllers\Site\SiteExtensionController@createPDF');
     Route::get('site/extension/{id}/{supervisor_id}', '\App\Http\Controllers\Site\SiteExtensionController@showExtensions');
     Route::resource('site/extension', '\App\Http\Controllers\Site\SiteExtensionController');
 
@@ -666,6 +667,7 @@ Route::group(['middleware' => 'auth'], function () {
 // Cron routes
 Route::get('cron/nightly', '\App\Http\Controllers\Misc\CronController@nightly');
 Route::get('cron/nightly-verify', '\App\Http\Controllers\Misc\CronController@verifyNightly');
+Route::get('cron/blessing', '\App\Http\Controllers\Misc\CronController@blessing');
 Route::get('cron/roster', '\App\Http\Controllers\Misc\CronController@roster');
 Route::get('cron/qa', '\App\Http\Controllers\Misc\CronController@qa');
 Route::get('cron/overdue-todo', '\App\Http\Controllers\Misc\CronController@overdueToDo');

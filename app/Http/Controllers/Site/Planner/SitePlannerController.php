@@ -123,8 +123,7 @@ class SitePlannerController extends Controller {
     public function allocateSiteSupervisor($site_id, $user_id)
     {
         $site = Site::findOrFail($site_id);
-        $site->supervisors()->detach();
-        $site->supervisors()->attach($user_id);
+        $site->supervisor_id = $user_id;
         $site->status = 1;
         $site->save();
 
@@ -490,13 +489,11 @@ class SitePlannerController extends Controller {
             $site = Site::findOrFail($site_id);
             $job_start = SitePlanner::where('site_id', $site_id)->where('task_id', 11)->first();
             $prac_complete = SitePlanner::where('site_id', $site_id)->where('task_id', 265)->first();
-            $supervisor_ids = $site->supervisors->pluck('id')->toArray();
-            $supervisor_ids = rtrim(implode(',', $supervisor_ids), ',');
             $array = [
                 'site_id'           => $site_id,
                 'site_name'         => $site->name,
-                'super_initials'    => $site->supervisorsInitialsSBC(),
-                'supervisor_id'     => $supervisor_ids,
+                'super_initials'    => $site->supervisorInitials,
+                'supervisor_id'     => $site->supervisor_id,
                 'job_start'         => ($job_start) ? $job_start->from->format('d/m/Y') : '',
                 'job_start_ym'      => ($job_start) ? $job_start->from->format('Ym') : '',
                 'job_start_ymd'     => ($job_start) ? $job_start->from->format('Ymd') : '',
@@ -510,7 +507,7 @@ class SitePlannerController extends Controller {
             $site_data[] = $array;
 
             if (!in_array($array['supervisor_id'], $supers))
-                $supers[$array['supervisor_id']] = $site->supervisorsSBC();
+                $supers[$array['supervisor_id']] =  $site->supervisorName;
         }
 
         //dd($site_data);
@@ -652,7 +649,8 @@ class SitePlannerController extends Controller {
             elseif ($super_id == 'maint')
                 $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
             else
-                $allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
+                $allowedSites = Site::where('supervisor_id', $super_id)->pluck('id')->toArray();
+                //$allowedSites = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
         } else {
             $this_mon = new Carbon('monday this week');
             $this_mon_2 = new Carbon('monday this week');
@@ -2028,7 +2026,7 @@ class SitePlannerController extends Controller {
         $site = Site::find(request('site_id'));
         $newdate = Carbon::createFromFormat('Y-m-d H:i:s', request('newdate') . ' 00:00:00')->format('d/m/Y');
         $olddate = (request('olddate')) ? Carbon::createFromFormat('Y-m-d H:i:s', request('olddate') . ' 00:00:00')->format('d/m/Y') : null;
-        $supers = $site->supervisorsSBC();
+        $supers = $site->supervisorName;
 
         if ($site->company->notificationsUsersType('site.jobstart'))
             Mail::to($site->company->notificationsUsersType('site.jobstart'))->send(new \App\Mail\Site\Jobstart($site, $newdate, $olddate, $supers));
@@ -2049,7 +2047,7 @@ class SitePlannerController extends Controller {
 
             // Email JobStart if it has one
             if ($site->job_start) {
-                $supers = $site->supervisorsSBC();
+                $supers = $site->supervisorName;
                 $date = $site->job_start->format('d/m/Y');
 
                 if ($site->company->notificationsUsersType('site.jobstart'))
@@ -2061,7 +2059,7 @@ class SitePlannerController extends Controller {
             if (!$project) {
                 $project = SiteProjectSupply::create(['site_id' => $site->id, 'version' => '1.0']);
                 $project->initialise();
-                //$project->createReviewToDo($project->site->supervisors->pluck('id')->toArray());
+                //$project->createReviewToDo($project->site->supervisor_id);
             }
 
             return redirect("/planner/site/$site->id");

@@ -2,10 +2,7 @@
 <div class="portlet light" style="display: none;" id="edit_site">
     <div class="portlet-title">
         <div class="caption">
-            <span class="caption-subject font-dark bold uppercase">Site Details</span>
-            @if($site->status == 2)
-                <span class="label label-warning">Maintenance</span>
-            @endif
+            <span class="caption-subject font-dark bold uppercase">Site Details</span> &nbsp; <span class="font-yellow small">*Fields Imported from Zoho</span>
         </div>
     </div>
     <div class="portlet-body form">
@@ -31,7 +28,7 @@
                 {{-- Job --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                        {!! Form::label('code', 'Job:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('code', 'Job:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::text('code', null, ['class' => 'form-control', 'required']) !!}
                             {!! fieldErrorMessage('code', $errors) !!}
@@ -42,7 +39,7 @@
                 {{-- Name --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                        {!! Form::label('name', 'Name:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('name', 'Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::text('name', null, ['class' => 'form-control', 'required']) !!}
                             {!! fieldErrorMessage('name', $errors) !!}
@@ -53,7 +50,7 @@
                 {{-- Adddress --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                        {!! Form::label('address', 'Address:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('address', 'Address:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::text('address', null, ['class' => 'form-control', 'required']) !!}
                             {!! fieldErrorMessage('address', $errors) !!}
@@ -64,7 +61,7 @@
                 {{-- Suburb --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                        {!! Form::label('suburb', 'Suburb:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('suburb', 'Suburb:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::text('suburb', null, ['class' => 'form-control', 'required']) !!}
                             {!! fieldErrorMessage('suburb', $errors) !!}
@@ -75,7 +72,7 @@
                 {{-- State --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                        {!! Form::label('state', 'State:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('state', 'State:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::select('state', $ozstates::all(), null, ['class' => 'form-control bs-select', 'required']) !!}
                             {!! fieldErrorMessage('state', $errors) !!}
@@ -86,7 +83,7 @@
                 {{-- Postcode --}}
                 <div class="row">
                     <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                        {!! Form::label('postcode', 'Postcode:', ['class' => 'col-md-3 control-label']) !!}
+                        {!! Form::label('postcode', 'Postcode:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                         <div class="col-md-9">
                             {!! Form::text('postcode', null, ['class' => 'form-control', 'required']) !!}
                             {!! fieldErrorMessage('postcode', $errors) !!}
@@ -95,14 +92,23 @@
                 </div>
                 <hr class="field-hr">
             @endif
-            {{-- Supervisor--}}
+            {{-- Primary Supervisor--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
+                    {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'col-md-3 control-label']) !!}
+                    <div class="col-md-9">
+                        {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
+                        {!! fieldErrorMessage('supervisor_id', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- Secondary Supervisor--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('supervisors', $errors) !!}">
-                    {!! Form::label('supervisors', 'Supervisor(s)', ['class' => 'col-md-3 control-label']) !!}
+                    {!! Form::label('supervisors', 'Secondary Supervisor(s)', ['class' => 'col-md-3 control-label']) !!}
                     <div class="col-md-9">
-                        {!! Form::select('supervisors',
-                        Auth::user()->company->supervisorsSelect(),
-                         $site->supervisors->pluck('id')->toArray(), ['class' => 'form-control bs-select', 'name' => 'supervisors[]', 'title' => 'Select one or more supervisors', 'multiple']) !!}
+                        {!! Form::select('supervisors', Auth::user()->company->supervisorsSelect(), $site->supervisors->pluck('id')->toArray(), ['class' => 'form-control bs-select', 'name' => 'supervisors[]', 'title' => 'Select one or more supervisors', 'multiple']) !!}
                         {!! fieldErrorMessage('supervisors', $errors) !!}
                     </div>
                 </div>

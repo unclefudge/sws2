@@ -13,7 +13,7 @@ A Quality Assurance has been updated for {{ $qa->name }} on site {{ $qa->site->n
 | ---------------------:|--------|
 | **Site Name**  | {{ $qa->site->name  }} |
 | **Site Address**  | {{ $qa->site->address }}, {{ $qa->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $qa->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $qa->site->supervisorName }} |
 | **QA Name**  | {{ $qa->name  }} |
 | **Actions Taken**  | {{ $action->action }} |
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |

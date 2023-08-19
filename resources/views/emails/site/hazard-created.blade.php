@@ -14,7 +14,7 @@ A hazard report has been lodged for {{ $hazard->site->name }}.
 | **ID**  | {{ $hazard->id  }} |
 | **Site Name**  | {{ $hazard->site->name  }} |
 | **Site Address**  | {{ $hazard->site->address }}, {{ $hazard->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $hazard->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $hazard->site->supervisorName }} |
 | **Rating**  | {{ $hazard->ratingText }} |
 | **Location**  | {{ $hazard->location }} |
 | **Reason**  | {{ $hazard->reason }} |

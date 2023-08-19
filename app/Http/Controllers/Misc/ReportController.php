@@ -129,8 +129,8 @@ class ReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 
@@ -148,8 +148,8 @@ class ReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 
@@ -168,8 +168,8 @@ class ReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 
@@ -188,8 +188,8 @@ class ReportController extends Controller {
         // Supervisors list
         $supers = [];
         foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorsSBC(), $supers))
-                $supers[] .= $qa->site->supervisorsSBC();
+            if (!in_array($qa->site->supervisorName, $supers))
+                $supers[] .= $qa->site->supervisorName;
         }
         sort($supers);
 

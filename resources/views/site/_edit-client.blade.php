@@ -2,10 +2,7 @@
 <div class="portlet light" style="display: none;" id="edit_client">
     <div class="portlet-title">
         <div class="caption">
-            <span class="caption-subject font-dark bold uppercase">Client Details</span>
-            @if($site->status == 2)
-                <span class="label label-warning">Maintenance</span>
-            @endif
+            <span class="caption-subject font-dark bold uppercase">Client Details</span> &nbsp; <span class="font-yellow small">*Fields Imported from Zoho</span>
         </div>
     </div>
     <div class="portlet-body form">
@@ -18,7 +15,7 @@
         {{-- Primary Title --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client1_title', $errors) !!}">
-                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client1_title', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client1_title', $errors) !!}
@@ -29,7 +26,7 @@
         {{-- Primary Firstname --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client1_firstname', $errors) !!}">
-                {!! Form::label('client1_firstname', 'First Name:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_firstname', 'First Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client1_firstname', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client1_firstname', $errors) !!}
@@ -40,7 +37,7 @@
         {{-- Primary Lastname --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client1_lastname', $errors) !!}">
-                {!! Form::label('client1_lastname', 'Last Name:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_lastname', 'Last Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client1_lastname', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client1_lastname', $errors) !!}
@@ -51,7 +48,7 @@
         {{-- Primary Phone --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client1_mobile', $errors) !!}">
-                {!! Form::label('client1_mobile', 'Mobile:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_mobile', 'Mobile:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client1_mobile', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client1_mobile', $errors) !!}
@@ -62,7 +59,7 @@
         {{-- Primary Email --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client1_email', $errors) !!}">
-                {!! Form::label('client1_email', 'Email:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_email', 'Email:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client1_email', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client1_email', $errors) !!}
@@ -79,7 +76,7 @@
         {{-- Primary Title --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client2_title', $errors) !!}">
-                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client2_title', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client2_title', $errors) !!}
@@ -90,7 +87,7 @@
         {{-- Primary Firstname --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client2_firstname', $errors) !!}">
-                {!! Form::label('client2_firstname', 'First Name:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client2_firstname', 'First Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client2_firstname', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client2_firstname', $errors) !!}
@@ -101,7 +98,7 @@
         {{-- Primary Lastname --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client2_lastname', $errors) !!}">
-                {!! Form::label('client2_lastname', 'Last Name:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client2_lastname', 'Last Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client2_lastname', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client2_lastname', $errors) !!}
@@ -112,7 +109,7 @@
         {{-- Primary Phone --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client2_mobile', $errors) !!}">
-                {!! Form::label('client2_mobile', 'Mobile:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client2_mobile', 'Mobile:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client2_mobile', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client2_mobile', $errors) !!}
@@ -123,7 +120,7 @@
         {{-- Primary Email --}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client2_email', $errors) !!}">
-                {!! Form::label('client2_email', 'Email:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client2_email', 'Email:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client2_email', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client2_email', $errors) !!}
@@ -135,7 +132,7 @@
         {{-- Client Intro--}}
         <div class="row">
             <div class="form-group {!! fieldHasError('client_intro', $errors) !!}">
-                {!! Form::label('client_intro', 'Letter intro:', ['class' => 'col-md-3 control-label']) !!}
+                {!! Form::label('client_intro', 'Letter intro:', ['class' => 'col-md-3 control-label font-yellow']) !!}
                 <div class="col-md-9">
                     {!! Form::text('client_intro', null, ['class' => 'form-control']) !!}
                     {!! fieldErrorMessage('client_intro', $errors) !!}

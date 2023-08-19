@@ -32,8 +32,13 @@
         </div>
         <hr class="field-hr">
         <div class="row">
-            <div class="col-md-3">Supervisor(s):</div>
-            <div class="col-xs-9">{!! $site->supervisorsSBC() !!}</div>
+            <div class="col-md-3">Supervisor:</div>
+            <div class="col-xs-9">{!! $site->supervisorName !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-3">Secondary Supervisor(s):</div>
+            <div class="col-xs-9">{!! $site->supervisorsSecondarySBC() !!}</div>
         </div>
         <hr class="field-hr">
         @if (Auth::user()->isCompany($site->company_id))

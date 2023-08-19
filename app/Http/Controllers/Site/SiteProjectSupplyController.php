@@ -276,7 +276,7 @@ class SiteProjectSupplyController extends Controller {
 
         // If all items completed send Supervisor ToDoo task
         if ($project->items->count() == $project->itemsCompleted()->count())
-            $project->createSignOffToDo($project->site->supervisors->pluck('id')->toArray());
+            $project->createSignOffToDo($project->site->supervisor_id);
 
         Toastr::success("Updated project");
 

@@ -166,7 +166,7 @@
                                     <td>{{ $main->site->code }}</td>
                                     <td>{{ $main->site->name }}</td>
                                     <td>{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</td>
-                                    <td>{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</td>
+                                    <td>{{ ($main->super_id) ? $main->taskOwner->name : '-' }}</td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
                                     <td>{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</td>
                                     <td>
@@ -219,7 +219,7 @@
                                     <td>{{ $main->site->code }}</td>
                                     <td>{{ $main->site->name }}</td>
                                     <td>{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</td>
-                                    <td>{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</td>
+                                    <td>{{ ($main->super_id) ? $main->taskOwner->name : '-' }}</td>
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
                                     <td>{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</span> {{--}} : {{ $assigned_total }} / {{ $assign_avg }} --}}</td>
                                     <td>

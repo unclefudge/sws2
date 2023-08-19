@@ -62,7 +62,7 @@
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
             <div class="col-xs-4">
-                <h6><b>Supervisor:</b> {{ $site->supervisorsSBC() }}</h6>
+                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6>
             </div>
         </div>
 

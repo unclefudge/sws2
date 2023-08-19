@@ -13,7 +13,7 @@ A QA Supervisor Photo Checklist has been been completed for {{ $qa->site->name }
 | ---------------------:|--------|
 | **Site Name**  | {{ $qa->site->name  }} |
 | **Site Address**  | {{ $qa->site->address }}, {{ $qa->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $qa->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $qa->site->supervisorName }} |
 
 
 @component('mail::button', ['url' => config('app.url').'/site/export/qa'])

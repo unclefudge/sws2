@@ -2,10 +2,7 @@
 <div class="portlet light" style="display: none;" id="edit_admin">
     <div class="portlet-title">
         <div class="caption">
-            <span class="caption-subject font-dark bold uppercase">Admin Details</span>
-            @if($site->status == 2)
-                <span class="label label-warning">Maintenance</span>
-            @endif
+            <span class="caption-subject font-dark bold uppercase">Admin Details</span> &nbsp; <span class="font-yellow small">*Fields Imported from Zoho</span>
         </div>
     </div>
     <div class="portlet-body form">
@@ -14,7 +11,7 @@
             {{--Council Appoval Signed --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('council_approval', $errors) !!}">
-                    {!! Form::label('council_approval', 'Council Approval:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('council_approval', 'Council Approval:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('council_approval', ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
@@ -31,7 +28,7 @@
             {{-- Contract Sent --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('contract_sent', $errors) !!}">
-                    {!! Form::label('contract_sent', 'Contract Sent:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('contract_sent', 'Contract Sent:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('contract_sent', ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
@@ -48,7 +45,7 @@
             {{-- Contract Signed --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('contract_signed', $errors) !!}">
-                    {!! Form::label('contract_signed', 'Contract Signed:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('contract_signed', 'Contract Signed:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('contract_signed', ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
@@ -65,7 +62,7 @@
             {{-- Deposit Paid --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('deposit_paid', $errors) !!}">
-                    {!! Form::label('deposit_paid', 'Deposit Paid:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('deposit_paid', 'Deposit Paid:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('deposit_paid', ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
@@ -79,29 +76,29 @@
                 </div>
             </div>
             <hr class="field-hr">
-        @endif
-        {{--Prac Papers Signed --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('completion_signed', $errors) !!}">
-                {!! Form::label('completion_signed', 'Prac Papers Signed:', ['class' => 'col-md-6 control-label']) !!}
-                <div class="col-md-6">
-                    <div class="input-group date date-picker">
-                        {!! Form::text('completion_signed', ($site->completion_signed) ? $site->completion_signed->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
-                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                        <span class="input-group-btn">
+
+            {{--Prac Papers Signed --}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('completion_signed', $errors) !!}">
+                    {!! Form::label('completion_signed', 'Prac Papers Signed:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        <div class="input-group date date-picker">
+                            {!! Form::text('completion_signed', ($site->completion_signed) ? $site->completion_signed->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                            'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                            <span class="input-group-btn">
                             <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                         </span>
-                        {!! fieldErrorMessage('completion_signed', $errors) !!}
+                            {!! fieldErrorMessage('completion_signed', $errors) !!}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        @if (Auth::user()->allowed2('edit.site.zoho.fields', $site))
+
             <hr class="field-hr">
             {{-- Construction Certificate --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('construction', $errors) !!}">
-                    {!! Form::label('construction', 'Construction Certificate:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('construction', 'Construction Certificate:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     {{--}}<div class="col-md-6">
                         {!! Form::select('construction', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('construction', $errors) !!}
@@ -122,7 +119,7 @@
             {{-- Home Builder Compensation Fund --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('hbcf', $errors) !!}">
-                    {!! Form::label('hbcf', 'Home Builder Compensation Fund:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('hbcf', 'Home Builder Compensation Fund:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     {{--}}<div class="col-md-6">
                         {!! Form::select('hbcf', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('hbcf', $errors) !!}
@@ -143,7 +140,7 @@
             {{-- Engineering Certificate --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('engineering', $errors) !!}">
-                    {!! Form::label('engineering', 'Engineering Certificate:', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('engineering', 'Engineering Certificate:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         {!! Form::select('engineering', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('engineering', $errors) !!}
@@ -166,7 +163,7 @@
             {{-- Consultant--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('consultant_name', $errors) !!}">
-                    {!! Form::label('consultant_name', 'Consultant', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('consultant_name', 'Consultant', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         {!! Form::text('consultant_name', null, ['class' => 'form-control']) !!}
                         {!! fieldErrorMessage('consultant_name', $errors) !!}
@@ -178,7 +175,7 @@
             {{-- Project Coodinator--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('project_mgr', $errors) !!}">
-                    {!! Form::label('project_mgr', 'Project Coodinator', ['class' => 'col-md-6 control-label']) !!}
+                    {!! Form::label('project_mgr', 'Project Coodinator', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         {!! Form::select('project_mgr', $site->company->projectManagersSelect('prompt'), null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('project_mgr', $errors) !!}
@@ -189,8 +186,8 @@
 
             {{-- Jobstart Estimate--}}
             <div class="row">
-                <div class="form-group {!! fieldHasError('hbcf', $errors) !!}">
-                    {!! Form::label('jobstart_estimate', 'Start Estimate:', ['class' => 'col-md-6 control-label']) !!}
+                <div class="form-group {!! fieldHasError('jobstart_estimate', $errors) !!}">
+                    {!! Form::label('jobstart_estimate', 'Start Estimate:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
@@ -203,13 +200,12 @@
                     </div>
                 </div>
             </div>
-
             <hr class="field-hr">
 
             {{-- Forecast Completion--}}
             <div class="row">
-                <div class="form-group {!! fieldHasError('hbcf', $errors) !!}">
-                    {!! Form::label('forecast_completion', 'Forecast Completion:', ['class' => 'col-md-6 control-label']) !!}
+                <div class="form-group {!! fieldHasError('forecast_completion', $errors) !!}">
+                    {!! Form::label('forecast_completion', 'Forecast Completion:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('forecast_completion', ($site->forecast_completion) ? $site->forecast_completion->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',

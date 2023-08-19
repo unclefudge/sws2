@@ -21,7 +21,7 @@
                         <td style="border: 1px solid">{{ $main->reported->format('d/m/Y') }}</td>
                         <td style="border: 1px solid">{{ $main->site->code }}</td>
                         <td style="border: 1px solid">{{ $main->site->name }}</td>
-                        <td style="border: 1px solid">{{ $main->taskOwner->name }}</td>
+                        <td style="border: 1px solid">{{ ($main->taskOwner) ? $main->taskOwner->name : '-' }}</td>
                         <td style="border: 1px solid">{{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</td>
                         <td style="border: 1px solid">{{ $main->lastActionNote() }}</td>
                     </tr>

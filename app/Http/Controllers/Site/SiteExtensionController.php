@@ -44,9 +44,14 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.extension'))
             return view('errors/404');
 
+        // Set Supervisor ID for known supervisors to limit sites to their own
+        $super_id = 0;
+        if (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
+            $super_id = Auth::user()->id;
+
         $extension = SiteExtension::where('status', 1)->latest()->first();
         if ($extension)
-            return redirect("/site/extension/$extension->id/0");
+            return redirect("/site/extension/$extension->id/$super_id");
 
         return view('errors/404');
         //$data = $this->getData($extension);
@@ -146,19 +151,16 @@ class SiteExtensionController extends Controller {
             $site_ext->extension->createPDF();
 
             // Close ToDoo task for Supervisor if all completed
-            $site = Site::findOrFail($site_ext->site_id);
-            foreach ($site->supervisors as $super) {
-                if (!$site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
-                    $todo = $super->todoType('extension')->first();
-                    if ($todo)
-                        $todo->close();
-                }
+            if ($site_ext->site->supervisor_id && $site_ext->extension->sitesNotCompletedBySupervisor($site_ext->site->supervisor_id)->count() == 0) {
+                $todo = $site_ext->site->supervisor->todoType('extension', 1)->first();
+                if ($todo)
+                    $todo->close();
             }
 
             // Create ToDoo task for Con Mgr if all sites completed
             if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
-                $site_ext->extension->createSignOffToDo(['325']);  // Michelle, Courtney 1359
-            //$site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+                $site_ext->extension->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            //$site_ext->extension->createSignOffToDo(['325']);  // Michelle 325, Courtney 1359
         }
 
         Toastr::success("Updated extension");
@@ -271,72 +273,19 @@ class SiteExtensionController extends Controller {
         return redirect("/site/extension/settings");
     }
 
-
-    /**
-     * Create upcoming PDF
-     */
-    public function showPDF()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.extension'))
-            return view('errors/404');
-
-        $email_list = Auth::user()->company->reportsTo()->notificationsUsersTypeArray('site.extension');
-
-        return view('site/extension/pdf', compact('email_list'));
-    }
-
     /**
      * Create upcoming PDF
      */
     public function createPDF()
     {
-        //dd(request()->all());
-
         $extension = SiteExtension::where('status', 1)->latest()->first();
         $data = $this->getData($extension);
-        //dd($startdata);
+        //dd($data);
 
-        //return view('pdf/site/contract-extension', compact('data'));
-        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data'));
+        //return view('pdf/site/contract-extension', compact('data', 'extension'));
+        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'));
         $pdf->setPaper('A4', 'landscape');
-
-
-        if (request()->has('view_pdf'))
-            return $pdf->stream();
-
-        if (request()->has('email_pdf')) {
-            $file = public_path('filebank/tmp/contract-extension' . Auth::user()->id . '.pdf');
-            if (file_exists($file))
-                unlink($file);
-            $pdf->save($file);
-
-            if (request('email_list')) {
-                $email_to = [];
-                foreach (request('email_list') as $user_id) {
-                    $user = User::findOrFail($user_id);
-                    if ($user && validEmail($user->email)) {
-                        $email_to[] .= $user->email;
-                    }
-                }
-                //dd($email_to);
-
-                if ($email_to) {
-                    //Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingCompliance($startdata, $file));
-                    $data = ['data' => $data];
-                    Mail::send('emails/site/contract-extension', $data, function ($m) use ($email_to, $data, $file) {
-                        $send_from = 'do-not-reply@safeworksite.com.au';
-                        $m->from($send_from, 'Safe Worksite');
-                        $m->to($email_to);
-                        $m->subject('SafeWorksite - Contract Time Extension');
-                        $m->attach($file);
-                    });
-                    Toastr::success("Sent email");
-                }
-
-                return redirect("/site/extension/pdf");
-            }
-        }
+        return $pdf->stream();
     }
 
     /**
@@ -352,8 +301,8 @@ class SiteExtensionController extends Controller {
                 $data[] = [
                     'id'                   => $site->id,
                     'name'                 => $site->site->name,
-                    'super_initials'       => $site->site->supervisorsInitialsSBC(),
-                    'super_ids'            => $site->site->supervisors->pluck('id')->toArray(),
+                    'super_initials'       => $site->site->supervisorInitials,
+                    'super_id'             => $site->site->supervisor_id,
                     'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),

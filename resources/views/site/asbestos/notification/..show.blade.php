@@ -38,7 +38,7 @@
                                         <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
                                     @endif
                                     <b>Job No:</b> {{ $asb->site->code }}<br>
-                                    <b>Supervisor(s):</b> {{ $asb->site->supervisorsSBC() }}<br>
+                                    <b>Supervisor:</b> {{ $asb->site->supervisorName }}<br>
                                 </div>
                             </div>
                             <hr>

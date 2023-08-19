@@ -14,7 +14,7 @@ A asbestos notification has been lodged for {{ $asbestos->site->name }}.
 | **ID**  | {{ $asbestos->id  }} |
 | **Site Name**  | {{ $asbestos->site->name  }} |
 | **Site Address**  | {{ $asbestos->site->address }}, {{ $asbestos->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $asbestos->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $asbestos->site->supervisorName }} |
 | **Removal dates**  | {{ $asbestos->date_from->format('d/m/Y') }} to {{ $asbestos->date_to->format('d/m/Y') }} |
 | **Amount**  | {{ $asbestos->amount }} |
 | **Class**  | {{ ($asbestos->friable) ? 'Class A (Friable)' : 'Class B (Non-Friable)' }} |

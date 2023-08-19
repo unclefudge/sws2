@@ -188,7 +188,7 @@
                 <div class="col-xs-1">{{ $main->site->code }}</div>
                 <div class="col-xs-2">{{ $main->site->name }}</div>
                 <div class="col-xs-2">{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</div>
-                <div class="col-xs-1">{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</div>
+                <div class="col-xs-1">{{ ($main->super_id) ? $main->taskOwner->name : '-' }}</div>
                 <div class="col-xs-1">{{ $main->reported->format('d/m/Y') }}</div>
                 <div class="col-xs-1">{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</div>
                 <div class="col-xs-1">
@@ -249,7 +249,7 @@
                 <div class="col-xs-1">{{ $main->site->code }}</div>
                 <div class="col-xs-2">{{ $main->site->name }}</div>
                 <div class="col-xs-2">{{ ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : '-' }}</div>
-                <div class="col-xs-1">{{ ($main->super_id) ? $main->taskOwner->name : 'Unassigned' }}</div>
+                <div class="col-xs-1">{{ ($main->super_id) ? $main->taskOwner->name : '-' }}</div>
                 <div class="col-xs-1">{{ $main->reported->format('d/m/Y') }}</div>
                 <div class="col-xs-1">{{ ($main->assigned_super_at) ? $main->assigned_super_at->format('d/m/Y') : '-' }}</div>
                 <div class="col-xs-1">

@@ -20,7 +20,7 @@
         13-Bricklayer, 4-Electrician, 5-Floor and Wall Tiler, 6-Gyprocker, 7-Painter, 8-Plumber, 9-Roofer, 20-Roof Plumber, 27-Renderer, 11-Stairs --}}
         {{--<input v-model="xx.plan_ahead" type="hidden" value="{{ (!empty(array_intersect([13, 4, 5, 6, 7, 8, 9, 20, 27, 11], Auth::user()->company->tradesSkilledIn->pluck('id')->toArray()))) ? '34': '20' }}"> --}}
         <input v-model="xx.plan_ahead" type="hidden" value="62">
-        <input v-model="xx.view_siteplan" type="text" value="{{ Auth::user()->hasPermission2('view.site.planner') ? 1 : 0 }}">
+        <input v-model="xx.view_siteplan" type="hidden" value="{{ Auth::user()->hasPermission2('view.site.planner') ? 1 : 0 }}">
         @if (Auth::user()->company->parent_company && Auth::user()->company->reportsTo()->id == 3)
             <div class="note note-warning">
                 This is a guide only. Contact with Site Supervisor is still required.
@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                <pre v-if="xx.dev">@{{ $data | json }}</pre>
                 -->
 
             </div>

@@ -34,8 +34,6 @@ class Jobstart extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        //$this->supers = $this->site->supervisorsSBC();
-
         return $this->markdown('emails/site/jobstart')->subject('SafeWorksite - Job Start Notification');
     }
 }

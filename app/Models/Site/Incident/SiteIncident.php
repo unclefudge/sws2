@@ -269,9 +269,9 @@ class SiteIncident extends Model {
         if (\App::environment('prod')) {
             // If incident happened on a Job site get Site owners details else use parent company details
             if ($this->site_id) {
-                $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
-                $email_supers = $this->site->supervisorsEmails();
-                $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+                $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
+                if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
+                    $email_to[] = $this->site->supervisorEmail;
             } else
                 $email_to = Auth::user()->company->reportsTo()->notificationsUsersEmailType('site.accident');
 
@@ -294,9 +294,9 @@ class SiteIncident extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.accident');
-            $email_supers = $this->site->supervisorsEmails();
-            $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
+            if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
+                $email_to[] = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 

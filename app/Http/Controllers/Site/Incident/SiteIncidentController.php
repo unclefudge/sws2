@@ -218,7 +218,7 @@ class SiteIncidentController extends Controller {
 
         $incident_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date'))->toDateTimeString();  // Format date from datetime picker to mysql format
         $incident_request['site_name'] = ($site) ? $site->name : request('site_name');
-        $incident_request['site_supervisor'] = ($site) ? $site->supervisorsSBC() : 'N/A';
+        $incident_request['site_supervisor'] = ($site) ? $site->supervisorName : 'N/A';
         $incident_request['company_id'] = ($site) ? $site->company_id : Auth::user()->company->reportsTo()->id;
         $incident_request['step'] = 2;
         $incident_request['status'] = 2;
@@ -293,7 +293,7 @@ class SiteIncidentController extends Controller {
         $incident_request['site_id'] = (request('site_cc')) ? request('site_id') : null;
         $incident_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date'))->toDateTimeString();
         $incident_request['site_name'] = ($site) ? $site->name : request('site_name');
-        $incident_request['site_supervisor'] = ($site) ? $site->supervisorsSBC() : 'N/A';
+        $incident_request['site_supervisor'] = ($site) ? $site->supervisorName : 'N/A';
 
         // If status was modified then update resolved date
         //if ($incident_request['status'] && $incident->status != $incident_request['status'])

@@ -821,6 +821,25 @@ class Company extends Model {
     }
 
     /**
+     * A dropdown list of users that have the role 'supervisor' for company excluding 'supervisor.
+     *
+     * @return array
+     */
+    public function supervisorsSecondarySelect($exclude_id = '')
+    {
+        $array = [];
+        foreach ($this->supervisors() as $user) {
+            if ($exclude_id != $user->id)
+            $array[$user->id] = $user->fullname;
+        }
+
+        asort($array);
+        $array = array('' => 'Select secondary supervisor(s)') + $array;
+
+        return $array;
+    }
+
+    /**
      * A Unique list of project manager this company has
      *
      * @return \Illuminate\Database\Eloquent\Collection

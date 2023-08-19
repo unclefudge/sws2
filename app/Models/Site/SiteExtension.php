@@ -46,11 +46,11 @@ class SiteExtension extends Model {
     /*
     * List of sites not completed for supervisor
     */
-    public function sitesNotCompletedBySupervisor($user)
+    public function sitesNotCompletedBySupervisor($user_id)
     {
         $not_completed = [];
         foreach ($this->sites as $site_ext) {
-            if ($site_ext->site->isUserSupervisor($user)) {
+            if ($site_ext->site->supervisor_id == $user_id) {
                 if (!$site_ext->reasons)
                     $not_completed[] = $site_ext->id;
             }
@@ -66,18 +66,17 @@ class SiteExtension extends Model {
      */
     public function createPDF()
     {
-
         $data = [];
-        foreach ($this->sites as $site) {
+        foreach ($this->sites as $site_ext) {
             $data[] = [
-                'id'                   => $site->id,
-                'name'                 => $site->site->name,
-                'super_initials'       => $site->site->supervisorsInitialsSBC(),
-                'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
-                'extend_reasons'       => $site->reasons,
-                'extend_reasons_text'  => $site->reasonsSBC(),
-                'extend_reasons_array' => $site->reasonsArray(),
-                'notes'                => $site->notes
+                'id'                   => $site_ext->id,
+                'name'                 => $site_ext->site->name,
+                'super_initials'       => $site_ext->site->supervisorInitials,
+                'completion_date'      => ($site_ext->completion_date) ? $site_ext->completion_date->format('d/m/y') : '',
+                'extend_reasons'       => $site_ext->reasons,
+                'extend_reasons_text'  => $site_ext->reasonsSBC(),
+                'extend_reasons_array' => $site_ext->reasonsArray(),
+                'notes'                => $site_ext->notes
             ];
         }
 
@@ -85,17 +84,20 @@ class SiteExtension extends Model {
         // Create directory if required
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
 
-        $file = public_path("$dir/ContractExtensions " .$this->date->format('d-m-Y') . '.pdf');
+        $filename = "ContractExtensions " .$this->date->format('d-m-Y') . '.pdf';
+        $file = public_path("$dir/$filename");
         if (file_exists($file))
             unlink($file);
 
-        SiteExtensionPdf::dispatch('pdf/site/contract-extension', $this, $data, $file);
+        //SiteExtensionPdf::dispatch('pdf/site/contract-extension', $this, $data, $file);
 
-        //$pdf = PDF::loadView('pdf/site/contract-extension', compact('data'));
-        //$pdf->setPaper('A4', 'landscape');
-        //$pdf->save($file);
+        $extension = $this;
+        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'));
+        $pdf->setPaper('A4', 'landscape');
+        //$pdf->stream();
+        $pdf->save($file);
 
-        $this->attachment = "ContractExtensions " .$this->date->format('d-m-Y') . '.pdf';
+        $this->attachment = $filename;
         $this->save();
     }
 

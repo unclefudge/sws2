@@ -168,7 +168,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function supervisorsSites($status = '')
     {
-        $site_list = DB::table('site_supervisor')->where('user_id', $this->id)->pluck('site_id')->toArray();
+        $primary = Site::where('supervisor_id', $this->id)->pluck('id')->toArray();
+        $secondary = DB::table('site_supervisor')->where('user_id', $this->id)->pluck('site_id')->toArray();
+        $site_list = array_merge($primary, $secondary);
 
         return ($status != '') ? Site::where('status', $status)->whereIn('id', $site_list)->get() : Site::whereIn('id', $site_list)->get();
     }
@@ -183,7 +185,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         // list of users (themselves + any users they supervise)
         $user_list = $this->isAreaSupervisor() ? array_merge([$this->id], $this->subSupervisors()->pluck('id')->toArray()) : [$this->id];
         // List of sites they or any of the subSupervisors supervise
-        $site_list = DB::table('site_supervisor')->whereIn('user_id', $user_list)->pluck('site_id')->toArray();
+        $primary = Site::whereIn('supervisor_id', $user_list)->pluck('id')->toArray();
+        $secondary = DB::table('site_supervisor')->whereIn('user_id', $user_list)->pluck('site_id')->toArray();
+        $site_list = array_merge($primary, $secondary);
 
         return ($status) ? Site::where('status', $status)->whereIn('id', $site_list)->orderBy('name')->get() : Site::whereIn('id', $site_list)->orderBy('name')->get();
     }

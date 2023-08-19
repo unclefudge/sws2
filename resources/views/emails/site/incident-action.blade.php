@@ -14,7 +14,7 @@ A incident has been updated for {{ $incident->site->name }}.
 | **ID**  | {{ $incident->id  }} |
 | **Site Name**  | {{ $incident->site->name  }} |
 | **Site Address**  | {{ $incident->site->address }}, {{ $incident->site->SuburbStatePostcode }} |
-| **Supervisor**  | {{ $incident->site->supervisorsSBC() }} |
+| **Supervisor**  | {{ $incident->site->supervisorName }} |
 | **Actions Taken**  | {{ $action->action }} |
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |
 | **Submitted at**  | {{ $action->created_at->format('d/m/Y g:i a') }} |

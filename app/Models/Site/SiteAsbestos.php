@@ -150,7 +150,7 @@ class SiteAsbestos extends Model {
 
         if (\App::environment('prod')) {
             $email_list = $this->site->company->notificationsUsersEmailType('site.asbestos');
-            $email_supers = $this->site->supervisorsEmails();
+            $email_supers = [$this->site->supervisorEmail];
             $handy_email = ($this->removalist == '385') ? ['handyfirst01@gmail.com'] : [];
             $email_to = array_unique(array_merge($email_list, $email_supers, $handy_email), SORT_REGULAR);
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
@@ -171,9 +171,9 @@ class SiteAsbestos extends Model {
         $email_user = '';
 
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.asbestos');
-            $email_supers = $this->site->supervisorsEmails();
-            $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->company->notificationsUsersEmailType('site.asbestos');
+            if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
+                $email_to[] = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 

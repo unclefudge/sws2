@@ -194,9 +194,9 @@ class SuperChecklist extends Model {
 
         /*
         if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.hazard');
-            $email_supers = $this->site->supervisorsEmails();
-            $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
+            $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
+            if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
+                $email_to[] = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 

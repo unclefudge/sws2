@@ -156,30 +156,6 @@ class SiteProjectSupply extends Model {
         }
     }
 
-
-
-    /**
-     * Email Notification
-     */
-    /*
-    public function emailNotification()
-    {
-        $email_to = [env('EMAIL_DEV')];
-        $email_user = '';
-
-        if (\App::environment('prod')) {
-            $email_list = $this->site->company->notificationsUsersEmailType('site.asbestos');
-            $email_supers = $this->site->supervisorsEmails();
-            $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        }
-
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteAsbestosCreated($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteAsbestosCreated($this));
-    }*/
-
     /**
      * Display records last update_by + date
      *

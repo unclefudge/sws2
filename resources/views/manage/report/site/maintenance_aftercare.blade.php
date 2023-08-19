@@ -43,7 +43,7 @@
                                     <td>{{ $main->reported->format('d/m/Y') }}</td>
                                     <td>{{ $main->site->code }}</td>
                                     <td>{{ $main->site->name }}</td>
-                                    <td>{{ $main->taskOwner->name }}</td>
+                                    <td>{{ ($main->taskOwner) ? $main->taskOwner->name : '-' }}</td>
                                     <td>{{ $main->updated_at->format('d/m/Y') }}</td>
                                     <td>{{ $main->lastActionNote() }}</td>
                                 </tr>

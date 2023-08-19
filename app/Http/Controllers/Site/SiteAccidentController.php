@@ -69,7 +69,7 @@ class SiteAccidentController extends Controller {
         // Format date from datetime picker to mysql format
         $date = new Carbon (preg_replace('/-/', '', $request->get('date')));
         $accident_request['date'] = $date->toDateTimeString();
-        $accident_request['supervisor'] = Site::find($request->get('site_id'))->supervisorsSBC();
+        $accident_request['supervisor'] = Site::find($request->get('site_id'))->supervisorName;
 
         // Create Site Accident
         $accident = SiteAccident::create($accident_request);
@@ -158,7 +158,7 @@ class SiteAccidentController extends Controller {
                 return ('<div class="text-center"><a href="/site/accident/' . $accident->id . '"><i class="fa fa-search"></i></a></div>');
             })
             ->addColumn('supervisor', function ($accident) {
-                return ($accident->site->supervisorsSBC());
+                return ($accident->site->supervisorName);
             })
             ->editColumn('nicedate2', function ($accident) {
                 return ($accident->nicedate2 == '00/00/00') ? '' : $accident->nicedate2;

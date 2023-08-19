@@ -72,7 +72,7 @@
                         <?php $row_count++; ?>
                 @endif
 
-                @if ($qa->site->supervisorsSBC() == $super)
+                @if ($qa->site->supervisorName == $super)
                     <?php
                     $row_count ++;
                     $total = $qa->items()->count();
@@ -89,7 +89,7 @@
                     <div class="row">
                         <div class="col-xs-2">{{ $qa->site->name }}</div>
                         <div class="col-xs-4">{{ $qa->name }}</div>
-                        <div class="col-xs-2">{{ $qa->site->supervisorsSBC() }}</div>
+                        <div class="col-xs-2">{{ $qa->site->supervisorName }}</div>
                         <div class="col-xs-1">{{ $qa->updated_at->format('d/m/Y') }}</div>
                         <div class="col-xs-2">{{ $completed }} / {{ $total }} {!! $pending !!}</div>
                     </div>

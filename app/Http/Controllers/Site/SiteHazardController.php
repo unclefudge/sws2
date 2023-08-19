@@ -207,7 +207,7 @@ class SiteHazardController extends Controller {
             //    return $issue->site->nameClient;
             //})
             ->addColumn('supervisor', function ($issue) {
-                return ($issue->site->supervisorsSBC());
+                return ($issue->site->supervisorName);
             })
             ->editColumn('action_required', function ($issue) {
                 return ($issue->action_required) ? 'Yes' : 'No';

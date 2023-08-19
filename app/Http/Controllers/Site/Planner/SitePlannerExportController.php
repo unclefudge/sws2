@@ -358,7 +358,7 @@ class SitePlannerExportController extends Controller {
                     foreach ($planner as $plan) {
                         if (!isset($sites[$plan->site_id])) {
                             $site = Site::find($plan->site_id);
-                            $sites[$plan->site_id] = ['site_id' => $plan->site_id, 'site_name' => $site->name, 'site_supervisor' => $site->supervisorsFirstNameSBC()];
+                            $sites[$plan->site_id] = ['site_id' => $plan->site_id, 'site_name' => $site->name, 'site_supervisor' => $site->supervisorInitials];
                             for ($i = 0; $i < 5; $i ++)
                                 $sites[$plan->site_id][$dates[$i]] = '';
                         }
@@ -681,7 +681,7 @@ class SitePlannerExportController extends Controller {
         h1 {font-weight: 700;}
         body {font-size: 10px;}
     </style>
-</head><body><br><br><br>br><br><h6 class="pull-right"><b>Supervisor:</b> ' . $site->supervisorsSBC() . '</h6><h3 style="margin-top: 10px">' . $site->name . ' <small>site: ' . $site->code . '</small></h3>' . $site->address . ', ' . $site->suburb_state_postcode . '</div><hr style="margin: 5px 0px"></body></html>';
+</head><body><br><br><br>br><br><h6 class="pull-right"><b>Supervisor:</b> ' . $site->supervisorName . '</h6><h3 style="margin-top: 10px">' . $site->name . ' <small>site: ' . $site->code . '</small></h3>' . $site->address . ', ' . $site->suburb_state_postcode . '</div><hr style="margin: 5px 0px"></body></html>';
         file_put_contents($filename, $header_html);
         //return view('pdf/site-attendance', compact('site', 'date', 'weeks', 'sitedata'));
 
@@ -725,7 +725,7 @@ class SitePlannerExportController extends Controller {
                     'code'            => $site->code,
                     'name'            => $site->name,
                     'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorsSBC(),
+                    'supervisor'      => $site->supervisorName,
                     'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
                     'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
                     'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
@@ -832,7 +832,7 @@ class SitePlannerExportController extends Controller {
                 'code'              => $site->code,
                 'name'              => $site->name,
                 'company'           => $entity_name,
-                'supervisor'        => $site->supervisorsSBC(),
+                'supervisor'        => $site->supervisorName,
                 'completion_signed' => ($site->completion_signed) ? $site->completion_signed->format('d/m/Y') : '-',
             ];
         }
