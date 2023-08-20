@@ -7,7 +7,7 @@ Please complete the Contract Time Extensions Report for week of {{ $report->date
 The following sites are yet to be completed
 {!! nl2br($site_list) !!}
 
-@component('mail::button', ['url' => config('app.url').'/site/extension/'.$report->id])
+@component('mail::button', ['url' => config('app.url').'/site/extension'])
 View Contract Extensions
 @endcomponent
 

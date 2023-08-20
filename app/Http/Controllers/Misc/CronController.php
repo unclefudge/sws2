@@ -77,12 +77,12 @@ class CronController extends Controller {
             CronController::overdueToDo();
 
         // Tuesday
-        //if (Carbon::today()->isTuesday())
-        //    CronController::siteExtensionsSupervisorTask();
+        if (Carbon::today()->isTuesday())
+            CronController::siteExtensionsSupervisorTask();
 
         // Thursday
-        //if (Carbon::today()->isThursday())
-        //    CronController::siteExtensionsSupervisorTaskReminder();
+        if (Carbon::today()->isThursday())
+            CronController::siteExtensionsSupervisorTaskReminder();
 
 
         // Email Nightly Reports

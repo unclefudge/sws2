@@ -150,7 +150,7 @@ class Todo extends Model {
             case 'extension':
                 return "/site/extension";
             case 'extension signoff':
-                return "/site/extension/$this->type_id";
+                return "/site/extension";
             case 'incident review':
                 return "/site/incident/$this->type_id";
             case 'incident witness':
