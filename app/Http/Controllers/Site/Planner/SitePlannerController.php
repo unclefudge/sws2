@@ -886,13 +886,9 @@ class SitePlannerController extends Controller {
             $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
         elseif ($super_id == 'maint')
             $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
-        else {
+        else
             $allowedSites = Auth::user()->supervisorsSites()->pluck('id')->toArray();
-            //$primary = Site::where('supervisor_id', $super_id)->pluck('id')->toArray();
             //$secondary = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
-            //$allowedSites = array_merge($primary, $secondary);
-        }
-
 
         $today = Carbon::now()->format('Y-m-d');
         $carbon_date = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
