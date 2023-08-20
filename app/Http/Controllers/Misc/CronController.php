@@ -128,7 +128,7 @@ class CronController extends Controller {
             $log .= "$user->name (" . $user->company->name . ")\n";
         }
         $log .= "\n\nAmen.";
-        $bytes_written = File::put(public_path('filebank/log/nightly/blessing.txt'), $log);
+        $bytes_written = File::put(public_path('filebank/tmp/blessing.txt'), $log);
     }
 
     /*

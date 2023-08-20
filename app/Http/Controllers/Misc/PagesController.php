@@ -188,7 +188,7 @@ class PagesController extends Controller {
 
         echo "<b>Assign Site Supers</b></br>";
 
-        $sites = Site::all();
+        /*$sites = Site::all();
         foreach ($sites as $site) {
             if ($site->supervisors->count()) {
                 $pid = '';
@@ -226,7 +226,7 @@ class PagesController extends Controller {
                 $active = ($site->status) ? "*** Active Site ***" : '';
                 echo "** NO SUPERS ** [$site->id] $site->name $cc $active<br>";
             }
-        }
+        }*/
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";
