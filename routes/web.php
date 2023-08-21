@@ -696,6 +696,7 @@ Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronCont
 Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@siteExtensions');
 Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTask');
 Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskReminder');
+Route::get('cron/site-extensions-supervisor-final-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskFinalReminder');
 
 Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
 Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');

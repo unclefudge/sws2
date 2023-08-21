@@ -83,6 +83,9 @@ class CronController extends Controller {
         // Thursday
         if (Carbon::today()->isThursday())
             CronController::siteExtensionsSupervisorTaskReminder();
+        // Thursday
+        if (Carbon::today()->isFriday())
+            CronController::siteExtensionsSupervisorTaskFinalReminder();
 
 
         // Email Nightly Reports
@@ -1263,14 +1266,63 @@ class CronController extends Controller {
             $site_list = '';
             foreach ($site_array as $site_id) {
                 $site = Site::findOrFail($site_id);
-                $site_list .= "- $site->name<br>";
+                $site_list .= "- $site->name\n";
             }
 
-            if ($site_ext->extension->sitesNotCompletedBySupervisor($super)->count()) {
+            if ($site_ext->extension->sitesNotCompletedBySupervisor($super_id)->count()) {
+                echo "- $super->fullname<br>";
+                $log .= "- $super->fullname\n";
+
+                // Send email to supervisor
                 $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
                 $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'gary@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension Supervisor Task
+     */
+    static public function siteExtensionsSupervisorTaskFinalReminder()
+    {
+        $log = '';
+        $email_name = "Sending Site Extension Con Manager Final Reminder";
+        echo "<h2>$email_name</h2>";
+        $log .= "$email_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $message = '';
+        $site_list = '';
+        $extension = SiteExtension::where('status', 1)->first();
+        if (!$extension->approved_by) {
+            foreach ($extension->sites as $site_ext) {
+                if (!$site_ext->reasons)
+                    $site_list .= "- " . $site_ext->site->name . " (" . $site_ext->site->supervisorName . ")\n";
+                //$site_list .= "- " . $site_ext->site->name ."\n";
+            }
+
+            if ($site_list) {
+                echo "<b>Outstanding sites</b><br>" . nl2br($site_list) . "<br>";
+                $log .= "Outstanding sites\n$site_list\n";
+                $message = "Please ensure all Contract Time Extensions are completed for week of " . $extension->date->format('d/m/Y') . " and Signed Off ASAP.<br><br>";
+                $message .= "The following sites are yet to be completed:\n$site_list";
+            } else {
+                $message = "All Contract Time Extensions are completed for week of " . $extension->date->format('d/m/Y') . ", please Sign Off ASAP.<br>";
+                echo "Con Manager Sign off still required<br>";
+                $log .= "Con Manager Sign off still required\n";
+            }
+
+            // Send email
+            $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));
         }
 
         echo "<h4>Completed</h4>";

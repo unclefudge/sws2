@@ -2,10 +2,7 @@
 
 # URGENT - Contract Time Extensions
 
-Please complete the Contract Time Extensions for week of {{ $report->date->format('d/m/Y') }} ASAP.
-
-The following sites are yet to be completed
-{!! nl2br($site_list) !!}
+{!! nl2br($message) !!}
 
 @component('mail::button', ['url' => config('app.url').'/site/extension'])
 View Contract Extensions

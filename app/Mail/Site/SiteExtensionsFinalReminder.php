@@ -8,21 +8,22 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteExtensionsReminder extends Mailable implements ShouldQueue {
+class SiteExtensionsFinalReminder extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $report, $site_list;
+    public $report, $message;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteExtension $report, $site_list)
+    public function __construct(SiteExtension $report, $message)
     {
         $this->report = $report;
-        $this->site_list = $site_list;
+        $this->message = $message;
+        //dd($message);
     }
 
     /**
@@ -32,6 +33,6 @@ class SiteExtensionsReminder extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        return $this->markdown('emails/site/contract-extension-reminder')->subject('SafeWorksite - URGENT - Complete Contract Time Extensions');
+            return $this->markdown('emails/site/contract-extension-final-reminder')->subject('SafeWorksite - URGENT - Contract Time Extensions Sign Off');
     }
 }

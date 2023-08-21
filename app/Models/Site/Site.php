@@ -258,7 +258,7 @@ class Site extends Model {
      */
     public function supervisor()
     {
-        return $this->belongsTo('App\User', 'supervisor_id');
+        return $this->belongsTo('App\User');
     }
 
     /**
