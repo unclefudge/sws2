@@ -177,8 +177,12 @@ class SiteController extends Controller {
             $site->supervisors()->detach();
 
         // Email Site if status change
-        if ($site->status != $old_status)
+        if ($site->status != $old_status) {
             $site->emailSite();
+            if ($site->status == '-1') {
+
+            }
+        }
 
         Toastr::success("Saved changes");
 

@@ -106,7 +106,7 @@
                     </div>
                 </div>
 
-                <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                <pre v-if="xx.dev">@{{ $data | json }}</pre>
                 -->
 
             </div>
@@ -141,7 +141,7 @@
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
                 </div>
-                <div v-if="!xx.view_siteplan == 0">
+                <div v-if="xx.view_siteplan == 0">
                     <app-dayplan :date="weekDate(xx.mon_now, 0)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
@@ -149,7 +149,7 @@
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
                 </div>
-                <div v-if="!xx.view_siteplan == 0">
+                <div v-if="xx.view_siteplan == 0">
                     <app-dayplan :date="weekDate(xx.mon_now, 1)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
@@ -157,7 +157,7 @@
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
                 </div>
-                <div v-if="!xx.view_siteplan == 0">
+                <div v-if="xx.view_siteplan == 0">
                     <app-dayplan :date="weekDate(xx.mon_now, 2)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
@@ -165,7 +165,7 @@
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
                 </div>
-                <div v-if="!xx.view_siteplan == 0">
+                <div v-if="xx.view_siteplan == 0">
                     <app-dayplan :date="weekDate(xx.mon_now, 3)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
@@ -173,7 +173,7 @@
                 <div v-if="xx.view_siteplan == 1" class="hoverDiv" v-on:click="viewSitePlan(site_id)">
                     <app-dayplan :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
                 </div>
-                <div v-if="!xx.view_siteplan == 0">
+                <div v-if="xx.view_siteplan == 0">
                     <app-dayplan :date="weekDate(xx.mon_now, 4)" :site_id="site_id"></app-dayplan>
                 </div>
             </div>
