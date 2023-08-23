@@ -744,6 +744,7 @@ trait UserRolesPermissions {
             if ($record->people->where('user_id', $this->id)->first()) return true;  // Involved Person
             if ($record->witness->where('user_id', $this->id)->first()) return true;  // Witness Statement
             if ($record->hasAssignedTask($this->id)) return true; // Assigned task
+            if ($record->site_id == '809' && $this->id == '458') return true; // Georgie (458) access to site 0003-vehicles (809)
             $reviewsBy = $record->reviewsBy();
             if (isset($reviewsBy[$this->id])) return true; // Reviewed by
         }

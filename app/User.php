@@ -289,7 +289,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         $site_list = (Session::has('siteID')) ? [Session::get('siteID')] : [];
         $user_list = [$this->id];
         if ($this->company_id == 3 && $this->hasAnyRole2('whs-manager|whs-administrator|mgt-general-manager|mgt-company-director|web-admin'))
-            $user_list = $user_list = Auth::user()->authUsers('view.user')->pluck('id')->toArray();
+            $user_list = $user_list = $this->authUsers('view.user')->pluck('id')->toArray();
 
         $company_level = $this->permissionLevel('view.site.incident', $this->company_id);
         $parent_level = $this->permissionLevel('view.site.incident', $this->company->reportsTo()->id);
@@ -299,6 +299,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             $site_list = $site_list + $this->authSites('view.site.incident')->pluck('id')->toArray(); // Planned For or Supervisor For so  - check site
         else
             $user_list = $user_list + $this->authUsers('view.site.incident')->pluck('id')->toArray(); // Else - check users
+
+        // Georgie (458) access to site 0003-vehicles (809)
+        if ($this->id == '458')
+            $site_list = [809] + $site_list;
 
         //dd($site_list);
         if ($status != '')

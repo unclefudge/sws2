@@ -129,11 +129,15 @@ class SiteHazard extends Model {
         if (\App::environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
             // Remove Gary email from non-construction sites
-            if (in_array($this->site->id,[134, 92, 422, 366])) { // Cape Cod Office, Conference, Mgmt Systems, On leave
+            if (in_array($this->site->id, [134, 92, 422, 366])) { // Cape Cod Office, Conference, Mgmt Systems, On leave
                 $email_to = array_diff($email_to, ['gary@capecod.com.au']); // removes Gary from list.
             }
+            // Add supervisor email
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;
+            // Georgie (458) notify to site 0003-vehicles (809)
+            if ($this->site->id == '809')
+                $email_to[] = "georgie@capecod.com.au";
 
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
