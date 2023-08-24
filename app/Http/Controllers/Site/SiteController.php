@@ -179,9 +179,8 @@ class SiteController extends Controller {
         // Email Site if status change
         if ($site->status != $old_status) {
             $site->emailSite();
-            if ($site->status == '-1') {
-
-            }
+            if ($site->status == '-2')
+                $site->cancelInspectionReports();
         }
 
         Toastr::success("Saved changes");

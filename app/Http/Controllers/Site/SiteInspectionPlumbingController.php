@@ -164,6 +164,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         $rules = ['client_name'               => 'required',
                   'client_address'            => 'required',
+                  'inspected_at'              => 'required_if:status,0',
                   'inspected_name'            => 'required_if:status,0',
                   'inspected_lic'             => 'required_if:status,0',
                   'pressure_reduction'        => 'required_if:status,0',
@@ -174,6 +175,7 @@ class SiteInspectionPlumbingController extends Controller {
         ];
         $mesg = ['client_name.required'                  => 'The client name field is required.',
                  'client_address.required'               => 'The client address field is required.',
+                 'inspected_at.required_if'              => 'The date/time of inspection field is required.',
                  'inspected_name.required_if'            => 'The inspection carried out by field is required.',
                  'inspected_lic.required_if'             => 'The licence no. field is required.',
                  'pressure_reduction.required_if'        => 'The pressure reduction value field is required.',
@@ -194,8 +196,10 @@ class SiteInspectionPlumbingController extends Controller {
         $report_request = request()->all();
 
         // Format date from datetime picker to mysql format
-        $inspected_at = new Carbon (preg_replace('/-/', '', request('inspected_at')));
-        $report_request['inspected_at'] = $inspected_at->toDateTimeString();
+        if (request('inspected_at')) {
+            $inspected_at = new Carbon (preg_replace('/-/', '', request('inspected_at')));
+            $report_request['inspected_at'] = $inspected_at->toDateTimeString();
+        }
         $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
 
 
@@ -472,6 +476,7 @@ class SiteInspectionPlumbingController extends Controller {
                 if (Auth::user()->allowed2("del.site.inspection", $r)) {
                     return '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-id="' . $r->id . '" data-name="' . $r->site->name . '"><i class="fa fa-trash"></i></button>';
                 }
+
                 return '';
             })
             ->rawColumns(['view', 'action'])

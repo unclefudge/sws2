@@ -577,6 +577,72 @@ class Site extends Model {
     }
 
     /**
+     * A Site has many SiteInspectionPlumbing
+     */
+    public function inspection_plumbing()
+    {
+        return $this->hasMany('App\Models\Site\SiteInspectionPlumbing');
+    }
+
+    /**
+     * A Site has many SiteInspectionElectrical
+     */
+    public function inspection_electrical()
+    {
+        return $this->hasMany('App\Models\Site\SiteInspectionElectrical');
+    }
+
+
+    /**
+     * Cancel inspection Reports
+     */
+    public function cancelInspectionReports()
+    {
+        if ($this->status == '-2') {
+            $plumbing = $this->inspection_plumbing->where('status', 1);
+            $electrical = $this->inspection_electrical->where('status', 1);
+
+            $cancelled = '';
+            if ($plumbing->count()) {
+                foreach ($plumbing as $report) {
+                    $company_name = ($report->assigned_to) ? Company::find($report->assigned_to)->name : 'Unassigned';
+                    $cancelled .= "Plumbing Inspection assigned to $company_name\n";
+                    $report->assigned_to = null;
+                    $report->inspected_at = null;
+                    $report->save();
+                    $report->closeToDo();
+
+
+                }
+            }
+            if ($electrical->count()) {
+                foreach ($plumbing as $report) {
+                    $company_name = ($report->assigned_to) ? Company::find($report->assigned_to)->name : 'Unassigned';
+                    $cancelled .= "Electrical Inspection assigned to $company_name\n";
+                    $report->assigned_to = null;
+                    $report->inspected_at = null;
+                    $report->save();
+                    $report->closeToDo();
+                }
+            }
+
+            if ($cancelled) {
+                $email_to = [env('EMAIL_DEV')];
+
+                if (\App::environment('prod'))
+                    $email_to = ['michelle@capecod.com.au', 'kirstie@capecod.com.au'];
+
+                Mail::to($email_to)->send(new \App\Mail\Site\SiteInspectionCancelled($this, $cancelled));
+
+                return "Canceled the following reports:<br>".nl2br($cancelled);
+            } else
+                return "No active reports";
+        } else
+            return "Site is not in Cancel status";
+    }
+
+
+    /**
      * A SiteAttendance for specific date yyyy-mm-dd
      *
      * @return \Illuminate\Database\Eloquent\Collection
@@ -799,6 +865,8 @@ class Site extends Model {
         Mail::to($email_to)->send(new \App\Mail\Site\SiteUpdated($this, $action));
 
     }
+
+
 
     /**
      * Get the first task date if it exists

@@ -230,6 +230,7 @@ class MailgunZohoController extends Controller {
                         if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
                             $site->status = '-2';
                             $site->save();
+                            $site->cancelInspectionReports();
 
                             if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
                             if ($job_stage == '160 On Hold') $on_holds ++;
