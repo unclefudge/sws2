@@ -145,7 +145,7 @@
             $("#company_id").select2({placeholder: "Select Company", width: '100%'});
             $("#user_id").select2({placeholder: "Select User", width: '100%'});
 
-            $('#site_active').hide();
+            $('#site_all').hide();
             $('#site_completed').hide();
 
             //$('#view_pdf').click(function (e) {

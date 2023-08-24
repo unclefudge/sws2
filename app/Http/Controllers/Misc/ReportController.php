@@ -226,7 +226,7 @@ class ReportController extends Controller {
         $company_id = (request('company_id') == 'all') ? '' : request('company_id');
         $user_id = (request('user_id') == 'all') ? '' : request('user_id');
 
-        if (request('status') == 1)
+        if (request('status') == '1')
             $site_ids = ($site_id_active) ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id')->toArray();
         elseif (request('status') == '0')
             $site_ids = ($site_id_completed) ? [$site_id_completed] : Auth::user()->company->sites(0)->pluck('id')->toArray();
@@ -236,11 +236,11 @@ class ReportController extends Controller {
         $date_from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00')->format('Y-m-d') : '2000-01-01';
         $date_to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00')->format('Y-m-d') : Carbon::tomorrow()->format('Y-m-d');
 
-
-        //dd(request('site_id_all'));
-
         $company_ids = ($company_id) ? [$company_id] : Auth::user()->company->companies()->pluck('id')->toArray();
         $user_ids = ($user_id) ? [$user_id] : Auth::user()->company->users()->pluck('id')->toArray();
+
+        //var_dump($site_ids);
+        //dd(request()->all());
 
         $attendance_records = SiteAttendance::select([
             'site_attendance.site_id', 'site_attendance.user_id', 'site_attendance.date', 'sites.name',
