@@ -236,9 +236,8 @@ class SiteMaintenanceController extends Controller {
             'company_id' => $main->site->owned_by->id,
         ];
 
-        $user_list = DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray(); // Construction Manager
         $todo = Todo::create($todo_request);
-        $todo->assignUsers($user_list);
+        $todo->assignUsers(getUserIdsWithRoles('con-construction-manager')); // Con Manager
 
         Toastr::success("Updated Request");
 
@@ -516,8 +515,7 @@ class SiteMaintenanceController extends Controller {
                 $main->closeToDo();
                 if (!$main->manager_sign_by) {
                     $site = Site::findOrFail($main->site_id);
-                    $con_mgr = DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray(); // Construction Manager
-                    $main->createManagerSignOffToDo($con_mgr);
+                    $main->createManagerSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
                 }
                 $action = Action::create(['action' => "Request has been signed off by Supervisor", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             }

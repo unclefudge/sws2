@@ -300,7 +300,7 @@ class SiteProjectSupplyController extends Controller {
 
             // Send Con Mgr ToDoo task to sign off
             $project->closeToDo();
-            $project->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            $project->createSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
         } else {
             $project->closeToDo();
             $project->manager_sign_by = Auth::user()->id;

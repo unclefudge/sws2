@@ -240,7 +240,7 @@ class SuperChecklistController extends Controller {
 
             // Send Con Mgr ToDoo task to sign off
             $checklist->closeToDo();
-            //$checklist->createSignOffToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            //$checklist->createSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
         } else {
             $checklist->closeToDo();
             $checklist->manager_sign_by = Auth::user()->id;

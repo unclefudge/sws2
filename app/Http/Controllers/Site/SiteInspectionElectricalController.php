@@ -142,7 +142,7 @@ class SiteInspectionElectricalController extends Controller {
 
         $report->status = 1;
         $report->save();
-        $report->createContructionToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+        $report->createContructionToDo(getUserIdsWithRoles('con-construction-manager'));
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/electrical');
@@ -171,7 +171,7 @@ class SiteInspectionElectricalController extends Controller {
                  'inspected_name.required_if' => 'The inspection carried out by field is required.',
                  'inspected_lic.required_if'  => 'The licence no. field is required.'];
 
-        if (in_array(Auth::user()->id, DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray())) {
+        if (in_array(Auth::user()->id, getUserIdsWithRoles('con-construction-manager'))) {
             $rules = $rules + ['assigned_to' => 'required'];
             $mesg = $mesg + ['assigned_to.required' => 'The assigned to company field is required.'];
         }
@@ -259,7 +259,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Con Mgr
                 $report->closeToDo();
-                $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+                $report->createContructionReviewToDo(getUserIdsWithRoles('con-construction-manager'));
             } else {
                 $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;

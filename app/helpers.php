@@ -253,7 +253,7 @@ function getPermissionTypes()
 
 
 /**
- * Create a array of all user emails with specific role
+ * Create an array of all user emails with specific role
  *
  * @param array $role_ids
  * @return array
@@ -269,6 +269,29 @@ function getUserEmailsWithRoles($role_ids)
     }
 
     return $email_array;
+}
+
+/**
+ * Create an array of all user emails with specific role
+ *
+ * @param array $roles
+ * @return array
+ */
+function getUserIdsWithRoles($roles, $status = [1])
+{
+    $array = [];
+    $roles_array = explode('|', $roles);
+    foreach ($roles_array as $role_slug) {
+        $role = \App\Models\Misc\Role2::where('slug', trim($role_slug))->first();
+        $records = DB::table('role_user')->where('role_id', $role->id)->get();
+        foreach ($records as $rec) {
+            $user = \App\User::find($rec->user_id);
+            if (in_array($user->status, $status))
+                $array[] = $user->id;
+        }
+    }
+
+    return $array;
 }
 
 /**

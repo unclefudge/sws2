@@ -142,7 +142,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         $report->status = 1;
         $report->save();
-        $report->createContructionToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+        $report->createContructionToDo(getUserIdsWithRoles('con-construction-manager'));
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/plumbing');
@@ -183,7 +183,7 @@ class SiteInspectionPlumbingController extends Controller {
                  'stormwater_detention_type.required_if' => 'The onsite stormwater detention field is required.',
         ];
 
-        if (in_array(Auth::user()->id, DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray())) {
+        if (in_array(Auth::user()->id, getUserIdsWithRoles('con-construction-manager'))) {
             $rules = $rules + ['assigned_to' => 'required'];
             $mesg = $mesg + ['assigned_to.required' => 'The assigned to company field is required.'];
         }
@@ -206,7 +206,7 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Con Mgr
-            $report->createContructionReviewToDo(DB::table('role_user')->where('role_id', 8)->get()->pluck('user_id')->toArray());
+            $report->createContructionReviewToDo(getUserIdsWithRoles('con-construction-manager'));
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;

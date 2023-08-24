@@ -260,6 +260,9 @@
                         if (!$("#days").val() || (required && !$("#extension_notes").val()))
                             $("#savenote").hide();
                     }
+                } else {
+                    if ($("#days").val())
+                        $("#savenote").hide();
                 }
             }
 

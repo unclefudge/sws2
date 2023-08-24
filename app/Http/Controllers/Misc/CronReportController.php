@@ -894,7 +894,7 @@ class CronReportController extends Controller {
         $plumbing = SiteInspectionPlumbing::find($pids);
 
         if (\App::environment('prod'))
-            $email_list = ['gary@capecod.com.au'];
+            $email_list = ['gary@capecod.com.au', 'kirstie@capecod.com.au'];
         Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
 
         echo "<h4>Completed</h4>";
