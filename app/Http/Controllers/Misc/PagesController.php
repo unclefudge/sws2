@@ -188,6 +188,12 @@ class PagesController extends Controller {
     public function quick()
     {
 
+        echo "Testing<br>";
+        $action = Action::find(20038);
+        echo nl2br($action->action);
+        var_dump(htmlentities(nl2br($action->action)));
+        echo json_encode(nl2br($action->action));
+        /*
         echo "<b>Updating Hazard Files</b></br>";
 
         $hazards = SiteHazard::all();
@@ -205,7 +211,7 @@ class PagesController extends Controller {
                 $file->save();
                 echo "[$hazard->id] ".$hazard->site->name."<br>";
             }
-        }
+        }*/
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";

@@ -16,9 +16,9 @@ A hazard has been updated for {{ $hazard->site->name }}.
 | **Site Address**  | {{ $hazard->site->address }}, {{ $hazard->site->SuburbStatePostcode }} |
 | **Supervisor**  | {{ $hazard->site->supervisorName }} |
 | **Rating**  | {{ $hazard->ratingText }} |
-| **Location**  | {{ $hazard->location }} |
-| **Reason**  | {!! nl2br($hazard->reason) !!} |
-| **Actions Taken**  | {{ $action->action }} |
+| **Location**  | {!! nl2br2($hazard->location) !!} |
+| **Reason**  | {!! nl2br2($hazard->reason) !!} |
+| **Actions Taken**  | {!! nl2br2($action->action); !!} |
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |
 | **Submitted at**  | {{ $action->created_at->format('d/m/Y g:i a') }} |
 

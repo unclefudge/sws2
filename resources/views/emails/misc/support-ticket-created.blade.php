@@ -8,7 +8,7 @@ A new support ticket has been created on {{ config('app.name') }} with the follo
 | **Ticket ID**  | {{ $ticket->id  }} |
 | **Priority**  | {{ $ticket->priority_text  }} |
 | **Name** | {{ $ticket->name  }} |
-| **Description** | {!! nl2br($ticket->summary) !!} |
+| **Description** | {!! nl2br2($ticket->summary) !!} |
 | **Date/Time** | {{ $ticket->created_at->format('d/m/Y g:i a')  }} |
 | **Created By** | {{ $ticket->createdBy->name  }} |
 

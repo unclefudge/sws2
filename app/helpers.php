@@ -92,6 +92,12 @@ function flatten_array($arg)
     }, []) : [$arg];
 }
 
+/* replaces newline character with <br> */
+function nl2br2($string)
+{
+    return str_replace(array("\r\n", "\r", "\n"), "<br/>", $string);
+}
+
 /*
 function companyTradesSBC ($slug) {
 

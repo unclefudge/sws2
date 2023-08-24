@@ -15,7 +15,7 @@ A Quality Assurance has been updated for {{ $qa->name }} on site {{ $qa->site->n
 | **Site Address**  | {{ $qa->site->address }}, {{ $qa->site->SuburbStatePostcode }} |
 | **Supervisor**  | {{ $qa->site->supervisorName }} |
 | **QA Name**  | {{ $qa->name  }} |
-| **Actions Taken**  | {{ $action->action }} |
+| **Actions Taken**  | {!! nl2br2($action->action); !!} |
 | **Submitted by**  | {{ $action->user->name }} ({{ $action->user->company->name }}) |
 | **Submitted at**  | {{ $action->created_at->format('d/m/Y g:i a') }} |
 

@@ -15,7 +15,7 @@ A incident report has been lodged for {{ $incident->site_name }}.
 | **Site Name**  | {{ $incident->site_name  }} |
 | **Supervisor**  | {{ $incident->site_supervisor  }} |
 | **Date/Time**  | {{ $incident->date->format('d/m/Y g:i a') }} |
-| **Description**  | {{ $incident->describe  }} |
+| **Description**  | {!! nl2br2($incident->describe)  !!} |
 | **Submitted by**  | {{ $incident->createdBy->name }} ({{ $incident->createdBy->company->name }}) |
 | **Submitted at**  | {{ $incident->created_at->format('d/m/Y') }} |
 

@@ -19,7 +19,7 @@ A asbestos notification has been lodged for {{ $asbestos->site->name }}.
 | **Amount**  | {{ $asbestos->amount }} |
 | **Class**  | {{ ($asbestos->friable) ? 'Class A (Friable)' : 'Class B (Non-Friable)' }} |
 | **Type**  | {{ $asbestos->type }} |
-| **Location**  | {{ $asbestos->location }} |
+| **Location**  | {!! nl2br2($asbestos->location) !!} |
 | **Submitted by**  | {{ $asbestos->createdBy->name }} ({{ $asbestos->createdBy->company->name }}) |
 | **Submitted at**  | {{ $asbestos->created_at->format('d/m/Y g:i a') }} |
 

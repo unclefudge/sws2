@@ -18,11 +18,11 @@ A accident report has been lodged for {{ $accident->site->name }}.
 | **Date/Time**  | {{ $accident->date->format('d/m/Y g:i a') }} |
 | **Worker**  | {{ $accident->name }} (age: {{ $accident->age }}) |
 | **Occupation**  | {{ $accident->occupation  }} |
-| **Location**  | {{ $accident->location  }} |
-| **Nature**  | {{ $accident->nature  }} |
+| **Location**  | {!! nl2br2($accident->location)  !!} |
+| **Nature**  | {!! nl2br2($accident->nature)  !!} |
 | **Referred to**  | {{ $accident->referred  }} |
 | **Damage**  | {{ $accident->damage  }} |
-| **Description**  | {{ $accident->info  }} |
+| **Description**  | {!! nl2br2($accident->info)  !!} |
 | **Submitted by**  | {{ $accident->createdBy->name }} ({{ $accident->createdBy->company->name }}) |
 | **Submitted at**  | {{ $accident->created_at->format('d/m/Y') }} |
 

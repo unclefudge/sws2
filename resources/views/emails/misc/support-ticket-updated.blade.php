@@ -8,7 +8,7 @@ A support ticket has been updated on {{ config('app.name') }} with the following
 | **Ticket ID**  | {{ $ticket->id  }} |
 | **Priority**  | {{ $ticket->priority_text  }} |
 | **Name** | {{ $ticket->name  }} |
-| **Action** | {!! nl2br($action->action) !!} |
+| **Action** | {!! nl2br2($action->action) !!} |
 | **Date/Time** | {{ $action->created_at->format('d/m/Y g:i a')  }} |
 | **Created By** | {!! (\App\User::find($action->created_by)) ? \App\User::find($action->created_by)->name : '' !!} |
 
