@@ -65,7 +65,6 @@
                                 <th>Location</th>
                                 <th>Source</th>
                                 <th width="5%"> Rating</th>
-                                <th width="2%"></th>
                                 @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
                                     <th width="2%"></th>
                                 @endif
@@ -125,7 +124,6 @@
                 {data: 'location', name: 'site_hazards.location', orderable: false},
                 {data: 'source', name: 'site_hazards.source', orderable: false},
                 {data: 'rating', name: 'rating'},
-                {data: 'attachment', name: 'site_hazards.attachment', orderable: false, searchable: false},
                     @if (Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
                 {
                     data: 'action', name: 'action', orderable: false, searchable: false
