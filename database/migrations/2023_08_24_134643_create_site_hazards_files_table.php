@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreign('hazard_id')->references('id')->on('site_hazards')->onDelete('cascade');
 
             // Modify info
+            $table->integer('created_by')->unsigned();
+            $table->integer('updated_by')->unsigned();
             $table->timestamps();
         });
     }

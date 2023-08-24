@@ -24,6 +24,8 @@ use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaCategory;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteAsbestosRegister;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteHazardFile;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentPeople;
@@ -186,47 +188,24 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "<b>Assign Site Supers</b></br>";
+        echo "<b>Updating Hazard Files</b></br>";
 
-        /*$sites = Site::all();
-        foreach ($sites as $site) {
-            if ($site->supervisors->count()) {
-                $pid = '';
-                $active = 0;
-                if ($site->supervisors->count() > 1) {
-                    foreach ($site->supervisors as $super) {
-                        if ($super->status) {
-                            $active ++;
-                            if (!$pid)
-                                $pid = $super->id;
-                        }
-                    }
-                    $all_inactive = ($pid) ? '' : '*** ALL INACTIVE ***';
-                    $active_site = ($site->status) ? "*** Active Site ***" : '';
-                    echo "[$site->id] $site->name &nbsp; &nbsp; - " . $site->supervisorsSBC() . "$all_inactive $active_site<br>";
-                    if ($active > 1) {
-                        foreach ($site->supervisors as $super) {
-                            $status = ($super->status) ? '' : " ***";
-                            $primary = ($pid == $super->id) ? "*" : '-';
-                            echo " &nbsp; $primary [$super->id] $super->name $status<br>";
-                        }
-                    }
-                } else {
-                    $super = $site->supervisors->first();
-                    if ($super)
-                        $pid = $super->id;
-                }
-
-                if ($pid) {
-                    $site->supervisor_id = $pid;
-                    $site->save();
-                }
-            } else {
-                $cc = ($site->company_id == 3) ? "CC" : "*** External ***";
-                $active = ($site->status) ? "*** Active Site ***" : '';
-                echo "** NO SUPERS ** [$site->id] $site->name $cc $active<br>";
+        $hazards = SiteHazard::all();
+        DB::table('site_hazards_files')->truncate();
+        foreach ($hazards as $hazard) {
+            if ($hazard->attachment) {
+                $ext = pathinfo($hazard->attachment, PATHINFO_EXTENSION);
+                $type = (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) ? 'image' : 'file';
+                $file = SiteHazardFile::create(['hazard_id' => $hazard->id, 'type' => $type, 'name' => $hazard->attachment, 'attachment' => $hazard->attachment]);
+                $file->timestamps = false;
+                $file->created_by = $hazard->created_by;
+                $file->created_at = $hazard->created_at;
+                $file->updated_by = $hazard->updated_by;
+                $file->updated_at = $hazard->created_at;
+                $file->save();
+                echo "[$hazard->id] ".$hazard->site->name."<br>";
             }
-        }*/
+        }
 
         /*
         echo "<b>Open Project Supply ToDo</b></br>";

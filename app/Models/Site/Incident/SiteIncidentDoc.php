@@ -19,6 +19,8 @@ class SiteIncidentDoc extends Model {
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
+    protected $dates = ['updated_at'];
+
     /**
      * A SiteIncidentDoc belongs to a SiteIncident
      *

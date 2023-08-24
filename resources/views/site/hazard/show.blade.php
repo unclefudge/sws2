@@ -45,9 +45,9 @@
                             </div>
 
                             <hr>
-                            <h4 class="font-green-haze">Hazard Details</h4>
                             <div class="row" style="line-height: 1.5em">
-                                <div class="col-md-9">
+                                <div class="col-md-8">
+                                    <h4 class="font-green-haze">Hazard Details</h4>
                                     <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
                                     @if ($hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
                                         <div class="row" style="padding-left: 15px">
@@ -103,7 +103,8 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
+                                    {{--}}
                                     @if($hazard->attachment_url)
                                         <div style="padding-bottom: 20px">
                                             <a href="{{ $hazard->attachment_url }}" class="html5lightbox " title="{{ $hazard->reason }}" data-lityXXX>
@@ -115,7 +116,36 @@
                                                 @endif
                                             </a>
                                         </div>
-                                    @endif
+                                    @endif--}}
+                                        {{-- Attachments --}}
+                                        <h5><b>Attachments</b></h5>
+                                        @if ($hazard->files->count())
+                                            <hr style="margin: 10px 0px; padding: 0px;">
+                                            {{-- Image attachments --}}
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($hazard->files as $file)
+                                                    @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                        <div style="width: 60px; float: left; padding-right: 5px">
+                                                            <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
+                                                                <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                            {{-- File attachments  --}}
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($hazard->files as $file)
+                                                    @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            None
+                                        @endif
+                                    <div>
+                                        <br><input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +282,8 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
+    {{--}}<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
@@ -260,10 +291,10 @@
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/js/libs/moment.min.js" type="text/javascript"></script>
 
@@ -272,6 +303,22 @@
 <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
 <script src="/js/vue-modal-component.js"></script>
 <script>
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+        },
+        allowMultiple: true,
+    });
+
+
     Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
 
     var host = window.location.hostname;

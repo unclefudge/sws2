@@ -203,87 +203,9 @@
                                 </div>
                             </div>
 
-                            <div id="unsafe-site">
-                                <hr>
-                                <h4 class="font-green-haze">Hazard Details</h4>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                            {!! Form::label('location', 'Location of hazard (eg. bathroom, first floor addition, kitchen, backyard)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('location', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('location', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('rating', $errors) !!}">
-                                            {!! Form::label('rating', 'Risk Rating', ['class' => 'control-label']) !!}
-                                            {!! Form::select('rating', ['' => 'Select rating', '1' => "Low", '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('rating', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('reason', $errors) !!}">
-                                            {!! Form::label('reason', 'What is the hazard / safety issue?', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('reason', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('reason', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                            {!! Form::label('action', 'What action/s (if any) have you taken to resolve the issue?', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('action', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <div class="fileinput fileinput-new" data-provides="fileinput">
-                                                <div class="fileinput-preview fileinput-exists thumbnail"
-                                                     style="max-width: 200px; max-height: 150px;"></div>
-                                                <div>
-                                                        <span class="btn default btn-file">
-                                                            <span class="fileinput-new"> Upload Photo/Video of issue</span>
-                                                            <span class="fileinput-exists"> Change </span>
-                                                            <input type="file" name="media">
-                                                        </span>
-                                                    <a href="javascript:;" class="btn default fileinput-exists"
-                                                       data-dismiss="fileinput">Remove </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--
-                                <div class="row visible-xs">
-                                    <div class="form-group">
-                                        <label for="media">File input</label>
-                                        <input type="file" name="media2" id="media2">
-                                        <p class="help-block"> some help text here. </p>
-                                    </div>
-                                </div>
-                                -->
-                                <div class="row">
-                                    <div class="col-sm-2 col-xs-4 text-center">
-                                        <div class="form-group">
-                                            {!! Form::checkbox('action_required', '1', null,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-10 col-xs-8">
-                                        Does {{ $worksite->company->name }} need to take any action?
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Unsafe Site Fields -->
+                            @include('site/_checkin_hazard')
+
                             <div class="form-actions">
                                 <button type="submit" class="btn green" name="checkinStore" value="true">Submit</button>
                             </div>
@@ -299,18 +221,34 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script>
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+        },
+        allowMultiple: true,
+    });
+
     $(document).ready(function () {
         //$('#safe_site').bootstrapSwitch('state', false);
         //var state = $('#safe_site').bootstrapSwitch('state');

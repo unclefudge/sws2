@@ -73,21 +73,6 @@
                                 <div class="col-md-12">
                                     <h5>Attachments</h5>
                                     <input type="file" class="filepond" name="filepond[]" multiple/>
-                                    {{--}}
-                                    <div class="form-group">
-                                        <div class="fileinput fileinput-new" data-provides="fileinput">
-                                            <div class="fileinput-preview fileinput-exists thumbnail"
-                                                 style="max-width: 200px; max-height: 150px;"></div>
-                                            <div>
-                                                <span class="btn default btn-file">
-                                                    <span class="fileinput-new"> Attach Photo/Document</span>
-                                                    <span class="fileinput-exists"> Change </span>
-                                                    <input type="file" name="attachment">
-                                                </span>
-                                                <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput">Remove </a>
-                                            </div>
-                                        </div>
-                                    </div>--}}
                                 </div>
                             </div>
 
@@ -131,7 +116,7 @@
             url: '/file/upload',
             fetch: null,
             revert: null,
-            headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
         },
         allowMultiple: true,
     });

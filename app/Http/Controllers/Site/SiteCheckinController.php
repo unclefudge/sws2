@@ -99,7 +99,7 @@ class SiteCheckinController extends Controller {
 
         // Check if user is a Supervisor or requires their login qustions
         $supers = Auth::user()->company->reportsTo()->supervisors()->pluck('id')->toArray();
-        $special_users = [3, 108, 351, 1155, 7]; // Fudge, Kirstie, Tara, Ross, Gary
+        $special_users = [108, 351, 1155, 7]; // Fudge, Kirstie, Tara, Ross, Gary
         $super_login = array_merge($supers, $special_users);
 
         if (in_array(Auth::user()->id, $super_login))
@@ -205,9 +205,12 @@ class SiteCheckinController extends Controller {
                 $action = Action::create(['action' => request('action'), 'table' => 'site_hazards', 'table_id' => $hazard->id]);
                 $hazard->touch(); // update timestamp
 
-                // Handle attached Photo or Video
-                if (request()->hasFile('media'))
-                    $hazard->saveAttachedMedia(request()->file('media'));
+                // Handle attachments
+                $attachments = request("filepond");
+                if ($attachments) {
+                    foreach ($attachments as $tmp_filename)
+                        $hazard->saveAttachment($tmp_filename);
+                }
 
                 // Email hazard
                 $hazard->emailHazard($action);

@@ -78,8 +78,15 @@ class SiteHazardController extends Controller {
             $hazard->touch(); // update timestamp
 
             // Handle attached Photo or Video
-            if ($request->hasFile('media'))
-                $hazard->saveAttachedMedia($request->file('media'));
+            //if ($request->hasFile('media'))
+            //    $hazard->saveAttachedMedia($request->file('media'));
+
+            // Handle attachments
+            $attachments = request("filepond");
+            if ($attachments) {
+                foreach ($attachments as $tmp_filename)
+                    $hazard->saveAttachment($tmp_filename);
+            }
 
             // Email hazard
             $hazard->emailHazard($action);
@@ -88,7 +95,9 @@ class SiteHazardController extends Controller {
         Toastr::success("Lodged hazard");
         $worksite = Site::findOrFail($my_request['site_id']);
 
-        return redirect('dashboard');
+        $previous = parse_url(url()->previous(), PHP_URL_PATH);
+
+        return ($previous == '/site/hazard/create') ? redirect('site/hazard') : redirect('dashboard');
     }
 
     /**
@@ -123,6 +132,13 @@ class SiteHazardController extends Controller {
             return view('errors/404');
 
         $hazard->update($request->all());
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $hazard->saveAttachment($tmp_filename);
+        }
 
         if ($hazard->status != $old_status) {
             $action = Action::create(['action' => 'Hazard has been resolved', 'table' => 'site_hazards', 'table_id' => $hazard->id]);

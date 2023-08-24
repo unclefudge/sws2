@@ -220,7 +220,7 @@
                 url: '/file/upload',
                 fetch: null,
                 revert: null,
-                headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
+                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
             },
             allowMultiple: true,
         });
