@@ -1343,6 +1343,67 @@ class PagesController extends Controller {
         echo "<br><br>Completed<br>-------------<br>";
     }
 
+    public function importTimeExtensions(Request $request)
+    {
+        echo "Importing Time Extensions<br><br>";
+        $row = 0;
+        $cutoff_date = Carbon::createFromFormat('d/m/Y H:i', '21/09/2023 00:00');
+        $site_data = [];
+        $extension = SiteExtension::find(4);
+        if (($handle = fopen(public_path("TimeExtensions.csv"), "r")) !== false) {
+            while (($data = fgetcsv($handle, 5000, ",")) !== false) {
+                $row ++;
+                if ($row == 1) continue;
+                $num = count($data);
+
+                $site = Site::where('code', $data[1])->first();
+
+                // Created Time
+                list($date, $time) = explode(' ', $data[7]);
+                list($d, $m, $y) = explode('/', $date);
+                $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . sprintf('%04d', $y);
+                $created = Carbon::createFromFormat('d/m/Y H:i', $date_with_leading_zeros . '00:00');
+                $include = ($created->lt($cutoff_date)) ? '*' : '';
+                if ($site && $include) {
+                    //echo $include . "[$site->id] $site->name - " . $created->format('d/m/Y') . "<br>";
+                    $site_data[$site->id][] = ['days' => $data[3], 'reason' => $data[4], 'notes' => $data[5], 'created' => $created->format('d/m/Y')];
+                } else {
+                    echo "** NEW SITE ** <br>";
+                }
+            }
+            fclose($handle);
+
+            ksort($site_data);
+            echo "<br><br>--------------<br>";
+            foreach ($site_data as $site_id => $data) {
+                $site = Site::find($site_id);
+                $total = 0;
+                $text = '';
+                foreach ($data as $d) {
+                    $total = $total + $d['days'];
+                    $notes = ($d['notes']) ? $d['notes'] : '';
+                    $text .= $d['created']." - ". $d['days'] . " days <b>". $d['reason']. "</b>: $notes \r\n";
+                }
+                $text = "Bulk Import Zoho\n\r----------------------------------------------------------------\r\n" . $text . "----------------------------------------------------------------\r\n";
+                echo "[$site->id] $site->name - $total<br>".nl2br($text)."<br>";
+
+                $site_extension = SiteExtensionSite::where('extension_id', 4)->where('site_id', $site->id)->first();
+                if ($site_extension) {
+                    $site_extension->days = $total;
+                    $site_extension->reasons = 1;
+                    $site_extension->notes = $text;
+                    $site_extension->save();
+                    echo "updated<br>";
+                } else {
+                    SiteExtensionSite::create(['extension_id' => '4', 'site_id' => $site->id, 'days' => $total, 'reasons' => '1', 'notes' => $text]);
+                    echo "created<br>";
+                }
+            }
+            dd($site_data);
+        }
+        echo "<br><br>Completed<br>-------------<br>";
+    }
+
     public function fixplanner()
     {
         set_time_limit(120);

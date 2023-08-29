@@ -289,29 +289,72 @@ class CronReportController extends Controller {
         echo "Sending email to $emails";
         $log .= "Sending email to $emails";
 
-
-        $all_companies = $cc->companies(1);
-        $cids = [];
-        foreach ($all_companies as $company) {
-            //if (!$company->activeCompanyDoc(12) && !preg_match('/cc-/', strtolower($company->name)))
-            if (!preg_match('/cc-/', strtolower($company->name)))
-                $cids[] = $company->id;
-        }
-        $companies = Company::find($cids)->sortBy('name');
-
-        $comps = [];
+        $missing_info = [];
+        $expired_docs1 = [];
+        $expired_docs2 = [];
+        $expired_docs3 = [];
+        $companies = $cc->companies(1)->sortBy('name');
         foreach ($companies as $company) {
-            if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
-                $comps[] = [$company->name, $company->missingInfo(), $company->updated_at->format('d/m/Y')];
-
-            if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
-                foreach ($company->missingDocs() as $type => $name) {
-                    $doc = $company->expiredCompanyDoc($type);
-                    $comps[] = [$company->name, $name, ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never'];
+            if (!preg_match('/cc-/', strtolower($company->name))) { // exclude fake cc- companies
+                // Missing Info
+                if ($company->missingInfo()) {
+                    $missing_info[] = [
+                        'id'               => $company->id,
+                        'company_name'     => $company->name,
+                        'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                        'data'             => $company->missingInfo(),
+                        'date'             => $company->updated_at->format('d/m/Y'),
+                        'link'             => "/company/$company->id"
+                    ];
                 }
+
+                // Expired Docs
+                // Doc types
+                // 1  PL - Public Liabilty
+                // 2  WC - Workers Comp
+                // 3  SA - Sickness & Accident
+                // 4  Sub - Subcontractors Statement
+                // 5  PTC - Period Trade Contract
+                // 6  TT - Test & Tag
+                // 7  CL - Contractors Licence
+                // 12 PP - Privacy Policy
+                if ($company->isMissingDocs()) {
+                    foreach ($company->missingDocs() as $type => $name) {
+                        $doc = $company->expiredCompanyDoc($type);
+                        if (in_array($type, [1, 2, 3, 7, 12])) {
+                            $expired_docs1[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        } elseif (in_array($type, [4, 5])) {
+                            $expired_docs2[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        } elseif (in_array($type, [6])) {
+                            $expired_docs3[] = [
+                                'id'               => $company->id,
+                                'company_name'     => $company->name,
+                                'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
+                                'data'             => $name,
+                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                            ];
+                        }
+                    }
+                }
+            }
         }
 
-        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($comps));
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

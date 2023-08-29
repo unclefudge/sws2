@@ -705,6 +705,7 @@ Route::get('manage/updateroles', '\App\Http\Controllers\Misc\PagesController@upd
 Route::get('manage/import-payroll', '\App\Http\Controllers\Misc\PagesController@importPayroll');
 Route::get('manage/import-maintenance', '\App\Http\Controllers\Misc\PagesController@importMaintenance');
 Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesController@importQuestions');
+Route::get('manage/import-time-extensions', '\App\Http\Controllers\Misc\PagesController@importTimeExtensions');
 Route::get('manage/initform', '\App\Http\Controllers\Misc\PagesController@initFormTemplate');
 Route::get('manage/resetform', '\App\Http\Controllers\Misc\PagesController@resetFormTemplate');
 Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@showTemplate');

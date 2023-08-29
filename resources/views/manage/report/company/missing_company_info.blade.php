@@ -27,30 +27,6 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <h4>Missing Company Info</h4>
-                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
-                            <thead>
-                            <tr class="mytable-header">
-                                <th style="width: 5%"> #</th>
-                                <th> Name</th>
-                                <th> Missing Info / Document</th>
-                                <th style="width: 10%"> Expiry / Last Updated</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($missing_info as $row)
-                                <tr>
-                                    <td>
-                                        <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
-                                    </td>
-                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
-                                    <td>{!! $row['data'] !!}</td>
-                                    <td>{!! $row['date']!!}</td>
-                                </tr>
-                            </tbody>
-                            @endforeach
-                        </table>
-
                         <h4>Contractors Licence, Workers Compensation, Sickness & Accident, Public Liability, Privacy Policy</h4>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
@@ -134,6 +110,30 @@
                                 </tr>
                             @endforeach
                             </tbody>
+                        </table>
+
+                        <h4>Missing Company Info (Phone, Address, Email, ABN, etc)</h4>
+                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th style="width: 5%"> #</th>
+                                <th> Name</th>
+                                <th> Missing Info / Document</th>
+                                <th style="width: 10%"> Expiry / Last Updated</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($missing_info as $row)
+                                <tr>
+                                    <td>
+                                        <div class="text-center"><a href="{!! $row['link'] !!}"><i class="fa fa-search"></i></a></div>
+                                    </td>
+                                    <td>{{ $row['company_name'] }} {!! $row['company_nickname'] !!}</td>
+                                    <td>{!! $row['data'] !!}</td>
+                                    <td>{!! $row['date']!!}</td>
+                                </tr>
+                            </tbody>
+                            @endforeach
                         </table>
                     </div>
                 </div>

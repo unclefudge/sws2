@@ -12,16 +12,20 @@ class CompanyMissingInfo extends Mailable implements ShouldQueue {
 
     use Queueable, SerializesModels;
 
-    public $companies;
+    public $companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($companies)
+    public function __construct($companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3)
     {
         $this->companies = $companies;
+        $this->missing_info = $missing_info;
+        $this->expired_docs1 = $expired_docs1;
+        $this->expired_docs2 = $expired_docs2;
+        $this->expired_docs3 = $expired_docs3;
     }
 
     /**
