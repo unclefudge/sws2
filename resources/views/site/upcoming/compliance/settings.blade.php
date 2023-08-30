@@ -111,6 +111,17 @@
                                 <br>
                             @endforeach
 
+                           <h3>Additional Sites (manually)</h3>
+                           <hr class="field-hr">
+                           <div class="row">
+                               <div class="col-md-12">
+                                   <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
+                                       {!! Form::label('special_sites', 'Sites', ['class' => 'control-label']) !!}
+                                       {!! Form::select('special_sites', ['' => 'Select sites(s)'] + Auth::user()->company->sitesSelect('select'), $special_sites, ['class' => 'form-control select2', 'name' => 'special_sites[]', 'id'  => 'special_sites', 'title' => 'Select one or more sites', 'multiple']) !!}
+                                       {!! fieldErrorMessage('special_sites', $errors) !!}
+                                   </div>
+                               </div>
+                           </div>
                             {{--}}
                             <h3>Email list</h3>
                             <hr class="field-hr">
@@ -150,6 +161,7 @@
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script>
     $(document).ready(function () {
+        $("#special_sites").select2({placeholder: "Select one or more", width: '100%'});
         $("#email_list").select2({placeholder: "Select one or more", width: '100%'});
 
         $(".hoverDiv").click(function (e) {

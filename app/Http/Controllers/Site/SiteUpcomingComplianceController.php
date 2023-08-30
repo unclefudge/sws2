@@ -94,12 +94,15 @@ class SiteUpcomingComplianceController extends Controller {
         $fc_struct = DB::table('site_upcoming_settings')->where('field', 'fc_struct')->get();
         $settings = SiteUpcomingSettings::whereIn('field', ['opt', 'cfest', 'cfadm'])->where('status', 1)->get();
 
+        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
+        $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
+
         $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
         $email_list = ($settings_email) ? explode(',', $settings_email->value) : [];
 
         //dd($email_list);
 
-        return view('site/upcoming/compliance/settings', compact('settings', 'email_list', 'cc', 'fc_plans', 'fc_struct'));
+        return view('site/upcoming/compliance/settings', compact('settings', 'email_list', 'special_sites', 'cc', 'fc_plans', 'fc_struct'));
     }
 
 
@@ -209,6 +212,17 @@ class SiteUpcomingComplianceController extends Controller {
                 $add_order = count($settings) + 1;
                 SiteUpcomingSettings::create(['field' => $type, 'name' => request("$type-addfield-name"), 'value' => request("$type-addfield-text"), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
             }
+        }
+
+        // Update Special Sites
+        if (request('special_sites')) {
+            $special_sites = implode(',', request('special_sites'));
+            $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
+            if ($settings_sites) {
+                $settings_sites->value = $special_sites;
+                $settings_sites->save();
+            } else
+                $settings_sites = SiteUpcomingSettings::create(['field' => 'sites',  'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
         }
 
         // Update Email List
@@ -436,8 +450,9 @@ class SiteUpcomingComplianceController extends Controller {
         */
 
         // Add Specially Requested Sites to List
-        $speial_sites = [742, 751, 761, 768];
-        foreach ($speial_sites as $sid)
+        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
+        $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
+        foreach ($special_sites as $sid)
             if (!in_array($sid, $site_list))
                 $site_list[] = $sid;
 
