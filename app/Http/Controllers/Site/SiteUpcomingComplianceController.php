@@ -435,6 +435,12 @@ class SiteUpcomingComplianceController extends Controller {
                 $site_list[] = $sid;
         */
 
+        // Add Specially Requested Sites to List
+        $speial_sites = [742, 751, 761, 768];
+        foreach ($speial_sites as $sid)
+            if (!in_array($sid, $site_list))
+                $site_list[] = $sid;
+
 
         foreach ($site_list as $site_id) {
             $site = Site::findOrFail($site_id);
