@@ -50,7 +50,7 @@
                             <tbody>
                             @foreach ($startdata as $row)
                                 <tr>
-                                    <td>{!! $row['date'] !!}</td>
+                                    <td style="{{ ($row['date_est']) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
                                     <td>{!! $row['supervisor'] !!}</td>
                                     <td>{!! $row['company'] !!}</td>

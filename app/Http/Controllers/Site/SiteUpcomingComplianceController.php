@@ -222,7 +222,7 @@ class SiteUpcomingComplianceController extends Controller {
                 $settings_sites->value = $special_sites;
                 $settings_sites->save();
             } else
-                $settings_sites = SiteUpcomingSettings::create(['field' => 'sites',  'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+                $settings_sites = SiteUpcomingSettings::create(['field' => 'sites', 'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
         }
 
         // Update Email List
@@ -398,6 +398,7 @@ class SiteUpcomingComplianceController extends Controller {
                 $startdata[] = [
                     'id'              => $site->id,
                     'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
+                    'date_est'        => '',
                     'code'            => $site->code,
                     'name'            => $site->name,
                     'company'         => $entity_name,
@@ -473,6 +474,7 @@ class SiteUpcomingComplianceController extends Controller {
             $startdata[] = [
                 'id'              => $site->id,
                 'date'            => '',
+                'date_est'        => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
                 'code'            => $site->code,
                 'name'            => $site->name,
                 'company'         => '-',
