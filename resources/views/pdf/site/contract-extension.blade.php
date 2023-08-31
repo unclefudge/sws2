@@ -30,11 +30,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -43,6 +43,7 @@
             margin-bottom: -999px;
             padding-bottom: 999px;
         }
+
         td.pad5, th.pad5 {
             padding: 5px !important;
             line-height: 1em !important;
@@ -66,19 +67,23 @@
             <th width="15%" class="pad5">Site</th>
             <th width="5%" class="pad5">Supervisor</th>
             <th width="5%" class="pad5">Forecast Completion</th>
+            <th width="5%" class="pad5">Days</th>
             <th width="25%" class="pad5">Extend Reasons</th>
             <th class="pad5">Extend Notes</th>
         </tr>
         </thead>
         <tbody>
         @foreach($data as $row)
-            <tr>
-                <td class="pad5">{!! $row['name'] !!}</td>
-                <td class="pad5">{!! $row['super_initials'] !!}</td>
-                <td class="pad5">{!! $row['completion_date'] !!}</td>
-                <td class="pad5">{!! $row['extend_reasons_text'] !!}</td>
-                <td class="pad5">{!! nl2br($row['notes']) !!}</td>
-            </tr>
+            @if ($row['days'])
+                <tr>
+                    <td class="pad5">{!! $row['name'] !!}</td>
+                    <td class="pad5">{!! $row['super_initials'] !!}</td>
+                    <td class="pad5">{!! $row['completion_date'] !!}</td>
+                    <td class="pad5">{!! $row['days'] !!}</td>
+                    <td class="pad5">{!! $row['extend_reasons_text'] !!}</td>
+                    <td class="pad5">{!! nl2br($row['notes']) !!}</td>
+                </tr>
+            @endif
         @endforeach
         </tbody>
     </table>
