@@ -194,7 +194,7 @@ class SiteExtensionController extends Controller {
 
         $extension->save();
 
-        return redirect("/site/extension/$extension->id");
+        return redirect("/site/extension");
 
     }
 
