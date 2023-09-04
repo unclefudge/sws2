@@ -107,7 +107,7 @@ class CronController extends Controller {
             //Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("was Successful"));
         } else {
             //echo "failed";
-            Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
+            Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
         }
     }
 
@@ -595,7 +595,7 @@ class CronController extends Controller {
                     $newRenewals[] = $doc->id;
                     $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
                     $review_doc->createAssignToDo(7); // Gary
-                    $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id]);
+                    $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id, 'created_by' => '1', 'updated_by' => '1']);
                 } else {
                     echo "$doc->name [$expire_date] already on renewal cycle<br>";
                     $log .= "$doc->name [$expire_date] already on renewal cycle\n";
@@ -1201,9 +1201,11 @@ class CronController extends Controller {
         foreach ($super_list as $super_id => $site_array) {
             $super = User::findOrFail($super_id);
             $site_list = '';
+            $site_list2 = '';
             foreach ($site_array as $site_id) {
                 $site = Site::findOrFail($site_id);
                 $site_list .= "- $site->name\r\n";
+                $site_list2 .= "$site->id, ";
             }
 
             // Create task for Supervisor
@@ -1227,6 +1229,9 @@ class CronController extends Controller {
             $todo = Todo::create($todo_request);
             $todo->assignUsers($super_id);
             $todo->emailToDo();
+
+            echo "$super->name: $site_list2<br>";
+            $log .= "$super->name: $site_list2\n";
         }
 
         echo "<h4>Completed</h4>";
