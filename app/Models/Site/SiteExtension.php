@@ -76,6 +76,7 @@ class SiteExtension extends Model {
                 'extend_reasons'       => $site_ext->reasons,
                 'extend_reasons_text'  => $site_ext->reasonsSBC(),
                 'extend_reasons_array' => $site_ext->reasonsArray(),
+                'days'                 => $site_ext->days,
                 'notes'                => $site_ext->notes
             ];
         }
@@ -84,7 +85,7 @@ class SiteExtension extends Model {
         // Create directory if required
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
 
-        $filename = "ContractExtensions " .$this->date->format('d-m-Y') . '.pdf';
+        $filename = "ContractExtensions " . $this->date->format('d-m-Y') . '.pdf';
         $file = public_path("$dir/$filename");
         if (file_exists($file))
             unlink($file);
@@ -141,7 +142,8 @@ class SiteExtension extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/company/3/docs/contract-extension/'.$this->attributes['attachment'];
+            return '/filebank/company/3/docs/contract-extension/' . $this->attributes['attachment'];
+
         return '';
     }
 }
