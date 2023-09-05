@@ -123,12 +123,10 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.jobstartexport');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
+        echo "Sending email to $emails<br>";
+        $log .= "Sending email to $emails\n";
 
         $today = Carbon::now()->format('Y-m-d');
         $planner = DB::table('site_planner AS p')
@@ -204,23 +202,28 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.appointment');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.appointment') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $app_requests = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
-        $data = ['data' => $app_requests];
+        $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
+        $data = ['data' => $mains];
 
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests Without Appointment');
-            });
+        echo "Requests Without Client Appointment: " . $mains->count() . "<br>";
+        $log .= "Requests Without Client Appointment: " . $mains->count() . "\n";
+
+        if ($mains->count()) {
+            if ($email_list) {
+                Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
+                    $send_from = 'do-not-reply@safeworksite.com.au';
+                    $m->from($send_from, 'Safe Worksite');
+                    $m->to($email_list);
+                    $m->subject('Maintenance Requests Without Appointment');
+                });
+
+                echo "Sending $email_name email to $emails<br>";
+                $log .= "Sending $email_name email to $emails\n";
+            }
         }
+
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -241,26 +244,30 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.underreview');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
         $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
         $today = Carbon::now();
 
-        // Create PDF
-        $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
+        echo "Requests Under Review: " . $mains->count() . "<br>";
+        $log .= "Requests Under Review: " . $mains->count() . "\n";
 
-        //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
-        //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
-        $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
-        $pdf->save($file);
+        if ($mains->count()) {
+            // Create PDF
+            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+            //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
+            //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
+            $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
+            $pdf->save($file);
+
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+            echo "Sending $email_name email to $emails<br>";
+            $log .= "Sending $email_name email to $emails";
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -282,12 +289,10 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('company.missing.info');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
+        echo "Sending email to $emails<br>";
+        $log .= "Sending email to $emails\n";
 
         $missing_info = [];
         $expired_docs1 = [];
@@ -375,12 +380,9 @@ class CronReportController extends Controller {
 
         $cc = Company::find(3);
         $email_name = "Maintenance No Actions";
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.noaction');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
+
 
         //
         // Active Requests with No Action 14 Days
@@ -393,36 +395,48 @@ class CronReportController extends Controller {
         }
         ksort($mains);
 
-        $data = ['data' => $mains];
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests No Action');
-            });
+        echo "Requests Without Actions: " . count($mains) . "<br>";
+        $log .= "Requests Without Actions: " . count($mains) . "\n";
+
+        if (count($mains)) {
+            $data = ['data' => $mains];
+            if ($email_list) {
+                Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
+                    $send_from = 'do-not-reply@safeworksite.com.au';
+                    $m->from($send_from, 'Safe Worksite');
+                    $m->to($email_list);
+                    $m->subject('Maintenance Requests No Action');
+                });
+                echo "Sending $email_name email to $emails<br>";
+                $log .= "Sending $email_name email to $emails\n";
+            }
         }
+
 
         //
         // On Hold Requests
         //
         $email_name = "Maintenance On Hold";
         $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.onhold');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
-        $hold_requests = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
-        $data = ['data' => $hold_requests];
+        $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
 
-        if ($email_list) {
-            Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, 'Safe Worksite');
-                $m->to($email_list);
-                $m->subject('Maintenance Requests On Hold');
-            });
+        echo "Requests On Hold: " . $mains->count() . "<br>";
+        $log .= "Requests On Hold: " . $mains->count() . "\n";
+
+        if ($mains->count()) {
+            if ($email_list) {
+                $data = ['data' => $mains];
+                Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
+                    $send_from = 'do-not-reply@safeworksite.com.au';
+                    $m->from($send_from, 'Safe Worksite');
+                    $m->to($email_list);
+                    $m->subject('Maintenance Requests On Hold');
+                });
+                echo "Sending $email_name email to $emails<br>";
+                $log .= "Sending $email_name email to $emails";
+            }
         }
 
         echo "<h4>Completed</h4>";
@@ -457,38 +471,42 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.qa.outstanding');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
+
 
         $today = Carbon::now();
         $weekago = Carbon::now()->subWeek();
         $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
 
-        // Supervisors list
-        $supers = [];
-        foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorName, $supers))
-                $supers[] .= $qa->site->supervisorName;
+        echo "Outstanding QAs: " . $qas->count() . "<br>";
+        $log .= "Outstanding QAs: " . $qas->count() . "\n";
+
+        if ($qas->count()) {
+            // Supervisors list
+            $supers = [];
+            foreach ($qas as $qa) {
+                if (!in_array($qa->site->supervisorName, $supers))
+                    $supers[] .= $qa->site->supervisorName;
+            }
+            sort($supers);
+
+            // Create PDF
+            $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
+
+            //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
+            //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+
+            $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
+            $pdf->setPaper('A4', 'landscape');
+            $pdf->save($file);
+
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
         }
-        sort($supers);
-
-        // Create PDF
-        $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-
-        $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->save($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -509,12 +527,10 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.upcoming.compliance');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
+        echo "Sending email to $emails<br>";
+        $log .= "Sending email to $emails\n";
 
 
         // Colours
@@ -579,12 +595,8 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.super.noaction');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $today = Carbon::now();
 
@@ -603,119 +615,125 @@ class CronReportController extends Controller {
             $body = '';
             $found_request = false;
             //if ($super_id) {
-                $super = ($super_id) ? User::find($super_id) : null;
+            $super = ($super_id) ? User::find($super_id) : null;
 
-                $body .= "$super_name<br>";
-                //
-                // No Appointments
-                //
-                $body .= "<h3>No Appointment</h3><br>";
-                $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
-                $body .= "<thead>";
-                $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
-                $body .= "<th width='50' style='border: 1px solid'>#</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
-                $body .= "<th width='200' style='border: 1px solid'>Site</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
-                $body .= "<th width='400' style='border: 1px solid'>Note</th>";
-                $body .= "</tr>";
-                $body .= "</thead>";
-                $body .= "<tbody>";
-                $super_count = 0;
-                foreach ($mains as $main) {
-                    if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
-                        if (!$main->client_appointment) {
-                            $super_count ++;
-                            $found_request = true;
+            $body .= "$super_name<br>";
+            //
+            // No Appointments
+            //
+            $body .= "<h3>No Appointment</h3><br>";
+            $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
+            $body .= "<thead>";
+            $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
+            $body .= "<th width='50' style='border: 1px solid'>#</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
+            $body .= "<th width='200' style='border: 1px solid'>Site</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
+            $body .= "<th width='400' style='border: 1px solid'>Note</th>";
+            $body .= "</tr>";
+            $body .= "</thead>";
+            $body .= "<tbody>";
+            $super_count = 0;
+            foreach ($mains as $main) {
+                if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
+                    if (!$main->client_appointment) {
+                        $super_count ++;
+                        $found_request = true;
 
-                            $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
-                            $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
-                            $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
+                        $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
+                        $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
+                        $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
 
-                            $body .= "<tr>";
-                            $body .= "<td style='border: 1px solid'>M$main->code</td>";
-                            $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
-                            $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
-                            $body .= "<td style='border: 1px solid'>$client_contacted</td>";
-                            $body .= "<td style='border: 1px solid'>$client_appointment</td>";
-                            $body .= "<td style='border: 1px solid'>$last_action</td>";
-                            $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
-                            $body .= "</tr>";
-                        }
+                        $body .= "<tr>";
+                        $body .= "<td style='border: 1px solid'>M$main->code</td>";
+                        $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
+                        $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
+                        $body .= "<td style='border: 1px solid'>$client_contacted</td>";
+                        $body .= "<td style='border: 1px solid'>$client_appointment</td>";
+                        $body .= "<td style='border: 1px solid'>$last_action</td>";
+                        $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
+                        $body .= "</tr>";
                     }
                 }
-                if ($super_count == 0)
-                    $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
+            }
+            if ($super_count == 0)
+                $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
 
-                $body .= "</tbody></table>";
+            $body .= "</tbody></table>";
 
-                //
-                // No Action 14 Days
-                //
-                $body .= "<br><br><h3>No Actions in last 14 days</h3><br>";
-                $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
-                $body .= "<thead>";
-                $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
-                $body .= "<th width='50' style='border: 1px solid'>#</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
-                $body .= "<th width='200' style='border: 1px solid'>Site</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
-                $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
-                $body .= "<th width='400' style='border: 1px solid'>Note</th>";
-                $body .= "</tr>";
-                $body .= "</thead>";
-                $body .= "<tbody>";
-                $super_count = 0;
-                foreach ($mains as $main) {
-                    if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
-                        if ($main->lastUpdated()->lt(Carbon::now()->subDays(14))) {
-                            $super_count ++;
-                            $found_request = true;
+            //
+            // No Action 14 Days
+            //
+            $body .= "<br><br><h3>No Actions in last 14 days</h3><br>";
+            $body .= "<table style='border: 1px solid; border-collapse: collapse'>";
+            $body .= "<thead>";
+            $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
+            $body .= "<th width='50' style='border: 1px solid'>#</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Reported</th>";
+            $body .= "<th width='200' style='border: 1px solid'>Site</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Client Contacted</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Appointment</th>";
+            $body .= "<th width='80' style='border: 1px solid'>Last Action</th>";
+            $body .= "<th width='400' style='border: 1px solid'>Note</th>";
+            $body .= "</tr>";
+            $body .= "</thead>";
+            $body .= "<tbody>";
+            $super_count2 = 0;
+            foreach ($mains as $main) {
+                if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
+                    if ($main->lastUpdated()->lt(Carbon::now()->subDays(14))) {
+                        $super_count2 ++;
+                        $found_request = true;
 
-                            $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
-                            $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
-                            $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
+                        $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
+                        $client_appointment = ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-';
+                        $last_action = ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y');
 
-                            $body .= "<tr>";
-                            $body .= "<td style='border: 1px solid'>M$main->code</td>";
-                            $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
-                            $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
-                            $body .= "<td style='border: 1px solid'>$client_contacted</td>";
-                            $body .= "<td style='border: 1px solid'>$client_appointment</td>";
-                            $body .= "<td style='border: 1px solid'>$last_action</td>";
-                            $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
-                            $body .= "</tr>";
-                        }
+                        $body .= "<tr>";
+                        $body .= "<td style='border: 1px solid'>M$main->code</td>";
+                        $body .= "<td style='border: 1px solid'>" . $main->created_at->format('d/m/Y') . "</td>";
+                        $body .= "<td style='border: 1px solid'>" . $main->site->name . "</td>";
+                        $body .= "<td style='border: 1px solid'>$client_contacted</td>";
+                        $body .= "<td style='border: 1px solid'>$client_appointment</td>";
+                        $body .= "<td style='border: 1px solid'>$last_action</td>";
+                        $body .= "<td style='border: 1px solid;'>" . $main->lastActionNote() . "</td>";
+                        $body .= "</tr>";
                     }
                 }
-                if ($super_count == 0)
-                    $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
+            }
+            if ($super_count2 == 0)
+                $body .= "<tr><td colspan = '7'> No Maintenance Requests found matching required criteria </td></tr>";
 
-                $body .= "</tbody></table>";
+            $body .= "</tbody></table>";
 
-                //echo $body;
+            echo "No Appointments: $super_count<br>";
+            $log .= "No Appointments: $super_count\n";
+            echo "No Actions 14 days: $super_count2<br>";
+            $log .= "No Actions 14 days: $super_count2\n";
 
-                //
-                // Send email to Supervisors
-                //
-                if ($found_request) {
-                    $email_to = [env('EMAIL_DEV')];
-                    $email_cc = '';
-                    if (\App::environment('prod')) {
-                        if ($super && validEmail($super->email)) {
-                            $email_to = $super->email;
-                            $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
-                        } else
-                            $email_to = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
-                    }
-                    if ($email_to && $email_cc)
-                        Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
-                    elseif ($email_to)
-                        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+            //
+            // Send email to Supervisors
+            //
+            if ($found_request) {
+                $email_to = [env('EMAIL_DEV')];
+                $email_cc = '';
+                if (\App::environment('prod')) {
+                    if ($super && validEmail($super->email)) {
+                        $email_to = $super->email;
+                        $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
+                    } else
+                        $email_to = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
                 }
+                if ($email_to && $email_cc)
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+                elseif ($email_to)
+                    Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
+
+                echo "Sending $email_name email to $emails<br>";
+                $log .= "Sending $email_name email to $emails";
+            }
             //}
         }
 
@@ -752,12 +770,8 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('user.oldusers');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('user.oldusers') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails";
-        $log .= "Sending $email_name email to $emails";
 
 
         $cc_users = $cc->users(1)->pluck('id')->toArray();
@@ -776,9 +790,16 @@ class CronReportController extends Controller {
         }
 
         $users = User::whereIn('id', $user_list3)->orderBy('company_id', 'ASC')->get();
-        //dd($users);
+        echo "Old Users: " . $users->count() . "<br>";
+        $log .= "Old Users: " . $users->count() . "\n";
 
-        Mail::to($email_list)->send(new \App\Mail\User\OldUsers($users));
+
+        //dd($users);
+        if ($users->count()) {
+            Mail::to($email_list)->send(new \App\Mail\User\OldUsers($users));
+            echo "Sending $email_name email to $emails";
+            $log .= "Sending $email_name email to $emails";
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -808,30 +829,32 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('equipment.transfers');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('equipment.transfers') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
 
         $to = Carbon::now();
         $from = Carbon::now()->subDays(7);
         $transactions = EquipmentLog::where('action', 'T')->whereDate('created_at', '>=', $from->format('Y-m-d'))->whereDate('created_at', '<=', $to->format('Y-m-d'))->get();
+        echo "Transactions: " . $transactions->count() . "<br>";
+        $log .= "Transactions: " . $transactions->count() . "\n";
 
-        // Create PDF
-        $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
+        if ($transactions->count()) {
+            // Create PDF
+            $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
 
-        //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
-        //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
+            //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+            //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
 
-        $pdf = PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
-        $pdf->setPaper('A4', 'portrait');
-        $pdf->save($file);
+            $pdf = PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->save($file);
 
-        Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
+            Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -853,39 +876,41 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.qa.onhold');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
 
         $today = Carbon::now();
         $qas = SiteQa::where('status', 2)->where('master', 0)->orderBy('updated_at')->get();
+        echo "On Hold QAs: " . $qas->count() . "<br>";
+        $log .= "On Hold QAs: " . $qas->count() . "\n";
 
-        // Create PDF
-        $file = public_path('filebank/tmp/qa-onhold-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
+        if ($qas->count()) {
+            // Create PDF
+            $file = public_path('filebank/tmp/qa-onhold-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
 
-        // Supervisors list
-        $supers = [];
-        foreach ($qas as $qa) {
-            if (!in_array($qa->site->supervisorName, $supers))
-                $supers[] .= $qa->site->supervisorName;
+            // Supervisors list
+            $supers = [];
+            foreach ($qas as $qa) {
+                if (!in_array($qa->site->supervisorName, $supers))
+                    $supers[] .= $qa->site->supervisorName;
+            }
+            sort($supers);
+
+            //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+            //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
+
+            $pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
+            $pdf->setPaper('A4', 'landscape');
+            $pdf->save($file);
+
+            //dd($file);
+
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
         }
-        sort($supers);
-
-        //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-
-        $pdf = PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->save($file);
-
-        //dd($file);
-
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -907,21 +932,35 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.inspection.open');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.open') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
 
         $today = Carbon::now();
         $electrical = SiteInspectionElectrical::where('status', 1)->get();
         $plumbing = SiteInspectionPlumbing::where('status', 1)->get();
 
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+
+        // Electrical
+        echo "Active Electrical: " . $electrical->count() . "<br>";
+        $log .= "Active Electrical: " . $electrical->count() . "\n";
+        if ($electrical->count()) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
+        }
+
+        // Plumbing
+        echo "Active Plumbing: " . $plumbing->count() . "<br>";
+        $log .= "Active Plumbing: " . $plumbing->count() . "\n";
+        if ($plumbing->count()) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
+        }
 
         // Inspections 8 weeks over
+        echo "<br>Inspections Over 8 weeks<br>";
+        $log .= "\nInspections Over 8 weeks\n";
         $overdue_date = Carbon::now()->subWeek(8);
         $eids = [];
         foreach ($electrical as $report) {
@@ -936,9 +975,18 @@ class CronReportController extends Controller {
         }
         $plumbing = SiteInspectionPlumbing::find($pids);
 
-        if (\App::environment('prod'))
-            $email_list = ['gary@capecod.com.au', 'kirstie@capecod.com.au'];
-        Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
+        echo "Electrical: " . $electrical->count() . "<br>";
+        $log .= "Electrical: " . $electrical->count() . "\n";
+        echo "Active: " . $plumbing->count() . "<br>";
+        $log .= "Active: " . $plumbing->count() . "\n";
+
+
+        $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        if ($electrical->count() || $plumbing->count()) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
+            echo "Sending email to $emails<br>";
+            $log .= "Sending email to $emails\n";
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -969,23 +1017,31 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('equipment.restock');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('equipment.restock') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails";
-        $log .= "Sending $email_name email to $emails";
 
         $equipment = Equipment::where('min_stock', '!=', null)->where('status', 1)->orderBy('name')->get();
-        $data = ['data' => $equipment];
+        $eids = [];
+        foreach ($equipment as $equip) {
+            if ($equip->total < $equip->min_stock)
+                $eids[] = $equip->id;
 
-        if ($email_list) {
+        }
+        $equipment = Equipment::find($eids);
+        echo "Equipment: ". $equipment->count() . "<br>";
+        $log .= "Equipment: ". $equipment->count() . "\n";
+
+
+        if ($equipment->count() && $email_list) {
+            $data = ['data' => $equipment];
             Mail::send('emails/misc/equipment-restock', $data, function ($m) use ($email_list, $data) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
                 $m->to($email_list);
                 $m->subject('SafeWorksite - Equipment Restock');
             });
+            echo "Sending $email_name email to $emails<br>";
+            $log .= "Sending $email_name email to $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -1008,22 +1064,23 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.aftercare');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.aftercare') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending $email_name email to $emails<br>";
-        $log .= "Sending $email_name email to $emails";
+
         $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
+        echo "Outstanding AfterCare: ". $mains->count() . "<br>";
+        $log .= "Outstanding AfterCare: ". $mains->count() . "\n";
         $data = ['data' => $mains];
 
-        if ($email_list) {
+        if ($mains->count() && $email_list) {
             Mail::send('emails/site/maintenance-aftercare', $data, function ($m) use ($email_list, $data) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
                 $m->to($email_list);
                 $m->subject('Maintenance Requests Without After Care');
             });
+            echo "Sending $email_name email to $emails<br>";
+            $log .= "Sending $email_name email to $emails";
         }
 
         echo "<h4>Completed</h4>";
@@ -1052,12 +1109,10 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
-            $email_list = $cc->notificationsUsersEmailType('site.maintenance.executive');
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails";
-        $log .= "Sending email to $emails";
+        echo "Sending email to $emails<br>";
+        $log .= "Sending email to $emails\n";
 
         $to = Carbon::now();
         $from = Carbon::now()->subDays(90);

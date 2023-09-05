@@ -976,8 +976,8 @@ class CronController extends Controller {
         }
 
         if (!$email_sent) {
-            echo "No key tasks today";
-            $log .= "No key tasks today";
+            echo "No key tasks today<br>";
+            $log .= "No key tasks today\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -1328,6 +1328,9 @@ class CronController extends Controller {
             $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au'] : [env('EMAIL_DEV')];
             $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));
+        } else {
+            echo "Already Signed off<br>";
+            $log .= "Already Signed off\n";
         }
 
         echo "<h4>Completed</h4>";

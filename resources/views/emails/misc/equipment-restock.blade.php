@@ -13,14 +13,12 @@
                     <td width="100" style="border: 1px solid">Last Ordered</td>
                 </tr>
                 @foreach($data as $equipment)
-                    @if ($equipment->total < $equipment->min_stock)
-                        <tr>
-                            <td style="border: 1px solid">{{ $equipment->name }}</td>
-                            <td style="border: 1px solid">{{ $equipment->total }}</td>
-                            <td style="border: 1px solid">{{ $equipment->min_stock }}</td>
-                            <td style="border: 1px solid">{{ ($equipment->purchased_last) ? $equipment->purchased_last->format('d/m/Y') : '-' }}</td>
-                        </tr>
-                    @endif
+                    <tr>
+                        <td style="border: 1px solid">{{ $equipment->name }}</td>
+                        <td style="border: 1px solid">{{ $equipment->total }}</td>
+                        <td style="border: 1px solid">{{ $equipment->min_stock }}</td>
+                        <td style="border: 1px solid">{{ ($equipment->purchased_last) ? $equipment->purchased_last->format('d/m/Y') : '-' }}</td>
+                    </tr>
                 @endforeach
             </table>
             <br>
