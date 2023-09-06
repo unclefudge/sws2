@@ -61,7 +61,7 @@ class CronController extends Controller {
         CronController::qaOnholdButCompleted();
         CronController::completeToDoCompanyDoc();
         CronController::completedToDoQA();
-        CronController::expiredCompanyDoc();
+        CronController::verifyZohoImport();
         CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
         CronController::archiveToolbox();
@@ -70,6 +70,7 @@ class CronController extends Controller {
         //CronController::actionPlannerKeyTasks();
         CronController::siteExtensions();
         CronController::superChecklists();
+        CronController::uploadCompanyDocReminder();
         CronController::verifyZohoImport();
 
         // Monday
@@ -939,9 +940,9 @@ class CronController extends Controller {
     static public function emailPlannerKeyTasks()
     {
         $log = '';
-        $email_name = "Key Tasks on Planner";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Key Tasks on Planner";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $cc = Company::find(3);
         $email_list = [env('EMAIL_DEV')];
@@ -994,9 +995,9 @@ class CronController extends Controller {
     static public function actionPlannerKeyTasks()
     {
         $log = '';
-        $email_name = "Action Tasks on Planner";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Action Tasks on Planner";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $cc = Company::find(3);
 
@@ -1076,9 +1077,9 @@ class CronController extends Controller {
     static public function siteExtensions()
     {
         $log = '';
-        $email_name = "Creating Site Extension for Active Sites";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Creating Site Extension for Active Sites";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
@@ -1180,9 +1181,9 @@ class CronController extends Controller {
     static public function siteExtensionsSupervisorTask()
     {
         $log = '';
-        $email_name = "Creating Site Extension Supervisor Task for Active Sites";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Creating Site Extension Supervisor Task for Active Sites";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $extension = SiteExtension::where('status', 1)->first();
@@ -1248,9 +1249,9 @@ class CronController extends Controller {
     static public function siteExtensionsSupervisorTaskReminder()
     {
         $log = '';
-        $email_name = "Creating Site Extension Supervisor Task Reminder for Active Sites";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Creating Site Extension Supervisor Task Reminder for Active Sites";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $extension = SiteExtension::where('status', 1)->first();
@@ -1299,9 +1300,9 @@ class CronController extends Controller {
     static public function siteExtensionsSupervisorTaskFinalReminder()
     {
         $log = '';
-        $email_name = "Sending Site Extension Con Manager Final Reminder";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Sending Site Extension Con Manager Final Reminder";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $message = '';
@@ -1344,9 +1345,9 @@ class CronController extends Controller {
     static public function superChecklists()
     {
         $log = '';
-        $email_name = "Creating Supervisor Checklists for Active Supervisors";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Creating Supervisor Checklists for Active Supervisors";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $mon = new Carbon('monday this week');
@@ -1391,15 +1392,51 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
+    static public function uploadCompanyDocReminder()
+    {
+        $log = '';
+        $func_name = "Upload Company Docs Reminder";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $yesterday = Carbon::now()->subDays(1);
+        $week_ago = Carbon::now()->subDays(7);
+
+        $companies = Company::whereDate('created_at', '=', $yesterday)->get();
+        foreach ($companies as $company) {
+            if (!$company->isCompliant()) {
+                echo "[$company->id] $company->name: ".$company->missingDocs('csv')."<br>";
+
+                // Send email
+                $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
+                $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'gary@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+                if ($email_to && $email_cc) {
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
+                    $emails = implode("; ", array_merge($email_to, $email_cc));
+                    echo "Sending email to $emails<br>";
+                    $log .= "Sending email to $emails\n";
+                }
+            }
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
     /*
      * Verify Zoho Import
      */
     static public function verifyZohoImport()
     {
         $log = '';
-        $email_name = "Verify Zoho Import";
-        echo "<h2>$email_name</h2>";
-        $log .= "$email_name\n";
+        $func_name = "Verify Zoho Import";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $yesterday = Carbon::now()->subDays(1)->format('Ymd');

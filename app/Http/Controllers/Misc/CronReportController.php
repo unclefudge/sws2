@@ -117,16 +117,14 @@ class CronReportController extends Controller {
     static public function emailJobstart()
     {
         $log = '';
-        $email_name = "Jobstart";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Jobstart";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails<br>";
-        $log .= "Sending email to $emails\n";
 
         $today = Carbon::now()->format('Y-m-d');
         $planner = DB::table('site_planner AS p')
@@ -181,6 +179,8 @@ class CronReportController extends Controller {
             $m->subject('Upcoming Job Start Dates');
             $m->attach($file);
         });
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
 
 
         echo "<h4>Completed</h4>";
@@ -196,9 +196,9 @@ class CronReportController extends Controller {
     static public function emailMaintenanceAppointment()
     {
         $log = '';
-        $email_name = "Maintenance Without Appointment";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Maintenance Without Appointment";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -219,11 +219,10 @@ class CronReportController extends Controller {
                     $m->subject('Maintenance Requests Without Appointment');
                 });
 
-                echo "Sending $email_name email to $emails<br>";
-                $log .= "Sending $email_name email to $emails\n";
+                echo "Sending email to: $emails<br>";
+                $log .= "Sending email to: $emails\n";
             }
         }
-
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -238,9 +237,9 @@ class CronReportController extends Controller {
     static public function emailMaintenanceUnderReview()
     {
         $log = '';
-        $email_name = "Maintenance Under Review";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Maintenance Under Review";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -265,8 +264,8 @@ class CronReportController extends Controller {
 
             Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
 
-            echo "Sending $email_name email to $emails<br>";
-            $log .= "Sending $email_name email to $emails";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
         }
 
         echo "<h4>Completed</h4>";
@@ -283,16 +282,14 @@ class CronReportController extends Controller {
     static public function emailMissingCompanyInfo()
     {
         $log = '';
-        $email_name = "Missing Company Info";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Missing Company Info";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails<br>";
-        $log .= "Sending email to $emails\n";
 
         $missing_info = [];
         $expired_docs1 = [];
@@ -360,6 +357,8 @@ class CronReportController extends Controller {
         }
 
         Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -379,7 +378,7 @@ class CronReportController extends Controller {
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_name = "Maintenance No Actions";
+        $func_name = "Maintenance No Actions";
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
@@ -407,8 +406,8 @@ class CronReportController extends Controller {
                     $m->to($email_list);
                     $m->subject('Maintenance Requests No Action');
                 });
-                echo "Sending $email_name email to $emails<br>";
-                $log .= "Sending $email_name email to $emails\n";
+                echo "Sending $func_name email to: $emails<br>";
+                $log .= "Sending $func_name email to: $emails\n";
             }
         }
 
@@ -416,7 +415,7 @@ class CronReportController extends Controller {
         //
         // On Hold Requests
         //
-        $email_name = "Maintenance On Hold";
+        $func_name = "Maintenance On Hold";
         $email_list = [env('EMAIL_DEV')];
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
@@ -434,8 +433,8 @@ class CronReportController extends Controller {
                     $m->to($email_list);
                     $m->subject('Maintenance Requests On Hold');
                 });
-                echo "Sending $email_name email to $emails<br>";
-                $log .= "Sending $email_name email to $emails";
+                echo "Sending $func_name email to: $emails<br>";
+                $log .= "Sending $func_name email to: $emails";
             }
         }
 
@@ -465,9 +464,9 @@ class CronReportController extends Controller {
     static public function emailOutstandingQA()
     {
         $log = '';
-        $email_name = "Outstanding QA Checklists";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Outstanding QA Checklists";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -504,8 +503,8 @@ class CronReportController extends Controller {
             $pdf->save($file);
 
             Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -521,16 +520,16 @@ class CronReportController extends Controller {
     static public function emailUpcomingJobCompilance()
     {
         $log = '';
-        $email_name = "Upcoming Job Compliance";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Upcoming Job Compliance";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails<br>";
-        $log .= "Sending email to $emails\n";
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
 
 
         // Colours
@@ -574,6 +573,9 @@ class CronReportController extends Controller {
                 $m->subject('SafeWorksite - Upcoming Jobs Compliance Data');
                 $m->attach($file);
             });
+
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
         }
 
         echo "<h4>Completed</h4>";
@@ -589,9 +591,9 @@ class CronReportController extends Controller {
     static public function emailMaintenanceSupervisorNoAction()
     {
         $log = '';
-        $email_name = "Maintenance Supervisor No Action";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Maintenance Supervisor No Action";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -731,8 +733,9 @@ class CronReportController extends Controller {
                 elseif ($email_to)
                     Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
 
-                echo "Sending $email_name email to $emails<br>";
-                $log .= "Sending $email_name email to $emails";
+                $emails = implode("; ", array_merge($email_to, $email_cc));
+                echo "Sending email to: $emails<br>";
+                $log .= "Sending email to: $emails";
             }
             //}
         }
@@ -764,9 +767,9 @@ class CronReportController extends Controller {
     static public function emailOldUsers()
     {
         $log = '';
-        $email_name = "Old Users";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Old Users";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -797,8 +800,8 @@ class CronReportController extends Controller {
         //dd($users);
         if ($users->count()) {
             Mail::to($email_list)->send(new \App\Mail\User\OldUsers($users));
-            echo "Sending $email_name email to $emails";
-            $log .= "Sending $email_name email to $emails";
+            echo "Sending email to: $emails";
+            $log .= "Sending email to: $emails";
         }
 
         echo "<h4>Completed</h4>";
@@ -823,9 +826,9 @@ class CronReportController extends Controller {
     static public function emailEquipmentTransfers()
     {
         $log = '';
-        $email_name = "Equipment Transfers";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Equipment Transfers";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -852,8 +855,8 @@ class CronReportController extends Controller {
             $pdf->save($file);
 
             Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -870,9 +873,9 @@ class CronReportController extends Controller {
     static public function emailOnHoldQA()
     {
         $log = '';
-        $email_name = "On Hold QA Checklists";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "On Hold QA Checklists";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -905,11 +908,9 @@ class CronReportController extends Controller {
             $pdf->setPaper('A4', 'landscape');
             $pdf->save($file);
 
-            //dd($file);
-
             Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -926,9 +927,9 @@ class CronReportController extends Controller {
     static public function emailActiveElectricalPlumbing()
     {
         $log = '';
-        $email_name = "Open Electrical Plumbing Inspection Reports";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Open Electrical Plumbing Inspection Reports";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -945,8 +946,8 @@ class CronReportController extends Controller {
         $log .= "Active Electrical: " . $electrical->count() . "\n";
         if ($electrical->count()) {
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         // Plumbing
@@ -954,8 +955,8 @@ class CronReportController extends Controller {
         $log .= "Active Plumbing: " . $plumbing->count() . "\n";
         if ($plumbing->count()) {
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         // Inspections 8 weeks over
@@ -984,8 +985,9 @@ class CronReportController extends Controller {
         $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($electrical->count() || $plumbing->count()) {
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
-            echo "Sending email to $emails<br>";
-            $log .= "Sending email to $emails\n";
+            $emails = implode("; ", $email_list);
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -1011,9 +1013,9 @@ class CronReportController extends Controller {
     static public function emailEquipmentRestock()
     {
         $log = '';
-        $email_name = "Equipment Restock";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Equipment Restock";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -1040,8 +1042,8 @@ class CronReportController extends Controller {
                 $m->to($email_list);
                 $m->subject('SafeWorksite - Equipment Restock');
             });
-            echo "Sending $email_name email to $emails<br>";
-            $log .= "Sending $email_name email to $emails\n";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
         }
 
         echo "<h4>Completed</h4>";
@@ -1058,9 +1060,9 @@ class CronReportController extends Controller {
     static public function emailOutstandingAftercare()
     {
         $log = '';
-        $email_name = "Outstanding After Care";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Outstanding After Care";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -1079,8 +1081,8 @@ class CronReportController extends Controller {
                 $m->to($email_list);
                 $m->subject('Maintenance Requests Without After Care');
             });
-            echo "Sending $email_name email to $emails<br>";
-            $log .= "Sending $email_name email to $emails";
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
         }
 
         echo "<h4>Completed</h4>";
@@ -1103,16 +1105,14 @@ class CronReportController extends Controller {
     static public function emailMaintenanceExecutive($email_list = null)
     {
         $log = '';
-        $email_name = "Site Maintenance Executive Report";
-        echo "<h2>Email $email_name</h2>";
-        $log .= "Email $email_name\n";
+        $func_name = "Site Maintenance Executive Report";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        echo "Sending email to $emails<br>";
-        $log .= "Sending email to $emails\n";
 
         $to = Carbon::now();
         $from = Carbon::now()->subDays(90);
@@ -1208,6 +1208,8 @@ class CronReportController extends Controller {
         $pdf->save($file);
 
         Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceExecutive($file));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

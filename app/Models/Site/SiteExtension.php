@@ -108,7 +108,7 @@ class SiteExtension extends Model {
     public function createSignOffToDo($user_list)
     {
         $todo_request = [
-            'type'       => 'extension',
+            'type'       => 'extension signoff',
             'type_id'    => $this->id,
             'name'       => 'Authorise Contract Time Extensions - ' . $this->date->format('d/m/Y'),
             'info'       => 'Please sign off on completed items',
@@ -127,7 +127,7 @@ class SiteExtension extends Model {
      */
     public function closeToDo()
     {
-        $todos = Todo::where('type', 'extension')->where('type_id', $this->id)->where('status', '1')->get();
+        $todos = Todo::whereIn('type', ['extension', 'extension signoff'])->where('type_id', $this->id)->where('status', '1')->get();
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();

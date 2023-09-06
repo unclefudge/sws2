@@ -215,7 +215,7 @@ class ToolboxTalkController extends Controller {
 
                 // If toolbox template is made Active email activeTemplate
                 if (request('status') == 1 && $talk->master) {
-                    $talk->emailActiveTemplate();
+                    //$talk->emailActiveTemplate();
                     // Mail notification talk owner
                     if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
                         Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($talk));

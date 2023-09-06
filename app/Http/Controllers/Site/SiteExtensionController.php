@@ -158,8 +158,11 @@ class SiteExtensionController extends Controller {
             }
 
             // Create ToDoo task for Con Mgr if all sites completed
-            if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count())
-                $site_ext->extension->createSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
+            if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count()) {
+                $todo = Todo::where('type', 'extension signoff')->where('type_id', $this->id)->where('status', '1')->first();
+                if (!$todo)
+                    $site_ext->extension->createSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
+            }
             //$site_ext->extension->createSignOffToDo(['325']);  // Michelle 325, Courtney 1359
         }
 
@@ -285,6 +288,7 @@ class SiteExtensionController extends Controller {
         //return view('pdf/site/contract-extension', compact('data', 'extension'));
         $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'));
         $pdf->setPaper('A4', 'landscape');
+
         return $pdf->stream();
     }
 

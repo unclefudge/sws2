@@ -698,6 +698,8 @@ Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@si
 Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTask');
 Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskReminder');
 Route::get('cron/site-extensions-supervisor-final-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskFinalReminder');
+Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController@uploadCompanyDocReminder');
+
 
 Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
 Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');
