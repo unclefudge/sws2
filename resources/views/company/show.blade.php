@@ -8,17 +8,17 @@
 @extends('layout')
 
 @if (Auth::user()->company->status != 2)
-@section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->company->subscription > 1 && Auth::user()->hasAnyPermissionType('company'))
-            <li><a href="/company">Companies</a><i class="fa fa-circle"></i></li>
-            <li><span>Profile</span></li>
-        @else
-            <li><span>Company Profile</span></li>
-        @endif
-    </ul>
-@stop
+    @section('breadcrumbs')
+        <ul class="page-breadcrumb breadcrumb">
+            <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+            @if (Auth::user()->company->subscription > 1 && Auth::user()->hasAnyPermissionType('company'))
+                <li><a href="/company">Companies</a><i class="fa fa-circle"></i></li>
+                <li><span>Profile</span></li>
+            @else
+                <li><span>Company Profile</span></li>
+            @endif
+        </ul>
+    @stop
 @endif
 
 @section('content')
@@ -26,6 +26,19 @@
     <div class="page-content-inner">
 
         @include('company/_header')
+
+        {{-- Non-Compliance Message for Primary User--}}
+        @if (count($company->missingDocs()) && Auth::user()->id == $company->primary_user)
+            <div class="col-md-12 note note-warning">
+                <div style="text-align: center">You're company is <b>NON-COMPLIANT</b><br>to work on {{ $company->reportsTo()->name_alias }} work sites.
+                    <br><br>
+                    Please upload the documents listed within the Compliance Documents section.<br><br>
+                    @if(Auth::user()->isCompany($company->id) && Auth::user()->allowed2('add.company.doc'))
+                        <a href="/company/{{ $company->id }}/doc/upload" class="btn dark">Upload</a>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <div class="row">
             @include('company/_compliance-docs')
@@ -106,141 +119,142 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#lic_type").select2({placeholder: "Select one or more", width: '100%',});
-        $("#trades").select2({placeholder: "Select one or more", width: '100%'});
-        $("#supervisors").select2({placeholder: "Select one or more", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#lic_type").select2({placeholder: "Select one or more", width: '100%',});
+            $("#trades").select2({placeholder: "Select one or more", width: '100%'});
+            $("#supervisors").select2({placeholder: "Select one or more", width: '100%'});
 
-        if ($('#transient').val() == 1)
-            $('#super-div').show();
-        else
-            $('#supervisors').val('');
+            if ($('#transient').val() == 1)
+                $('#super-div').show();
+            else
+                $('#supervisors').val('');
 
-        $('#transient').change(function (e) {
-            $('#super-div').toggle();
-        });
+            $('#transient').change(function (e) {
+                $('#super-div').toggle();
+            });
 
-        $('#compliance_type').change(function (e) {
-            overide();
-        });
+            $('#compliance_type').change(function (e) {
+                overide();
+            });
 
-        function overide() {
-            var type = $('#compliance_type').val();
-            if (type != '') {
-                $('#add_compliance_fields').show();
-                $('#save_compliance').show();
-                if (type == 'cdu')
-                    $('#add_compliance_required').hide();
-                else {
-                    $('#add_compliance_required').show();
-                    var cat = type.substring(2, type.length);
-                    if ($('#ot_'+type).val() == '1') {
-                        $('#creq_yes').show();
-                        $('#creq_not').hide();
-                        $('#required').val('0');
-                    } else {
-                        $('#creq_yes').hide();
-                        $('#creq_not').show();
-                        $('#required').val('1');
+            function overide() {
+                var type = $('#compliance_type').val();
+                if (type != '') {
+                    $('#add_compliance_fields').show();
+                    $('#save_compliance').show();
+                    if (type == 'cdu')
+                        $('#add_compliance_required').hide();
+                    else {
+                        $('#add_compliance_required').show();
+                        var cat = type.substring(2, type.length);
+                        if ($('#ot_' + type).val() == '1') {
+                            $('#creq_yes').show();
+                            $('#creq_not').hide();
+                            $('#required').val('0');
+                        } else {
+                            $('#creq_yes').hide();
+                            $('#creq_not').show();
+                            $('#required').val('1');
+                        }
+                        $('#required').trigger('change');
                     }
-                    $('#required').trigger('change');
+                } else {
+                    $('#add_compliance_fields').hide();
+                    $('#save_compliance').hide();
                 }
-            } else {
-                $('#add_compliance_fields').hide();
-                $('#save_compliance').hide();
             }
+        });
+
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
         }
-    });
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        // Warning Message for making company inactive
+        $('#status').change(function () {
+            if ($('#status').val() == '0') {
+                swal({
+                    title: "Deactivating a Company",
+                    text: "Once you make a company <b>Inactive</b> and save it will also:<br><br>" +
+                        "<div style='text-align: left'><ul>" +
+                        "<li>Make all users within this company 'Inactive'</li>" +
+                        "<li>Archive all active/pending documents & SWMS</li>" +
+                        "<li>Remove company from planner for all future events</li>" +
+                        "</ul></div>",
+                    allowOutsideClick: true,
+                    html: true,
+                });
+            }
+        });
 
-    // Warning Message for making company inactive
-    $('#status').change(function () {
-        if ($('#status').val() == '0') {
+        // Warning message for deleting leave
+        {{--}}}
+        $('.delete_leave').click(function (e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            var date = $(this).data('date');
+            var note = $(this).data('note');
+
             swal({
-                title: "Deactivating a Company",
-                text: "Once you make a company <b>Inactive</b> and save it will also:<br><br>" +
-                "<div style='text-align: left'><ul>" +
-                "<li>Make all users within this company 'Inactive'</li>" +
-                "<li>Archive all active/pending documents & SWMS</li>" +
-                "<li>Remove company from planner for all future events</li>" +
-                "</ul></div>",
+                title: "Are you sure?",
+                text: "You will not be able to restore this leave!<br><b>" + date + ': ' + note + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
                 allowOutsideClick: true,
                 html: true,
+            }, function () {
+                window.location = "/company/{{ $company->id }}/leave/" + id;
             });
+        });--}}
+
+
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'company' || errors.FORM == 'construction' || errors.FORM == 'whs' || errors.FORM == 'compliance') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
         }
-    });
+        if (errors.FORM == 'leave.add') {
+            $('#show_leave').hide();
+            $('#edit_leave').hide();
+            $('#add_leave').show();
+        }
+        if (errors.FORM == 'compliance.add') {
+            $('#show_compliance').hide();
+            $('#edit_compliance').hide();
+            $('#add_compliance').show();
+        }
 
-    // Warning message for deleting leave
-    {{--}}}
-    $('.delete_leave').click(function (e) {
-        e.preventDefault();
-        var id = $(this).data('id');
-        var date = $(this).data('date');
-        var note = $(this).data('note');
+        console.log(errors)
+        @endif
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to restore this leave!<br><b>" + date + ': ' + note + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            window.location = "/company/{{ $company->id }}/leave/" + id;
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
         });
-    });--}}
 
-
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'company' || errors.FORM == 'construction' || errors.FORM == 'whs' || errors.FORM == 'compliance') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
-    if (errors.FORM == 'leave.add') {
-        $('#show_leave').hide();
-        $('#edit_leave').hide();
-        $('#add_leave').show();
-    }
-    if (errors.FORM == 'compliance.add') {
-        $('#show_compliance').hide();
-        $('#edit_compliance').hide();
-        $('#add_compliance').show();
-    }
-
-    console.log(errors)
-    @endif
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-</script>
+    </script>
 @stop

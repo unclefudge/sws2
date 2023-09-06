@@ -14,9 +14,20 @@
 
         @include('company/_header')
 
-        {{-- Compliance Documents --}}
-        @if (count($company->missingDocs()))
+        {{-- Non-Compliance Message for Primary User--}}
+        @if (count($company->missingDocs()) && Auth::user()->id == $company->primary_user)
             <div class="row">
+                <div class="col-lg-6 col-xs-12 col-sm-12 note note-warning">
+                    <div style="text-align: center">You're company is <b>NON-COMPLIANT</b><br>to work on {{ $company->reportsTo()->name_alias }} work sites.
+                        <br><br>
+                        Please upload the documents listed within the Compliance Documents section.<br><br>
+                        @if(count($company->missingDocs()) && (Auth::user()->isCompany($company->id) && Auth::user()->allowed2('add.company.doc')) ||
+                   (Auth::user()->isCompany($company->reportsTo()->id) && Auth::user()->allowed2('add.company.doc') && $company->parentUpload()))
+                            <a href="/company/{{ $company->id }}/doc/upload" class="btn dark">Upload</a>
+                        @endif
+                    </div>
+                </div>
+
                 @include('company/_compliance-docs')
             </div>
         @endif
@@ -116,116 +127,117 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-
-    $(document).ready(function () {
-        /* Dynamic Category dropdown from Department */
-        $("#category_id").select2({width: '100%', minimumResultsForSearch: -1});
-        $("#department").on('change', function () {
-            var dept_id = $(this).val();
-            //alert(deptId);
-            if (dept_id) {
-                $.ajax({
-                    url: '/company/' + {{ Auth::user()->company_id }} +'/doc/cats/' + dept_id,
-                    type: "GET",
-                    dataType: "json",
-                    beforeSend: function () {
-                        $('#loader').css("visibility", "visible");
-                    },
-
-                    success: function (data) {
-                        console.log(data);
-                        $("#category_id").empty();
-                        $("#category_id").append('<option value="ALL">All categories</option>');
-                        $.each(data, function (key, value) {
-                            console.log('k:' + key + ' v:' + value);
-                            $("#category_id").append('<option value="' + key + '">' + value + '</option>');
-                        });
-                    },
-                    complete: function () {
-                        $('#loader').css("visibility", "hidden");
-                        table1.ajax.reload();
-                    }
-                });
-            } else {
-                $('select[name="state"]').empty();
-            }
-
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-    });
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 100,
-        ajax: {
-            'url': '{!! url("company/$company->id/doc/dt/docs") !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.category_id = $('#category_id').val();
-                d.department = $('#department').val();
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-            {data: 'category_id', name: 'category_id'},
-            {data: 'details', name: 'details'},
-            {data: 'expiry', name: 'expiry'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [2, "asc"]
-        ]
-    });
 
-    table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        $(document).ready(function () {
+            /* Dynamic Category dropdown from Department */
+            $("#category_id").select2({width: '100%', minimumResultsForSearch: -1});
+            $("#department").on('change', function () {
+                var dept_id = $(this).val();
+                //alert(deptId);
+                if (dept_id) {
+                    $.ajax({
+                        url: '/company/' + {{ Auth::user()->company_id }} + '/doc/cats/' + dept_id,
+                        type: "GET",
+                        dataType: "json",
+                        beforeSend: function () {
+                            $('#loader').css("visibility", "visible");
+                        },
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this file!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted document');
-                },
-            }).always(function (data) {
-                $('#table1').DataTable().draw(false);
+                        success: function (data) {
+                            console.log(data);
+                            $("#category_id").empty();
+                            $("#category_id").append('<option value="ALL">All categories</option>');
+                            $.each(data, function (key, value) {
+                                console.log('k:' + key + ' v:' + value);
+                                $("#category_id").append('<option value="' + key + '">' + value + '</option>');
+                            });
+                        },
+                        complete: function () {
+                            $('#loader').css("visibility", "hidden");
+                            table1.ajax.reload();
+                        }
+                    });
+                } else {
+                    $('select[name="state"]').empty();
+                }
+
+            });
+
+        });
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 100,
+            ajax: {
+                'url': '{!! url("company/$company->id/doc/dt/docs") !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.category_id = $('#category_id').val();
+                    d.department = $('#department').val();
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+                {data: 'category_id', name: 'category_id'},
+                {data: 'details', name: 'details'},
+                {data: 'expiry', name: 'expiry'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [2, "asc"]
+            ]
+        });
+
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this file!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
             });
         });
-    });
 
 
-    $('#category_id').change(function () {
-        table1.ajax.reload();
-    });
+        $('#category_id').change(function () {
+            table1.ajax.reload();
+        });
 
-    $('#department').change(function () {
-        table1.ajax.reload();
-    });
+        $('#department').change(function () {
+            table1.ajax.reload();
+        });
 
-    $('#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('#status').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

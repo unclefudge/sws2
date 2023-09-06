@@ -62,7 +62,7 @@ class CompanyController extends Controller {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store()
@@ -89,14 +89,15 @@ class CompanyController extends Controller {
 
 
         // Mail request to new company
+        $user_list = (\App::environment('prod')) ? ['courtney@capecod.com.au'] : [env('EMAIL_DEV')];
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         if ($email_user)
-            Mail::to(request('email'))->cc([$email_user])->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
-        else
-            Mail::to(request('email'))->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
+            $user_list[] = $email_user;
+
+        Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         // Mail notification to parent company
         if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent')) {
-            $email_list =  (\App::environment('prod')) ? $newCompany->reportsTo()->notificationsUsersType('company.signup.sent') : [env('EMAIL_DEV')];
+            $email_list = (\App::environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [env('EMAIL_DEV')];
             Mail::to($email_list)->send(new \App\Mail\Company\CompanyCreated($newCompany));
         }
 
@@ -655,8 +656,8 @@ class CompanyController extends Controller {
     /**
      * Update the photo on user model resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function updateLogo(CompanyRequest $request, $id)

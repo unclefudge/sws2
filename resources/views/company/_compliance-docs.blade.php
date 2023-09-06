@@ -100,7 +100,9 @@ $compliantDocs = $company->compliantDocs();
                                         Subcontractors Statement</a>
                                 @endif
 
-                                @if ($company->requiresCompanyDoc(5))<a href="/company/doc/create/tradecontract/{{ $company->id  }}/next" target="_blank"><i class="fa fa-download" style="padding-left: 10px"></i> Period Trade Contract</a> @endif
+                                @if ($company->requiresCompanyDoc(5))
+                                    <a href="/company/doc/create/tradecontract/{{ $company->id  }}/next" target="_blank"><i class="fa fa-download" style="padding-left: 10px"></i> Period Trade Contract</a>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -111,10 +113,10 @@ $compliantDocs = $company->compliantDocs();
                 @endif
                 @if (in_array($company->category, [1,2]))
                     {{-- Verify Company CL has supervisor for each Class --}}
-                    <?php
-                    $non_cl = $company->nonCompliantContractorsLicence();
-                    $non_super = $company->nonCompliantSupervisorsLicence();
-                    ?>
+                        <?php
+                        $non_cl = $company->nonCompliantContractorsLicence();
+                        $non_super = $company->nonCompliantSupervisorsLicence();
+                        ?>
                     <hr>
                     @if ($non_cl)
                         <b>The following users require Contractor Licence with class(s)</b><br>
@@ -150,7 +152,7 @@ $compliantDocs = $company->compliantDocs();
                     <hr>
                     <b>Additional documents:</b>
                     {{--- Test & Tag --}}
-                    <?php $tag_doc = $company->activeCompanyDoc(6) ?>
+                        <?php $tag_doc = $company->activeCompanyDoc(6) ?>
                     <div class="row">
                         @if ($tag_doc && $tag_doc->status == 1)
                             <div class="col-xs-8">

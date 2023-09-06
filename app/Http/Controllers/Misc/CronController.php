@@ -519,13 +519,21 @@ class CronController extends Controller {
                         if (!$standard_details) {
                             // Send out reminder Email of expired doc
                             // - @ 2 weeks also send parent company an email
-                            if ($date == Carbon::today()->addDays(14)->format('Y-m-d')) {
-                                // Due in 2 weeks
-                                //if (count($company->seniorUsers())) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
+                            if ($date == Carbon::today()->addDays(28)->format('Y-m-d')) {
+                                // Due in 4 weeks
 
                                 // Email SeniorUsers + Parent Company
                                 if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
-                                    $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval'), false);
+                                    $doc->emailExpired();
+                                    echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "<br>";
+                                    $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
+                                }
+                            } elseif ($date == Carbon::today()->addDays(14)->format('Y-m-d')) {
+                                // Due in 2 weeks
+
+                                // Email SeniorUsers + Parent Company
+                                if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
+                                    $doc->emailExpired();
                                     echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "<br>";
                                     $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
                                 }
@@ -533,24 +541,17 @@ class CronController extends Controller {
                                 $doc->closeToDo(User::find(1));
                                 // Determine if doc hasn't been replaced with newer version
                                 if (!$doc->company->activeCompanyDoc($doc->category_id)) {
-                                    if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), true);
+                                    if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray());
                                     if ($date == Carbon::today()->subDays(14)->format('Y-m-d')) {
                                         // Email Parent Company
                                         if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
-                                            $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval'), true);
+                                            $doc->emailExpired();
                                             echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "<br>";
                                             $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval')) . "\n";
                                         }
                                     }
                                 }
                             }
-                        } else {
-                            // Standard Details Documents
-                            // Check if already under review else add it
-                            //$email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
-                            //$doc->emailRenewal($email_to);
-                            //echo "Emailed " . implode("; ", $email_to) . "<br>";
-                            //$log .= "Emailed " . implode("; ", $email_to) . "\n";
                         }
                     }
                 }
@@ -664,7 +665,7 @@ class CronController extends Controller {
                             if ($date == Carbon::today()->addDays(14)->subYear()->format('Y-m-d')) {
                                 // Due in 2 weeks
                                 if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
-                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'), false);
+                                $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'));
                                 echo "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "<br>";
                                 $log .= "Created ToDo for company + emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "\n";
                             } else {
@@ -673,7 +674,7 @@ class CronController extends Controller {
                                 echo "Created ToDo for company<br>";
                                 $log .= "Created ToDo for company\n";
                                 if ($date == Carbon::today()->subDays(28)->format('Y-m-d')) {
-                                    $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'), true);
+                                    $doc->emailExpired($company->reportsTo()->notificationsUsersEmailType('swms.approval'));
                                     echo "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "<br>";
                                     $log .= "Emailed " . implode("; ", $company->reportsTo()->notificationsUsersEmailType('swms.approval')) . "\n";
                                 }

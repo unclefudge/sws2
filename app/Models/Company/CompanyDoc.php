@@ -36,7 +36,7 @@ class CompanyDoc extends Model {
     /**
      * A Company Doc is owned by a company.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     * @return \Illumiemnate\Database\Eloquent\Relations\belongsTo
      */
     public function owned_by()
     {

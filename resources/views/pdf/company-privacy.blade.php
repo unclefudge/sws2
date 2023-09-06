@@ -77,7 +77,7 @@
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">1.</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Purpose</h4>
+                <h4 style="margin: 0px">Purpose</h4><br>
                 <p>The protection of personal information in the private sector is required by the Privacy Act 1988 as amended by the Privacy Amendment (Private Sector) Act 2000 (“Act”). All employees, officers and agents of Cape Cod Australia Pty Ltd (“Cape Cod”) are
                     expected
                     to comply with the Act and Cape Cod ’s policy concerning the protection of personal information.</p>
@@ -85,35 +85,38 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 2. Scope --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">2.</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Scope</h4>
+                <h4 style="margin: 0px">Scope</h4><br>
                 This Privacy Policy is governed by the Australian Privacy Principles under the Privacy Act 1988. This Policy applies to the collection, storage, maintenance and disposal of personal information gathered from participants as part of the delivery of services to
                 Cape Cod customers.
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 3. Policy --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0px 0px 0px; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.</h5></td>
             <td class="pad0" style="border: 0px;">
-                <h4 style="margin: 0px">Policy</h4>
+                <h4 style="margin: 0px">Policy</h4><br>
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 3.1 Collection of data --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.1.</h5></td>
             <td class="pad0" style="border: 0px">
-                <h4 style="margin: 0px">Collection of Personal Information</h4>
+                <h4 style="margin: 0px">Collection of Personal Information</h4><br>
                 We collect personal information when persons:<br>
                 <ol type="a" style="padding-left:25px; margin-bottom: 5px">
                     <li>interact with Cape Cod through the phone, in person, via email or through our website where personal details are provided;</li>
@@ -136,13 +139,14 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{--  3.2 Security --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.2</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Security</h4>
+                <h4 style="margin: 0px">Security</h4><br>
                 <p>Information that we collect may be stored, processed in or transferred between parties located within and outside of Australia.</p>
                 <p>Although we don’t send personal information overseas you should be aware your personal information may be loaded to the cloud for storage or access and it is possible that suppliers we deal with may outsource functions using overseas contractors or
                     companies that process these services using offshore resources.</p>
@@ -152,6 +156,7 @@
             </td>
         </tr>
     </table>
+    <br>
 
 
     {{-- Page 2 --}}
@@ -171,7 +176,7 @@
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.3</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Disclosure of Personal Information</h4>
+                <h4 style="margin: 0px">Disclosure of Personal Information</h4><br>
                 <p>Except as required by law, Cape Cod discloses personal information only for purposes that are reasonably related to Cape Cod’s Business and Association activities, and for which we have your actual consent or where you would reasonably expect Cape Cod to do
                     so.</p>
                 <p>Cape Cod will not disclose your personal information to third parties for payment, profit or advantage without your consent.</p>
@@ -188,13 +193,14 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 3.4 Direct Marketing --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.4</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Direct Marketing to You</h4>
+                <h4 style="margin: 0px">Direct Marketing to You</h4><br>
                 <p>We will not send you unsolicited commercial electronic messages in contravention of the Spam Act 2003.</p>
                 We may use the non-sensitive information you gave us for the purpose of promoting and marketing our Business to you if we:
                 <ol type="a" style="padding-left:25px; margin-bottom: 5px">
@@ -205,13 +211,14 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 3.5 Accessing and Correcting --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.5</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Accessing and Correcting Your Personal Information</h4>
+                <h4 style="margin: 0px">Accessing and Correcting Your Personal Information</h4><br>
                 You may request access to your personal information that we hold and we will:
                 <ol type="a" style="padding-left:25px; margin-bottom: 5px">
                     <li>verify your identity;</li>
@@ -222,13 +229,14 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 3.6 How to Contact Us --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.6</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">How to Contact Us</h4>
+                <h4 style="margin: 0px">How to Contact Us</h4><br>
                 If you would like to access or correct your personal information, please contact our Privacy Officer by:
                 <ol type="a" style="padding-left:25px; margin-bottom: 5px">
                     <li>email: inform@capecod.com.au</li>
@@ -238,6 +246,7 @@
             </td>
         </tr>
     </table>
+    <br>
 
 
     {{-- Signature --}}
@@ -270,7 +279,7 @@
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">3.7</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Complaints</h4>
+                <h4 style="margin: 0px">Complaints</h4><br>
                 If you believe we have breached the Australian Privacy Principles under the Privacy Act 1988 or a registered Australian Privacy Principles Code, you may lodge a complaint as follows:
                 <ol type="a" style="padding-left:25px; margin-bottom: 5px">
                     <li>firstly, contact us in writing to the email or postal address in clause 3.6 and include the following in your complaint:
@@ -290,13 +299,14 @@
             </td>
         </tr>
     </table>
+    <br>
 
     {{-- 4 Notifiable Data Breaches --}}
     <table class="table" style="padding: 0px; margin: 0px">
         <tr>
             <td width="5%" style="margin:5px 0 0 0; padding: 5px 0px; border: 0px"><h5 style="margin: 0px">4.</h5></td>
             <td class="pad5" style="border: 0px">
-                <h4 style="margin: 0px">Notifiable Data Breaches</h4>
+                <h4 style="margin: 0px">Notifiable Data Breaches</h4><br>
                 Cape Cod will notify the Office of the Australian Information Commissioner (OAIC) and affected individuals if Cape Cod has a data breach within the meaning of the Act.
             </td>
         </tr>
