@@ -142,6 +142,19 @@ class SiteMaintenance extends Model {
     }
 
     /**
+     * A SiteMaintenance 'may' have multiple ToDoos
+     *
+     * @return Collection
+     */
+    public function todos($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'maintenance_task')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'maintenance_task')->where('type_id', $this->id)->get();
+    }
+
+    /**
      * A Site Maintenance 'may' have been signed by a Supervisor user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo

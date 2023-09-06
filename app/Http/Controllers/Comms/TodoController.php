@@ -15,6 +15,7 @@ use App\Models\Comms\TodoUser;
 use App\Models\Misc\Action;
 use App\Models\Company\Company;
 use App\Models\Site\Site;
+use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\Incident\SiteIncident;
@@ -212,6 +213,15 @@ class TodoController extends Controller {
 
                 return redirect("/site/inspection/$todo->type_id/" . $FomQuestion->section->page->order);
             }
+
+            if ($todo->type == 'maintenance_task') {
+                $main = SiteMaintenance::find($todo->type_id);
+                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_maintenance', 'table_id' => $todo->type_id]);
+                $main->touch(); // update timestamp
+                $todo->emailToDo();
+
+                return redirect("/site/maintenance/$todo->type_id");
+            }
         }
 
         return redirect('/todo');
@@ -282,6 +292,8 @@ class TodoController extends Controller {
                 return redirect("/site/incident/$type_id");
             if ($todo->type == 'incident prevent')
                 return redirect("/site/incident/$type_id/analysis");
+            if ($todo->type == 'maintenance_task')
+                return redirect("/site/maintenance/$type_id");
         }
 
         $old_status = $todo->status;
@@ -336,6 +348,7 @@ class TodoController extends Controller {
         if ($todo->type == 'hazard') $table = 'site_hazards';
         if ($todo->type == 'accident') $table = 'site_accidents';
         if ($todo->type == 'incident') $table = 'site_incidents';
+        if ($todo->type == 'maintenance_task') $table = 'site_maintenance';
 
         // Recently closed Hazard ToDoo
         if (in_array($todo->type, ['hazard']) && $old_status && !$todo->status) {

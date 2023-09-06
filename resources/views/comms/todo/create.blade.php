@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-md-12">
                 @if ($type && $type == 'incident')
-                    <?php $incident = \App\Models\Site\Incident\SiteIncident::find($type_id) ?>
+                        <?php $incident = \App\Models\Site\Incident\SiteIncident::find($type_id) ?>
                     @include('site/incident/_header')
                 @endif
 
@@ -34,7 +34,7 @@
 
                         <div class="form-body">
                             <div class="row">
-                                <div class="col-md-5">
+                                <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
                                         {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
                                         @if ($type)
@@ -49,6 +49,9 @@
                                             @endif
                                             @if ($type == 'inspection')
                                                 <input type="text" name="name" class="form-control" readonly value="{!! \App\Models\Misc\Form\Form::find($type_id)->template->name !!}">
+                                            @endif
+                                            @if ($type == 'maintenance_task')
+                                                <input type="text" name="name" class="form-control" readonly value="Site Maintenance Task @ {!! \App\Models\Site\SiteMaintenance::find($type_id)->site->name !!}">
                                             @endif
                                         @else
                                             {!! Form::text('name', null, ['class' => 'form-control']) !!}
@@ -72,7 +75,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group {!! fieldHasError('type', $errors) !!}">
@@ -87,7 +90,7 @@
                                 </div>
                             </div>
                             @if ($type && $type == 'inspection')
-                                <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
+                                    <?php $question = \App\Models\Misc\Form\FormQuestion::find($type_id2) ?>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
@@ -185,13 +188,13 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')

@@ -459,24 +459,68 @@
                             </div>
                         </div>
 
-                        {{--}}
-                        <h4>Additional Info</h4>
-                        <div class="row">
-                            <div class="col-md-12 ">
-                                <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                    {!! Form::textarea("notes", nl2br($main->notes), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details."]) !!}
-                                    {!! fieldErrorMessage('notes', $errors) !!}
-                                </div>
-                            </div>
-                        </div>--}}
-
-
-                        {{-- Actions --}}
+                        {{-- Notes --}}
                         <div class="row">
                             <div class="col-md-12">
                                 <app-actions :table_id="{{ $main->id }}"></app-actions>
                             </div>
                         </div>
+
+                        {{-- ToDos--}}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>Assigned Tasks
+                                    {{-- Show add if user has permission to edit maintenance --}}
+                                    @if ($main->status && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                        <a href="/todo/create/maintenance_task/{{ $main->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
+                                    @endif
+                                </h3>
+                                @if ($main->todos()->count())
+                                    <table class="table table-striped table-bordered table-nohover order-column">
+                                        <thead>
+                                        <tr class="mytable-header">
+                                            <th width="5%">#</th>
+                                            <th> Action</th>
+                                            <th width="15%">Created by</th>
+                                            <th width="15%">Completed by</th>
+                                            <th width="5%"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($main->todos() as $todo)
+                                            <tr>
+                                                <td>
+                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                                                </td>
+                                                <td>
+                                                    {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
+                                                    @if ($todo->comments)
+                                                        <br><b>Comments:</b> {{ $todo->comments }}
+                                                    @endif
+                                                </td>
+                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
+                                                    <?php
+                                                    $done_by = App\User::find($todo->done_by);
+                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
+                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
+                                                    ?>
+                                                <td>@if ($todo->status && !$todo->done_by)
+                                                        <span class="font-red">Outstanding</span>
+                                                    @else
+                                                        {!! $done_by  !!}<br>{{ $done_at }}
+                                                    @endif</td>
+                                                <td>
+                                                    @if ($todo->attachment) <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a> @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                @endif
+                            </div>
+                        </div>
+
+
                         {!! Form::close() !!}
 
                         {{-- Sign Off --}}
