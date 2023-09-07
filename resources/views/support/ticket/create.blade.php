@@ -103,7 +103,6 @@
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 <script>
     // Get a reference to the file input element

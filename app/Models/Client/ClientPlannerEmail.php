@@ -5,7 +5,8 @@ namespace App\Models\Client;
 use URL;
 use Mail;
 use App\User;
-use App\Mail\Client\ClientPlanner;
+use App\Models\Misc\TemporaryFile;
+use App\Models\Client\ClientPlannerEmailDoc;
 use App\Http\Controllers\CronCrontroller;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,39 @@ class ClientPlannerEmail extends Model {
     public function docs()
     {
         return $this->hasMany('App\Models\Client\ClientPlannerEmailDoc', 'email_id');
+    }
+
+    /**
+     * Save attachment to existing Issue
+     */
+    public function saveAttachment($tmp_filename)
+    {
+        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
+        if ($tempFile) {
+            // Move temp file to support ticket directory
+            $dir = '/filebank/site/' . $this->site_id . '/emails/client';
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+
+            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
+            if (file_exists($tempFilePublicPath)) {
+                $newFile = $tempFile->filename;
+
+                // Ensure filename is unique by adding counter to similiar filenames
+                $count = 1;
+                while (file_exists(public_path("$dir/$newFile"))) {
+                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
+                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
+                    $newFile = $filename . $count ++ . ".$ext";
+                }
+                rename($tempFilePublicPath, public_path("$dir/$newFile"));
+                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
+                $new = ClientPlannerEmailDoc::create(['email_id' => $this->id, 'name' => $orig_filename, 'attachment' => $newFile]);
+            }
+
+            // Delete Temporary file directory + record
+            $tempFile->delete();
+            rmdir(public_path($tempFile->folder));
+        }
     }
 
 

@@ -52,6 +52,26 @@
                                 </div>
                             </div>
                             <br>
+                            {{-- CC --}}
+                            <div class="row">
+                                <div class="form-group">
+                                    {!! Form::label('sent_to', 'CC:', ['class' => 'col-md-1 control-label']) !!}
+                                    <div class="col-md-11">
+                                        {!! Form::text('sent_cc', null, ['class' => 'form-control', 'readonly']) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            {{-- BCC --}}
+                            <div class="row">
+                                <div class="form-group">
+                                    {!! Form::label('sent_to', 'Bcc:', ['class' => 'col-md-1 control-label']) !!}
+                                    <div class="col-md-11">
+                                        {!! Form::text('sent_bcc', null, ['class' => 'form-control', 'readonly']) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
                             {{-- Subject --}}
                             <div class="row">
                                 <div class="form-group">
@@ -89,7 +109,7 @@
                             <a href="/client/planner/email" class="btn default"> Back</a>
                             <button id="preview" name="preview" class="btn dark"> Preview</button>
                             @if(Auth::user()->allowed2('edit.client.planner.email', $email))
-                                <button id="signoff_button" type="submit" name="save" class="btn green"> Send</button>
+                                <button id="send" type="submit" name="save" class="btn green"> Send</button>
                             @endif
                         </div>
                         <br><br>

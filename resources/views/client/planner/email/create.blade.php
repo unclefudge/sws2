@@ -48,15 +48,24 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email1', $errors) !!}">
                                         {!! Form::label('email1', 'Email 1', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email1', null, ['class' => 'form-control', 'id' => 'email1']) !!}
+                                        {!! Form::text('email1', old('email1'), ['class' => 'form-control', 'id' => 'email1']) !!}
                                         {!! fieldErrorMessage('email1', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('email2', $errors) !!}">
                                         {!! Form::label('email2', 'Email 2', ['class' => 'control-label']) !!}
-                                        {!! Form::text('email2', null, ['class' => 'form-control', 'id' => 'email2']) !!}
+                                        {!! Form::text('email2', old('email2'), ['class' => 'form-control', 'id' => 'email2']) !!}
                                         {!! fieldErrorMessage('email2', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group {!! fieldHasError('email3', $errors) !!}">
+                                        {!! Form::label('email3', 'Additional Emails (separated by semi-colon)', ['class' => 'control-label']) !!}
+                                        {!! Form::text('email3', old('email3'), ['class' => 'form-control', 'id' => 'email3']) !!}
+                                        {!! fieldErrorMessage('email3', $errors) !!}
                                     </div>
                                 </div>
                             </div>
@@ -151,6 +160,13 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Attachments</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/>
+                                </div>
+                            </div>
+
                             <div class="form-actions right">
                                 <a href="/client/planner/email" class="btn default"> Back</a>
                                 <button id="save_button" type="submit" name="save" class="btn green"> Save</button>
@@ -166,25 +182,37 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
     @stop
 
     @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-            <!--<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>-->
-    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            // Get a reference to the file input element
+            const inputElement = document.querySelector('input[type="file"]');
+
+            // Create a FilePond instance
+            const pond = FilePond.create(inputElement);
+            FilePond.setOptions({
+                server: {
+                    url: '/file/upload',
+                    fetch: null,
+                    revert: null,
+                    headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+                },
+                allowMultiple: true,
+            });
+
+
             /* Select2 */
             $("#site_id").select2({placeholder: "Select Site"});
 

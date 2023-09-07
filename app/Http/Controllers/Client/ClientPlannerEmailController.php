@@ -89,10 +89,6 @@ class ClientPlannerEmailController extends Controller {
         if (!Auth::user()->allowed2('add.client.planner.email'))
             return view('errors/404');
 
-        // Check vaild emails
-        $email1 = (validEmail(request('email1'))) ? request('email1') : '';
-        $email2 = (validEmail(request('email1'))) ? request('email1') : '';
-
         $rules = ['site_id' => 'required', 'intro' => 'required', 'type' => 'required', 'email1' => 'required'];
 
         // Add date field required rules
@@ -118,21 +114,37 @@ class ClientPlannerEmailController extends Controller {
         //
         $email1 = trim(request('email1'));
         $email2 = trim(request('email2'));
+        $email3 = explode(';', request('email3'));
         if (request('email1') && !validEmail($email1))
-            return back()->withErrors(['email1' => "Invalid email format"]);
+            return back()->withErrors(['email1' => "Invalid email format for Email 1"]);
 
         if (request('email2') && !validEmail($email2))
-            return back()->withErrors(['email2' => "Invalid email format"]);
+            return back()->withErrors(['email2' => "Invalid email format for Email 2"]);
+
+        if (request('email3')) {
+            foreach ($email3 as $email) {
+                if (!validEmail($email))
+                    return back()->withErrors(['email3' => "Invalid email format for Additional emails"]);
+            }
+        }
 
 
+        //dd(request()->all());
         $email_request = request()->all();
         $site = Site::findOrFail(request('site_id'));
 
         // Auto populate additional fields
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        $email_request['sent_to'] = ($email2) ? "$email1; $email2" : $email1;
-        $email_request['sent_cc'] = "construct@capecod.com.au";
-        $email_request['sent_bcc'] = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $sent_to = $email1;
+        if (request('email2')) $sent_to .= "; $email2";
+        if (request('email3')) $sent_to .= "; ".request('email3');
+
+        $email_request['sent_to'] = $sent_to;
+        //$email_request['sent_cc'] = "construct@capecod.com.au";
+        $sent_bcc = 'construct@capecod.com.au';
+        if (Auth::check() && validEmail(Auth::user()->email))
+        $sent_bcc .= "; ".Auth::user()->email;
+        $email_request['sent_bcc'] = $sent_bcc;
         $email_request['subject'] = $site->name . ': Weekly Planner';
         $email_request['status'] = 1;
 
@@ -207,6 +219,14 @@ class ClientPlannerEmailController extends Controller {
         // Create directory if required
         if (!is_dir(public_path($dir)))
             mkdir(public_path($dir), 0777, true);
+
+
+        // Handle filepond attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $email->saveAttachment($tmp_filename);
+        }
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id);
