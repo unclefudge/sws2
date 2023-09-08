@@ -105,7 +105,7 @@ class CccController extends Controller {
                         'name'               => trim($data[0]),
                         'dob'                => $dob,
                         'address'            => trim($data[2]),
-                        'parent'             => trim($data[3]0,
+                        'parent'             => trim($data[3]),
                         'phone'              => trim($data[4]),
                         'email'              => trim($data[5]),
                         'pickup'             => trim($data[6]),

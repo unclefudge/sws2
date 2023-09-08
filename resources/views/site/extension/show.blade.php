@@ -254,7 +254,11 @@
                     if ($("#reasons").val().includes('1')) {
                         // NA selected so clear all other options and leave NA only
                         $("#reasons").val(['1']).trigger('change.select2'); // update select2 val without triggering change
+                        $("#days").hide();
+                        $("#days_label").hide();
                     } else {
+                        $("#days").show();
+                        $("#days_label").show();
                         // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
                         let arr = ['2', '4', '5', '6', '7', '8', '9', '10'];  // all except Public Holidays
