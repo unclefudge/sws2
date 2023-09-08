@@ -304,7 +304,7 @@ class SiteExtensionController extends Controller {
             foreach ($extension->sites as $site) {
                 $completion_type = '';
                 $completion_date = '';
-                $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
+                $prac_completion = SitePlanner::where('site_id', $site->site_id)->where('task_id', 265)->first();
                 if ($prac_completion) {
                     $completion_date = $prac_completion->from->format('d/m/y');
                     $completion_type = 'prac';
