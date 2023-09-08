@@ -59,7 +59,7 @@
                                     if ($completion_date && $completion_date->lte($today))
                                         $completion_bg = "background:#FDD7B1";
                                     else if ($row['completion_type'] == 'prac')
-                                        $completion_bg = "background:#FDD7B1";
+                                        $completion_bg = "background:#B5E2CD";
                                     ?>
                                 @if ($supervisor_id == 0 || $supervisor_id == $row['super_id'])
                                     <tr>
