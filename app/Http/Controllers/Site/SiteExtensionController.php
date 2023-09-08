@@ -302,12 +302,23 @@ class SiteExtensionController extends Controller {
         $data = [];
         if ($extension) {
             foreach ($extension->sites as $site) {
+                $completion_type = '';
+                $completion_date = '';
+                $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
+                if ($prac_completion) {
+                    $completion_date = $prac_completion->from->format('d/m/y');
+                    $completion_type = 'prac';
+                } elseif ($site->completion_date) {
+                    $site->completion_date->format('d/m/y');
+                    $completion_type = 'forecast';
+                }
                 $data[] = [
                     'id'                   => $site->id,
                     'name'                 => $site->site->name,
                     'super_initials'       => $site->site->supervisorInitials,
                     'super_id'             => $site->site->supervisor_id,
-                    'completion_date'      => ($site->completion_date) ? $site->completion_date->format('d/m/y') : '',
+                    'completion_date'      => $completion_date,
+                    'completion_type'      => $completion_type,
                     'extend_reasons'       => $site->reasons,
                     'extend_reasons_text'  => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
