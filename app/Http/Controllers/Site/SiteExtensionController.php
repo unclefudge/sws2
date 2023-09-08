@@ -309,7 +309,7 @@ class SiteExtensionController extends Controller {
                     $completion_date = $prac_completion->from->format('d/m/y');
                     $completion_type = 'prac';
                 } elseif ($site->completion_date) {
-                    $site->completion_date->format('d/m/y');
+                    $completion_date = $site->completion_date->format('d/m/y');
                     $completion_type = 'forecast';
                 }
                 $data[] = [
