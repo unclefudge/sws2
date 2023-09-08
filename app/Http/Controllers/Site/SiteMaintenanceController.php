@@ -464,8 +464,10 @@ class SiteMaintenanceController extends Controller {
         }
 
         // Add note if change of Status
-        if (request('status') && $main->status != 3 && request('status') == 3)
+        if (request('status') && $main->status != 3 && request('status') == 3) {
             $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $main->closeToDo();
+        }
         if (request('status') && $main->status != 1 && request('status') == 1) {
             $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->supervisor_sign_by = null;
@@ -473,8 +475,10 @@ class SiteMaintenanceController extends Controller {
             $main->manager_sign_by = null;
             $main->manager_sign_at = null;
         }
-        if (request('status') && $main->status != - 1 && request('status') == - 1)
+        if (request('status') && $main->status != - 1 && request('status') == - 1) {
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $main->closeToDo();
+        }
 
         // Add note if change of Category
         if (request('category_id') && request('category_id') != $main->category_id) {

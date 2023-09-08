@@ -715,6 +715,9 @@ Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@s
 Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
 Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesController@initSuperChecklist');
 Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesController@newSuperChecklist');
+Route::get('manage/import-ccc-program', '\App\Http\Controllers\Misc\CccController@importCCCprogram');
+Route::get('manage/import-ccc-youth', '\App\Http\Controllers\Misc\CccController@importCCCyouth');
+Route::get('manage/output-ccc-program', '\App\Http\Controllers\Misc\CccController@outputCCCprogram');
 
 
 Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');

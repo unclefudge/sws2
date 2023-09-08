@@ -47,6 +47,8 @@ use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Ccc\Youth;
+use App\Models\Ccc\Program;
 
 //use App\Models\Misc\FormQuestion;
 //use App\Models\Misc\FormResponse;
@@ -1382,10 +1384,10 @@ class PagesController extends Controller {
                 foreach ($data as $d) {
                     $total = $total + $d['days'];
                     $notes = ($d['notes']) ? $d['notes'] : '';
-                    $text .= $d['created']." - ". $d['days'] . " days <b>". $d['reason']. "</b>: $notes \r\n";
+                    $text .= $d['created'] . " - " . $d['days'] . " days <b>" . $d['reason'] . "</b>: $notes \r\n";
                 }
                 $text = "Bulk Import Zoho\n\r----------------------------------------------------------------\r\n" . $text . "----------------------------------------------------------------\r\n";
-                echo "[$site->id] $site->name - $total<br>".nl2br($text)."<br>";
+                echo "[$site->id] $site->name - $total<br>" . nl2br($text) . "<br>";
 
                 $site_extension = SiteExtensionSite::where('extension_id', 4)->where('site_id', $site->id)->first();
                 if ($site_extension) {
