@@ -256,9 +256,13 @@
                         $("#reasons").val(['1']).trigger('change.select2'); // update select2 val without triggering change
                         $("#days").hide();
                         $("#days_label").hide();
+                        $("#extension_notes").hide();
+                        $("#extension_notes_label").hide();
                     } else {
                         $("#days").show();
                         $("#days_label").show();
+                        $("#extension_notes").hide();
+                        $("#extension_notes_label").hide();
                         // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
                         let arr = ['2', '4', '5', '6', '7', '8', '9', '10'];  // all except Public Holidays
