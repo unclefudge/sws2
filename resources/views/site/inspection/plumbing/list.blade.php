@@ -126,6 +126,7 @@
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Completed</option>
+                                    <option value="-1">On hold</option>
                                 </select>
                             </div>
                         </div>
