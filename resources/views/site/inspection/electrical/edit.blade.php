@@ -231,10 +231,13 @@
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        @if ($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
-                                            {!! Form::select('status', ['1' => 'Active', '3' => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
-                                        @elseif ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
-                                            {!! Form::select('status', ['1' => 'Active', '0' => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                        <?php $complated_status = ($report->status == 3) ? 3 : 0 ?>
+                                        @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
+                                            @if (Auth::user()->allowed2('sig.site.inspection', $report))
+                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed', '-1' => 'On Hold'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            @else
+                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            @endif
                                         @else
                                             {!! Form::text('status_text', ($report->status == 0) ? 'Completed' : 'Active', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
@@ -419,171 +422,172 @@
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script>
-<script src="/js/libs/moment.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-basic-functions.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script>
+    <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-basic-functions.js"></script>
 
 
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#assigned_to").select2({placeholder: "Select Company"});
+        $(document).ready(function () {
+            /* Select2 */
+            $("#assigned_to").select2({placeholder: "Select Company"});
 
-        if ($("#status").val() == '3') {
-            $('#inspector-div').show();
-        }
-
-        $("#status").change(function () {
-            $('#inspector-div').hide();
-
-            if ($("#status").val() == '0') {
+            if ($("#status").val() == '3') {
                 $('#inspector-div').show();
             }
-        });
+
+            $("#status").change(function () {
+                $('#inspector-div').hide();
+
+                if ($("#status").val() == '0') {
+                    $('#inspector-div').show();
+                }
+            });
 
 
-        $('#photos-edit').hide();
-        $("#edit-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#edit-docs").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#view-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').show();
             $('#photos-edit').hide();
+            $("#edit-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#edit-docs").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#view-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').show();
+                $('#photos-edit').hide();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#multifile").fileinput({
+                uploadUrl: "/site/inspection/electrical/upload/", // server upload action
+                uploadAsync: true,
+                //allowedFileExtensions: ["image"],
+                //allowedFileTypes: ["image"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn red",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn dark",
+                uploadIcon: "<i class=\"fa fa-upload\"></i> ",
+                uploadExtraData: {
+                    "site_id": site_id,
+                    "report_id": report_id,
+                },
+                layoutTemplates: {
+                    main1: '<div class="input-group {class}">\n' +
+                        '   {caption}\n' +
+                        '   <div class="input-group-btn">\n' +
+                        '       {remove}\n' +
+                        '       {upload}\n' +
+                        '       {browse}\n' +
+                        '   </div>\n' +
+                        '</div>\n' +
+                        '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
+                        '{preview}\n'
+                },
+            });
+
+            $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
+                data.form.append("site_id", $("#site_id").val());
+                data.form.append("report_id", $("#report_id").val());
+            });
+        });
+    </script>
+    <script>
+        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+        var host = window.location.hostname;
+        var dev = true;
+        if (host == 'safeworksite.com.au')
+            dev = false;
+
+        var xx = {
+            dev: dev,
+            action: '', loaded: false,
+            table_name: 'site_inspection_electrical', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
+            created_by: '', created_by_fullname: '',
+        };
+
+        Vue.component('app-actions', {
+            template: '#actions-template',
+            props: ['table', 'table_id', 'status'],
+
+            created: function () {
+                this.getActions();
+            },
+            data: function () {
+                return {xx: xx, actionList: []};
+            },
+            events: {
+                'addActionEvent': function (action) {
+                    this.actionList.unshift(action);
+                },
+            },
+            methods: {
+                getActions: function () {
+                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                        this.actionList = actions;
+                    }.bind(this));
+                },
+            },
         });
 
-        /* Bootstrap Fileinput */
-        $("#multifile").fileinput({
-            uploadUrl: "/site/inspection/electrical/upload/", // server upload action
-            uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn red",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn dark",
-            uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-            uploadExtraData: {
-                "site_id": site_id,
-                "report_id": report_id,
+        Vue.component('ActionModal', {
+            template: '#actionModal-template',
+            props: ['show'],
+            data: function () {
+                var action = {};
+                return {xx: xx, action: action, oAction: ''};
             },
-            layoutTemplates: {
-                main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
+            events: {
+                'add-action-modal': function (e) {
+                    var newaction = {};
+                    this.oAction = '';
+                    this.action = newaction;
+                    this.xx.action = 'add';
+                    this.show = true;
+                },
+                'edit-action-modal': function (action) {
+                    this.oAction = action.action;
+                    this.action = action;
+                    this.xx.action = 'edit';
+                    this.show = true;
+                }
             },
-        });
+            methods: {
+                close: function () {
+                    this.show = false;
+                    this.action.action = this.oAction;
+                },
+                addAction: function (action) {
+                    var actiondata = {
+                        action: action.action,
+                        table: this.xx.table_name,
+                        table_id: this.xx.table_id,
+                        niceDate: moment().format('DD/MM/YY'),
+                        created_by: this.xx.created_by,
+                        fullname: this.xx.created_by_fullname,
+                    };
+                    //alert('add action');
 
-        $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-            data.form.append("site_id", $("#site_id").val());
-            data.form.append("report_id", $("#report_id").val());
-        });
-    });
-</script>
-<script>
-    Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
-
-    var host = window.location.hostname;
-    var dev = true;
-    if (host == 'safeworksite.com.au')
-        dev = false;
-
-    var xx = {
-        dev: dev,
-        action: '', loaded: false,
-        table_name: 'site_inspection_electrical', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
-        created_by: '', created_by_fullname: '',
-    };
-
-    Vue.component('app-actions', {
-        template: '#actions-template',
-        props: ['table', 'table_id', 'status'],
-
-        created: function () {
-            this.getActions();
-        },
-        data: function () {
-            return {xx: xx, actionList: []};
-        },
-        events: {
-            'addActionEvent': function (action) {
-                this.actionList.unshift(action);
-            },
-        },
-        methods: {
-            getActions: function () {
-                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                    this.actionList = actions;
-                }.bind(this));
-            },
-        },
-    });
-
-    Vue.component('ActionModal', {
-        template: '#actionModal-template',
-        props: ['show'],
-        data: function () {
-            var action = {};
-            return {xx: xx, action: action, oAction: ''};
-        },
-        events: {
-            'add-action-modal': function (e) {
-                var newaction = {};
-                this.oAction = '';
-                this.action = newaction;
-                this.xx.action = 'add';
-                this.show = true;
-            },
-            'edit-action-modal': function (action) {
-                this.oAction = action.action;
-                this.action = action;
-                this.xx.action = 'edit';
-                this.show = true;
-            }
-        },
-        methods: {
-            close: function () {
-                this.show = false;
-                this.action.action = this.oAction;
-            },
-            addAction: function (action) {
-                var actiondata = {
-                    action: action.action,
-                    table: this.xx.table_name,
-                    table_id: this.xx.table_id,
-                    niceDate: moment().format('DD/MM/YY'),
-                    created_by: this.xx.created_by,
-                    fullname: this.xx.created_by_fullname,
-                };
-                //alert('add action');
-
-                this.$http.post('/action', actiondata)
+                    this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
                             actiondata.id = response.data.id;
@@ -593,30 +597,30 @@
                             alert('failed adding new action');
                         });
 
-                this.close();
-            },
-            updateAction: function (action) {
-                this.$http.patch('/action/' + action.id, action)
+                    this.close();
+                },
+                updateAction: function (action) {
+                    this.$http.patch('/action/' + action.id, action)
                         .then(function (response) {
                             toastr.success('Saved Action');
                         }.bind(this))
                         .catch(function (response) {
                             alert('failed to save action [' + action.id + ']');
                         });
-                this.show = false;
+                    this.show = false;
+                },
+            }
+        });
+
+        var myApp = new Vue({
+            el: 'body',
+            data: {xx: xx},
+            components: {
+                datepicker: VueStrap.datepicker,
             },
-        }
-    });
+        });
 
-    var myApp = new Vue({
-        el: 'body',
-        data: {xx: xx},
-        components: {
-            datepicker: VueStrap.datepicker,
-        },
-    });
-
-</script>
+    </script>
 @stop
 
 

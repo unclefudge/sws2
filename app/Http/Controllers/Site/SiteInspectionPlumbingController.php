@@ -211,6 +211,9 @@ class SiteInspectionPlumbingController extends Controller {
 
             // Create ToDoo for Con Mgr
             $report->createContructionReviewToDo(getUserIdsWithRoles('con-construction-manager'));
+        } elseif (request('status') == -1 && $report->status != -1) {
+            // Report placed OnHold so send out CancelledReport Notification
+            $report->site->cancelInspectionReports();
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;

@@ -198,6 +198,9 @@ class SiteInspectionElectricalController extends Controller {
 
             // Create ToDoo for Electrical Review
             $report->createContructionReviewToDo([1164]); // Brianna
+        } elseif (request('status') == -1 && $report->status != -1) {
+            // Report placed OnHold so send out CancelledReport Notification
+            $report->site->cancelInspectionReports();
         } elseif (request('status') == 1) {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;

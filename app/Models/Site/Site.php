@@ -609,6 +609,7 @@ class Site extends Model {
                     $cancelled .= "Plumbing Inspection assigned to $company_name\n";
                     $report->assigned_to = null;
                     $report->inspected_at = null;
+                    $report->status = -1;
                     $report->save();
                     $report->closeToDo();
 
@@ -621,17 +622,14 @@ class Site extends Model {
                     $cancelled .= "Electrical Inspection assigned to $company_name\n";
                     $report->assigned_to = null;
                     $report->inspected_at = null;
+                    $report->status = -1;
                     $report->save();
                     $report->closeToDo();
                 }
             }
 
             if ($cancelled) {
-                $email_to = [env('EMAIL_DEV')];
-
-                if (\App::environment('prod'))
-                    $email_to = ['michelle@capecod.com.au', 'kirstie@capecod.com.au'];
-
+                $email_to = (\App::environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inscpection.onhold') : [env('EMAIL_DEV')];
                 Mail::to($email_to)->send(new \App\Mail\Site\SiteInspectionCancelled($this, $cancelled));
 
                 return "Canceled the following reports:<br>".nl2br($cancelled);

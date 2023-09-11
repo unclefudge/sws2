@@ -46,6 +46,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.super.photo')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.completed')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.completed')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.planner.key.tasks')->first()->notificationSelect() !!}
                         @endif
