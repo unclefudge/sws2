@@ -399,6 +399,7 @@ class SiteUpcomingComplianceController extends Controller {
                     'id'              => $site->id,
                     'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
                     'date_est'        => '',
+                    'date_ymd'        => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('Ymd'),
                     'code'            => $site->code,
                     'name'            => $site->name,
                     'company'         => $entity_name,
@@ -475,6 +476,7 @@ class SiteUpcomingComplianceController extends Controller {
                 'id'              => $site->id,
                 'date'            => '',
                 'date_est'        => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
+                'date_ymd'        => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',
                 'code'            => $site->code,
                 'name'            => $site->name,
                 'company'         => '-',
@@ -496,6 +498,11 @@ class SiteUpcomingComplianceController extends Controller {
             ];
         }
 
+        // Sort by start date
+        usort($startdata, function ($a, $b) {
+            //return $a['name'] <=> $b['name'];
+            return $a['date_ymd'] > $b['date_ymd'];
+        });
         //dd($startdata);
 
         return $startdata;
