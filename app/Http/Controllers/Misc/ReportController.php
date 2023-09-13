@@ -538,12 +538,100 @@ class ReportController extends Controller {
      */
     public function payroll()
     {
-        $today = Carbon::now()->format('Y-m-d');
-        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-        $companies = Auth::user()->company->companies();
+        $exclude_ids = [5, 11, 12, 15, 16, 16, 20, 22];  //generic companies
+        $companies = Auth::user()->company->companies()->whereNotIn('id', $exclude_ids);
 
-        return view('manage/report/payroll', compact('companies'));
+        // Current FinYear + Dropdown last 3 years
+        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-07-01 00:00:00');
+        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-06-30 23:59:59')->addYear();
+        $fin_year = $start_year->format('Y').'-'.$end_year->format('Y');
+        $from = $start_year->format('M Y');
+        $from_ymd = $start_year->format('Y-m-d');
+        $to = $end_year->format('M Y');
+        $to_ymd = $end_year->format('Y-m-d');
+
+        $select_fin = [];
+        for ($i=0; $i<3; $i++)
+            $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
+        //dd($select_fin);
+
+
+        return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));
     }
+
+    /*
+     * Payroll Report Dates
+     */
+    public function payrollDates()
+    {
+        $exclude_ids = [5, 11, 12, 15, 16, 16, 20, 22];  //generic companies
+        $companies = Auth::user()->company->companies()->whereNotIn('id', $exclude_ids);
+        $today = Carbon::now()->format('Y-m-d');
+
+        //dd(request()->all());
+        $from = $to = $from_ymd = $to_ymd = '';
+        $fin_year = request('fin_year');
+        if ($fin_year) {
+            list($year1, $year2) = explode('-', request('fin_year'));
+            $from = Carbon::createFromFormat('Y-m-d H:i:s', $year1. '-07-01 00:00:00')->format('M Y');
+            $from_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year1 . '-07-01 00:00:00')->format('Y-m-d');
+            $to = Carbon::createFromFormat('Y-m-d H:i:s', $year2. '-07-01 00:00:00')->format('M Y');
+            $to_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year2 . '-07-01 00:00:00')->format('Y-m-d');
+        }
+
+        // Current FinYear + Dropdown last 3 years
+        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-07-01 00:00:00');
+        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-06-30 23:59:59')->addYear();
+
+        $select_fin = [];
+        for ($i=0; $i<3; $i++)
+            $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
+
+        return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));
+    }
+
+    /*
+     * public function getPayroll()
+    {
+        $company_ids = Auth::user()->company->companies()->pluck('id')->toArray();
+        $exclude_ids = [5, 11, 12, 15, 16, 16, 20, 22];  //generic companies
+
+        //var_dump($site_ids);
+        //dd(request()->all());
+
+        $compan = SiteAttendance::select([
+            'site_attendance.site_id', 'site_attendance.user_id', 'site_attendance.date', 'sites.name',
+            'users.id', 'users.username', 'users.firstname', 'users.lastname', 'users.company_id', 'companys.id', 'companys.name',
+            DB::raw('CONCAT(users.firstname, " ", users.lastname) AS full_name')
+        ])
+            ->join('sites', 'sites.id', '=', 'site_attendance.site_id')
+            ->join('users', 'users.id', '=', 'site_attendance.user_id')
+            ->join('companys', 'users.company_id', '=', 'companys.id')
+            ->whereIn('site_attendance.site_id', $site_ids)
+            ->whereIn('companys.id', $company_ids)
+            ->whereIn('users.id', $user_ids)
+            ->whereDate('site_attendance.date', '>=', $date_from)
+            ->whereDate('site_attendance.date', '<=', $date_to);
+
+        //dd($attendance_records);
+        $dt = Datatables::of($attendance_records)
+            ->editColumn('date', function ($attendance) {
+                return $attendance->date->format('d/m/Y H:i a');
+            })
+            ->editColumn('sites.name', function ($attendance) {
+                return '<a href="/site/' . $attendance->site->id . '">' . $attendance->site->name . '</a>';
+            })
+            ->editColumn('full_name', function ($attendance) {
+                return '<a href="/user/' . $attendance->user->id . '">' . $attendance->user->full_name . '</a>';
+            })
+            ->editColumn('companys.name', function ($attendance) {
+                return '<a href="/company/' . $attendance->user->company_id . '">' . $attendance->user->company->name . '</a>';
+            })
+            ->rawColumns(['id', 'full_name', 'companys.name', 'sites.name'])
+            ->make(true);
+
+        return $dt;
+    }*/
 
 
     /****************************************************

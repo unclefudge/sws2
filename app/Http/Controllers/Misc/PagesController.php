@@ -190,11 +190,15 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Testing<br>";
-        $action = Action::find(20038);
-        echo nl2br($action->action);
-        var_dump(htmlentities(nl2br($action->action)));
-        echo json_encode(nl2br($action->action));
+        echo "Deactived Companies<br>";
+        $companies = Company::all();
+        foreach ($companies as $company) {
+            if ($company->status == 0) {
+                $company->deactivated = $company->updated_at;
+                $company->save();
+            }
+        }
+
         /*
         echo "<b>Updating Hazard Files</b></br>";
 

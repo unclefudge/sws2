@@ -723,7 +723,7 @@ class CronReportController extends Controller {
                 $email_cc = '';
                 if (\App::environment('prod')) {
                     if ($super && validEmail($super->email)) {
-                        $email_to = $super->email;
+                        $email_to = [$super->email];
                         $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
                     } else
                         $email_to = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];

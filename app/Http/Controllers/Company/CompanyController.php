@@ -232,6 +232,8 @@ class CompanyController extends Controller {
                 Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyArchived($company));
             $company->deactivateAllStaff();
             $company->deleteFromPlanner(Carbon::today());
+            $company->deactived = Carbon::now()->toDateTimeString();
+            $company->save();
             CompanyLeave::where('from', '>=', Carbon::today()->toDateTimeString())->where('company_id', $company->id)->delete();  // delete future leave
 
             // Archive active/pending docs
@@ -258,6 +260,9 @@ class CompanyController extends Controller {
 
             Toastr::error("Deactivated Company");
         } elseif ($company->status && !$old_status) {
+            $company->deactived = null;
+            $company->save();
+
             Toastr::success("Reactivated Company");
             $primary_user = User::find($company->primary_user);
             if ($primary_user) {
@@ -278,7 +283,6 @@ class CompanyController extends Controller {
             // Company + Primary User reactivated
             if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.signup.completed'))
                 Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyActive($company));
-
         }
 
         return redirect("company/$company->id");

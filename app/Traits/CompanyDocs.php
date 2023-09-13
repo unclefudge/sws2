@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 use DB;
@@ -43,13 +44,61 @@ trait CompanyDocs {
     }
 
     /**
-     * First active CompanyDoc of a specific type for certain date
+     *  Active CompanyDocs of a specific type for certain date
      *
      * @return CompanyDoc record
      */
-    public function activeCompanyDocDate($category_id, $date)
+    public function activeCompanyDocDate($category_id, $from, $to)
     {
-        return CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('status', '>', '0')->first();
+        if ($from && $to) {
+            $from_date = Carbon::createFromFormat('Y-m-d', $from)->startOfDay();
+            $to_date = Carbon::createFromFormat('Y-m-d', $to)->endOfDay();
+            $expiry = CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('approved_by', '>', 0)->whereBetween('expiry', [$from_date, $to_date])->pluck('id')->toArray();
+            $approved = CompanyDoc::where('category_id', $category_id)->where('for_company_id', $this->id)->where('approved_by', '>', 0)->whereBetween('approved_at', [$from_date, $to_date])->pluck('id')->toArray();
+            $doc_ids = array_merge($expiry, $approved);
+
+            return CompanyDoc::find($doc_ids)->sortBy('expiry');
+        }
+
+        return null;
+    }
+
+    /**
+     *  Active CompanyDocs of a specific type for certain date
+     *
+     * @return CompanyDoc record
+     */
+    public function activeCompanyDocDateData($category_id, $from, $to)
+    {
+        if ($from && $to) {
+            $docs = $this->activeCompanyDocDate($category_id, $from, $to);
+            $refs = [];
+            foreach ($docs as $doc) {
+                if (!in_array($doc->ref_no, $refs))
+                    $refs[] = $doc->ref_no;
+            }
+
+            $ref_no = $ref_type = $date_range = '';
+            foreach ($refs as $ref) {
+                $ref_no .= "$ref, ";
+                $ref_type = $docs->where('ref_no', $ref)->last()->ref_type;
+                $approved_date = ($docs->where('ref_no', $ref)->first()->approved_at) ? $docs->where('ref_no', $ref)->first()->approved_at->format('d/m/Y') : '';
+                $expiry_date = ($docs->where('ref_no', $ref)->last()->expiry) ? $docs->where('ref_no', $ref)->last()->expiry->format('d/m/Y') : '';
+                $date_range .= "$approved_date-$expiry_date, ";
+            }
+
+            $ref_no = rtrim($ref_no, ', ');
+            $date_range = rtrim($date_range, ', ');
+            $array = [
+                'ref_no'     => $ref_no,
+                'date_range' => $date_range,
+                'ref_type'   => $ref_type,
+            ];
+
+            return $array;
+        }
+
+        return [];
     }
 
     /**
@@ -88,6 +137,7 @@ trait CompanyDocs {
     public function contractorLicence()
     {
         $doc = CompanyDoc::where('category_id', 7)->where('for_company_id', $this->id)->where('status', '1')->first();
+
         return ($doc && $doc->ref_no) ? $doc->ref_no : '';
     }
 
@@ -384,7 +434,7 @@ trait CompanyDocs {
      */
     public function missingDocs($format = 'array')
     {
-        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract',  6 => 'Electrical Test & Tagging', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
+        $doc_types = [1 => 'Public Liability', 2 => "Worker's Compensation", 3 => 'Sickness & Accident Insurance', 4 => 'Subcontractors Statement', 5 => 'Period Trade Contract', 6 => 'Electrical Test & Tagging', 7 => 'Contractor Licence', '12' => 'Privacy Policy'];
         $missing_docs = [];
         $missing_html = '';
 

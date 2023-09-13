@@ -261,8 +261,8 @@
                     } else {
                         $("#days").show();
                         $("#days_label").show();
-                        $("#extension_notes").hide();
-                        $("#extension_notes_label").hide();
+                        $("#extension_notes").show();
+                        $("#extension_notes_label").show();
                         // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
                         let arr = ['2', '4', '5', '6', '7', '8', '9', '10'];  // all except Public Holidays

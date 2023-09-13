@@ -135,7 +135,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/licence_override', '\App\Http\Controllers\Misc\ReportController@licenceOverride');
     Route::get('/manage/report/attendance', '\App\Http\Controllers\Misc\ReportController@attendance');
     Route::get('/manage/report/attendance/dt/attendance', '\App\Http\Controllers\Misc\ReportController@getAttendance');
+    //Route::get('/manage/report/payroll/{from}/{to}', '\App\Http\Controllers\Misc\ReportController@payrollDates');
     Route::get('/manage/report/payroll', '\App\Http\Controllers\Misc\ReportController@payroll');
+    Route::put('/manage/report/payroll', '\App\Http\Controllers\Misc\ReportController@payrollDates');
     Route::get('/manage/report/nightly', '\App\Http\Controllers\Misc\ReportController@nightly');
     Route::get('/manage/report/zoho', '\App\Http\Controllers\Misc\ReportController@zoho');
     Route::get('/manage/report/qa/{id}', '\App\Http\Controllers\Misc\ReportController@QAdebug');

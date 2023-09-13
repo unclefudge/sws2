@@ -35,9 +35,9 @@ class Company extends Model {
         'abn', 'gst', 'business_entity', 'sub_group', 'payroll_tax', 'creditor_code', 'superannuation', 'category',
         'lic_override', 'licence_no', 'licence_type', 'licence_expiry',
         'transient', 'maxjobs', 'notes', 'parent_company', 'subscription', 'signup_key', 'signup_step',
-        'status', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
+        'status', 'deactivated', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
 
-    protected $dates = ['licence_expiry', 'approved_at'];
+    protected $dates = ['licence_expiry', 'approved_at', 'deactivated'];
 
     /**
      * A Company has many staff.
@@ -1531,11 +1531,40 @@ class Company extends Model {
         if ($this->status == 1)
             return '<span class="font-green">ACTIVE</span>';
 
-        if ($this->status == - 1)
+        if ($this->status == -1)
             return '<span class="font-yellow">PENDING</span>';
 
         if ($this->status == 0)
             return '<span class="font-red">INACTIVE</span>';
+
+    }
+
+    /**
+     * Get the GST Y/N  (getter)
+     */
+    public function getGstYNAttribute()
+    {
+
+        if ($this->gst == '1')
+            return 'Yes';
+
+        if ($this->gst == '0')
+            return 'No';
+
+        return '-';
+
+    }
+
+    /**
+     * Get the Payroll tax exempt text  (getter)
+     */
+    public function getPayrollTaxTextAttribute()
+    {
+        if ($this->payroll_tax) {
+            return ($this->payroll_tax > 0 && $this->payroll_tax < 8) ? "Exempt ($this->payroll_tax)" : 'Liable';
+        }
+
+        return '-';
 
     }
 
