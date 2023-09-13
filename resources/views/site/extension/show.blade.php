@@ -56,7 +56,7 @@
                                     $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
 
                                     $completion_bg = '';
-                                    if ($completion_date && $completion_date->lte($today))
+                                    if ($completion_date && $complete_date_sub2month->lte($today))
                                         $completion_bg = "background:#FDD7B1";
                                     else if ($row['completion_type'] == 'prac')
                                         $completion_bg = "background:#B5E2CD";
