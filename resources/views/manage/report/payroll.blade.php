@@ -89,11 +89,13 @@
                                     @if (strtolower(substr($company->name, 0, 3)) == 'cc-')
                                         @continue
                                     @endif
-                                    @if ($date_range)
-                                        {{-- Exclude Companies not active during date range --}}
-                                        @if ($company->status == '0' && !$company->deactivated->between($from_date, $to_date))
-                                            @continue
-                                        @endif
+                                    {{-- Exclude Companies not active during date range --}}
+                                    @if ($company->status == '0' && !$company->deactivated->between($from_date, $to_date))
+                                        @continue
+                                    @endif
+                                    {{-- Exclude Companies created after the date range --}}
+                                    @if ($company->status == '1' && $company->created_at->gt($to_date))
+                                        @continue
                                     @endif
                                     <tr style="{{ ($company->status == 0) ? 'background:#fbe1e3' : '' }}">
                                         <td>{{ $company->id }}</td>
@@ -127,7 +129,7 @@
                                             @if ($date_range)
                                                 {{ ($company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()) ? $company->activeCompanyDocDate(4, $from_ymd, $to_ymd)->first()->expiry->format('d/m/Y') : '-' }}
                                             @else
-                                                 {{ ($company->activeCompanyDoc(4)) ?  $company->activeCompanyDoc(4)->expiry->format('d/m/Y') : '-'}}
+                                                {{ ($company->activeCompanyDoc(4)) ?  $company->activeCompanyDoc(4)->expiry->format('d/m/Y') : '-'}}
                                             @endif
                                         </td>
                                         <td>{!! ($company->status) ? 'Active' : $company->deactivated->format('d/m/Y') !!}</td>
