@@ -574,8 +574,8 @@ class ReportController extends Controller {
             list($year1, $year2) = explode('-', request('fin_year'));
             $from = Carbon::createFromFormat('Y-m-d H:i:s', $year1. '-07-01 00:00:00')->format('M Y');
             $from_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year1 . '-07-01 00:00:00')->format('Y-m-d');
-            $to = Carbon::createFromFormat('Y-m-d H:i:s', $year2. '-07-01 00:00:00')->format('M Y');
-            $to_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year2 . '-07-01 00:00:00')->format('Y-m-d');
+            $to = Carbon::createFromFormat('Y-m-d H:i:s', $year2. '-06-30 23:59:59')->format('M Y');
+            $to_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year2 . '-06-30 23:59:59')->format('Y-m-d');
         }
 
         // Current FinYear + Dropdown last 3 years
