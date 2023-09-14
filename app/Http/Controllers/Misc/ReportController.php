@@ -551,9 +551,9 @@ class ReportController extends Controller {
         $to_ymd = $end_year->format('Y-m-d');
 
         $select_fin = [];
-        for ($i=0; $i<3; $i++)
+        for ($i=0; $i<4; $i++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
-        //dd($select_fin);
+        //dd($from_ymd.' - '.$to_ymd.' * '. $from. ' - '. $to);
 
 
         return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));
@@ -566,7 +566,6 @@ class ReportController extends Controller {
     {
         $exclude_ids = [5, 11, 12, 15, 16, 16, 20, 22];  //generic companies
         $companies = Auth::user()->company->companies()->whereNotIn('id', $exclude_ids);
-        $today = Carbon::now()->format('Y-m-d');
 
         //dd(request()->all());
         $from = $to = $from_ymd = $to_ymd = '';
@@ -584,7 +583,7 @@ class ReportController extends Controller {
         $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-06-30 23:59:59')->addYear();
 
         $select_fin = [];
-        for ($i=0; $i<3; $i++)
+        for ($i=0; $i<4; $i++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
 
         return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));
