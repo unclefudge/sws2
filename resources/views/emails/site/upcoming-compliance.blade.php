@@ -24,11 +24,11 @@
 
                 @foreach($startdata as $row)
                     <tr>
-                        <td style="border: 1px solid">{{ $row['date'] }}</td>
+                        <td style="border: 1px solid; {{ ($row['date_est']) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
                         <td style="border: 1px solid">{{ $row['name'] }}</td>
                         <td style="border: 1px solid">{{ $row['supervisor'] }}</td>
                         <td style="border: 1px solid">{{ $row['company'] }}</td>
-                        <td style="border: 1px solid">{{ $row['deposit_paid'] }}</td>
+                        <td style="border: 1px solid; {{ ($row['deposit_paid'] == '-') ? 'background:#FDD7B1' : '' }}">{{ $row['deposit_paid'] }}</td>
                         <td style="border: 1px solid">{{ $row['eng'] }}</td>
                         <td style="border: 1px solid">{{ $row['hbcf'] }}</td>
                         <td style="border: 1px solid">{{ $row['design_con'] }}</td>

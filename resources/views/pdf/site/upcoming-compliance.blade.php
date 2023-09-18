@@ -82,11 +82,11 @@
         <tbody>
         @foreach($startdata as $row)
             <tr>
-                <td class="pad5">{!! $row['date'] !!}</td>
+                <td class="pad5" style="{{ ($row['date_est']) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
                 <td class="pad5">{!! $row['name'] !!}</td>
                 <td class="pad5">{!! $row['supervisor'] !!}</td>
                 <td class="pad5">{!! $row['company'] !!}</td>
-                <td class="pad5">{!! $row['deposit_paid'] !!}</td>
+                <td class="pad5" style="{{ ($row['deposit_paid'] == '-') ? 'background:#FDD7B1' : '' }}">{!! $row['deposit_paid'] !!}</td>
                 <td class="pad5">{!! $row['eng'] !!}</td>
                 <td class="pad5">{!! $row['hbcf'] !!}</td>
                 <td class="pad5">{!! $row['design_con'] !!}</td>
