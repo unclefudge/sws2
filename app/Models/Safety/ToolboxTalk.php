@@ -143,7 +143,24 @@ class ToolboxTalk extends Model {
     }
 
     /**
-     * Deterine if a Talkbox Talk has been assigned to a specific users
+     * A Talkbox Talk assigned to - return list separated by comma
+     *
+     * return string
+     */
+    public function assignedToSBC()
+    {
+        $string = '';
+        foreach ($this->assignedTo() as $u) {
+            $todo = Todo::where('type', 'toolbox')->where('type_id', $this->id)->where('done_by', $u->id)->first();
+            $string .= $u->fullname.', ';
+        }
+        $string = rtrim($string, ', ');
+
+        return $string;
+    }
+
+    /**
+     * Determine if a Talkbox Talk has been assigned to a specific users
      */
     public function isAssignedToUser($user)
     {
@@ -247,7 +264,7 @@ class ToolboxTalk extends Model {
         if ($matches[0] && $matches[1]) {
             //dd($matches);
             foreach ($matches[0] as $match) {
-                $placeholder = URL::to('/').'/img/video-placeholder.png';
+                $placeholder = URL::to('/') . '/img/video-placeholder.png';
                 list($crap, $src1) = explode('src="', $match);
                 list ($src, $crap2) = explode('"', $src1);
                 if (!(str_starts_with($src, 'http:') || str_starts_with($src, 'https:'))) {
@@ -275,11 +292,11 @@ class ToolboxTalk extends Model {
                     //echo "code: ".$rep['code']."<br>";
                     //dd("src: ".$rep['src']."<br>");
                     $link = $rep['src']; // <img src='".$rep['placeholder']."' style='max-width: 100%'>
-                    $url = "background-image: url(&#39;".$rep['placeholder']."&#39;)";
+                    $url = "background-image: url(&#39;" . $rep['placeholder'] . "&#39;)";
                     if ($rep['youtube'] == 'y') {
-                        $content = str_replace($rep['code'], "<div style='".$url."; background-repeat: no-repeat; background-size: auto';><a href='$link'><img src='".URL::to('/')."/img/youtube-play-transparent.png' style='width: 400px'></a>", $content);
+                        $content = str_replace($rep['code'], "<div style='" . $url . "; background-repeat: no-repeat; background-size: auto';><a href='$link'><img src='" . URL::to('/') . "/img/youtube-play-transparent.png' style='width: 400px'></a>", $content);
                     } else {
-                        $content = str_replace($rep['code'], "<a href='$link'><img src='".URL::to('/')."/img/video-placeholder.png' style='width: 460px;'></a>", $content);
+                        $content = str_replace($rep['code'], "<a href='$link'><img src='" . URL::to('/') . "/img/video-placeholder.png' style='width: 460px;'></a>", $content);
                     }
                     //$youtube_play = ($rep['youtube'] == 'y') ? "<img src='/img/youtube-play-transparent.png' style='max-widthh: 100%'>" : "<img src='/img/youtube-play-transparent.png' style='max-widthh: 100%; opacity:0'>";
                     //$content = preg_replace('')
@@ -393,61 +410,29 @@ class ToolboxTalk extends Model {
     /**
      * Email talk to notify it has modified a template
      */
-    /*
-    public function emailModifiedTemplate()
+    public function emailModifiedTemplate($diffs)
     {
-        $email_to = [env('EMAIL_ME')];
-        if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
+        $email_to[] = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
+        if ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($this, $diffs));
 
-        $master = ToolboxTalk::find($this->master_id);
-        $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
-            'user_company_name' => Auth::user()->company->name,
-            'talk_id'           => $this->id,
-            'talk_name'         => $this->name,
-            'talk_url'          => URL::to('/') . $this->url(),
-            'master_id'         => $master->id,
-            'master_name'       => $master->name . ' (v' . $master->version . ')'
-        ];
-        $talk = $this;
-        Mail::send('emails/toolbox-modified', $data, function ($m) use ($email_to, $talk, $data) {
-            $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, 'Safeworksite');
-            $m->to($email_to);
-            $m->subject('Toolbox Talk Created using Modified Template - ' . $talk->name);
-        });
-    }*/
+    }
 
     /**
      * Email talk to notify it has modified a template
      */
-    /*
     public function emailActiveTemplate()
     {
-        $email_to = [];
-        if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
-        else
-            $email_to[] = env('EMAIL_ME');
+        $email_to[] = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
-        $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
-            'user_company_name' => Auth::user()->company->name,
-            'talk_id'           => $this->id,
-            'talk_name'         => $this->name . ' (v' . $this->version . ')',
-            'talk_url'          => URL::to('/') . $this->url()
-        ];
-        $talk = $this;
-        Mail::send('emails/toolbox-active-template', $data, function ($m) use ($email_to, $talk, $data) {
-            $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, 'Safeworksite');
-            $m->to($email_to);
-            $m->subject('New Toolbox Talk Template Created - ' . $talk->name);
-        });
-    }*/
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($this));
+
+
+    }
 
     /**
      * Email document to someone

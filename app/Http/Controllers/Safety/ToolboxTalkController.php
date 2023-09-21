@@ -209,17 +209,14 @@ class ToolboxTalkController extends Controller {
                     if ($mod_controls) $diffs .= "CONTROLS<br>$diff_controls<br>";
                     if ($mod_further) $diffs .= "FURTHER INFOMATION<br>$diff_further<br>";
                     // Mail notification talk owner
-                    if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
-                        Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($talk, $diffs));
+                    $talk->emailModifiedTemplate($diffs);
+                    //if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
+                    //    Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($talk, $diffs));
                 }
 
                 // If toolbox template is made Active email activeTemplate
-                if (request('status') == 1 && $talk->master) {
-                    //$talk->emailActiveTemplate();
-                    // Mail notification talk owner
-                    if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
-                        Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($talk));
-                }
+                if (request('status') == 1 && $talk->master)
+                    $talk->emailActiveTemplate();
 
 
                 Toastr::success("Saved changes");
