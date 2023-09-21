@@ -181,7 +181,7 @@ class ToolboxTalkController extends Controller {
                     $tool_request['version'] = $major . '.' . $minor;
                 }
 
-                // Force Cape Code Staff to get Sign Off if talk isn't exact copy of a master template
+                // Force Cape Cod Staff to get Sign Off if talk isn't exact copy of a master template
                 $master_version = 0;
                 if ($talk->master_id) {
                     $master = ToolboxTalk::find($talk->master_id);
@@ -405,8 +405,7 @@ class ToolboxTalkController extends Controller {
     /**
      * Delete the specified resource in storage.
      */
-    public
-    function destroy(Request $request, $id)
+    public function destroy(Request $request, $id)
     {
         $talk = ToolboxTalk::findOrFail($id);
         if (!Auth::user()->allowed2('del.toolbox', $talk))
@@ -424,8 +423,7 @@ class ToolboxTalkController extends Controller {
     /**
      * Sign off on the given talk.
      */
-    public
-    function signoff(Request $request, $id)
+    public function signoff($id)
     {
         $talk = ToolboxTalk::findOrFail($id);
         if (!Auth::user()->allowed2('sig.toolbox', $talk))
@@ -445,8 +443,7 @@ class ToolboxTalkController extends Controller {
     /**
      * Reject the given talk and return it to draft.
      */
-    public
-    function reject(Request $request, $id)
+    public function reject($id)
     {
         $talk = ToolboxTalk::findOrFail($id);
         if (!Auth::user()->allowed2('sig.toolbox', $talk))
@@ -461,6 +458,27 @@ class ToolboxTalkController extends Controller {
         Toastr::error("Rejected sign off");
 
         return redirect('/safety/doc/toolbox2/' . $talk->id);
+    }
+
+    public function createPDF($id)
+    {
+        $talk = ToolboxTalk::findOrFail($id);
+
+        // Set + create directory if required
+        $path = "filebank/whs/toolbox/$talk->id";
+        if (!file_exists($path)) mkdir($path, 0777, true);
+        $filename = "$talk->name.pdf";
+
+        //
+        // Generate PDF
+        //
+        //return view('pdf/toolboxtalk', compact('talk'));
+        return PDF::loadView('pdf/toolboxtalk', compact('talk'))->setPaper('a4')->stream();
+        $pdf = PDF::loadView('pdf/toolboxtalk', compact('talk'));
+        $pdf->setPaper('A4');
+        $pdf->save(public_path("$path/$filename"));
+
+        return $filename;
     }
 
 

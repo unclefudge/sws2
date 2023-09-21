@@ -232,6 +232,68 @@ class ToolboxTalk extends Model {
         return $string;
     }
 
+    /**
+     * Output foield with iframe
+     */
+    public function iframeField($field)
+    {
+        $content = $this->$field;
+
+        preg_match_all('/<iframe(.*?)<\/iframe>/s', $content, $matches);
+
+        $youtube_url = ['www.youtube.com', 'youtube.com'];
+
+        $replace = [];
+        if ($matches[0] && $matches[1]) {
+            //dd($matches);
+            foreach ($matches[0] as $match) {
+                $placeholder = URL::to('/').'/img/video-placeholder.png';
+                list($crap, $src1) = explode('src="', $match);
+                list ($src, $crap2) = explode('"', $src1);
+                if (!(str_starts_with($src, 'http:') || str_starts_with($src, 'https:'))) {
+                    $src = "http:$src";
+                    $replace[] = ['code' => $match, 'src' => $src, 'youtube' => 'n', 'placeholder' => $placeholder];
+                } else {
+                    $url = parse_url($src);
+                    $youtube = (in_array($url['host'], $youtube_url)) ? 'y' : 'n';
+                    if ($youtube == 'y') {
+                        list($crap, $vid) = explode('v=', $url['query'], 2);
+                        $placeholder = "http://img.youtube.com/vi/$vid/0.jpg";
+                    }
+                    $replace[] = ['code' => $match, 'src' => $src, 'youtube' => $youtube, 'placeholder' => $placeholder];
+
+                    //https://www.youtube.com/watch?v=XP1yIXHfswc
+                }
+
+                //echo "src: $src<br>";
+
+            }
+            //dd($replace);
+
+            if (count($replace)) {
+                foreach ($replace as $rep) {
+                    //echo "code: ".$rep['code']."<br>";
+                    //dd("src: ".$rep['src']."<br>");
+                    $link = $rep['src']; // <img src='".$rep['placeholder']."' style='max-width: 100%'>
+                    $url = "background-image: url(&#39;".$rep['placeholder']."&#39;)";
+                    if ($rep['youtube'] == 'y') {
+                        $content = str_replace($rep['code'], "<div style='".$url."; background-repeat: no-repeat; background-size: auto';><a href='$link'><img src='".URL::to('/')."/img/youtube-play-transparent.png' style='width: 400px'></a>", $content);
+                    } else {
+                        $content = str_replace($rep['code'], "<a href='$link'><img src='".URL::to('/')."/img/video-placeholder.png' style='width: 460px;'></a>", $content);
+                    }
+                    //$youtube_play = ($rep['youtube'] == 'y') ? "<img src='/img/youtube-play-transparent.png' style='max-widthh: 100%'>" : "<img src='/img/youtube-play-transparent.png' style='max-widthh: 100%; opacity:0'>";
+                    //$content = preg_replace('')
+                    //dd($url);
+                    //$content = str_replace($rep['code'], "<div style='".$url."; background-repeat: no-repeat; background-size: auto'; width: 600px><a href='$link'>$youtube_play</a>", $content);
+                    //$content = str_replace("url(", "url('", $content);
+                    //$content = str_replace(".jpg)", ".jpg')", $content);
+                }
+            }
+        }
+
+        return $content;
+    }
+
 
     /**
      * Email talk to someone for Sign Off
@@ -405,7 +467,7 @@ class ToolboxTalk extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

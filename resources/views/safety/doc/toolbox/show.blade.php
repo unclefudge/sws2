@@ -29,7 +29,11 @@
                         <div class="col-md-3 mt-step-col active">
                             <div class="mt-step-number bg-white font-grey">3</div>
                             <div class="mt-step-title uppercase font-grey-cascade">Users</div>
-                            <div class="mt-step-content font-grey-cascade">@if(!$talk->assignedTo()) Assign users @else Monitor users @endif</div>
+                            <div class="mt-step-content font-grey-cascade">@if(!$talk->assignedTo())
+                                    Assign users
+                                @else
+                                    Monitor users
+                                @endif</div>
                         </div>
                         <div class="col-md-3 mt-step-col last">
                             <div class="mt-step-number bg-white font-grey">4</div>
@@ -77,8 +81,12 @@
                             <p>This toolbox has been assigned to the following users:<br><br></p>
                         </div>
                         <div class="col-md-12">
-                            @if ($talk->completedBySBC()) <p><b>Completed by:</b> {{ $talk->completedBySBC() }}</p> @endif
-                            @if ($talk->outstandingBySBC()) <p><b>Outstanding by:</b> {{ $talk->outstandingBySBC() }}</p> @endif
+                            @if ($talk->completedBySBC())
+                                <p><b>Completed by:</b> {{ $talk->completedBySBC() }}</p>
+                            @endif
+                            @if ($talk->outstandingBySBC())
+                                <p><b>Outstanding by:</b> {{ $talk->outstandingBySBC() }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -94,6 +102,7 @@
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
                         <div class="actions">
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/toolbox2/{{ $talk->id }}/pdf" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> &nbsp; PDF</a>
                             @if (Auth::user()->allowed2('edit.toolbox', $talk))
                                 <div class="btn-group">
                                     <a class="btn btn-circle green btn-outline btn-sm" href="javascript:;" data-toggle="dropdown" data-over="dropdown"><i class="fa fa-cog"></i> Actions</a>
@@ -165,8 +174,8 @@
                                     <div class="col-md-12">
                                         <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">CONTROLS / ACTIONS</h5></div>
                                     </div>
+                                    <div class="col-md-12"><br>{!! $talk->controls !!}</div>
                                 @endif
-                                <div class="col-md-12"><br>{!! $talk->controls !!}</div>
                                 @if ($talk->further )
                                     <div class="col-md-12">
                                         <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
@@ -322,7 +331,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -336,76 +345,77 @@
     <script src="/assets/global/plugins/bootstrap-summernote/summernote.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script>
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#user_list").select2({placeholder: "Select", width: '100%',});
-        $("#company_list").select2({placeholder: "Select", width: '100%'});
-        $("#group_list").select2({placeholder: "Select", width: '100%'});
-        $("#role_list").select2({placeholder: "Select", width: '100%'});
-        $("#site_list").select2({placeholder: "Select", width: '100%'});
+        $(document).ready(function () {
+            /* Select2 */
+            $("#user_list").select2({placeholder: "Select", width: '100%',});
+            $("#company_list").select2({placeholder: "Select", width: '100%'});
+            $("#group_list").select2({placeholder: "Select", width: '100%'});
+            $("#role_list").select2({placeholder: "Select", width: '100%'});
+            $("#site_list").select2({placeholder: "Select", width: '100%'});
 
-        $("#test_alert").click(function (e) {
-            e.preventDefault();
-            swal($("#name").val(), $("#info").val());
-        })
+            $("#test_alert").click(function (e) {
+                e.preventDefault();
+                swal($("#name").val(), $("#info").val());
+            })
 
-        // On Change Assign To
-        $("#assign_to").change(function () {
-            showAssignedList();
-        });
+            // On Change Assign To
+            $("#assign_to").change(function () {
+                showAssignedList();
+            });
 
 
-        function showAssignedList() {
-            $("#user_div").hide();
-            $("#company_div").hide();
-            $("#group_div").hide();
-            $("#role_div").hide();
-            $("#site_div").hide();
-            $("#type").val('user');
+            function showAssignedList() {
+                $("#user_div").hide();
+                $("#company_div").hide();
+                $("#group_div").hide();
+                $("#role_div").hide();
+                $("#site_div").hide();
+                $("#type").val('user');
 
-            // Assign to User selected
-            if ($("#assign_to").val() == 'user')
-                $("#user_div").show();
-            // Assign to Company selected
-            if ($("#assign_to").val() == 'company')
-                $("#company_div").show();
-            // Assign to Group selected
-            if ($("#assign_to").val() == 'group')
-                $("#group_div").show();
-            // Assign to Role selected
-            if ($("#assign_to").val() == 'role')
-                $("#role_div").show();
-            // Assign to Group selected
-            if ($("#assign_to").val() == 'site') {
-                $("#site_div").show();
-                $("#type").val('site');
+                // Assign to User selected
+                if ($("#assign_to").val() == 'user')
+                    $("#user_div").show();
+                // Assign to Company selected
+                if ($("#assign_to").val() == 'company')
+                    $("#company_div").show();
+                // Assign to Group selected
+                if ($("#assign_to").val() == 'group')
+                    $("#group_div").show();
+                // Assign to Role selected
+                if ($("#assign_to").val() == 'role')
+                    $("#role_div").show();
+                // Assign to Group selected
+                if ($("#assign_to").val() == 'site') {
+                    $("#site_div").show();
+                    $("#type").val('site');
+                }
             }
-        }
 
-        showAssignedList();
+            showAssignedList();
 
 
-        $('#delete').on('click', function () {
-            var id = "{{ $talk->id }}";
-            var name = "{{ $talk->name }}";
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                window.location = "/safety/doc/toolbox2/" + id + '/destroy';
+            $('#delete').on('click', function () {
+                var id = "{{ $talk->id }}";
+                var name = "{{ $talk->name }}";
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location = "/safety/doc/toolbox2/" + id + '/destroy';
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop
 
