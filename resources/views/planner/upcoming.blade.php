@@ -58,7 +58,7 @@
                                     <td>
                                         <select id="{{ $site->id }}" class="form-control bs-select" name="supervisor" title="Select supervisor">
                                             @foreach(Auth::user()->company->supervisorsSelect() as $id => $name)
-                                                <option value="{{ $id }}" @if ($site->supervisors->first() && $id == $site->supervisors->first()->id) selected @endif>{{ $name }}</option>
+                                                <option value="{{ $id }}" @if ($site->supervisor_id && $id == $site->supervisor_id) selected @endif>{{ $name }}</option>
                                             @endforeach
                                         </select>
                                     </td>

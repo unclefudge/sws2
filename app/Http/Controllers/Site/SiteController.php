@@ -288,7 +288,7 @@ class SiteController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->supervisors_id = $super_id;
+        $site->supervisor_id = $super_id;
         $site->save();
 
         Toastr::success("Updated Supervisor");
