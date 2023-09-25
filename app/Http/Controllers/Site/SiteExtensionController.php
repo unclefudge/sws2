@@ -12,7 +12,7 @@ use Input;
 use Session;
 use App\User;
 use App\Jobs\SiteExtensionPdf;
-use App\Comms\Todo;
+use App\Models\Comms\Todo;
 use App\Models\Site\Site;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;

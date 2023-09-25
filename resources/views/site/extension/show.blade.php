@@ -254,6 +254,8 @@
                     if ($("#reasons").val().includes('1')) {
                         // NA selected so clear all other options and leave NA only
                         $("#reasons").val(['1']).trigger('change.select2'); // update select2 val without triggering change
+                        $("#days").val('');
+                        $("#extension_notes").val('');
                         $("#days").hide();
                         $("#days_label").hide();
                         $("#extension_notes").hide();
