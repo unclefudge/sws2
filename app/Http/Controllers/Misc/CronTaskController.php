@@ -54,15 +54,15 @@ class CronTaskController extends Controller {
         //$log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
         //$bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         //if ($bytes_written === false) die("Error writing to file");
-
-        $text = "=== Hourly Tasks " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
-        app('log')->debug($text);
+        
         if (Carbon::today()->isWeekday()) {
             $hour = Carbon::now()->format('G'); // 24hr
             $minute = Carbon::now()->format('i');
 
             // 2pm
             if ($hour == '14') {
+                $text = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
+                app('log')->debug($text);
                 CronTaskController::superChecklistsReminder();
             }
         }
