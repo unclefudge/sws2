@@ -202,7 +202,7 @@ class CompanySignUpController extends Controller {
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanySignup($company));
 
-        $email_cc =  (\App::environment('prod')) ? ['courtney@capecod.com.au', 'gary@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_cc =  (\App::environment('prod')) ? ['courtney@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($company->primary_user && validEmail($company->primary_contact()->email))
             Mail::to($company->primary_contact()->email)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocs($company));
 
