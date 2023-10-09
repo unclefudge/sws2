@@ -58,8 +58,8 @@ class CronTaskController extends Controller {
         $text = "=== Hourly Tasks " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
         app('log')->debug($text);
         if (Carbon::today()->isWeekday()) {
-            $hour == Carbon::now()->format('G'); // 24hr
-            $minute == Carbon::now()->format('i');
+            $hour = Carbon::now()->format('G'); // 24hr
+            $minute = Carbon::now()->format('i');
 
             // 2pm
             if ($hour == '14') {
