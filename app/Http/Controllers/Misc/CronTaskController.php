@@ -55,6 +55,8 @@ class CronTaskController extends Controller {
         //$bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         //if ($bytes_written === false) die("Error writing to file");
 
+        $text = "=== Hourly Tasks " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
+        app('log')->debug($text);
         if (Carbon::today()->isWeekday()) {
             $hour == Carbon::now()->format('G'); // 24hr
             $minute == Carbon::now()->format('i');
@@ -64,7 +66,6 @@ class CronTaskController extends Controller {
                 CronTaskController::superChecklistsReminder();
             }
         }
-
 
 
         //echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
