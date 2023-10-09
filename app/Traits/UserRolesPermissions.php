@@ -827,10 +827,10 @@ trait UserRolesPermissions {
                 if ($this->authUsers($permission)->contains('id', $record->created_by)) return true;
 
                 if ($record->site_id == '809') { // 0003-Vehicles Cape Cod
-                    // Fudge, Gary, Kirstie, Tara, Georgie, Ross
-                    if ($action == 'view' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '7', '108', '351', '458', '1155'])) return true;
-                    // Fudge, Gary, Kirstie, Tara, Ross
-                    if ($action == 'edit' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '7', '108', '351', '1155'])) return true;
+                    // Fudge, Kirstie, Tara, Georgie, Ross
+                    if ($action == 'view' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '458', '1155'])) return true;
+                    // Fudge, Kirstie, Tara, Ross
+                    if ($action == 'edit' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '1155'])) return true;
                     // Fudge, Kirstie, Tara, Ross
                     if ($action == 'del' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '1155'])) return true;
                 } else {

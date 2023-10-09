@@ -143,7 +143,7 @@ class CompanyDocReviewController extends Controller {
                     $doc->save();
                     $current_user = Auth::user();
                     $action = Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-                    $assigned_user = User::find(7); // Gary
+                    $assigned_user = User::find(108); // Kirstie
                 }
 
                 // Handle attached file

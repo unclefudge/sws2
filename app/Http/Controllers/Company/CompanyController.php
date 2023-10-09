@@ -476,7 +476,7 @@ class CompanyController extends Controller {
         Toastr::success("Created new leave");
 
         // Email Leave
-        $company->emailLeave(['gary@capecod.com.au'], 'added new');
+        $company->emailLeave(['kirstie@capecod.com.au'], 'added new');
 
         return redirect("company/$company->id");
     }
@@ -505,7 +505,7 @@ class CompanyController extends Controller {
                 // determine if changed
                 if ($leave && $leave_request['from'] != $leave->from || $leave_request['to'] != $leave->to || $leave_request['notes'] != $leave->notes) {
                     $leave->update($leave_request);
-                    $company->emailLeave(['gary@capecod.com.au'], 'updated existing');
+                    $company->emailLeave(['kirstie@capecod.com.au'], 'updated existing');
                 }
             }
         }

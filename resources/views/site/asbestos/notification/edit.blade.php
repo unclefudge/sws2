@@ -79,7 +79,6 @@
                                         <div class="col-md-6">
                                             <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
                                                 {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'control-label']) !!}
-                                                {{--}}{!! Form::select('supervisor_id', ['' => 'Select supervisor', '5' => 'Dean Beringer', '7' => 'Gary Klomp', '13' => 'John Walton'], null, ['class' => 'form-control bs-select']) !!}--}}
                                                 {!! Form::select('supervisor_id',
                                                 Auth::user()->company->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'id' => 'supervisor_id', 'title' => 'Select supervisor',]) !!}
                                                 {!! fieldErrorMessage('supervisor_id', $errors) !!}

@@ -724,9 +724,9 @@ class CronReportController extends Controller {
                 if (\App::environment('prod')) {
                     if ($super && validEmail($super->email)) {
                         $email_to = [$super->email];
-                        $email_cc = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
+                        $email_cc = ['kirstie@capecod.com.au'];
                     } else
-                        $email_to = ['kirstie@capecod.com.au', 'gary@capecod.com.au'];
+                        $email_to = ['kirstie@capecod.com.au'];
                 }
                 if ($email_to && $email_cc)
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
@@ -982,7 +982,7 @@ class CronReportController extends Controller {
         $log .= "Active: " . $plumbing->count() . "\n";
 
 
-        $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($electrical->count() || $plumbing->count()) {
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
             $emails = implode("; ", $email_list);

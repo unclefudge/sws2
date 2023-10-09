@@ -597,7 +597,7 @@ class CronController extends Controller {
                     $log .= "$doc->name [$expire_date] added to renewal cycle\n";
                     $newRenewals[] = $doc->id;
                     $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
-                    $review_doc->createAssignToDo(7); // Gary
+                    $review_doc->createAssignToDo(108); // Kirstie
                     $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id, 'created_by' => '1', 'updated_by' => '1']);
                 } else {
                     echo "$doc->name [$expire_date] already on renewal cycle<br>";
@@ -1283,7 +1283,7 @@ class CronController extends Controller {
 
                 // Send email to supervisor
                 $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'gary@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
         }
@@ -1328,7 +1328,7 @@ class CronController extends Controller {
             }
 
             // Send email
-            $email_list = (\App::environment('prod')) ? ['gary@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));
         } else {
@@ -1417,7 +1417,7 @@ class CronController extends Controller {
                 // Send email
                 $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
                 $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'gary@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_to && $email_cc) {
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
                     $emails = implode("; ", array_merge($email_to, $email_cc));

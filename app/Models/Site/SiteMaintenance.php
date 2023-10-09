@@ -304,11 +304,6 @@ class SiteMaintenance extends Model {
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
-        // Gary didn't want to be email when assigning - so comment out email_user :)
-        //
-        //if ($email_to && $email_user)
-        //    Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
-        //elseif ($email_to)
         Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
 
     }

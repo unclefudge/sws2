@@ -233,7 +233,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         // For special site 0003-Vehicles Cape Cod '809' allow specific users access to it.
-        if (in_array($this->id, ['3', '7', '108', '351', '458', '1155'])) // Fudge, Gary, Kirstie, Tara, Georgie, Ross
+        if (in_array($this->id, ['3', '108', '351', '458', '1155'])) // Fudge, Kirstie, Tara, Georgie, Ross
             $site_list[] = '809';
 
         if ($status != '')

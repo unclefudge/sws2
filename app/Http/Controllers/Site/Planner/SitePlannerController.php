@@ -169,7 +169,7 @@ class SitePlannerController extends Controller {
         $supervisor_id = 'all';
         if (request('supervisor_id'))
             $supervisor_id = request('supervisor_id');
-        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
+        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3)
             $supervisor_id = Auth::user()->id;
 
         $site_id = request('site_id');
@@ -255,7 +255,7 @@ class SitePlannerController extends Controller {
         $supervisor_id = 'all';
         if (request('supervisor_id'))
             $supervisor_id = request('supervisor_id');
-        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
+        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3)
             $supervisor_id = Auth::user()->id;
 
         $site_id = request('site_id');
@@ -469,7 +469,7 @@ class SitePlannerController extends Controller {
         $supervisor_id = '';
         if (request('supervisor_id'))
             $supervisor_id = request('supervisor_id');
-        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->id != 7) // ie Not Gary
+        elseif (Auth::user()->isSupervisor() && Auth::user()->company_id == 3)
             $supervisor_id = Auth::user()->id;
 
         $first_month = new Carbon('first day of this month');
