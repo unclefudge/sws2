@@ -142,7 +142,7 @@ class SiteInspectionElectricalController extends Controller {
 
         $report->status = 1;
         $report->save();
-        $report->createContructionToDo(getUserIdsWithRoles('con-construction-manager'));
+        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/electrical');
@@ -173,7 +173,7 @@ class SiteInspectionElectricalController extends Controller {
                  'inspected_name.required_if' => 'The inspection carried out by field is required.',
                  'inspected_lic.required_if'  => 'The licence no. field is required.'];
 
-        if (in_array(Auth::user()->id, getUserIdsWithRoles('con-construction-manager'))) {
+        if (in_array(Auth::user()->id, array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]))) {
             $rules = $rules + ['assigned_to' => 'required'];
             $mesg = $mesg + ['assigned_to.required' => 'The assigned to company field is required.'];
         }
@@ -197,7 +197,7 @@ class SiteInspectionElectricalController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Electrical Review
-            $report->createContructionReviewToDo([1164]); // Brianna
+            $report->createConstructionReviewToDo([1164]); // Brianna
         } elseif (request('status') == -1 && $report->status != -1) {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
@@ -266,7 +266,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Con Mgr
                 $report->closeToDo();
-                $report->createContructionReviewToDo(getUserIdsWithRoles('con-construction-manager'));
+                $report->createConstructionReviewToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
             } else {
                 $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;
@@ -326,7 +326,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();
-                $report->createContructionReviewToDo([1164, 3]); // Brianna
+                $report->sReviewToDo([1164, 3]); // Brianna
                 Toastr::error("Report Rejected");
 
             }

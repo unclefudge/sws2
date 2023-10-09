@@ -99,7 +99,7 @@ class SiteCheckinController extends Controller {
 
         // Check if user is a Supervisor or requires their login qustions
         $supers = Auth::user()->company->reportsTo()->supervisors()->pluck('id')->toArray();
-        $special_users = [108, 351, 1155, 7]; // Fudge, Kirstie, Tara, Ross, Gary
+        $special_users = [108, 351, 1155]; // Fudge, Kirstie, Tara, Ross
         $super_login = array_merge($supers, $special_users);
 
         if (in_array(Auth::user()->id, $super_login))

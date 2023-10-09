@@ -99,7 +99,7 @@ class SiteInspectionElectrical extends Model {
     /**
      * Create ToDoo for Electrical Report and assign to given user(s)
      */
-    public function createContructionToDo($user_list)
+    public function createConstructionToDo($user_list)
     {
         // Create ToDoo for Construction Manager to assign to company
         $todo_request = [
@@ -119,7 +119,7 @@ class SiteInspectionElectrical extends Model {
     /**
      * Create ToDoo for Electrical Report and assign to given user(s)
      */
-    public function createContructionReviewToDo($user_list)
+    public function createConstructionReviewToDo($user_list)
     {
         // Create ToDoo for Construction Manager to review report
         $todo_request = [

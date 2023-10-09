@@ -20,6 +20,10 @@
                         </div>
                         <div class="actions">
                             <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist/past" data-original-title="Past">Past Weeks</a>
+                            @if (Auth::user()->hasPermission2('del.super.checklist'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist/settings" data-original-title="Past">Settings</a>
+                            @endif
+
                         </div>
                     </div>
                     {{--}}

@@ -122,18 +122,21 @@ class CccController extends Controller {
 
                     // Add youth to programs
                     $count = 0;
+                    $cost = 0;
                     foreach ($program_dates as $col => $date) {
                         $attend = trim($data[$col]);
                         if ($attend) {
-                            $status = ($attend[0] == 'x') ? $status = 0 : $attend[1];
+                            $status = (in_array($attend[0],['x','X'])) ? 0 : $attend[1];
                             $program = Program::whereDate('date', $date)->first();
                             $count ++;
-                            if ($program)
+                            if ($program) {
                                 $youth->add2program($program, $status);
+                                $cost = $cost + $program->cost;
+                            }
                         }
                     }
 
-                    echo "[$count] &nbsp; $youth->name<br>";
+                    echo "[$count] &nbsp; $youth->name  &nbsp; cost: $cost<br>";
                 }
             }
             fclose($handle);

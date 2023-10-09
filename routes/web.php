@@ -460,6 +460,8 @@ Route::group(['middleware' => 'auth'], function () {
     // Supervisor Checklist
 
     Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');
+    Route::get('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@settings');
+    Route::post('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@updateSettings');
     Route::get('supervisor/checklist/past', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeeks');
     Route::get('supervisor/checklist/past/{date}', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeek');
     Route::get('supervisor/checklist/{checklist_id}/weekly', '\App\Http\Controllers\Misc\SuperChecklistController@showSuperWeekly');
@@ -702,6 +704,7 @@ Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\C
 Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskReminder');
 Route::get('cron/site-extensions-supervisor-final-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskFinalReminder');
 Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController@uploadCompanyDocReminder');
+Route::get('cron/super-checklists', '\App\Http\Controllers\Misc\CronController@superChecklists');
 
 
 Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');

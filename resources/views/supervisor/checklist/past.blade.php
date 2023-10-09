@@ -20,7 +20,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Supervisor Checklist</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist" data-original-title="Curremt">Current Week</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist" data-original-title="Current">Current Week</a>
                         </div>
                     </div>
                     <div class="portlet-body">

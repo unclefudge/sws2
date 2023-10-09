@@ -38,6 +38,7 @@ use App\Models\Misc\Equipment\EquipmentStocktakeItem;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
+use App\Models\Misc\Supervisor\SuperChecklistSettings;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Comms\SafetyTip;
@@ -1352,7 +1353,12 @@ class CronController extends Controller {
 
         $mon = new Carbon('monday this week');
 
-        foreach (Company::find(3)->supervisors() as $super) {
+        // Selected Supervisors
+        $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
+        $super_list = ($settings_supers) ? explode(',', $settings_supers->value) : [];
+        $supers = User::find($super_list);
+
+        foreach ($supers as $super) {
             if ($super->name == "TO BE ALLOCATED")
                 continue;
 

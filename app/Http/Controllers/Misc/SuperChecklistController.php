@@ -16,6 +16,7 @@ use App\Models\Misc\Supervisor\SuperChecklistCategory;
 use App\Models\Misc\Supervisor\SuperChecklistQuestion;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistNote;
+use App\Models\Misc\Supervisor\SuperChecklistSettings;
 use App\Models\Site\Site;
 use App\Models\Comms\Todo;
 use App\Http\Requests;
@@ -66,7 +67,7 @@ class SuperChecklistController extends Controller {
         for ($i = 1; $i < 6; $i ++) {
             $classes[$i] = '';
             if ($today->format('w') > $i)
-                $classes[$i] = 'hoverDiv editChecklist';
+                $classes[$i] = 'hoverDiv';
             if ($today->format('w') == $i)
                 $classes[$i] = 'hoverDiv todayBG editChecklist';
 
@@ -261,6 +262,47 @@ class SuperChecklistController extends Controller {
 
         return redirect("/supervisor/checklist");
 
+    }
+
+    /**
+     * Settings
+     */
+    public function settings()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.super.checklist'))
+            return view('errors/404');
+
+        $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
+        $super_list = ($settings_supers) ? explode(',', $settings_supers->value) : [];
+
+        return view("/supervisor/checklist/settings", compact('super_list'));
+    }
+
+    /**
+     * Settings
+     */
+    public function updateSettings()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.super.checklist'))
+            return view('errors/404');
+
+        //dd(request()->all());
+
+        // Update Supervisor List
+        if (request('super_list')) {
+            $super_list = implode(',', request('super_list'));
+            $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
+            if ($settings_supers) {
+                $settings_supers->value = $super_list;
+                $settings_supers->save();
+            } else
+                $settings_supers = SuperChecklistSettings::create(['field' => 'supers', 'value' => $super_list, 'status' => 1]);
+        }
+
+
+        return redirect("/supervisor/checklist/settings");
     }
 
     /**

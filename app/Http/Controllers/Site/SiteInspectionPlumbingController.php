@@ -142,7 +142,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         $report->status = 1;
         $report->save();
-        $report->createContructionToDo(getUserIdsWithRoles('con-construction-manager'));
+        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/plumbing');
@@ -185,7 +185,7 @@ class SiteInspectionPlumbingController extends Controller {
                  'stormwater_detention_type.required_if' => 'The onsite stormwater detention field is required.',
         ];
 
-        if (in_array(Auth::user()->id, getUserIdsWithRoles('con-construction-manager'))) {
+        if (in_array(Auth::user()->id, array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]))) {
             $rules = $rules + ['assigned_to' => 'required'];
             $mesg = $mesg + ['assigned_to.required' => 'The assigned to company field is required.'];
         }
@@ -210,7 +210,7 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['status'] = 3;
 
             // Create ToDoo for Con Mgr
-            $report->createContructionReviewToDo(getUserIdsWithRoles('con-construction-manager'));
+            $report->createConstructionReviewToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
         } elseif (request('status') == -1 && $report->status != -1) {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
