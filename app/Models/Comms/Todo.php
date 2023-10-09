@@ -143,6 +143,8 @@ class Todo extends Model {
                 return "/site/inspection/plumbing/$this->type_id";
             case 'project supply':
                 return "/site/supply/$this->type_id/edit";
+            case 'super checklist':
+                return "/supervisor/checklist/$this->type_id/$this->type_id2";
             case 'super checklist signoff':
                 return "/supervisor/checklist/$this->type_id/weekly";
             case 'scaffold handover':

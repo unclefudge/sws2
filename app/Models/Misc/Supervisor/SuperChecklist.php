@@ -149,6 +149,26 @@ class SuperChecklist extends Model {
         return $summary;
     }
 
+    /**
+     * Create ToDoo for Supervisor to complete checklist
+     */
+    public function createSupervisorToDo($user_list)
+    {
+        $todo_request = [
+            'type'       => 'super checklist',
+            'type_id'    => $this->id,
+            'type_id2'    => Carbon::now()->format('w'),
+            'name'       => 'Supervisor Checklist',
+            'info'       => 'Please complete your daily Supervisor tasks on the Checklist',
+            'due_at'     => Carbon::today()->toDateTimeString(),
+            'company_id' => '3',
+        ];
+
+        // Create ToDoo and assign to Site Supervisors
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
+    }
 
     /**
      * Create ToDoo for Super Checklist and assign to given user(s)
@@ -171,7 +191,7 @@ class SuperChecklist extends Model {
     }
 
     /**
-     * Close any outstanding ToDoo for this Project Supply
+     * Close any outstanding ToDoo for this Super Checklist
      */
     public function closeToDo()
     {
@@ -182,6 +202,26 @@ class SuperChecklist extends Model {
             $todo->done_by = (Auth::check()) ? Auth::user()->id : 1;
             $todo->save();
         }
+    }
+
+    /**
+     * Email Action Notification
+     */
+    public function emailSupervisorReminder()
+    {
+        $email_to = [env('EMAIL_DEV')];
+
+        if (\App::environment('prod')) {
+            $email_to = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
+            $email_cc = 'kirstie@capecod.com.au';
+        }
+
+        /*
+        if ($email_to && $email_cc)
+            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
+        */
     }
 
     /**

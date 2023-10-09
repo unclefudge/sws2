@@ -20,10 +20,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Supervisor Checklist</span>
                         </div>
                         <div class="actions">
-                            {{--}}
-                            @if(Auth::user()->allowed2('add.super.checklist'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/create/{{ $template->id }}" data-original-title="Add">Add</a>
-                            @endif --}}
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/supervisor/checklist" data-original-title="Current">Current Week</a>
                         </div>
                     </div>
                     {{--}}

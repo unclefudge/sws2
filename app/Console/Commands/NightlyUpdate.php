@@ -18,7 +18,7 @@ class NightlyUpdate extends Command
      *
      * @var string
      */
-    protected $description = 'Nightly update of roster + non-compliance';
+    protected $description = 'Nightly update of SafeWorksite tasks';
 
     /**
      * Create a new command instance.
@@ -37,7 +37,7 @@ class NightlyUpdate extends Command
      */
     public function handle()
     {
-        \Log::info('Nightly update of roster + non-compliance');
+        \Log::info('Nightly update of tasks + reports');
         \App\Http\Controllers\Misc\CronController::nightly();
 
         return 0;

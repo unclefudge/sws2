@@ -66,8 +66,8 @@ class SuperChecklistController extends Controller {
         $classes = [];
         for ($i = 1; $i < 6; $i ++) {
             $classes[$i] = '';
-            if ($today->format('w') > $i)
-                $classes[$i] = 'hoverDiv';
+            //if ($today->format('w') > $i)
+            //    $classes[$i] = 'hoverDiv viewChecklist';
             if ($today->format('w') == $i)
                 $classes[$i] = 'hoverDiv todayBG editChecklist';
 

@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\Inspire::class,
         \App\Console\Commands\NightlyUpdate::class,
+        \App\Console\Commands\HourlyUpdate::class,
     ];
 
     /**
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('backup:run -n')->daily()->at('00:02');
             $schedule->command('app:nightly-update')->daily()->at('00:05');
             $schedule->command('app:nightly-verify')->daily()->at('00:30');
+            $schedule->command('app:hourly-update')->hourlyAt(01);  // Every hour at minute 1;
         }
     }
 

@@ -161,7 +161,7 @@ class SiteExtensionController extends Controller {
             if ($site_ext->extension->sites->count() == $site_ext->extension->sitesCompleted()->count()) {
                 $todo = Todo::where('type', 'extension signoff')->where('type_id', $site_ext->extension->id)->where('status', '1')->first();
                 if (!$todo)
-                    $site_ext->extension->createSignOffToDo(getUserIdsWithRoles('con-construction-manager'));
+                    $site_ext->extension->createSignOffToDo(array_merge(getUserIdsWithRoles('con-construction-manager'), [108]));
             }
             //$site_ext->extension->createSignOffToDo(['325']);  // Michelle 325, Courtney 1359
         }

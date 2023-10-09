@@ -1376,6 +1376,12 @@ class CronController extends Controller {
 
             echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
             $log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
+
+            // Create Todoo task for supervisor
+            if (Carbon::today()->isWeekday()) {
+                $checklist->closeToDo();
+                $checklist->createSupervisorToDo($super->id);
+            }
         }
 
 
