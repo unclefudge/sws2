@@ -66,8 +66,8 @@ class SuperChecklistController extends Controller {
         $classes = [];
         for ($i = 1; $i < 6; $i ++) {
             $classes[$i] = '';
-            //if ($today->format('w') > $i)
-            //    $classes[$i] = 'hoverDiv viewChecklist';
+            if ($today->format('w') > $i)
+                $classes[$i] = 'viewChecklist';
             if ($today->format('w') == $i)
                 $classes[$i] = 'hoverDiv todayBG editChecklist';
 
@@ -218,8 +218,10 @@ class SuperChecklistController extends Controller {
         $total = $checklist->responses->where('day', $day)->count();
         $completed = $checklist->responsesCompleted($day)->count();
 
-        if ($total == $completed)
+        if ($total == $completed) {
+            $checklist->closeToDo();
             return redirect("supervisor/checklist");
+        }
 
         return redirect("supervisor/checklist/$checklist->id/$day");
     }

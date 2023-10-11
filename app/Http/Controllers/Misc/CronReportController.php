@@ -73,8 +73,9 @@ class CronReportController extends Controller {
             CronReportController::emailActiveElectricalPlumbing();
         }
 
-        if (Carbon::today()->isFriday())
+        if (Carbon::today()->isFriday()) {
             CronReportController::emailEquipmentRestock();
+        }
 
 
         // Fortnightly on Mondays starting 26 Oct 2020
@@ -90,12 +91,15 @@ class CronReportController extends Controller {
 
         // Monthly last Friday of the month
         $last_fri = new Carbon('last friday of this month');
-        if (Carbon::today()->isSameDay($last_fri))
+        if (Carbon::today()->isSameDay($last_fri)) {
             CronReportController::emailOutstandingAftercare();
+        }
 
         // Quarterly Reports 1th of month
-        if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), ['03', '06', '09', '12']))
+        $quarterly_months = ['03', '06', '09', '12'];
+        if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), $quarterly_months)) {
             CronReportController::emailMaintenanceExecutive();
+        }
 
     }
 
@@ -1030,8 +1034,8 @@ class CronReportController extends Controller {
 
         }
         $equipment = Equipment::find($eids);
-        echo "Equipment: ". $equipment->count() . "<br>";
-        $log .= "Equipment: ". $equipment->count() . "\n";
+        echo "Equipment: " . $equipment->count() . "<br>";
+        $log .= "Equipment: " . $equipment->count() . "\n";
 
 
         if ($equipment->count() && $email_list) {
@@ -1070,8 +1074,8 @@ class CronReportController extends Controller {
         $emails = implode("; ", $email_list);
 
         $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
-        echo "Outstanding AfterCare: ". $mains->count() . "<br>";
-        $log .= "Outstanding AfterCare: ". $mains->count() . "\n";
+        echo "Outstanding AfterCare: " . $mains->count() . "<br>";
+        $log .= "Outstanding AfterCare: " . $mains->count() . "\n";
         $data = ['data' => $mains];
 
         if ($mains->count() && $email_list) {

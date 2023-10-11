@@ -199,6 +199,9 @@
                                 <tr>
                                     <td><a href="/manage/report/zoho">Zoho Import Log</a></td>
                                 </tr>
+                                <tr>
+                                    <td><a href="/manage/report/cronjobs">Manual Cron Jobs</a></td>
+                                </tr>
                             @endif
                             </tbody>
                         </table>

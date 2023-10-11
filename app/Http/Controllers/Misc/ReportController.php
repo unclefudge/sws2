@@ -542,17 +542,18 @@ class ReportController extends Controller {
         $companies = Auth::user()->company->companies()->whereNotIn('id', $exclude_ids);
 
         // Current FinYear + Dropdown last 3 years
-        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-07-01 00:00:00');
-        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-06-30 23:59:59')->addYear();
-        $fin_year = $start_year->format('Y').'-'.$end_year->format('Y');
+        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y') . '-07-01 00:00:00');
+        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y') . '-06-30 23:59:59')->addYear();
+        $fin_year = $start_year->format('Y') . '-' . $end_year->format('Y');
         $from = $start_year->format('M Y');
         $from_ymd = $start_year->format('Y-m-d');
         $to = $end_year->format('M Y');
         $to_ymd = $end_year->format('Y-m-d');
 
         $select_fin = [];
-        for ($i=0; $i<4; $i++)
+        for ($i = 0; $i < 4; $i ++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
+
         //dd($from_ymd.' - '.$to_ymd.' * '. $from. ' - '. $to);
 
 
@@ -572,18 +573,18 @@ class ReportController extends Controller {
         $fin_year = request('fin_year');
         if ($fin_year) {
             list($year1, $year2) = explode('-', request('fin_year'));
-            $from = Carbon::createFromFormat('Y-m-d H:i:s', $year1. '-07-01 00:00:00')->format('M Y');
+            $from = Carbon::createFromFormat('Y-m-d H:i:s', $year1 . '-07-01 00:00:00')->format('M Y');
             $from_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year1 . '-07-01 00:00:00')->format('Y-m-d');
-            $to = Carbon::createFromFormat('Y-m-d H:i:s', $year2. '-06-30 23:59:59')->format('M Y');
+            $to = Carbon::createFromFormat('Y-m-d H:i:s', $year2 . '-06-30 23:59:59')->format('M Y');
             $to_ymd = Carbon::createFromFormat('Y-m-d H:i:s', $year2 . '-06-30 23:59:59')->format('Y-m-d');
         }
 
         // Current FinYear + Dropdown last 3 years
-        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-07-01 00:00:00');
-        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y').'-06-30 23:59:59')->addYear();
+        $start_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y') . '-07-01 00:00:00');
+        $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y') . '-06-30 23:59:59')->addYear();
 
         $select_fin = [];
-        for ($i=0; $i<4; $i++)
+        for ($i = 0; $i < 4; $i ++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
 
         return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));
@@ -649,5 +650,66 @@ class ReportController extends Controller {
         $files = array_reverse(array_diff(scandir(public_path('/filebank/log/zoho')), array('.', '..')));
 
         return view('manage/report/zoho', compact('files'));
+    }
+
+    public function cronjobs()
+    {
+        //$nightlyjobs = ['Daily', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        //$reportjobs =  ['Daily', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Fortnightly', 'Monthly'];
+
+        // Nightly
+        $day = 'Daily';
+        $nightlyjobs = [];
+        $file = base_path() . "/app/Http/Controllers/Misc/CronController.php";
+        if (($handle = fopen($file, "r")) !== false) {
+            while (($line = fgets($handle)) !== false) {
+                $line = trim($line);
+
+                // Finish reading Nightly function
+                if (preg_match("/NIGHTLY COMPLETE/", $line)) break;
+
+                // Update Day
+                if (preg_match("/Carbon::today\(\)->is/", $line))
+                    $day = substr($line, 23, '-5');
+
+                if (preg_match("/^CronController::/", $line))
+                    $cronjobs[$day][substr($line, 16, '-3')] = $line;
+            }
+        }
+        fclose($handle);
+
+        // Reports
+        $day = 'Daily';
+        $reportjobs = [];
+        $file = base_path() . "/app/Http/Controllers/Misc/CronReportController.php";
+        if (($handle = fopen($file, "r")) !== false) {
+            while (($line = fgets($handle)) !== false) {
+                $line = trim($line);
+
+                // Finish reading Report function
+                if (preg_match("/Monday Reports/", $line)) break;
+
+
+                // Update Day
+                if (preg_match("/start_monday/", $line)) {
+                    $start_monday = Carbon::createFromFormat('Y-m-d', '2020-10-26');
+                    $day = ($start_monday->diffInDays(Carbon::now()) % 2 == 0) ? 'Fortnightly Monday' : 'Fortnightly Monday (Off)';
+                } elseif (preg_match("/first_tues/", $line)) {
+                    $day = 'Monthly First Tuesday';
+                } elseif (preg_match("/last_fri/", $line)) { // Carbon::today()->isSameDay($first_tues)
+                    $day = 'Monthly Last Friday';
+                } elseif (preg_match("/quarterly_months/", $line)) { // Carbon::today()->isSameDay($first_tues)
+                    $day = 'Quarterly First of Month';
+                } elseif (preg_match("/Carbon::today\(\)->is/", $line))
+                    $day = substr($line, 23, '-5');
+
+                if (preg_match("/^CronReportController::/", $line))
+                    $reportjobs[$day][substr($line, 22, '-3')] = $line;
+            }
+        }
+        fclose($handle);
+        //dd($reportjobs);
+
+        return view('manage/report/cronjobs', compact('cronjobs', 'reportjobs'));
     }
 }

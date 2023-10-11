@@ -50,11 +50,10 @@ class CronTaskController extends Controller {
 
     static public function hourly()
     {
-        //echo "<h1> Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
-        //$log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
+        echo "<h1> Hourly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
         //$bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         //if ($bytes_written === false) die("Error writing to file");
-        
+
         if (Carbon::today()->isWeekday()) {
             $hour = Carbon::now()->format('G'); // 24hr
             $minute = Carbon::now()->format('i');
@@ -62,7 +61,7 @@ class CronTaskController extends Controller {
             // 2pm
             if ($hour == '14') {
                 $text = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
-                app('log')->debug($text);
+                //app('log')->debug($text);
                 CronTaskController::superChecklistsReminder();
             }
         }
@@ -81,13 +80,22 @@ class CronTaskController extends Controller {
     */
     static public function superChecklistsReminder()
     {
+        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks @ 2pm ===\n";
+        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+
         $todos = Todo::where('type', 'super checklist')->where('status', '1')->get();
         foreach ($todos as $todo) {
             $checklist = SuperChecklist::find($todo->type_id);
             if ($checklist) {
-
+                //$checklist->emailSupervisorReminder();
+                //echo "Email Supervisor Checklist Reminder - " . $checklist->supervisor->name . "<br>";
+                //$log .= "Email Supervisor Checklist Reminder - " . $checklist->supervisor->name . "\n";
             }
         }
+
+        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 
 }

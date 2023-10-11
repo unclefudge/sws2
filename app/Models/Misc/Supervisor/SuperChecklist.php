@@ -210,18 +210,14 @@ class SuperChecklist extends Model {
     public function emailSupervisorReminder()
     {
         $email_to = [env('EMAIL_DEV')];
+        $email_cc = '';
 
         if (\App::environment('prod')) {
             $email_to = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
             $email_cc = 'kirstie@capecod.com.au';
         }
 
-        /*
-        if ($email_to && $email_cc)
-            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
-        */
+        Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Misc\SuperChecklistReminder($this));
     }
 
     /**

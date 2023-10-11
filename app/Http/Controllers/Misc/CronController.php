@@ -75,19 +75,24 @@ class CronController extends Controller {
         CronController::verifyZohoImport();
 
         // Monday
-        if (Carbon::today()->isMonday())
+        if (Carbon::today()->isMonday()) {
             CronController::overdueToDo();
+        }
 
         // Tuesday
-        if (Carbon::today()->isTuesday())
+        if (Carbon::today()->isTuesday()) {
             CronController::siteExtensionsSupervisorTask();
+        }
 
         // Thursday
-        if (Carbon::today()->isThursday())
+        if (Carbon::today()->isThursday()) {
             CronController::siteExtensionsSupervisorTaskReminder();
+        }
+
         // Thursday
-        if (Carbon::today()->isFriday())
+        if (Carbon::today()->isFriday()) {
             CronController::siteExtensionsSupervisorTaskFinalReminder();
+        }
 
 
         // Email Nightly Reports
@@ -1380,14 +1385,14 @@ class CronController extends Controller {
             // Create Todoo task for supervisor
             if (Carbon::today()->isWeekday()) {
                 $checklist->closeToDo();
-                $checklist->createSupervisorToDo($super->id);
+                //$checklist->createSupervisorToDo($super->id);
             }
         }
 
 
         // Archive old active checklists
         $old_checklists = SuperChecklist::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
-        if ($old_checklists) {
+        if ($old_checklists->count()) {
             foreach ($old_checklists as $checklist) {
                 $checklist->status = 0;
                 $checklist->save();
