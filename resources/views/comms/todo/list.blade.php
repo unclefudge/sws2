@@ -41,7 +41,7 @@
                                 <th width="5%"> #</th>
                                 <th width="5%"> ID</th>
                                 <th> Task</th>
-                                <th> Created by</th>
+                                <th width="20%"> Created by</th>
                                 <th width="10%"> Due</th>
                             </tr>
                             </thead>

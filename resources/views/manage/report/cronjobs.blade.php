@@ -46,7 +46,7 @@
                                         <tr>
                                             <td>Cron</td>
                                             <td>{{ $freq }}</td>
-                                            <td>{{ $job }}</td>
+                                            <td><a href="/manage/report/cronjobs/execute/{{ $func }}" target="_blank">{{ $job }}</a></td>
                                         </tr>
                                     @endforeach
                                 @endforeach
@@ -57,7 +57,7 @@
                                         <tr>
                                             <td>Report</td>
                                             <td>{{ $freq }}</td>
-                                            <td>{{ $job }}</td>
+                                            <td><a href="/manage/report/cronjobs/execute/{{ $func }}" target="_blank">{{ $job }}</a></td>
                                         </tr>
                                     @endforeach
                                 @endforeach

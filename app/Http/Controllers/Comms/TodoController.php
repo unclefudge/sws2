@@ -445,6 +445,9 @@ class TodoController extends Controller {
 
                 return $todo->duedate;
             })
+            ->editColumn('task', function ($todo) {
+                return $todo->todo->name."<br>Assigned to: ".$todo->todo->assignedToBySBC();
+            })
             ->rawColumns(['view', 'task'])
             ->make(true);
 

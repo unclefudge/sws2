@@ -141,6 +141,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/nightly', '\App\Http\Controllers\Misc\ReportController@nightly');
     Route::get('/manage/report/zoho', '\App\Http\Controllers\Misc\ReportController@zoho');
     Route::get('/manage/report/cronjobs', '\App\Http\Controllers\Misc\ReportController@cronjobs');
+    Route::get('/manage/report/cronjobs/execute/{method}', '\App\Http\Controllers\Misc\ReportController@cronjobsExecute');
     Route::get('/manage/report/qa/{id}', '\App\Http\Controllers\Misc\ReportController@QAdebug');
     Route::get('/manage/report/qa_onhold', '\App\Http\Controllers\Misc\ReportController@OnholdQA');
     Route::post('/manage/report/qa_onhold/report', '\App\Http\Controllers\Misc\ReportController@OnholdQAPDF');

@@ -673,7 +673,7 @@ class ReportController extends Controller {
                     $day = substr($line, 23, '-5');
 
                 if (preg_match("/^CronController::/", $line))
-                    $cronjobs[$day][substr($line, 16, '-3')] = $line;
+                    $cronjobs[$day][substr($line, 16, '-3')] = rtrim($line, ';');
             }
         }
         fclose($handle);
@@ -704,12 +704,24 @@ class ReportController extends Controller {
                     $day = substr($line, 23, '-5');
 
                 if (preg_match("/^CronReportController::/", $line))
-                    $reportjobs[$day][substr($line, 22, '-3')] = $line;
+                    $reportjobs[$day][substr($line, 22, '-3')] = rtrim($line, ';');
             }
         }
         fclose($handle);
         //dd($reportjobs);
 
         return view('manage/report/cronjobs', compact('cronjobs', 'reportjobs'));
+    }
+
+    public function cronjobsExecute($action)
+    {
+        list($controller, $rest) = explode('::', $action);
+        $method = substr($rest, 0, '-2');
+        $string = '\App\Http\Controllers\\'.$controller; //."@$method";
+        //dd($string);
+        echo "[$string]<br>";
+        App::call($string, $method);
+        //app()->call($string, ['index']);
+        dd(request()->all());
     }
 }
