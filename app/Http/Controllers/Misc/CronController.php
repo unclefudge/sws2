@@ -62,7 +62,6 @@ class CronController extends Controller {
         CronController::qaOnholdButCompleted();
         CronController::completeToDoCompanyDoc();
         CronController::completedToDoQA();
-        CronController::verifyZohoImport();
         CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
         CronController::archiveToolbox();

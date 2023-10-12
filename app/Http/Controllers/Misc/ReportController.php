@@ -717,11 +717,11 @@ class ReportController extends Controller {
     {
         list($controller, $rest) = explode('::', $action);
         $method = substr($rest, 0, '-2');
-        $string = '\App\Http\Controllers\\'.$controller; //."@$method";
+        $string = '\App\Http\Controllers\Misc\\'.$controller; //."@$method";
         //dd($string);
-        echo "[$string]<br>";
-        App::call($string, $method);
-        //app()->call($string, ['index']);
-        dd(request()->all());
+        //echo "[$string]<br>";
+        //\App::call($string, $method, ['index']);
+        app()->call($string."@$method", [$method]);
+        //dd(request()->all());
     }
 }
