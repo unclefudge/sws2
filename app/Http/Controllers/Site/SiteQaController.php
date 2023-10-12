@@ -49,8 +49,21 @@ class SiteQaController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.qa'))
             return view('errors/404');
 
-        return view('site/qa/list');
+        $signoff = false;
+
+        return view('site/qa/list', compact('signoff'));
     }
+
+    /*public function listSignoff()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.qa'))
+            return view('errors/404');
+
+        $signoff = true;
+
+        return view('site/qa/list', compact('signoff'));
+    }*/
 
     public function templates()
     {
@@ -335,41 +348,56 @@ class SiteQaController extends Controller {
      */
     public function getQaReports()
     {
-        if (request('supervisor_sel'))
-            $site_list = (request('supervisor') == 'all') ? Site::all()->pluck('id')->toArray() : DB::table('site_supervisor')->where('user_id', request('supervisor'))->get()->pluck('site_id')->toArray();
-        else
+        if (request('supervisor_sel')) {
+            if (request('supervisor') == 'all')
+                $site_list = Site::all()->pluck('id')->toArray();
+            elseif (request('supervisor') == 'signoff') {
+                $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
+                $qas = SiteQa::where('status', 1)->whereIn('site_id', $site_list)->get();
+                $qa_list = [];
+                foreach ($qas as $qa) {
+                    $total = $qa->items()->count();
+                    $completed = $qa->itemsCompleted()->count();
+                    if ($total == $completed && $total != 0)
+                        $qa_list[] = $qa->id;
+                }
+            } else
+                $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
+        } else
             $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
 
-        //dd($site_list);
+        //dd($qa_list);
 
-        //$site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
-        $records = DB::table('site_qa AS q')
-            ->select(['q.id', 'q.name', 'q.site_id', 'q.version', 'q.master_id', 'q.company_id', 'q.status', 'q.updated_at',
-                's.name as sitename'])
-            ->join('sites AS s', 'q.site_id', '=', 's.id')
-            ->where('q.company_id', Auth::user()->company_id)
-            ->where('q.master', '0')
-            ->whereIn('q.site_id', $site_list)
-            ->where('q.status', request('status'));
+        if (request('supervisor') != 'signoff') {
+            $records = DB::table('site_qa AS q')
+                ->select(['q.id', 'q.name', 'q.site_id', 'q.version', 'q.master_id', 'q.company_id', 'q.status', 'q.updated_at',
+                    's.name as sitename'])
+                ->join('sites AS s', 'q.site_id', '=', 's.id')
+                ->where('q.company_id', Auth::user()->company_id)
+                ->where('q.master', '0')
+                ->whereIn('q.site_id', $site_list)
+                ->where('q.status', request('status'));
+        } else {
+            $records = DB::table('site_qa AS q')
+                ->select(['q.id', 'q.name', 'q.site_id', 'q.version', 'q.master_id', 'q.company_id', 'q.status', 'q.updated_at',
+                    's.name as sitename'])
+                ->join('sites AS s', 'q.site_id', '=', 's.id')
+                ->where('q.company_id', Auth::user()->company_id)
+                ->where('q.master', '0')
+                ->whereIn('q.id', $qa_list)
+                ->where('q.status', request('status'));
+        }
 
         //dd($records);
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/qa/{{$id}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('sitename', function ($doc) {
-                /*if ($doc->status == 1) {
-                    $site = Site::find($doc->site_id);
-                    $now = Carbon::now();
-                    $weekago = $now->subWeek()->toDateTimeString();
-                    if ($doc->updated_at <= $weekago)
-                        return "<span class='font-red'>$site->name</span>";
-                }*/
-                //$site = Site::find($doc->site_id);
                 return $doc->sitename;
             })
             ->editColumn('name', function ($doc) {
                 $name = $doc->name . ' &nbsp;<span class="font-grey-silver">v' . $doc->version . '</span>';
-                if (in_array($doc->status, ['1', '2']) && $doc->master_id > 100)
-                    $name .= " <span class='badge badge-warning badge-roundless'>New</span>";
+                //if (in_array($doc->status, ['1', '2']) && $doc->master_id > 100)
+                //    $name .= " <span class='badge badge-warning badge-roundless'>New</span>";
 
                 /*if ($doc->status == 1) {
                     $now = Carbon::now();

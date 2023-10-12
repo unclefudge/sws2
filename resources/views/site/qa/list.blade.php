@@ -25,11 +25,12 @@
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
                         @endif
+
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
