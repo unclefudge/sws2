@@ -245,12 +245,9 @@ Vue.component('app-weekly', {
             }
         },
         assignJobstartDate: function () {
-            //alert('site:'+this.xx.assign_site);
             var jobstart_est = objectFindByKey(this.xx.sel_jobstart, 'value', this.xx.assign_site)
-            if (jobstart_est) {
-                //alert(jobstart_est.jobstart_estimate);
+            if (jobstart_est)
                 this.xx.jobstart = jobstart_est.jobstart_estimate;
-            }
         },
         assignTasks: function () {
             // Assign specified tasks to given company or generic
