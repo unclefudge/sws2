@@ -1771,7 +1771,7 @@ class SitePlannerController extends Controller {
     {
         $today = Carbon::now();
         $allowedSites = Auth::user()->company->reportsTo()->sites('1')->pluck('id')->toArray();
-        $sites = Site::whereIn('id', $allowedSites)->where('status', '1')->orderBy('name')->get();
+        $sites = Site::whereIn('id', $allowedSites)->where('status', '1')->whereNull('special')->orderBy('name')->get();
 
         //$startJobIDs = Task::where('code', 'START')->where('status', '1')->pluck('id')->toArray();
         $with = [];
@@ -1780,10 +1780,11 @@ class SitePlannerController extends Controller {
         $without[] = ['value' => '', 'text' => 'Select site'];
         // Create array in specific Vuejs 'select' format.
         foreach ($sites as $site) {
+            $jobstart_est = ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '';
             if (!$site->job_start)
-                $without[] = ['value' => $site->id, 'text' => $site->name, 'name' => $site->name];
+                $without[] = ['value' => $site->id, 'text' => $site->name, 'name' => $site->name, 'jobstart_estimate' => $jobstart_est];
             else if ($site->job_start->gt($today))
-                $with[] = ['value' => $site->id, 'text' => $site->name . ' - ' . $site->job_start->format('d/m/Y'), 'name' => $site->name];
+                $with[] = ['value' => $site->id, 'text' => $site->name . ' - ' . $site->job_start->format('d/m/Y'), 'name' => $site->name, 'jobstart_estimate' => $jobstart_est];
         }
 
         return ($exists == 'true') ? $with : $without;
@@ -2039,6 +2040,7 @@ class SitePlannerController extends Controller {
     public function updateSiteStatus($site_id, $status)
     {
         $site = Site::find($site_id);
+        $today = Carbon::today();
 
         // Move from Pre-construction to Active
         if ($site->status == '-1' && $status == 1) {
@@ -2069,6 +2071,11 @@ class SitePlannerController extends Controller {
         if ($site->status == '-1' && $status == '-2') {
             $site->status = '-2';
             $site->save();
+
+            // Delete any tasks on planner
+            $tasks_deleted = SitePlanner::where('site_id', $site->id)->delete();
+            $project_deleted = SiteProjectSupply::where(['site_id' => $site->id])->delete();
+
             Toastr::error("Site Cancelled");
 
             return redirect("/planner/preconstruction");
@@ -2078,6 +2085,10 @@ class SitePlannerController extends Controller {
         if ($site->status == 1 && $status == 0) {
             $site->status = '-1';
             $site->save();
+
+            // Delete any future tasks on planner
+            $tasks_deleted = SitePlanner::where('site_id', $site->id)->where('from', '>=', $today->format('Y-m-d'))->delete();
+            $project_deleted = SiteProjectSupply::where(['site_id' => $site->id])->delete();
 
             return redirect("/planner/preconstruction/$site->id");
         }

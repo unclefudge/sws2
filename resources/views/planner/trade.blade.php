@@ -199,7 +199,7 @@
                         </div>
                     </div>
 
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    <pre v-if="xx.dev">@{{ $data | json }}</pre>
                     -->
 
                 </div>
@@ -508,7 +508,7 @@
             <div class="row" style="padding-bottom: 10px">
                 <div class="col-xs-12">
                     <label for="xx.assign_site">Site</label>
-                    <select-picker :name.sync="xx.assign_site" :options.sync="xx.sel_jobstart" :function="assignCompanyName"></select-picker>
+                    <select-picker :name.sync="xx.assign_site" :options.sync="xx.sel_jobstart" :function="assignJobstartDate"></select-picker>
                 </div>
             </div>
 
