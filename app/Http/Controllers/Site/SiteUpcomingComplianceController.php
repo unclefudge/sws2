@@ -378,6 +378,7 @@ class SiteUpcomingComplianceController extends Controller {
         // Sort by Start Job
         //
         $startdata = [];
+        $sites_started = [];
         foreach ($planner as $plan) {
             $site = Site::findOrFail($plan->site_id);
             if ($site->status == 1) {
@@ -395,6 +396,7 @@ class SiteUpcomingComplianceController extends Controller {
                     $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
                     $cc_stage = 1;
                 }
+                $sites_started[] = $site->id;
                 $startdata[] = [
                     'id'              => $site->id,
                     'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
@@ -422,9 +424,8 @@ class SiteUpcomingComplianceController extends Controller {
             }
         }
 
-        //dd($startdata);
-
         $site_list = [];
+        //dd($startdata);
 
         // Add Sites with (contract_signed, deposit_paid)
         $extra_sites = Site::where('status', '-1')->whereNotNull('contract_signed')->whereNotNull('deposit_paid')->where('company_id', 3)->orderBy('deposit_paid')->pluck('id')->toArray();
@@ -455,9 +456,10 @@ class SiteUpcomingComplianceController extends Controller {
         $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
         $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
         foreach ($special_sites as $sid)
-            if (!in_array($sid, $site_list))
+            if (!(in_array($sid, $site_list) || in_array($sid, $sites_started)))
                 $site_list[] = $sid;
 
+        //dd($site_list);
 
         foreach ($site_list as $site_id) {
             $site = Site::findOrFail($site_id);
