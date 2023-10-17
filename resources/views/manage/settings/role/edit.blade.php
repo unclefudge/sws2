@@ -4,9 +4,7 @@ $sub1 = (Auth::user()->company->subscription > 0) ? 1 : 0;
 $sub2 = (Auth::user()->company->subscription > 1) ? 1 : 0;
 $plan = (Auth::user()->company->addon('planner')) ? 1 : 0;
 $cc = (Auth::user()->isCC()) ? 1 : 0;
-$cc2 = ($user->isCCcompany()) ? 1 : 0;
 $be = (Auth::user()->company->id == '210') ? 1 : 0; // Blue Eco
-
 $dis = (Auth::user()->allowed2('edit.settings', $role)) ? false : true;
 $cid = Auth::user()->company_id;
 $rec = $role;

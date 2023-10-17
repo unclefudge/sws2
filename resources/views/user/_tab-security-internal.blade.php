@@ -5,7 +5,6 @@ $sub1 = ($user->company->subscription > 0) ? 1 : 0;
 $sub2 = ($user->company->subscription > 1) ? 1 : 0;
 $plan = ($user->company->addon('planner')) ? 1 : 0;
 $cc = ($user->isCC()) ? 1 : 0;
-$cc2 = ($user->isCCcompany()) ? 1 : 0;
 $be = ($user->company->id == '210') ? 1 : 0; // Blue Eco
 $cid = $user->cid;
 $dis = Auth::user()->hasPermission2('edit.user.security') ? false : true;
