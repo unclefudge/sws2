@@ -85,6 +85,7 @@ class ReportTasksController extends Controller {
             $count ++;
             //if ($count > 30000) continue;
 
+
             $assigned_to = [];
             $assigned_cc = 0;
             $assigned_names = '';
@@ -124,13 +125,16 @@ class ReportTasksController extends Controller {
             if (strpos($task->type, 'incident') !== false) $task_type = 'incident';
             if (strpos($task->type, 'extension') !== false) $task_type = 'extension';
             if (strpos($task->type, 'super checklist') !== false) $task_type = 'super checklist';
-            if (strpos($task->type, 'inspection') !== false) $task_type = 'inspection';
+            if (strpos($task->type, 'inspection_electrical') !== false) $task_type = 'inspection';
+            if (strpos($task->type, 'inspection_plumbing') !== false) $task_type = 'inspection';
             if (strpos($task->type, 'extension') !== false) $task_type = 'extension';
 
             //$site_tasks = ['incident', 'extension', 'hazard', 'maintenance', 'inspection', 'project supply', 'extension', 'equipment', 'scaffold handover', 'qa'];
 
+            //echo "Task[$task->id] [$task->type] [$task->type_id]<br>";
             $info = '';
-            $rec = $this->todoRecord($task, [0, 1]);
+            $status_options = (in_array($task->type, ['inspection_electrical', 'inspection_plumbing'])) ? [0, 1, 2, 3] : [0, 1];
+            $rec = $this->todoRecord($task, $status_options);
             if (!$rec) continue;
 
             $info .= $this->todoNotes($rec, $task);
@@ -239,6 +243,7 @@ class ReportTasksController extends Controller {
         }
 
 
+        //dd($tasks);
         $json = [];
         $json[] = $tasks;
         $json[] = $sel_assigned_tasks;
