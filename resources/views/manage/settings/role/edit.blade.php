@@ -4,6 +4,7 @@ $sub1 = (Auth::user()->company->subscription > 0) ? 1 : 0;
 $sub2 = (Auth::user()->company->subscription > 1) ? 1 : 0;
 $plan = (Auth::user()->company->addon('planner')) ? 1 : 0;
 $cc = (Auth::user()->isCC()) ? 1 : 0;
+$cc2 = ($user->isCCcompany()) ? 1 : 0;
 $be = (Auth::user()->company->id == '210') ? 1 : 0; // Blue Eco
 
 $dis = (Auth::user()->allowed2('edit.settings', $role)) ? false : true;
@@ -294,7 +295,9 @@ $cc = 1;*/
                                                data-original-title="Work Sites"> <i class="fa fa-question-circle font-grey-silver"></i> </a></h5>
                                         <table class="table table-bordered table-striped">
                                             <tr>
-                                                <td>Site / Client Details @if ($sub1 && !$role->external) <br><span class="font-red">Edit/Create/Delete functions<br>Disabled for 'child' company roles</span>@endif</td>
+                                                <td>Site / Client Details @if ($sub1 && !$role->external)
+                                                        <br><span class="font-red">Edit/Create/Delete functions<br>Disabled for 'child' company roles</span>
+                                                    @endif</td>
                                                 <td width="15%">{!! permSelect('view.site', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>
                                                 @if (!$role->external)
                                                     <td width="15%">{!! permSelect('edit.site', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>
@@ -334,7 +337,9 @@ $cc = 1;*/
                                             @if (!$role->external)
                                                 @if ($plan)
                                                     <tr>
-                                                        <td>Trades / Tasks @if ($sub1) <br><span class="font-red">Disabled for 'child' company roles</span>@endif</td>
+                                                        <td>Trades / Tasks @if ($sub1)
+                                                                <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                            @endif</td>
                                                         <td width="15%">{!! permSelect('view.trade', 'all', $rec, $cid, $dis) !!}</td>
                                                         <td width="15%">{!! permSelect('edit.trade', 'all', $rec, $cid, $dis) !!}</td>
                                                         <td width="15%">{!! permSelect('add.trade', 'add', $rec, $cid, $dis) !!}</td>
@@ -343,7 +348,9 @@ $cc = 1;*/
                                                     </tr>
                                                 @endif
                                                 <tr>
-                                                    <td>Supervisors @if ($sub1) <br><span class="font-red">Disabled for 'child' company roles</span>@endif</td>
+                                                    <td>Supervisors @if ($sub1)
+                                                            <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                        @endif</td>
                                                     <td width="15%">{!! permSelect('view.area.super', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.area.super', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="45%" colspan="3"></td>
@@ -560,19 +567,21 @@ $cc = 1;*/
                                                 <td width="15%">{!! permSelect('del.site.accident', 'res', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%"></td>
                                             </tr>
-                                            <tr>
-                                                <td>Incident Reports</td>
-                                                @if ($plan)
-                                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                                @else
-                                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                                @endif
-                                                <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid, $dis) !!}</td>
-                                                <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid, $dis) !!}</td>
-                                                <td width="15%"></td>
-                                            </tr>
+                                            @if($cc)
+                                                <tr>
+                                                    <td>Incident Reports</td>
+                                                    @if ($plan)
+                                                        <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                        <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                    @else
+                                                        <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                        <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                                    @endif
+                                                    <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
+                                                </tr>
+                                            @endif
                                             <tr>
                                                 <td>Risk Assessments / Hazardous Materials</td>
                                                 <td width="15%">{!! permSelect('view.safety.doc', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>
@@ -1028,7 +1037,7 @@ $cc = 1;*/
 
         {!! Form::close() !!}
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -1039,7 +1048,8 @@ $cc = 1;*/
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 

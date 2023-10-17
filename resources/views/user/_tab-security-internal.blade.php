@@ -5,6 +5,7 @@ $sub1 = ($user->company->subscription > 0) ? 1 : 0;
 $sub2 = ($user->company->subscription > 1) ? 1 : 0;
 $plan = ($user->company->addon('planner')) ? 1 : 0;
 $cc = ($user->isCC()) ? 1 : 0;
+$cc2 = ($user->isCCcompany()) ? 1 : 0;
 $be = ($user->company->id == '210') ? 1 : 0; // Blue Eco
 $cid = $user->cid;
 $dis = Auth::user()->hasPermission2('edit.user.security') ? false : true;
@@ -469,19 +470,21 @@ $rec = $user;
                             <td width="15%">{!! permSelect('del.site.accident', 'res', $rec, $cid, $dis) !!}</td>
                             <td width="15%"></td>
                         </tr>
-                        <tr>
-                            <td>Incident Reports</td>
-                            @if ($plan)
-                                <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                            @else
-                                <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                                <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
-                            @endif
-                            <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid, $dis) !!}</td>
-                            <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid, $dis) !!}</td>
-                            <td width="15%"></td>
-                        </tr>
+                        @if ($cc)
+                            <tr>
+                                <td>Incident Reports</td>
+                                @if ($plan)
+                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                @else
+                                    <td width="15%">{!! permSelect('view.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                    <td width="15%">{!! permSelect('edit.site.incident', ($sub1) ? 'every-plan' : 'super.individual', $rec, $cid, $dis) !!}</td>
+                                @endif
+                                <td width="15%">{!! permSelect('add.site.incident', 'add', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('del.site.incident', 'res', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>Risk Assessments / Hazardous Materials</td>
                             <td width="15%">{!! permSelect('view.safety.doc', ($plan) ? 'super.plan' : 'super', $rec, $cid, $dis) !!}</td>

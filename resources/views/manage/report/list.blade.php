@@ -96,39 +96,40 @@
                                     <td><a href="/site/extension">Contract Time Extensions</a></td>
                                 </tr>
                             @endif
-                            {{-- Quality Assurance --}}
-                            <tr style="background-color: #f0f6fa">
-                                <th> Quality Assurance</th>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/qa_onhold">On Hold QA</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/qa_outstanding">Outstanding QA</a></td>
-                            </tr>
-                            {{-- Maintenance --}}
-                            <tr style="background-color: #f0f6fa">
-                                <th> Maintenance Requests</th>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_no_action">No Action 14 days</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_on_hold">On Hold</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_appointment">Without Client Appointment</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_aftercare">Without After Care</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_supervisor_no_action">Supervisor No Appointment / Action 14 days</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
-                            </tr>
                             @if (Auth::user()->isCC())
+                                {{-- Quality Assurance --}}
+                                <tr style="background-color: #f0f6fa">
+                                    <th> Quality Assurance</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/qa_onhold">On Hold QA</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/qa_outstanding">Outstanding QA</a></td>
+                                </tr>
+                                {{-- Maintenance --}}
+                                <tr style="background-color: #f0f6fa">
+                                    <th> Maintenance Requests</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_no_action">No Action 14 days</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_on_hold">On Hold</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_appointment">Without Client Appointment</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_aftercare">Without After Care</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_supervisor_no_action">Supervisor No Appointment / Action 14 days</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
+                                </tr>
+                           
                                 {{-- Inspection Reports --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Inspection Reports</th>
