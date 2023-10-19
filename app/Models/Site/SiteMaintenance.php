@@ -248,7 +248,7 @@ class SiteMaintenance extends Model {
             'company_id' => '3',
         ];
 
-        // Create ToDoo and assign to Site Supervisors
+        // Create ToDoo and assign to Con Manager
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
         $todo->emailToDo();

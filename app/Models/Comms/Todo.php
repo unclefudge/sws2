@@ -310,18 +310,19 @@ class Todo extends Model {
             $email_list = [env('EMAIL_ME')];
 
         // Remove Gary from all ToDoo emails
-        if (is_array($email_list))
+        /*if (is_array($email_list)) {
             if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
                 unset($email_list[$key]);
-            else
+            else {
                 if ($email_list == 'gary@capecod.com.au')
                     $email_list = '';
-
+            }
+        }*/
 
         $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
         // Exclude CC for users on certain ToDoo types
-        $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox'];
+        $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover'];
         if (in_array($this->type, $excludeCCtypes))
             $email_user = '';
 
