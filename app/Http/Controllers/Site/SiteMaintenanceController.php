@@ -238,6 +238,7 @@ class SiteMaintenanceController extends Controller {
 
         $todo = Todo::create($todo_request);
         $todo->assignUsers(array_merge(getUserIdsWithRoles('con-construction-manager'), [108])); // Con Manager
+        $todo->emailToDo();
 
         Toastr::success("Updated Request");
 
