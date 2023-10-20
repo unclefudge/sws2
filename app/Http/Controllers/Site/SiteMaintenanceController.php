@@ -380,6 +380,7 @@ class SiteMaintenanceController extends Controller {
         $planner_id_orig = $main->planner_id;
         $super_id_orig = $main->super_id;
         $assigned_to_orig = $main->assigned_to;
+        $status_orig = $main->status;
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.maintenance', $main))
@@ -465,18 +466,18 @@ class SiteMaintenanceController extends Controller {
         }
 
         // Add note if change of Status
-        if (request('status') && $main->status != 3 && request('status') == 3) {
+        if (request('status') && $status_orig != 3 && request('status') == 3) {
             $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->closeToDo();
         }
-        if (request('status') && $main->status != 1 && request('status') == 1) {
+        if (request('status') && $status_orig != 1 && request('status') == 1) {
             $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->supervisor_sign_by = null;
             $main->supervisor_sign_at = null;
             $main->manager_sign_by = null;
             $main->manager_sign_at = null;
         }
-        if (request('status') && $main->status != - 1 && request('status') == - 1) {
+        if (request('status') && $status_orig != '-1' && request('status') == '-1') {
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->closeToDo();
         }
