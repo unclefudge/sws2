@@ -42,7 +42,7 @@
                                 <th> Manufacturer</th>
                                 <th> Hazardous/Dangerous</th>
                                 <th> Application</th>
-                                <th width="10%"> Action</th>
+                                <th width="15%"> Action</th>
                             </tr>
                             </thead>
                         </table>
