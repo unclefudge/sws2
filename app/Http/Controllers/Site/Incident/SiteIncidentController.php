@@ -221,7 +221,7 @@ class SiteIncidentController extends Controller {
         $incident_request['site_supervisor'] = ($site) ? $site->supervisorName : 'N/A';
         $incident_request['company_id'] = ($site) ? $site->company_id : Auth::user()->company->reportsTo()->id;
         $incident_request['step'] = 2;
-        $incident_request['status'] = 2;
+        $incident_request['status'] = 2; // In Progress
 
         //dd($incident_request);
 
@@ -440,7 +440,7 @@ class SiteIncidentController extends Controller {
         $incident_request = request()->all();
 
         // If status was modified then update resolved date
-        if ($incident->status != $incident['status'])
+        if ($incident->status != request('status')) // && request('status') == '4')
             $incident_request['resolved_at'] = ($incident_request['status']) ? null : Carbon::now()->toDateTimeString();
 
         $incident->update($incident_request);

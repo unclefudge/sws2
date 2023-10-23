@@ -31,7 +31,7 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1">In Progress</option>
+                                    <option value="2">Draft</option>
                                     <option value="0" selected>Sent</option>
                                 </select>
                             </div>

@@ -128,7 +128,7 @@ class SiteHazardController extends Controller {
         $old_status = $hazard->status;
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('del.site.hazard', $hazard))
+        if (!Auth::user()->allowed2('edit.site.hazard', $hazard))
             return view('errors/404');
 
         $hazard->update($request->all());
@@ -140,9 +140,13 @@ class SiteHazardController extends Controller {
                 $hazard->saveAttachment($tmp_filename);
         }
 
-        if ($hazard->status != $old_status) {
+        if ($hazard->status == '2' && $hazard->status != $old_status) {
             $action = Action::create(['action' => 'Hazard has been resolved', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->emailAction($action, 'important');
+        }
+        if ($hazard->status == '0' && $hazard->status != $old_status) {
+            $action = Action::create(['action' => 'Hazard has been closed', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
+            //$hazard->emailAction($action, 'important');
         }
 
         return view('site/hazard/show', compact('hazard'));

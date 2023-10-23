@@ -70,11 +70,11 @@ class SiteScaffoldHandoverController extends Controller {
         if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
             return view('errors/404');
 
-        if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.scaffold.handover', $report)))
-            return view('/site/scaffold/edit', compact('report'));
-        elseif ($report->status == 2)
+        //if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.scaffold.handover', $report)))
+        //    return view('/site/scaffold/edit', compact('report'));
+        if ($report->status == 2)
             return view('/site/scaffold/docs', compact('report'));
-        elseif ($report->status == 3)
+        elseif ($report->status == 1)
             return view('/site/scaffold/signoff', compact('report'));
         else
             return redirect('/site/scaffold/handover/' . $report->id);
@@ -139,7 +139,7 @@ class SiteScaffoldHandoverController extends Controller {
         if (!Auth::user()->allowed2('add.site.scaffold.handover'))
             return view('errors/404');
 
-        $report->status = 3;
+        $report->status = 1;
         $report->save();
         Toastr::success("Updated Certificate");
 
@@ -309,7 +309,8 @@ class SiteScaffoldHandoverController extends Controller {
     public function getCertificates()
     {
         $status = (request('status') == 0) ? [0] : [1, 2, 3];
-        $scaff_ids = SiteScaffoldHandover::whereIn('status', $status)->pluck('id')->toArray();
+        $status = request('status');
+        $scaff_ids = SiteScaffoldHandover::where('status', $status)->pluck('id')->toArray();
         //dd($scaff_ids);
 
         $scaff_records = SiteScaffoldHandover::select([

@@ -82,6 +82,7 @@ class CompanyController extends Controller {
         $newCompany = Company::create(request()->all());
         $newCompany->signup_key = $newCompany->id . '-' . md5(uniqid(rand(), true));
         $newCompany->nickname = request('person_name');
+        $newCompany->status = 3;  // Pending
         $newCompany->save();
 
         if (request('trades'))
@@ -251,7 +252,7 @@ class CompanyController extends Controller {
             $wms = $company->wmsDocs()->where('status', '>', 0)->where('company_id', Auth::user()->company_id)->get();
             $wms_count = count($wms);
             foreach ($wms as $doc) {
-                $doc->status = - 1;
+                $doc->status = '-1';
                 $doc->save();
                 $doc->closeToDo();
             }
@@ -724,11 +725,11 @@ class CompanyController extends Controller {
 
         $dt = Datatables::of($companies)
             ->editColumn('id', function ($company) {
-                return ($company->status == 2) ? "<div class='text-center'>$company->id</div>" : "<div class='text-center'><a href='/company/$company->id'><i class='fa fa-search'></i></a></div>";
+                return ($company->status == 3) ? "<div class='text-center'>$company->id</div>" : "<div class='text-center'><a href='/company/$company->id'><i class='fa fa-search'></i></a></div>";
             })
             ->editColumn('name', function ($company) {
                 $name = ($company->nickname) ? "$company->name<br><small class='font-grey-cascade'>$company->nickname</small>" : $company->name;
-                if ($company->status == 2) {
+                if ($company->status == 3) {
                     if ($company->signup_step == 1)
                         $name .= ' &nbsp; <span class="label label-sm label-info">Email sent</span> <a href="/signup/welcome/' . $company->id . '" class="btn btn-outline btn-xs dark">Resend Email ' . $company->email . '</a>';
                     if ($company->signup_step == 2)

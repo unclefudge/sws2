@@ -90,7 +90,7 @@ class SiteHazard extends Model {
         $this->save();
 
         if ($old != $status) {
-            $mesg = ($status) ? 'Hazard has been re-opened' : 'Hazard has been resolved';
+            $mesg = ($status) ? 'Hazard has been re-opened' : 'Hazard has been closed';
             $action = Action::create(['action' => $mesg, 'table' => $this->table, 'table_id' => $this->id]);
             $this->emailAction($action, 'important');
         }

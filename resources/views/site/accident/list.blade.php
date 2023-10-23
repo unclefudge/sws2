@@ -44,7 +44,7 @@
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Open</option>
-                                    <option value="0">Resolved</option>
+                                    <option value="0">Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                                 <th width="5%"> #</th>
                                 <th> ID</th>
                                 <th> Date</th>
-                                <th> Resolved</th>
+                                <th> Closed</th>
                                 <th> Site</th>
                                 <th> Name</th>
                                 <th> Supervisor</th>

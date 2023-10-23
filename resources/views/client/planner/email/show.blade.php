@@ -41,15 +41,21 @@
                             <div class="row">
                                 <div class="col-md-2"><b>To:</b></div>
                                 <div class="col-md-6">{{ $email->sent_to }}</div>
-                                <div class="col-md-1"><b>Sent by:</b></div>
-                                <div class="col-md-3">{{ $email->sent_by->name }}</div>
+                                @if ($email->status == 0)
+                                    <div class="col-md-1"><b>Sent by:</b></div>
+                                    <div class="col-md-3">{{ $email->sent_by->name }}</div>
+                                @else
+                                    <div class="col-md-4"><h3 class="font-red pull-right" style="margin-top: 0px">DRAFT</h3></div>
+                                @endif
                             </div>
                             {{-- Cc --}}
                             <div class="row">
                                 <div class="col-md-2"><b>Cc:</b></div>
                                 <div class="col-md-6">{{ $email->sent_cc }}</div>
-                                <div class="col-md-1"><b>Sent at:</b></div>
-                                <div class="col-md-3">{{ $email->updated_at->format('d/m/Y g:i a') }}</div>
+                                @if ($email->status == 0)
+                                    <div class="col-md-1"><b>Sent at:</b></div>
+                                    <div class="col-md-3">{{ ($email->status == 0) ? $email->updated_at->format('d/m/Y g:i a') : '' }}</div>
+                                @endif
                             </div>
                             {{-- Subject --}}
                             <div class="row">
@@ -93,6 +99,9 @@
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/client/planner/email" class="btn default"> Back</a>
+                            @if ($email->status == 2)
+                                <a href="/client/planner/email/{{$email->id}}/edit" class="btn green"> Edit</a>
+                            @endif
                         </div>
                         <br><br>
                         {!! Form::close() !!}
@@ -110,6 +119,7 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
 

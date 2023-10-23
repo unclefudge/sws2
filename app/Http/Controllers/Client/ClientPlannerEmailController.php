@@ -72,10 +72,7 @@ class ClientPlannerEmailController extends Controller {
         if (!Auth::user()->allowed2('edit.client.planner.email', $email))
             return view('errors/404');
 
-        //if ($email->status == 1)
         return view('/client/planner/email/edit', compact('email'));
-        //else
-        //    return redirect('/client/planner/email/' . $email->id);
     }
 
     /**
@@ -137,16 +134,16 @@ class ClientPlannerEmailController extends Controller {
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         $sent_to = $email1;
         if (request('email2')) $sent_to .= "; $email2";
-        if (request('email3')) $sent_to .= "; ".request('email3');
+        if (request('email3')) $sent_to .= "; " . request('email3');
 
         $email_request['sent_to'] = $sent_to;
         //$email_request['sent_cc'] = "construct@capecod.com.au";
-        $sent_bcc = 'construct@capecod.com.au';
+        $sent_bcc = (\App::environment('prod')) ? 'construct@capecod.com.au' : env('EMAIL_DEV');
         if (Auth::check() && validEmail(Auth::user()->email))
-        $sent_bcc .= "; ".Auth::user()->email;
+            $sent_bcc .= "; " . Auth::user()->email;
         $email_request['sent_bcc'] = $sent_bcc;
         $email_request['subject'] = $site->name . ': Weekly Planner';
-        $email_request['status'] = 1;
+        $email_request['status'] = 2;  // Draft
 
         // Create Email
         $email = ClientPlannerEmail::create($email_request);
@@ -248,7 +245,7 @@ class ClientPlannerEmailController extends Controller {
             $date_from = $last_client_email->updated_at->format('Y-m-d');
         else {
             $golive_date = Carbon::createFromFormat('Y-m-d', '2022-07-30');
-            $date_from = ($site->created_at->gt($golive_date)) ?  $site->created_at->format('Y-m-d') : $golive_date->format('Y-m-d');
+            $date_from = ($site->created_at->gt($golive_date)) ? $site->created_at->format('Y-m-d') : $golive_date->format('Y-m-d');
         }
 
 
@@ -302,7 +299,7 @@ class ClientPlannerEmailController extends Controller {
             //$body = preg_replace('/\\\\[t]/', '', $body);
             $body = str_replace(array("\t"), '', $body);
             $email_request['body'] = $body;
-            $email_request['status'] = 0;
+            $email_request['status'] = 0;  // Sent
             //dd(htmlspecialchars($email_request['body'], ENT_QUOTES, 'UTF-8'));
             //dd($email_request['body']);
 
@@ -324,12 +321,14 @@ class ClientPlannerEmailController extends Controller {
      */
     public function updateStatus($id, $status)
     {
+        /*
         $email = ClientPlannerEmail::findOrFail($id);
 
         $email->status = $status;
         $email->save();
 
         return redirect('client/planner/email/' . $email->id . '/edit');
+        */
     }
 
     /**
@@ -529,7 +528,7 @@ class ClientPlannerEmailController extends Controller {
      */
     public function getEmails()
     {
-        $status = (request('status') == 0) ? [0] : [1, 2, 3];
+        $status = (request('status') == 0) ? [0] : [1, 2];
         $email_ids = ClientPlannerEmail::whereIn('status', $status)->pluck('id')->toArray();
         //dd($email_ids);
 

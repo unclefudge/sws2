@@ -287,7 +287,7 @@ class Company extends Model {
      */
     public function companies($status = '')
     {
-        if ($this->id == 2) // Safworksite Website
+        if ($this->id == 2) // Safeworksite Website
             return ($status != '') ? Company::where('status', $status)->get() : Company::all();
 
         $company_list = $this->subCompanies($this->id);
@@ -912,9 +912,7 @@ class Company extends Model {
     {
         $array = [];
         foreach ($this->sites($status) as $site) {
-            //$record = Site::findOrFail($site->id);
-            //if ($record->status)
-            $array[$site->id] = $site->name; //"$site->suburb - $site->address ($site->code-$site->name)";
+            $array[$site->id] = $site->name;
         }
         asort($array);
 
@@ -1137,7 +1135,7 @@ class Company extends Model {
                 $q->where('company_id', Auth::user()->company_id);
                 $q->orWhere('for_company_id', Auth::user()->company_id);
             })
-            ->where('status', '<>', 0)->get();
+            ->where('status', '<>', 0)->get(); // Not Draft
 
         foreach ($templates as $template) {
             $array[$template->id] = $template->name . ' v' . $template->version . ' (' . $template->principle . ')';
@@ -1195,7 +1193,7 @@ class Company extends Model {
                 $q->where('company_id', Auth::user()->company_id);
                 $q->orWhere('for_company_id', Auth::user()->company_id);
             })
-            ->where('status', '<>', 0)->get();
+            ->where('status', '<>', 0)->get(); // Not Draft
 
         foreach ($templates as $template) {
             $array[$template->id] = $template->name . ' (v' . $template->version . ')';
@@ -1213,7 +1211,6 @@ class Company extends Model {
     public function taskSelect($prompt = '')
     {
         $array = [];
-        //$trades = Trade::whereIn('company_id', [1,3])->where('status', '1')->orderBy('name')->get();
         $trades = Trade::whereIn('company_id', [1, Auth::user()->company_id])->where('status', '1')->orderBy('name')->get();
 
         foreach ($trades as $trade) {
@@ -1531,7 +1528,7 @@ class Company extends Model {
         if ($this->status == 1)
             return '<span class="font-green">ACTIVE</span>';
 
-        if ($this->status == -1)
+        if ($this->status == '3')
             return '<span class="font-yellow">PENDING</span>';
 
         if ($this->status == 0)

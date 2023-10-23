@@ -33,7 +33,6 @@
 
                         <div class="form-body">
                             {!! Form::hidden('parent_company', Auth::User()->company->id) !!}
-                            {!! Form::hidden('status', 2) !!}
                             <div class="row">
                                 <div class="col-md-7">
                                     {{-- Company Name --}}

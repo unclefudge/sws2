@@ -30,7 +30,7 @@
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
-                                    <option value="2">Pending</option>
+                                    <option value="3">Pending</option>
                                     <option value="0">Inactive</option>
                                 </select>
                             </div>

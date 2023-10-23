@@ -73,7 +73,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="font-red uppercase" style="margin:0 0 10px 15px;">
-                                            <span>Accident Resolved {{ $accident->resolved_at->format('d/m/Y') }}</span>
+                                            <span>Accident Closed {{ $accident->resolved_at->format('d/m/Y') }}</span>
                                         </h4>
                                     </div>
                                 </div>

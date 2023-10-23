@@ -114,7 +114,7 @@
                             </div>
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
-                                <a href="/client/planner/email/{{ $email->id }}/status/1" class="btn default"> Back</a>
+                                <a href="/client/planner/email/{{ $email->id }}/status/2" class="btn default"> Back</a>
                                 @if(Auth::user()->allowed2('edit.client.planner.email', $email))
                                     <button id="signoff_button" type="submit" name="save" class="btn green"> Submit</button>
                                 @endif

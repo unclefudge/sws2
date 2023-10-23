@@ -372,7 +372,7 @@ class ToolboxTalkController extends Controller {
         if (!Auth::user()->allowed2('del.toolbox', $talk))
             return view('errors/404');
 
-        ($talk->status == 1) ? $talk->status = - 1 : $talk->status = 1;
+        ($talk->status == 1) ? $talk->status = '-1' : $talk->status = 1;
         $talk->save();
 
         if ($talk->status == 1) {

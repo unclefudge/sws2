@@ -91,6 +91,7 @@
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Open</option>
                                     <option value="0">Resolved</option>
+                                    <option value="0">Closed</option>
                                 </select>
                             </div>
                         </div>

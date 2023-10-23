@@ -35,7 +35,7 @@
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Open</option>
-                                    <option value="0">Resolved</option>
+                                    <option value="0">Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                                 <div class="form-group">
                                     <select name="status2" id="status2" class="form-control bs-select">
                                         <option value="1" selected>Open</option>
-                                        <option value="0">Resolved</option>
+                                        <option value="0">Closed</option>
                                     </select>
                                 </div>
                             </div>

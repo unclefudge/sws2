@@ -21,7 +21,7 @@
             <h3>{{ $ticket->name }}
                 <small>(Ticket ID: {{ $ticket->id }})</small>
                 @if (!$ticket->status)
-                    <span class="font-red uppercase pull-right" style="font-weight: 300">Ticket Resolved {{ $ticket->resolved_at->format('d/m/Y') }}</span>
+                    <span class="font-red uppercase pull-right" style="font-weight: 300">Ticket Closed {{ $ticket->resolved_at->format('d/m/Y') }}</span>
                 @endif
             </h3>
             <div class="row">

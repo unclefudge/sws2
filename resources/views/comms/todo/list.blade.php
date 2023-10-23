@@ -28,7 +28,7 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Open</option>
+                                    <option value="1" selected>Active</option>
                                     <option value="0">Completed</option>
                                 </select>
                             </div>

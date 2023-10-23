@@ -218,7 +218,7 @@
 
                             {{-- Outstanding ToDoo Tasks for user --}}
                             @foreach (TODO_TYPES AS $todo_type => $todo_name)
-                                @if (Auth::user()->todoType($todo_type, [1,2])->count())
+                                @if (Auth::user()->todoType($todo_type, [1,2])->count() && !in_array($todo_type, ['company doc', 'company ptc', 'company privacy']))
                                     <h4>{{$todo_name}}</h4>
                                     @if ($todo_type == 'qa')
                                         <?php

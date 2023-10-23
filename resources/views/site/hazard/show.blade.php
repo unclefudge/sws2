@@ -36,7 +36,9 @@
                                     {{ $hazard->site->fulladdress }}
                                 </div>
                                 <div class="col-md-5">
-                                    @if (!$hazard->status)
+                                    @if ($hazard->status == 0)
+                                        <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
+                                    @elseif ($hazard->status == '2')
                                         <h2 class="font-red pull-right" style="margin-top: 0px">RESOLVED</h2>
                                     @endif
                                     <b>Job #:</b> {{ $hazard->site->code }}<br>
@@ -69,7 +71,7 @@
                                         <b>Failure Type:</b> {{ $hazard->failure_type }}<br><br>
                                         <b>Source:</b><br>{{ $hazard->source }}<br><br>
                                     @else
-                                        {{-- Edit - Status Open --}}
+                                        {{-- Edit - Status Open + allowed to del.site.hazard --}}
                                         <div class="col-md-6" style="padding-left: 0px">
                                             <b>Failure Type</b><br>
                                             <div class="form-group {!! fieldHasError('failure', $errors) !!}">
@@ -80,7 +82,7 @@
                                         <div class="col-md-3" style="padding-left: 0px">
                                             <b>Status</b><br>
                                             <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                                {!! Form::select('status', ['1' => 'Open', '0' => 'Resolved'], $hazard->status, ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select('status', ['1' => 'Open', '2' => 'Resolved', '0' => 'Closed'], $hazard->status, ['class' => 'form-control bs-select']) !!}
                                                 {!! fieldErrorMessage('status', $errors) !!}
                                             </div>
                                         </div>
@@ -93,13 +95,6 @@
                                                 null, ['class' => 'form-control bs-select']) !!}
                                                 {!! fieldErrorMessage('source', $errors) !!}
                                             </div>
-                                        </div>
-                                        <div class="col-md-2 hidden-sm hidden-xs" style="position: absolute; bottom: 10px;right: 0;">
-                                            <button type="submit" class="btn green">Save</button>
-                                        </div>
-                                        <div class="col-md-2 visible-sm visible-xs">
-                                            <button type="submit" class="btn green">Save</button>
-                                            <br><br>
                                         </div>
                                     @endif
                                 </div>
@@ -138,7 +133,6 @@
                                 </div>
                             </div>
                         </div>
-                        {!! Form::close() !!}
 
                         {{-- Notes --}}
                         <div class="row">
@@ -205,11 +199,16 @@
 
                         <div class="form-actions right">
                             <a href="/site/hazard" class="btn default"> Back</a>
+                            {{-- Status Open - allow save --}}
+                            @if ($hazard->status)
+                                <button type="submit" class="btn green">Save</button>
+                            @endif
                             @if(!$hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
                                 <a href="/site/hazard/{{ $hazard->id }}/status/1" class="btn green"> Re-open Hazard</a>
                             @endif
 
                         </div>
+                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
