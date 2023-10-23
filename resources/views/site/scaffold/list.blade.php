@@ -31,7 +31,6 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="2">Pending</option>
                                     <option value="1">Active</option>
                                     <option value="0" selected>Completed</option>
                                 </select>
@@ -92,7 +91,7 @@
             {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
         ],
         order: [
-            [2, "desc"]
+            [3, "desc"]
         ]
     });
 

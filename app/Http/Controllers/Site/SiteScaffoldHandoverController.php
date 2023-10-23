@@ -58,6 +58,22 @@ class SiteScaffoldHandoverController extends Controller {
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $report = SiteScaffoldHandover::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('view.site.scaffold.handover', $report))
+            return view('errors/404');
+
+        return view('/site/scaffold/show', compact('report'));
+    }
+
+    /**
      * Edit the resource.
      *
      * @return \Illuminate\Http\Response
@@ -70,11 +86,7 @@ class SiteScaffoldHandoverController extends Controller {
         if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
             return view('errors/404');
 
-        //if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.scaffold.handover', $report)))
-        //    return view('/site/scaffold/edit', compact('report'));
-        if ($report->status == 2)
-            return view('/site/scaffold/docs', compact('report'));
-        elseif ($report->status == 1)
+        if ($report->status == 1)
             return view('/site/scaffold/signoff', compact('report'));
         else
             return redirect('/site/scaffold/handover/' . $report->id);
@@ -102,35 +114,28 @@ class SiteScaffoldHandoverController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
-        $report_request['status'] = 2;
+        $report_request['status'] = 1;  // Active
         //dd($report_request);
 
         // Create Report
         $report = SiteScaffoldHandover::create($report_request);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $report->saveAttachment($tmp_filename);
+        }
         Toastr::success("Created certificate");
 
         return redirect('/site/scaffold/handover/' . $report->id . '/edit');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $report = SiteScaffoldHandover::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.scaffold.handover', $report))
-            return view('errors/404');
-
-        return view('/site/scaffold/show', compact('report'));
-    }
 
     /**
      * Update the specified resource in storage.
      */
+    /*
     public function documents($id)
     {
         $report = SiteScaffoldHandover::findOrFail($id);
@@ -144,7 +149,7 @@ class SiteScaffoldHandoverController extends Controller {
         Toastr::success("Updated Certificate");
 
         return redirect('site/scaffold/handover/' . $report->id . '/edit');
-    }
+    } */
 
     /**
      * Update the specified resource in storage.
@@ -205,6 +210,7 @@ class SiteScaffoldHandoverController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function uploadAttachment()
     {
         // Check authorisation and throw 404 if not
@@ -235,7 +241,7 @@ class SiteScaffoldHandoverController extends Controller {
         }
 
         return json_encode("success");
-    }
+    } */
 
     /**
      * Generate PDF report

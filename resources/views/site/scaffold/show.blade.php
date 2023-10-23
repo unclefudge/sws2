@@ -72,29 +72,33 @@
                             </div>
                             <br>
 
-                            {{-- Photos --}}
+                            {{-- Attachments --}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h4 class="font-green-haze">Photos</h4>
+                                    <h4 class="font-green-haze">Photos / Documents</h4>
                                     <hr class="field-hr">
                                     @if ($report->docs->count())
-                                        <?php $doc_count = 0; ?>
-                                        <div style="width: 100%; overflow: hidden;">
-                                            @foreach ($report->docs as $doc)
-                                                @if ($doc->type == 'photo')
+                                        {{-- Image attachments --}}
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($report->docs as $file)
+                                                @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $doc->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $doc->name }}" data-lityXXX>
-                                                            <img src="{{ $doc->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                        <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
+                                                            <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
                                                     </div>
-                                                    <?php $doc_count ++; ?>
-                                                    @if ($doc_count == 10)
-                                                        <br>
-                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        {{-- File attachments  --}}
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($report->docs as $file)
+                                                @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
                                                 @endif
                                             @endforeach
                                         </div>
                                     @else
-                                        <div>No photos found<br><br></div>
+                                        <div>No photos/documents found<br><br></div>
                                     @endif
                                 </div>
                             </div>
@@ -138,18 +142,13 @@
 
                         <div class="form-actions right">
                             <a href="/site/scaffold/handover" class="btn default"> Back</a>
-                            {{--
                            @if(Auth::user()->allowed2('del.site.scaffold.handover', $report))
                                @if ($report->status)
-                                   @if(Auth::user()->allowed2('edit.site.scaffold.handover', $asb))
-                                       <a href="/site/asbestos/notification/{{ $report->id }}/edit" class="btn green"> Edit Notification</a>
+                                   @if(Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+                                       <a href="/site/scaffold/handover/{{ $report->id }}/edit" class="btn green"> Edit Scaffold Certificate</a>
                                    @endif
-                                   <a href="/site/asbestos/notification/{{ $report->id }}/status/0" class="btn red"> Close Notification</a>
-                               @else
-                                   <a href="/site/asbestos/notification/{{ $report->id }}/status/1" class="btn green"> Re-open Notification</a>
                                @endif
                             @endif
-                             --}}
                         </div>
                     </div>
                 </div>
