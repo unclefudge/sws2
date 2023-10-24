@@ -40,9 +40,9 @@ class SiteInspectionElectricalController extends Controller {
             return view('errors/404');
 
         $non_assigned = SiteInspectionElectrical::where('status', 2)->orWhere('assigned_to', null)->get();
-        $under_review = SiteInspectionElectrical::where('status', 3)->get();
+        $pending = SiteInspectionElectrical::where('status', 3)->get();
 
-        return view('site/inspection/electrical/list', compact('non_assigned', 'under_review'));
+        return view('site/inspection/electrical/list', compact('non_assigned', 'pending'));
     }
 
     /**
@@ -100,7 +100,7 @@ class SiteInspectionElectricalController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
-        $report_request['status'] = 2;
+        $report_request['status'] = 2;  // In Progress
         //dd($report_request);
 
         // Create Report
@@ -194,14 +194,14 @@ class SiteInspectionElectricalController extends Controller {
             // Reported completed by trade - close any outstanding ToDoos
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;
-            $report_request['status'] = 3;
+            $report_request['status'] = 3; // Pending signoff
 
             // Create ToDoo for Electrical Review
             $report->createConstructionReviewToDo([1164]); // Brianna
-        } elseif (request('status') == -1 && $report->status != -1) {
+        } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
-        } elseif (request('status') == 1) {
+        } elseif (request('status') == '1') {
             $report_request['inspected_name'] = null;
             $report_request['inspected_lic'] = null;
         }
@@ -261,7 +261,7 @@ class SiteInspectionElectricalController extends Controller {
             if (request('supervisor_sign_by') == 'y') {
                 $report->supervisor_sign_by = Auth::User()->id;
                 $report->supervisor_sign_at = Carbon::now();
-                $report->status = 3;
+                $report->status = 3; // Pending signoff
                 $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
                 // Create ToDoo for Con Mgr
@@ -322,7 +322,7 @@ class SiteInspectionElectricalController extends Controller {
                 $action = Action::create(['action' => "Report rejected by Construction Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->supervisor_sign_by = null;
                 $report->supervisor_sign_at = null;
-                $report->status = 3;
+                $report->status = 3;  // Pending signoff
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();

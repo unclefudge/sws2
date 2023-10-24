@@ -609,7 +609,7 @@ class Site extends Model {
                     $cancelled .= "Plumbing Inspection assigned to $company_name\n";
                     $report->assigned_to = null;
                     $report->inspected_at = null;
-                    $report->status = -1;
+                    $report->status = 4;
                     $report->save();
                     $report->closeToDo();
 
@@ -622,14 +622,14 @@ class Site extends Model {
                     $cancelled .= "Electrical Inspection assigned to $company_name\n";
                     $report->assigned_to = null;
                     $report->inspected_at = null;
-                    $report->status = -1;
+                    $report->status = 4;
                     $report->save();
                     $report->closeToDo();
                 }
             }
 
             if ($cancelled) {
-                $email_to = (\App::environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inscpection.onhold') : [env('EMAIL_DEV')];
+                $email_to = (\App::environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inspection.onhold') : [env('EMAIL_DEV')];
                 Mail::to($email_to)->send(new \App\Mail\Site\SiteInspectionCancelled($this, $cancelled));
 
                 return "Canceled the following reports:<br>".nl2br($cancelled);

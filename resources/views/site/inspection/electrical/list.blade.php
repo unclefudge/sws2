@@ -60,14 +60,14 @@
         @endif
 
         {{-- Under Review --}}
-        @if (Auth::user()->isCC() && $under_review->count())
+        @if (Auth::user()->isCC() && $pending->count())
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">
                         <div class="portlet-title">
                             <div class="caption font-dark">
                                 <i class="icon-layers"></i>
-                                <span class="caption-subject bold uppercase font-green-haze"> Under Review</span>
+                                <span class="caption-subject bold uppercase font-green-haze"> Pending SignOff</span>
                             </div>
                         </div>
 
@@ -81,7 +81,7 @@
                                     <th width="10%"></th>
                                 </tr>
                                 </thead>
-                                @foreach ($under_review as $report)
+                                @foreach ($pending as $report)
                                     <tr>
                                         <td>
                                             <div class="text-center"><a href="/site/inspection/electrical/{{ $report->id }}"><i class="fa fa-search"></i></a></div>
@@ -126,7 +126,7 @@
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
                                     <option value="0">Completed</option>
-                                    <option value="-1">On hold</option>
+                                    <option value="4">On hold</option>
                                 </select>
                             </div>
                         </div>

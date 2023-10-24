@@ -40,9 +40,9 @@ class SiteInspectionPlumbingController extends Controller {
             return view('errors/404');
 
         $non_assigned = SiteInspectionPlumbing::where('status', 2)->orWhere('assigned_to', null)->get();
-        $under_review = SiteInspectionPlumbing::where('status', 3)->get();
+        $pending = SiteInspectionPlumbing::where('status', 3)->get();
 
-        return view('site/inspection/plumbing/list', compact('non_assigned', 'under_review'));
+        return view('site/inspection/plumbing/list', compact('non_assigned', 'pending'));
     }
 
     /**
@@ -74,7 +74,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
-        elseif ($report->status == 2)
+        elseif ($report->status == 2) // In Progress
             return view('/site/inspection/plumbing/docs', compact('report'));
         else
             return redirect('/site/inspection/plumbing/' . $report->id);
@@ -100,7 +100,7 @@ class SiteInspectionPlumbingController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
-        $report_request['status'] = 2;
+        $report_request['status'] = 2; // In Progress
         //dd($report_request);
 
         // Create Report
@@ -140,7 +140,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('add.site.inspection'))
             return view('errors/404');
 
-        $report->status = 1;
+        $report->status = 1;  // Active
         $report->save();
         $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
         Toastr::success("Updated Report");
@@ -207,11 +207,11 @@ class SiteInspectionPlumbingController extends Controller {
             // Reported completed by trade - close any outstanding ToDoos
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;
-            $report_request['status'] = 3;
+            $report_request['status'] = 3; // Pending
 
             // Create ToDoo for Con Mgr
             $report->createConstructionReviewToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
-        } elseif (request('status') == -1 && $report->status != -1) {
+        } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
         } elseif (request('status') == 1) {

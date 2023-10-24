@@ -153,7 +153,7 @@
                                                     <span class="pull-right font-red hidden-sm hidden-xs">UNDER REVIEW</span>
                                                     <span class="text-center font-red visible-sm visible-xs">UNDER REVIEW</span>
                                                 @endif
-                                                @if($main->status == '3')
+                                                @if($main->status == '4')
                                                     <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
                                                     <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
                                                 @endif
@@ -326,9 +326,9 @@
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline',  '3' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline',  '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '3' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            {!! Form::select('status', ['1' => 'Active', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             {!! Form::select('status', ['0' => 'Completed', '1' => 'Re-Activate'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @else
@@ -761,7 +761,7 @@
             $("#status").change(function () {
                 $('#onhold-div').hide();
 
-                if ($("#status").val() == '3') {
+                if ($("#status").val() == '4') {
                     $('#onhold-div').show();
                 }
             });

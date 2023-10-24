@@ -386,7 +386,7 @@ class SiteMaintenanceController extends Controller {
         if (!Auth::user()->allowed2('edit.site.maintenance', $main))
             return view('errors/404');
 
-        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,3', 'planner_task_date' => 'required_with:planner_task_id'];
+        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,4', 'planner_task_date' => 'required_with:planner_task_id'];
         $mesg = ['supervisor.required'       => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
                  'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
         request()->validate($rules, $mesg); // Validate
@@ -466,7 +466,7 @@ class SiteMaintenanceController extends Controller {
         }
 
         // Add note if change of Status
-        if (request('status') && $status_orig != 3 && request('status') == 3) {
+        if (request('status') && $status_orig != 4 && request('status') == 4) {
             $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->closeToDo();
         }
