@@ -1528,8 +1528,8 @@ class Company extends Model {
         if ($this->status == 1)
             return '<span class="font-green">ACTIVE</span>';
 
-        if ($this->status == '3')
-            return '<span class="font-yellow">PENDING</span>';
+        if ($this->status == '2')
+            return '<span class="font-yellow">IN PROGRESS</span>';
 
         if ($this->status == 0)
             return '<span class="font-red">INACTIVE</span>';

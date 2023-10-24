@@ -190,7 +190,7 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Update Status CompanyDoc<br>";
+        /*echo "Update Status CompanyDoc<br>";
         $toolboxes = CompanyDoc::all();
         foreach ($toolboxes as $rec) {
             if ($rec->status == 2) {  // Pending
@@ -202,7 +202,7 @@ class PagesController extends Controller {
                 $rec->timestamps = false;
                 $rec->save();
             }
-        }
+        }*/
 
         /*
         echo "<b>Updating Hazard Files</b></br>";
