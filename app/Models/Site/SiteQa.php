@@ -169,7 +169,7 @@ class SiteQa extends Model {
     public function moveToHold($user)
     {
         $action = Action::create(['action' => 'Moved report to On Hold', 'table' => $this->table, 'table_id' => $this->id]);
-        $this->status = 2;
+        $this->status = 4;
         $this->save();
 
         // Close current ToDoo for QA

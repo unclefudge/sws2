@@ -252,7 +252,7 @@ class SiteQaController extends Controller {
             }
 
             // If report was placed On Hold then auto add an Action + close ToDoo
-            if (request('status') == 2 && $qa->status != 2)
+            if (request('status') == 4 && $qa->status != 4)
                 $qa->moveToHold(Auth::user());
 
             // If report was reactived then auto add an Action + create ToDoo
@@ -260,7 +260,7 @@ class SiteQaController extends Controller {
                 $qa->moveToActive(Auth::user());
 
             // If report was marked Not Required then close ToDoo
-            if (request('status') == - 1)
+            if (request('status') == '-1')
                 $qa->closeToDo(Auth::user());
 
             $qa->update($qa_request);

@@ -90,7 +90,7 @@
                                                     Required
                                                 </button>
                                             @endif
-                                            @if($qa->status == '2')
+                                            @if($qa->status == '4')
                                                 <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
                                                 <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
                                             @endif
@@ -193,9 +193,9 @@
                                 @endif
                                 @if (!$qa->master && Auth::user()->allowed2('edit.site.qa', $qa))
                                     <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn blue"
-                                            v-on:click="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
+                                            v-on:click="$root.$broadcast('updateReportStatus', 4)"> Place On Hold
                                     </button>
-                                    <button v-if="xx.qa.status == 2 || xx.qa.status == -1 " class="btn green" v-on:click="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                    <button v-if="xx.qa.status == 4 || xx.qa.status == -1 " class="btn green" v-on:click="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
                                 @endif
                             </div>
                             <br><br>
