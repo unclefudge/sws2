@@ -10,7 +10,7 @@
 
 @section('content')
     <div class="page-content-inner">
-        @if ($doc->status == 2 && !$doc->user_signed_id)
+        @if ($doc->status == 3 && !$doc->user_signed_id)
             <div class="note note-warning">
                 This SWMS is currently in Pending Status waiting for you to Sign Off on it.
                 <ul>
@@ -23,7 +23,7 @@
             </div>
         @endif
         {{-- Progress Steps --}}
-        @if ($doc->status == 2)
+        @if ($doc->status == 3)
             <br>
             <div class="mt-element-step">
                 <div class="row step-line" id="steps">
@@ -60,12 +60,12 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Safe Work Method Statement</span>
                         </div>
                         <div class="actions">
-                            @if (($doc->status == 2 && Auth::user()->allowed2('del.wms', $doc)) || $doc->status != 2)
+                            @if (($doc->status == 3 && Auth::user()->allowed2('del.wms', $doc)) || $doc->status != 3)
                                 <div class="btn-group">
                                     <a class="btn btn-circle green btn-outline btn-sm" href="javascript:;" data-toggle="dropdown" data-over="dropdown"><i class="fa fa-cog"></i> Actions</a>
                                     <ul class="dropdown-menu pull-right">
                                         <!-- Doc Pending -->
-                                        @if ($doc->status == 2 && (Auth::user()->allowed2('del.wms', $doc) || Auth::user()->allowed2('sig.wms', $doc)))
+                                        @if ($doc->status == 3 && (Auth::user()->allowed2('del.wms', $doc) || Auth::user()->allowed2('sig.wms', $doc)))
                                             @if ($doc->company_id == Auth::user()->company_id)
                                                 @if (Auth::user()->allowed2('sig.wms', $doc)))
                                                 <li><a href="/safety/doc/wms/{{ $doc->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
@@ -86,7 +86,7 @@
                                         @endif
 
 
-                                        @if ($doc->status != 2)
+                                        @if ($doc->status != 3)
                                             @if ($doc->attachment && file_exists(public_path('/filebank/company/'.$doc->for_company_id.'/wms/'.$doc->attachment)))
                                                 <li><a data-original-title="Email" data-toggle="modal" href="#email"><i class="fa fa-envelope"></i> Email</a></li>
                                             @elseif($doc->builder && !$doc->master)
@@ -96,7 +96,7 @@
                                             @if($doc->status == 1 && Auth::user()->allowed2('del.wms', $doc))
                                                 <li class="divider"></li>
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#archive"><i class="fa fa-archive"></i> Archive</a></li>
-                                            @elseif($doc->status == -1 && Auth::user()->isCompany($doc->owned_by) && Auth::user()->allowed2('del.wms', $doc))
+                                            @elseif($doc->status == 0 && Auth::user()->isCompany($doc->owned_by) && Auth::user()->allowed2('del.wms', $doc))
                                                 <li class="divider"></li>
                                                 <li><a href="/safety/doc/wms/{{ $doc->id }}/archive"><i class="fa fa-archive"></i> Unarchive</a></li>
                                             @endif
@@ -118,7 +118,7 @@
                                         @if($doc->attachment && file_exists(public_path($doc->attachmentUrl)))
                                             <a href="{{ $doc->attachmentUrl }}"><i class="fa fa-bold fa-file-pdf-o pull-right" style="font-size: 1.4em; padding: 20px"></i></a>
                                         @endif
-                                        @if($doc->status == '-1')
+                                        @if($doc->status == '0')
                                             <span class="uppercase font-red pull-right" style="padding-left: 30px">Archived</span>
                                         @endif
                                         @if($doc->master)
@@ -140,7 +140,7 @@
 
                             <!-- Mobile devices -->
                             <div class="row visible-sm visible-xs">
-                                @if($doc->status == '-1')
+                                @if($doc->status == '0')
                                     <div class="col-xs-12"><h3 class="font-red uppercase text-center" style="margin-top: 0">Archived</h3></div>
                                 @endif
 
@@ -280,7 +280,7 @@
                                         @if (Auth::user()->hasPermission2('add.wms') && $doc->status == 1 && $doc->for_company_id == Auth::user()->company_id)
                                             <a href="/safety/doc/wms/{{ $doc->id }}/renew" class="btn green"> Renew</a>
                                         @endif
-                                        @if ($doc->status == 2)
+                                        @if ($doc->status == 3)
                                             @if(Auth::user()->allowed2('sig.wms', $doc))
                                                 <a href="/safety/doc/wms/{{ $doc->id }}/reject" class="btn red"> Reject</a>
                                                 <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green"> Sign Off</a>

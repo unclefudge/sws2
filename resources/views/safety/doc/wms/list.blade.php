@@ -31,9 +31,9 @@
                             <div class="form-group">
                                 <select name="status" id="status1" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
-                                    <option value="2">Pending</option>
-                                    <option value="0">Draft</option>
-                                    <option value="-1">Archived</option>
+                                    <option value="3">Pending</option>
+                                    <option value="2">Draft</option>
+                                    <option value="0">Archived</option>
                                 </select>
                             </div>
                         </div>
@@ -79,9 +79,9 @@
                                     <select name="status2" id="status2" class="form-control bs-select">
                                         <option value="1" selected>Active</option>
                                         @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 6, 351, 109]))
-                                            <option value="2">Pending</option>
-                                            <option value="0">Draft</option>
-                                            <option value="-1">Archived</option>
+                                            <option value="3">Pending</option>
+                                            <option value="2">Draft</option>
+                                            <option value="0">Archived</option>
                                         @endif
                                     </select>
                                 </div>

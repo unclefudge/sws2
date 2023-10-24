@@ -107,7 +107,7 @@ class WmsController extends Controller {
         if (!Auth::user()->allowed2('view.wms', $doc))
             return view('errors/404');
 
-        if ($doc->status)
+        if ($doc->status == '1')
             return view('safety/doc/wms/show', compact('doc'));
 
         if (Auth::user()->allowed2('edit.wms', $doc))
@@ -129,7 +129,8 @@ class WmsController extends Controller {
         if (!Auth::user()->allowed2('edit.wms', $doc))
             return view('errors/404');
 
-        if (!$doc->status)
+        // Draft / Pending Mode
+        if (in_array($doc->status, [2, 3]))
             return view('safety/doc/wms/edit', compact('doc'));
 
         return redirect('/safety/doc/wms/' . $doc->id);
@@ -153,6 +154,7 @@ class WmsController extends Controller {
         $wms_request['company_id'] = Auth::user()->company->reportsTo()->id;
         $wms_request['principle_id'] = Auth::user()->company->reportsTo()->id;
         $wms_request['principle'] = Auth::user()->company->reportsTo()->name;
+        $wms_request['status'] = '2'; // Draft mode
 
         // Determine Principle contractor if subscription otherwise assign parent company
         if (Auth::user()->company->subscription) {
@@ -183,7 +185,7 @@ class WmsController extends Controller {
         // If Replace checkbox Yes then archive selected SWMS
         if (request('replace_switch') && $request->filled('replace_id')) {
             $replace_wms = WmsDoc::findOrFail(request('replace_id'));
-            $replace_wms->status = - 1;
+            $replace_wms->status = '0';
             $replace_wms->save();
             $replace_wms->closeToDo();
             if (!Auth::user()->isCompany($replace_wms->owned_by))
@@ -236,11 +238,11 @@ class WmsController extends Controller {
 
             // Move doc to active if Principle signed or has no Principle else make pending
             if ($doc->principle_signed_id)
-                $doc->status = 1;
+                $doc->status = '1';
             else
-                ($doc->principle_id) ? $doc->status = 2 : $doc->status = 1;
+                $doc->status = ($doc->principle_id) ? 3 :  1;
 
-            if ($doc->status == 2) // && !($doc->principle_id && $doc->company_id == Auth::user()->company_id) && Auth::user()->allowed2('sig.wms', $doc))
+            if ($doc->status == '3') // Pending Sign off
                 $doc->emailSignOff();
         }
 
@@ -249,7 +251,7 @@ class WmsController extends Controller {
             $doc->principle_signed_id = Auth::user()->id;
             $doc->principle_signed_at = Carbon::now();
             // Move doc to active if user signed else make pending
-            ($doc->user_signed_id) ? $doc->status = 1 : $doc->status = 2;
+            $doc->status = ($doc->user_signed_id) ? 1 : 3;
         }
 
         if ($doc->status == 1 && $doc->builder) {
@@ -278,7 +280,7 @@ class WmsController extends Controller {
         $doc->principle_signed_at = null;
         $doc->user_signed_id = null;
         $doc->user_signed_at = null;
-        $doc->status = 0;
+        $doc->status = 2; // Return to Pending
         $doc->save();
 
         if ($doc->for_company_id == Auth::user()->company_id)
@@ -300,7 +302,7 @@ class WmsController extends Controller {
         if (!Auth::user()->allowed2('del.wms', $doc))
             return view('errors/404');
 
-        ($doc->status == 1) ? $doc->status = - 1 : $doc->status = 1;
+        $doc->status = ($doc->status == 1) ? 0 :  1;
         $doc->save();
 
         if ($doc->status == 1)
@@ -333,7 +335,7 @@ class WmsController extends Controller {
     /**
      * Create PDF for Doc using 'builder'
      */
-    public function pdf(Request $request, $id)
+    public function pdf($id)
     {
         $doc = WmsDoc::findOrFail($id);
         if ($doc->builder && $doc->status == 1) {

@@ -190,8 +190,8 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Update Status Toolbox<br>";
-        $toolboxes = ToolboxTalk::all();
+        echo "Update Status WMS<br>";
+        $toolboxes = WmsDoc::all();
         foreach ($toolboxes as $rec) {
             if ($rec->status == 0) {  // Draft
                 $rec->status = 2;
