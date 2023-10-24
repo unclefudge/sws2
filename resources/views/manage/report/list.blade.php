@@ -127,6 +127,9 @@
                                     <td><a href="/manage/report/maintenance_supervisor_no_action">Supervisor No Appointment / Action 14 days</a></td>
                                 </tr>
                                 <tr>
+                                    <td><a href="/manage/report/maintenance_assigned_company">Assigned Companies</a></td>
+                                </tr>
+                                <tr>
                                     <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                                 </tr>
                            

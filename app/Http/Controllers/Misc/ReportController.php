@@ -380,6 +380,13 @@ class ReportController extends Controller {
         return view('manage/report/site/maintenance_aftercare', compact('mains'));
     }
 
+    public function maintenanceAssignedCompany()
+    {
+        $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+
+        return view('manage/report/site/maintenance_assigned_company', compact('mains'));
+    }
+
     public function maintenanceSupervisorNoAction()
     {
         $today = Carbon::now();
