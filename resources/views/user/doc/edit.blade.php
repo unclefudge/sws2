@@ -46,10 +46,10 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-9">
-                                    @if ($doc->status == 2)
+                                    @if ($doc->status == 3)
                                         <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
                                     @endif
-                                    @if ($doc->status == 3)
+                                    @if ($doc->status == 2)
                                         <div class="alert alert-danger">
                                             The document was not approved for the following reason:
                                             <ul>
@@ -190,7 +190,7 @@
                                 @endif
                                 {{-- Reject / Approve - only pending/rejected docs --}}
                                 @if (in_array($doc->status, [2,3]) && Auth::user()->allowed2('sig.user.doc', $doc))
-                                    @if ($doc->status == 2)
+                                    @if ($doc->status == 3)
                                         <a class="btn dark" data-toggle="modal" href="#modal_reject"> Reject </a>
                                     @endif
                                     <button type="submit" name="save" value="save" class="btn green" id="approve">Approve</button>

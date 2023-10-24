@@ -140,7 +140,7 @@ class SiteHazardController extends Controller {
                 $hazard->saveAttachment($tmp_filename);
         }
 
-        if ($hazard->status == '2' && $hazard->status != $old_status) {
+        if ($hazard->status == '9' && $hazard->status != $old_status) {
             $action = Action::create(['action' => 'Hazard has been resolved', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->emailAction($action, 'important');
         }
@@ -155,7 +155,7 @@ class SiteHazardController extends Controller {
     /**
      * Update Status the specified resource in storage.
      */
-    public function updateStatus(Request $request, $id, $status)
+    public function updateStatus($id, $status)
     {
         $hazard = SiteHazard::findorFail($id);
         $old_status = $hazard->status;

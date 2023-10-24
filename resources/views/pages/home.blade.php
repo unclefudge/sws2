@@ -337,7 +337,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site_name }}</div>
+                                                        <div class="desc"> Unresolved incident on @ {{ $doc->site_name }}</div>
                                                     </div>
                                                 </div>
                                             </div>

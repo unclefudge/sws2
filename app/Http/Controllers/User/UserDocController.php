@@ -189,8 +189,8 @@ class UserDocController extends Controller {
         // Closing any outstanding todoos associated with this doc category ie. expired docs
         $doc->closeToDo();
 
-        // If uploaded by User with 'authorise' permissions set to active other set pending
-        $doc->status = 2;
+        // If uploaded by User with 'authorise' permissions set to active otherwise set pending
+        $doc->status = 3;
         $category = UserDocCategory::find($doc->category_id);
         $pub_pri = ($category->private) ? 'pri' : 'pub';
         //dd($category->type);
@@ -263,7 +263,7 @@ class UserDocController extends Controller {
         // Verify if document is rejected
         $doc_request['reject'] = '';
         if (request()->has('reject_doc')) {
-            $doc->status = 3;
+            $doc->status = 2;  // Rejected
             $doc->reject = request('reject');
             $doc->save();
             $doc->closeToDo();
@@ -286,7 +286,7 @@ class UserDocController extends Controller {
                 $doc_request['approved_at'] = Carbon::now()->toDateTimeString();
                 $doc_request['status'] = 1;
             } else {
-                $doc_request['status'] = 2;
+                $doc_request['status'] = 3;
             }
         }
 
@@ -297,7 +297,7 @@ class UserDocController extends Controller {
         if ($doc->category_id < 21) {
             $doc->closeToDo();
             // Create approval ToDoo
-            if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs')) {
+            if ($doc->status == 3 && ($doc->category->type == 'acc' || $doc->category->type == 'whs')) {
                 $doc_owner_notify = $doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
                 if (!$doc_owner_notify) // in cases of company without a subscription
                     $doc_owner_notify = ($doc->owned_by->primary_user) ? [$doc->owned_by->primary_contact()->id] : [];
@@ -349,7 +349,7 @@ class UserDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $doc->status = 3;
+        $doc->status = 2;  // Rejected
         $doc->reject = request('reject');
         $doc->closeToDo();
         $doc->emailReject();
@@ -375,7 +375,7 @@ class UserDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        ($doc->status == 1) ? $doc->status = 0 : $doc->status = 1;
+        $doc->status  = ($doc->status == 1) ?  0 :  1;
         $doc->closeToDo();
         $doc->save();
 
@@ -459,9 +459,9 @@ class UserDocController extends Controller {
                 return ($details == '') ? '-' : $details;
             })
             ->editColumn('name', function ($doc) {
-                if ($doc->status == 2)
+                if ($doc->status == 3)  // Pending
                     return $doc->name . " <span class='badge badge-warning badge-roundless'>Pending Approval</span>";
-                if ($doc->status == 3)
+                if ($doc->status == 2)  // Rejected
                     return $doc->name . " <span class='badge badge-danger badge-roundless'>Rejected</span>";
 
                 return $doc->name;

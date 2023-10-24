@@ -16,7 +16,7 @@
                 {!! Form::label('status', 'Status:', ['class' => 'col-md-3 control-label']) !!}
                 <div class="col-md-9">
                     @if (Auth::user()->allowed2('del.site.incident', $incident))
-                        {!! Form::select('status', ['1' => 'Open', '0' => 'Resolved'], null, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                        {!! Form::select('status', ['1' => 'Open', '9' => 'Resolved', '0' => 'Closed'], null, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                         {!! fieldErrorMessage('status', $errors) !!}
                     @else
                         {!! $incident->status_text !!}

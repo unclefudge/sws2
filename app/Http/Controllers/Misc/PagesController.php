@@ -189,7 +189,7 @@ class PagesController extends Controller {
 
     public function quick()
     {
-
+/*
         echo "Update Status WMS<br>";
         $toolboxes = WmsDoc::all();
         foreach ($toolboxes as $rec) {
@@ -207,7 +207,7 @@ class PagesController extends Controller {
                 $rec->save();
             }
         }
-
+*/
         /*
         echo "<b>Updating Hazard Files</b></br>";
 

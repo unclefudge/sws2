@@ -1135,7 +1135,7 @@ class Company extends Model {
                 $q->where('company_id', Auth::user()->company_id);
                 $q->orWhere('for_company_id', Auth::user()->company_id);
             })
-            ->where('status', '<>', 0)->get(); // Not Draft
+            ->where('status', '<>', 2)->get(); // Not Draft
 
         foreach ($templates as $template) {
             $array[$template->id] = $template->name . ' v' . $template->version . ' (' . $template->principle . ')';
@@ -1193,7 +1193,7 @@ class Company extends Model {
                 $q->where('company_id', Auth::user()->company_id);
                 $q->orWhere('for_company_id', Auth::user()->company_id);
             })
-            ->where('status', '<>', 0)->get(); // Not Draft
+            ->where('status', '<>', 2)->get(); // Not Draft
 
         foreach ($templates as $template) {
             $array[$template->id] = $template->name . ' (v' . $template->version . ')';

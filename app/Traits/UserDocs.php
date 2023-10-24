@@ -346,7 +346,7 @@ trait UserDocs {
             if ($this->requiresUserDoc($type) && (!$this->activeUserDoc($type) || $this->activeUserDoc($type)->status != 1)) {
                 $missing_docs[$type] = $name;
                 if ($this->activeUserDoc($type)) {
-                    $missing_status = ($this->activeUserDoc($type)->status == 2) ? 'label-warning' : 'label-danger';
+                    $missing_status = ($this->activeUserDoc($type)->status == 3) ? 'label-warning' : 'label-danger';
                     $missing_html .= "<span class='label label-sm $missing_status'>$name</span>, ";
                 } else
                     $missing_html .= "$name, ";

@@ -38,7 +38,7 @@
                                 <div class="col-md-5">
                                     @if ($hazard->status == 0)
                                         <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
-                                    @elseif ($hazard->status == '2')
+                                    @elseif ($hazard->status == '9')
                                         <h2 class="font-red pull-right" style="margin-top: 0px">RESOLVED</h2>
                                     @endif
                                     <b>Job #:</b> {{ $hazard->site->code }}<br>
@@ -82,7 +82,7 @@
                                         <div class="col-md-3" style="padding-left: 0px">
                                             <b>Status</b><br>
                                             <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                                {!! Form::select('status', ['1' => 'Open', '2' => 'Resolved', '0' => 'Closed'], $hazard->status, ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select('status', ['1' => 'Open', '9' => 'Resolved', '0' => 'Closed'], $hazard->status, ['class' => 'form-control bs-select']) !!}
                                                 {!! fieldErrorMessage('status', $errors) !!}
                                             </div>
                                         </div>

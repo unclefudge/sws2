@@ -252,7 +252,7 @@ class CompanyController extends Controller {
             $wms = $company->wmsDocs()->where('status', '>', 0)->where('company_id', Auth::user()->company_id)->get();
             $wms_count = count($wms);
             foreach ($wms as $doc) {
-                $doc->status = '-1';
+                $doc->status = '0';
                 $doc->save();
                 $doc->closeToDo();
             }

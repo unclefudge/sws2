@@ -319,7 +319,10 @@ class SiteIncident extends Model {
             return '<span class="font-green">OPEN</span>';
 
         if ($this->status == 0)
-            return '<span class="font-red">RESOLVED</span>';
+            return '<span class="font-red">CLOSED</span>';
+
+        if ($this->status == 9)
+            return '<span class="font-yellow">RESOLVED</span>';
 
         if ($this->status == 2)
             return '<span class="font-yellow">IN PROGRESS</span>';
