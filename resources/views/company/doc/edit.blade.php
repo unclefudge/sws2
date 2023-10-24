@@ -49,10 +49,10 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-9">
-                                    @if ($doc->status == 2)
+                                    @if ($doc->status == 3)
                                         <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
                                     @endif
-                                    @if ($doc->status == 3)
+                                    @if ($doc->status == 2)
                                         <div class="alert alert-danger">
                                             The document was not approved for the following reason:
                                             <ul>
@@ -272,16 +272,17 @@
                                             {!! Form::text('filename', $doc->attachment, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                         <div class="col-md-3">
-                                            @if ($doc->category_id == 5 && $doc->status == 2)
+                                            @if ($doc->category_id == 5 && $doc->status == 3)
                                                 <a href="/company/{{ $company->id }}/doc/period-trade-contract/{{ $doc->ref_no }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
                                             @else
                                                 <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
                                             @endif
                                         </div>
-                                        @if($doc->for_company_id == Auth::user()->company_id && $doc->category_id != 4 && $doc->category_id != 5) {{-- Cant edit SS or PTC--}}
-                                        <div class="col-md-3 col-md-offset-9">
-                                            <button type="button" class="btn blue" style="margin-top: 25px;" id="change_file"> Change File</button>
-                                        </div>
+                                        @if($doc->for_company_id == Auth::user()->company_id && $doc->category_id != 4 && $doc->category_id != 5)
+                                            {{-- Cant edit SS or PTC--}}
+                                            <div class="col-md-3 col-md-offset-9">
+                                                <button type="button" class="btn blue" style="margin-top: 25px;" id="change_file"> Change File</button>
+                                            </div>
                                         @endif
                                     </div>
 
@@ -322,10 +323,10 @@
                                     <a class="btn dark" data-toggle="modal" href="#modal_archive"> Archive </a>
                                 @endif
                                 {{-- Reject / Approve - only pending/rejected docs --}}
-                                @if ($doc->category_id == 5 && $doc->status == 2)
+                                @if ($doc->category_id == 5 && $doc->status == 3)
                                     <a href="/company/{{ $company->id }}/doc/period-trade-contract/{{ $doc->ref_no }}" class="btn dark" id="but_save">View Contract for Approval</a>
                                 @elseif (in_array($doc->status, [2,3]) && Auth::user()->allowed2('sig.company.doc', $doc))
-                                    @if ($doc->status == 2)
+                                    @if ($doc->status == 3)
                                         <a class="btn dark" data-toggle="modal" href="#modal_reject"> Reject </a>
                                     @endif
                                     @if ((in_array($doc->category_id, [1,2,3]) && $company->activeCompanyDoc($doc->category_id) && $company->activeCompanyDoc($doc->category_id)->status == 1))
@@ -443,129 +444,130 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        $("#filetype").val(''); // clear field on onload
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $("#filetype").val(''); // clear field on onload
 
-        /* Select2 */
-        $("#lic_type").select2({placeholder: "Select one or more", width: '100%'});
-        $("#lic_type1").select2({placeholder: "Select one or more", width: '100%'});
-        $("#lic_type2").select2({placeholder: "Select one or more", width: '100%'});
+            /* Select2 */
+            $("#lic_type").select2({placeholder: "Select one or more", width: '100%'});
+            $("#lic_type1").select2({placeholder: "Select one or more", width: '100%'});
+            $("#lic_type2").select2({placeholder: "Select one or more", width: '100%'});
 
-        function display_fields() {
-            var cat = $("#category_id").val();
+            function display_fields() {
+                var cat = $("#category_id").val();
 
-            $('#fields_supervisor').hide();
-            $('#fields_supervisor_id').hide();
-            $('#fields_supervisor_id2').hide();
-            $('#fields_supervisor_id3').hide();
+                $('#fields_supervisor').hide();
+                $('#fields_supervisor_id').hide();
+                $('#fields_supervisor_id2').hide();
+                $('#fields_supervisor_id3').hide();
 
-            if (cat == 7) { // CL
-                $('#fields_lic_no').show();
-                $('#fields_lic_class').show();
-                $('#fields_supervisors').show();
+                if (cat == 7) { // CL
+                    $('#fields_lic_no').show();
+                    $('#fields_lic_class').show();
+                    $('#fields_supervisors').show();
 
-                if ($("#supervisor_no").val() == 1)
-                    $('#fields_supervisor_id').show();
-                if ($("#supervisor_no").val() > 1)
-                    $('#fields_supervisor_id2').show();
-                if ($("#supervisor_no").val() > 2)
-                    $('#fields_supervisor_id3').show();
+                    if ($("#supervisor_no").val() == 1)
+                        $('#fields_supervisor_id').show();
+                    if ($("#supervisor_no").val() > 1)
+                        $('#fields_supervisor_id2').show();
+                    if ($("#supervisor_no").val() > 2)
+                        $('#fields_supervisor_id3').show();
+                }
+
+                if (cat == 8)  // Asbestos
+                    $('#fields_asb_class').show();
             }
 
-            if (cat == 8)  // Asbestos
-                $('#fields_asb_class').show();
-        }
+            function cl_supervisors() {
+                var lic_types = {};
+                $("#lic_type option:selected").each(function () {
+                    var val = $(this).val();
+                    if (val !== '')
+                        lic_types[val] = $(this).text();
+                });
 
-        function cl_supervisors() {
-            var lic_types = {};
-            $("#lic_type option:selected").each(function () {
-                var val = $(this).val();
-                if (val !== '')
-                    lic_types[val] = $(this).text();
-            });
-
-            $("#lic_type1").empty();
-            $("#lic_type2").empty();
-            $("#lic_type3").empty();
-            //var super_class1 = $("#super_class1").val();
-            //var super_class2 = $("#super_class2").val();
-            //var super_class3 = $("#super_class3").val();
-            $.each(lic_types, function (index, value) {
-                var selected1 = '';
-                var selected2 = '';
-                var selected3 = '';
-                /*if (!jQuery.inArray(index, super_class1)) {selected1 = ' selected';}
-                 if (!jQuery.inArray(index, super_class2)) {selected2 = ' selected';}
-                 if (!jQuery.inArray(index, super_class3)) {selected3 = ' selected';}*/
-                $("#lic_type1").append('<option value="' + index + '"' + selected1 + '>' + value + '</option>');
-                $("#lic_type2").append('<option value="' + index + '"' + selected2 + '>' + value + '</option>');
-                $("#lic_type3").append('<option value="' + index + '"' + selected3 + '>' + value + '</option>');
-            });
-        }
-
-        display_fields();
-
-        $("#lic_type").change(function () {
-            display_fields();
-            cl_supervisors();
-        });
-
-        $("#supervisor_no").change(function () {
-            display_fields();
-            //cl_supervisors();
-            $("#lic_type1").empty();
-            $("#lic_type2").empty();
-            $("#lic_type3").empty();
-        });
-
-
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-
-        /* Bootstrap Fileinput */
-        $("#singleimage").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-
-        $("#change_file").click(function () {
-            $('#attachment-div').hide();
-            //$('#singlefile-div').show();
-            if ($("#category_id").val() == 6 || $("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 6 Test Tag, 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
-                $('#singleimage-div').show();
-                $('#filetype').val('image');
-            } else {
-                $('#singlefile-div').show();
-                $('#filetype').val('pdf');
+                $("#lic_type1").empty();
+                $("#lic_type2").empty();
+                $("#lic_type3").empty();
+                //var super_class1 = $("#super_class1").val();
+                //var super_class2 = $("#super_class2").val();
+                //var super_class3 = $("#super_class3").val();
+                $.each(lic_types, function (index, value) {
+                    var selected1 = '';
+                    var selected2 = '';
+                    var selected3 = '';
+                    /*if (!jQuery.inArray(index, super_class1)) {selected1 = ' selected';}
+                     if (!jQuery.inArray(index, super_class2)) {selected2 = ' selected';}
+                     if (!jQuery.inArray(index, super_class3)) {selected3 = ' selected';}*/
+                    $("#lic_type1").append('<option value="' + index + '"' + selected1 + '>' + value + '</option>');
+                    $("#lic_type2").append('<option value="' + index + '"' + selected2 + '>' + value + '</option>');
+                    $("#lic_type3").append('<option value="' + index + '"' + selected3 + '>' + value + '</option>');
+                });
             }
-            $('#but_upload').show();
-            $('#but_save').hide();
-        });
 
-        $("#accept_archive").click(function (e) {
-            e.preventDefault();
-            $('#archive').val({{ ($company->activeCompanyDoc($doc->category_id)) ? $company->activeCompanyDoc($doc->category_id)->id : null }});
+            display_fields();
+
+            $("#lic_type").change(function () {
+                display_fields();
+                cl_supervisors();
+            });
+
+            $("#supervisor_no").change(function () {
+                display_fields();
+                //cl_supervisors();
+                $("#lic_type1").empty();
+                $("#lic_type2").empty();
+                $("#lic_type3").empty();
+            });
+
+
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+            /* Bootstrap Fileinput */
+            $("#singleimage").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+            $("#change_file").click(function () {
+                $('#attachment-div').hide();
+                //$('#singlefile-div').show();
+                if ($("#category_id").val() == 6 || $("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 6 Test Tag, 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+                    $('#singleimage-div').show();
+                    $('#filetype').val('image');
+                } else {
+                    $('#singlefile-div').show();
+                    $('#filetype').val('pdf');
+                }
+                $('#but_upload').show();
+                $('#but_save').hide();
+            });
+
+            $("#accept_archive").click(function (e) {
+                e.preventDefault();
+                $('#archive').val({{ ($company->activeCompanyDoc($doc->category_id)) ? $company->activeCompanyDoc($doc->category_id)->id : null }});
             $("#doc_form").submit();
         });
 

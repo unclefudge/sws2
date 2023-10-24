@@ -887,7 +887,7 @@ class CronReportController extends Controller {
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now();
-        $qas = SiteQa::where('status', 2)->where('master', 0)->orderBy('updated_at')->get();
+        $qas = SiteQa::where('status', 4)->where('master', 0)->orderBy('updated_at')->get();
         echo "On Hold QAs: " . $qas->count() . "<br>";
         $log .= "On Hold QAs: " . $qas->count() . "\n";
 

@@ -189,25 +189,21 @@ class PagesController extends Controller {
 
     public function quick()
     {
-/*
-        echo "Update Status WMS<br>";
-        $toolboxes = WmsDoc::all();
+
+        echo "Update Status CompanyDoc<br>";
+        $toolboxes = CompanyDoc::all();
         foreach ($toolboxes as $rec) {
-            if ($rec->status == 0) {  // Draft
-                $rec->status = 2;
-                $rec->timestamps = false;
-                $rec->save();
-            } elseif ($rec->status == '-1') { // Archived
-                $rec->status = 0;
-                $rec->timestamps = false;
-                $rec->save();
-            } elseif ($rec->status == 2) {  // Pending
+            if ($rec->status == 2) {  // Pending
                 $rec->status = 3;
+                $rec->timestamps = false;
+                $rec->save();
+            } elseif ($rec->status == '3') { // Rejected
+                $rec->status = 2;
                 $rec->timestamps = false;
                 $rec->save();
             }
         }
-*/
+
         /*
         echo "<b>Updating Hazard Files</b></br>";
 

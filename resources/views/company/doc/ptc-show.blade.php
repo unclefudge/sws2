@@ -22,10 +22,10 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <span class="caption-subject font-dark bold uppercase"> Period Trade Contract </span>
-                            @if ($ptc->status == 2)
+                            @if ($ptc->status == 3)
                                 <span class="label label-warning label">Pending Approval</span>
                             @endif
-                            @if ($ptc->status == 3)
+                            @if ($ptc->status == 2)
                                 <span class="label label-danger label">Rejected</span>
                             @endif
                         </div>
@@ -42,7 +42,7 @@
                         @include('form-error')
 
                         <div class="form-body">
-                            @if ($ptc->status == 3)
+                            @if ($ptc->status == 2)
                                 <div class="alert alert-danger">
                                     The document was not approved for the following reason:
                                     <ul>
@@ -330,7 +330,7 @@
                                 <div class="form-group">
                                     {!! Form::label('principle_signed_name', "Principle Contractor's Signature", ['class' => 'col-md-3 control-label']) !!}
                                     <div class="col-md-6">
-                                        @if (($ptc->principle_signed_id && $ptc->status != 3) || (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 2 ))
+                                        @if (($ptc->principle_signed_id && $ptc->status != 2) || (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 3 ))
                                             {!! Form::textarea('principle_signed_name', null, ['rows' => '3', 'class' => 'form-control', 'readonly']) !!}
                                             <span class="help-block">By signing this contract you accept the above as your digital signature.</span>
                                         @else
@@ -338,14 +338,14 @@
                                         @endif
                                     </div>
                                 </div>
-                                @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 2)
+                                @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 3)
                                     <div class="col-md-2">
                                         <a href="#modal_sign_contractor" class="btn green" data-toggle="modal" id="sign_contractor"> Sign Contract</a>
                                     </div>
                                 @endif
                             </div>
 
-                            @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 2)
+                            @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 3)
                                 <br><br>
                                 <div><b>Once you have signed this contact please click the "Submit" button to complete the submission.</b></div>
                             @endif
@@ -353,7 +353,7 @@
                             <br><br>
                             <div class="form-actions right">
                                 <a href="/company/{{ $company->id }}/doc" class="btn default"> Back</a>
-                                @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 2)
+                                @if (Auth::user()->isCompany($ptc->company_id) && $ptc->status == 3)
                                     <a class="btn dark" data-toggle="modal" href="#modal_reject"> Reject </a>
                                 @endif
                                 @if (($company->activeCompanyDoc('5') && $company->activeCompanyDoc('5')->status == 1))

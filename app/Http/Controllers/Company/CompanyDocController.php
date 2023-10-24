@@ -226,7 +226,7 @@ class CompanyDocController extends Controller {
         $doc->closeToDo();
 
         // If uploaded by User with 'authorise' permissions set to active other set pending
-        $doc->status = 2;
+        $doc->status = 3;
         $category = CompanyDocCategory::find($doc->category_id);
         $pub_pri = ($category->private) ? 'pri' : 'pub';
         if (Auth::user()->permissionLevel("sig.docs.$category->type.$pub_pri", $company->reportsTo()->id)) {
@@ -307,7 +307,7 @@ class CompanyDocController extends Controller {
         // Verify if document is rejected
         $doc_request['reject'] = '';
         if (request()->has('reject_doc')) {
-            $doc->status = 3;
+            $doc->status = 2;
             $doc->reject = request('reject');
             $doc->save();
             $doc->closeToDo();
@@ -317,22 +317,21 @@ class CompanyDocController extends Controller {
             return redirect("company/$company->id/doc/$doc->id/edit");
         }
 
-        //if ($doc->category_id < 21) {
-            // Determine Status of Doc
-            // If uploaded by User with 'authorise' permissions set to active otherwise set pending
-            $company = Company::findOrFail($doc->for_company_id);
-            $category = CompanyDocCategory::find($doc->category_id);
-            $pub_pri = ($category->private) ? 'pri' : 'pub';
-            if (request()->has('status') && request('status') == 0)
-                $doc_request['status'] = 0;
-            else if (Auth::user()->permissionLevel("sig.docs.$category->type.$pub_pri", $company->reportsTo()->id)) {
-                $doc_request['approved_by'] = Auth::user()->id;
-                $doc_request['approved_at'] = Carbon::now()->toDateTimeString();
-                $doc_request['status'] = 1;
-            } else {
-                $doc_request['status'] = 2;
-            }
-        //}
+
+        // Determine Status of Doc
+        // If uploaded by User with 'authorise' permissions set to active otherwise set pending
+        $company = Company::findOrFail($doc->for_company_id);
+        $category = CompanyDocCategory::find($doc->category_id);
+        $pub_pri = ($category->private) ? 'pri' : 'pub';
+        if (request()->has('status') && request('status') == 0)
+            $doc_request['status'] = 0;
+        else if (Auth::user()->permissionLevel("sig.docs.$category->type.$pub_pri", $company->reportsTo()->id)) {
+            $doc_request['approved_by'] = Auth::user()->id;
+            $doc_request['approved_at'] = Carbon::now()->toDateTimeString();
+            $doc_request['status'] = 1;
+        } else {
+            $doc_request['status'] = 3;
+        }
 
         //dd($doc_request);
         $doc->update($doc_request);
@@ -357,12 +356,10 @@ class CompanyDocController extends Controller {
         }
 
         // Close any ToDoo and create new one
-        //if ($doc->category_id < 21) {
-            $doc->closeToDo();
-            // Create approval ToDoo
-            if ($doc->status == 2 && ($doc->category->type == 'acc' || $doc->category->type == 'whs'))
-                $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
-        //}
+        $doc->closeToDo();
+        // Create approval ToDoo
+        if ($doc->status == 3 && ($doc->category->type == 'acc' || $doc->category->type == 'whs'))
+            $doc->createApprovalToDo($doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval'));
 
         // Handle attached file
         if (request()->hasFile('singlefile')) {
@@ -401,7 +398,7 @@ class CompanyDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $doc->status = 3;
+        $doc->status = 2;
         $doc->reject = request('reject');
         $doc->closeToDo();
         $doc->emailReject();
@@ -427,7 +424,7 @@ class CompanyDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        ($doc->status == 1) ? $doc->status = 0 : $doc->status = 1;
+        $doc->status = ($doc->status == 1) ?  0 :  1;
         $doc->closeToDo();
         $doc->save();
 
@@ -539,9 +536,9 @@ class CompanyDocController extends Controller {
         }
 
         // Filter for Standard Details
-        if (request('category_id') == '22') {
+        if (request('category_id') == '22')
             $categories = CompanyDocCategory::where('id', 22)->orWhere('parent', 22)->pluck('id')->toArray();
-        }
+
 
         $status = (request('status') == 1) ? [1, 2, 3] : [request('status')];
         $records = CompanyDoc::where('for_company_id', $cid)
@@ -576,9 +573,9 @@ class CompanyDocController extends Controller {
                 return ($details == '') ? '-' : $details;
             })
             ->editColumn('name', function ($doc) {
-                if ($doc->status == 2)
-                    return $doc->name . " <span class='badge badge-warning badge-roundless'>Pending Approval</span>";
                 if ($doc->status == 3)
+                    return $doc->name . " <span class='badge badge-warning badge-roundless'>Pending Approval</span>";
+                if ($doc->status == 2)
                     return $doc->name . " <span class='badge badge-danger badge-roundless'>Rejected</span>";
 
                 return $doc->name;

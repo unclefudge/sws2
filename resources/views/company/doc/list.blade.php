@@ -88,7 +88,7 @@
 
                         <div class="col-md-2 pull-right">
                             {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                            {!! Form::select('status', ['1' => 'Current', '2' => 'Pending', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
+                            {!! Form::select('status', ['1' => 'Current', '3' => 'Pending', '0' => 'Expired'], null, ['class' => 'form-control bs-select', 'id' => 'status',]) !!}
                         </div>
                     </div>
                     <div class="portlet-body">

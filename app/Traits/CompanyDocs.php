@@ -442,7 +442,7 @@ trait CompanyDocs {
             if ($this->requiresCompanyDoc($type) && (!$this->activeCompanyDoc($type) || $this->activeCompanyDoc($type)->status != 1)) {
                 $missing_docs[$type] = $name;
                 if ($this->activeCompanyDoc($type)) {
-                    $missing_status = ($this->activeCompanyDoc($type)->status == 2) ? 'label-warning' : 'label-danger';
+                    $missing_status = ($this->activeCompanyDoc($type)->status == 3) ? 'label-warning' : 'label-danger';
                     $missing_html .= "<span class='label label-sm $missing_status'>$name</span>, ";
                 } else
                     $missing_html .= "$name, ";
