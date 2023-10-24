@@ -66,6 +66,9 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        <hr>
+                        <a href="/manage/report" class="btn default pull-right">Back</a><br><br>
                     </div>
                 </div>
             </div>
