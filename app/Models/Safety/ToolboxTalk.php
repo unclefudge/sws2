@@ -101,7 +101,8 @@ class ToolboxTalk extends Model {
             $todo_user = TodoUser::whereIn('todo_id', $todo_ids)->where('user_id', $user->id)->where('opened', 0)->first();
             if ($todo_user) {
                 $todo_user->opened = 1;
-                $todo_user->opened_at = Carbon::now();
+                if ($todo_user->opened_at == null)
+                    $todo_user->opened_at = Carbon::now();
                 $todo_user->save();
             }
         }
@@ -152,7 +153,7 @@ class ToolboxTalk extends Model {
         $string = '';
         foreach ($this->assignedTo() as $u) {
             $todo = Todo::where('type', 'toolbox')->where('type_id', $this->id)->where('done_by', $u->id)->first();
-            $string .= $u->fullname.', ';
+            $string .= $u->fullname . ', ';
         }
         $string = rtrim($string, ', ');
 

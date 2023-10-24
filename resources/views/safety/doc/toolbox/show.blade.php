@@ -11,7 +11,7 @@
 @section('content')
     <div class="page-content-inner">
         {{-- Progress Steps --}}
-        @if(!$talk->master && Auth::user()->allowed2('edit.toolbox', $talk) && $talk->status != -1)
+        @if(!$talk->master && Auth::user()->allowed2('edit.toolbox', $talk) && $talk->status != 0)
             <div class="mt-element-step hidden-sm hidden-xs">
                 <div class="row step-line" id="steps">
                     <div class="col-md-3 mt-step-col first done">
@@ -64,7 +64,7 @@
             </div>
         @endif
         @if (!$talk->master && Auth::user()->allowed2('edit.toolbox', $talk))
-            @if ($talk->status == 2)
+            @if ($talk->status == 3)
                 <div class="note note-warning">This toolbox talk is pending sign off.</div>
             @elseif (!$talk->assignedTo())
                 <div class="note note-danger">This toolbox talk currently isn't assigned to any users.
@@ -108,7 +108,7 @@
                                     <a class="btn btn-circle green btn-outline btn-sm" href="javascript:;" data-toggle="dropdown" data-over="dropdown"><i class="fa fa-cog"></i> Actions</a>
                                     <ul class="dropdown-menu pull-right">
                                         {{-- Talk Pending --}}
-                                        @if ($talk->status == 2 && (Auth::user()->allowed2('del.toolbox', $talk) || Auth::user()->allowed2('sig.toolbox', $talk)))
+                                        @if ($talk->status == 3 && (Auth::user()->allowed2('del.toolbox', $talk) || Auth::user()->allowed2('sig.toolbox', $talk)))
                                             @if(Auth::user()->allowed2('sig.toolbox', $talk))
                                                 <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
                                                 <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/reject"><i class="fa fa-ban"></i> Reject</a></li>
@@ -119,14 +119,14 @@
                                             @endif
                                         @endif
 
-                                        @if ($talk->status != 2)
+                                        @if ($talk->status != 3) {{-- Not Pending --}}
                                             @if(!$talk->master && $talk->status == 1)
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Edit Users</a></li>
                                                 <li class="divider"></li>
                                             @endif
                                             @if($talk->status == 1 && Auth::user()->allowed2('del.toolbox', $talk))
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a></li>
-                                            @elseif($talk->status == -1 && Auth::user()->isCompany($talk->owned_by) && Auth::user()->allowed2('del.toolbox', $talk))
+                                            @elseif($talk->status == 0 && Auth::user()->isCompany($talk->owned_by) && Auth::user()->allowed2('del.toolbox', $talk))
                                                 <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/archive"><i class="fa fa-archive"></i> Unarchive</a></li>
                                             @endif
                                         @endif
@@ -144,9 +144,9 @@
                                 <div class="col-md-6 pull-right">
                                     @if($talk->master && $talk->status == '1')
                                         <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template</h3>
-                                    @elseif($talk->master && $talk->status == '-1')
+                                    @elseif($talk->master && $talk->status == '0')
                                         <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Template Archived</h3>
-                                    @elseif($talk->status == '-1')
+                                    @elseif($talk->status == '0')
                                         <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Archived</h3>
                                     @endif
                                 </div>
@@ -187,13 +187,13 @@
                             <br>
                             <div class="form-actions right">
                                 <a href="/safety/doc/toolbox2" class="btn default"> Back</a>
-                                @if($talk->master && $talk->status == 1 && Auth::user()->hasPermission2('add.toolbox'))
+                                @if($talk->master && $talk->status == '1' && Auth::user()->hasPermission2('add.toolbox'))
                                     <a href="/safety/doc/toolbox2/{{ $talk->id}}/create" class="btn green">Create Toolbox Talk using this Template</a>
                                 @endif
-                                @if($talk->status == 1 && Auth::user()->allowed2('del.toolbox', $talk))
+                                @if($talk->status == '1' && Auth::user()->allowed2('del.toolbox', $talk))
                                     <a class="btn dark" data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a>
                                 @endif
-                                @if($talk->status == 2 && Auth::user()->allowed2('sig.toolbox', $talk))
+                                @if($talk->status == '3' && Auth::user()->allowed2('sig.toolbox', $talk))
                                     <a href="/safety/doc/toolbox2/{{ $talk->id }}/signoff" class="btn green"> Sign Off</a>
                                     <a href="/safety/doc/toolbox2/{{ $talk->id }}/reject" class="btn red"> Reject</a>
                                 @endif

@@ -42,12 +42,12 @@
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
                                     @if (Auth::user()->hasPermission2('edit.toolbox'))
-                                        <option value="0">Draft</option>
+                                        <option value="2">Draft</option>
                                     @endif
                                     @if (Auth::user()->isCC())
-                                        <option value="2">Pending</option>
+                                        <option value="3">Pending</option>
                                     @endif
-                                    <option value="-1">Archived</option>
+                                    <option value="0">Archived</option>
                                 </select>
                             </div>
                         </div>
@@ -80,8 +80,8 @@
                                 <i class="icon-layers"></i>
                                 <span class="caption-subject bold uppercase font-green-haze"> Toolbox Template Library</span>
                             </div>
-                            {{-- Only allowed Fudge/Tara/Jo/Rob access to add to library --}}
-                            @if(in_array(Auth::user()->id, [3, 351, 109, 6]))
+                            {{-- Only allowed Fudge/Tara/Kirstie/Ross access to add to library --}}
+                            @if(in_array(Auth::user()->id, [3, 351, 108, 1155]))
                                 <div class="actions">
                                     @if(Auth::user()->hasPermission2('add.toolbox'))
                                         <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/toolbox2/create" data-original-title="Add">Add</a>
@@ -90,17 +90,17 @@
                                 </div>
                             @endif
                         </div>
-                        {{-- Only allowed Fudge/Tara/Jo/Rob access to add to library --}}
-                        @if(in_array(Auth::user()->id, [3, 351, 109, 6]))
+                        {{-- Only allowed Fudge/Tara/Kirstie/Ross access to add to library --}}
+                        @if(in_array(Auth::user()->id, [3, 351, 108, 1155]))
                             <div class="row">
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
                                         <select name="status2" id="status2" class="form-control bs-select">
                                             <option value="1" selected>Active</option>
                                             @if (Auth::user()->hasPermission2('edit.toolbox'))
-                                                <option value="0">Draft</option>
+                                                <option value="2">Draft</option>
                                             @endif
-                                            <option value="-1">Archived</option>
+                                            <option value="0">Archived</option>
                                         </select>
                                     </div>
                                 </div>

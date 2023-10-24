@@ -86,11 +86,14 @@ class ToolboxTalkController extends Controller {
         if (!Auth::user()->allowed2('view.toolbox', $talk))
             return view('errors/404');
 
-        if ($talk->status) {
+        if ($talk->status == 1)
             $talk->markOpened(Auth::user());  // Mark as opened for current user
-            return view('safety/doc/toolbox/show', compact('talk'));
-        }
 
+        // Active or Archived
+        if (in_array($talk->status, [0, 1]))
+            return view('safety/doc/toolbox/show', compact('talk'));
+
+        // Draft or Pending - default to edit mode
         if (Auth::user()->allowed2('edit.toolbox', $talk))
             return redirect('/safety/doc/toolbox2/' . $talk->id . '/edit');
     }
@@ -118,6 +121,7 @@ class ToolboxTalkController extends Controller {
 
         $tool_request['company_id'] = ($request->has('parent_switch')) ? Auth::user()->company->reportsTo()->id : Auth::user()->company_id;
         $tool_request['for_company_id'] = Auth::user()->company_id;
+        $tool_request['status'] = '2';  // Draft
 
         // Create Toolbox
         $newTalk = ToolboxTalk::create($tool_request);
@@ -144,7 +148,8 @@ class ToolboxTalkController extends Controller {
         if (!Auth::user()->allowed2('edit.toolbox', $talk))
             return view('errors/404');
 
-        if (!$talk->status)
+        // Draft / Pending mode
+        if (in_array($talk->status, [2,3]))
             return view('safety/doc/toolbox/edit', compact('talk'));
 
         return redirect('/safety/doc/toolbox2/' . $talk->id);
@@ -157,6 +162,9 @@ class ToolboxTalkController extends Controller {
     {
         $talk = ToolboxTalk::findOrFail($id);
 
+        //
+        // Editing when in Draft Mode - Ajax
+        //
         if (request()->ajax()) {
             // Editing Talk Name / Info
             $tool_request = request()->all();
@@ -192,7 +200,7 @@ class ToolboxTalkController extends Controller {
                  * Comments out requiring CC Supervisors to get signoff before they give a talk
                  *
                 if (request('status') == 1 && Auth::user()->isCC() && !Auth::user()->hasPermission2('sig.toolbox') && (!$talk->master_id || $master_version != $tool_request['version'])) {
-                    $tool_request['status'] = 2;
+                    $tool_request['status'] = 3;
                     // Mail notification talk owner
                     if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
                         Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkSignoff($talk));
@@ -225,7 +233,9 @@ class ToolboxTalkController extends Controller {
 
             return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
         } else {
-            // Edit Users / Status
+            //
+            // Edit Active Toolbox with Users / Status
+            //
             $todo_request = [
                 'type'       => 'toolbox',
                 'type_id'    => $id,
@@ -263,10 +273,12 @@ class ToolboxTalkController extends Controller {
             }
             //dd($assign_list);
 
-            // Create ToDoo for user if haven't got one
+            // Create ToDoo for user if they haven't got one
             $current_users = ($talk->assignedTo()) ? $talk->assignedTo()->pluck('id')->toArray() : [];
+            $new_users = [];
             foreach ($assign_list as $user_id) {
                 if (!in_array($user_id, $current_users)) {
+                    $new_users[] = $user_id;
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($user_id);
                     $todo->emailToDo();
@@ -274,6 +286,7 @@ class ToolboxTalkController extends Controller {
             }
 
             // Delete user ToDoo task for Toolbox talk if they haven't already completed
+            $del_users = [];
             foreach ($current_users as $user_id) {
                 if (!in_array($user_id, $assign_list)) {
                     $todo_toolboxs = Todo::where('type', 'toolbox')->where('type_id', $talk->id)->get();
@@ -281,6 +294,7 @@ class ToolboxTalkController extends Controller {
                         if ($todo->status) {
                             $todo_user = TodoUser::where('todo_id', $todo->id)->where('user_id', $user_id)->first();
                             if ($todo_user) {
+                                $del_users[] = $user_id;
                                 $todo_user->delete();
                                 $todo->delete();
                                 $user = User::find($user_id);
@@ -290,7 +304,27 @@ class ToolboxTalkController extends Controller {
                     }
                 }
             }
-            Toastr::success("Assigned to users");
+            Toastr::success("Assigned users");
+
+            // Send Email of Added / Deleted Users
+            $added_users = [];
+            foreach ($new_users as $user_id) {
+                $user = User::find($user_id);
+                if ($user)
+                    $added_users[$user->fullname . " (" . $user->company->name . ")"] = $user->company->name;
+            }
+            asort($added_users);
+
+            $deleted_users = [];
+            foreach ($del_users as $user_id) {
+                $user = User::find($user_id);
+                if ($user)
+                    $deleted_users[$user->fullname . " (" . $user->company->name . ")"] = $user->company->name;
+            }
+            asort($deleted_users);
+
+            Mail::to($talk->createdBy)->send(new \App\Mail\Safety\ToolboxTalkUsers($talk, $added_users, $deleted_users));
+
 
             return redirect('safety/doc/toolbox2/' . $talk->id);
         }
@@ -347,7 +381,7 @@ class ToolboxTalkController extends Controller {
     /**
      * Accept talk as read for given users .
      */
-    public function accept(Request $request, $id)
+    public function accept($id)
     {
         $talk = ToolboxTalk::findOrFail($id);
 
@@ -372,7 +406,7 @@ class ToolboxTalkController extends Controller {
         if (!Auth::user()->allowed2('del.toolbox', $talk))
             return view('errors/404');
 
-        ($talk->status == 1) ? $talk->status = '-1' : $talk->status = 1;
+        $talk->status = ($talk->status == 1) ? '0' : '1';
         $talk->save();
 
         if ($talk->status == 1) {
@@ -428,7 +462,7 @@ class ToolboxTalkController extends Controller {
 
         $talk->authorised_by = Auth::user()->id;
         $talk->authorised_at = Carbon::now();
-        $talk->status = 1;
+        $talk->status = '1';
         $talk->save();
         if (validEmail($talk->createdBy->email))
             Mail::to($talk->createdBy)->send(new \App\Mail\Safety\ToolboxTalkApproved($talk));
@@ -445,7 +479,7 @@ class ToolboxTalkController extends Controller {
         $talk = ToolboxTalk::findOrFail($id);
         if (!Auth::user()->allowed2('sig.toolbox', $talk))
             return view('errors/404');
-        $talk->status = 0;
+        $talk->status = '2';
         $talk->save();
         // Mail notification talk creator + cc: talk owner
         if (validEmail($talk->createdBy->email) && $talk->owned_by->notificationsUsersType('doc.whs.approval'))
@@ -531,7 +565,7 @@ class ToolboxTalkController extends Controller {
             })
             ->addColumn('completed', function ($doc) {
                 $talk = ToolboxTalk::find($doc->id);
-                if ($talk->status != 0) {
+                if (!in_array($talk->status, [2, 3])) { // Exclude Draft+Pending as Only Active or Archived talks have completed items
                     if (Auth::user()->allowed2('edit.toolbox', $talk)) {
                         $assigned_count = ($talk->assignedTo()) ? $talk->assignedTo()->count() : 0;
                         $completed_count = ($talk->completedBy()) ? $talk->completedBy()->count() : 0;
@@ -550,12 +584,12 @@ class ToolboxTalkController extends Controller {
             })
             ->addColumn('action', function ($doc) {
                 $actions = '';
-                if ($doc->status == '0' && Auth::user()->allowed2('edit.toolbox', $doc))
+                if ($doc->status == '2' && Auth::user()->allowed2('edit.toolbox', $doc))  // Draft mode
                     $actions .= '<a href="/safety/doc/toolbox2/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 else
                     $actions .= '<a href="/safety/doc/toolbox2/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
-                if (($doc->status == '0' || $doc->status == '2') && Auth::user()->allowed2('del.toolbox', $doc))
+                if (in_array($doc->status, [2, 3]) && Auth::user()->allowed2('del.toolbox', $doc))  // Draft or Pending mode
                     $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/safety/doc/toolbox2/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
 
                 return $actions;
@@ -597,12 +631,12 @@ class ToolboxTalkController extends Controller {
             })
             ->addColumn('action', function ($doc) {
                 $actions = '';
-                if ($doc->status == '0' && Auth::user()->allowed2('edit.toolbox', $doc))
+                if ($doc->status == '2' && Auth::user()->allowed2('edit.toolbox', $doc)) // Draft mode
                     $actions .= '<a href="/safety/doc/toolbox2/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 else
                     $actions .= '<a href="/safety/doc/toolbox2/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
-                if (($doc->status == '0' || $doc->status == '2') && Auth::user()->allowed2('del.toolbox', $doc))
+                if (in_array($doc->status, [2, 3]) && Auth::user()->allowed2('del.toolbox', $doc)) // Draft or Pending mode
                     $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/safety/doc/toolbox2/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
 
                 return $actions;

@@ -68,7 +68,7 @@
                         <input type="hidden" name="version" value="{{ $talk->version }}">
                         <input type="hidden" name="toolbox_type" value="none">
                         <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
-                        <input type="hidden" name="status" id="status" value="0">
+                        <input type="hidden" name="status" id="status" value="2">
                         <input type="hidden" name="overview" id='overview' value="{{ $talk->overview }}">
                         <input type="hidden" name="hazards" id='hazards' value="{{ $talk->hazards }}">
                         <input type="hidden" name="controls" id='controls' value="{{ $talk->controls }}">

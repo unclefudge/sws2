@@ -190,12 +190,21 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Deactived Companies<br>";
-        $companies = Company::all();
-        foreach ($companies as $company) {
-            if ($company->status == 0) {
-                $company->deactivated = $company->updated_at;
-                $company->save();
+        echo "Update Status Toolbox<br>";
+        $toolboxes = ToolboxTalk::all();
+        foreach ($toolboxes as $rec) {
+            if ($rec->status == 0) {  // Draft
+                $rec->status = 2;
+                $rec->timestamps = false;
+                $rec->save();
+            } elseif ($rec->status == '-1') { // Archived
+                $rec->status = 0;
+                $rec->timestamps = false;
+                $rec->save();
+            } elseif ($rec->status == 2) {  // Pending
+                $rec->status = 3;
+                $rec->timestamps = false;
+                $rec->save();
             }
         }
 
