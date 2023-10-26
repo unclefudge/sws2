@@ -26,7 +26,7 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-9">
-                                    @if ($doc->status == 2)
+                                    @if ($doc->status == 3)
                                         <h2 style="margin: 0 0"><span class="label label-warning">Pending Approval</span></h2><br><br>
                                     @endif
                                 </div>

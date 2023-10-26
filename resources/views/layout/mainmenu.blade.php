@@ -115,7 +115,7 @@
                                             @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.qa|site.qa.templates|site.maintenance|site.project.supply|site.inspection|site.upcoming.compliance|super.checklist'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Reports</h3></li>
+                                                        <li><h3 class="h3-submenu">Reports / Info</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('site.attendance'))
                                                             <li><a href="/site/attendance" class="nav-link"> Site Attendance </a></li>
                                                         @endif
@@ -130,6 +130,9 @@
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('super.checklist'))
                                                             <li><a href="/supervisor/checklist" class="nav-link"> Supervisor Checklist </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.note'))
+                                                            <li><a href="/site/note" class="nav-link"> Site Notes </a></li>
                                                         @endif
                                                     </ul>
                                                 </div>

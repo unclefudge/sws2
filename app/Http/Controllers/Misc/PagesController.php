@@ -2622,8 +2622,8 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
         //
         // Creating Permission
         //
-        $name = 'Supervisor Checklist';
-        $slug = 'super.checklist';
+        $name = 'Site Note';
+        $slug = 'site.note';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

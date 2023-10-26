@@ -88,14 +88,21 @@ class CompanyController extends Controller {
         if (request('trades'))
             $newCompany->tradesSkilledIn()->sync(request('trades'));
 
-
-        // Mail request to new company
-        $user_list = (\App::environment('prod')) ? ['courtney@capecod.com.au'] : [env('EMAIL_DEV')];
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        if ($email_user)
-            $user_list[] = $email_user;
+        // Mail request to new company
+        if ($newCompany->reportsTo()->id == 3) {
+            $user_list = (\App::environment('prod')) ? ['courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+            if ($email_user)
+                $user_list[] = $email_user;
+            Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcomeCC($newCompany, Auth::user()->company, request('person_name')));
+        } else {
+            $user_list = ($email_user) ? [$email_user] : [env('EMAIL_DEV')];
+            Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
+        }
 
-        Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
+
+
+
         // Mail notification to parent company
         if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent')) {
             $email_list = (\App::environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [env('EMAIL_DEV')];

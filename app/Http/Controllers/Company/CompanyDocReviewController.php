@@ -182,6 +182,7 @@ class CompanyDocReviewController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function destroy($id)
     {
         $doc = CompanyDoc::findOrFail($id);
@@ -198,7 +199,7 @@ class CompanyDocReviewController extends Controller {
         $doc->delete();
 
         return json_encode('success');
-    }
+    }*/
 
 
     /**
@@ -206,6 +207,7 @@ class CompanyDocReviewController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function reject($cid, $id)
     {
         $company = Company::find($cid);
@@ -216,7 +218,7 @@ class CompanyDocReviewController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $doc->status = 3;
+        $doc->status = 2;
         $doc->reject = request('reject');
         $doc->closeToDo();
         $doc->emailReject();
@@ -225,13 +227,14 @@ class CompanyDocReviewController extends Controller {
         Toastr::success("Updated document");
 
         return redirect("company/$company->id/doc/$doc->id/edit");
-    }
+    }*/
 
     /**
      * Approve / Unarchive the specified company document.
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function archive($cid, $id)
     {
         $company = Company::find($cid);
@@ -242,7 +245,7 @@ class CompanyDocReviewController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        ($doc->status == 1) ? $doc->status = 0 : $doc->status = 1;
+        $doc->status = ($doc->status == 1) ?  0 :  1;
         $doc->closeToDo();
         $doc->save();
 
@@ -258,13 +261,14 @@ class CompanyDocReviewController extends Controller {
         }
 
         return redirect("company/$company->id/doc/$doc->id/edit");
-    }
+    }*/
 
     /**
      * Upload File + Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function upload($id)
     {
         // Check authorisation and throw 404 if not
@@ -306,7 +310,7 @@ class CompanyDocReviewController extends Controller {
         }
 
         return json_encode("success");
-    }
+    } */
 
 
     /**
@@ -319,10 +323,7 @@ class CompanyDocReviewController extends Controller {
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/company/doc/standard/review/{{$id}}/edit"><i class="fa fa-search"></i></a></div>')
             ->editColumn('assigned_to', function ($doc) {
-                //$todo = $doc->todos('1')->first();
-                //if ($todo)
                 return ($doc->assignedToSBC()) ? $doc->assignedToSBC() : '-';
-                //return "-";
             })
             ->addColumn('stage_text', function ($doc) {
                 return $doc->stage_text;

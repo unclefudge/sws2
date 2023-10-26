@@ -289,7 +289,7 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::get('manage/report/upcoming_compliance/{id}/createpdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');
     Route::resource('site/upcoming/compliance', '\App\Http\Controllers\Site\SiteUpcomingComplianceController');
 
-    // Site Extention
+    // Site Extension
     Route::post('site/extension/update_job', '\App\Http\Controllers\Site\SiteExtensionController@updateJob');
     Route::get('site/extension/past', '\App\Http\Controllers\Site\SiteExtensionController@past');
     Route::get('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@settings');
@@ -299,6 +299,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/extension/{id}/pdf', '\App\Http\Controllers\Site\SiteExtensionController@createPDF');
     Route::get('site/extension/{id}/{supervisor_id}', '\App\Http\Controllers\Site\SiteExtensionController@showExtensions');
     Route::resource('site/extension', '\App\Http\Controllers\Site\SiteExtensionController');
+
+    // Site Notes
+    //Route::post('site/extension/update_job', '\App\Http\Controllers\Site\SiteExtensionController@updateJob');
+    Route::get('site/{site_id}/notes', '\App\Http\Controllers\Site\SiteNoteController@showSiteNotes');
+    Route::get('site/{site_id}/notes/create', '\App\Http\Controllers\Site\SiteNoteController@createNote');
+    Route::get('site/note/dt/list', '\App\Http\Controllers\Site\SiteNoteController@getNotes');
+    Route::get('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@settings');
+    Route::post('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@updateSettings');
+    Route::get('site/note/settings/del/{id}', '\App\Http\Controllers\Site\SiteNoteController@deleteSetting');
+    Route::get('site/note/settings/{direction}/{id}', '\App\Http\Controllers\Site\SiteNoteController@categoryOrder');
+    //Route::get('site/note/{id}/signoff', '\App\Http\Controllers\Site\SiteNoteController@signoff');
+    //Route::get('site/note/{id}/pdf', '\App\Http\Controllers\Site\SiteNoteController@createPDF');
+    Route::resource('site/note', '\App\Http\Controllers\Site\SiteNoteController');
 
     // Site Hazards
     Route::get('site/hazard/dt/hazards', '\App\Http\Controllers\Site\SiteHazardController@getHazards');

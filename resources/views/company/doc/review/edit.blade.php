@@ -71,7 +71,7 @@
                                     <br>
                                     @if ($doc->status)
                                         {{-- Assign Draftsperson --}}
-                                        @if ($doc->stage == '2')
+                                        @if ($doc->stage == '3')
                                             <div class="row">
                                                 <div class="form-group {!! fieldHasError('assign_user', $errors) !!}">
                                                     {!! Form::label('assign_user', "Assign to user:", ['class' => 'col-md-3 control-label']) !!}

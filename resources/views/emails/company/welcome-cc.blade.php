@@ -11,7 +11,7 @@ SafeWorksite is an online WHS platform that supports you and your workers in sta
 Sign Up
 @endcomponent
 
-If you have any questions in regards to your sign up on SafeWorksite, please contact {{ $parent_company->name }}.
+If you have any questions in regards to your sign up on SafeWorksite, please contact Courtney using the email courtney@capecod.com.au or call on (02) 9849 4444
 
 Regards,<br>
 {{ config('app.name') }}

@@ -85,7 +85,7 @@
         },
         columns: [
             {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'sitename', name: 's.name', },
+            {data: 'sitename', name: 's.name'},
             {data: 'updated_at', name: 'p.updated_at', searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
