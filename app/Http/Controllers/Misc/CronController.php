@@ -1421,7 +1421,7 @@ class CronController extends Controller {
 
         $companies = Company::whereDate('created_at', '=', $yesterday)->get();
         foreach ($companies as $company) {
-            if (!$company->isCompliant()) {
+            if (!$company->isCompliant() && $company->reportsTo()->id == 3) {
                 echo "[$company->id] $company->name: ".$company->missingDocs('csv')."<br>";
 
                 // Send email

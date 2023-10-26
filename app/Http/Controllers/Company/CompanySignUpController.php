@@ -198,13 +198,15 @@ class CompanySignUpController extends Controller {
 
         $company->signup_step = 0;
         $company->status = 1;
-        $email_to =  (\App::environment('prod')) ? $company->reportsTo()->notificationsUsersEmailType('company.signup.completed') : [env('EMAIL_DEV')];
+        $email_to = (\App::environment('prod')) ? $company->reportsTo()->notificationsUsersEmailType('company.signup.completed') : [env('EMAIL_DEV')];
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanySignup($company));
 
-        $email_cc =  (\App::environment('prod')) ? ['courtney@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-        if ($company->primary_user && validEmail($company->primary_contact()->email))
-            Mail::to($company->primary_contact()->email)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocs($company));
+        if ($company->reportsTo()->id == 3) {
+            $email_cc = (\App::environment('prod')) ? ['courtney@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            if ($company->primary_user && validEmail($company->primary_contact()->email))
+                Mail::to($company->primary_contact()->email)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocs($company));
+        }
 
         $company->save();
 
