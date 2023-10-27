@@ -22,7 +22,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Site Notes</span>
                         </div>
                         <div class="actions">
-                            @if(Auth::user()->hasPermission2('edit.site.note'))
+                            @if(Auth::user()->hasPermission2('add.site.note'))
                                 <button class="btn btn-circle green btn-outline btn-sm" id="add_note">Add</button>
                             @endif
                                 @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
@@ -45,7 +45,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th style="width:5%"> #</th>
+                                {{--}}<th style="width:5%"> #</th>--}}
                                 <th style="width:7%"> Date</th>
                                 @if ($site_id == 'all')
                                     <th style="width:20%"> Site</th>
@@ -53,6 +53,7 @@
                                 <th style="width:15%"> Category</th>
                                 <th> Note</th>
                                 <th style="width:15%"> Created by</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -83,6 +84,10 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
+
         $(document).ready(function () {
             /* Select2 */
             $("#site_id").select2({
@@ -111,14 +116,15 @@
                 }
             },
             columns: [
-                {data: 'view', name: 'site_notes.id', orderable: false, searchable: false},
+                //{data: 'id', name: 'site_notes.id', orderable: false, searchable: false},
                 {data: 'date_created', name: 'site_notes.created_at', searchable: false},
                     @if ($site_id == 'all')
                 {data: 'sitename', name: 'sites.name'},
                     @endif
                 {data: 'category_id', name: 'site_notes.category_id'},
                 {data: 'notes', name: 'site_notes.notes', orderable: false},
-                {data: 'full_name', name: 'full_name', false: false, searchable: false},
+                {data: 'full_name', name: 'full_name', searchable: false, searchable: false,},
+                {data: 'action', name: 'action', searchable: false, orderable: false},
                 {data: 'firstname', name: 'users.firstname', visible: false},
                 {data: 'lastname', name: 'users.lastname', visible: false},
                 {data: 'name', name: 'site_notes_categories.name', visible: false},
@@ -126,6 +132,35 @@
             order: [
                 [1, "asc"]
             ]
+        });
+
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this note!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
+            });
         });
 
         $('#site_id').change(function () {

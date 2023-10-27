@@ -23,8 +23,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form']) !!}
+                        {!! Form::model($note, ['method' => 'PATCH', 'action' => ['Site\SiteNoteController@update', $note->id], 'class' => 'horizontal-form']) !!}
+
                         @include('form-error')
 
                         <div class="form-body">

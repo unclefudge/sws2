@@ -62,7 +62,7 @@
 
                             <br><br>
                             <div class="form-actions right">
-                                <a href="/site/{{$site_id}}/notes" class="btn default"> Back</a>
+                                <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
 

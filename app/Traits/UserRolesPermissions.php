@@ -879,6 +879,14 @@ trait UserRolesPermissions {
                 return false;
             }
 
+            // Site Notes
+            if ($permissiontype == 'site.note') {
+                if ($this->id == $record->created_by) return true;  // Created by User
+                if ($this->authSites($permission)->contains('id', $record->site_id)) return true;  // Supervisor for site
+
+                return false;
+            }
+
             // Site QA Templates
             if ($permissiontype == 'site.qa.templates') {
                 if ($this->hasPermission2($permission) && $record->company_id == $this->company_id) return true; // User belong to same company record
