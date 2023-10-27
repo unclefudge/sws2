@@ -25,6 +25,7 @@
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
                         {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form']) !!}
+                        {!! Form::hidden('previous_url', url()->previous()) !!}
                         @include('form-error')
 
                         <div class="form-body">

@@ -39,6 +39,16 @@ class SiteNote extends Model {
     }
 
     /**
+     * A SiteNote belongs to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function createdBy()
+    {
+        return $this->belongsTo('App\User', 'created_by');
+    }
+
+    /**
      * Get the owner of record   (getter)
      *
      * @return string;

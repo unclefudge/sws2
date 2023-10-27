@@ -40,6 +40,11 @@
 
 
             <div class="col-lg-6 col-xs-12 col-sm-12">
+                {{-- Site Notes --}}
+                @if (Auth::user()->hasAnyPermissionType('site.note'))
+                    @include('site/_show-notes')
+                @endif
+
                 {{-- Admin Details --}}
                 @if (Auth::user()->allowed2('view.site.admin', $site))
                     @include('site/_show-admin')

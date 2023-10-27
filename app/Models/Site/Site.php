@@ -77,6 +77,16 @@ class Site extends Model {
     }
 
     /**
+     * A Site has many Notes
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function sitenotes()
+    {
+        return $this->hasMany('App\Models\Site\SiteNote', 'site_id');
+    }
+
+    /**
      * A Site has many ClientPlannerEmails
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany

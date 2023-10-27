@@ -41,7 +41,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.note'))
             return view('errors/404');
 
-        $site_id = '';
+        $site_id = 'all';
         $categories = SiteNoteCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['all' => 'All sites'] + Auth::user()->company->sites([1,2])->where('special', null)->pluck('name', 'id')->toArray();
 
@@ -104,7 +104,11 @@ class SiteNoteController extends Controller {
         // Create Site Note
         $note = SiteNote::create(request()->all());
 
-        return redirect("site/$note->site_id/notes");
+        $previous_url = parse_url(request('previous_url'));
+        if (preg_match("/\/site\/\d/", $previous_url['path']))
+            return redirect("site/$note->site_id");
+        else
+            return redirect("site/$note->site_id/notes");
 
     }
 
@@ -294,6 +298,9 @@ class SiteNoteController extends Controller {
             ->addColumn('view', function ($note) {
                 return ('<div class="text-center"><a href="/site/note/' . $note->id . '/edit"><i class="fa fa-search"></i></a></div>');
             })
+            ->editColumn('notes', function ($note) {
+                return nl2br($note->notes);
+            })
             ->editColumn('updated_at', function ($note) {
                 return $note->updated_at->format('d/m/Y');
             })
@@ -306,7 +313,7 @@ class SiteNoteController extends Controller {
                 else
                     return '<a href="/site/notes/' . $note->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
             })
-            ->rawColumns(['view', 'action'])
+            ->rawColumns(['view', 'notes', 'action'])
             ->make(true);
 
         return $dt;
