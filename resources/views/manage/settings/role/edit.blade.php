@@ -316,8 +316,10 @@ $cc = 1;*/
                                                 <tr>
                                                     <td>Site Notes<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.note', 'super', $rec, $cid, $dis) !!}</td>
-                                                    <td width="15%">{!! permSelect('edit.site.note', 'super', $rec, $cid, $dis) !!}</td>
-                                                    <td width="45%" colspan="3"></td>
+                                                    <td width="15%">{!! permSelect('edit.site.note', 'individual', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('add.site.note', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.site.note', 'del', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
                                                 </tr>
                                                 <tr>
                                                     <td>Site Zoho Fields<br><span class="font-grey-silver">Cape Cod Only</span></td>
