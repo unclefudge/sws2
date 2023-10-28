@@ -76,10 +76,12 @@ class SiteExtensionController extends Controller {
         $data = $this->getData($extension);
         //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $extend_reasons = Category::where('type', 'site_extension')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $reason_na = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'N/A')->first()->id;
+        $reason_publichol = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'Public Holiday')->first()->id;
 
         //dd($data);
 
-        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons'));
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol'));
     }
 
     /**
@@ -257,7 +259,7 @@ class SiteExtensionController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function deleteSetting($id)
+    /*public function deleteSetting($id)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.extension'))
@@ -266,7 +268,7 @@ class SiteExtensionController extends Controller {
         //dd(request()->all());
 
         // Delete setting
-        $setting = SiteExtensionCategory::findOrFail($id);
+        $setting = SiteExtension::findOrFail($id);
         $setting->status = 0;
         $setting->save();
 
@@ -281,7 +283,7 @@ class SiteExtensionController extends Controller {
         Toastr::success("Updated settings");
 
         return redirect("/site/extension/settings");
-    }
+    }*/
 
     /**
      * Create upcoming PDF

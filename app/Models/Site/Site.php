@@ -566,17 +566,17 @@ class Site extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
-    public function extensionReasons()
+    /*public function extensionReasons()
     {
         return $this->belongsToMany('App\Models\Site\SiteExtensionCategory', 'site_extensions', 'site_id', 'cat_id');
-    }
+    }*/
 
     /**
      * A Site has many extension SBC
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
-    public function extensionReasonsSBC()
+    /*public function extensionReasonsSBC()
     {
         $string = '';
         foreach ($this->extensionReasons as $reason) {
@@ -584,7 +584,7 @@ class Site extends Model {
         }
 
         return rtrim($string, ', ');
-    }
+    }*/
 
     /**
      * A Site has many SiteInspectionPlumbing

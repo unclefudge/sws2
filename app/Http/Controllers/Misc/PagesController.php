@@ -204,6 +204,7 @@ class PagesController extends Controller {
                 foreach ($reasons as $val)
                     $new_reasons[] = ($val == $cat->id) ? $new->id : $val;
                 $ext->reasons = implode(',', $new_reasons);
+                $ext->timestamps = false;
                 $ext->save();
             }
         }

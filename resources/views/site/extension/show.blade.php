@@ -141,6 +141,8 @@
                 <div class="modal-body">
                     {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                     <input type="hidden" name="site_id" id="site_id" value="">
+                    <input type="hidden" name="reason_na" id="reason_na" value="{{ $reason_na }}">
+                    <input type="hidden" name="reason_publichol" id="reason_publichol" value="{{ $reason_publichol }}">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -216,7 +218,6 @@
 
                 $("#reasons").val(reason_array);
                 $("#reasons").trigger('change');
-
                 $("#modal_edit").modal('show');
             });
 
@@ -250,8 +251,8 @@
                 $("#days_label").text('Days');
                 $("#extension_notes_label").text('Extend notes');
 
-                var reason_na = '20';
-                var reason_public_hol = '22';
+                var reason_na = $("#reason_na").val();
+                var reason_public_hol = $("#reason_publichol").val();
 
                 if ($("#reasons option:selected").length) {
                     if ($("#reasons").val().includes(reason_na)) {
