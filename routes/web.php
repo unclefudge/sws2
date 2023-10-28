@@ -154,6 +154,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/maintenance_appointment', '\App\Http\Controllers\Misc\ReportController@maintenanceAppointment');
     Route::get('/manage/report/maintenance_supervisor_no_action', '\App\Http\Controllers\Misc\ReportController@maintenanceSupervisorNoAction');
     Route::get('/manage/report/maintenance_assigned_company', '\App\Http\Controllers\Misc\ReportController@maintenanceAssignedCompany');
+    Route::post('/manage/report/maintenance_assigned_company/pdf', '\App\Http\Controllers\Misc\ReportController@maintenanceAssignedCompanyPDF');
+    Route::get('/manage/report/maintenance_assigned_company/dt/list', '\App\Http\Controllers\Misc\ReportController@getMaintenanceAssignedCompany');
     Route::get('/manage/report/maintenance_aftercare', '\App\Http\Controllers\Misc\ReportController@maintenanceAftercare');
     Route::get('/manage/report/site_inspections', '\App\Http\Controllers\Misc\ReportController@siteInspections');
     Route::get('/manage/report/site_inspections/dt/list', '\App\Http\Controllers\Misc\ReportController@getSiteInspections');
@@ -307,8 +309,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/note/dt/list', '\App\Http\Controllers\Site\SiteNoteController@getNotes');
     Route::get('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@settings');
     Route::post('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@updateSettings');
-    Route::get('site/note/settings/del/{id}', '\App\Http\Controllers\Site\SiteNoteController@deleteSetting');
-    Route::get('site/note/settings/{direction}/{id}', '\App\Http\Controllers\Site\SiteNoteController@categoryOrder');
     //Route::get('site/note/{id}/signoff', '\App\Http\Controllers\Site\SiteNoteController@signoff');
     //Route::get('site/note/{id}/pdf', '\App\Http\Controllers\Site\SiteNoteController@createPDF');
     Route::resource('site/note', '\App\Http\Controllers\Site\SiteNoteController');
@@ -449,6 +449,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('action/{table}/{table_id}', '\App\Http\Controllers\Misc\ActionController@index');
     Route::resource('action', '\App\Http\Controllers\Misc\ActionController');
+
+    // Categories
+    Route::get('category/del/{id}', '\App\Http\Controllers\Misc\CategoryController@deleteCat');
+    Route::get('category/order/{direction}/{id}', '\App\Http\Controllers\Misc\CategoryController@updateOrder');
+    Route::resource('category', '\App\Http\Controllers\Misc\CategoryController');
 
     // Site Supervisors
     Route::get('site/supervisor/data/supers', '\App\Http\Controllers\Company\CompanySupervisorController@getSupers');

@@ -199,7 +199,7 @@
                 var event_id = e.target.id.split('-');
                 var site_id = event_id[1];
 
-                $("#extrainfo-"+site_id).toggle();
+                $("#extrainfo-" + site_id).toggle();
             });
 
             $(".editField").click(function (e) {
@@ -250,10 +250,13 @@
                 $("#days_label").text('Days');
                 $("#extension_notes_label").text('Extend notes');
 
+                var reason_na = '20';
+                var reason_public_hol = '22';
+
                 if ($("#reasons option:selected").length) {
-                    if ($("#reasons").val().includes('1')) {
+                    if ($("#reasons").val().includes(reason_na)) {
                         // NA selected so clear all other options and leave NA only
-                        $("#reasons").val(['1']).trigger('change.select2'); // update select2 val without triggering change
+                        $("#reasons").val([reason_na]).trigger('change.select2'); // update select2 val without triggering change
                         $("#days").val('');
                         $("#extension_notes").val('');
                         $("#days").hide();
@@ -267,12 +270,13 @@
                         $("#extension_notes_label").show();
                         // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
-                        let arr = ['2', '4', '5', '6', '7', '8', '9', '10'];  // all except Public Holidays
                         let required = false;
-                        if (containsAny($("#reasons").val(), arr)) {
-                            $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
-                            required = true;
-                        }
+                        $("#reasons").val().forEach(function (item, index) {
+                            if (item != reason_public_hol) { // Anything except Public holiday
+                                $("#extension_notes_label").html("Extent notes <span class='font-red'>(required)</span>");
+                                required = true;
+                            }
+                        });
                         if (!$("#days").val() || (required && !$("#extension_notes").val()))
                             $("#savenote").hide();
                     }
@@ -285,12 +289,13 @@
 
         });
 
+        /*
         function containsAny(source, target) {
             var result = source.filter(function (item) {
                 return target.indexOf(item) > -1
             });
             return (result.length > 0);
-        }
+        }*/
 
         function isNumber(evt) {
             evt = (evt) ? evt : window.event;

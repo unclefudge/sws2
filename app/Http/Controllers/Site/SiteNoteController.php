@@ -12,10 +12,12 @@ use Input;
 use Session;
 use App\User;
 use App\Models\Comms\Todo;
+use App\Models\Misc\Category;
 use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
 use App\Models\Company\Company;
+use App\Http\Controllers\Misc\CategoryController;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +44,7 @@ class SiteNoteController extends Controller {
             return view('errors/404');
 
         $site_id = 'all';
-        $categories = SiteNoteCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
 
         return view('site/note/list', compact('site_id', 'site_list', 'categories'));
@@ -60,7 +62,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->hasPermission2('view.site.note'))
             return view('errors/404');
 
-        $categories = SiteNoteCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
 
         return view('site/note/list', compact('site_id', 'site_list', 'categories'));
@@ -77,7 +79,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->hasPermission2('add.site.note'))
             return view('errors/404');
 
-        $categories = SiteNoteCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
 
         return view('site/note/create', compact('site_id', 'site_list', 'categories'));
@@ -123,7 +125,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->allowed2('edit.site.note', $note))
             return view('errors/404');
 
-        $categories = SiteNoteCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
 
         if ($note->status == 1)
@@ -196,9 +198,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
 
-        $cats = SiteNoteCategory::where('status', 1)->orderBy('order')->get();
-
-        //dd($email_list);
+        $cats = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->get();
 
         return view('site/note/settings', compact('cats'));
     }
@@ -209,112 +209,20 @@ class SiteNoteController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function updateSettings()
+    public function updateSettings(Request $request)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
 
-        if (request('add_field')) {
-            $rules = ['add_field_name' => 'required'];
-            $mesg = ['add_field_name.required' => 'The name field is required.'];
-            request()->validate($rules, $mesg); // Validate
-        }
+        CategoryController::updateCategories('site_note', $request);
 
-        //dd(request()->all());
-        $cats = SiteNoteCategory::where('status', 1)->get();
-        // Get field values from request
-        foreach ($cats as $cat) {
-            if (request()->has("cat-$cat->id")) {
-                if (request("cat-$cat->id")) {
-                    $cat->name = request("cat-$cat->id");
-                    $cat->save();
-                } else
-                    return back()->withErrors(["cat-$cat->id" => "The name field is required."]);
-            }
+        Toastr::success("Updated categories");
 
-        }
-
-        // Add Extra Field
-        if (request('add_field')) {
-            $add_order = count($cats) + 1;
-            SiteNoteCategory::create(['name' => request('add_field_name'), 'order' => $add_order, 'status' => 1]);
-        }
-
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/note/settings");
+        return redirect(url()->previous());
     }
 
-    /**
-     *  Category Oder
-     */
-    public function categoryOrder($direction, $id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-            return view('errors/404');
 
-        //dd(request()->all());
-        $cat = SiteNoteCategory::findOrFail($id);
-
-        if ($direction == 'up' && $cat->order != 1) {
-            $newPos = $cat->order - 1;
-            $cat2 = SiteNoteCategory::where('status', 1)->where('order', $newPos)->first();
-            if ($cat2) {
-                $cat2->order = $cat->order;
-                $cat2->save();
-                $cat->order = $newPos;
-                $cat->save();
-            }
-        }
-
-        $last = SiteNoteCategory::where('status', 1)->orderByDesc('order')->first();
-        if ($last && $direction == 'down' && $cat->order != $last->order) {
-            $newPos = $cat->order + 1;
-            $cat2 = SiteNoteCategory::where('status', 1)->where('order', $newPos)->first();
-            if ($cat2) {
-                $cat2->order = $cat->order;
-                $cat2->save();
-                $cat->order = $newPos;
-                $cat->save();
-            }
-        }
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/note/settings");
-    }
-
-    /**
-     *  Delete Setting
-     */
-    public function deleteSetting($id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-            return view('errors/404');
-
-        //dd(request()->all());
-
-        // Delete setting
-        $setting = SiteNoteCategory::findOrFail($id);
-        $setting->status = 0;
-        $setting->save();
-
-        // Re-order settings
-        $settings = SiteNoteCategory::where('status', 1)->orderBy('order')->get();
-        $order = 1;
-        foreach ($settings as $setting) {
-            $setting->order = $order ++;
-            $setting->save();
-        }
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/note/settings");
-    }
 
     /**
      * Get Site Notes + Process datatables ajax request.

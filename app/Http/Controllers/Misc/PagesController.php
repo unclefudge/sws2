@@ -34,6 +34,7 @@ use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
+use App\Models\Site\SiteExtensionCategory;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\SafetyDoc;
@@ -47,6 +48,7 @@ use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\Category;
 use App\Models\Ccc\Youth;
 use App\Models\Ccc\Program;
 
@@ -190,19 +192,21 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        /*echo "Update Status CompanyDoc<br>";
-        $toolboxes = CompanyDoc::all();
-        foreach ($toolboxes as $rec) {
-            if ($rec->status == 2) {  // Pending
-                $rec->status = 3;
-                $rec->timestamps = false;
-                $rec->save();
-            } elseif ($rec->status == '3') { // Rejected
-                $rec->status = 2;
-                $rec->timestamps = false;
-                $rec->save();
+        echo "Migrate Site Ext Categpry<br>";
+        $cats = SiteExtensionCategory::all();
+        foreach ($cats as $cat) {
+            $new = Category::create(['type' => 'site_extension', 'name' => $cat->name, 'order' => $cat->order, 'company_id' => Auth::user()->company->reportsTo()->id, 'status' => $cat->status]);
+
+            $extensions = SiteExtensionSite::all();
+            foreach ($extensions as $ext) {
+                $reasons = explode(',', $ext->reasons);
+                $new_reasons = [];
+                foreach ($reasons as $val)
+                    $new_reasons[] = ($val == $cat->id) ? $new->id : $val;
+                $ext->reasons = implode(',', $new_reasons);
+                $ext->save();
             }
-        }*/
+        }
 
         /*
         echo "<b>Updating Hazard Files</b></br>";

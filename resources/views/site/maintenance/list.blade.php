@@ -134,7 +134,7 @@
 <script type="text/javascript">
     var status1 = $('#status1').val();
     var table1 = $('#table1').DataTable({
-        pageLength: 20,
+        pageLength: 25,
         processing: true,
         serverSide: true,
         ajax: {

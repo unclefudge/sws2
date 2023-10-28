@@ -17,10 +17,12 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteExtensionCategory;
+use App\Models\Misc\Category;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Company\Company;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CategoryController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Yajra\Datatables\Datatables;
@@ -54,10 +56,6 @@ class SiteExtensionController extends Controller {
             return redirect("/site/extension/$extension->id/$super_id");
 
         return view('errors/404');
-        //$data = $this->getData($extension);
-        //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
-        //dd($data);
-        //return view('site/extension/list', compact('extension', 'data', 'extend_reasons'));
     }
 
 
@@ -76,7 +74,8 @@ class SiteExtensionController extends Controller {
 
 
         $data = $this->getData($extension);
-        $extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $extend_reasons = Category::where('type', 'site_extension')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
 
         //dd($data);
 
@@ -111,7 +110,8 @@ class SiteExtensionController extends Controller {
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
-        $cats = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
+        //$cats = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
+        $cats = Category::where('type', 'site_extension')->where('status', 1)->orderBy('order')->get();
 
         //dd($email_list);
 
@@ -207,12 +207,19 @@ class SiteExtensionController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function updateSettings()
+    public function updateSettings(Request $request)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
+        CategoryController::updateCategories('site_extension', $request);
+
+        Toastr::success("Updated categories");
+
+        return redirect(url()->previous());
+
+        /*
         if (request('add_field')) {
             $rules = ['add_field_name' => 'required'];
             $mesg = ['add_field_name.required' => 'The name field is required.'];
@@ -242,7 +249,7 @@ class SiteExtensionController extends Controller {
 
         Toastr::success("Updated settings");
 
-        return redirect("/site/extension/settings");
+        return redirect("/site/extension/settings");*/
     }
 
     /**

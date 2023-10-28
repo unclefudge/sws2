@@ -35,7 +35,7 @@ class SiteNote extends Model {
      */
     public function category()
     {
-        return $this->belongsTo('App\Models\Site\SiteNoteCategory');
+        return $this->belongsTo('App\Models\Misc\Category');
     }
 
     /**

@@ -1,0 +1,272 @@
+<?php
+
+namespace App\Http\Controllers\Misc;
+
+use Illuminate\Http\Request;
+use Validator;
+
+use DB;
+use PDF;
+use Mail;
+use Session;
+use App\Models\Misc\Category;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
+use Yajra\Datatables\Datatables;
+use nilsenj\Toastr\Facades\Toastr;
+use Carbon\Carbon;
+
+/**
+ * Class SiteMaintenanceCategoryController
+ * @package App\Http\Controllers\Site
+ */
+class CategoryController extends Controller {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //    return view('errors/404');
+
+        return view('category/list');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        /// Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //   return view('errors/404');
+
+        return view('category/create');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $cat = Category::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('view.site.maintenance', $main))
+        //    return view('errors/404');
+
+        return view('category/show', compact('cat'));
+    }
+
+    /**
+     * Edit the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $cat = Category::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //    return view('errors/404');
+
+        return view('category/edit', compact('cat'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store()
+    {
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //   return view('errors/404');
+
+        request()->validate(['name' => 'required']); // Validate
+
+        // Create Category
+        Category::create(request()->all());
+
+        Toastr::success("Created new category");
+
+        return redirect('/category');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update($id)
+    {
+        $cat = Category::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //    return view('errors/404');
+
+        request()->validate(['name' => 'required']); // Validate
+
+        $cat->update(request()->all());
+
+        Toastr::success("Updated Categoy");
+
+        return redirect('category');
+    }
+
+    /**
+     * Delete the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $cat = Category::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        //if (!Auth::user()->allowed2('add.site.maintenance'))
+        //    return view('errors/404');
+
+        $cat->delete();
+
+        return json_encode('success');
+    }
+
+    /**
+     *  Delete Setting
+     */
+    public function deleteCat($id)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        //dd(request()->all());
+
+        // Delete setting
+        $cat = Category::findOrFail($id);
+        $cat->status = 0;
+        $cat->save();
+
+        // Re-order settings
+        $cats = Category::where('type', $cat->type)->where('status', 1)->orderBy('order')->get();
+        $order = 1;
+        foreach ($cats as $cat) {
+            $cat->order = $order ++;
+            $cat->save();
+        }
+
+        Toastr::success("Updated categories");
+
+        return redirect(url()->previous());
+    }
+
+    /**
+     *  Category Update
+     */
+    static public function updateCategories($type, Request $request)
+    {
+        if (request('add_cat')) {
+            $rules = ['add_cat_name' => 'required'];
+            $mesg = ['add_cat_name.required' => 'The name field is required.'];
+            request()->validate($rules, $mesg); // Validate
+        }
+
+        //dd(request()->all());
+        $cats = Category::where('type', $type)->where('status', 1)->orderBy('order')->get();
+        foreach ($cats as $cat) {
+            if (request()->has("cat-$cat->id")) {
+                if (request("cat-$cat->id")) {
+                    $cat->name = request("cat-$cat->id");
+                    $cat->save();
+                } else
+                    return back()->withErrors(["cat-$cat->id" => "The name field is required."]);
+            }
+        }
+
+        // Add Extra Field
+        if (request('add_cat')) {
+            $add_order = count($cats) + 1;
+            Category::create(['type' => $type, 'name' => request('add_cat_name'), 'order' => $add_order, 'company_id' => Auth::user()->company->reportsTo()->id, 'status' => 1]);
+        }
+    }
+
+    /**
+     *  Category Order
+     */
+    public function updateOrder($direction, $id)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        //dd(request()->all());
+        $cat = Category::findOrFail($id);
+
+        if ($direction == 'up' && $cat->order != 1) {
+            $newPos = $cat->order - 1;
+            $cat2 = Category::where('type', $cat->type)->where('status', 1)->where('order', $newPos)->first();
+            if ($cat2) {
+                $cat2->order = $cat->order;
+                $cat2->save();
+                $cat->order = $newPos;
+                $cat->save();
+            }
+        }
+
+        $last = Category::where('type', $cat->type)->where('status', 1)->orderByDesc('order')->first();
+        if ($last && $direction == 'down' && $cat->order != $last->order) {
+            $newPos = $cat->order + 1;
+            $cat2 = Category::where('type', $cat->type)->where('status', 1)->where('order', $newPos)->first();
+            if ($cat2) {
+                $cat2->order = $cat->order;
+                $cat2->save();
+                $cat->order = $newPos;
+                $cat->save();
+            }
+        }
+
+        Toastr::success("Updated categories");
+
+        return redirect(url()->previous());
+    }
+
+
+    /**
+     * Get QA templates current user is authorised to manage + Process datatables ajax request.
+     */
+    public function getMainCategories()
+    {
+        $records = Category::where('status', 1)->orderBy('name');
+
+        $dt = Datatables::of($records)
+            ->addColumn('reports', function ($cat) {
+                $reports = implode(', ', $cat->reports->where('master', 1)->where('status', 1)->pluck('name')->toArray());
+
+                return $reports;
+            })
+            ->addColumn('action', function ($cat) {
+                $actions = '<a href="/category/' . $cat->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/category/' . $cat->id . '" data-name="' . $cat->name . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
+            })
+            ->rawColumns(['id', 'name', 'reports', 'updated_at', 'action'])
+            ->make(true);
+
+        return $dt;
+    }
+
+
+}

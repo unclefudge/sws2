@@ -384,7 +384,101 @@ class ReportController extends Controller {
     {
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
 
-        return view('manage/report/site/maintenance_assigned_company', compact('mains'));
+        $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
+        foreach ($mains as $main) {
+            if (!isset($assignedList[$main->assigned_to]))
+                $assignedList[$main->assigned_to] = $main->assignedTo->name;
+        }
+
+        return view('manage/report/site/maintenance_assigned_company', compact('mains', 'assignedList'));
+    }
+
+    public function maintenanceAssignedCompanyPDF()
+    {
+        //dd(request()->all());
+        $request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
+        $assigned_to = (request('assigned_to')) ? request('assigned_to') : null;
+        if ($assigned_to == 'all')
+            $mains = SiteMaintenance::where('status', 1)->whereIn('id', $request_ids)->orderBy('reported')->get();
+        else
+            $mains = SiteMaintenance::where('status', 1)->whereIn('id', $request_ids)->where('assigned_to', $assigned_to)->orderBy('reported')->get();
+
+        //dd($mains);
+        foreach ($mains as $main) {
+
+        }
+
+        $today = Carbon::now();
+
+        return PDF::loadView('pdf/site/maintenance-assigned-company', compact('mains', 'today'))->setPaper('a4', 'landscape')->stream();
+    }
+
+    public function getMaintenanceAssignedCompany()
+    {
+        $request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
+        $assigned_to = (request('assigned_to')) ? request('assigned_to') : null;
+
+        if ($assigned_to == 'all') {
+            $records = DB::table('site_maintenance AS m')
+                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
+                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
+                ->join('sites AS s', 'm.site_id', '=', 's.id')
+                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
+                ->whereIn('m.id', $request_ids)
+                ->where('m.status', 1);
+        } else {
+            $records = DB::table('site_maintenance AS m')
+                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
+                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
+                ->join('sites AS s', 'm.site_id', '=', 's.id')
+                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
+                ->whereIn('m.id', $request_ids)
+                ->where('m.assigned_to', $assigned_to)
+                ->where('m.status', 1);
+        }
+
+        //dd($records);
+        $dt = Datatables::of($records)
+            ->editColumn('id', function ($doc) {
+                return "<div class='text-center'><a href='/site/maintenance/$doc->id'>M$doc->code</a></div>";
+            })
+            ->editColumn('site_id', function ($doc) {
+                return $doc->sitecode;
+            })
+            ->editColumn('super_id', function ($doc) {
+                $d = SiteMaintenance::find($doc->id);
+
+                return ($d->super_id) ? $d->taskOwner->name : '-';
+            })
+            ->editColumn('assigned_to', function ($doc) {
+                $d = SiteMaintenance::find($doc->id);
+
+                return ($d->assigned_to) ? $d->assignedTo->name : '-';
+            })
+            ->addColumn('last_updated', function ($doc) {
+                $main = SiteMaintenance::find($doc->id);
+                $total = $main->items()->count();
+                $completed = $main->itemsCompleted()->count();
+                $pending = '';
+                if ($total == $completed && $total != 0) {
+                    if (!$main->supervisor_sign_by)
+                        $pending = '<br><span class="badge badge-info badge-roundless pull-right">Pending Supervisor</span>';
+                    elseif (!$main->manager_sign_by)
+                        $pending = '<br><span class="badge badge-primary badge-roundless pull-right">Pending Manager</span>';
+                }
+
+                return ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') . $pending : $main->created_at->format('d/m/Y') . $pending;
+            })
+            ->rawColumns(['id', 'name', 'updated_at', 'last_updated'])
+            ->make(true);
+
+        return $dt;
     }
 
     public function maintenanceSupervisorNoAction()
@@ -715,6 +809,7 @@ class ReportController extends Controller {
             }
         }
         fclose($handle);
+
         //dd($reportjobs);
 
         return view('manage/report/cronjobs', compact('cronjobs', 'reportjobs'));
@@ -724,11 +819,11 @@ class ReportController extends Controller {
     {
         list($controller, $rest) = explode('::', $action);
         $method = substr($rest, 0, '-2');
-        $string = '\App\Http\Controllers\Misc\\'.$controller; //."@$method";
+        $string = '\App\Http\Controllers\Misc\\' . $controller; //."@$method";
         //dd($string);
         //echo "[$string]<br>";
         //\App::call($string, $method, ['index']);
-        app()->call($string."@$method", [$method]);
+        app()->call($string . "@$method", [$method]);
         //dd(request()->all());
     }
 }

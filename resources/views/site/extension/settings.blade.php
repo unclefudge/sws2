@@ -30,20 +30,25 @@
                         @include('form-error')
 
                         <div class="form-body">
-
                             <h3>Extend Reasons</h3>
                             <hr class="field-hr">
                             @foreach ($cats as $cat)
                                 <div class="row">
-                                    <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span></div>
-                                    <div class="col-md-4">
+                                    <div class="col-xs-1">
+                                        <a href="/category/order/up/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
+                                        <a href="/category/order/down/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
+                                    </div>
+                                    <div class="col-xs-4">
                                         <div class="form-group {!! fieldHasError("cat-$cat->id", $errors) !!}">
                                             {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
                                             {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
-                                        <a href="/site/extension/settings/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i> </a>
+                                    <div class="col-xs-2">
+                                        <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
                                     </div>
                                 </div>
                                 @if (!$loop->last)
@@ -51,22 +56,24 @@
                                 @endif
                             @endforeach
 
+                            <br>
                             <div class="row" style="{{ ($errors->has('add_field_name')) ? 'display: none' : '' }}">
                                 <div class="col-md-12">
                                     <button class="btn blue" id="btn-add-item">Add another option</button>
                                 </div>
                             </div>
 
-                            {{-- Additiona field --}}
-                            <div style="{{ ($errors->has('add_field_name')) ? '' : 'display: none' }}" id="add-items">
-                                <input type="hidden" name="add_field" id="add_field" value="{{ ($errors->has('add_field_name')) ? 1 : 0 }}">
+                            {{-- Additional category --}}
+                            <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
+                                <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
                                 <div class="row">
-                                    <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
-                                    <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('add_field_name', $errors) !!}">
-                                            {!! Form::text('add_field_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('add_field_name', $errors) !!}
+                                    <div class="col-xs-1">&nbsp;</div>
+                                    <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
+                                    <div class="col-xs-4">
+                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
+                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
@@ -105,13 +112,13 @@
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function () {
-        // Add extra items
+        // Add extra categories
         $("#btn-add-item").click(function (e) {
             e.preventDefault();
             $("#add-items").show();
             //$(".add-item").show();
             $("#btn-add-item").hide();
-            $("#add_field").val(1);
+            $("#add_cat").val(1);
         });
     });
 </script>
