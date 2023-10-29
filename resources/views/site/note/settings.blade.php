@@ -29,7 +29,8 @@
                         @include('form-error')
 
                         <div class="form-body">
-                            <h3>Categories</h3>
+                            <h3>Categories <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="btn-add-item">Add option</button></small></span></h3>
+
                             <hr class="field-hr">
                             @foreach ($cats as $cat)
                                 <div class="row">
@@ -55,17 +56,9 @@
                                 @endif
                             @endforeach
 
-                            <br>
-                            <div class="row" style="{{ ($errors->has('add_field_name')) ? 'display: none' : '' }}">
-                                <div class="col-md-12">
-                                    <button class="btn blue" id="btn-add-item">Add another option</button>
-                                </div>
-                            </div>
-
                             {{-- Additional category --}}
                             <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
                                 <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
                                 <div class="row">
                                     <div class="col-xs-1">&nbsp;</div>
                                     <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>

@@ -18,9 +18,13 @@ return new class extends Migration
             $table->string('type', 255)->nullable();
             $table->string('sub_type', 255)->nullable();
             $table->string('name', 255)->nullable();
+            $table->string('value', 255)->nullable();
             $table->string('brief', 255)->nullable();
-            $table->integer('parent')->unsigned()->nullable();
+            $table->string('colour', 255)->nullable();
             $table->integer('order')->unsigned()->nullable();
+            $table->integer('parent')->unsigned()->nullable();
+            $table->tinyInteger('multiple')->nullable();
+            $table->tinyInteger('notify')->nullable();
             $table->text('notes')->nullable();
             $table->integer('company_id')->unsigned()->nullable();
             $table->tinyInteger('status')->default(1);
