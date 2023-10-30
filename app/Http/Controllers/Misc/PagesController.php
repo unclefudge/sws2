@@ -194,13 +194,13 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Migrate Maintenance Doc<br>";
+        /*echo "Migrate Maintenance Doc<br>";
         $docs = SiteMaintenanceDoc::all();
         foreach ($docs as $doc) {
             $doc->type = ($doc->type == 'photo') ? 'image' : 'file';
             $doc->timestamps = false;
             $doc->save();
-        }
+        }*/
 
         /*echo "Migrate Site Ext Category<br>";
         $cats = SiteExtensionCategory::all();
