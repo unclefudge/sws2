@@ -92,8 +92,8 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         if ($main->step == 2)
-            return view('site/maintenance/photos', compact('main'));
-        elseif ($main->step == 3)
+            //return view('site/maintenance/photos', compact('main'));
+        //elseif ($main->step == 3)
             return view('site/maintenance/review', compact('main'));
         else
             return view('site/maintenance/show', compact('main'));
@@ -113,8 +113,8 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         if ($main->step == 2)
-            return view('site/maintenance/photos', compact('main'));
-        elseif ($main->step == 3)
+            //return view('site/maintenance/photos', compact('main'));
+        //elseif ($main->step == 3)
             return view('site/maintenance/review', compact('main'));
         else
             return view('site/maintenance/show', compact('main'));
@@ -181,40 +181,43 @@ class SiteMaintenanceController extends Controller {
         $main_request['completed'] = (request('completed')) ? Carbon::createFromFormat('d/m/Y H:i', request('completed') . '00:00')->toDateTimeString() : null;
         $main_request['reported'] = (request('reported')) ? Carbon::createFromFormat('d/m/Y H:i', request('reported') . '00:00')->toDateTimeString() : null;
         $main_request['ac_form_sent'] = (request('ac_form_sent')) ? Carbon::createFromFormat('d/m/Y H:i', request('ac_form_sent') . '00:00')->toDateTimeString() : null;
-        $main_request['status'] = 2; // set new request to 'Under Review'
-        $main_request['step'] = 2; // set new request to step 2 'Add Photos'
+        $main_request['status'] = 2; // set new request to 'In Progress'
+        $main_request['step'] = 2; // set new request to step 3 'Assign Supervisor'
 
         //dd($main_request);
         // Create Maintenance Request
-        $newMain = SiteMaintenance::create($main_request);
-        $newMain->code = $newMain->id + 1352; // Generate new incremental code with 1352 off set to maintain sequence
-        $newMain->save();
-        $action = Action::create(['action' => "Maintenance Request created", 'table' => 'site_maintenance', 'table_id' => $newMain->id]);
+        $main = SiteMaintenance::create($main_request);
+        $main->code = $main->id + 1352; // Generate new incremental code with 1352 off set to maintain sequence
+        $main->save();
+        $action = Action::create(['action' => "Maintenance Request created", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
         // Add Request Items
-        SiteMaintenanceItem::create(['main_id' => $newMain->id, 'name' => request("item1"), 'order' => 1, 'status' => 0]);
-        /*$order = 1;
-        for ($i = 1; $i <= 25; $i ++) {
-            if (request("item$i")) {
-                SiteMaintenanceItem::create(['main_id' => $newMain->id, 'name' => request("item$i"), 'order' => $order, 'status' => 0]);
-                $order ++;
-            }
-        }*/
-        //dd($main_request);
+        SiteMaintenanceItem::create(['main_id' => $main->id, 'name' => request("item1"), 'order' => 1, 'status' => 0]);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $main->saveAttachment($tmp_filename);
+        }
+
+        // Create ToDoo to assign Supervisor
+        $main->createAssignSupervisorToDo(array_merge(getUserIdsWithRoles('con-construction-manager'), [108]));
 
         // Update Site Status
         $site = Site::find($site_id);
-        $site->status = 2;
+        $site->status = 2; // Maintenance
         $site->save();
 
         Toastr::success("Created Maintenance Request");
 
-        return redirect('/site/maintenance/' . $newMain->id . '/edit');
+        return redirect("/site/maintenance/$main->id/edit");
     }
 
     /**
      * Update the specified resource in storage.
      */
+    /*
     public function photos($id)
     {
         $main = SiteMaintenance::findOrFail($id);
@@ -243,7 +246,7 @@ class SiteMaintenanceController extends Controller {
         Toastr::success("Updated Request");
 
         return redirect('site/maintenance/' . $main->id . '/edit');
-    }
+    }*/
 
 
     /**
@@ -303,7 +306,7 @@ class SiteMaintenanceController extends Controller {
         // Supervisor Assigned
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
             $super = User::find(request('super_id'));
-            $main_request['step'] = 4;
+            $main_request['step'] = 0;
             $main_request['status'] = 1; // Set status to active
             $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
             $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
@@ -337,31 +340,18 @@ class SiteMaintenanceController extends Controller {
             $item1->name = request("item1");
             $item1->save();
         }
-        /*
-        $order = 1;
-        $current_items = $main->items->count();
-        for ($i = 1; $i <= 25; $i ++) {
-            $item = $main->item($i);
-            if (request("item$i")) {
-                if ($item) {
-                    $item->name = request("item$i");
-                    $item->order = $order;
-                    $item->save();
-                } else
-                    SiteMaintenanceItem::create(['main_id' => $main->id, 'name' => request("item$i"), 'order' => $order, 'status' => 0]);
-                $order ++;
-            } elseif ($item)
-                $item->delete();
-        }
-
-        if ($current_items != ($order - 1)) // Items updated
-            $action = Action::create(['action' => "Items updated by " . Auth::user()->fullname, 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        */
 
 
         //dd($main_request);
-        Toastr::success("Updated Request");
         $main->update($main_request);
+        Toastr::success("Updated Request");
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $main->saveAttachment($tmp_filename);
+        }
 
         // Email Assigned Supervisor
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
@@ -416,6 +406,13 @@ class SiteMaintenanceController extends Controller {
 
         //dd($main_request);
         $main->update($main_request);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $main->saveAttachment($tmp_filename);
+        }
 
         // Update Planer Task
         $planner_id = request('planner_id');
@@ -655,8 +652,6 @@ class SiteMaintenanceController extends Controller {
         //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
         //    return json_encode("failed");
 
-        //dd('here');
-        //dd(request()->all());
         // Handle file upload
         $files = $request->file('multifile');
         foreach ($files as $file) {
@@ -743,29 +738,7 @@ class SiteMaintenanceController extends Controller {
                 }
 
                 return ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') . $pending : $main->created_at->format('d/m/Y') . $pending;
-            })/*
-            ->addColumn('completed', function ($doc) {
-                $main = SiteMaintenance::find($doc->id);
-                $total = $main->items()->count();
-                $completed = $main->itemsCompleted()->count();
-                $pending = '';
-                if ($main->status != 0) {
-                    if (Auth::user()->allowed2('edit.site.maintenance', $main)) {
-                        if ($total == $completed && $total != 0) {
-                            $label_type = ($main->supervisor_sign_by && $main->manager_sign_by) ? 'label-success' : 'label-warning';
-                            if (!$main->supervisor_sign_by)
-                                $pending = '<br><span class="badge badge-info badge-roundless pull-right">Pending Supervisor</span>';
-                            elseif (!$main->manager_sign_by)
-                                $pending = '<br><span class="badge badge-primary badge-roundless pull-right">Pending Manager</span>';
-                        } else
-                            $label_type = 'label-danger';
-
-                        return '<span class="label pull-right ' . $label_type . '">' . $completed . ' / ' . $total . '</span>' . $pending;
-                    }
-                }
-
-                return '<span class="label pull-right label-success">' . $completed . ' / ' . $total . '</span>';
-            })*/
+            })
             ->addColumn('action', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
                 if (($doc->status && Auth::user()->allowed2('edit.site.maintenance', $main)) || (!$doc->status && Auth::user()->allowed2('sig.site.maintenance', $main)))

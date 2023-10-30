@@ -35,6 +35,8 @@ use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteExtensionCategory;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\SafetyDoc;
@@ -192,7 +194,15 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Migrate Site Ext Categpry<br>";
+        echo "Migrate Maintenance Doc<br>";
+        $docs = SiteMaintenanceDoc::all();
+        foreach ($docs as $doc) {
+            $doc->type = ($doc->type == 'photo') ? 'image' : 'file';
+            $doc->timestamps = false;
+            $doc->save();
+        }
+
+        /*echo "Migrate Site Ext Category<br>";
         $cats = SiteExtensionCategory::all();
         foreach ($cats as $cat) {
             $new = Category::create(['type' => 'site_extension', 'name' => $cat->name, 'order' => $cat->order, 'company_id' => Auth::user()->company->reportsTo()->id, 'status' => $cat->status]);
@@ -207,7 +217,7 @@ class PagesController extends Controller {
                 $ext->timestamps = false;
                 $ext->save();
             }
-        }
+        }*/
 
         /*
         echo "<b>Updating Hazard Files</b></br>";

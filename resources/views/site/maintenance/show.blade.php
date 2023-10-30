@@ -236,22 +236,12 @@
                                         <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
                                     @endif</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="note note-warning">
-                                    Multiple photos/images can be uploaded with this maintenance request.
-                                    <ul>
-                                        <li>Once you have selected your files upload them by clicking
-                                            <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
-                                        </li>
-                                    </ul>
-                                </div>
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="control-label">Select Files</label>
-                                            <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
-                                        </div>
+                                    <div class="col-md-6" style="background: #f1f0ef">
+                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                     </div>
                                 </div>
+                                <br>
                             </div>
 
                             {{-- Under Review - asign to super --}}
@@ -400,12 +390,6 @@
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}" style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {{--}}<select id="assigned_to" name="assigned_to" class="form-control select2" style="width:100%">
-                                                <option value="">Select company</option>
-                                                @foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company)
-                                                    <option value="{{ $company->id }}" {!! ($company->id == $main->assigned_to) ? 'selected' : ''  !!}>{{ $company->name }}</option>
-                                                @endforeach
-                                            </select>--}}
                                             <select-picker :name.sync="xx.main.assigned_to" :options.sync="xx.sel_company" :function="updateTaskOptions"></select-picker>
                                         @else
                                             {!! Form::text('assigned_text', ($main->assignedTo) ? $main->assignedTo->name : 'Unassigned', ['class' => 'form-control', 'readonly']) !!}
@@ -726,17 +710,17 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
     <script src="/js/moment.min.js" type="text/javascript"></script>
-    <!--<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>-->
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
@@ -748,8 +732,21 @@
     <script src="/js/vue-app-basic-functions.js"></script>
 
     <script>
-        $.ajaxSetup({
-            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
+        // Get a reference to the file input element
+        const inputElement = document.querySelector('input[type="file"]');
+
+        // Create a FilePond instance
+        const pond = FilePond.create(inputElement);
+        FilePond.setOptions({
+            server: {
+                url: '/file/upload',
+                fetch: null,
+                revert: null,
+                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+            },
+            allowMultiple: true,
         });
 
         $(document).ready(function () {

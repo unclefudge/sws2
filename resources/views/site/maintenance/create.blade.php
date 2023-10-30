@@ -32,18 +32,13 @@
                         {{-- Progress Steps --}}
                         <div class="mt-element-step hidden-sm hidden-xs">
                             <div class="row step-thin" id="steps">
-                                <div class="col-md-4 mt-step-col first active">
+                                <div class="col-md-6 mt-step-col first active">
                                     <div class="mt-step-number bg-white font-grey">1</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Create</div>
                                     <div class="mt-step-content font-grey-cascade">Create request</div>
                                 </div>
-                                <div class="col-md-4 mt-step-col">
+                                <div class="col-md-6 mt-step-col last">
                                     <div class="mt-step-number bg-white font-grey">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Documents</div>
-                                    <div class="mt-step-content font-grey-cascade">Add Photos/Documents</div>
-                                </div>
-                                <div class="col-md-4 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">3</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
                                     <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
                                 </div>
@@ -51,7 +46,6 @@
                         </div>
 
                         <div class="form-body">
-
                             <h4>Site Details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
@@ -157,32 +151,16 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Multi File upload -->
-                            {{--}}
-                            <div id="multifile-div">
-                                <div class="note note-warning">
-                                    Multiple photos/images can be uploaded with this maintenance request.
-                                    <ul>
-                                        <li>Once you have selected your files upload them by clicking
-                                            <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
-                                        </li>
-                                    </ul>
+                            {{-- Photo/Docs --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Upload Photos/Documents</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="control-label">Select Files</label>
-                                            <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>--}}
+                            </div>
 
-
-                                    <!-- Items -->
+                            {{-- Items --}}
                             <div id="items-div">
-
                                 <h4>Maintenance Item</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
@@ -195,44 +173,9 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                {{--
-                                <br>
-                                <div class="row" style="border: 1px solid #e7ecf1; padding: 10px 0px; margin: 0px; background: #f0f6fa; font-weight: bold">
-                                    <div class="col-md-12">MAINTENANCE ITEMS</div>
-                                </div>
-                                <br>
-                                @for ($i = 1; $i <= 10; $i++)
-                                    <div class="row">
-                                        <div class="col-xs-12">
-                                            <div class="form-group">{!! Form::textarea("item$i", '', ['rows' => '2', 'class' => 'form-control', 'placeholder' => "Item $i."]) !!}</div>
-                                        </div>
-                                    </div>
-                                @endfor
-
-
-                                <button class="btn blue" id="more">More Items</button>
-                                <div class="row" id="more_items" style="display: none">
-                                    @for ($i = 10 + 1; $i <= 25; $i++)
-                                        <div class="col-md-12">
-                                            <div class="form-group">{!! Form::textarea("item$i", null, ['rows' => '2', 'class' => 'form-control', 'placeholder' => "Item $i."]) !!}</div>
-                                        </div>
-                                    @endfor
-                                </div>
-                                --}}
                             </div>
                         </div>
 
-                        {{--}}
-                        <h4>Additional Info</h4>
-                        <div class="row">
-                            <div class="col-md-12 ">
-                                <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                    {!! Form::textarea("notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                    {!! fieldErrorMessage('notes', $errors) !!}
-                                </div>
-                            </div>
-                        </div> --}}
                         <div class="form-actions right">
                             <a href="/site/maintenance" class="btn default"> Back</a>
                             <button type="submit" class="btn green"> Save</button>
@@ -247,24 +190,37 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+        },
+        allowMultiple: true,
     });
 
     $(document).ready(function () {
@@ -279,13 +235,6 @@
         $("#site_id").change(function () {
             updateFields();
         });
-
-        /*
-        $("#more").click(function (e) {
-            e.preventDefault();
-            $('#more').hide();
-            $('#more_items').show();
-        });*/
 
 
         function updateFields() {
@@ -331,7 +280,6 @@
                         //$('#supervisor').trigger('change.select2');
                     },
                 })
-                //alert('h');
             }
         }
     });

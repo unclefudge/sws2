@@ -50,18 +50,13 @@
                             {{-- Progress Steps --}}
                             <div class="mt-element-step hidden-sm hidden-xs">
                                 <div class="row step-thin" id="steps">
-                                    <div class="col-md-4 mt-step-col first done">
+                                    <div class="col-md-6 mt-step-col first done">
                                         <div class="mt-step-number bg-white font-grey">1</div>
                                         <div class="mt-step-title uppercase font-grey-cascade">Create</div>
                                         <div class="mt-step-content font-grey-cascade">Create request</div>
                                     </div>
-                                    <div class="col-md-4 mt-step-col done">
+                                    <div class="col-md-6 mt-step-col last active">
                                         <div class="mt-step-number bg-white font-grey">2</div>
-                                        <div class="mt-step-title uppercase font-grey-cascade">Documents</div>
-                                        <div class="mt-step-content font-grey-cascade">Add Photos/Documents</div>
-                                    </div>
-                                    <div class="col-md-4 mt-step-col last active">
-                                        <div class="mt-step-number bg-white font-grey">3</div>
                                         <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
                                         <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
                                     </div>
@@ -181,22 +176,12 @@
                                         <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
                                     @endif</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="note note-warning">
-                                    Multiple photos/images can be uploaded with this maintenance request.
-                                    <ul>
-                                        <li>Once you have selected your files upload them by clicking
-                                            <button class="btn dark btn-outline btn-xs" href="javascript:;"><i class="fa fa-upload"></i> Upload</button>
-                                        </li>
-                                    </ul>
-                                </div>
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label class="control-label">Select Files</label>
-                                            <input id="multifile" name="multifile[]" type="file" multiple class="file-loading">
-                                        </div>
+                                    <div class="col-md-6" style="background: #f1f0ef">
+                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                     </div>
                                 </div>
+                                <br>
                             </div>
 
                             {{-- Maintenance details --}}
@@ -401,9 +386,9 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
     <!--<link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>-->
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
@@ -411,10 +396,10 @@
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/js/moment.min.js" type="text/javascript"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
@@ -426,8 +411,21 @@
 <script src="/js/vue-modal-component.js"></script>
 <script src="/js/vue-app-basic-functions.js"></script>
 <script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+        },
+        allowMultiple: true,
     });
 
     $(document).ready(function () {
@@ -479,7 +477,7 @@
 
 
         /* Bootstrap Fileinput */
-        $("#multifile").fileinput({
+        /*$("#multifile").fileinput({
             uploadUrl: "/site/maintenance/upload/", // server upload action
             uploadAsync: true,
             //allowedFileExtensions: ["image"],
@@ -513,7 +511,7 @@
         $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
             data.form.append("site_id", $("#site_id").val());
             data.form.append("main_id", $("#main_id").val());
-        });
+        });*/
     });
 </script>
 <script>

@@ -30,7 +30,7 @@
                                     <th width="5%"> #</th>
                                     <th width="10%"> Reported</th>
                                     <th> Site</th>
-                                    <th> Supervisor</th>
+                                    <th> Site Supervisor</th>
                                     <th width="10%"> Updated</th>
                                     <th width="5%"></th>
                                 </tr>
