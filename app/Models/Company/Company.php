@@ -499,7 +499,7 @@ class Company extends Model {
     }
 
     /**
-     *  Next date company was on the planner
+     *  Next date company is on the planner
      */
     public function nextDateOnPlanner()
     {

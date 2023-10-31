@@ -196,7 +196,7 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Migrate Incident Doc<br>";
+        /*echo "Migrate Incident Doc<br>";
         $docs = SiteIncidentDoc::all();
         foreach ($docs as $doc) {
             if ($doc->type == 'photo')
@@ -205,7 +205,7 @@ class PagesController extends Controller {
                 $doc->type = 'file';
             $doc->timestamps = false;
             $doc->save();
-        }
+        }*/
 
         /*echo "Migrate Site Ext Category<br>";
         $cats = SiteExtensionCategory::all();

@@ -558,6 +558,15 @@ class ReportUserCompanyController extends Controller {
         return $dt;
     }
 
+    /*
+     * Company Planner Report
+     */
+    public function companyPlannedTasks()
+    {
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+        return view('manage/report/company/company_planned_tasks', compact('companies'));
+    }
+
 
     /******************************
      * Security Reports

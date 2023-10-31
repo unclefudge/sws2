@@ -79,6 +79,9 @@
                             <tr>
                                 <td><a href="/manage/report/expired_company_docs">Expired Company Documents</a></td>
                             </tr>
+                            <tr>
+                                <td><a href="/manage/report/company_planned_tasks">Company Planned Tasks</a></td>
+                            </tr>
                             {{-- Site --}}
                             <tr style="background-color: #f0f6fa">
                                 <th> Site</th>
