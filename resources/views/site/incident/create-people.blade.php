@@ -29,25 +29,22 @@
                         @include('form-error')
 
                         {!! Form::hidden('incident_id', $incident->id, ['class' => 'form-control', 'readonly']) !!}
+                        {!! Form::hidden('status', 1, ['class' => 'form-control', 'readonly']) !!}
+                        {!! Form::hidden('step', 0, ['class' => 'form-control', 'readonly']) !!}
                         {!! Form::hidden('type', 9, ['class' => 'form-control', 'readonly']) !!}
 
                         {{-- Progress Steps --}}
                         <div class="mt-element-step hidden-sm hidden-xs">
                             <div class="row step-thin" id="steps">
-                                <div class="col-md-4 mt-step-col first done">
+                                <div class="col-md-6 mt-step-col first done">
                                     <div class="mt-step-number bg-white font-grey">1</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Lodge</div>
                                     <div class="mt-step-content font-grey-cascade">Lodge notification</div>
                                 </div>
-                                <div class="col-md-4 mt-step-col active">
+                                <div class="col-md-6 mt-step-col active">
                                     <div class="mt-step-number bg-white font-grey">2</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">People</div>
                                     <div class="mt-step-content font-grey-cascade">Add people involved</div>
-                                </div>
-                                <div class="col-md-4 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">3</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Documents</div>
-                                    <div class="mt-step-content font-grey-cascade">Add Photos/Documents</div>
                                 </div>
                             </div>
                         </div>
@@ -86,15 +83,46 @@
                                 <div class="col-md-2"><b>Actions taken:</b></div>
                                 <div class="col-xs-10">{!! nl2br($incident->actions_taken) !!}</div>
                             </div>
-                            <hr class="field-hr">
+                            {{-- Attachments --}}
+                            <h5><b>Attachments</b></h5>
+                            @if ($incident->docs->count())
+                                <hr style="margin: 10px 0px; padding: 0px;">
+                                {{-- Image attachments --}}
+                                <div class="row" style="margin: 0">
+                                    @foreach ($incident->docs as $file)
+                                        @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                            <div style="width: 60px; float: left; padding-right: 5px">
+                                                <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
+                                                    <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                                {{-- File attachments  --}}
+                                <div class="row" style="margin: 0">
+                                    @foreach ($incident->docs as $file)
+                                        @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
+                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                None
+                            @endif
+                            <br>
 
                             @if ($incident->people->count())
-                                <div class="note note-warning">
-                                    Once you've finished adding all the people invloved continue onto <a href="/site/incident/{{ $incident->id }}/docs" class="btn green btn-outline btn-xs"> Next Step</a> to add Photos / Documents of the incident.
-                                </div>
-                                <br>
                                 <h4>Person(s) Involved <span class="pull-right" style="margin-top: -10px;"><a class="btn btn-circle green btn-outline btn-sm" href="/site/incident/{{ $incident->id }}/people/create" data-original-title="Add">Add</a></span></h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="note note-warning">
+                                    Remember to add the details of everyone involved in the incident including:
+                                    <ul>
+                                        <li>Injured person</li>
+                                        <li>Witnesses</li>
+                                        <li>Any person(s) involved in the incident</li>
+                                    </ul>
+                                </div>
+                                <br>
                                 <table class="table table-striped table-bordered table-hover order-column" id="table_people">
                                     <thead>
                                     <tr class="mytable-header">
@@ -117,14 +145,6 @@
                                     @endforeach
                                     </tbody>
                                 </table>
-                                <br>
-                                Remember to add the details of everyone involved in the incident including:
-                                <ul>
-                                    <li>Injured person</li>
-                                    <li>Witnesses</li>
-                                    <li>Any person(s) involved in the incident</li>
-                                </ul>
-
                             @else
                                 <div class="note note-warning">
                                     You need to add the details of everyone involved in the incident including:
@@ -136,7 +156,7 @@
                                 </div>
 
 
-                            {{-- Anyone injured --}}
+                                {{-- Anyone injured --}}
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('person_injured', $errors) !!}">
@@ -152,12 +172,12 @@
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 </div>
 
-                            {{-- Other type of invloved person --}}
+                                {{-- Other type of invloved person --}}
                                 {{-- Involvement Type --}}
                                 <div class="row" id="person_other_div">
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                            <?php $qType = App\Models\Misc\FormQuestion::find(8) ?>
+                                                <?php $qType = App\Models\Misc\FormQuestion::find(8) ?>
                                             {!! Form::label('type', $qType->name, ['class' => 'control-label']) !!}
                                             {!! Form::select('type', ['' => 'Select type'] + $qType->optionsArray(), null, ['class' => 'form-control bs-select ', 'id' => 'type']) !!}
                                         </div>
@@ -270,7 +290,7 @@
                             <div class="form-actions right">
                                 <a href="/site/incident" class="btn default"> Back</a>
                                 @if ($incident->people->count())
-                                    <a href="/site/incident/{{ $incident->id }}/createdocs" class="btn green"> Next Step</a>
+                                    <a href="/site/incident/{{ $incident->id }}/lodge" class="btn green"> Save</a>
                                 @else
                                     <button type="submit" class="btn green"> Save</button>
                                 @endif
@@ -287,7 +307,7 @@
         </div>
     </div>
 
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -303,96 +323,97 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#user_id").select2({placeholder: "Select user"});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#user_id").select2({placeholder: "Select user"});
 
-        updateFields();
-
-        // On Change Person_injured
-        $("#person_injured").change(function () {
             updateFields();
+
+            // On Change Person_injured
+            $("#person_injured").change(function () {
+                updateFields();
+            });
+
+            // On Change User_id
+            $("#user_id").change(function () {
+                updateFields();
+            });
+
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
+
+
+            function updateFields() {
+                $("#person_injured_div").hide();
+                $("#person_other_div").hide();
+                $("#person_details_div").hide();
+                $("#field_type_other").hide();
+
+
+                // Injured person
+                if ($("#person_injured").val() == 'y') {
+                    $("#person_injured_div").show();
+                    $("#person_details_div").show();
+                    $("#user_id_label").html('Injured Person');
+                    $("#type").val('9');
+                }
+
+                // No-one injured
+                if ($("#person_injured").val() == 'n') {
+                    $("#person_other_div").show();
+                    $("#person_details_div").show();
+                    $("#user_id_label").html('Person Involved');
+                }
+
+                // Type Other
+                if ($("#type").val() == '13')
+                    $("#field_type_other").show();
+
+
+                var user_id = $("#user_id").select2("val");
+                if (user_id) {
+                    $.ajax({
+                        url: '/user/data/details/' + user_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var fullname = data.firstname;
+                            var address = data.address;
+
+                            if (data.lastname) fullname = fullname + ' ' + data.lastname
+                            if (address) address = address + ', ' + data.suburb;
+                            if (address) address = address + ', ' + data.state;
+                            if (address) address = address + ', ' + data.postcode;
+
+                            $("#name").val(fullname);
+                            $("#contact").val(data.phone);
+                            $("#address").val(address);
+
+                            // Company Details
+                            $.ajax({
+                                url: '/company/data/details/' + data.company_id,
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (data2) {
+                                    $("#employer").val(data2.name);
+                                },
+                            })
+                        },
+                    })
+                }
+            }
         });
 
-        // On Change User_id
-        $("#user_id").change(function () {
-            updateFields();
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
         });
-
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
-        });
-
-
-        function updateFields() {
-            $("#person_injured_div").hide();
-            $("#person_other_div").hide();
-            $("#person_details_div").hide();
-            $("#field_type_other").hide();
-
-
-            // Injured person
-            if ($("#person_injured").val() == 'y') {
-                $("#person_injured_div").show();
-                $("#person_details_div").show();
-                $("#user_id_label").html('Injured Person');
-                $("#type").val('9');
-            }
-
-            // No-one injured
-            if ($("#person_injured").val() == 'n') {
-                $("#person_other_div").show();
-                $("#person_details_div").show();
-                $("#user_id_label").html('Person Involved');
-            }
-
-            // Type Other
-            if ($("#type").val() == '13')
-                $("#field_type_other").show();
-
-
-            var user_id = $("#user_id").select2("val");
-            if (user_id) {
-                $.ajax({
-                    url: '/user/data/details/' + user_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        var fullname = data.firstname;
-                        var address = data.address;
-
-                        if (data.lastname) fullname = fullname + ' ' + data.lastname
-                        if (address) address = address + ', ' + data.suburb;
-                        if (address) address = address + ', ' + data.state;
-                        if (address) address = address + ', ' + data.postcode;
-
-                        $("#name").val(fullname);
-                        $("#contact").val(data.phone);
-                        $("#address").val(address);
-
-                        // Company Details
-                        $.ajax({
-                            url: '/company/data/details/' + data.company_id,
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function (data2) {
-                                $("#employer").val(data2.name);
-                            },
-                        })
-                    },
-                })
-            }
-        }
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+    </script>
 @stop
 

@@ -29,6 +29,7 @@ use App\Models\Site\SiteHazardFile;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentPeople;
+use App\Models\Site\Incident\SiteIncidentDoc;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteProjectSupplyItem;
@@ -195,8 +196,8 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Migrate Inspections Doc<br>";
-        $docs = SiteInspectionDoc::all();
+        echo "Migrate Incident Doc<br>";
+        $docs = SiteIncidentDoc::all();
         foreach ($docs as $doc) {
             if ($doc->type == 'photo')
                 $doc->type = 'image';

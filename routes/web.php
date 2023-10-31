@@ -330,7 +330,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Incidents
     Route::get('site/incident/dt/incidents', '\App\Http\Controllers\Site\Incident\SiteIncidentController@getIncidents');
     Route::any('site/incident/upload', '\App\Http\Controllers\Site\Incident\SiteIncidentController@uploadAttachment');
-    Route::get('site/incident/{id}/createdocs', '\App\Http\Controllers\Site\Incident\SiteIncidentController@createDocs');
+    //Route::get('site/incident/{id}/createdocs', '\App\Http\Controllers\Site\Incident\SiteIncidentController@createDocs');
     Route::any('site/incident/{id}/lodge', '\App\Http\Controllers\Site\Incident\SiteIncidentController@lodge');
     //Route::get('site/incident/{id}/involved', '\App\Http\Controllers\Site\Incident\SiteIncidentController@showInvolved');
     Route::get('site/incident/{id}/admin', '\App\Http\Controllers\Site\Incident\SiteIncidentController@showAdmin');

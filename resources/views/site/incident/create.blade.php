@@ -35,20 +35,15 @@
                         {{-- Progress Steps --}}
                         <div class="mt-element-step hidden-sm hidden-xs">
                             <div class="row step-thin" id="steps">
-                                <div class="col-md-4 mt-step-col first active">
+                                <div class="col-md-6 mt-step-col first active">
                                     <div class="mt-step-number bg-white font-grey">1</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Lodge</div>
                                     <div class="mt-step-content font-grey-cascade">Lodge notification</div>
                                 </div>
-                                <div class="col-md-4 mt-step-col">
+                                <div class="col-md-6 mt-step-col">
                                     <div class="mt-step-number bg-white font-grey">2</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">People</div>
                                     <div class="mt-step-content font-grey-cascade">Add people involved</div>
-                                </div>
-                                <div class="col-md-4 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">3</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Documents</div>
-                                    <div class="mt-step-content font-grey-cascade">Add Photos/Documents</div>
                                 </div>
                             </div>
                         </div>
@@ -145,6 +140,21 @@
                                         {!! Form::textarea('actions_taken', null, ['rows' => '3', 'class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('actions_taken', $errors) !!}
                                     </div>
+                                </div>
+                            </div>
+
+                            <h4 class="font-green-haze">Photos / Documents</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="note note-warning">
+                                Please upload any photos / documents related to the incident. Include photos of:
+                                <ul>
+                                    <li>Scene / area of the incident</li>
+                                    <li>Any damage occured to property / equipment as result of incident</li>
+                                </ul>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                 </div>
                             </div>
 
@@ -283,6 +293,7 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
@@ -295,12 +306,28 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
+    // Get a reference to the file input element
+    const inputElement = document.querySelector('input[type="file"]');
+
+    // Create a FilePond instance
+    const pond = FilePond.create(inputElement);
+    FilePond.setOptions({
+        server: {
+            url: '/file/upload',
+            fetch: null,
+            revert: null,
+            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+        },
+        allowMultiple: true,
+    });
+
     $(document).ready(function () {
         /* Select2 */
         $("#site_id").select2({placeholder: "Select Site"});

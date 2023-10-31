@@ -17,7 +17,7 @@
             {{-- Photos --}}
             <div style="width: 100%; overflow: hidden;">
                 @foreach ($incident->docs as $doc)
-                    @if ($doc->type == 'photo' && file_exists(public_path($doc->AttachmentUrl)))
+                    @if ($doc->type == 'image' && file_exists(public_path($doc->AttachmentUrl)))
                         <div style="width: 80px; float: left; padding-right: 5px">
                             <a href="{{ $doc->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $doc->name }}" data-lityXXX>
                                 <img src="{{ $doc->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
@@ -32,7 +32,7 @@
 
             {{-- Docs --}}
             @foreach ($incident->docs as $doc)
-                @if ($doc->type == 'doc')
+                @if ($doc->type == 'file')
                     @if (!$have_docs)
                         <div class="row">
                             <div class="col-xs-12"><b>Documents</b></div>

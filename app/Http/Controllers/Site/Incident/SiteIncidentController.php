@@ -66,8 +66,6 @@ class SiteIncidentController extends Controller {
 
         if ($incident->step == 2)
             return view('site/incident/create-people', compact('incident'));
-        elseif ($incident->step == 3)
-            return view('site/incident/create-docs', compact('incident'));
         else
             return view('site/incident/show', compact('incident'));
     }
@@ -127,6 +125,7 @@ class SiteIncidentController extends Controller {
     /**
      * Add docs/photos Form
      */
+    /*
     public function createDocs($id)
     {
         $incident = SiteIncident::findorFail($id);
@@ -139,7 +138,7 @@ class SiteIncidentController extends Controller {
         $incident->save();
 
         return view('site/incident/create-docs', compact('incident'));
-    }
+    }*/
 
     /**
      * Lodge Incident Form
@@ -152,13 +151,23 @@ class SiteIncidentController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.incident', $incident) || Auth::user()->allowed2('add.site.incident', $incident)))
             return view('errors/404');
 
+        //dd(request()->all());
         $incident->step = 0;
         $incident->status = 1;
         $incident->save();
 
-        //$incident->emailIncident(); // Email incident
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $incident->saveAttachment($tmp_filename);
+        }
 
-        return redirect('site/incident/');
+        //$incident->emailIncident(); // Email incident
+        if (request()->has('add_docs'))
+            return redirect("site/incident/$incident->id");
+        else
+            return redirect('site/incident/');
     }
 
     /**
@@ -227,6 +236,13 @@ class SiteIncidentController extends Controller {
 
         // Create Site Incident
         $incident = SiteIncident::create($incident_request);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $incident->saveAttachment($tmp_filename);
+        }
 
         //
         // Form Responses
@@ -646,6 +662,7 @@ class SiteIncidentController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function uploadAttachment(Request $request)
     {
         // Check authorisation and throw 404 if not
@@ -686,7 +703,7 @@ class SiteIncidentController extends Controller {
         }
 
         return json_encode("success");
-    }
+    }*/
 
     public function reportPDF($id)
     {
