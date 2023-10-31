@@ -61,7 +61,14 @@ class SiteMaintenanceController extends Controller {
             ->whereIn('m.id', $request_ids)
             ->where('m.status', 2)->get();
 
-        return view('site/maintenance/list', compact('under_review'));
+        $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
+        $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
+        foreach ($mains as $main) {
+            if (!isset($assignedList[$main->assigned_to]))
+                $assignedList[$main->assigned_to] = $main->assignedTo->name;
+        }
+
+        return view('site/maintenance/list', compact('under_review', 'assignedList'));
     }
 
     /**
@@ -92,8 +99,6 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         if ($main->step == 2)
-            //return view('site/maintenance/photos', compact('main'));
-        //elseif ($main->step == 3)
             return view('site/maintenance/review', compact('main'));
         else
             return view('site/maintenance/show', compact('main'));
@@ -113,8 +118,6 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         if ($main->step == 2)
-            //return view('site/maintenance/photos', compact('main'));
-        //elseif ($main->step == 3)
             return view('site/maintenance/review', compact('main'));
         else
             return view('site/maintenance/show', compact('main'));
@@ -694,7 +697,40 @@ class SiteMaintenanceController extends Controller {
             $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
         }
 
+        $assigned_to = (request('assigned_to')) ? request('assigned_to') : null;
 
+        if ($assigned_to == 'all') {
+            $records = DB::table('site_maintenance AS m')
+                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
+                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                    DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                    DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
+                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
+                ->join('sites AS s', 'm.site_id', '=', 's.id')
+                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
+                ->whereIn('m.id', $request_ids)
+                ->where('m.status', request('status'));
+        } else {
+            $records = DB::table('site_maintenance AS m')
+                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.client_appointment', 'm.client_contacted', 'm.status', 'm.updated_at', 'm.created_at',
+                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                    DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                    DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
+                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
+                ->join('sites AS s', 'm.site_id', '=', 's.id')
+                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
+                ->whereIn('m.id', $request_ids)
+                ->where('m.assigned_to', $assigned_to)
+                ->where('m.status', request('status'));
+        }
+
+
+
+/*
         $records = DB::table('site_maintenance AS m')
             ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
                 DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
@@ -705,7 +741,7 @@ class SiteMaintenanceController extends Controller {
                 's.code as sitecode', 's.name as sitename'])
             ->join('sites AS s', 'm.site_id', '=', 's.id')
             ->whereIn('m.id', $request_ids)
-            ->where('m.status', request('status'));
+            ->where('m.status', request('status'));*/
 
         //dd($records);
         $dt = Datatables::of($records)
@@ -716,14 +752,15 @@ class SiteMaintenanceController extends Controller {
             ->editColumn('site_id', function ($doc) {
                 return $doc->sitecode;
             })
-            //->editColumn('sitename', function ($doc) {
-            //    $s = Site::find($doc->site_id);
-            //    return $s->nameClient;
-            //})
             ->editColumn('super_id', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 
-                return ($d->super_id) ? $d->taskOwner->name : '-';
+                return ($d->super_id) ? $d->taskOwner->initials : '-';
+            })
+            ->editColumn('assigned_to', function ($doc) {
+                $d = SiteMaintenance::find($doc->id);
+
+                return ($d->assigned_to) ? $d->assignedTo->name : '-';
             })
             ->addColumn('last_updated', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);

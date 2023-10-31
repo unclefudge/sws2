@@ -296,7 +296,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/extension/past', '\App\Http\Controllers\Site\SiteExtensionController@past');
     Route::get('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@settings');
     Route::post('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@updateSettings');
-    Route::get('site/extension/settings/del/{id}', '\App\Http\Controllers\Site\SiteExtensionController@deleteSetting');
     Route::get('site/extension/{id}/signoff', '\App\Http\Controllers\Site\SiteExtensionController@signoff');
     Route::get('site/extension/{id}/pdf', '\App\Http\Controllers\Site\SiteExtensionController@createPDF');
     Route::get('site/extension/{id}/{supervisor_id}', '\App\Http\Controllers\Site\SiteExtensionController@showExtensions');
@@ -397,7 +396,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/maintenance/data/prac_completion/{site_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@getPracCompletion');
     Route::get('site/maintenance/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@getSiteSupervisor');
     Route::any('site/maintenance/{id}/review', '\App\Http\Controllers\Site\SiteMaintenanceController@review');
-    Route::any('site/maintenance/{id}/photos', '\App\Http\Controllers\Site\SiteMaintenanceController@photos');
     Route::resource('site/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController');
 
 

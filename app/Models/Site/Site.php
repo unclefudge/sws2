@@ -922,9 +922,35 @@ class Site extends Model {
      */
     public function getJobFirstTaskAttribute()
     {
-        $firstTask = SitePlanner::where('site_id', $this->id)->orderBy('from')->first();
+        $task = SitePlanner::where('site_id', $this->id)->orderBy('from')->first();
 
-        return ($firstTask) ? $firstTask->from : null;
+        return ($task) ? $task->from : null;
+    }
+
+    /**
+     * Get the recent task date if it exists  (getter)
+     *
+     * @return string;
+     */
+    public function getJobRecentTaskAttribute()
+    {
+        $today = Carbon::now()->format('Y-m-d');
+        $task = SitePlanner::where('site_id', $this->id)->whereDate('from','<=', $today)->orderByDesc('from')->first();
+
+        return ($task) ? $task->from : null;
+    }
+
+    /**
+     * Get the next task date if it exists  (getter)
+     *
+     * @return string;
+     */
+    public function getJobNextTaskAttribute()
+    {
+        $today = Carbon::now()->format('Y-m-d');
+        $task = SitePlanner::where('site_id', $this->id)->whereDate('from','>=', $today)->orderByDesc('from')->first();
+
+        return ($task) ? $task->from : null;
     }
 
 

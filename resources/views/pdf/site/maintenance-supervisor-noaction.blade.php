@@ -120,6 +120,10 @@
                     <?php $super_count = 0 ?>
                 @foreach ($mains as $main)
                     @if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0'))
+                            <?php
+                            $recentTask = ($main->site->jobRecentTask && $main->site->jobRecentTask->gt(\Carbon\Carbon::now()->subDays(7))) ? $main->site->jobRecentTask->format('d/m/Y') : null;
+                            $nextTask = ($main->site->jobNextTask && $main->site->jobNextTask->lt(\Carbon\Carbon::now()->addDays(7))) ? $main->site->jobNextTask->format('d/m/Y') : null;
+                            ?>
                         @if ($main->lastUpdated()->lt(\Carbon\Carbon::now()->subDays(14)))
                                 <?php $row_count ++; $super_count ++; ?>
                             <tr>
@@ -129,7 +133,14 @@
                                 <td class="pad5">{{ ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-'  }}</td>
                                 <td class="pad5">{{ ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '-'  }}</td>
                                 <td class="pad5">{{ ($main->lastAction()) ? $main->lastAction()->updated_at->format('d/m/Y') : $main->created_at->format('d/m/Y') }}</td>
-                                <td class="pad5">{{ $main->lastActionNote() }}</td>
+                                <td class="pad5">
+                                    @if ($recentTask)
+                                        <span class="font-red">{{ $recentTask }} - Recent Task</span><br>
+                                    @elseif ($nextTask)
+                                        <span class="font-red">{{ $nextTask }} - Upcoming Task</span><br>
+                                    @endif
+                                    {{ $main->lastActionNote() }}
+                                </td>
 
                             </tr>
                         @endif

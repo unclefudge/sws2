@@ -36,7 +36,7 @@
                                 </tr>
                                 </thead>
                                 @foreach ($under_review as $rec)
-                                    <?php $main = App\Models\Site\SiteMaintenance::find($rec->id) ?>
+                                        <?php $main = App\Models\Site\SiteMaintenance::find($rec->id) ?>
                                     <tr>
                                         <td>
                                             <div class="text-center"><a href="/site/maintenance/{{ $rec->id }}">M{{$rec->code}}</a></div>
@@ -84,6 +84,11 @@
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
                         @endif
+
+                        <div class="col-md-4">
+                            {!! Form::select('assigned_to', $assignedList, 'all', ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                        </div>
+
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
@@ -104,7 +109,8 @@
                                 <th> Site</th>
                                 <th width="10%"> Client Contacted</th>
                                 <th width="10%"> Appointment</th>
-                                <th> Supervisor</th>
+                                <th width="10%"> Supervisor</th>
+                                <th> Assigned Company</th>
                                 <th width="10%"> Updated</th>
                                 {{--}}<th width="10%"> Completed</th>--}}
                                 <th width="5%"></th>
@@ -130,45 +136,52 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    var status1 = $('#status1').val();
-    var table1 = $('#table1').DataTable({
-        pageLength: 25,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/maintenance/dt/maintenance') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.supervisor_sel = $('#supervisor_sel').val();
-                d.supervisor = $('#supervisor').val();
-                d.status = $('#status1').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'reported_date', name: 'm.reported'},
-            //{data: 'site_id', name: 's.code'},
-            {data: 'sitename', name: 's.name', orderable: false},
-            {data: 'contacted_date', name: 'm.client_contacted'},
-            {data: 'appointment_date', name: 'm.client_appointment'},
-            {data: 'super_id', name: 'm.super_id'},
-            {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
-            //{data: 'completed', name: 'completed', orderable: false, searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "desc"]
-        ]
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        var status1 = $('#status1').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 25,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/maintenance/dt/maintenance') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.supervisor_sel = $('#supervisor_sel').val();
+                    d.supervisor = $('#supervisor').val();
+                    d.assigned_to = $('#assigned_to').val();
+                    d.status = $('#status1').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'reported_date', name: 'm.reported'},
+                //{data: 'site_id', name: 's.code'},
+                {data: 'sitename', name: 's.name', orderable: false},
+                {data: 'contacted_date', name: 'm.client_contacted'},
+                {data: 'appointment_date', name: 'm.client_appointment'},
+                {data: 'super_id', name: 'm.super_id'},
+                {data: 'assigned_to', name: 'm.assigned_to'},
+                {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
+                //{data: 'completed', name: 'completed', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "desc"]
+            ]
+        });
 
-    $('select#status1').change(function () {
-        table1.ajax.reload();
-    });
+        $('select#status1').change(function () {
+            table1.ajax.reload();
+        });
 
-    $('select#supervisor').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('select#supervisor').change(function () {
+            table1.ajax.reload();
+        });
+
+        $('select#assigned_to').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

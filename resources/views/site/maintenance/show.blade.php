@@ -608,21 +608,6 @@
                         </div>
 
                     </td>
-                    {{-- Checked --}}
-                    {{--}}
-                    <td>
-                        <div v-if="!item.done_by"></div>
-                        <div v-if="item.done_by">
-                            <div v-if="item.sign_by">
-                                @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }} <a v-if="xx.main.status != 0" v-on:click="itemSignReset(item)"><i class="fa fa-times font-red"></i></a>
-                            </div>
-                            <div v-else>
-                                <select v-if="xx.user_supervisor == 1 && xx.main.signed == 0" v-model="item.super" class='form-control' v-on:change="itemSign(item)">
-                                    <option v-for="option in xx.sel_checked2" value="@{{ option.value }}">@{{ option.text }}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </td>--}}
                 </tr>
             </template>
             </tbody>
@@ -810,6 +795,7 @@
             });
 
             /* Bootstrap Fileinput */
+            /*
             $("#multifile").fileinput({
                 uploadUrl: "/site/maintenance/upload/", // server upload action
                 uploadAsync: true,
@@ -844,7 +830,7 @@
             $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
                 data.form.append("site_id", $("#site_id").val());
                 data.form.append("main_id", $("#main_id").val());
-            });
+            });*/
         });
     </script>
     <script>
