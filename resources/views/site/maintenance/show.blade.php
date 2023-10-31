@@ -504,7 +504,6 @@
                             </div>
                         </div>
 
-
                         {!! Form::close() !!}
 
                         {{-- Sign Off --}}

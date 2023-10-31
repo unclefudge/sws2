@@ -35,6 +35,7 @@ use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteExtensionCategory;
+use App\Models\Site\SiteInspectionDoc;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Safety\ToolboxTalk;
@@ -194,13 +195,16 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        /*echo "Migrate Maintenance Doc<br>";
-        $docs = SiteMaintenanceDoc::all();
+        echo "Migrate Inspections Doc<br>";
+        $docs = SiteInspectionDoc::all();
         foreach ($docs as $doc) {
-            $doc->type = ($doc->type == 'photo') ? 'image' : 'file';
+            if ($doc->type == 'photo')
+                $doc->type = 'image';
+            if ($doc->type == 'doc')
+                $doc->type = 'file';
             $doc->timestamps = false;
             $doc->save();
-        }*/
+        }
 
         /*echo "Migrate Site Ext Category<br>";
         $cats = SiteExtensionCategory::all();

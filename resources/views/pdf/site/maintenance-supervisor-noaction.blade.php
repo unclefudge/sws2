@@ -121,6 +121,7 @@
                 @foreach ($mains as $main)
                     @if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0'))
                             <?php
+                                // Exclude requests that have a task planned 1 week prior or after today
                             $recentTask = ($main->site->jobRecentTask && $main->site->jobRecentTask->gt(\Carbon\Carbon::now()->subDays(7))) ? $main->site->jobRecentTask->format('d/m/Y') : null;
                             $nextTask = ($main->site->jobNextTask && $main->site->jobNextTask->lt(\Carbon\Carbon::now()->addDays(7))) ? $main->site->jobNextTask->format('d/m/Y') : null;
                             ?>

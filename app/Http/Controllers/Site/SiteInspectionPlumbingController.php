@@ -39,7 +39,7 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.inspection'))
             return view('errors/404');
 
-        $non_assigned = SiteInspectionPlumbing::where('status', 2)->orWhere('assigned_to', null)->get();
+        $non_assigned = SiteInspectionPlumbing::Where('assigned_to', null)->get();
         $pending = SiteInspectionPlumbing::where('status', 3)->get();
 
         return view('site/inspection/plumbing/list', compact('non_assigned', 'pending'));
@@ -74,8 +74,6 @@ class SiteInspectionPlumbingController extends Controller {
 
         if ($report->status == 1 || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
             return view('/site/inspection/plumbing/edit', compact('report'));
-        elseif ($report->status == 2) // In Progress
-            return view('/site/inspection/plumbing/docs', compact('report'));
         else
             return redirect('/site/inspection/plumbing/' . $report->id);
     }
@@ -100,11 +98,22 @@ class SiteInspectionPlumbingController extends Controller {
         request()->validate($rules, $mesg); // Validate
 
         $report_request = request()->all();
-        $report_request['status'] = 2; // In Progress
+        $report_request['status'] = 1;
         //dd($report_request);
 
         // Create Report
         $report = SiteInspectionPlumbing::create($report_request);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $report->saveAttachment($tmp_filename);
+        }
+
+        // Create Tdodoo to assign a company
+        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+
         Toastr::success("Created inspection report");
 
         return redirect('/site/inspection/plumbing/' . $report->id . '/edit');
@@ -235,11 +244,19 @@ class SiteInspectionPlumbingController extends Controller {
 
         //dd($report_request);
         $report->update($report_request);
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $report->saveAttachment($tmp_filename);
+        }
+
         Toastr::success("Updated inspection report");
 
         if (request('assigned_to') && $assigned_to_previous == null)
             return redirect('site/inspection/plumbing');
-        elseif (in_array($report->status, [1, 2]))
+        elseif (in_array($report->status, [1]))
             return redirect('site/inspection/plumbing/' . $report->id . '/edit');
         else
             return redirect('site/inspection/plumbing/');
@@ -370,6 +387,7 @@ class SiteInspectionPlumbingController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
+    /*
     public function uploadAttachment(Request $request)
     {
         // Check authorisation and throw 404 if not
@@ -406,7 +424,7 @@ class SiteInspectionPlumbingController extends Controller {
         }
 
         return json_encode("success");
-    }
+    }*/
 
     public function reportPDF($id)
     {
