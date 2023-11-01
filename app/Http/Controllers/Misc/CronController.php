@@ -549,7 +549,7 @@ class CronController extends Controller {
                                 $doc->closeToDo(User::find(1));
                                 // Determine if doc hasn't been replaced with newer version
                                 if (!$doc->company->activeCompanyDoc($doc->category_id)) {
-                                    if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray());
+                                    if (count($company->seniorUsers()) && $company->id != 3) $doc->createExpiredToDo($company->seniorUsers()->pluck('id')->toArray(), false);
                                     if ($date == Carbon::today()->subDays(14)->format('Y-m-d')) {
                                         // Email Parent Company
                                         if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
