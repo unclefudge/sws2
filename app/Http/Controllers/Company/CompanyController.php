@@ -240,7 +240,7 @@ class CompanyController extends Controller {
                 Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyArchived($company));
             $company->deactivateAllStaff();
             $company->deleteFromPlanner(Carbon::today());
-            $company->deactived = Carbon::now()->toDateTimeString();
+            $company->deactivated = Carbon::now()->toDateTimeString();
             $company->save();
             CompanyLeave::where('from', '>=', Carbon::today()->toDateTimeString())->where('company_id', $company->id)->delete();  // delete future leave
 
@@ -268,7 +268,7 @@ class CompanyController extends Controller {
 
             Toastr::error("Deactivated Company");
         } elseif ($company->status && !$old_status) {
-            $company->deactived = null;
+            $company->deactivated = null;
             $company->save();
 
             Toastr::success("Reactivated Company");

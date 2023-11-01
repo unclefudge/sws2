@@ -218,7 +218,7 @@ class CompanyDoc extends Model {
     /**
      * Email document as Expired
      */
-    public function emailExpired($email_to = '', $expired)
+    public function emailExpired($email_to = '', $expired = false)
     {
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';

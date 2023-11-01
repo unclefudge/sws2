@@ -153,7 +153,7 @@
                             {{-- Photos / Docs --}}
                             <div id="photos-edit">
                                 <h4 class="font-green-haze">Photos / Documents
-                                    @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                    @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $report))
                                         <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
                                     @endif</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
