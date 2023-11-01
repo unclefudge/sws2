@@ -914,6 +914,7 @@ class CronController extends Controller {
     {
         $log = '';
         echo "<br><br>Fixing broken QA items<br><br>";
+        echo "------------------------------------------------------------------------<br><br>";
         $log .= "\nFixing broken QA items\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $qas = SiteQa::where('status', '>', 0)->where('master', 0)->get();
@@ -979,7 +980,7 @@ class CronController extends Controller {
                     $mesg = 'Site ' . $task->site->name . ' ' . $subject;
                     echo "&nbsp; * $mesg<br>";
                     $log .= " * $mesg\n";
-                    if (DEBUG_EMAIL) app('log')->debug("DEBUG-EMAIL: EL[$email_list]");
+                    if (DEBUG_EMAIL) {app('log')->debug("DEBUG-EMAIL: EL"); app('log')->debug($email_list);}
                     if ($email_list)
                         Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
                 }
