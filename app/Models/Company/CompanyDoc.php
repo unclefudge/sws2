@@ -230,10 +230,13 @@ class CompanyDoc extends Model {
                 $email_user = $this->owned_by->notificationsUsersEmailType('doc.' . $this->category->type . '.approval');
         }
 
+        app('log')->debug("Email expired CompanyDoc: to[$email_to] user[$email_user]");
+
         if ($email_to && $email_user)
             Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Company\CompanyDocExpired($this));
         elseif ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocExpired($this));
+
     }
 
     /**
@@ -244,7 +247,7 @@ class CompanyDoc extends Model {
         if (!\App::environment('prod'))
             $email_to = [env('EMAIL_DEV')];
 
-        if ($email_to)
+        if (validEmail($email_to))
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocRenewal($this));
     }
 

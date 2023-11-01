@@ -27,14 +27,14 @@ class MailgunZohoController extends Controller {
 
     public function store(Request $request)
     {
-        if ($this->debug) app('log')->debug("========= Zoho Import ==========");
+        //if ($this->debug) app('log')->debug("========= Zoho Import ==========");
         //if ($this->debug) app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
         //$valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', 'crap@crapme.com'];
         if (!(in_array(request('From'), $valid_senders) || in_array(request('X-Envelope-From'), $valid_senders))) {  // X-Envelope-From
-            if ($this->debug) app('log')->debug("========= Import Failed ==========");
+            if ($this->debug) app('log')->debug("========= Zoho Import Failed ==========");
             if ($this->debug) app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
             if ($this->debug) app('log')->debug($valid_senders);
 
@@ -52,7 +52,7 @@ class MailgunZohoController extends Controller {
 
         // If no attachment return 406 (Not Acceptable) to Mailgun to prevent retries
         if ($files->count() === 0) {
-            if ($this->debug) app('log')->debug("========= Import Failed ==========");
+            if ($this->debug) app('log')->debug("========= Zoho Import Failed ==========");
             if ($this->debug) app('log')->debug("Missing expected CSV attachment");
 
             return response()->json([
@@ -60,7 +60,7 @@ class MailgunZohoController extends Controller {
                 'message' => 'Missing expected CSV attachment'
             ], 406);
         } else {
-            if ($this->debug) app('log')->debug("========= Begin Import ==========");
+            if ($this->debug) app('log')->debug("========= Zoho Import ==========");
 
             // Zoho Daily log
             $dir = '/filebank/log/zoho';

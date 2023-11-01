@@ -43,13 +43,13 @@ class SupportTicketUpdated extends Mailable implements ShouldQueue {
         return $this->view('emails/misc/support-ticket-updated2')->subject('SafeWorksite - Support Ticket Updated');*/
 
         $email = $this->markdown('emails/misc/support-ticket-updated2')->subject('SafeWorksite - Support Ticket Updated');
-        app('log')->debug("[".$this->ticket->id."] Ticket email \n\r");
+        //app('log')->debug("[".$this->ticket->id."] Ticket email \n\r");
         // Attachments
         if ($this->action->files()->count()) {
             foreach ($this->action->files() as $file) {
-                app('log')->debug($file->attachment_url."\n\r");
-                app('log')->debug(public_path($file->attachment_url)."\n\r");
-                app('log')->debug($file);
+                //app('log')->debug($file->attachment_url."\n\r");
+                //app('log')->debug(public_path($file->attachment_url)."\n\r");
+                //app('log')->debug($file);
                 if (file_exists(substr($file->attachment_url, 1)))
                     $email->attach(public_path($file->attachment_url));
             }

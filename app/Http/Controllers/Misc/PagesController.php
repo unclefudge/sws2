@@ -196,6 +196,17 @@ class PagesController extends Controller {
     public function quick()
     {
 
+        echo "Testing Email<br>";
+        $users = User::all();
+        foreach ($users as $user) {
+            $valid = (validEmail($user->email)) ? '' : '*** ';
+            if ($valid) {
+                $trim = trim($user->email);
+                //if ($trim != $user->email)
+                    echo $valid . "[$user->email]<br>";
+            }
+        }
+
         /*echo "Migrate Incident Doc<br>";
         $docs = SiteIncidentDoc::all();
         foreach ($docs as $doc) {
