@@ -103,6 +103,18 @@ class CronReportController extends Controller {
 
     }
 
+    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '') {
+        if (DEBUG_EMAIL) {
+            $list = (is_array($list1)) ? implode(',', $list1) : $list1;
+            app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
+            //app('log')->debug($list1);
+            if ($name2) {
+                $list = (is_array($list2)) ? implode(',', $list2) : $list2;
+                app('log')->debug("DEBUG-EMAIL: $name2 [$list]");
+            }
+        }
+    }
+
     /****************************************************
      *  Monday Reports
      *
@@ -176,10 +188,7 @@ class CronReportController extends Controller {
             'user_company_name' => "Cape Cod",
             'startdata'         => $startdata
         ];
-        if (DEBUG_EMAIL) {
-            app('log')->debug("DEBUG-EMAIL: EL");
-            app('log')->debug($email_list);
-        }
+        CronController::debugEmail('EL', $email_list);
         Mail::send('emails/jobstart', $data, function ($m) use ($email_list, $data, $file) {
             $send_from = 'do-not-reply@safeworksite.com.au';
             $m->from($send_from, 'Safe Worksite');
@@ -220,10 +229,7 @@ class CronReportController extends Controller {
 
         if ($mains->count()) {
             if ($email_list) {
-                if (DEBUG_EMAIL) {
-                    app('log')->debug("DEBUG-EMAIL: EL");
-                    app('log')->debug($email_list);
-                }
+                CronController::debugEmail('EL', $email_list);
                 Mail::send('emails/site/maintenance-appointment', $data, function ($m) use ($email_list, $data) {
                     $send_from = 'do-not-reply@safeworksite.com.au';
                     $m->from($send_from, 'Safe Worksite');
@@ -274,10 +280,7 @@ class CronReportController extends Controller {
             $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
             $pdf->save($file);
 
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
 
             echo "Sending email to: $emails<br>";
@@ -372,10 +375,7 @@ class CronReportController extends Controller {
             }
         }
 
-        if (DEBUG_EMAIL) {
-            app('log')->debug("DEBUG-EMAIL: EL");
-            app('log')->debug($email_list);
-        }
+        CronController::debugEmail('EL', $email_list);
         Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3));
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -420,10 +420,7 @@ class CronReportController extends Controller {
         if (count($mains)) {
             $data = ['data' => $mains];
             if ($email_list) {
-                if (DEBUG_EMAIL) {
-                    app('log')->debug("DEBUG-EMAIL: EL");
-                    app('log')->debug($email_list);
-                }
+                CronController::debugEmail('EL', $email_list);
                 Mail::send('emails/site/maintenance-noaction', $data, function ($m) use ($email_list, $data) {
                     $send_from = 'do-not-reply@safeworksite.com.au';
                     $m->from($send_from, 'Safe Worksite');
@@ -451,10 +448,7 @@ class CronReportController extends Controller {
         if ($mains->count()) {
             if ($email_list) {
                 $data = ['data' => $mains];
-                if (DEBUG_EMAIL) {
-                    app('log')->debug("DEBUG-EMAIL: EL");
-                    app('log')->debug($email_list);
-                }
+                CronController::debugEmail('EL', $email_list);
                 Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
                     $send_from = 'do-not-reply@safeworksite.com.au';
                     $m->from($send_from, 'Safe Worksite');
@@ -530,10 +524,7 @@ class CronReportController extends Controller {
             $pdf->setPaper('A4', 'landscape');
             $pdf->save($file);
 
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
@@ -598,10 +589,7 @@ class CronReportController extends Controller {
         //Mail::to($email_list)->send(new \App\Mail\Site\SiteUpcomingCompliance($startdata, $file));
         if ($email_list) {
             $data = ['startdata' => $startdata, 'settings_colours' => $settings_colours];
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::send('emails/site/upcoming-compliance', $data, function ($m) use ($email_list, $data, $file) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
@@ -768,12 +756,7 @@ class CronReportController extends Controller {
                     } else
                         $email_to = ['kirstie@capecod.com.au'];
                 }
-                if (DEBUG_EMAIL) {
-                    app('log')->debug("DEBUG-EMAIL: EL");
-                    app('log')->debug($email_list);
-                    app('log')->debug("DEBUG-EMAIL: CC");
-                    app('log')->debug($email_cc);
-                }
+                CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
                 if ($email_to && $email_cc)
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionSubReport($body));
                 elseif ($email_to)
@@ -845,10 +828,7 @@ class CronReportController extends Controller {
 
         //dd($users);
         if ($users->count()) {
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\User\OldUsers($users));
             echo "Sending email to: $emails";
             $log .= "Sending email to: $emails";
@@ -904,10 +884,7 @@ class CronReportController extends Controller {
             $pdf->setPaper('A4', 'portrait');
             $pdf->save($file);
 
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Misc\EquipmentTransfers($file, $transactions));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
@@ -962,10 +939,7 @@ class CronReportController extends Controller {
             $pdf->setPaper('A4', 'landscape');
             $pdf->save($file);
 
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOnhold($file, $qas));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
@@ -1003,10 +977,7 @@ class CronReportController extends Controller {
         echo "Active Electrical: " . $electrical->count() . "<br>";
         $log .= "Active Electrical: " . $electrical->count() . "\n";
         if ($electrical->count()) {
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
@@ -1016,10 +987,7 @@ class CronReportController extends Controller {
         echo "Active Plumbing: " . $plumbing->count() . "<br>";
         $log .= "Active Plumbing: " . $plumbing->count() . "\n";
         if ($plumbing->count()) {
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
@@ -1050,10 +1018,7 @@ class CronReportController extends Controller {
 
         $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($electrical->count() || $plumbing->count()) {
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
             $emails = implode("; ", $email_list);
             echo "Sending email to: $emails<br>";
@@ -1106,10 +1071,7 @@ class CronReportController extends Controller {
 
         if ($equipment->count() && $email_list) {
             $data = ['data' => $equipment];
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::send('emails/misc/equipment-restock', $data, function ($m) use ($email_list, $data) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
@@ -1149,10 +1111,7 @@ class CronReportController extends Controller {
         $data = ['data' => $mains];
 
         if ($mains->count() && $email_list) {
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-            }
+            CronController::debugEmail('EL', $email_list);
             Mail::send('emails/site/maintenance-aftercare', $data, function ($m) use ($email_list, $data) {
                 $send_from = 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
@@ -1285,10 +1244,7 @@ class CronReportController extends Controller {
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
 
-        if (DEBUG_EMAIL) {
-            app('log')->debug("DEBUG-EMAIL: EL");
-            app('log')->debug($email_list);
-        }
+        CronController::debugEmail('EL', $email_list);
         Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceExecutive($file));
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";

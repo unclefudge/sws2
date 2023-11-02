@@ -48,8 +48,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CronController extends Controller {
 
-    public $debug_email = true;
-
     static public function nightly()
     {
         echo "<h1> Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
@@ -117,6 +115,18 @@ class CronController extends Controller {
         } else {
             //echo "failed";
             Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
+        }
+    }
+
+    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '') {
+        if (DEBUG_EMAIL) {
+            $list = (is_array($list1)) ? implode(',', $list1) : $list1;
+            app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
+            //app('log')->debug($list1);
+            if ($name2) {
+                $list = (is_array($list2)) ? implode(',', $list2) : $list2;
+                app('log')->debug("DEBUG-EMAIL: $name2 [$list]");
+            }
         }
     }
 
@@ -981,10 +991,7 @@ class CronController extends Controller {
                     $mesg = 'Site ' . $task->site->name . ' ' . $subject;
                     echo "&nbsp; * $mesg<br>";
                     $log .= " * $mesg\n";
-                    if (DEBUG_EMAIL) {
-                        app('log')->debug("DEBUG-EMAIL: EL");
-                        app('log')->debug($email_list);
-                    }
+                    CronController::debugEmail('EL', $email_list);
                     if ($email_list)
                         Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
                 }
@@ -1297,12 +1304,7 @@ class CronController extends Controller {
                 // Send email to supervisor
                 $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
                 $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-                if (DEBUG_EMAIL) {
-                    app('log')->debug("DEBUG-EMAIL: EL");
-                    app('log')->debug($email_list);
-                    app('log')->debug("DEBUG-EMAIL: CC");
-                    app('log')->debug($email_cc);
-                }
+                CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
         }
@@ -1349,12 +1351,7 @@ class CronController extends Controller {
             // Send email
             $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-            if (DEBUG_EMAIL) {
-                app('log')->debug("DEBUG-EMAIL: EL");
-                app('log')->debug($email_list);
-                app('log')->debug("DEBUG-EMAIL: CC");
-                app('log')->debug($email_cc);
-            }
+            CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
             if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));
         } else {
             echo "Already Signed off<br>";
@@ -1450,12 +1447,7 @@ class CronController extends Controller {
                 $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
                 $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_to && $email_cc) {
-                    if (DEBUG_EMAIL) {
-                        app('log')->debug("DEBUG-EMAIL: TO");
-                        app('log')->debug($email_to);
-                        app('log')->debug("DEBUG-EMAIL: CC");
-                        app('log')->debug($email_cc);
-                    }
+                    CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
                     $emails = implode("; ", array_merge($email_to, $email_cc));
                     echo "Sending email to $emails<br>";
