@@ -230,8 +230,10 @@ class CompanyDoc extends Model {
         }
 
         if (DEBUG_EMAIL) {
-            app('log')->debug("DEBUG-EMAIL: TO [$email_to]");
-            app('log')->debug("DEBUG-EMAIL: CC [$email_user]");
+            $list = (is_array($email_to)) ? implode(',', $email_to) : $email_to;
+            app('log')->debug("DEBUG-EMAIL: TO [$list]");
+            $list = (is_array($email_user)) ? implode(',', $email_user) : $email_user;
+            app('log')->debug("DEBUG-EMAIL: CC [$list]");
         }
         if ($email_to && $email_user)
             Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Company\CompanyDocExpired($this));
