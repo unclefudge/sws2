@@ -230,7 +230,7 @@ class SiteQa extends Model {
         // Create ToDoo and assign to Site Supervisors
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
-        //$todo->emailToDo();
+        $todo->emailToDo();
     }
 
     /**

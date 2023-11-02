@@ -44,7 +44,6 @@ class CompanyDoc extends Model {
     }
 
 
-
     /**
      * A Company Doc  was created by a user
      *
@@ -230,8 +229,10 @@ class CompanyDoc extends Model {
                 $email_user = $this->owned_by->notificationsUsersEmailType('doc.' . $this->category->type . '.approval');
         }
 
-        app('log')->debug("Email expired CompanyDoc: to[$email_to] user[$email_user]");
-
+        if (DEBUG_EMAIL) {
+            app('log')->debug("DEBUG-EMAIL: TO [$email_to]");
+            app('log')->debug("DEBUG-EMAIL: CC [$email_user]");
+        }
         if ($email_to && $email_user)
             Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Company\CompanyDocExpired($this));
         elseif ($email_to)
@@ -273,7 +274,7 @@ class CompanyDoc extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
