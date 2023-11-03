@@ -71,6 +71,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('checkin/supervisor/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@showQuestionsSupervisor');
     Route::post('checkin/supervisor/{site_id}', '\App\Http\Controllers\Site\SiteCheckinController@processCheckinSupervisor');
 
+    // Session variables
+    Route::get('/session/{name}/{val}', '\App\Http\Controllers\Misc\SessionValController@updateVal');
+    Route::post('/session/update', '\App\Http\Controllers\Misc\SessionValController@update');
+
 
     // Pages
     //Route::get('/', '\App\Http\Controllers\Misc\PagesController@index');

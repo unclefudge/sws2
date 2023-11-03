@@ -241,7 +241,7 @@ class SiteQaController extends Controller {
                 $qa->closeToDo(Auth::user());
                 if (!$qa->manager_sign_by) {
                     $site = Site::findOrFail($qa->site_id);
-                    $qa->createManagerSignOffToDo($site->areaSupervisors()->pluck('id')->toArray());
+                    $qa->createManagerSignOffToDo([108]); // Kirstie
                 }
             }
             if ($signoff == 'manager') {

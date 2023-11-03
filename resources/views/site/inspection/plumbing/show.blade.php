@@ -47,6 +47,14 @@
                                             <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
                                             <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
                                         @endif
+                                        @if($report->status == '3')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">PENDING</span>
+                                            <span class="text-center font-red visible-sm visible-xs">PENDING</span>
+                                        @endif
+                                        @if($report->status == '4')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                            <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                        @endif
                                     </h2>
                                 </div>
                             </div>
@@ -289,6 +297,7 @@
                                     <p>The above report have been reviewed by the following people.</p>
                                 </div>
                             </div>
+                            {{-- Con Manager Sign Off --}}
                             <div class="row">
                                 <div class="col-sm-3 text-right">Construction Manager:</div>
                                 <div class="col-sm-9">
@@ -305,6 +314,22 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Admin update with Client or Not --}}
+                            @if ($report->manager_sign_by)
+                                <div class="row">
+                                    <div class="col-sm-3 text-right">Report Sent to Client:</div>
+                                    <div class="col-sm-9">
+                                        <div class="col-md-6">
+                                            @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator'))
+                                                <div class="form-group {!! fieldHasError('sent2_client', $errors) !!}">
+                                                    {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
                             {{--}}
                             @if ($report->trade_notes)

@@ -879,7 +879,7 @@ class CronController extends Controller {
     static public function completedToDoQA()
     {
         $log = '';
-        echo "<br><br>Todo QA doc completed/hold but still active<br><br>";
+        echo "<h2>Todo QA doc completed/hold but still active</h2>";
         $log .= "\nTodo QA doc completed/hold but still active\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $todos = Todo::all();
@@ -924,8 +924,7 @@ class CronController extends Controller {
     static public function brokenQaItem()
     {
         $log = '';
-        echo "<br><br>Fixing broken QA items<br><br>";
-        echo "------------------------------------------------------------------------<br><br>";
+        echo "<h2>Fixing broken QA items</h2>";
         $log .= "\nFixing broken QA items\n";
         $log .= "------------------------------------------------------------------------\n\n";
         $qas = SiteQa::where('status', '>', 0)->where('master', 0)->get();

@@ -40,9 +40,10 @@ class SiteInspectionPlumbingController extends Controller {
             return view('errors/404');
 
         $non_assigned = SiteInspectionPlumbing::Where('assigned_to', null)->get();
-        $pending = SiteInspectionPlumbing::where('status', 3)->get();
+        $pending = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->get();
+        $client_not_sent = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
 
-        return view('site/inspection/plumbing/list', compact('non_assigned', 'pending'));
+        return view('site/inspection/plumbing/list', compact('non_assigned', 'pending', 'client_not_sent'));
     }
 
     /**
@@ -282,16 +283,18 @@ class SiteInspectionPlumbingController extends Controller {
             if (request('manager_sign_by') == 'y') {
                 $report->manager_sign_by = Auth::User()->id;
                 $report->manager_sign_at = Carbon::now();
-                $report->status = 0;
+                $report->status = 3;
 
                 $report->closeToDo();
-                $action = Action::create(['action' => "Report signed off by Construction Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Email completed notification
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
 
-                // Email completed PDF to Project Manager
+                //
+                // Email completed PDF
+                //
                 $site = Site::findOrFail($report->site_id);
                 $pdf = PDF::loadView('pdf/site/inspection-plumbing', compact('report', 'site'))->setPaper('a4');
                 $file = public_path("filebank/tmp/$site->name - Plumbing Inspection Report.pdf");
@@ -333,6 +336,15 @@ class SiteInspectionPlumbingController extends Controller {
 
             }
             $report->save();
+        }
+
+        if (request('sent2_client')) {
+            if (request('sent2_client') == 'y') {
+                $report->status = 0;
+                $report->closeToDo();
+                $action = Action::create(['action' => "Report marked as completed and report sent to client.", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $report->save();
+            }
         }
 
         return redirect("site/inspection/plumbing/$report->id");

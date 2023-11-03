@@ -12,6 +12,7 @@
 
 @section('content')
     <div class="page-content-inner">
+        {{-- var_dump(session()->all()) --}}
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -25,7 +26,7 @@
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : session('/site/qa:supervisor'), ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
@@ -77,6 +78,8 @@
 
 @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
 <script type="text/javascript">
+    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
     var status1 = $('#status1').val();
     var table1 = $('#table1').DataTable({
         pageLength: 20,
@@ -110,7 +113,39 @@
     });
 
     $('select#supervisor').change(function () {
-        table1.ajax.reload();
+        //sessionStorage.setItem('qasites', $('#supervisor').val());
+        //console.log('S:'+sessionStorage.getItem('qasites'));
+        var supervisor = $('#supervisor').val();
+        $.ajax({
+            url: '/session/update',
+            type: "POST",
+            dataType: 'json',
+            data: {key: '/site/qa:supervisor', val: supervisor},
+            success: function (data) {
+                let x = JSON.stringify(data);
+                //console.log(x);
+            },
+            error: function (error) {
+                console.log(`Error ${error}`);
+            }
+        }).always(function (data) {
+            $('#table1').DataTable().draw(true);
+        });
+
+        //table1.ajax.reload();
+
+        /*
+        $.ajax({
+            url: url,
+            type: 'DELETE',
+            dataType: 'json',
+            data: {method: '_DELETE', submit: true},
+            success: function (data) {
+                toastr.error('Deleted document');
+            },
+        }).always(function (data) {
+            $('#table1').DataTable().draw(false);
+        });*/
     });
 </script>
 @stop
