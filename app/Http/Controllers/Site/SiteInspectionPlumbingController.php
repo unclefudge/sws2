@@ -152,7 +152,7 @@ class SiteInspectionPlumbingController extends Controller {
 
         $report->status = 1;  // Active
         $report->save();
-        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+        $report->createConstructionToDo([108]);
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/plumbing');
