@@ -115,7 +115,7 @@
                         <div class="portlet-title">
                             <div class="caption font-dark">
                                 <i class="icon-layers"></i>
-                                <span class="caption-subject bold uppercase font-green-haze"> Report Not With Client</span>
+                                <span class="caption-subject bold uppercase font-green-haze"> Reports Not With Client</span>
                             </div>
                         </div>
 

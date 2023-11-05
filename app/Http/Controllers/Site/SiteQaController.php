@@ -353,14 +353,14 @@ class SiteQaController extends Controller {
                 $site_list = Site::all()->pluck('id')->toArray();
             elseif (request('supervisor') == 'signoff') {
                 $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
-                $qas = SiteQa::where('status', 1)->whereIn('site_id', $site_list)->get();
-                $qa_list = [];
+                $qa_list = SiteQa::where('status', 1)->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
+                /*$qa_list = [];
                 foreach ($qas as $qa) {
                     $total = $qa->items()->count();
                     $completed = $qa->itemsCompleted()->count();
                     if ($total == $completed && $total != 0)
                         $qa_list[] = $qa->id;
-                }
+                }*/
             } else
                 $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
         } else
