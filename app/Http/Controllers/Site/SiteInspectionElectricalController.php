@@ -223,10 +223,9 @@ class SiteInspectionElectricalController extends Controller {
             $company = Company::find(request('assigned_to'));
             if ($company && $company->primary_user) {
                 $report->createAssignedToDo([$company->primary_user]);
-                //$report->createAssignedToDo($company->staffStatus(1)->pluck('id')->toArray());
 
                 // Email assigned notification
-                $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (\App::environment('prod')) ? ['briana@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
 
                 // Email assigned notification to Next Point Admin
@@ -344,7 +343,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();
-                $report->sReviewToDo([1164, 3]); // Brianna
+                $report->createElectricalReviewToDo([1164, 3]); // Brianna
                 Toastr::error("Report Rejected");
 
             }

@@ -326,6 +326,9 @@
                                                     {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
                                                 </div>
                                             @endif
+                                            @if($report->status == 0)
+                                                Yes
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -333,12 +336,12 @@
 
                             {{--}}
                             @if ($report->trade_notes)
-                                <h4 class="font-green-haze">Cape Code Notes</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                                    <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
-                                </div>
+                            <h4 class="font-green-haze">Cape Code Notes</h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                            <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
+                            <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
+                            </div>
                             @endif --}}
 
                         </div>
@@ -349,7 +352,8 @@
                                 <button type="submit" class="btn green"> Save</button>
 
                             @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
-                                <a href="/site/inspection/electrical/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
+                                <a href="/site/inspection/plumbing/{{ $report->id }}/status/3" class="btn blue"> Mark Not With Client</a>
+                                <a href="/site/inspection/plumbing/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
                             @endif
                         </div>
                         {!! Form::close() !!}
@@ -500,7 +504,7 @@
                         created_by: this.xx.created_by,
                         fullname: this.xx.created_by_fullname,
                     };
-                    //alert('add action');
+//alert('add action');
 
                     this.$http.post('/action', actiondata)
                         .then(function (response) {
