@@ -15,6 +15,8 @@ A inspection report has been completed for {{ $report->site->name }}.
 | **TYPE** | Electrical |
 | **Site Name**  | {{ $report->site->name  }} |
 | **Site Address**  | {{ $report->site->address }}, {{ $report->site->SuburbStatePostcode }} |
+| **Inspection Date**  | {{ ($report->inspected_at) ? $report->inspected_at->format('d/mY') : '-' }} |
+| **Client Contacted**  | {{ ($report->client_contacted) ? $report->client_contacted->format('d/mY') : '-' }} |
 | &nbsp;  | &nbsp; |
 
 **Notes**
