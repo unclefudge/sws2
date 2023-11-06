@@ -202,7 +202,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-sm-3 text-right">Construction Manager:</div>
+                                <div class="col-sm-3 text-right">Technical Manager:</div>
                                 <div class="col-sm-9">
                                     <div class="col-md-6">
                                         @if ($report->manager_sign_by)

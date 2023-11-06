@@ -78,6 +78,7 @@
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
                                     <th> Name</th>
+                                    <th width="10%"> Inspected</th>
                                     <th width="10%"></th>
                                 </tr>
                                 </thead>
@@ -88,6 +89,7 @@
                                         </td>
                                         <td> {{ $report->created_at->format('d/m/Y') }}</td>
                                         <td> {{ $report->site->name }}</td>
+                                        <td> {{ ( $report->inspected_at) ? $report->inspected_at->format('d/m/Y') : '' }}</td>
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
                                                 <a href="/site/inspection/electrical/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
@@ -141,6 +143,7 @@
                                 <th width="10%"> Assigned</th>
                                 <th> Assigned to</th>
                                 <th width="10%"> Client Contacted</th>
+                                <th width="10%"> Inspected</th>
                                 <th width="5%"></th>
                             </tr>
                             </thead>
@@ -193,6 +196,7 @@
                 {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
                 {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
                 {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
+                {data: 'inspected_date', name: 'site_inspection_electrical.inspected_at'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [

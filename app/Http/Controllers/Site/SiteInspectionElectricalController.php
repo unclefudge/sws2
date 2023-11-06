@@ -112,7 +112,7 @@ class SiteInspectionElectricalController extends Controller {
         }
 
         // Create Tdodoo to assign a company
-        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+        $report->createConstructionToDo([108]);
 
         Toastr::success("Created inspection report");
 
@@ -207,7 +207,7 @@ class SiteInspectionElectricalController extends Controller {
             $report_request['status'] = 3; // Pending signoff
 
             // Create ToDoo for Electrical Review
-            $report->createConstructionReviewToDo([1164]); // Brianna
+            $report->createSignOffToDo([1164]); // Brianna
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
@@ -283,7 +283,7 @@ class SiteInspectionElectricalController extends Controller {
 
                 // Create ToDoo for Con Mgr
                 $report->closeToDo();
-                $report->createConstructionReviewToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+                $report->createSignOffToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
             } else {
                 $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;
@@ -302,7 +302,7 @@ class SiteInspectionElectricalController extends Controller {
             $report->save();
         }
 
-        // Con Mgr Signoff
+        // Tech Mgr Signoff
         if (request('manager_sign_by')) {
             if (request('manager_sign_by') == 'y') {
                 $report->manager_sign_by = Auth::User()->id;
@@ -310,7 +310,7 @@ class SiteInspectionElectricalController extends Controller {
                 $report->status = 0;
 
                 $report->closeToDo();
-                $action = Action::create(['action' => "Report signed off by Construction Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
                 // Email completed notification
                 $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
@@ -398,47 +398,7 @@ class SiteInspectionElectricalController extends Controller {
     }
 
 
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function uploadAttachment(Request $request)
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report)))
-        //    return json_encode("failed");
 
-        //dd('here');
-        //dd(request()->all());
-        // Handle file upload
-        $files = $request->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . $request->get('site_id') . '/inspection';
-            $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-
-            $doc_request = $request->only('site_id');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['company_id'] = Auth::user()->company_id;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteMaintenanceDoc
-            $doc = SiteInspectionDoc::create($doc_request);
-            $doc->table = 'electrical';
-            $doc->inspect_id = $request->get('report_id');
-            $doc->attachment = $name;
-            $doc->save();
-        }
-
-        return json_encode("success");
-    } */
 
     /**
      * Generate PDF report
