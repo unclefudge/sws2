@@ -106,6 +106,50 @@
             </div>
         @endif
 
+        {{-- Reports --}}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet light ">
+                    <div class="portlet-title">
+                        <div class="caption font-dark">
+                            <i class="icon-layers"></i>
+                            <span class="caption-subject bold uppercase font-green-haze">Plumbing Inspection Reports</span>
+                        </div>
+                        <div class="actions">
+                            @if(Auth::user()->allowed2('add.site.inspection'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/plumbing/create" data-original-title="Add">Add</a>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pull-right">
+                            <div class="form-group">
+                                <select name="status" id="status" class="form-control bs-select">
+                                    <option value="1" selected>Active</option>
+                                    <option value="0">Completed</option>
+                                    <option value="4">On hold</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="portlet-body">
+                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                            <thead>
+                            <tr class="mytable-header">
+                                <th width="5%"> #</th>
+                                <th width="10%"> Created</th>
+                                <th> Name</th>
+                                <th width="10%"> Assigned</th>
+                                <th> Assigned to</th>
+                                <th width="10%"> Client Contacted</th>
+                                <th width="5%"></th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         {{-- Not with Clirnt--}}
         @if (Auth::user()->isCC() && $client_not_sent->count())
@@ -152,52 +196,6 @@
                 </div>
             </div>
         @endif
-
-
-        {{-- Reports --}}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Plumbing Inspection Reports</span>
-                        </div>
-                        <div class="actions">
-                            @if(Auth::user()->allowed2('add.site.inspection'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/plumbing/create" data-original-title="Add">Add</a>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                    <option value="4">On hold</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                            <thead>
-                            <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="10%"> Created</th>
-                                <th> Name</th>
-                                <th width="10%"> Assigned</th>
-                                <th> Assigned to</th>
-                                <th width="10%"> Client Contacted</th>
-                                <th width="5%"></th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <!-- END PAGE CONTENT INNER -->
 @stop
