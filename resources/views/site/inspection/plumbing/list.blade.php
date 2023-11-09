@@ -151,7 +151,7 @@
             </div>
         </div>
 
-        {{-- Not with Clirnt--}}
+        {{-- Not with Client--}}
         @if (Auth::user()->isCC() && $client_not_sent->count())
             <div class="row">
                 <div class="col-md-12">
