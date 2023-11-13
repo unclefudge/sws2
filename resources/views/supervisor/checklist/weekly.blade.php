@@ -62,11 +62,12 @@
                                         <td>FRI</td>
                                     </tr>
                                     @foreach ($category->questions as $question)
-                                            <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 1)->first(); ?>
                                         <tr>
-                                            <td>{{$response->question->name}}</td>
+                                            <td>{{$question->name}}</td>
 
                                             {{-- Mon --}}
+                                                <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 1)->first(); ?>
+
                                             <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 1) ? $response->button : '' !!}</td>
                                             {{-- Tue --}}
                                                 <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 2)->first(); ?>
