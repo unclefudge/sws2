@@ -120,4 +120,29 @@ class SuperChecklistQuestion extends Model {
             return $str;
         }
     }
+
+    public function isRequiredForSupervisor($super, $day) {
+        $today = Carbon::now();
+        if ($this->required) {
+            // Only add New Project question for Supers with active jobs with future JobStart
+            if ($this->cat_id == '4') {
+                $sites = Site::where('supervisor_id', $super->id)->where('status', 1)->get();
+                foreach ($sites as $site) {
+                    if ($site->JobStart && $site->JobStart->gt($today))
+                        return true;  // Upcoming New Project
+                }
+                return false; // No upcoming project
+            }
+
+            // Check if question only required on certain days
+            if ($this->days) {
+                $days = explode(',', $this->days);
+                return in_array($day, $days);
+            }
+
+            return true;  // Required for all days
+        }
+
+        return false;  // Not required
+    }
 }

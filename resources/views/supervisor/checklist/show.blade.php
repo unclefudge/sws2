@@ -49,29 +49,31 @@
                         <div class="form-body">
 
                             @foreach ($categories as $category)
-                                <h4 class="font-green-haze"><b>{{$category->name}}</b>{!! ($category->description) ? ": <small>$category->description</small>" : '' !!}</h4>
-                                <hr class="field-hr">
-                                <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                                    @foreach ($category->questions as $question)
-                                            <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', $day)->first(); ?>
+                                @if ($category->isRequiredForSupervisor($checklist->supervisor, $day))
+                                    <h4 class="font-green-haze"><b>{{$category->name}}</b>{!! ($category->description) ? ": <small>$category->description</small>" : '' !!}</h4>
+                                    <hr class="field-hr">
+                                    <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                        @foreach ($category->questions as $question)
+                                                <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', $day)->first(); ?>
 
-                                        @if ($response)
-                                            <tr>
-                                                <td>{{$response->question->name}}</td>
-                                                <td style="min-width:200px; width: 200px">
-                                                    <div class="form-group">
-                                                        <div class="btn-group" min-width:150px>
-                                                            <button id="r{{$response->id}}-y" class="btn button-resp {{ ($response->value == 'y') ? 'green' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="y" data-btype="green" data-bval="Yes">Yes</button>
-                                                            <button id="r{{$response->id}}-n" class="btn button-resp {{ ($response->value == 'n') ? 'red' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="n" data-btype="red" data-bval="No">No</button>
-                                                            <button id="r{{$response->id}}-na" class="btn button-resp {{ ($response->value == 'na') ? 'dark' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="na" data-btype="dark" data-bval="N/A">N/A</button>
+                                            @if ($response)
+                                                <tr>
+                                                    <td>{{$response->question->name}}</td>
+                                                    <td style="min-width:200px; width: 200px">
+                                                        <div class="form-group">
+                                                            <div class="btn-group" min-width:150px>
+                                                                <button id="r{{$response->id}}-y" class="btn button-resp {{ ($response->value == 'y') ? 'green' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="y" data-btype="green" data-bval="Yes">Yes</button>
+                                                                <button id="r{{$response->id}}-n" class="btn button-resp {{ ($response->value == 'n') ? 'red' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="n" data-btype="red" data-bval="No">No</button>
+                                                                <button id="r{{$response->id}}-na" class="btn button-resp {{ ($response->value == 'na') ? 'dark' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="na" data-btype="dark" data-bval="N/A">N/A</button>
+                                                            </div>
+                                                            <input type="hidden" id="r{{$response->id}}" name="r{{$response->id}}" value="{{$response->value}}">
                                                         </div>
-                                                        <input type="hidden" id="r{{$response->id}}" name="r{{$response->id}}" value="{{$response->value}}">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                </table>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </table>
+                                @endif
                             @endforeach
 
                             <div class="row">

@@ -67,19 +67,19 @@
                                             <td>{{$response->question->name}}</td>
 
                                             {{-- Mon --}}
-                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $response->button !!}</td>
+                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 1) ? $response->button : '' !!}</td>
                                             {{-- Tue --}}
                                                 <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 2)->first(); ?>
-                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $response->button !!}</td>
+                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 2) ? $response->button : '' !!}</td>
                                             {{-- Wed --}}
                                                 <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 3)->first(); ?>
-                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $response->button !!}</td>
+                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 3) ? $response->button : '' !!}</td>
                                             {{-- Thu --}}
                                                 <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 4)->first(); ?>
-                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $response->button !!}</td>
+                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 4) ? $response->button : '' !!}</td>
                                             {{-- Fri --}}
                                                 <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', 5)->first(); ?>
-                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $response->button !!}</td>
+                                            <td class="text-center" style="min-width:50px; width: 50px">{!! $question->isRequiredForSupervisor($checklist->supervisor, 5) ? $response->button : '' !!}</td>
                                         </tr>
                                     @endforeach
                                 </table>

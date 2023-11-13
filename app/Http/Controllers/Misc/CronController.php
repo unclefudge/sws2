@@ -118,7 +118,8 @@ class CronController extends Controller {
         }
     }
 
-    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '') {
+    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
+    {
         if (DEBUG_EMAIL) {
             $list = (is_array($list1)) ? implode(',', $list1) : $list1;
             app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
@@ -1390,8 +1391,10 @@ class CronController extends Controller {
                 $mesg = "Creating new";
 
                 for ($day = 1; $day < 6; $day ++) {
-                    foreach ($checklist->questions()->sortBy('id') as $question)
-                        $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                    foreach ($checklist->questions()->sortBy('id') as $question) {
+                        if ($question->isRequiredForSupervisor($super, $day))
+                            $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                    }
                 }
             }
 

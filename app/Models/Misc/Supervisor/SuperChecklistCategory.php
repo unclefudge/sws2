@@ -28,4 +28,14 @@ class SuperChecklistCategory extends Model {
     {
         return $this->hasMany('App\Models\Misc\Supervisor\SuperChecklistQuestion', 'cat_id');
     }
+
+    public function isRequiredForSupervisor($super, $day) {
+        $today = Carbon::now();
+
+        foreach ($this->questions as $question) {
+            if ($question->isRequiredForSupervisor($super, $day))
+                return true; // Required
+        }
+        return false;  // Not required
+    }
 }
