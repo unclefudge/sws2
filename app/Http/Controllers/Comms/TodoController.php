@@ -429,7 +429,7 @@ class TodoController extends Controller {
             ->join('users', 'todo.created_by', '=', 'users.id')
             ->where(function ($q) {
                 $q->where('todo_user.user_id', Auth::user()->id);
-                $q->orWhere('todo.created_by', Auth::user()->id);
+                //$q->orWhere('todo.created_by', Auth::user()->id);
             })
             ->where('todo.status', request('status'))
             ->orderBy('todo.due_at');
