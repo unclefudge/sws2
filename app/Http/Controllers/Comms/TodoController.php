@@ -417,7 +417,7 @@ class TodoController extends Controller {
      */
     public function getTodo()
     {
-
+        $status = (request('status')) ? [1,2] : [0];
         $records = TodoUser::select([
             'todo_user.todo_id', 'todo_user.user_id', 'todo_user.opened',
             'todo.id', 'todo.name', 'todo.info', 'todo.type', 'todo.type_id', 'todo.due_at',
@@ -431,7 +431,7 @@ class TodoController extends Controller {
                 $q->where('todo_user.user_id', Auth::user()->id);
                 //$q->orWhere('todo.created_by', Auth::user()->id);
             })
-            ->where('todo.status', request('status'))
+            ->whereIn('todo.status', $status)
             ->orderBy('todo.due_at');
 
 

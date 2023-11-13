@@ -153,7 +153,7 @@ class SuperChecklistController extends Controller {
             if (!in_array($response->question->category->id, $cat_ids))
                 $cat_ids[] = $response->question->category->id;
         }
-        $categories = SuperChecklistCategory::find($cat_ids)->sortBy('order');
+        $categories = SuperChecklistCategory::whereIn('id',$cat_ids)->where('status', 1)->orderBy('order')->get();
 
         return view("/supervisor/checklist/show", compact('checklist', 'day', 'categories'));
     }
@@ -175,7 +175,7 @@ class SuperChecklistController extends Controller {
             if (!in_array($response->question->category->id, $cat_ids))
                 $cat_ids[] = $response->question->category->id;
         }
-        $categories = SuperChecklistCategory::find($cat_ids)->sortBy('order');
+        $categories = SuperChecklistCategory::whereIn('id',$cat_ids)->where('status', 1)->orderBy('order')->get();
 
         return view("/supervisor/checklist/weekly", compact('checklist', 'categories', 'mon'));
     }
