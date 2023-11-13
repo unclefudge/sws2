@@ -113,7 +113,7 @@ class CompanyPeriodTradeController extends Controller {
         $ptc_request['contractor_signed_at'] = Carbon::now();
         $ptc_request['for_company_id'] = $company->id;
         $ptc_request['company_id'] = $company->reportsTo()->id;
-        $ptc_request['status'] = 2;
+        $ptc_request['status'] = 3;  // Pending approval
         //dd($ptc_request);
 
         // Create PTC
@@ -221,7 +221,7 @@ class CompanyPeriodTradeController extends Controller {
         //if (!Auth::user()->allowed2("sig.company.doc", $doc))
         //    return view('errors/404');
 
-        $ptc->status = 3;
+        $ptc->status = 2;  // reject
         $ptc->reject = request('reject');
         $ptc->closeToDo();
         $ptc->emailReject();
