@@ -30,7 +30,7 @@
                                 </li>
                             @endforeach
                         @endforeach
-
+{{--}}
                         <?php $todo_types = ['company doc', 'company ptc', 'company privacy']; ?>
                         @foreach ($todo_types as $type)
                             @foreach(Auth::user()->todoType($type, [1, 2]) as $todo)
@@ -45,6 +45,7 @@
                                 </li>
                             @endforeach
                         @endforeach
+                        --}}
                     </ul>
                 </li>
             </ul>
