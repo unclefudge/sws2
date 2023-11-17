@@ -226,7 +226,7 @@ class CompanyDocController extends Controller {
         $doc->closeToDo();
 
         // If uploaded by User with 'authorise' permissions set to active other set pending
-        $doc->status = 3;
+        $doc->status = 3; // Pending
         $category = CompanyDocCategory::find($doc->category_id);
         $pub_pri = ($category->private) ? 'pri' : 'pub';
         if (Auth::user()->permissionLevel("sig.docs.$category->type.$pub_pri", $company->reportsTo()->id)) {

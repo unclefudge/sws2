@@ -43,7 +43,7 @@ $compliantDocs = $company->compliantDocs();
                                 </div>
                             @endif
                             {{-- Pending --}}
-                            @if ($company->activeCompanyDoc($type) && $company->activeCompanyDoc($type)->status == 2)
+                            @if ($company->activeCompanyDoc($type) && $company->activeCompanyDoc($type)->status == 3)
                                 <div class="col-xs-8"><i class="fa fa-question" style="width:35px; padding: 4px 15px"></i>
                                     <a href="{!! $company->activeCompanyDoc($type)->attachment_url !!}" class="linkDark" target="_blank">{{ $name }}</a>
                                 </div>
@@ -54,7 +54,7 @@ $compliantDocs = $company->compliantDocs();
                                 </div>
                             @endif
                             {{-- Rejected --}}
-                            @if ($company->activeCompanyDoc($type) && $company->activeCompanyDoc($type)->status == 3)
+                            @if ($company->activeCompanyDoc($type) && $company->activeCompanyDoc($type)->status == 2)
                                 <div class="col-xs-8"><i class="fa fa-question" style="width:35px; padding: 4px 15px"></i>
                                     <a href="{!! $company->activeCompanyDoc($type)->attachment_url !!}" class="linkDark" target="_blank">{{ $name }}</a>
                                     @if(Auth::user()->isCompany($company->id) && Auth::user()->allowed2('add.company.doc'))

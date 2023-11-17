@@ -125,7 +125,7 @@ class CompanyPeriodTradeController extends Controller {
             'name'           => 'Period Trade Contract',
             'expiry'         => $ptc->expiry,
             'ref_no'         => $ptc->id,
-            'status'         => 2,
+            'status'         => 3,   // Pending
             'for_company_id' => $ptc->for_company_id,
             'company_id'     => $ptc->company_id,
         ]);
@@ -134,7 +134,7 @@ class CompanyPeriodTradeController extends Controller {
         $ptc->createApprovalToDo($ptc->owned_by->notificationsUsersTypeArray('doc.acc.approval'));
 
         // Delete any rejected docs
-        $deleted = CompanyDocPeriodTrade::where('for_company_id', $company->id)->where('status', 3)->delete();
+        $deleted = CompanyDocPeriodTrade::where('for_company_id', $company->id)->where('status', 2)->delete();
 
         Toastr::success("Signed contract");
 
