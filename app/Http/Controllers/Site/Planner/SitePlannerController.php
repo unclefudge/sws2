@@ -188,7 +188,7 @@ class SitePlannerController extends Controller {
                 $supervisors = Auth::user()->company->supervisorsSelect();
         }
         if (Auth::user()->isCC()) {
-            $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites'] + $supervisors;
+            $supervisors = ['all' => 'Active Sites', 'maint' => 'Maintenance Sites', 'prac' => 'Prac Completed'] + $supervisors;
         } else
             $supervisors = ['all' => 'All Sites'] + $supervisors;
 
@@ -1452,13 +1452,14 @@ class SitePlannerController extends Controller {
             }
         }
 
-        $exclude_sites = ['0002', '0003'];  // Conference, Vehicles,
-        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->orderBy('name')->get();
+        $excluded_sites = ['0002', '0003', '0004', '0006', '0007', '0008', '0009'];  // Conference, Vehicles, Office, Truck, OnLeave, Management, Completed Jobs
+        $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->whereNotIn('code', $excluded_sites)->orderBy('name')->get();
 
+        $today = Carbon::now();
         $site_details = [];
         foreach ($sites as $site) {
             $site_record = Site::find($site->id);
-            if ($site_record->status == 1 || ($site_record->status == 2 && $site_record->hasMaintenanceActive()) || $site_record->status == - 1) {
+            if ($site_record->status == '1' || ($site_record->status == '2' && $site_record->hasMaintenanceActive()) || $site_record->status == '-1') {
                 $array = [];
                 $array['id'] = $site->id;
                 $array['value'] = $site->id;
@@ -1477,9 +1478,25 @@ class SitePlannerController extends Controller {
                 $array['address'] = $site_record->address_formatted;
                 $array['status'] = $site_record->status;
                 $array['maintenance'] = $site_record->hasMaintenanceActive();
+                $array['prac_complete'] = ($site_record->PracComplete) ? $site_record->PracComplete->format('d/m/y') : '';
+                $order = '2'; // Active
+                if ($site_record->status == '2')
+                    $order = '1'; // Maintenance
+                elseif ($site_record->status == '1' && $site_record->PracComplete && $site_record->PracComplete->lt($today) )
+                    $order = '3'; // Active with Prac Complete
+                $array['order'] = $order;
                 $site_details[] = $array;
             }
         }
+
+        // Sort Site List by Order then Job Number
+        $sort = array();
+        foreach($site_details as $k=>$v) {
+            $sort['name'][$k] = $v['name'];
+            $sort['order'][$k] = $v['order'];
+        }
+        // It is sorted by 'order' in descending order and the title is sorted in ascending order.
+        array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
 
         return $site_details;
     }

@@ -916,6 +916,18 @@ class Site extends Model {
     }
 
     /**
+     * Get the 'Prac Complete' job task date if it exists  (getter)
+     *
+     * @return string;
+     */
+    public function getPracCompleteAttribute()
+    {
+        $startTask = SitePlanner::where('site_id', $this->id)->where('task_id', '265')->first();
+
+        return ($startTask) ? $startTask->from : null;
+    }
+
+    /**
      * Get the first task date if it exists  (getter)
      *
      * @return string;

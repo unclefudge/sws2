@@ -99,7 +99,7 @@
                                 <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
                             </div>
                             <template v-for="site in xx.sites">
-                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start"></app-site>
+                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start" :site_order="site.order" :site_prac_complete="site.prac_complete"></app-site>
                             </template>
 
                         </div>
@@ -131,7 +131,8 @@
                     <small>
                         <span v-if="xx.show_contact == 1"><br><span v-html="site_address"></span><br>@{{ site_contact }}</span>
                         {{--}}<span v-else>@{{ site_code }}</span>--}}
-                        <span v-if="site_status == 2" style="color: red"><br>*** Maintenance ***</span>
+                        <span v-if="site_status == 2" style="color: red"><br>Maintenance</span>
+                        <span v-if="site_order == 3" style="color: red"><br>Prac Completed @{{ site_prac_complete }}</span>
                         <span v-if="xx.user_company_id == 3 && preConstruct(site_preconstruct)" style="color: blue"><br>*** Pre-construction ***<br>Jobstart: @{{ preConstruct(site_preconstruct) }}</span>
                     </small>
                 </small>

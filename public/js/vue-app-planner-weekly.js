@@ -73,7 +73,7 @@ Vue.component('app-weekly', {
 });
 
 Vue.component('app-site', {
-    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status', 'site_preconstruct'],
+    props: ['site_id', 'site_name', 'site_code', 'site_contact', 'site_address', 'site_status', 'site_preconstruct', 'site_order', 'site_prac_complete'],
     template: '#site-template',
 
     data: function () {
@@ -122,6 +122,9 @@ Vue.component('app-site', {
                 return this.siteSearch(site); //return true;
 
             if (this.xx.params.supervisor_id === 'maint' && site.status == 2)
+                return this.siteSearch(site); //return true;
+
+            if (this.xx.params.supervisor_id === 'prac' && site.order == 3)
                 return this.siteSearch(site); //return true;
 
             var show = false;
