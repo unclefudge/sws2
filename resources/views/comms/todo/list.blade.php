@@ -76,6 +76,7 @@
         pageLength: 100,
         processing: true,
         serverSide: true,
+        searching: false,
         ajax: {
             'url': '{!! url('/todo/dt/todo') !!}',
             'type': 'GET',
@@ -87,8 +88,10 @@
             {data: 'view', name: 'view', orderable: false, searchable: false},
             {data: 'id', name: 'todo.id', orderable: false, searchable: false},
             {data: 'task', name: 'task', orderable: false, searchable: false},
-            {data: 'fullname', name: 'fullname'},
-            {data: 'duedate', name: 'duedate'},
+            //{data: 'fullname', name: 'fullname'},
+            {data: 'created_by', name: 'todo.created_by', orderable: false, searchable: false},
+            {data: 'duedate', name: 'duedate', orderable: false, searchable: false},
+
         ],
         order: [
             [1, "desc"]

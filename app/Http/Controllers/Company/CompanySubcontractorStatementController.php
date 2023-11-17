@@ -130,7 +130,7 @@ class CompanySubcontractorStatementController extends Controller {
         $ss_request['wc_date'] = ($company->activeCompanyDoc('2') && $company->activeCompanyDoc('2')->status == 1 ) ? $company->activeCompanyDoc('2')->expiry : null;
         $ss_request['for_company_id'] = $company->id;
         $ss_request['company_id'] = $company->reportsTo()->id;
-        $ss_request['status'] = 2;
+        $ss_request['status'] = 3;  // Pending
 
         //dd($ss_request);
         // Set + create create directory if required
@@ -172,14 +172,14 @@ class CompanySubcontractorStatementController extends Controller {
             'name'           => 'Subcontractors Statement',
             'attachment'     => $filename,
             'expiry'         => $ss->to,
-            'status'         => 2,
+            'status'         => 3,
             'for_company_id' => $ss->for_company_id,
             'company_id'     => $ss->company_id,
         ]);
 
         // Delete any rejected docs
-        $deleted1 = CompanyDocSubcontractorStatement::where('for_company_id', $company->id)->where('status', 3)->delete();
-        $deleted2 = CompanyDoc::where('category_id', 4)->where('for_company_id', $company->id)->where('status', 3)->delete();
+        $deleted1 = CompanyDocSubcontractorStatement::where('for_company_id', $company->id)->where('status', 2)->delete();
+        $deleted2 = CompanyDoc::where('category_id', 4)->where('for_company_id', $company->id)->where('status', 2)->delete();
 
 
 
@@ -270,7 +270,7 @@ class CompanySubcontractorStatementController extends Controller {
         //if (!Auth::user()->allowed2("sig.company.doc", $doc))
         //    return view('errors/404');
 
-        $ss->status = 3;
+        $ss->status = 2;
         $ss->reject = request('reject');
         $ss->closeToDo();
         $ss->emailReject();

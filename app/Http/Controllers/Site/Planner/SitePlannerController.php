@@ -1452,6 +1452,7 @@ class SitePlannerController extends Controller {
             }
         }
 
+        $exclude_sites = ['0002', '0003'];  // Conference, Vehicles,
         $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->orderBy('name')->get();
 
         $site_details = [];

@@ -159,13 +159,13 @@ $compliantDocs = $company->compliantDocs();
                                 <i class="fa fa-check" style="width:35px; padding: 4px 15px; color: #26C281"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
                             </div>
                         @endif
-                        @if ($tag_doc && $tag_doc->status == 2)
+                        @if ($tag_doc && $tag_doc->status == 3)
                             <div class="col-xs-8">
                                 <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
                             </div>
                             <div class="col-xs-4"><span class="label label-warning label-sm">Pending Approval</span></div>
                         @endif
-                        @if ($tag_doc && $tag_doc->status == 3)
+                        @if ($tag_doc && $tag_doc->status == 2)
                             <div class="col-xs-8">
                                 <i class="fa fa-question" style="width:35px; padding: 4px 15px;"></i> <a href="{!! $tag_doc->attachment_url !!}" class="linkDark">Electrical Test & Tagging</a>
                             </div>

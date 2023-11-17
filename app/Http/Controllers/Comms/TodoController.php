@@ -420,13 +420,13 @@ class TodoController extends Controller {
         $status = (request('status')) ? [1,2] : [0];
         $records = TodoUser::select([
             'todo_user.todo_id', 'todo_user.user_id', 'todo_user.opened',
-            'todo.id', 'todo.name', 'todo.info', 'todo.type', 'todo.type_id', 'todo.due_at',
+            'todo.id', 'todo.name', 'todo.info', 'todo.type', 'todo.type_id', 'todo.due_at', 'todo.created_by',
             DB::raw('CONCAT(todo.name, "<br>", todo.info) AS task'),
             DB::raw('DATE_FORMAT(todo.due_at, "%d/%m/%y") AS duedate'),
-            DB::raw('CONCAT(users.firstname, " ", users.lastname) AS fullname'),
+            //DB::raw('CONCAT(users.firstname, " ", users.lastname) AS fullname'),
         ])
             ->join('todo', 'todo_user.todo_id', '=', 'todo.id')
-            ->join('users', 'todo.created_by', '=', 'users.id')
+            //->join('users', 'todo.created_by', '=', 'users.id')
             ->where(function ($q) {
                 $q->where('todo_user.user_id', Auth::user()->id);
                 //$q->orWhere('todo.created_by', Auth::user()->id);
@@ -447,6 +447,10 @@ class TodoController extends Controller {
             })
             ->editColumn('task', function ($todo) {
                 return $todo->todo->name."<br>Assigned to: ".$todo->todo->assignedToBySBC();
+            })
+            ->editColumn('created_by', function ($todo) {
+                $user = User::find($todo->created_by);
+                return $user ? $user->name : 'SafeWorksite';
             })
             ->rawColumns(['view', 'task'])
             ->make(true);
