@@ -213,7 +213,7 @@ class SiteInspectionPlumbingController extends Controller {
         $report_request['client_contacted'] = (request('client_contacted')) ? Carbon::createFromFormat('d/m/Y H:i', request('client_contacted') . '00:00')->toDateTimeString() : null;
 
 
-        if (request('status') == 0 && $report->status == 1) {
+        if (request('status') == 0 && in_array($report->status, [1, 4])) { // Was active or On hold
             // Reported completed by trade - close any outstanding ToDoos
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;

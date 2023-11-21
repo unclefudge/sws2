@@ -219,7 +219,7 @@
                                         <?php $complated_status = ($report->status == 3) ? 3 : 0 ?>
                                         @if ($report->status && Auth::user()->allowed2('edit.site.inspection', $report) || ($report->status == 0 && Auth::user()->allowed2('sig.site.inspection', $report)))
                                             @if (Auth::user()->allowed2('sig.site.inspection', $report))
-                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed', '-1' => 'On Hold'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                                {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed', '4' => 'On Hold'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                             @else
                                                 {!! Form::select('status', ['1' => 'Active', $complated_status => 'Completed'], $report->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                             @endif
