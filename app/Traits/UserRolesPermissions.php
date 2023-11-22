@@ -786,10 +786,9 @@ trait UserRolesPermissions {
                 return false;
             }
 
-            // Company Accounting + Leave
-            if ($permissiontype == 'company.acc' || $permissiontype == 'company.leave') {
+            // Company Accounting + Leave + Notes
+            if ($permissiontype == 'company.acc' || $permissiontype == 'company.leave' || $permissiontype == 'company.note') {
                 if ($this->authCompanies($permission)->contains('id', $record->id)) return true;
-
                 return false;
             }
 

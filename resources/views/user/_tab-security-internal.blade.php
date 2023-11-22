@@ -187,6 +187,17 @@ $rec = $user;
                                 <td width="45%" colspan="3"></td>
                             </tr>
                         @endif
+                        @if ($cc)
+                            <tr>
+                                <td>Services Overview (Notes)<br><span
+                                            class="font-grey-silver">Cape Cod Only</span></td>
+                                <td width="15%">{!! permSelect('view.company.note', 'individual', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.company.note', 'individual', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('add.company.note', 'add', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('del.company.note', 'del', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
+                            </tr>
+                        @endif
                     @endif
                 </table>
             </div>

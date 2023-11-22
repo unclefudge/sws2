@@ -15,6 +15,7 @@ use App\Models\Company\CompanyLeave;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Trade;
 use App\Models\Misc\ComplianceOverride;
+use App\Models\Misc\Action;
 use App\Models\Site\Planner\Task;
 use App\Http\Requests;
 use App\Http\Requests\Company\CompanyRequest;
@@ -663,6 +664,45 @@ class CompanyController extends Controller {
 
         return redirect('/company/' . $company->id);
 
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function addNote($id)
+    {
+        $company = Company::findorFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('view.company.note', $company))
+            return view('errors/404');
+
+        $rules = ['action' => 'required'];
+        $mesg = ['action.required' => 'The description details field is required.'];
+        //dd(request()->all());
+
+        // Validate
+        $validator = Validator::make(request()->all(), $rules, $mesg);
+        if ($validator->fails()) {
+            $validator->errors()->add('FORM', 'notes');
+
+            return back()->withErrors($validator)->withInput();
+        }
+        //dd(request()->all());
+
+        $action_request = request()->all();
+        $action_request['table'] = 'companys';
+        $action_request['table_id'] = $company->id;
+
+        //dd($action_request);
+        $action = Action::create($action_request);
+        //$incident->emailAction($action);
+
+        Toastr::success("Added note");
+
+        return redirect('company/' . $company->id);
     }
 
     /**

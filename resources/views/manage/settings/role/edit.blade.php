@@ -83,18 +83,32 @@ $cc = 1;*/
 
                     <div class="portlet-body form">
                         <div class="note note-warning">
-                            <p>Permissions are separated into 5 categories (View, Edit, Create, Delete, Sign Off) and these determine what actions users can do for associated records or
+                            <p>Permissions are separated into 5 categories (View, Edit, Create, Delete, Sign Off) and
+                                these determine what actions users can do for associated records or
                                 function.</p>
-                            <p><br>For the View / Edit categories, users are able to be restricted to only certain records, which are as follows:</p>
+                            <p><br>For the View / Edit categories, users are able to be restricted to only certain
+                                records, which are as follows:</p>
                             <ul>
-                                <li><span style="float: left; width:150px">All</span>All records including any 'child' companies.</li>
-                                <li><span style="float: left; width:150px">Our Company</span>Only records that relate specifically to your own company (excludes 'child' company records).</li>
-                                <li><span style="float: left; width:150px">Supervisor for</span>Only records that relate to a 'site' which the user is a supervisor for.</li>
+                                <li><span style="float: left; width:150px">All</span>All records including any 'child'
+                                    companies.
+                                </li>
+                                <li><span style="float: left; width:150px">Our Company</span>Only records that relate
+                                    specifically to your own company (excludes 'child' company records).
+                                </li>
+                                <li><span style="float: left; width:150px">Supervisor for</span>Only records that relate
+                                    to a 'site' which the user is a supervisor for.
+                                </li>
                                 @if ($plan)
-                                    <li><span style="float: left; width:150px">Planned for</span>Only records that relate to a 'site' which the user is planned for.</li>
+                                    <li><span style="float: left; width:150px">Planned for</span>Only records that
+                                        relate to a 'site' which the user is planned for.
+                                    </li>
                                 @endif
-                                <li><span style="float: left; width:150px">Own Company</span>Only records that relate to the 'child' company the user belongs to.</li>
-                                <li><span style="float: left; width:150px">Individual Only</span>Only records that the user created or relate specifically to them.</li>
+                                <li><span style="float: left; width:150px">Own Company</span>Only records that relate to
+                                    the 'child' company the user belongs to.
+                                </li>
+                                <li><span style="float: left; width:150px">Individual Only</span>Only records that the
+                                    user created or relate specifically to them.
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -123,25 +137,34 @@ $cc = 1;*/
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                   data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                   data-original-title="Delete"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i> </a>
+                                            </td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                   data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                   data-original-title="Sign Off"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i> </a>
+                                            </td>
                                         </tr>
                                     </table>
 
                                     {{-- Users --}}
                                     @if (!$role->external)
                                         <h5 class="font-green-haze" style="font-size: 16px">User
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view or modify users that belong to your company or any 'child' company."
-                                               data-original-title="User"> <i class="fa fa-question-circle font-grey-silver"></i> </a></h5>
+                                               data-original-title="User"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i> </a></h5>
                                         <table class="table table-bordered table-striped">
                                             <tr>
-                                                <td>Login Details <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Login Details <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.user', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.user', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('add.user', 'add', $rec, $cid, $dis) !!}</td>
@@ -149,20 +172,23 @@ $cc = 1;*/
                                                 <td width="15%"></td>
                                             </tr>
                                             <tr>
-                                                <td>Contact Details <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Contact Details <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.user.contact', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.user.contact', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="30%" colspan="2"></td>
                                                 <td width="15%">{!! permSelect('sig.user.contact', 'sig', $rec, $cid, $dis) !!}</td>
                                             </tr>
                                             <tr>
-                                                <td>Security Details <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Security Details <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.user.security', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.user.security', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="45%" colspan="3"></td>
                                             </tr>
                                             <tr>
-                                                <td>Construction <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Construction <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.user.construction', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.user.construction', 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="45%" colspan="3"></td>
@@ -172,23 +198,25 @@ $cc = 1;*/
 
                                     {{-- Companies --}}
                                     <h5 class="font-green-haze" style="font-size: 16px">Companies
-                                        <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                        <a href="javascript:;" class="popovers" data-container="body"
+                                           data-trigger="hover"
                                            data-content="Grants ability to view or modify your company information or any 'child' company."
-                                           data-original-title="Company"> <i class="fa fa-question-circle font-grey-silver"></i> </a></h5>
+                                           data-original-title="Company"> <i
+                                                    class="fa fa-question-circle font-grey-silver"></i> </a></h5>
                                     <table class="table table-bordered table-striped">
                                         @if (!$role->external)
                                             <tr>
-                                                <td>Company Record <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Company Record <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="30%" colspan="2"></td>
                                                 <td width="15%">{!! permSelect('add.company', 'add', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('del.company', 'arc', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">&nbsp;</td>
 
                                             </tr>
-                                        @endif
-                                        @if (!$role->external)
                                             <tr>
-                                                <td>Company Details <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Company Details <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.company', 'own', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.company', 'own', $rec, $cid, $dis) !!}</td>
                                                 @if ($sub1)
@@ -201,7 +229,8 @@ $cc = 1;*/
 
                                             </tr>
                                             <tr>
-                                                <td>Business Details <br><span class="font-red">Disabled for 'child' company roles</span></td>
+                                                <td>Business Details <br><span class="font-red">Disabled for 'child' company roles</span>
+                                                </td>
                                                 <td width="15%">{!! permSelect('view.company.acc', 'own', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect('edit.company.acc', 'own', $rec, $cid, $dis) !!}</td>
                                                 @if ($sub1)
@@ -232,12 +261,27 @@ $cc = 1;*/
                                             </tr>
                                             @if ($cc || $be)
                                                 <tr>
-                                                    <td>Compliance Management <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <td>Compliance Management <a href="javascript:;" class="popovers"
+                                                                                 data-container="body"
+                                                                                 data-trigger="hover"
                                                                                  data-content="Grants ability to override the default compliance requirements in regards to documents for individual companies. To be used sparingly"
-                                                                                 data-original-title="Compliance Management"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                                                 data-original-title="Compliance Management">
+                                                            <i class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.compliance.manage', 'own', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.compliance.manage', 'own', $rec, $cid, $dis) !!}</td>
                                                     <td width="45%" colspan="3"></td>
+                                                </tr>
+                                            @endif
+                                            @if ($cc)
+                                                <tr>
+                                                    <td>Services Overview (Notes)<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td width="15%">{!! permSelect('view.company.note', 'individual', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.company.note', 'individual', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('add.company.note', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.company.note', 'del', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%"></td>
                                                 </tr>
                                             @endif
                                         @endif
@@ -274,23 +318,34 @@ $cc = 1;*/
                                         <table class="table table-striped">
                                             <tr>
                                                 <td style="background: #FFF; border: 0px #e7ecf1; font-size: 18px; font-weight: 300; padding: 0;"></td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                       data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Delete"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                       data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Sign Off"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                             </tr>
                                         </table>
                                         <h5 class="font-green-haze" style="font-size: 16px">Work Site
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view or modify work sites."
-                                               data-original-title="Work Sites"> <i class="fa fa-question-circle font-grey-silver"></i> </a></h5>
+                                               data-original-title="Work Sites"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i> </a></h5>
                                         <table class="table table-bordered table-striped">
                                             <tr>
                                                 <td>Site / Client Details @if ($sub1 && !$role->external)
@@ -308,13 +363,15 @@ $cc = 1;*/
                                             </tr>
                                             @if ($cc && !$role->external)
                                                 <tr>
-                                                    <td>Site Admin Info<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Site Admin Info<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.admin', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.admin', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="45%" colspan="3"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Site Notes<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Site Notes<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.note', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.note', 'individual', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.note', 'add', $rec, $cid, $dis) !!}</td>
@@ -322,7 +379,8 @@ $cc = 1;*/
                                                     <td width="15%"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Site Zoho Fields<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Site Zoho Fields<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">&nbsp;</td>
                                                     <td width="15%">{!! permSelect('edit.site.zoho.fields', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="45%" colspan="3"></td>
@@ -336,9 +394,11 @@ $cc = 1;*/
                                         </table>
 
                                         <h5 class="font-green-haze" style="font-size: 16px">Trades / Supervisors
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view or modify trades/tasks/superviors required on the sites."
-                                               data-original-title="Trades / Supervisors"> <i class="fa fa-question-circle font-grey-silver"></i> </a></h5>
+                                               data-original-title="Trades / Supervisors"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i> </a></h5>
                                         <table class="table table-bordered table-striped">
                                             @if (!$role->external)
                                                 @if ($plan)
@@ -396,32 +456,44 @@ $cc = 1;*/
                                         <table class="table table-striped">
                                             <tr>
                                                 <td style="background: #FFF; border: 0px #e7ecf1; font-size: 18px; font-weight: 300; padding: 0;"></td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                       data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Delete"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                       data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Sign Off"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                             </tr>
                                         </table>
 
 
                                         <h5 class="font-green-haze" style="font-size: 16px">Daily / Alerts
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to communicate via messages / alert to other users which belong to your company or child company."
-                                               data-original-title="Messages / Alerts"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                               data-original-title="Messages / Alerts"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i>
                                             </a>
                                         </h5>
                                         <table class="table table-bordered table-striped">
                                             @if ($cc)
                                                 <tr>
                                                     <td>Compliance
-                                                        <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                        <a href="javascript:;" class="popovers" data-container="body"
+                                                           data-trigger="hover"
                                                            data-content="Grants ability to view or edit roster for users which belong to your company work sites."
                                                            data-original-title="Attendance / Compliance"> <i
                                                                     class="fa fa-question-circle font-grey-silver"></i>
@@ -432,7 +504,8 @@ $cc = 1;*/
                                                     <td width="45%" colspan="3"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Safety Tips<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Safety Tips<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.safetytip', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.safetytip', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.safetytip', 'add', $rec, $cid, $dis) !!}</td>
@@ -451,9 +524,11 @@ $cc = 1;*/
                                         </table>
 
                                         <h5 class="font-green-haze" style="font-size: 16px">Reports / Exports
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view management reports and exports which belong to your company."
-                                               data-original-title="Management Reports / Exports"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                               data-original-title="Management Reports / Exports"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i>
                                             </a>
                                         </h5>
 
@@ -474,9 +549,11 @@ $cc = 1;*/
 
 
                                         <h5 class="font-green-haze" style="font-size: 16px">Configuration / Settings
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view / modify configuration settings for this website"
-                                               data-original-title="Configuration / Settings"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                               data-original-title="Configuration / Settings"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i>
                                             </a>
                                         </h5>
 
@@ -532,17 +609,26 @@ $cc = 1;*/
                                         <table class="table table-striped">
                                             <tr>
                                                 <td style="background: #FFF; border: 0px #e7ecf1; font-size: 18px; font-weight: 300; padding: 0;"></td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                       data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Delete"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                       data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Sign Off"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                             </tr>
                                         </table>
                                         <h5 class="font-green-haze" style="font-size: 16px">Safety</h5>
@@ -626,7 +712,8 @@ $cc = 1;*/
                                             </tr>
                                             @if($cc)
                                                 <tr>
-                                                    <td>Upcoming Plans<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Upcoming Plans<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.doc.upcoming', 'all', $rec, $cid) !!}</td>
                                                     <td width="60%" colspan="4"></td>
                                                 </tr>
@@ -642,7 +729,8 @@ $cc = 1;*/
                                             <h5 class="font-green-haze" style="font-size: 16px">Reports</h5>
                                             <table class="table table-bordered table-striped">
                                                 <tr>
-                                                    <td>Maintenance Requests<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Maintenance Requests<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.site.maintenance', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.maintenance', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.maintenance', 'add', $rec, $cid, $dis) !!}</td>
@@ -650,7 +738,8 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('sig.site.maintenance', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Quality Assurance Reports<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Quality Assurance Reports<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.site.qa', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.qa', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.qa', 'add', $rec, $cid, $dis) !!}</td>
@@ -658,7 +747,8 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('sig.site.qa', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Quality Assurance Templates<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Quality Assurance Templates<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.site.qa.templates', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.qa.templates', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.qa.templates', 'add', $rec, $cid, $dis) !!}</td>
@@ -666,7 +756,8 @@ $cc = 1;*/
                                                     <td width="15%"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inspection Reports (Electrical/Plumbing)<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Inspection Reports (Electrical/Plumbing)<br><span
+                                                                class="font-grey-silver">Cape Cod Only</span></td>
                                                     <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.inspection', 'add', $rec, $cid, $dis) !!}</td>
@@ -674,7 +765,8 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('sig.site.inspection', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Inspection Reports (WHS)<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Inspection Reports (WHS)<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.site.inspection.whs', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.inspection.whs', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.inspection.whs', 'add', $rec, $cid, $dis) !!}</td>
@@ -682,7 +774,8 @@ $cc = 1;*/
                                                     <td width="15%">{!! permSelect('sig.site.inspection.whs', 'sig', $rec, $cid, $dis) !!}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Scaffold Handover Certificate<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Scaffold Handover Certificate<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.site.scaffold.handover', 'super.plan', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.site.scaffold.handover', 'super', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('add.site.scaffold.handover', 'add', $rec, $cid, $dis) !!}</td>
@@ -756,23 +849,34 @@ $cc = 1;*/
                                         <table class="table table-striped">
                                             <tr>
                                                 <td style="background: #FFF; border: 0px #e7ecf1; font-size: 18px; font-weight: 300; padding: 0;"></td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                       data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Delete"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                       data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Sign Off"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                             </tr>
                                         </table>
                                         <h5 class="font-green-haze" style="font-size: 16px">Safety
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view or modify documents which belong to your company."
-                                               data-original-title="General Documents"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                               data-original-title="General Documents"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i>
                                             </a>
                                         </h5>
                                         <table class="table table-bordered table-striped">
@@ -808,9 +912,11 @@ $cc = 1;*/
 
                                         @if ($cc)
                                             <h5 class="font-green-haze" style="font-size: 16px">Equipment
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="Grants ability to view or transfer equipment between sites which belong to your company."
-                                                   data-original-title="Equipment"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                   data-original-title="Equipment"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i>
                                                 </a>
                                             </h5>
 
@@ -833,15 +939,18 @@ $cc = 1;*/
 
 
                                             <h5 class="font-green-haze" style="font-size: 16px">Documents
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="Grants ability to view or edit general documents ie Standard Details"
-                                                   data-original-title="Documents"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                   data-original-title="Documents"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i>
                                                 </a>
                                             </h5>
 
                                             <table class="table table-bordered table-striped">
                                                 <tr>
-                                                    <td>Standard Details Review<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td>Standard Details Review<br><span class="font-grey-silver">Cape Cod Only</span>
+                                                    </td>
                                                     <td width="15%">{!! permSelect('view.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect('edit.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="45%" colspan="4"></td>
@@ -882,23 +991,34 @@ $cc = 1;*/
                                         <table class="table table-striped">
                                             <tr>
                                                 <td style="background: #FFF; border: 0px #e7ecf1; font-size: 18px; font-weight: 300; padding: 0;"></td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
-                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create</td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">View
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit
+                                                </td>
+                                                <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Create
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                       data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Delete"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
                                                        data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                       data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                       data-original-title="Sign Off"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                             </tr>
                                         </table>
                                         <h5 class="font-green-haze" style="font-size: 16px">Planners
-                                            <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                            <a href="javascript:;" class="popovers" data-container="body"
+                                               data-trigger="hover"
                                                data-content="Grants ability to view or modify planners for work sites that belong to your company."
-                                               data-original-title="Planners"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                               data-original-title="Planners"> <i
+                                                        class="fa fa-question-circle font-grey-silver"></i>
                                             </a>
                                         </h5>
                                         <table class="table table-bordered table-striped">
@@ -976,13 +1096,19 @@ $cc = 1;*/
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Edit</td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Upload</td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Delete
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="For record integrity most data can't be deleted but users may be given access to archive / resolve it instead. For data that is actually deleted you will be asked to 'confirm'"
-                                                   data-original-title="Delete"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                   data-original-title="Delete"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i> </a>
+                                            </td>
                                             <td width="15%" style="border: 1px solid; border-color:#e7ecf1">Sign Off
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                <a href="javascript:;" class="popovers" data-container="body"
+                                                   data-trigger="hover"
                                                    data-content="Certain actions or updates to the record are required to be 'Signed Off' by an authorised user."
-                                                   data-original-title="Sign Off"> <i class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                   data-original-title="Sign Off"> <i
+                                                            class="fa fa-question-circle font-grey-silver"></i> </a>
+                                            </td>
                                         </tr>
                                     </table>
                                     <h5 class="font-green-haze" style="font-size: 16px">Public Documents</h5>
@@ -990,9 +1116,12 @@ $cc = 1;*/
                                         @foreach ($companyDocTypes::all() as $doc_type => $doc_name)
                                             <tr>
                                                 <td>{{ $doc_name }}
-                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                       data-content="{!! $companyDocTypes::docNames($doc_type, 0) !!}" data-original-title="Documents"> <i
-                                                                class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                    <a href="javascript:;" class="popovers" data-container="body"
+                                                       data-trigger="hover"
+                                                       data-content="{!! $companyDocTypes::docNames($doc_type, 0) !!}"
+                                                       data-original-title="Documents"> <i
+                                                                class="fa fa-question-circle font-grey-silver"></i> </a>
+                                                </td>
                                                 <td width="15%">{!! permSelect("view.docs.$doc_type.pub", ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect("edit.docs.$doc_type.pub", ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                                                 <td width="15%">{!! permSelect("add.docs.$doc_type.pub", 'up', $rec, $cid, $dis) !!}</td>
@@ -1011,9 +1140,12 @@ $cc = 1;*/
                                             @foreach ($companyDocTypes::all() as $doc_type => $doc_name)
                                                 <tr>
                                                     <td>{{ $doc_name }}
-                                                        <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                           data-content="{!! $companyDocTypes::docNames('acc', 1) !!}" data-original-title="Documents"> <i
-                                                                    class="fa fa-question-circle font-grey-silver"></i> </a></td>
+                                                        <a href="javascript:;" class="popovers" data-container="body"
+                                                           data-trigger="hover"
+                                                           data-content="{!! $companyDocTypes::docNames('acc', 1) !!}"
+                                                           data-original-title="Documents"> <i
+                                                                    class="fa fa-question-circle font-grey-silver"></i>
+                                                        </a></td>
                                                     <td width="15%">{!! permSelect("view.docs.$doc_type.pri", ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect("edit.docs.$doc_type.pri", ($sub1) ? 'own' : 'all', $rec, $cid, $dis) !!}</td>
                                                     <td width="15%">{!! permSelect("add.docs.$doc_type.pri", 'up', $rec, $cid, $dis) !!}</td>

@@ -247,6 +247,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('company/{id}/leave/{lid}', '\App\Http\Controllers\Company\CompanyController@destroyLeave');
     Route::post('company/{id}/compliance', '\App\Http\Controllers\Company\CompanyController@storeCompliance');
     Route::post('company/{id}/compliance/update', '\App\Http\Controllers\Company\CompanyController@updateCompliance');
+    Route::post('company/{id}/add_note', '\App\Http\Controllers\Company\CompanyController@addNote');
     Route::get('company/{id}/user', '\App\Http\Controllers\Company\CompanyController@users');
     //Route::get('company/{id}/edit/trade', '\App\Http\Controllers\Company\CompanyController@editTrade');
     //Route::post('company/{id}/settings/logo', '\App\Http\Controllers\Company\CompanyController@updateLogo');

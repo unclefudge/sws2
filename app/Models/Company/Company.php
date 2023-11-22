@@ -82,6 +82,16 @@ class Company extends Model {
     }
 
     /**
+     * A Company has many Actions
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actions()
+    {
+        return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
+    }
+
+    /**
      * A Company was created by a User
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

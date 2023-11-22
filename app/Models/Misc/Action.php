@@ -34,6 +34,8 @@ class Action extends Model {
             return $this->belongsTo('App\Models\Site\SiteInspectionElectrical', 'table_id');
         if ($this->table == 'company_docs_review')
             return $this->belongsTo('App\Models\Company\CompanyDoc', 'table_id');
+        if ($this->table == 'companys')
+            return $this->belongsTo('App\Models\Company\Company', 'table_id');
 
     }
 
