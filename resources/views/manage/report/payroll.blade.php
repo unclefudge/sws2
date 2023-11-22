@@ -90,7 +90,7 @@
                                         @continue
                                     @endif
                                     {{-- Exclude Companies not active during date range --}}
-                                    @if ($company->status == '0' && !$company->deactivated->between($from_date, $to_date))
+                                    @if ($company->status == '0' && $company->deactivated && !$company->deactivated->between($from_date, $to_date))
                                         @continue
                                     @endif
                                     {{-- Exclude Companies created after the date range --}}
