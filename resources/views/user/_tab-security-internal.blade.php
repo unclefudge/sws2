@@ -193,9 +193,7 @@ $rec = $user;
                                             class="font-grey-silver">Cape Cod Only</span></td>
                                 <td width="15%">{!! permSelect('view.company.note', 'individual', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('edit.company.note', 'individual', $rec, $cid, $dis) !!}</td>
-                                <td width="15%">{!! permSelect('add.company.note', 'add', $rec, $cid, $dis) !!}</td>
-                                <td width="15%">{!! permSelect('del.company.note', 'del', $rec, $cid, $dis) !!}</td>
-                                <td width="15%"></td>
+                                <td width="45%" colspan="3"></td>
                             </tr>
                         @endif
                     @endif
