@@ -2,6 +2,7 @@
     <div class="portlet-title tabbable-line">
         <div class="caption">
             <span class="caption-subject font-dark bold uppercase">Services Overview (Notes)</span>
+            <span class="caption-helper"> &nbsp; private to Cape Cod</span>
         </div>
         <div class="actions">
             @if (Auth::user()->allowed2('view.company.note', $company) && $company->status)

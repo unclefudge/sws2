@@ -79,7 +79,7 @@
                 @endif
 
                 {{-- Services Overview --}}
-                @if (Auth::user()->allowed2('view.company.note', $company))
+                @if (Auth::user()->isCC() && Auth::user()->allowed2('view.company.note', $company))
                     @include('company/_show-services-notes')
                     @include('company/_add-services-notes')
                 @endif

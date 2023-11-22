@@ -3,6 +3,7 @@
     <div class="portlet-title">
         <div class="caption">
             <span class="caption-subject font-dark bold uppercase">Services Overview (Notes)</span>
+            <span class="caption-helper"> &nbsp; private to Cape Cod</span>
         </div>
     </div>
     <div class="portlet-body form">
