@@ -235,7 +235,7 @@ class CompanyController extends Controller {
         $company->update($company_request);
         Toastr::success("Saved changes");
 
-        if (!$company->status && $old_status) {
+        if ($company->status == 0 && $old_status) {
             // Company made inactive
             if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.signup.completed'))
                 Mail::to($company->reportsTo()->notificationsUsersType('company.signup.completed'))->send(new \App\Mail\Company\CompanyArchived($company));
@@ -268,7 +268,7 @@ class CompanyController extends Controller {
                 Toastr::error("($wms_count) SWMS archived");
 
             Toastr::error("Deactivated Company");
-        } elseif ($company->status && !$old_status) {
+        } elseif ($company->status && $old_status == 0) {
             $company->deactivated = null;
             $company->save();
 
