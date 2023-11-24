@@ -359,7 +359,7 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit hazard --}}
                         @if (Auth::user()->allowed2('edit.site.asbestos', $asb))
-                            <button v-show="xx.record_status == '1'" v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                            <button v-show="xx.record_status == '1'" v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         @endif
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">

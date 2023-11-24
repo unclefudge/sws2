@@ -48,7 +48,7 @@
                                                 <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
                                             @endif
                                             @if($qa->status == '1' && Auth::user()->allowed2('edit.site.qa', $qa))
-                                                <button v-if="xx.qa.status == 1 && xx.qa.items_done == 0" class="btn red pull-right" v-on:click="$root.$broadcast('updateReportStatus', '-1')"> Page Not
+                                                <button v-if="xx.qa.status == 1 && xx.qa.items_done == 0" class="btn red pull-right" v-on:click.prevent="$root.$broadcast('updateReportStatus', '-1')"> Page Not
                                                     Required
                                                 </button>
                                             @endif

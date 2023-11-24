@@ -19,7 +19,7 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasPermission2('add.safetytip'))
-                                <a v-on:click="$root.$broadcast('add-tip-modal')" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</a>
+                                <a v-on:click.prevent="$root.$broadcast('add-tip-modal')" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</a>
                             @endif
                         </div>
                     </div>
@@ -74,12 +74,12 @@
                                 <td>@{{ tip.niceDate }}</td>
                                 <td>
                                     @if(Auth::user()->hasPermission2('edit.safetytip'))
-                                        <button v-on:click="$root.$broadcast('edit-tip-modal', tip)" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
+                                        <button v-on:click.prevent="$root.$broadcast('edit-tip-modal', tip)" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                             <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                         </button>
                                     @endif
                                     @if(Auth::user()->hasPermission2('del.safetytip'))
-                                        <button v-on:click="$root.$broadcast('del-tip-modal', tip)" class="btn dark btn-xs sbold margin-bottom btn-delete">
+                                        <button v-on:click.prevent="$root.$broadcast('del-tip-modal', tip)" class="btn dark btn-xs sbold margin-bottom btn-delete">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     @endif

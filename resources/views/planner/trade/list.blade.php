@@ -39,7 +39,7 @@
                             </div>
                             <div class="actions">
                                 @if (Auth::user()->hasPermission2('add.trade') && Auth::user()->id == 2)
-                                    <a v-on:click="$root.$broadcast('add-trade-modal')" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</a>
+                                    <a v-on:click.prevent="$root.$broadcast('add-trade-modal')" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</a>
                                 @endif
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                                         @if (Auth::user()->hasPermission2('del.trade') && Auth::user()->id == 2)
                                             <td>
                                                 @if (Auth::user()->hasPermission2('edit.trade'))
-                                                    <button v-on:click="$root.$broadcast('edit-trade-modal', trade)" class="
+                                                    <button v-on:click.prevent="$root.$broadcast('edit-trade-modal', trade)" class="
                                             btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                                         <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                                     </button>
@@ -126,7 +126,7 @@
     <template id="tasks-template">
         <h4 class="font-white" style="margin-top: 5px"><i class="icon-layers"></i> Tasks &nbsp; - &nbsp; @{{ trade_name }}
             @if (Auth::user()->hasPermission2('add.trade'))
-                <button v-on:click="$root.$broadcast('add-task-modal', trade_id)" class="btn green btn-outline btn-sm pull-right" data-original-title="Add" style="margin-top: -7px">
+                <button v-on:click.prevent="$root.$broadcast('add-task-modal', trade_id)" class="btn green btn-outline btn-sm pull-right" data-original-title="Add" style="margin-top: -7px">
                     Add
                 </button>
             @endif
@@ -161,7 +161,7 @@
                 </td>
                 <td>
                     @if (Auth::user()->hasPermission2('edit.trade'))
-                        <button v-on:click="$root.$broadcast('edit-task-modal', task)" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">
+                        <button v-on:click.prevent="$root.$broadcast('edit-task-modal', task)" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                             <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                         </button>
                     @endif

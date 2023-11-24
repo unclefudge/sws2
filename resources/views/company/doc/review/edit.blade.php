@@ -215,7 +215,7 @@
                                         <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
                                     </button>-->
                                     <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
+                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)"
                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                         <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                     </button>

@@ -141,7 +141,7 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit hazard --}}
                         @if (Auth::user()->allowed2('edit.site.asbestos', $asb))
-                            <button v-show="xx.record_status == '1'" v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                            <button v-show="xx.record_status == '1'" v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         @endif
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
@@ -160,7 +160,7 @@
                                 <td>@{{ action.action }}</td>
                                 <td>@{{ action.fullname }}</td>
                                 <!--<td>
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
+                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                     <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                     </button>
                                 </td>-->
