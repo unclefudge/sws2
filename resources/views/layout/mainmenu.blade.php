@@ -237,7 +237,7 @@
                     {{-----------------------------------------------------------------------------------
                        Planners
                      -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster|preconstruction'))
+                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster|preconstruction.planner'))
                         <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
                             <a href="javascript:;"><i class="fa fa-calendar"></i> Planners
                                 <span class="arrow"></span>
