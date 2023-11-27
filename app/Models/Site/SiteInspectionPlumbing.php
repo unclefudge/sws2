@@ -157,12 +157,14 @@ class SiteInspectionPlumbing extends Model {
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
         $todo->emailToDo();
+        if (\App::environment('prod'))
+            $todo->emailToDo('kirstie@capecod.com.au');
     }
 
     /**
      * Create ToDoo for Plumbing Report and assign to given user(s)
      */
-    public function createConstructionReviewToDo($user_list)
+    public function createSignOffToDo($user_list)
     {
         // Create ToDoo for Construction Manager to review report
         $todo_request = [

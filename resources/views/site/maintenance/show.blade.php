@@ -380,7 +380,7 @@
                                         @else
                                             {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
-                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
+                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
                                     </div>
                                 @endif
                             </div>
@@ -520,7 +520,7 @@
                                 @if ($main->supervisor_sign_by)
                                     {!! \App\User::find($main->supervisor_sign_by)->full_name !!}, &nbsp;{{ $main->supervisor_sign_at->format('d/m/Y') }}
                                 @else
-                                    <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 1" v-on:click="$root.$broadcast('signOff', 'super')"
+                                    <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 1" v-on:click.prevent="$root.$broadcast('signOff', 'super')"
                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                     </button>
                                     <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 0" class="font-red">Pending</span>
@@ -534,7 +534,7 @@
                                 @else
                                     @if ($main->supervisor_sign_by)
                                         <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                v-on:click="$root.$broadcast('signOff', 'manager')"
+                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
                                                 class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                         </button>
                                         <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
@@ -551,9 +551,9 @@
                             <a href="/site/maintenance" class="btn default"> Back</a>
                             @if (!$main->master && Auth::user()->allowed2('edit.site.main', $main))
                                 <button v-if="xx.main.status == 1 && xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total" class="btn blue"
-                                        v-on:click="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
+                                        v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
                                 </button>
-                                <button v-if="xx.main.status == 2 || xx.main.status == -1 " class="btn green" v-on:click="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                <button v-if="xx.main.status == 2 || xx.main.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
                             @endif
                         </div>
                         <br><br>
@@ -647,7 +647,7 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit maintenance --}}
                         {{--}}@if (Auth::user()->allowed2('edit.site.main', $main)) --}}
-                        <button v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         {{--}}@endif --}}
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
@@ -670,7 +670,7 @@
                                         <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
                                     </button>-->
                                     <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
+                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)"
                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                         <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                     </button>

@@ -48,8 +48,10 @@
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-xs-4">
-                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site Check-out </a>
-                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs" style="margin-top: -15px"> Site Check-out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-lg default hidden-sm hidden-xs"> Site
+                                    Check-out </a>
+                                <a href="{{ url('/checkout') }}" class="btn btn-sm default visible-sm visible-xs"
+                                   style="margin-top: -15px"> Site Check-out </a>
                             </div>
                         </div>
                     </div>
@@ -68,7 +70,8 @@
                     <div class="portlet-body">
                         <div class="row">
                             <div class="col-xs-12 text-center">
-                                Every worker MUST check in and acknowledge the work health and safety requirements before entering any worksite.<br><br>
+                                Every worker MUST check in and acknowledge the work health and safety requirements
+                                before entering any worksite.<br><br>
                             </div>
                             <div class="col-xs-12 text-center">
                                 <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
@@ -97,22 +100,26 @@
                         <div class="row">
                             <div class="col-md-6">
                                 @if (Auth::user()->hasPermission2('add.site.incident'))
-                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                                    <a href="/site/incident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
                                 @elseif (Auth::user()->hasPermission2('add.site.accident'))
-                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report Accident </a>
+                                    <a href="/site/accident/create" class="btn btn-lg red center-block"> Report
+                                        Accident </a>
                                 @endif
                             </div>
                             <div class="margin-bottom-10 visible-sm visible-xs"></div>
                             <div class="col-md-6">
                                 @if (Auth::user()->hasPermission2('add.site.hazard'))
-                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report Hazard </a>
+                                    <a href="/site/hazard/create" class="btn btn-lg blue center-block"> Report
+                                        Hazard </a>
                                 @endif
                             </div>
                         </div>
                         @if (Auth::user()->hasPermission2('add.site.asbestos'))
                             <div class="row" style="margin-top: 10px">
                                 <div class="col-md-12">
-                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
+                                    <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block">
+                                        Lodge Asbestos Notification </a>
                                 </div>
                             </div>
                         @endif
@@ -127,9 +134,11 @@
                 @endif
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
                 @if (Session::has('siteID'))
-                    <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge Safety Issue </a>
+                    <a href="/site/hazard/create" class="btn btn-lg blue center-block" style="margin-bottom: 5px"> Lodge
+                        Safety Issue </a>
                 @endif
-                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos Notification </a>
+                <a href="/site/asbestos/notification/create" class="btn btn-lg green center-block"> Lodge Asbestos
+                    Notification </a>
                 <div style="margin: 0px; padding: 0px; font-size: 6px">&nbsp;</div>
             </div>
         @endif
@@ -161,7 +170,8 @@
                                     @foreach($worksite->hazardsOpen() as $issue)
                                         <tr>
                                             <td>
-                                                <div class="text-center"><a href="/site/hazard/{{ $issue->id }}"><i class="fa fa-search"></i> </a></div>
+                                                <div class="text-center"><a href="/site/hazard/{{ $issue->id }}"><i
+                                                                class="fa fa-search"></i> </a></div>
                                             </td>
                                             <td>{{ $issue->created_at->format('d/m/Y') }}</td>
                                             <td>{{ $issue->reason }}</td>
@@ -187,7 +197,8 @@
                         <span class="caption-helper hidden-sm hidden-xs">Please complete these tasks</span>
                     </div>
                     <div class="actions">
-                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"
+                           data-original-title="" title=""> </a>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -205,7 +216,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="cont-col2">
-                                                    <div class="desc"> Please update your personal details in profile</div>
+                                                    <div class="desc"> Please update your personal details in profile
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -220,28 +232,37 @@
                             @foreach (TODO_TYPES AS $todo_type => $todo_name)
                                 @if (Auth::user()->todoType($todo_type, [1,2])->count() && !in_array($todo_type, ['company doc', 'company ptc', 'company privacy']))
                                     <h4>{{$todo_name}}</h4>
-                                    @if ($todo_type == 'qa')
-                                        <?php
-                                        $qa_outstanding = Auth::user()->todoType($todo_type, 1)->count();
-                                        if ($qa_outstanding > 20)
-                                            $qa_colour = 'danger';
-                                        else if ($qa_outstanding > 10)
-                                            $qa_colour = 'warning';
-                                        else
-                                            $qa_colour = 'success';
-                                        ?>
+                                    @if (in_array($todo_type, ['qa', 'company doc review']))
+                                            <?php
+                                            if ($todo_type == 'qa') {
+                                                $multi_link = '/site/qa';
+                                                $multi_title = 'Quality Assurance tasks';
+                                            }
+                                            if ($todo_type == 'company doc review') {
+                                                $multi_link = '/company/doc/standard/review';
+                                                $multi_title = 'Standard Details tasks';
+                                            }
+                                            $multi_outstanding = Auth::user()->todoType($todo_type, 1)->count();
+                                            if ($multi_outstanding > 20)
+                                                $multi_colour = 'danger';
+                                            else if ($multi_outstanding > 10)
+                                                $multi_colour = 'warning';
+                                            else
+                                                $multi_colour = 'success';
+                                            ?>
                                         <li>
-                                            <a href="/site/qa" class="task-title">
+                                            <a href="{{$multi_link}}" class="task-title">
                                                 <div class="col1">
                                                     <div class="cont">
                                                         <div class="cont-col1">
-                                                            <div class="label label-sm label-{{$qa_colour}}">
+                                                            <div class="label label-sm label-{{$multi_colour}}">
                                                                 <i class="fa fa-star"></i>
                                                             </div>
                                                         </div>
                                                         <div class="cont-col2">
                                                             <div class="desc">
-                                                                <span class="badge badge-roundless">{{ Auth::user()->todoType($todo_type, 1)->count() }}</span> Quality Assurance tasks
+                                                                <span class="badge badge-roundless">{{ Auth::user()->todoType($todo_type, 1)->count() }}</span>
+                                                                {{$multi_title}}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -283,7 +304,8 @@
                         <span class="caption-subject font-dark bold uppercase">Unresolved Site Safety Issues</span>
                     </div>
                     <div class="actions">
-                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"
+                           data-original-title="" title=""> </a>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -293,7 +315,7 @@
                             <?php $count = 0 ?>
                             @foreach(App\Models\Site\SiteAccident::where('status', '1')->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
-                                    <?php $count ++ ?>
+                                        <?php $count++ ?>
                                     @if ($count == 1)
                                         <h4>Accidents</h4>
                                     @endif
@@ -307,7 +329,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved accident on @ {{ $doc->site->name }}</div>
+                                                        <div class="desc"> Unresolved accident on
+                                                            @ {{ $doc->site->name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -323,7 +346,7 @@
                             <?php $count = 0 ?>
                             @foreach(App\Models\Site\Incident\SiteIncident::where('status', '1')->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
-                                    <?php $count ++ ?>
+                                        <?php $count++ ?>
                                     @if ($count == 1)
                                         <h4>Incidents</h4>
                                     @endif
@@ -337,7 +360,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved incident on @ {{ $doc->site_name }}</div>
+                                                        <div class="desc"> Unresolved incident on
+                                                            @ {{ $doc->site_name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -353,7 +377,7 @@
                             <?php $count = 0 ?>
                             @foreach(App\Models\Site\SiteHazard::where('status', '1')->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.hazard', $doc))
-                                    <?php $count ++ ?>
+                                        <?php $count++ ?>
                                     @if ($count == 1)
                                         <h4>Site Hazards</h4>
                                     @endif
@@ -367,7 +391,8 @@
                                                         </div>
                                                     </div>
                                                     <div class="cont-col2">
-                                                        <div class="desc"> Unresolved issue on @ {{ $doc->site->name }}</div>
+                                                        <div class="desc"> Unresolved issue on
+                                                            @ {{ $doc->site->name }}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -379,7 +404,7 @@
                                 @endif
                             @endforeach
                             @foreach(Auth::user()->todoType('hazard', 1) as $todo)
-                                <?php $count ++ ?>
+                                    <?php $count++ ?>
                                 @if ($count == 1)
                                     <h4>Site Hazards</h4>
                                 @endif
@@ -418,9 +443,12 @@
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.equipment.stocktake'))
-                                <a class="btn btn-circle btn-outline btn-default" href="/equipment/stocktake/{{ ($worksite->equipmentLocation) ? $worksite->equipmentLocation->id : 0 }}" data-original-title="" title=""> Stocktake</a>
+                                <a class="btn btn-circle btn-outline btn-default"
+                                   href="/equipment/stocktake/{{ ($worksite->equipmentLocation) ? $worksite->equipmentLocation->id : 0 }}"
+                                   data-original-title="" title=""> Stocktake</a>
                             @endif
-                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"
+                               data-original-title="" title=""> </a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -464,7 +492,8 @@
                         <span class="caption-subject font-dark bold uppercase">Job Site Documents</span>
                     </div>
                     <div class="actions">
-                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                        <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"
+                           data-original-title="" title=""> </a>
                     </div>
                 </div>
                 <div class="portlet-body">
@@ -473,13 +502,16 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_1"> Risk Assessments </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
+                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_1"> Risk
+                                            Assessments </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_1" class="panel-collapse collapse">
                                     <div class="panel-body" style="height:200px; overflow-y:auto;">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none; margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none; margin: 0px; padding: 0px">
                                                 <ul class="feeds">
                                                     @if ($worksite->docsOfType('RISK')->first())
                                                         @foreach($worksite->docsOfType('RISK') as $doc)
@@ -503,7 +535,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current risk assessments for this site</div>
+                                                            <div class="list-item-content">No current risk assessments
+                                                                for this site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -515,13 +549,16 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_2"> Hazardous Materials </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
+                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_2">
+                                            Hazardous Materials </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_2" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none;  margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none;  margin: 0px; padding: 0px">
                                                 <ul class="feeds">
                                                     @if ($worksite->docsOfType('HAZ')->first())
                                                         @foreach($worksite->docsOfType('HAZ') as $doc)
@@ -545,7 +582,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current hazardous materials report for this site</div>
+                                                            <div class="list-item-content">No current hazardous
+                                                                materials report for this site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -557,13 +596,16 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3"> Plans </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
+                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3">
+                                            Plans </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_3" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div class="mt-element-list">
-                                            <div class="mt-list-container list-simple" style="border: none;  margin: 0px; padding: 0px">
+                                            <div class="mt-list-container list-simple"
+                                                 style="border: none;  margin: 0px; padding: 0px">
                                                 <ul class="feeds">
                                                     @if ($worksite->docsOfType('PLAN')->first())
                                                         @foreach($worksite->docsOfType('PLAN') as $doc)
@@ -587,7 +629,9 @@
                                                     @else
                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                             <div class="list-icon-container"></div>
-                                                            <div class="list-item-content">No current plans for this site</div>
+                                                            <div class="list-item-content">No current plans for this
+                                                                site
+                                                            </div>
                                                         </li>
                                                     @endif
                                                 </ul>
@@ -601,14 +645,16 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse"
+                                       data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method
                                         Statements </a>
                                 </h4>
                             </div>
                             <div id="collapse_3_4" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div class="mt-element-list">
-                                        <div class="mt-list-container list-simple" style="border: none;  margin: 0px; padding: 0px">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
                                             <ul class="feeds">
                                                 @if (Auth::user()->company->wmsdocs->first())
                                                     @foreach(Auth::user()->company->wmsdocs as $doc)
@@ -634,7 +680,8 @@
                                                 @else
                                                     <li class="mt-list-item" style="padding: 10px 0px">
                                                         <div class="list-icon-container"></div>
-                                                        <div class="list-item-content">No Safe Work Method Statements</div>
+                                                        <div class="list-item-content">No Safe Work Method Statements
+                                                        </div>
                                                     </li>
                                                 @endif
 
@@ -659,28 +706,31 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet"
+          type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js"
+            type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var site_id = $('#site_id').val();
+        var site_id = $('#site_id').val();
 
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        bLengthChange: false,
-        bFilter: false,
-        paging: false,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/risk') !!}',
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            bLengthChange: false,
+            bFilter: false,
+            paging: false,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/risk') !!}',
             'type': 'GET',
             'data': function (d) {
                 d.site_id = 181; //$('#site_id').val();

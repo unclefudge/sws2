@@ -219,8 +219,8 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['inspected_by'] = Auth::user()->id;
             $report_request['status'] = 3; // Pending
 
-            // Create ToDoo for Con Mgr
-            $report->createConstructionReviewToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+            // Create ToDoo for Tech Mgr
+            $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();

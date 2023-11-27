@@ -90,7 +90,7 @@
                                                 <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $qa->updated_at->format('d/m/Y') }}</span>
                                             @endif
                                             @if($qa->status == '1' && Auth::user()->allowed2('edit.site.qa', $qa))
-                                                <button v-if="xx.qa.status == 1 && xx.qa.items_done == 0" class="btn red pull-right" v-on:click="$root.$broadcast('updateReportStatus', '-1')"> Page Not
+                                                <button v-if="xx.qa.status == 1 && xx.qa.items_done == 0" class="btn red pull-right" v-on:click.prevent="$root.$broadcast('updateReportStatus', '-1')"> Page Not
                                                     Required
                                                 </button>
                                             @endif
@@ -154,7 +154,7 @@
                                             @if ($qa->supervisor_sign_by)
                                                 {!! \App\User::find($qa->supervisor_sign_by)->full_name !!}, &nbsp;{{ $qa->supervisor_sign_at->format('d/m/Y') }}
                                             @else
-                                                <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click="$root.$broadcast('signOff', 'super')"
+                                                <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click.prevent="$root.$broadcast('signOff', 'super')"
                                                         class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                                 </button>
                                                 <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_supervisor" class="font-red">Pending</span>
@@ -170,7 +170,7 @@
                                             @else
                                                 @if ($qa->supervisor_sign_by)
                                                     <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                            v-on:click="$root.$broadcast('signOff', 'manager')"
+                                                            v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
                                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                                     </button>
                                                     <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
@@ -199,9 +199,9 @@
                                 @endif
                                 @if (!$qa->master && Auth::user()->allowed2('edit.site.qa', $qa))
                                     <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn blue"
-                                            v-on:click="$root.$broadcast('updateReportStatus', 4)"> Place On Hold
+                                            v-on:click.prevent="$root.$broadcast('updateReportStatus', 4)"> Place On Hold
                                     </button>
-                                    <button v-if="xx.qa.status == 4 || xx.qa.status == -1 " class="btn green" v-on:click="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                    <button v-if="xx.qa.status == 4 || xx.qa.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
                                 @endif
                             </div>
                             <br><br>
@@ -349,7 +349,7 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit hazard --}}
                         @if (Auth::user()->allowed2('edit.site.qa', $qa))
-                            <button v-show="xx.record_status == '1'" v-on:click="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                            <button v-show="xx.record_status == '1'" v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         @endif
                     </h3>
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
@@ -372,7 +372,7 @@
                                         <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
                                     </button>-->
                                     <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click="$root.$broadcast('edit-action-modal', action)"
+                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)"
                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
                                         <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
                                     </button>

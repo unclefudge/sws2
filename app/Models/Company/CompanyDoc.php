@@ -145,6 +145,7 @@ class CompanyDoc extends Model {
             $todo->assignUsers($user_list);
             $todo->emailToDo();
         }
+        //$todo->emailToDo('kirstie@capecod.com.au');
 
     }
 
