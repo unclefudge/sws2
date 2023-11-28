@@ -120,7 +120,7 @@ class CategoryController extends Controller {
 
         $cat->update(request()->all());
 
-        Toastr::success("Updated Categoy");
+        Toastr::success("Updated Category");
 
         return redirect('category');
     }
@@ -189,7 +189,13 @@ class CategoryController extends Controller {
             if (request()->has("cat-$cat->id")) {
                 if (request("cat-$cat->id")) {
                     $cat->name = request("cat-$cat->id");
-                    $cat->save();
+
+                    // Notify Users
+                    $cat->notify_users = null;
+                    if (request("notify_users-$cat->id") && is_array(request("notify_users-$cat->id")))
+                        $cat->notify_users = implode(',', request("notify_users-$cat->id"));
+
+                    $cat->save();  // save record
                 } else
                     return back()->withErrors(["cat-$cat->id" => "The name field is required."]);
             }
@@ -198,7 +204,8 @@ class CategoryController extends Controller {
         // Add Extra Field
         if (request('add_cat')) {
             $add_order = count($cats) + 1;
-            Category::create(['type' => $type, 'name' => request('add_cat_name'), 'order' => $add_order, 'company_id' => Auth::user()->company->reportsTo()->id, 'status' => 1]);
+            $notify_users =  (request('add_cat_notify_users')) ? implode(',', request('add_cat_notify_users')) : null;
+            Category::create(['type' => $type, 'name' => request('add_cat_name'), 'order' => $add_order, 'notify_users' => $notify_users, 'company_id' => Auth::user()->company->reportsTo()->id, 'status' => 1]);
         }
     }
 

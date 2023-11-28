@@ -811,6 +811,20 @@ class Site extends Model {
     }
 
     /**
+     * Future Tasks on Planer
+     *
+     * @return array
+     */
+    public function futureTasks($date = '')
+    {
+        if ($date)
+            $date = Carbon::today()->format('Y-m-d');
+        $planner = SitePlanner::where('site_id', $this->id)->whereDate('to', '>=', $date)->get();
+
+        return $planner;
+    }
+
+    /**
      * A Site has multiple Notify Alerts
      */
     public function notify()

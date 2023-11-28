@@ -5,6 +5,7 @@ namespace App\Models\Site;
 use PDF;
 use URL;
 use Mail;
+use App\User;
 use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,30 @@ class SiteNote extends Model {
     public function createdBy()
     {
         return $this->belongsTo('App\User', 'created_by');
+    }
+
+    /**
+     * Email Hazard
+     */
+    public function emailNote($email_list = '')
+    {
+        $email_to = [env('EMAIL_DEV')];
+
+        //if (\App::environment('prod')) {
+            $email_to = [];
+            if ($this->category->notify_users) {
+                $users = explode(',', $this->category->notify_users);
+                foreach ($users as $user_id) {
+                    $user = User::find($user_id);
+                    if ($user && validEmail($user->email))
+                        $email_to[] = $user->email;
+                }
+            }
+        //}
+
+       if ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteNoteCreated($this));
+
     }
 
     /**

@@ -32,6 +32,12 @@
                             <h3>Categories <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="btn-add-item">Add option</button></small></span></h3>
 
                             <hr class="field-hr">
+                            <div class="row">
+                                <div class="col-xs-2 text-center"></div>
+                                <div class="col-xs-4">Name</div>
+                                <div class="col-xs-4">Users to Notify</div>
+                                <div class="col-xs-2"></div>
+                            </div>
                             @foreach ($cats as $cat)
                                 <div class="row">
                                     <div class="col-xs-1">
@@ -46,6 +52,10 @@
                                             {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
                                             {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
                                         </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {!! Form::select("notify_users-$cat->id", Auth::user()->company->staffSelect(),
+                                            $cat->notifyUsersArray(), ['class' => 'form-control select2', 'name' => "notify_users-$cat->id[]", 'multiple' => 'multiple', 'width' => '100%']) !!}
                                     </div>
                                     <div class="col-xs-2">
                                         <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
@@ -67,6 +77,10 @@
                                             {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('add_cat_name', $errors) !!}
                                         </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        {!! Form::select("add_cat_notify_users", Auth::user()->company->staffSelect(),
+                                            null, ['class' => 'form-control select2', 'name' => "add_cat_notify_users[]", 'multiple' => 'multiple', 'width' => '100%']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -104,6 +118,12 @@
 <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function () {
+        /* Select2 */
+        $(".select2").select2({
+            placeholder: "Select one or more users",
+            width: '100%',
+        });
+
         // Add extra categories
         $("#btn-add-item").click(function (e) {
             e.preventDefault();

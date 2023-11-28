@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class Category extends Model {
 
     protected $table = 'categories';
-    protected $fillable = ['type', 'sub_type', 'name', 'brief', 'parent', 'order', 'notes', 'company_id', 'status', 'created_by', 'updated_by'];
+    protected $fillable = ['type', 'sub_type', 'name', 'value', 'brief', 'colour', 'order', 'parent', 'notify', 'notify_users', 'notes', 'company_id', 'status', 'created_by', 'updated_by'];
 
     /**
      * A Category belongs to a Company.
@@ -18,6 +18,13 @@ class Category extends Model {
      */
     public function company() {
         return $this->belongsTo('App\Models\Company\Company', 'company_id');
+    }
+
+    /*
+     * Notify Users to Array
+     */
+    public function notifyUsersArray() {
+        return explode(',',$this->notify_users);
     }
 
     /**

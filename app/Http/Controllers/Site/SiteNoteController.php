@@ -105,6 +105,7 @@ class SiteNoteController extends Controller {
 
         // Create Site Note
         $note = SiteNote::create(request()->all());
+        $note->emailNote();
 
         $previous_url = parse_url(request('previous_url'));
         if (preg_match("/\/site\/\d/", $previous_url['path']))
@@ -215,6 +216,7 @@ class SiteNoteController extends Controller {
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
 
+        //dd(request()->all());
         CategoryController::updateCategories('site_note', $request);
 
         Toastr::success("Updated categories");
@@ -233,14 +235,14 @@ class SiteNoteController extends Controller {
 
         $records = SiteNote::select([
             'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.notes', 'site_notes.updated_at', 'site_notes.created_by', // 'sites.name',
-            'users.username', 'users.firstname', 'users.lastname', 'site_notes_categories.name',
+            'users.username', 'users.firstname', 'users.lastname', 'categories.name',
             DB::raw('DATE_FORMAT(site_notes.created_at, "%d/%m/%y") AS date_created'),
             DB::raw('CONCAT(users.firstname, " ", users.lastname) AS full_name'),
             DB::raw('sites.name AS sitename')
         ])
             ->join('sites', 'sites.id', '=', 'site_notes.site_id')
             ->join('users', 'users.id', '=', 'site_notes.created_by')
-            ->join('site_notes_categories', 'site_notes_categories.id', '=', 'site_notes.category_id')
+            ->join('categories', 'categories.id', '=', 'site_notes.category_id')
             ->whereIn('site_notes.site_id', $site_list)
             ->where('site_notes.status', 1);
 
