@@ -13,7 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class CompanyDoc extends Model {
+class CompanyDoc extends Model
+{
 
     protected $table = 'company_docs';
     protected $fillable = [
@@ -131,11 +132,11 @@ class CompanyDoc extends Model {
     {
         $company = Company::findOrFail($this->for_company_id);
         $todo_request = [
-            'type'       => 'company doc',
-            'type_id'    => $this->id,
-            'name'       => 'Company Document Approval Request - ' . $company->name_alias . ' (' . $this->name . ')',
-            'info'       => 'Please approve/reject uploaded document',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'company doc',
+            'type_id' => $this->id,
+            'name' => 'Company Document Approval Request - ' . $company->name_alias . ' (' . $this->name . ')',
+            'info' => 'Please approve/reject uploaded document',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -145,7 +146,13 @@ class CompanyDoc extends Model {
             $todo->assignUsers($user_list);
             $todo->emailToDo();
         }
-        //$todo->emailToDo('kirstie@capecod.com.au');
+        if (\App::environment('prod')) {
+            if ($this->category->type == 'whs')
+                $todo->emailToDo(['kirstie@capecod.com.au', 'tara@capecod.com.au']);
+            else
+                $todo->emailToDo('kirstie@capecod.com.au');
+        }
+
 
     }
 
@@ -156,11 +163,11 @@ class CompanyDoc extends Model {
     {
         $mesg = ($expired == true) ? "$this->name Expired " . $this->expiry->format('d/m/Y') : "$this->name due to expire " . $this->expiry->format('d/m/Y');
         $todo_request = [
-            'type'       => 'company doc',
-            'type_id'    => $this->id,
-            'name'       => $mesg,
-            'info'       => 'Please uploaded a current version of the document',
-            'due_at'     => Carbon::today()->addDays(7)->toDateTimeString(),
+            'type' => 'company doc',
+            'type_id' => $this->id,
+            'name' => $mesg,
+            'info' => 'Please uploaded a current version of the document',
+            'due_at' => Carbon::today()->addDays(7)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
