@@ -73,7 +73,7 @@
                                     </select>
                                 </div>
                             </div>
-                            @if ($site && $site->status == -1)
+                            @if (Auth::user()->hasPermission2('edit.preconstruction.planner') && $site && $site->status == '-1')
                             <div class="col-md-3 pull-right">
                                 <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
                                 <a id="delete" class="btn red" style="margin: 3px">Cancel Site</a>

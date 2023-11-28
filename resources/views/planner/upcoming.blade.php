@@ -27,7 +27,9 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                    <th width="5%"> #</th>
+                                @endif
                                 <th> Site Name</th>
                                 <th width="12%"> Start Estimate</th>
                                 <th> Supervisor</th>
@@ -41,26 +43,40 @@
 
                             <tbody>
                             @foreach($site_list as $site_id)
-                                <?php $site = \App\Models\Site\Site::find($site_id) ?>
+                                    <?php $site = \App\Models\Site\Site::find($site_id) ?>
                                 <tr>
-                                    <td>
-                                        <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i class="fa fa-search"></i></a></div>
-                                    </td>
+                                    @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                        <td>
+                                            <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i
+                                                            class="fa fa-search"></i></a></div>
+                                        </td>
+                                    @endif
                                     <td>{{ $site->name }}</td>
                                     <td>
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "s$site->id"]) !!}
-                                            <span class="input-group-btn">
-                                                <button class="btn default date-set" type="button" style="padding: 0"></button>
+                                        @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "s$site->id"]) !!}
+                                                <span class="input-group-btn">
+                                                <button class="btn default date-set" type="button"
+                                                        style="padding: 0"></button>
                                             </span>
-                                        </div>
+                                            </div>
+                                        @else
+                                            {!! ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '' !!}
+                                        @endif
                                     </td>
                                     <td>
-                                        <select id="{{ $site->id }}" class="form-control bs-select" name="supervisor" title="Select supervisor">
-                                            @foreach(Auth::user()->company->supervisorsSelect() as $id => $name)
-                                                <option value="{{ $id }}" @if ($site->supervisor_id && $id == $site->supervisor_id) selected @endif>{{ $name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                            <select id="{{ $site->id }}" class="form-control bs-select"
+                                                    name="supervisor" title="Select supervisor">
+                                                @foreach(Auth::user()->company->supervisorsSelect() as $id => $name)
+                                                    <option value="{{ $id }}"
+                                                            @if ($site->supervisor_id && $id == $site->supervisor_id) selected @endif>{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            {!! $site->supervisorInitials !!}
+                                        @endif
                                     </td>
                                     <td>{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '' !!}</td>
                                     <td>{!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '' !!}</td>
@@ -81,69 +97,74 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet"
+          type="text/css"/>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"
+            type="text/javascript"></script>
     <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js"
+            type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    $(document).ready(function () {
-        $('select').change(function () {
-            //alert(this.value + ' : ' + this.id);
-            $.ajax({
-                url: '/site/' + this.id + '/supervisor/' + this.value,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    console.log('updated supervisor for Site:')
-                },
-            })
+        $(document).ready(function () {
+            $('select').change(function () {
+                //alert(this.value + ' : ' + this.id);
+                $.ajax({
+                    url: '/site/' + this.id + '/supervisor/' + this.value,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('updated supervisor for Site:')
+                    },
+                })
+            });
+            $('.startEst').change(function () {
+                //alert(this.value + ' : ' + this.id);
+                var site_id = this.id.substring(1);
+                var date = this.value.split('/');
+                var date_formated = date[2] + '-' + date[1] + '-' + date[0];
+                //alert(date_formated);
+                $.ajax({
+                    url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('updated supervisor for Site:')
+                    },
+                })
+            });
         });
-        $('.startEst').change(function () {
-            //alert(this.value + ' : ' + this.id);
-            var site_id = this.id.substring(1);
-            var date = this.value.split('/');
-            var date_formated = date[2]+'-'+date[1]+'-'+date[0];
-            //alert(date_formated);
-            $.ajax({
-                url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    console.log('updated supervisor for Site:')
-                },
-            })
-        });
-    });
 
-    function go2preconstruction(site_id) {
-        var postData = {site_start: 'start', _token: $('meta[name=token]').attr('value')};
-        var postFormStr = "<form method='POST' action='/planner/preconstruction/" + site_id + "'>\n";
+        function go2preconstruction(site_id) {
+            var postData = {site_start: 'start', _token: $('meta[name=token]').attr('value')};
+            var postFormStr = "<form method='POST' action='/planner/preconstruction/" + site_id + "'>\n";
 
-        for (var key in postData) {
-            if (postData.hasOwnProperty(key))
-                postFormStr += "<input type='hidden' name='" + key + "' value='" + postData[key] + "'></input>";
+            for (var key in postData) {
+                if (postData.hasOwnProperty(key))
+                    postFormStr += "<input type='hidden' name='" + key + "' value='" + postData[key] + "'></input>";
+            }
+
+            postFormStr += "</form>";
+            var formElement = $(postFormStr);
+
+            $('body').append(formElement);
+            $(formElement).submit();
         }
 
-        postFormStr += "</form>";
-        var formElement = $(postFormStr);
-
-        $('body').append(formElement);
-        $(formElement).submit();
-    }
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop
