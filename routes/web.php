@@ -733,30 +733,37 @@ Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController
 Route::get('cron/super-checklists', '\App\Http\Controllers\Misc\CronController@superChecklists');
 
 
-Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
-Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');
-Route::get('test/blankptc/{cid}', '\App\Http\Controllers\Company\CompanyPeriodTradeController@blankPtcPDF');
-Route::get('manage/updateroles', '\App\Http\Controllers\Misc\PagesController@updateRoles');
-Route::get('manage/import-payroll', '\App\Http\Controllers\Misc\PagesController@importPayroll');
-Route::get('manage/import-maintenance', '\App\Http\Controllers\Misc\PagesController@importMaintenance');
-Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesController@importQuestions');
+// Import Data Routes
+Route::get('manage/import-payroll', '\App\Http\Controllers\Misc\PagesImportController@importPayroll');
+Route::get('manage/import-maintenance', '\App\Http\Controllers\Misc\PagesImportController@importMaintenance');
+Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesImportController@importQuestions');
 Route::get('manage/import-time-extensions', '\App\Http\Controllers\Misc\PagesController@importTimeExtensions');
-Route::get('manage/initform', '\App\Http\Controllers\Misc\PagesController@initFormTemplate');
-Route::get('manage/resetform', '\App\Http\Controllers\Misc\PagesController@resetFormTemplate');
-Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\PagesController@showTemplate');
-Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
-Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesController@initSuperChecklist');
-Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesController@newSuperChecklist');
+Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesImportController@initSuperChecklist');
+Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesImportController@newSuperChecklist');
+// CCC Routes
 Route::get('manage/import-ccc-program', '\App\Http\Controllers\Misc\CccController@importCCCprogram');
 Route::get('manage/import-ccc-youth', '\App\Http\Controllers\Misc\CccController@importCCCyouth');
 Route::get('manage/output-ccc-program', '\App\Http\Controllers\Misc\CccController@outputCCCprogram');
 
+// Management Routes
+Route::get('test/cal', '\App\Http\Controllers\Misc\PagesController@testcal');
+Route::get('test/filepond', '\App\Http\Controllers\Misc\PagesController@testfilepond');
+Route::get('test/blankptc/{cid}', '\App\Http\Controllers\Company\CompanyPeriodTradeController@blankPtcPDF');
+Route::get('manage/updateroles', '\App\Http\Controllers\Misc\PagesController@updateRoles');
 
+Route::get('manage/triggerQA', '\App\Http\Controllers\Misc\PagesController@triggerQA');
 Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');
+
+// Form Template Setup
+Route::get('manage/resetform', '\App\Http\Controllers\Misc\Form\FormSetupController@resetFormTemplate');
+Route::get('manage/initform1', '\App\Http\Controllers\Misc\Form\FormSetupController@createFormTemplate1');
+Route::get('manage/initform2', '\App\Http\Controllers\Misc\Form\FormSetupController@createFormTemplate2');
+Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\Form\FormSetupController@showTemplate');
+
 
 // PHP Info
 Route::get('php-info', function () {
-    phpinfo();
+    //phpinfo();
 });
 
 Route::get('test/email', function () {

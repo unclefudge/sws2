@@ -77,10 +77,6 @@ class SiteHazardController extends Controller {
             $action = Action::create(['action' => $request->get('action'), 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->touch(); // update timestamp
 
-            // Handle attached Photo or Video
-            //if ($request->hasFile('media'))
-            //    $hazard->saveAttachedMedia($request->file('media'));
-
             // Handle attachments
             $attachments = request("filepond");
             if ($attachments) {

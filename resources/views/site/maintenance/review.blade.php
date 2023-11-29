@@ -287,16 +287,24 @@
                             </div>
                         </div>
 
-                        {{--}}
-                        <h4>Additional Info</h4>
+                        {{-- Planner --}}
+                        <h4>Future Planner Tasks</h4>
+                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                         <div class="row">
-                            <div class="col-md-12 ">
-                                <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                    {!! Form::textarea("notes", nl2br($main->notes), ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details."]) !!}
-                                    {!! fieldErrorMessage('notes', $errors) !!}
-                                </div>
+                            <div class="col-md-12">
+                                @if ($main->site->futureTasks()->count())
+                                    @foreach ($main->site->futureTasks() as $plan)
+                                        <div class="row">
+                                            <div class="col-xs-1">{!! $plan->from->format('d/m/y') !!}</div>
+                                            <div class="col-xs-11">{{$plan->task->name}}</div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    No future tasks on planner
+                                @endif
                             </div>
-                        </div>--}}
+                        </div>
+                        <br>
 
 
                         {{-- Notes --}}

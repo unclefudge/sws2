@@ -817,7 +817,7 @@ class Site extends Model {
      */
     public function futureTasks($date = '')
     {
-        if ($date)
+        if (!$date)
             $date = Carbon::today()->format('Y-m-d');
         $planner = SitePlanner::where('site_id', $this->id)->whereDate('to', '>=', $date)->get();
 

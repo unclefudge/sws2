@@ -124,8 +124,9 @@
                                 // Exclude requests that have a task planned 1 week prior or after today
                             $recentTask = ($main->site->jobRecentTask && $main->site->jobRecentTask->gt(\Carbon\Carbon::now()->subDays(7))) ? $main->site->jobRecentTask->format('d/m/Y') : null;
                             $nextTask = ($main->site->jobNextTask && $main->site->jobNextTask->lt(\Carbon\Carbon::now()->addDays(7))) ? $main->site->jobNextTask->format('d/m/Y') : null;
+                            $futureTasks = ($main->site->futureTasks()->count()) ? true : false;
                             ?>
-                        @if ($main->lastUpdated()->lt(\Carbon\Carbon::now()->subDays(14)) && !($recentTask || $nextTask))
+                        @if ($main->lastUpdated()->lt(\Carbon\Carbon::now()->subDays(14)) && !($recentTask || $nextTask || $futureTasks))
                                 <?php $row_count ++; $super_count ++; ?>
                             <tr>
                                 <td class="pad5">M{{ $main->code }}</td>
