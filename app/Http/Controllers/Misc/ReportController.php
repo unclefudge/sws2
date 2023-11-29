@@ -350,7 +350,7 @@ class ReportController extends Controller {
         $active_requests = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $mains = [];
         foreach ($active_requests as $main) {
-            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)))
+            if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)) && !$main->site->futureTasks()->count())
                 $mains[$main->lastAction()->updated_at->format('Ymd')] = $main;
         }
         ksort($mains);
