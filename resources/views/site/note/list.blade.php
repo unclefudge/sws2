@@ -127,10 +127,10 @@
                 {data: 'action', name: 'action', searchable: false, orderable: false},
                 {data: 'firstname', name: 'users.firstname', visible: false},
                 {data: 'lastname', name: 'users.lastname', visible: false},
-                {data: 'name', name: 'site_notes_categories.name', visible: false},
+                {data: 'name', name: 'categories.name', visible: false},
             ],
             order: [
-                [1, "asc"]
+                [0, "desc"]
             ]
         });
 

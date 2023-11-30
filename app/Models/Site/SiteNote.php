@@ -6,7 +6,7 @@ use PDF;
 use URL;
 use Mail;
 use App\User;
-use App\Models\Comms\Todo;
+use App\Models\Misc\Attachment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -17,10 +17,8 @@ class SiteNote extends Model {
     protected $table = 'site_notes';
     protected $fillable = ['site_id', 'category_id', 'price', 'attachment', 'status', 'notes'];
 
-    //protected $dates = [''];
-
     /**
-     * A SiteNotes belongs to a Site
+     * A SiteNote belongs to a Site
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -30,13 +28,21 @@ class SiteNote extends Model {
     }
 
     /**
-     * A SiteNotes belongs to a Site
+     * A SiteNote belongs to a Site
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function category()
     {
         return $this->belongsTo('App\Models\Misc\Category');
+    }
+
+    /**
+     * A SiteNote Attachments
+     */
+    public function attachments()
+    {
+        return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
     }
 
     /**
@@ -56,7 +62,7 @@ class SiteNote extends Model {
     {
         $email_to = [env('EMAIL_DEV')];
 
-        //if (\App::environment('prod')) {
+        if (\App::environment('prod')) {
             $email_to = [];
             if ($this->category->notify_users) {
                 $users = explode(',', $this->category->notify_users);
@@ -66,7 +72,10 @@ class SiteNote extends Model {
                         $email_to[] = $user->email;
                 }
             }
-        //}
+            // Include Site Supervisor on email
+            if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
+                $email_to[] = $this->site->supervisor->email;
+        }
 
        if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\SiteNoteCreated($this));

@@ -59,6 +59,14 @@
                                 </div>
                             </div>
 
+                            {{-- Attachments --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Upload Attachments</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                </div>
+                            </div>
+
 
                             <br><br>
                             <div class="form-actions right">
@@ -77,17 +85,38 @@
 
 
 @section('page-level-plugins-head')
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script>
+        //
+        // FilePond
+        //
+        // Get a reference to the file input element
+        const inputElement = document.querySelector('input[type="file"]');
+
+        // Create a FilePond instance
+        const pond = FilePond.create(inputElement);
+        FilePond.setOptions({
+            server: {
+                url: '/file/upload',
+                fetch: null,
+                revert: null,
+                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+            },
+            allowMultiple: true,
+        });
+
+
         $(document).ready(function () {
             /* Select2 */
             $("#site_id").select2({placeholder: "Select Site",});

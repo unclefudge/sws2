@@ -13,6 +13,7 @@ use Session;
 use App\User;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Category;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
@@ -105,13 +106,29 @@ class SiteNoteController extends Controller {
 
         // Create Site Note
         $note = SiteNote::create(request()->all());
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
+        }
+
+        // Email note
         $note->emailNote();
 
         $previous_url = parse_url(request('previous_url'));
-        if (preg_match("/\/site\/\d/", $previous_url['path']))
-            return redirect("site/$note->site_id");
-        else
+        if (preg_match("/notes$/", $previous_url['path']))
             return redirect("site/$note->site_id/notes");
+        else
+            return redirect("site/$note->site_id");
+
+        //if (preg_match("/\/site\/\d/", $previous_url['path']))
+        //    return redirect("site/$note->site_id");
+        //else
+        //    return redirect("site/$note->site_id/notes");
 
     }
 
@@ -156,6 +173,16 @@ class SiteNoteController extends Controller {
 
         // Update Site Note
         $note->update(request()->all());
+
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
+        }
 
         return redirect("site/$note->site_id/notes");
 
@@ -257,12 +284,20 @@ class SiteNoteController extends Controller {
                 return $note->category->name;
             })
             ->editColumn('notes', function ($note) {
-                return nl2br($note->notes);
+                $string = nl2br($note->notes);
+
+                if ($note->attachments()->count()) {
+                    $string .= "<br><b>Attachments:</b><br>";
+                    foreach($note->attachments() as $attachment) {
+                        $string .= "<a href='$attachment->url' target='_blank'>$attachment->name<br>";
+                    }
+                }
+                return $string;
             })
             ->addColumn('action', function ($note) {
                 $actions = '';
-                if (Auth::user()->allowed2('edit.site.note', $note))
-                    $actions .= '<a href="/site/note/' . $note->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                //if (Auth::user()->allowed2('edit.site.note', $note))
+                //    $actions .= '<a href="/site/note/' . $note->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 if (Auth::user()->hasPermission2("del.site.note"))
                     $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/note/' . $note->id . '" data-name="' . $note->site->name . '"><i class="fa fa-trash"></i></button>';
 

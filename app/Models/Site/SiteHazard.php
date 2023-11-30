@@ -144,7 +144,7 @@ class SiteHazard extends Model {
             if (file_exists($tempFilePublicPath)) {
                 $newFile = "hazard-" . $this->id . '-' . $tempFile->filename;
 
-                // Ensure filename is unique by adding counter to similiar filenames
+                // Ensure filename is unique by adding counter to similar filenames
                 $count = 1;
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);

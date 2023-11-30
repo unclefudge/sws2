@@ -31,6 +31,17 @@ class SiteNoteCreated extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        return $this->markdown('emails/site/note-created')->subject('SafeWorksite - Site Note');
+        //$subject = 'SafeWorksite - SiteNote[#'. $this->note->id .'] for ' . $this->note->site->name . ' ('. $this->note->category->name . ')';
+        $subject = 'SafeWorksite - SiteNote for ' . $this->note->site->name . ' ('. $this->note->category->name . ')';
+        $email = $this->markdown('emails/site/note-created')->subject($subject);
+        // Attachments
+        if ($this->note->attachments()->count()) {
+            foreach ($this->note->attachments() as $attachment) {
+                if (file_exists(public_path($attachment->url)))
+                    $email->attach(public_path($attachment->url));
+            }
+        }
+        return $email;
+
     }
 }
