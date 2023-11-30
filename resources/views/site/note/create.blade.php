@@ -67,7 +67,6 @@
                                 </div>
                             </div>
 
-
                             <br><br>
                             <div class="form-actions right">
                                 <a href="{!! url()->previous() !!}" class="btn default"> Back</a>

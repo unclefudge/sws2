@@ -17,24 +17,33 @@
         ?>
         @if ($site->sitenotes()->whereDate('created_at', '>', $days60)->count())
             <div class="scroller" style="height: 200px;" data-always-visible="1" data-rail-visible1="0">
-                <div class="row">
-                    @foreach ($site->sitenotes()->whereDate('created_at', '>', $days60)->orderBy('created_at', 'DESC')->get() as $note)
+                @foreach ($site->sitenotes()->whereDate('created_at', '>', $days60)->orderBy('created_at', 'DESC')->get() as $note)
+                    <div class="row">
                         <div class="col-xs-3">
                             <small>{{ $note->created_at->format('d/m/Y') }}</small>
                         </div>
                         <div class="col-xs-9">
-                            <small>{!! nl2br($note->notes) !!}<br>- {{ $note->createdBy->name  }}</small>
+                            <small>
+                                {!! nl2br($note->notes) !!}<br>- {{ $note->createdBy->name  }}
+                                @if ($note->attachments()->count())
+                                    <br>
+                                    @foreach($note->attachments() as $attachment)
+                                        <a href='{{$attachment->url}}' target='_blank'>{{$attachment->name}}</a><br>
+                                    @endforeach
+                                @endif
+                            </small>
                         </div>
-                    @endforeach
-                </div>
-                <hr class="field-hr">
+                    </div>
+                    <hr class="field-hr">
+                @endforeach
             </div>
         @elseif ($site->sitenotes()->count())
-            <?php
-            $notes = $site->sitenotes()->orderBy('created_at', 'DESC')->first();
-            ?>
+                <?php
+                $notes = $site->sitenotes()->orderBy('created_at', 'DESC')->first();
+                ?>
             <div class="row">
-                <div class="col-xs-12">Last note on {{ $note->created_at->format('d/m/Y') }} by {{ $note->createdBy->name }}<br>{!! nl2br($note->notes) !!}</div>
+                <div class="col-xs-12">Last note on {{ $note->created_at->format('d/m/Y') }}
+                    by {{ $note->createdBy->name }}<br>{!! nl2br($note->notes) !!}</div>
             </div>
         @else
             <div class="row">

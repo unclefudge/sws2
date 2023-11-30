@@ -38,7 +38,7 @@ class SiteNote extends Model {
     }
 
     /**
-     * A SiteNote Attachments
+     * SiteNote Attachments
      */
     public function attachments()
     {
