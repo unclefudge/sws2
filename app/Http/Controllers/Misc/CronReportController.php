@@ -808,7 +808,7 @@ class CronReportController extends Controller {
 
 
         $cc_users = $cc->users(1)->pluck('id')->toArray();
-        $user_list = User::where('status', 1)->whereIn('id', $cc_users)->orderBy('company_id', 'ASC')->pluck('id')->toArray();
+        $user_list = User::where('status', 1)->where('onsite', 1)->whereIn('id', $cc_users)->orderBy('company_id', 'ASC')->pluck('id')->toArray();
 
         $date_3_month = Carbon::today()->subMonths(3);
         $user_list2 = User::where('status', 1)->whereIn('id', $user_list)->wheredate('last_login', '<', $date_3_month->format('Y-m-d'))->orderBy('company_id', 'ASC')->get();
