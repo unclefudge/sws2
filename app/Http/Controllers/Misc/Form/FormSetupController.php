@@ -79,7 +79,7 @@ class FormSetupController extends Controller {
         // CONN
         FormOption::create(['text' => 'Compliant', 'value' => 'Compliant', 'order' => 1, 'colour' => 'green', 'score' => 2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         FormOption::create(['text' => 'Observation', 'value' => 'Observation', 'order' => 2, 'colour' => 'orange', 'score' => 1, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
-        FormOption::create(['text' => 'Non-conformance', 'value' => 'Non-conformance', 'order' => 3, 'colour' => 'red', 'score' => - 2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
+        FormOption::create(['text' => 'Non-compliant', 'value' => 'Non-compliant', 'order' => 3, 'colour' => 'red', 'score' => - 2, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         FormOption::create(['text' => 'Not Applicable', 'value' => 'Not Applicable', 'order' => 4, 'colour' => null, 'score' => 0, 'group' => 'CONN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
         // YN
         FormOption::create(['text' => 'Yes', 'value' => 'Yes', 'order' => 1, 'score' => 1, 'colour' => null, 'group' => 'YN', 'master' => 1, 'status' => 1, 'created_by' => 3, 'updated_by' => 3]);
