@@ -65,13 +65,13 @@
                                 <div class="col-md-2" id="field-minstock">
                                     <div class="form-group">
                                         {!! Form::label('min_stock', 'Minimum Required Stock', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('min_stock') }}" id="min_stock" name="min_stock" onkeypress="return isNumber(event)">
+                                        <input type="text" class="form-control" value="{{ old('min_stock') }}" id="min_stock" name="min_stock" onkeydown="return isNumber(event)">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         {!! Form::label('purchase_qty', 'No. of items to purchase', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('purchase_qty') }}" id="purchase_qty" name="purchase_qty" onkeypress="return isNumber(event)">
+                                        <input type="text" class="form-control" value="{{ old('purchase_qty') }}" id="purchase_qty" name="purchase_qty" onkeydown="return isNumber(event)">
                                         {{--}}
                                         <select id="purchase_qty" name="purchase_qty" class="form-control bs-select" width="100%">
                                             @for ($i = 0; $i < 100; $i++)

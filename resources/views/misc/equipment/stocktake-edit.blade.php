@@ -110,7 +110,7 @@
                                                     <td>{{ $loc->qty }}</td>
                                                     <td>
                                                         <div class="itemactual-" id="itemactual-{{ $loc->id }}">
-                                                            <input type="text" class="form-control" value="{{ $loc->qty }}" id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" onkeypress="return isNumber(event)"/>
+                                                            <input type="text" class="form-control" value="{{ $loc->qty }}" id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" onkeydown="return isNumber(event)"/>
                                                             {{--}}
                                                             <select id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" class="form-control bs-select" width="100%">
                                                                 @for ($i = 0; $i < 100; $i++)

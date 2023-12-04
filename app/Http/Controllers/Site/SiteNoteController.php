@@ -31,7 +31,8 @@ use Carbon\Carbon;
  * Class SiteNoteController
  * @package App\Http\Controllers\Site
  */
-class SiteNoteController extends Controller {
+class SiteNoteController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -69,6 +70,24 @@ class SiteNoteController extends Controller {
         return view('site/note/list', compact('site_id', 'site_list', 'categories'));
     }
 
+
+    /**
+     * Show
+     */
+    public function show($id)
+    {
+        $note = SiteNote::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('view.site.note'))
+            return view('errors/404');
+
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+
+        return view('site/note/show', compact('note', 'site_list', 'categories'));
+    }
+
     /**
      * Display the specified resource.
      */
@@ -98,9 +117,18 @@ class SiteNoteController extends Controller {
             return view('errors/404');
 
         $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
-        $mesg = ['site_id.required'     => 'The site field is required.',
-                 'category_id.required' => 'The category field is required.',
-                 'notes.required'       => 'The notes field is required.'];
+
+        if (request('category_id') == 16) {
+            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required'];
+        }
+        $mesg = ['site_id.required' => 'The site field is required.',
+            'category_id.required' => 'The category field is required.',
+            'notes.required' => 'The notes field is required.',
+            'variation_name.required'       => 'The variation name field is required.',
+            'variation_info.required'       => 'The variation description field is required.',
+            'variation_cost.required'       => 'The variation cost field is required.',
+            'variation_days.required'       => 'The variation days field is required.'
+        ];
         request()->validate($rules, $mesg); // Validate
         //dd(request()->all());
 
@@ -166,9 +194,9 @@ class SiteNoteController extends Controller {
             return view('errors/404');
 
         $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
-        $mesg = ['site_id.required'     => 'The site field is required.',
-                 'category_id.required' => 'The category field is required.',
-                 'notes.required'       => 'The notes field is required.'];
+        $mesg = ['site_id.required' => 'The site field is required.',
+            'category_id.required' => 'The category field is required.',
+            'notes.required' => 'The notes field is required.'];
         request()->validate($rules, $mesg); // Validate
 
         // Update Site Note
@@ -204,14 +232,6 @@ class SiteNoteController extends Controller {
         $note->delete();
 
         return json_encode('success');
-    }
-
-    /**
-     * Show
-     */
-    public function show()
-    {
-        //
     }
 
 
@@ -252,7 +272,6 @@ class SiteNoteController extends Controller {
     }
 
 
-
     /**
      * Get Site Notes + Process datatables ajax request.
      */
@@ -274,9 +293,9 @@ class SiteNoteController extends Controller {
             ->where('site_notes.status', 1);
 
         $dt = Datatables::of($records)
-            /*->editColumn('id', function ($note) {
-                return ('<div class="text-center"><a href="/site/note/' . $note->id . '/edit"><i class="fa fa-search"></i></a></div>');
-            })*/
+            ->editColumn('id', function ($note) {
+                return ('<div class="text-center"><a href="/site/note/'.$note->id.'"><i class="fa fa-search"></i></a></div>');
+            })
             ->editColumn('updated_at', function ($note) {
                 return $note->updated_at->format('d/m/Y');
             })
@@ -288,7 +307,7 @@ class SiteNoteController extends Controller {
 
                 if ($note->attachments()->count()) {
                     $string .= "<br><b>Attachments:</b><br>";
-                    foreach($note->attachments() as $attachment) {
+                    foreach ($note->attachments() as $attachment) {
                         $string .= "<a href='$attachment->url' target='_blank'>$attachment->name<br>";
                     }
                 }
@@ -303,7 +322,7 @@ class SiteNoteController extends Controller {
 
                 return $actions;
             })
-            ->rawColumns(['view', 'notes', 'action'])
+            ->rawColumns(['view', 'notes', 'action', 'id'])
             ->make(true);
 
         return $dt;

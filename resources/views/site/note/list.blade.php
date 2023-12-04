@@ -25,9 +25,10 @@
                             @if(Auth::user()->hasPermission2('add.site.note'))
                                 <button class="btn btn-circle green btn-outline btn-sm" id="add_note">Add</button>
                             @endif
-                                @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/note/settings" data-original-title="Settings">Settings</a>
-                                @endif
+                            @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/note/settings"
+                                   data-original-title="Settings">Settings</a>
+                            @endif
                         </div>
                     </div>
                     {!! Form::hidden('site_id_set', $site_id, ['id' => 'site_id_set']) !!}
@@ -45,7 +46,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                {{--}}<th style="width:5%"> #</th>--}}
+                                <th style="width:5%"> #</th>
                                 <th style="width:7%"> Date</th>
                                 @if ($site_id == 'all')
                                     <th style="width:20%"> Site</th>
@@ -53,7 +54,9 @@
                                 <th style="width:15%"> Category</th>
                                 <th> Note</th>
                                 <th style="width:15%"> Created by</th>
-                                <th style="width:10%"></th>
+                                @if (Auth::user()->hasPermission2("del.site.note"))
+                                    <th style="width:5%"></th>
+                                @endif
                             </tr>
                             </thead>
                         </table>
@@ -68,7 +71,8 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet"
+          type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
@@ -76,7 +80,8 @@
 @section('page-level-plugins')
     <script src="/assets/global/scripts/datatable.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js"
+            type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
@@ -97,7 +102,7 @@
             $("#add_note").click(function (e) {
                 e.preventDefault();
                 var site_id = $("#site_id").val();
-                window.location.href = "/site/"+site_id+"/notes/create";
+                window.location.href = "/site/" + site_id + "/notes/create";
             });
 
         });
@@ -116,21 +121,29 @@
                 }
             },
             columns: [
-                //{data: 'id', name: 'site_notes.id', orderable: false, searchable: false},
+                {data: 'id', name: 'site_notes.id', orderable: false, searchable: false},
                 {data: 'date_created', name: 'site_notes.created_at', searchable: false},
                     @if ($site_id == 'all')
-                {data: 'sitename', name: 'sites.name'},
+                {
+                    data: 'sitename', name: 'sites.name'
+                },
                     @endif
-                {data: 'category_id', name: 'site_notes.category_id'},
+                {
+                    data: 'category_id', name: 'site_notes.category_id'
+                },
                 {data: 'notes', name: 'site_notes.notes', orderable: false},
                 {data: 'full_name', name: 'full_name', searchable: false, searchable: false,},
                 {data: 'action', name: 'action', searchable: false, orderable: false},
                 {data: 'firstname', name: 'users.firstname', visible: false},
                 {data: 'lastname', name: 'users.lastname', visible: false},
-                {data: 'name', name: 'categories.name', visible: false},
+                    @if (Auth::user()->hasPermission2("del.site.note"))
+                {
+                    data: 'name', name: 'categories.name', visible: false
+                },
+                @endif
             ],
             order: [
-                [0, "desc"]
+                [1, "desc"]
             ]
         });
 
@@ -165,12 +178,12 @@
 
         $('#site_id').change(function () {
             // Redirect if All sites selected to display extra column
-            if ($('#site_id').val() == 'all' && $('#site_id_set').val() != 'all' )
+            if ($('#site_id').val() == 'all' && $('#site_id_set').val() != 'all')
                 window.location.href = "/site/all/notes";
 
             // Redirect if individual site selected to hide extra column
-            if ($('#site_id').val() != 'all' && $('#site_id_set').val() == 'all' )
-                window.location.href = "/site/"+$('#site_id').val()+"/notes";
+            if ($('#site_id').val() != 'all' && $('#site_id_set').val() == 'all')
+                window.location.href = "/site/" + $('#site_id').val() + "/notes";
 
             // Otherwise judst reload table
             table1.ajax.reload();

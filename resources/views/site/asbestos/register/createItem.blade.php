@@ -71,7 +71,7 @@
                                 <div class="col-md-2">
                                     <div class="form-group {!! fieldHasError('amount', $errors) !!}">
                                         {!! Form::label('amount', 'Quantity (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount" onkeypress="return isNumber(event)">
+                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount" onkeydown="return isNumber(event)">
                                         {!! fieldErrorMessage('amount', $errors) !!}
                                     </div>
                                 </div>

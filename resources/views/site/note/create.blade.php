@@ -48,6 +48,43 @@
                                 </div>
                             </div>
 
+                            {{-- Variation Fields --}}
+                            <div id="variation_fields" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('variation_name', $errors) !!}">
+                                            {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
+                                            {!! Form::text('variation_name', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('variation_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
+                                            {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
+                                            {!! Form::text('variation_info', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('variation_info', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
+                                            {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
+                                            {!! Form::text('variation_cost', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('variation_cost', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
+                                            {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label']) !!}
+                                            <input type="text" class="form-control" value="{{ old('variation_days') }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
+                                            {!! fieldErrorMessage('variation_days', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">
@@ -120,7 +157,32 @@
             /* Select2 */
             $("#site_id").select2({placeholder: "Select Site",});
 
+            $("#category_id").change(function (e) {
+                e.preventDefault();
+                displayFields();
+            });
+
+            displayFields();
+
+            function displayFields() {
+                var cat_id = $("#category_id").val();
+                $("#variation_fields").hide();
+
+                if (cat_id == '16') {
+                    $("#variation_fields").show();
+                }
+            };
+
         });
+
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
+            }
+            return true;
+        }
     </script>
 @stop
 

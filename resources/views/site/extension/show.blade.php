@@ -155,7 +155,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 {!! Form::label('days', 'Days', ['class' => 'control-label', 'id' => 'days_label']) !!}
-                                <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeypress="return isNumber(event)"/>
+                                <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeydown="return isNumber(event)"/>
                             </div>
                         </div>
                     </div>

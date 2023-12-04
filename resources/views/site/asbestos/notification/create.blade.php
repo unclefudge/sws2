@@ -164,7 +164,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('amount', $errors) !!}">
                                         {!! Form::label('amount', 'Amount to be removed (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount"> {{--}} onkeypress="return isNumber(event)">--}}
+                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount"> {{--}} onkeydown="return isNumber(event)">--}}
                                         {!! fieldErrorMessage('amount', $errors) !!}
                                     </div>
                                     <div class="note note-warning" style="display: none;" id="amount_note">
@@ -248,7 +248,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('workers', $errors) !!}">
                                             {!! Form::label('workers', 'Number of workers involved in the asbestos removal work', ['class' => 'control-label']) !!}
-                                            <input type="text" class="form-control" value="{{ old('workers') }}" id="workers" name="workers" onkeypress="return isNumber(event)"/>
+                                            <input type="text" class="form-control" value="{{ old('workers') }}" id="workers" name="workers" onkeydown="return isNumber(event)"/>
                                             {!! fieldErrorMessage('workers', $errors) !!}
                                         </div>
                                     </div>

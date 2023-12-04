@@ -20,13 +20,18 @@
                 @foreach ($site->sitenotes()->whereDate('created_at', '>', $days60)->orderBy('created_at', 'DESC')->get() as $note)
                     <div class="row">
                         <div class="col-xs-3">
-                            <small>{{ $note->created_at->format('d/m/Y') }}</small>
+                            <small><a href="/site/note/{{$note->id}}"><i class="fa fa-search"></i></a> &nbsp; {{ $note->created_at->format('d/m/Y') }}</small>
                         </div>
                         <div class="col-xs-9">
                             <small>
-                                {!! nl2br($note->notes) !!}<br>- {{ $note->createdBy->name  }}
+                                {!! nl2br($note->notes) !!}<br>
+                                @if ($note->category_id == '16') {{-- Approved Variation --}}
+                                    <b>Approved Variation:</b> {{ $note->variation_name }}<br>
+                                {{ $note->variation_info }}<br>
+                                Cost: {{ $note->variation_cost }} &nbsp: Days: {{ $note->variation_days }}
+                                @endif
+                                <br>- {{ $note->createdBy->name  }}<br>
                                 @if ($note->attachments()->count())
-                                    <br>
                                     @foreach($note->attachments() as $attachment)
                                         <a href='{{$attachment->url}}' target='_blank'>{{$attachment->name}}</a><br>
                                     @endforeach
