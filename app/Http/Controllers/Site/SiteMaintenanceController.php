@@ -551,6 +551,8 @@ class SiteMaintenanceController extends Controller {
             // Determine if Report Signed Off and if so mark completed
             if ($main->supervisor_sign_by && $main->manager_sign_by) {
                 $main->status = 0;
+                if (!$main->ac_form_required)
+                    $main->ac_form_sent = "0001-01-01 01:01:01";
                 $main->save();
             }
 

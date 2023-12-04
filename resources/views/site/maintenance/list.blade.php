@@ -12,7 +12,7 @@
 
 @section('content')
     <div class="page-content-inner">
-        @if ($under_review)
+        @if ($under_review->count())
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">

@@ -9,6 +9,8 @@
 
 A maintenance request has been completed for {{ $main->site->name }}.
 
+An AfterCare Form is {{ ($main->ac_form_required) ? 'required' : 'not required' }}
+
 |                       |        |
 | ---------------------:|--------|
 | **ID**  | {{ $main->code  }} |

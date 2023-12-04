@@ -404,6 +404,13 @@
                                 </div>
 
                                 {{-- AC Form --}}
+                                @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                    <div class="col-md-2 pull-right">
+                                        {!! Form::label('ac_form_required', 'AC Form Required', ['class' => 'control-label']) !!}
+                                        {!! Form::select('ac_form_required', ['0' => 'No', '1' => 'Yes'], 0, ['class' => 'form-control bs-select', 'id' => 'ac_form_required']) !!}
+                                    </div>
+                                @endif
+
                                 @if (!$main->status)
                                     <div class="col-md-2 pull-right">
                                         {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
