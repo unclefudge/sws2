@@ -76,7 +76,7 @@ class FormQuestion extends Model {
     public function options()
     {
         if ($this->type == 'select') {
-            if (in_array($this->type_special, ['YN', 'YrN', 'YgN'])) {
+            if (in_array($this->type_special, ['CONN', 'YN', 'YrN', 'YgN'])) {
                 $option_ids = [];
                 if ($this->type_special == 'CONN') $option_ids = [1, 2, 3, 4];
                 if ($this->type_special == 'YN') $option_ids = [5, 6];
