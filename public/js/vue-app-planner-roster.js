@@ -140,13 +140,13 @@ Vue.component('app-attend', {
         enitityPlannedButNotRostered: function (entity) {
             // Company planned but no users are rostered to attend or 'ticked'
             if (entity.tasks != 'Unrostered') {
-                console.log('s:'+entity.site_id+ ' c:'+entity.entity_name + ' a:'+entity.attendance.length);
+                //console.log('s:'+entity.site_id+ ' c:'+entity.entity_name + ' a:'+entity.attendance.length);
                 if (entity.attendance.length == 0)
                     return true;
 
                 for (var i = 0; i < entity.attendance.length; i++) {
                     var rec = entity.attendance[i];
-                    console.log('r:'+rec.roster_id + ' a:'+rec.attended);
+                    //console.log('r:'+rec.roster_id + ' a:'+rec.attended);
                     if (rec.roster_id && !rec.attended)
                         return false;
                 }

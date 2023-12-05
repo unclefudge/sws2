@@ -882,13 +882,19 @@ class SitePlannerController extends Controller {
      */
     public function getSiteRoster($date, $super_id)
     {
-        if ($super_id == 'all')
+        /*if ($super_id == 'all')
             $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
         elseif ($super_id == 'maint')
             $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
         else
-            $allowedSites = Auth::user()->supervisorsSites()->pluck('id')->toArray();
+            $allowedSites = Auth::user()->supervisorsSites()->pluck('id')->toArray();*/
             //$secondary = DB::table('site_supervisor')->select('site_id')->where('user_id', $super_id)->pluck('site_id')->toArray();
+
+       if ($super_id == 'maint')
+            $allowedSites = Auth::user()->company->reportsTo()->sites([2])->pluck('id')->toArray();
+        else
+            $allowedSites = Auth::user()->company->reportsTo()->sites([1, 2])->pluck('id')->toArray();
+
 
         $today = Carbon::now()->format('Y-m-d');
         $carbon_date = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
@@ -897,8 +903,7 @@ class SitePlannerController extends Controller {
 
         // Site with current tasks on given date
         $site_list = [];
-        //$sites = Auth::user()->authSites('edit.roster');
-        $sites = Site::whereIn('id', $allowedSites)->get();
+        $sites = (in_array($super_id, ['all', 'maint'])) ? Site::whereIn('id', $allowedSites)->get() : Site::whereIn('id', $allowedSites)->where('supervisor_id', $super_id)->get();
         foreach ($sites as $site) {
             if ($site->anyTasksOnDate($date) && !in_array($site->id, $site_list))
                 $site_list[] = $site->id;
