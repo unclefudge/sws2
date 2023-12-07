@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><span>Hazard Register</span></li>
+        <li><span>Hazard Register.</span></li>
     </ul>
 @stop
 
