@@ -169,11 +169,11 @@
                                                 {!! \App\User::find($qa->manager_sign_by)->full_name !!}, &nbsp;{{ $qa->manager_sign_at->format('d/m/Y') }}
                                             @else
                                                 @if ($qa->supervisor_sign_by)
-                                                    <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && (xx.user_manager == 1 || xx.user_signoff)"
+                                                    <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_signoff"
                                                             v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
                                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                                     </button>
-                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_manager == 0 && !xx.user_signoff" class="font-red">Pending</span>
+                                                    <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && !xx.user_signoff" class="font-red">Pending</span>
                                                 @else
                                                     <span v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total" class="font-red">Waiting for Site Supervisor Sign Off</span>
                                                     <span v-if="xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="font-grey-silver">Waiting for items to be completed</span>

@@ -73,6 +73,18 @@
                                 </div>
                             @endif
 
+                            {{-- Response Required --}}
+                            @if (in_array($note->category_id, ['12, 13, 14']))
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('response_req', 'Response Required', ['class' => 'control-label']) !!}
+                                            {!! Form::text('response_req', ($note->response_req) ? 'Yes' : 'No - FYI only', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">

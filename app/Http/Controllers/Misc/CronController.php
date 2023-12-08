@@ -1026,7 +1026,7 @@ class CronController extends Controller {
         $found_tasks = 0;
 
         //
-        // Scafold Up - taskid: 297
+        // Scaffold Up - taskid: 297
         //
         $platform_up_ids = [220];
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
@@ -1404,7 +1404,7 @@ class CronController extends Controller {
             // Create Todoo task for supervisor
             if (Carbon::today()->isWeekday()) {
                 $checklist->closeToDo();
-                //$checklist->createSupervisorToDo($super->id);
+                $checklist->createSupervisorToDo($super->id);
             }
         }
 

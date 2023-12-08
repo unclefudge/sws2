@@ -7,7 +7,7 @@
 
 # Site Note
 
-A note has been added for {{ $note->site->name }}.
+A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "**Response Required**" : '' !!}
 
 ---
 

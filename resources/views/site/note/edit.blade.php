@@ -83,6 +83,19 @@
                                 </div>
                             </div>
 
+                            {{-- Response Required --}}
+                            <div id="response_req_field" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('response_req', $errors) !!}">
+                                            {!! Form::label('response_req', 'Response Required', ['class' => 'control-label']) !!}
+                                            {!! Form::select('response_req', ['0' => 'No - FYI only', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'response_req']) !!}
+                                            {!! fieldErrorMessage('response_req', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">
@@ -192,10 +205,21 @@
 
             function displayFields() {
                 var cat_id = $("#category_id").val();
+
                 $("#variation_fields").hide();
+                $("#response_req_field").hide();
+                $("#savenote").show();
 
                 if (cat_id == '16') {
                     $("#variation_fields").show();
+                }
+
+                var response_req_cats = ['12', '13', '14']
+                if (response_req_cats.includes(cat_id)) {
+                    $("#response_req_field").show();
+                } else {
+                    $("#response_req").val('');
+                    $("#response_req_field").hide();
                 }
             };
 

@@ -31,20 +31,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('site_notes_categories', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name', 255)->nullable();
-            $table->integer('parent')->unsigned()->nullable();
-            $table->integer('order')->unsigned()->nullable();
-            $table->text('notes')->nullable();
-            $table->tinyInteger('status')->default(1);
-
-            // Modify info
-            $table->integer('created_by')->unsigned();
-            $table->integer('updated_by')->unsigned();
-
-            $table->timestamps();
-        });
     }
 
     /**
@@ -55,6 +41,5 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('site_notes');
-        Schema::dropIfExists('site_notes_categories');
     }
 };
