@@ -73,7 +73,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
-class PagesController extends Controller {
+class PagesController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -188,14 +189,13 @@ class PagesController extends Controller {
     public function quick()
     {
 
-        echo "Testing Email<br>";
-        $users = User::all();
-        foreach ($users as $user) {
-            $valid = (validEmail($user->email)) ? '' : '*** ';
-            if ($valid) {
-                $trim = trim($user->email);
-                //if ($trim != $user->email)
-                    echo $valid . "[$user->email]<br>";
+        echo "Doubled Signed QA's<br>";
+        $date = Carbon::now()->subDays(180)->format('Y-m-d');
+        $qas = SiteQa::where('status', 0)->where('master', 0)->where('supervisor_sign_by', '>', '0')->where('manager_sign_by', '>', '0')->whereDate('updated_at', '>', $date)->get();
+        foreach ($qas as $qa) {
+            if ($qa->supervisor_sign_by == $qa->manager_sign_by) {
+                $user = User::find($qa->manager_sign_by);
+                echo "[".$qa->site->name."] $qa->name  (signed: " . $qa->manager_sign_at->format('d/m/Y') . " $user->name)<br>";
             }
         }
 
@@ -1031,7 +1031,7 @@ class PagesController extends Controller {
             $size = substr($size, 0, strpos($size, "\t"));
             pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int) $size;
+            $size_count = $size_count + (int)$size;
         }
         echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
@@ -1056,7 +1056,7 @@ class PagesController extends Controller {
             $size = substr($size, 0, strpos($size, "\t"));
             pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int) $size;
+            $size_count = $size_count + (int)$size;
         }
         echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
@@ -1081,7 +1081,7 @@ class PagesController extends Controller {
             $size = substr($size, 0, strpos($size, "\t"));
             pclose($io);
             //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int) $size;
+            $size_count = $size_count + (int)$size;
         }
         echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
         $archive_size += $size_count;
@@ -1177,13 +1177,13 @@ class PagesController extends Controller {
 
                     // Create new QA Report for Site
                     $newQA = SiteQa::create([
-                        'name'       => $qa_master->name,
-                        'site_id'    => $site->id,
-                        'version'    => $qa_master->version,
-                        'master'     => '0',
-                        'master_id'  => $qa_master->id,
+                        'name' => $qa_master->name,
+                        'site_id' => $site->id,
+                        'version' => $qa_master->version,
+                        'master' => '0',
+                        'master_id' => $qa_master->id,
                         'company_id' => $qa_master->company_id,
-                        'status'     => '1',
+                        'status' => '1',
                         'created_by' => '1',
                         'updated_by' => '1',
                     ]);
@@ -1191,15 +1191,15 @@ class PagesController extends Controller {
                     // Copy items from template
                     foreach ($qa_master->items as $item) {
                         $newItem = SiteQaItem::create(
-                            ['doc_id'     => $newQA->id,
-                             'task_id'    => $item->task_id,
-                             'name'       => $item->name,
-                             'order'      => $item->order,
-                             'super'      => $item->super,
-                             'master'     => '0',
-                             'master_id'  => $item->id,
-                             'created_by' => '1',
-                             'updated_by' => '1',
+                            ['doc_id' => $newQA->id,
+                                'task_id' => $item->task_id,
+                                'name' => $item->name,
+                                'order' => $item->order,
+                                'super' => $item->super,
+                                'master' => '0',
+                                'master_id' => $item->id,
+                                'created_by' => '1',
+                                'updated_by' => '1',
                             ]);
                     }
                     echo "....created QA [$newQA->id]<br>";
@@ -1271,9 +1271,9 @@ class PagesController extends Controller {
                 $site = Site::find($rec->site_id);
                 $task = Task::find($rec->task_id);
                 echo "$rec->id F:$rec->from  T:$rec->to site:$site->name   task:$task->name<br>";
-                $count ++;
+                $count++;
                 if ($rec->task_id == 11)
-                    $start ++;
+                    $start++;
 
                 $rec->delete();
             }
@@ -1299,13 +1299,13 @@ class PagesController extends Controller {
             // Task ends before it starts
             if ($rec->to->lt($rec->from)) {
                 echo "END $rec->id F:" . $rec->from->format('Y-m-d') . " T:" . $rec->to->format('Y-m-d') . " site:$site->name   task:$taskname<br>";
-                $bad_end ++;
+                $bad_end++;
                 //$rec->delete(); // delete bad record
             } else {
                 $workdays = $this->workDaysBetween($rec->from, $rec->to);
                 if ($workdays != $rec->days) {
                     echo "$workdays/$rec->days $rec->id F:" . $rec->from->format('Y-m-d') . " T:" . $rec->to->format('Y-m-d') . " site:$site->name   task:$taskname<br>";
-                    $bad_daycount ++;
+                    $bad_daycount++;
 
                     // Update bad record
                     $rec->days = $workdays;
@@ -1330,7 +1330,7 @@ class PagesController extends Controller {
         while ($startDate->format('Y-m-d') != $endDate->format('Y-m-d')) {
             if ($debug) echo "c:" . $counter . " d:" . $startDate->dayOfWeek . ' ' . $startDate->format('Y-m-d') . '<br>';
             if ($startDate->dayOfWeek > 0 && $startDate->dayOfWeek < 6) {
-                $counter ++;
+                $counter++;
                 $startDate->addDay();
             } else if ($startDate->dayOfWeek === 6) { // Skip Sat
                 if ($debug) echo "skip sat<br>";
@@ -1341,7 +1341,7 @@ class PagesController extends Controller {
             }
         }
         if ($endDate->dayOfWeek > 0 && $endDate->dayOfWeek < 6)
-            $counter ++;
+            $counter++;
 
         return $counter;
     }

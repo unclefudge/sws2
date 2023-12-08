@@ -48,7 +48,7 @@
                             <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
                             <input v-model="xx.user_manager" type="hidden" id="user_manager"
                                    value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('del.site.qa') }}">
+                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.qa') }}">
                             <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
 
                             <!-- Fullscreen devices -->
