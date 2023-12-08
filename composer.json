@@ -5,7 +5,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "barryvdh/laravel-dompdf": "dev-master",
         "doctrine/dbal": "^2.5",
         "guzzlehttp/guzzle": "^7.2",
