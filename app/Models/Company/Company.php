@@ -209,7 +209,7 @@ class Company extends Model {
     public function tradeList()
     {
         if ($this->id == 3) // && strtolower(substr($this->name, 0, 3)) == 'cc-')
-            return Trade::whereIn('company_id', [1, 3]);
+            return Trade::whereIn('company_id', [1, 3])->get();
 
         return Trade::where('company_id', 1)->get();
     }
