@@ -209,7 +209,7 @@ class Company extends Model {
     public function tradeList()
     {
         if ($this->id == 3) // && strtolower(substr($this->name, 0, 3)) == 'cc-')
-            return Trade::where('company_id', 1)->orWhereIn('id', [31, 77])->get(); // Add Supervisors + Permits (trade to CC list only)
+            return Trade::whereIn('company_id', [1, 3]);
 
         return Trade::where('company_id', 1)->get();
     }
