@@ -969,6 +969,9 @@ class CronController extends Controller
                 $todo = Todo::create($todo_request);
                 $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
                 $todo->emailToDo();
+
+                // Send additional email to Michelle
+                $todo->emailToDo('michelle@capecod.com.au');
                 $found_tasks++;
             }
         }
