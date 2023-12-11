@@ -2,18 +2,16 @@
 
 namespace App\Models\Site;
 
-use Mail;
-use App\User;
-use App\Models\Misc\Action;
 use App\Models\Comms\Todo;
-use App\Models\Site\SiteInspectionDoc;
 use App\Models\Misc\TemporaryFile;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Mail;
 
-class SiteInspectionElectrical extends Model {
+class SiteInspectionElectrical extends Model
+{
 
     protected $table = 'site_inspection_electrical';
     protected $fillable = [
@@ -23,7 +21,32 @@ class SiteInspectionElectrical extends Model {
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
 
-    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at',  'supervisor_sign_at', 'manager_sign_at',];
+    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at', 'supervisor_sign_at', 'manager_sign_at',];
+
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        }
+    }
 
     /**
      * A SiteInspectionElectrical belongs to a site
@@ -65,7 +88,6 @@ class SiteInspectionElectrical extends Model {
         return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
     }
 
-
     /**
      * A SiteInspectionElectrical belongs to a user
      *
@@ -96,7 +118,7 @@ class SiteInspectionElectrical extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 
@@ -119,12 +141,12 @@ class SiteInspectionElectrical extends Model {
     public function createAssignedToDo($user_list)
     {
         $todo_request = [
-            'type'       => 'inspection_electrical',
-            'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report - ' . $this->site->name,
-            'info'       => 'Please complete the inspection report',
-            'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
+            'type' => 'inspection_electrical',
+            'type_id' => $this->id,
+            'name' => 'Electrical Inspection Report - ' . $this->site->name,
+            'info' => 'Please complete the inspection report',
+            'priority' => '1',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 15)->toDateTimeString(),
             'company_id' => '3',
         ];
 
@@ -141,11 +163,11 @@ class SiteInspectionElectrical extends Model {
     {
         // Create ToDoo for Construction Manager to assign to company
         $todo_request = [
-            'type'       => 'inspection_electrical',
-            'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Created - ' . $this->site->name,
-            'info'       => 'Please review inspection and assign to a company',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
+            'type' => 'inspection_electrical',
+            'type_id' => $this->id,
+            'name' => 'Electrical Inspection Report Created - ' . $this->site->name,
+            'info' => 'Please review inspection and assign to a company',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 
@@ -161,11 +183,11 @@ class SiteInspectionElectrical extends Model {
     {
         // Create ToDoo for Construction Manager to review report
         $todo_request = [
-            'type'       => 'inspection_electrical',
-            'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Completed - ' . $this->site->name,
-            'info'       => 'Please review the Report and sign off on the Task',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
+            'type' => 'inspection_electrical',
+            'type_id' => $this->id,
+            'name' => 'Electrical Inspection Report Completed - ' . $this->site->name,
+            'info' => 'Please review the Report and sign off on the Task',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 
@@ -182,11 +204,11 @@ class SiteInspectionElectrical extends Model {
     {
         // Create ToDoo for Electrical Reviewer to review report
         $todo_request = [
-            'type'       => 'inspection_electrical',
-            'type_id'    => $this->id,
-            'name'       => 'Electrical Inspection Report Completed - ' . $this->site->name,
-            'info'       => 'Please process the Variation and sign off on the Task',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
+            'type' => 'inspection_electrical',
+            'type_id' => $this->id,
+            'name' => 'Electrical Inspection Report Completed - ' . $this->site->name,
+            'info' => 'Please process the Variation and sign off on the Task',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 
@@ -250,31 +272,6 @@ class SiteInspectionElectrical extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
-    }
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 }

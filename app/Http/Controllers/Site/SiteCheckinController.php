@@ -2,31 +2,25 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\Models\Site\Site;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteHazard;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
+use Alert;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\Action;
-use App\Http\Requests;
+use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\Planner\SiteRoster;
+use App\Models\Site\Site;
+use App\Models\Site\SiteHazard;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
 
 //use App\Http\Requests\Site\SiteRequest;
 //use App\Http\Requests\Site\SiteCheckinRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
-use Alert;
 
-class SiteCheckinController extends Controller {
+class SiteCheckinController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -99,7 +93,7 @@ class SiteCheckinController extends Controller {
 
         // Check if user is a Supervisor or requires their login qustions
         $supers = Auth::user()->company->reportsTo()->supervisors()->pluck('id')->toArray();
-        $special_users = [108, 351, 1155]; // Fudge, Kirstie, Tara, Ross
+        $special_users = [108, 1155]; // Fudge, Kirstie, Ross
         $super_login = array_merge($supers, $special_users);
 
         if (in_array(Auth::user()->id, $super_login))
@@ -128,15 +122,15 @@ class SiteCheckinController extends Controller {
         $site = Site::findOrFail($site_id);
 
         $mesg = [
-            'question1.required'  => 'Please acknowledge you have read the Site Specific Health & Safety Rules.',
-            'question2.required'  => 'Please acknowledge you are fit for work.',
-            'question3.required'  => 'Please acknowledge you not affected by any pre-existing medical condition.',
-            'question4.required'  => 'Please acknowledge you are physically present on the above Worksite',
-            'question5.required'  => 'Please acknowledge you familiar with the site specific Risk Assessment.',
-            'question6.required'  => 'Please acknowledge you will take action to eliminate or control any hazards.',
-            'question7.required'  => 'Please acknowledge you will report all incidents, near misses, unsafe work practices and conditions.',
-            'question8.required'  => 'Please acknowledge you will leave the site secure and safe for others.',
-            'question9.required'  => 'Please acknowledge you will store all materials safely.',  // Store checkin
+            'question1.required' => 'Please acknowledge you have read the Site Specific Health & Safety Rules.',
+            'question2.required' => 'Please acknowledge you are fit for work.',
+            'question3.required' => 'Please acknowledge you not affected by any pre-existing medical condition.',
+            'question4.required' => 'Please acknowledge you are physically present on the above Worksite',
+            'question5.required' => 'Please acknowledge you familiar with the site specific Risk Assessment.',
+            'question6.required' => 'Please acknowledge you will take action to eliminate or control any hazards.',
+            'question7.required' => 'Please acknowledge you will report all incidents, near misses, unsafe work practices and conditions.',
+            'question8.required' => 'Please acknowledge you will leave the site secure and safe for others.',
+            'question9.required' => 'Please acknowledge you will store all materials safely.',  // Store checkin
             'question10.required' => 'Please acknowledge you will assess your tasks and implement controls as necessary.',  // Store checkin
             'question11.required' => 'Please acknowledge you will ensure all safety devices such as handrails are in place.',  // Store checkin
             'question12.required' => 'Please acknowledge you will practice good housekeeping.',  // Store checkin
@@ -150,10 +144,10 @@ class SiteCheckinController extends Controller {
             //'question20.required' => 'Please acknowledge you have signed in to the NSW service Covid safe checkin', // Covid
             //'question21.required' => 'Please acknowledge you wear a mask and observe Gov directives', // Covid
             //'question22.required' => 'Please acknowledge you understand the current NSW Health orders and will comply with its requirements in relation covid', // Covid
-            'location.required'   => 'Please provide the location of hazard.',
-            'rating.required'     => 'Please provide the risk rating of hazard.',
-            'reason.required'     => 'Please provide the reason for unsafe worksite.',
-            'action.required'     => 'Please provide the actions to have taken to make the site safe.',
+            'location.required' => 'Please provide the location of hazard.',
+            'rating.required' => 'Please provide the risk rating of hazard.',
+            'reason.required' => 'Please provide the reason for unsafe worksite.',
+            'action.required' => 'Please provide the actions to have taken to make the site safe.',
         ];
 
         $rules = [];//['media' => 'mimes:jpg,jpeg,png,gif,bmp,m4v,avi,flv,mp4,mov'];
@@ -296,9 +290,9 @@ class SiteCheckinController extends Controller {
             $today = Carbon::now()->format('Y-m-d');
             if ($site->isCompanyOnPlanner(Auth::user()->company_id, $today) && !$site->isUserOnRoster(Auth::user()->id, $today)) {
                 $newRoster = SiteRoster::create(array(
-                    'site_id'    => $site->id,
-                    'user_id'    => Auth::user()->id,
-                    'date'       => $today . ' 00:00:00',
+                    'site_id' => $site->id,
+                    'user_id' => Auth::user()->id,
+                    'date' => $today . ' 00:00:00',
                     'created_by' => '1',
                     'updated_by' => '1',
                 ));

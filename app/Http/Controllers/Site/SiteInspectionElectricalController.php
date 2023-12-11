@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Site\Site;
 use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionDoc;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteInspectionElectricalController
  * @package App\Http\Controllers
  */
-class SiteInspectionElectricalController extends Controller {
+class SiteInspectionElectricalController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -43,20 +39,6 @@ class SiteInspectionElectricalController extends Controller {
         $pending = SiteInspectionElectrical::where('status', 3)->get();
 
         return view('site/inspection/electrical/list', compact('non_assigned', 'pending'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.inspection'))
-            return view('errors/404');
-
-        return view('site/inspection/electrical/create');
     }
 
     /**
@@ -91,8 +73,8 @@ class SiteInspectionElectricalController extends Controller {
 
         $rules = ['site_id' => 'required', 'client_name' => 'required', 'client_address' => 'required'];
         $mesg = [
-            'site_id.required'        => 'The site field is required.',
-            'client_name.required'    => 'The client name field is required.',
+            'site_id.required' => 'The site field is required.',
+            'client_name.required' => 'The client name field is required.',
             'client_address.required' => 'The client address field is required.'
         ];
         request()->validate($rules, $mesg); // Validate
@@ -111,12 +93,26 @@ class SiteInspectionElectricalController extends Controller {
                 $report->saveAttachment($tmp_filename);
         }
 
-        // Create Tdodoo to assign a company
-        $report->createConstructionToDo([108]);
+        // Create Todoo to assign a company
+        $report->createAssignCompanyToDo([108]);
 
         Toastr::success("Created inspection report");
 
         return redirect('/site/inspection/electrical/');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.inspection'))
+            return view('errors/404');
+
+        return view('site/inspection/electrical/create');
     }
 
     /**
@@ -138,25 +134,6 @@ class SiteInspectionElectricalController extends Controller {
         return view('/site/inspection/electrical/show', compact('report'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    /*
-    public function documents($id)
-    {
-        $report = SiteInspectionElectrical::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.inspection'))
-            return view('errors/404');
-
-        $report->status = 1;
-        $report->save();
-        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
-        Toastr::success("Updated Report");
-
-        return redirect('site/inspection/electrical');
-    }*/
 
     /**
      * Update the specified resource in storage.
@@ -172,16 +149,16 @@ class SiteInspectionElectricalController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        $rules = ['client_name'    => 'required',
-                  'client_address' => 'required',
-                  'inspected_at'   => 'required_if:status,0',
-                  'inspected_name' => 'required_if:status,0',
-                  'inspected_lic'  => 'required_if:status,0'];
-        $mesg = ['client_name.required'       => 'The client name field is required.',
-                 'client_address.required'    => 'The client address field is required.',
-                 'inspected_at.required_if'   => 'The date/time of inspection field is required.',
-                 'inspected_name.required_if' => 'The inspection carried out by field is required.',
-                 'inspected_lic.required_if'  => 'The licence no. field is required.'];
+        $rules = ['client_name' => 'required',
+            'client_address' => 'required',
+            'inspected_at' => 'required_if:status,0',
+            'inspected_name' => 'required_if:status,0',
+            'inspected_lic' => 'required_if:status,0'];
+        $mesg = ['client_name.required' => 'The client name field is required.',
+            'client_address.required' => 'The client address field is required.',
+            'inspected_at.required_if' => 'The date/time of inspection field is required.',
+            'inspected_name.required_if' => 'The inspection carried out by field is required.',
+            'inspected_lic.required_if' => 'The licence no. field is required.'];
 
         if (in_array(Auth::user()->id, array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]))) {
             $rules = $rules + ['assigned_to' => 'required'];
@@ -273,7 +250,7 @@ class SiteInspectionElectricalController extends Controller {
 
         $current_user = Auth::User()->full_name;
 
-        // Electrical Mgr Signoff
+        // Electrical Admin Signoff
         if (request('supervisor_sign_by')) {
             if (request('supervisor_sign_by') == 'y') {
                 $report->supervisor_sign_by = Auth::User()->id;
@@ -281,7 +258,7 @@ class SiteInspectionElectricalController extends Controller {
                 $report->status = 3; // Pending signoff
                 $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
-                // Create ToDoo for Con Mgr
+                // Create ToDoo for Tech Mgr
                 $report->closeToDo();
                 $report->createSignOffToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
             } else {
@@ -396,8 +373,6 @@ class SiteInspectionElectricalController extends Controller {
         //return redirect('site/inspection/electrical/');
 
     }
-
-
 
 
     /**

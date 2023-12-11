@@ -2,51 +2,37 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-
-use DB;
-use PDF;
-use Mail;
-use File;
-use Carbon\Carbon;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Company\CompanyDocReview;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Site;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteExtensionSite;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\Planner\SiteCompliance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteQaAction;
-use App\Models\Site\SiteScaffoldHandover;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
 use App\Models\Misc\Action;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentStocktake;
-use App\Models\Misc\Equipment\EquipmentStocktakeItem;
-use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Comms\SafetyTip;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Safety\WmsDoc;
+use App\Models\Site\Planner\SiteCompliance;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\SiteRoster;
+use App\Models\Site\Planner\Task;
+use App\Models\Site\Site;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
+use App\Models\Site\SiteQa;
+use App\Models\Site\SiteQaAction;
+use App\Models\Site\SiteQaItem;
+use App\User;
+use Carbon\Carbon;
+use DB;
+use File;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
-class CronController extends Controller {
+class CronController extends Controller
+{
 
     static public function nightly()
     {
@@ -68,7 +54,7 @@ class CronController extends Controller {
         CronController::archiveToolbox();
         CronController::brokenQaItem();
         CronController::emailPlannerKeyTasks();
-        //CronController::actionPlannerKeyTasks();
+        CronController::actionPlannerKeyTasks();
         CronController::siteExtensions();
         CronController::superChecklists();
         CronController::uploadCompanyDocReminder();
@@ -105,35 +91,6 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    static public function verifyNightly()
-    {
-        $log = public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        //echo "Log: $log<br>";
-        if (strpos(file_get_contents($log), "ALL DONE - NIGHTLY COMPLETE") !== false) {
-            //echo "successful";
-            //Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("was Successful"));
-        } else {
-            //echo "failed";
-            Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
-        }
-    }
-
-    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
-    {
-        if (DEBUG_EMAIL) {
-            $list = (is_array($list1)) ? implode(',', $list1) : $list1;
-            app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
-            //app('log')->debug($list1);
-            if ($name2) {
-                $list = (is_array($list2)) ? implode(',', $list2) : $list2;
-                app('log')->debug("DEBUG-EMAIL: $name2 [$list]");
-            }
-        }
-    }
-
-    /*
-    * Blessing
-    */
     static public function blessing()
     {
         $log = "+----------------------+\n";
@@ -154,9 +111,6 @@ class CronController extends Controller {
         $bytes_written = File::put(public_path('filebank/tmp/blessing.txt'), $log);
     }
 
-    /*
-     * Add non-attendees to the non-compliant list
-     */
     static public function nonattendees()
     {
         $log = '';
@@ -185,11 +139,11 @@ class CronController extends Controller {
                     echo $rost->date->format('d/m/Y') . " $site->name ($site->code) - <b>$user->fullname</b> (" . $user->company->name_alias . ") was absent<br>";
                     $log .= $rost->date->format('d/m/Y') . " $site->name ($site->code) - $user->fullname (" . $user->company->name_alias . ") was absent\n";
                     SiteCompliance::create(array(
-                        'site_id'     => $site->id,
-                        'user_id'     => $user->id,
-                        'date'        => $rost->date,
-                        'reason'      => null,
-                        'status'      => 0,
+                        'site_id' => $site->id,
+                        'user_id' => $user->id,
+                        'date' => $rost->date,
+                        'reason' => null,
+                        'status' => 0,
                         'resolved_at' => '0000-00-00 00:00:00'
                     ));
                     $found = true;
@@ -208,8 +162,9 @@ class CronController extends Controller {
     }
 
     /*
-     * Add new entities to Roster from Planner
-     */
+    * Blessing
+    */
+
     static public function roster()
     {
         $log = '';
@@ -241,9 +196,9 @@ class CronController extends Controller {
                             echo 'adding ' . $user->fullname . ' (' . $user->username . ') to roster<br>';
                             $log .= 'adding ' . $user->fullname . ' (' . $user->username . ") to roster\n";
                             $newRoster = SiteRoster::create(array(
-                                'site_id'    => $site->id,
-                                'user_id'    => $staff_id,
-                                'date'       => $date . ' 00:00:00',
+                                'site_id' => $site->id,
+                                'user_id' => $staff_id,
+                                'date' => $date . ' 00:00:00',
                                 'created_by' => '1',
                                 'updated_by' => '1',
                             ));
@@ -265,8 +220,9 @@ class CronController extends Controller {
     }
 
     /*
-     * Quality Assurance
+     * Add non-attendees to the non-compliant list
      */
+
     static public function qa()
     {
         $log = '';
@@ -344,13 +300,13 @@ class CronController extends Controller {
 
                             // Create new QA Report for Site
                             $newQA = SiteQa::create([
-                                'name'       => $qa_master->name,
-                                'site_id'    => $site->id,
-                                'version'    => $qa_master->version,
-                                'master'     => '0',
-                                'master_id'  => $qa_master->id,
+                                'name' => $qa_master->name,
+                                'site_id' => $site->id,
+                                'version' => $qa_master->version,
+                                'master' => '0',
+                                'master_id' => $qa_master->id,
                                 'company_id' => $qa_master->company_id,
-                                'status'     => '1',
+                                'status' => '1',
                                 'created_by' => '1',
                                 'updated_by' => '1',
                             ]);
@@ -358,15 +314,15 @@ class CronController extends Controller {
                             // Copy items from template
                             foreach ($qa_master->items as $item) {
                                 $newItem = SiteQaItem::create(
-                                    ['doc_id'     => $newQA->id,
-                                     'task_id'    => $item->task_id,
-                                     'name'       => $item->name,
-                                     'order'      => $item->order,
-                                     'super'      => $item->super,
-                                     'master'     => '0',
-                                     'master_id'  => $item->id,
-                                     'created_by' => '1',
-                                     'updated_by' => '1',
+                                    ['doc_id' => $newQA->id,
+                                        'task_id' => $item->task_id,
+                                        'name' => $item->name,
+                                        'order' => $item->order,
+                                        'super' => $item->super,
+                                        'master' => '0',
+                                        'master_id' => $item->id,
+                                        'created_by' => '1',
+                                        'updated_by' => '1',
                                     ]);
                             }
                             $newTemplate = ($qa_master->id > 100) ? ' *NEW*' : '';
@@ -427,7 +383,7 @@ class CronController extends Controller {
         foreach ($records as $rec) {
             $qa = SiteQa::find($rec->type_id);
             if ($qa) {
-                if ($qa->status == 0 || $qa->status == - 1) {
+                if ($qa->status == 0 || $qa->status == -1) {
                     echo '[' . $rec->id . '] qaID:' . $rec->type_id . " - " . $qa->status . "<br>";
                     $rec->status = 0;
                     $rec->save();
@@ -444,8 +400,9 @@ class CronController extends Controller {
     }
 
     /*
-     * Check for QAs On Hold but Completed
+     * Add new entities to Roster from Planner
      */
+
     static public function qaOnholdButCompleted()
     {
         $log = '';
@@ -474,10 +431,111 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
+    /*
+     * Quality Assurance
+     */
+
+    static public function completeToDoCompanyDoc()
+    {
+        $log = '';
+        echo "<h2>Todo company doc completed but still active</h2>";
+        $log .= "Todo company doc completed but still active\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $todos = \App\Models\Comms\Todo::all();
+        foreach ($todos as $todo) {
+            if ($todo->status && $todo->type == 'company doc') {
+                $doc = \App\Models\Company\CompanyDoc::find($todo->type_id);
+                if ($doc) {
+                    if ($doc->status == 1) {
+                        //echo "ToDo [$todo->id] - $todo->name (".$doc->company->name.") ACTIVE DOC<br>";
+                        //$todo->status = 0;
+                        //$todo->done_at = Carbon::now();
+                        //$todo->done_by = 1;
+                        //$todo->save();
+                    }
+                    if ($doc->status == 0) {
+                        if ($doc->company->activeCompanyDoc($doc->category_id)) {
+                            echo "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") REPLACED DOC<br>";
+                            $log .= "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") REPLACED DOC\n";
+                            $todo->status = 0;
+                            $todo->done_at = Carbon::now();
+                            $todo->done_by = 1;
+                            $todo->save();
+                        } else {
+                            //echo "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC<br>";
+                            //$log .= "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC\n";
+                        }
+
+                    }
+
+                } else {
+                    echo "ToDo [$todo->id] - " . $todo->company->name . " (DELETED)<br>";
+                }
+            }
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Check for QAs On Hold but Completed
+     */
+
+    static public function completedToDoQA()
+    {
+        $log = '';
+        echo "<h2>Todo QA doc completed/hold but still active</h2>";
+        $log .= "\nTodo QA doc completed/hold but still active\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+        $todos = Todo::all();
+        foreach ($todos as $todo) {
+            if ($todo->status && $todo->type == 'qa') {
+                $qa = SiteQa::find($todo->type_id);
+                if ($qa) {
+                    if ($qa->status == 1) {
+                        //echo "ToDo [$todo->id] - $todo->name ACTIVE QA<br>";
+                    }
+                    if ($qa->status == 0) {
+                        echo "ToDo [$todo->id] - $todo->name COMPLETED QA<br>";
+                        $log .= "ToDo [$todo->id] - $todo->name COMPLETED QA\n";
+                        $todo->status = 0;
+                        $todo->save();
+                        // $todo->delete();
+                    }
+                    if ($qa->status == 2) {
+                        echo "ToDo [$todo->id] - $todo->name HOLD QA<br>";
+                        $log .= "ToDo [$todo->id] - $todo->name HOLD QA\n";
+                        $todo->status = 0;
+                        $todo->save();
+                        // $todo->delete();
+                    }
+
+                } else {
+                    echo "ToDo [$todo->id] (DELETED)<br>";
+                    $log .= "ToDo [$todo->id] (DELETED)\n";
+                    $todo->status = 0;
+                    $todo->save();
+                    // $todo->delete();
+                }
+            }
+        }
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 
     /*
      * Check for Expired Company Docs
      */
+
     static public function expiredCompanyDoc()
     {
         $log = '';
@@ -494,11 +552,11 @@ class CronController extends Controller {
 
         $dates = [
             $week2_coming->format('Y-m-d') => "Expiry in 2 weeks on " . $week2_coming->format('d/m/Y'),
-            $today->format('Y-m-d')        => "Expired today on " . $today->format('d/m/Y'),
-            $week1_ago->format('Y-m-d')    => "Expired 1 week ago on " . $week1_ago->format('d/m/Y'),
-            $week2_ago->format('Y-m-d')    => "Expired 2 weeks ago on " . $week2_ago->format('d/m/Y'),
-            $week3_ago->format('Y-m-d')    => "Expired 3 weeks ago on " . $week3_ago->format('d/m/Y'),
-            $week4_ago->format('Y-m-d')    => "Expired 4 weeks ago on " . $week4_ago->format('d/m/Y'),
+            $today->format('Y-m-d') => "Expired today on " . $today->format('d/m/Y'),
+            $week1_ago->format('Y-m-d') => "Expired 1 week ago on " . $week1_ago->format('d/m/Y'),
+            $week2_ago->format('Y-m-d') => "Expired 2 weeks ago on " . $week2_ago->format('d/m/Y'),
+            $week3_ago->format('Y-m-d') => "Expired 3 weeks ago on " . $week3_ago->format('d/m/Y'),
+            $week4_ago->format('Y-m-d') => "Expired 4 weeks ago on " . $week4_ago->format('d/m/Y'),
         ];
 
         echo "<b>Docs being marked as expired/renewal due</b></br>";
@@ -666,8 +724,8 @@ class CronController extends Controller {
 
         $dates = [
             $week2_coming2->format('Y-m-d') => "Expiry in 2 weeks on " . $week2_coming->format('d/m/Y'),
-            $today2->format('Y-m-d')        => "Expired today on " . $today->format('d/m/Y'),
-            $week4_ago2->format('Y-m-d')    => "Expired 4 weeks ago on " . $week4_ago->format('d/m/Y'),
+            $today2->format('Y-m-d') => "Expired today on " . $today->format('d/m/Y'),
+            $week4_ago2->format('Y-m-d') => "Expired 4 weeks ago on " . $week4_ago->format('d/m/Y'),
         ];
 
         foreach ($dates as $date => $mesg) {
@@ -734,7 +792,7 @@ class CronController extends Controller {
                     // Archive completed Toolbox
                     echo "[$talk->id] All Completed - $talk->name<br>";
                     $log .= "[$talk->id] All Completed - $talk->name\n";
-                    $talk->status = - 1;
+                    $talk->status = -1;
                     $talk->save();
                 } else {
                     $inactive = true;
@@ -746,7 +804,7 @@ class CronController extends Controller {
                     if ($inactive) {
                         echo "**[$talk->id] Inactive Users - $talk->name<br>";
                         $log .= "[$talk->id] Inactive Users - $talk->name\n";
-                        $talk->status = - 1;
+                        $talk->status = -1;
                         $talk->save();
                     }
 
@@ -767,160 +825,6 @@ class CronController extends Controller {
     /*
      * Archive completed Toolbox
      */
-    static public function completeToDoCompanyDoc()
-    {
-        $log = '';
-        echo "<h2>Todo company doc completed but still active</h2>";
-        $log .= "Todo company doc completed but still active\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $todos = \App\Models\Comms\Todo::all();
-        foreach ($todos as $todo) {
-            if ($todo->status && $todo->type == 'company doc') {
-                $doc = \App\Models\Company\CompanyDoc::find($todo->type_id);
-                if ($doc) {
-                    if ($doc->status == 1) {
-                        //echo "ToDo [$todo->id] - $todo->name (".$doc->company->name.") ACTIVE DOC<br>";
-                        //$todo->status = 0;
-                        //$todo->done_at = Carbon::now();
-                        //$todo->done_by = 1;
-                        //$todo->save();
-                    }
-                    if ($doc->status == 0) {
-                        if ($doc->company->activeCompanyDoc($doc->category_id)) {
-                            echo "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") REPLACED DOC<br>";
-                            $log .= "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") REPLACED DOC\n";
-                            $todo->status = 0;
-                            $todo->done_at = Carbon::now();
-                            $todo->done_by = 1;
-                            $todo->save();
-                        } else {
-                            //echo "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC<br>";
-                            //$log .= "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC\n";
-                        }
-
-                    }
-
-                } else {
-                    echo "ToDo [$todo->id] - " . $todo->company->name . " (DELETED)<br>";
-                }
-            }
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    /*
-     * Check for overdue ToDoo
-     */
-    static public function overdueToDo()
-    {
-        $log = '';
-        echo "<h2>Checking for Overdue ToDo's</h2>";
-        $log .= "Checking for Overdue ToDo's\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $toolboxs_overdue = [];
-        $todos = Todo::where('status', '1')->whereDate('due_at', '<', Carbon::today()->format('Y-m-d'))->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
-        foreach ($todos as $todo) {
-            // Quality Assurance
-            if ($todo->type == 'qa') {
-                echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]<br>";
-                $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]\n";
-                //$todo->emailToDo();
-                $qa = SiteQa::find($todo->type_id);
-                $email_to = [env('EMAIL_DEV')];
-                if (\App::environment('prod') && $qa->site->areaSupervisorsEmails())
-                    $email_to = $qa->site->areaSupervisorsEmails();
-                //Mail::to($email_to)->send(new \App\Mail\Site\SiteQaOverdue($qa));
-            }
-
-            // Toolbox Talk
-            if ($todo->type == 'toolbox') {
-                $toolbox = ToolboxTalk::find($todo->type_id);
-                if ($toolbox && $toolbox->status == 1) {
-                    echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "<br>";
-                    $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "\n";
-                    $todo->emailToDo();
-                    if (!in_array($todo->type_id, $toolboxs_overdue))
-                        $toolboxs_overdue[] = $todo->type_id;
-                } else {
-                    // Toolbox is no longer active so close outstanding ToDos
-                    $todo->status = 0;
-                    $todo->done_at = Carbon::now();
-                    $todo->done_by = 1;
-                    $todo->save();
-                }
-            }
-        }
-
-        // Send single email to Parent company for each overdue Toolbox
-        if ($toolboxs_overdue) {
-            echo "<br><b>Sending email notification to parent company for following outstanding Toolbox Talks:</b><br>";
-            $log .= "\nSending email notification to parent company for following outstanding Toolbox Talks:\n";
-            foreach ($toolboxs_overdue as $toolbox_id) {
-                $toolbox = ToolboxTalk::find($toolbox_id);
-                echo "id[$toolbox->id] $toolbox->name<br>";
-                $log .= "id[$toolbox->id] $toolbox->name\n";
-                $toolbox->emailOverdue();
-            }
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    static public function completedToDoQA()
-    {
-        $log = '';
-        echo "<h2>Todo QA doc completed/hold but still active</h2>";
-        $log .= "\nTodo QA doc completed/hold but still active\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-        $todos = Todo::all();
-        foreach ($todos as $todo) {
-            if ($todo->status && $todo->type == 'qa') {
-                $qa = SiteQa::find($todo->type_id);
-                if ($qa) {
-                    if ($qa->status == 1) {
-                        //echo "ToDo [$todo->id] - $todo->name ACTIVE QA<br>";
-                    }
-                    if ($qa->status == 0) {
-                        echo "ToDo [$todo->id] - $todo->name COMPLETED QA<br>";
-                        $log .= "ToDo [$todo->id] - $todo->name COMPLETED QA\n";
-                        $todo->status = 0;
-                        $todo->save();
-                        // $todo->delete();
-                    }
-                    if ($qa->status == 2) {
-                        echo "ToDo [$todo->id] - $todo->name HOLD QA<br>";
-                        $log .= "ToDo [$todo->id] - $todo->name HOLD QA\n";
-                        $todo->status = 0;
-                        $todo->save();
-                        // $todo->delete();
-                    }
-
-                } else {
-                    echo "ToDo [$todo->id] (DELETED)<br>";
-                    $log .= "ToDo [$todo->id] (DELETED)\n";
-                    $todo->status = 0;
-                    $todo->save();
-                    // $todo->delete();
-                }
-            }
-        }
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
 
     static public function brokenQaItem()
     {
@@ -955,8 +859,9 @@ class CronController extends Controller {
     }
 
     /*
-    * Email Planner Key Tasks
-    */
+     * Check for overdue ToDoo
+     */
+
     static public function emailPlannerKeyTasks()
     {
         $log = '';
@@ -1010,9 +915,19 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-   * Action Planner Key Tasks
-   */
+    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
+    {
+        if (DEBUG_EMAIL) {
+            $list = (is_array($list1)) ? implode(',', $list1) : $list1;
+            app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
+            //app('log')->debug($list1);
+            if ($name2) {
+                $list = (is_array($list2)) ? implode(',', $list2) : $list2;
+                app('log')->debug("DEBUG-EMAIL: $name2 [$list]");
+            }
+        }
+    }
+
     static public function actionPlannerKeyTasks()
     {
         $log = '';
@@ -1039,12 +954,12 @@ class CronController extends Controller {
                 echo "$mesg<br>";
                 $log .= "$mesg\n";
                 $todo_request = [
-                    'type'       => 'scaffold handover',
-                    'type_id'    => $task->site->id,
-                    'name'       => 'Scaffold Handover Certificate for ' . $task->site->name,
-                    'info'       => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
-                    'priority'   => '1',
-                    'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                    'type' => 'scaffold handover',
+                    'type_id' => $task->site->id,
+                    'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
+                    'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
+                    'priority' => '1',
+                    'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
                     'company_id' => '3',
                     'created_by' => '1',
                     'updated_by' => '1'
@@ -1054,30 +969,30 @@ class CronController extends Controller {
                 $todo = Todo::create($todo_request);
                 $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
                 $todo->emailToDo();
-                $found_tasks ++;
+                $found_tasks++;
             }
         }
 
         //
         // Project Information Sheets
         //
+        /*
+                $project_task_ids = [10, 378, 265];  // Polastic Eaves Windows (lock up), Pre-prac, Prac Completion
+                $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $project_task_ids)->orderBy('site_id')->get();
 
-        $project_task_ids = [10, 378, 265];  // Polastic Eaves Windows (lock up), Pre-prac, Prac Completion
-        $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $project_task_ids)->orderBy('site_id')->get();
+                foreach ($tasks as $task) {
+                    if ($task->site->status == 1) {
 
-        foreach ($tasks as $task) {
-            if ($task->site->status == 1) {
-
-                // Create New Project Supply
-                $project = SiteProjectSupply::where('site_id', $task->site->id)->first();
-                if (!$project) {
-                    $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
-                    $project->initialise();
-                }
-                $project->createReviewToDo($project->site->supervisor_id);
-                $found_tasks ++;
-            }
-        }
+                        // Create New Project Supply
+                        $project = SiteProjectSupply::where('site_id', $task->site->id)->first();
+                        if (!$project) {
+                            $project = SiteProjectSupply::create(['site_id' => $task->site->id, 'version' => '1.0']);
+                            $project->initialise();
+                        }
+                        $project->createReviewToDo($project->site->supervisor_id);
+                        $found_tasks ++;
+                    }
+                } */
 
 
         if (!$found_tasks) {
@@ -1093,8 +1008,9 @@ class CronController extends Controller {
     }
 
     /*
-     * Site Contract Extension
+    * Email Planner Key Tasks
     */
+
     static public function siteExtensions()
     {
         $log = '';
@@ -1118,10 +1034,10 @@ class CronController extends Controller {
                 if ($prac_completion && $prac_completion->from->lte($week2ago))
                     continue;
                 $site_data = [
-                    'id'              => $site->id,
-                    'name'            => $site->name,
+                    'id' => $site->id,
+                    'name' => $site->name,
                     'completion_date' => $site->forecast_completion,
-                    'completion_ymd'  => ($site->forecast_completion) ? $site->forecast_completion->format('ymd') : '',
+                    'completion_ymd' => ($site->forecast_completion) ? $site->forecast_completion->format('ymd') : '',
                 ];
                 if ($site->forecast_completion)
                     $prac_yes[] = $site_data;
@@ -1197,8 +1113,229 @@ class CronController extends Controller {
     }
 
     /*
+   * Action Planner Key Tasks
+   */
+
+    static public function superChecklists()
+    {
+        $log = '';
+        $func_name = "Creating Supervisor Checklists for Active Supervisors";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $mon = new Carbon('monday this week');
+
+        // Selected Supervisors
+        $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
+        $super_list = ($settings_supers) ? explode(',', $settings_supers->value) : [];
+        $supers = User::find($super_list);
+
+        foreach ($supers as $super) {
+            if ($super->name == "TO BE ALLOCATED")
+                continue;
+
+            $mesg = "Existing";
+            $checklist = SuperChecklist::where('super_id', $super->id)->whereDate('date', $mon->format('Y-m-d'))->first();
+            if (!$checklist) {
+                $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
+                $mesg = "Creating new";
+
+                for ($day = 1; $day < 6; $day++) {
+                    foreach ($checklist->questions()->sortBy('id') as $question) {
+                        if ($question->isRequiredForSupervisor($super, $day))
+                            $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
+                    }
+                }
+            }
+
+            echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
+            $log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
+
+            // Create Todoo task for supervisor
+            if (Carbon::today()->isWeekday()) {
+                $checklist->closeToDo();
+                $checklist->createSupervisorToDo($super->id);
+            }
+        }
+
+
+        // Archive old active checklists
+        $old_checklists = SuperChecklist::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
+        if ($old_checklists->count()) {
+            foreach ($old_checklists as $checklist) {
+                $checklist->status = 0;
+                $checklist->save();
+            }
+            echo "Archiving week: " . $checklist->date->format('d/m/Y') . "<br>";
+            $log .= "Archiving week: " . $checklist->date->format('d/m/Y') . "\n";
+        }
+
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension
+    */
+
+    static public function uploadCompanyDocReminder()
+    {
+        $log = '';
+        $func_name = "Upload Company Docs Reminder";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $yesterday = Carbon::now()->subDays(1);
+        $week_ago = Carbon::now()->subDays(7);
+
+        $companies = Company::whereDate('created_at', '=', $yesterday)->get();
+        foreach ($companies as $company) {
+            if (!$company->isCompliant() && $company->reportsTo()->id == 3) {
+                echo "[$company->id] $company->name: " . $company->missingDocs('csv') . "<br>";
+
+                // Send email
+                $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
+                $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+                if ($email_to && $email_cc) {
+                    CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
+                    $emails = implode("; ", array_merge($email_to, $email_cc));
+                    echo "Sending email to $emails<br>";
+                    $log .= "Sending email to $emails\n";
+                }
+            }
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
      * Site Contract Extension Supervisor Task
      */
+
+    static public function verifyZohoImport()
+    {
+        $log = '';
+        $func_name = "Verify Zoho Import";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $yesterday = Carbon::now()->subDays(1)->format('Ymd');
+        $successful = '';
+        $logfile = public_path("filebank/log/zoho/$yesterday.txt");
+
+        if (file_exists($logfile)) {
+            $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
+            $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
+
+            if ($jobs_complete && $contacts_complete) {
+                $log .= "Import successful\n";
+            } else {
+                $reason = '';
+                if ($jobs_complete) {
+                    $reason .= "Import of Contacts failed\n";
+                } elseif ($contacts_complete) {
+                    $reason .= "Import of Jobs failed\n";
+                } else {
+                    $reason .= "Import of Jobs + Contacts failed\n";
+                }
+                $log .= $reason;
+                Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
+            }
+        } else {
+            $reason = "couldn't find logfile: $logfile";
+            $log .= $reason;
+            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
+        }
+
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension Supervisor Task
+     */
+
+    static public function overdueToDo()
+    {
+        $log = '';
+        echo "<h2>Checking for Overdue ToDo's</h2>";
+        $log .= "Checking for Overdue ToDo's\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $toolboxs_overdue = [];
+        $todos = Todo::where('status', '1')->whereDate('due_at', '<', Carbon::today()->format('Y-m-d'))->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
+        foreach ($todos as $todo) {
+            // Quality Assurance
+            if ($todo->type == 'qa') {
+                echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]<br>";
+                $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]\n";
+                //$todo->emailToDo();
+                $qa = SiteQa::find($todo->type_id);
+                $email_to = [env('EMAIL_DEV')];
+                if (\App::environment('prod') && $qa->site->areaSupervisorsEmails())
+                    $email_to = $qa->site->areaSupervisorsEmails();
+                //Mail::to($email_to)->send(new \App\Mail\Site\SiteQaOverdue($qa));
+            }
+
+            // Toolbox Talk
+            if ($todo->type == 'toolbox') {
+                $toolbox = ToolboxTalk::find($todo->type_id);
+                if ($toolbox && $toolbox->status == 1) {
+                    echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "<br>";
+                    $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "\n";
+                    $todo->emailToDo();
+                    if (!in_array($todo->type_id, $toolboxs_overdue))
+                        $toolboxs_overdue[] = $todo->type_id;
+                } else {
+                    // Toolbox is no longer active so close outstanding ToDos
+                    $todo->status = 0;
+                    $todo->done_at = Carbon::now();
+                    $todo->done_by = 1;
+                    $todo->save();
+                }
+            }
+        }
+
+        // Send single email to Parent company for each overdue Toolbox
+        if ($toolboxs_overdue) {
+            echo "<br><b>Sending email notification to parent company for following outstanding Toolbox Talks:</b><br>";
+            $log .= "\nSending email notification to parent company for following outstanding Toolbox Talks:\n";
+            foreach ($toolboxs_overdue as $toolbox_id) {
+                $toolbox = ToolboxTalk::find($toolbox_id);
+                echo "id[$toolbox->id] $toolbox->name<br>";
+                $log .= "id[$toolbox->id] $toolbox->name\n";
+                $toolbox->emailOverdue();
+            }
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Site Contract Extension Supervisor Task
+     */
+
     static public function siteExtensionsSupervisorTask()
     {
         $log = '';
@@ -1233,12 +1370,12 @@ class CronController extends Controller {
 
             // Create task for Supervisor
             $todo_request = [
-                'type'       => 'extension',
-                'type_id'    => $extension->id,
-                'name'       => 'Contract Time Extensions',
-                'info'       => "Please complete the Contract Time Extensions for the following sites:\r\n" . $site_list,
-                'priority'   => '1',
-                'due_at'     => Carbon::tomorrow()->format('Y-m-d') . ' 14:00:00',
+                'type' => 'extension',
+                'type_id' => $extension->id,
+                'name' => 'Contract Time Extensions',
+                'info' => "Please complete the Contract Time Extensions for the following sites:\r\n" . $site_list,
+                'priority' => '1',
+                'due_at' => Carbon::tomorrow()->format('Y-m-d') . ' 14:00:00',
                 'company_id' => '3',
                 'created_by' => '1',
                 'updated_by' => '1'
@@ -1264,9 +1401,6 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-     * Site Contract Extension Supervisor Task
-     */
     static public function siteExtensionsSupervisorTaskReminder()
     {
         $log = '';
@@ -1316,9 +1450,6 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-     * Site Contract Extension Supervisor Task
-     */
     static public function siteExtensionsSupervisorTaskFinalReminder()
     {
         $log = '';
@@ -1365,151 +1496,21 @@ class CronController extends Controller {
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    static public function superChecklists()
-    {
-        $log = '';
-        $func_name = "Creating Supervisor Checklists for Active Supervisors";
-        echo "<h2>$func_name</h2>";
-        $log .= "$func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $mon = new Carbon('monday this week');
-
-        // Selected Supervisors
-        $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
-        $super_list = ($settings_supers) ? explode(',', $settings_supers->value) : [];
-        $supers = User::find($super_list);
-
-        foreach ($supers as $super) {
-            if ($super->name == "TO BE ALLOCATED")
-                continue;
-
-            $mesg = "Existing";
-            $checklist = SuperChecklist::where('super_id', $super->id)->whereDate('date', $mon->format('Y-m-d'))->first();
-            if (!$checklist) {
-                $checklist = SuperChecklist::create(['super_id' => $super->id, 'date' => $mon->toDateTimeString(), 'status' => 1]);
-                $mesg = "Creating new";
-
-                for ($day = 1; $day < 6; $day ++) {
-                    foreach ($checklist->questions()->sortBy('id') as $question) {
-                        if ($question->isRequiredForSupervisor($super, $day))
-                            $response = SuperChecklistResponse::create(['checklist_id' => $checklist->id, 'day' => $day, 'question_id' => $question->id, 'status' => 1, 'created_by' => 1]);
-                    }
-                }
-            }
-
-            echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
-            $log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
-
-            // Create Todoo task for supervisor
-            if (Carbon::today()->isWeekday()) {
-                $checklist->closeToDo();
-                $checklist->createSupervisorToDo($super->id);
-            }
-        }
-
-
-        // Archive old active checklists
-        $old_checklists = SuperChecklist::where('status', 1)->whereDate('date', '<', $mon->format('Y-m-d'))->get();
-        if ($old_checklists->count()) {
-            foreach ($old_checklists as $checklist) {
-                $checklist->status = 0;
-                $checklist->save();
-            }
-            echo "Archiving week: " . $checklist->date->format('d/m/Y') . "<br>";
-            $log .= "Archiving week: " . $checklist->date->format('d/m/Y') . "\n";
-        }
-
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
-    static public function uploadCompanyDocReminder()
-    {
-        $log = '';
-        $func_name = "Upload Company Docs Reminder";
-        echo "<h2>$func_name</h2>";
-        $log .= "$func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $yesterday = Carbon::now()->subDays(1);
-        $week_ago = Carbon::now()->subDays(7);
-
-        $companies = Company::whereDate('created_at', '=', $yesterday)->get();
-        foreach ($companies as $company) {
-            if (!$company->isCompliant() && $company->reportsTo()->id == 3) {
-                echo "[$company->id] $company->name: " . $company->missingDocs('csv') . "<br>";
-
-                // Send email
-                $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
-                $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
-                if ($email_to && $email_cc) {
-                    CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
-                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
-                    $emails = implode("; ", array_merge($email_to, $email_cc));
-                    echo "Sending email to $emails<br>";
-                    $log .= "Sending email to $emails\n";
-                }
-            }
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
-
     /*
      * Verify Zoho Import
      */
-    static public function verifyZohoImport()
+
+    static public function verifyNightly()
     {
-        $log = '';
-        $func_name = "Verify Zoho Import";
-        echo "<h2>$func_name</h2>";
-        $log .= "$func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $yesterday = Carbon::now()->subDays(1)->format('Ymd');
-        $successful = '';
-        $logfile = public_path("filebank/log/zoho/$yesterday.txt");
-
-        if (file_exists($logfile)) {
-            $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
-            $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
-
-            if ($jobs_complete && $contacts_complete) {
-                $log .= "Import successful\n";
-            } else {
-                $reason = '';
-                if ($jobs_complete) {
-                    $reason .= "Import of Contacts failed\n";
-                } elseif ($contacts_complete) {
-                    $reason .= "Import of Jobs failed\n";
-                } else {
-                    $reason .= "Import of Jobs + Contacts failed\n";
-                }
-                $log .= $reason;
-                Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
-            }
+        $log = public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        //echo "Log: $log<br>";
+        if (strpos(file_get_contents($log), "ALL DONE - NIGHTLY COMPLETE") !== false) {
+            //echo "successful";
+            //Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("was Successful"));
         } else {
-            $reason = "couldn't find logfile: $logfile";
-            $log .= $reason;
-            Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
+            //echo "failed";
+            Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Misc\VerifyNightly("Failed"));
         }
-
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
     }
 
 }

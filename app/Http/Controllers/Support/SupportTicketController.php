@@ -2,36 +2,28 @@
 
 namespace App\Http\Controllers\Support;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Support\SupportTicketRequest;
+use App\Models\Site\SiteHazardAction;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
-use App\Models\Misc\TemporaryFile;
-use App\Http\Requests;
-use App\Http\Requests\Support\SupportTicketRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\User;
 use Carbon\Carbon;
-
-use App\Http\Requests\Site\SiteHazardRequest;
-use App\Models\Site\Site;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteHazardAction;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SupportTicketController
  * @package App\Http\Controllers
  */
-class SupportTicketController extends Controller {
+class SupportTicketController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -41,16 +33,6 @@ class SupportTicketController extends Controller {
     public function index()
     {
         return view('support/ticket/list');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('support/ticket/create');
     }
 
     /**
@@ -88,6 +70,16 @@ class SupportTicketController extends Controller {
         Toastr::success("Created support ticket");
 
         return redirect('support/ticket');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('support/ticket/create');
     }
 
     /**
@@ -245,7 +237,7 @@ class SupportTicketController extends Controller {
      */
     public function getTickets(Request $request)
     {
-        if (in_array(Auth::user()->id, [3, 351, 1359])) // Fudge, Tara, Courtney,
+        if (in_array(Auth::user()->id, [3, 1359])) // Fudge, Courtney,
             $user_list = User::all()->pluck('id')->toArray();
         else if (Auth::user()->hasPermission2('edit.user.security'))
             $user_list = Auth::user()->company->users()->pluck('id')->toArray();

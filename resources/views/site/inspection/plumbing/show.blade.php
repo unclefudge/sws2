@@ -25,7 +25,9 @@
                         </div>
                         <div class="actions">
                             @if($report->status == '0')
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/plumbing/{{ $report->id }}/report" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
+                                <a class="btn btn-circle green btn-outline btn-sm"
+                                   href="/site/inspection/plumbing/{{ $report->id }}/report" target="_blank"
+                                   data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
                             @endif
                         </div>
                     </div>
@@ -40,7 +42,8 @@
                                 <div class="col-md-6">
                                     <h2 style="margin: 0px; padding-right: 20px">
                                         @if($report->status == '0')
-                                            <span class="pull-right font-red hidden-sm hidden-xs"><small class="font-red">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</small></span>
+                                            <span class="pull-right font-red hidden-sm hidden-xs"><small
+                                                        class="font-red">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</small></span>
                                             <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $report->updated_at->format('d/m/Y') }}</span>
                                         @endif
                                         @if($report->status == '1')
@@ -70,7 +73,8 @@
                                     </div>
                                     <div class="row" style="padding: 0px 5px;">
                                         <div class="col-md-4">Inspection carried out by</div>
-                                        <div class="col-md-8">{{ ($report->assignedTo) ? $report->assignedTo->name : '' }}<br>Licence No. {{ $report->inspected_lic }}</div>
+                                        <div class="col-md-8">{{ ($report->assignedTo) ? $report->assignedTo->name : '' }}
+                                            <br>Licence No. {{ $report->inspected_lic }}</div>
                                     </div>
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-4"><b>Signature</b></div>
@@ -89,7 +93,8 @@
                                     </div>
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-2 hidden-sm hidden-xs">&nbsp;</div>
-                                        <div class="col-md-10">Client contact was made: &nbsp; {{ ($report->client_contacted) ? 'Yes' : 'No' }}</div>
+                                        <div class="col-md-10">Client contact was made:
+                                            &nbsp; {{ ($report->client_contacted) ? 'Yes' : 'No' }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -124,19 +129,29 @@
                             <div class="row" style="padding: 5px 0px">
                                 <div class="col-xs-2">Water Pressure</div>
                                 <div class="col-xs-3">{{ $report->pressure }} kpa</div>
-                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">500kpa Water Pressure Reduction Value Recommend</div>
-                                <div class="col-xs-5 visible-sm visible-xs">500kpa Water Pressure Reduction Value Recommend</div>
+                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">500kpa Water
+                                    Pressure Reduction Value Recommend
+                                </div>
+                                <div class="col-xs-5 visible-sm visible-xs">500kpa Water Pressure Reduction Value
+                                    Recommend
+                                </div>
                                 <div class="col-xs-2">{{ ($report->pressure_reduction) ? 'Yes' : 'No' }}</div>
                             </div>
                             <div class="row" style="padding: 5px 0px">
                                 <div class="col-xs-2">Water Hammer</div>
-                                <div class="col-xs-10">{{ $report->hammer }} &nbsp; &nbsp; &nbsp; (Refer to Water Hammer comments below)</div>
+                                <div class="col-xs-10">{{ $report->hammer }} &nbsp; &nbsp; &nbsp; (Refer to Water Hammer
+                                    comments below)
+                                </div>
                             </div>
                             <div class="row" style="padding: 5px 0px">
                                 <div class="col-xs-2">Existing Hot Water Type</div>
                                 <div class="col-xs-3">{{ $report->hotwater_type }}</div>
-                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">Will pipes in roof hot water need to be lowerd?</div>
-                                <div class="col-xs-5 visible-sm visible-xs">Will pipes in roof hot water need to be lowerd?</div>
+                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">Will pipes in roof
+                                    hot water need to be lowerd?
+                                </div>
+                                <div class="col-xs-5 visible-sm visible-xs">Will pipes in roof hot water need to be
+                                    lowerd?
+                                </div>
                                 <div class="col-xs-2">{{ ($report->hotwater_lowered) ? 'Yes' : 'No' }}</div>
                             </div>
                             <div class="row" style="padding: 5px 0px">
@@ -151,7 +166,9 @@
                             <div class="row" style="padding: 5px 0px">
                                 <div class="col-xs-2">Gas Meter Position OK?</div>
                                 <div class="col-xs-3">{{ $report->gas_position }}</div>
-                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">Are gas pipes able to be tapped into?</div>
+                                <div class="col-xs-5 hidden-sm hidden-xs" style="text-align: right">Are gas pipes able
+                                    to be tapped into?
+                                </div>
                                 <div class="col-xs-5 visible-sm visible-xs">Are gas pipes able to be tapped into?</div>
                                 <div class="col-xs-2">{{ ($report->gas_lines) ? 'Yes' : 'No' }}</div>
                             </div>
@@ -194,14 +211,17 @@
                             <br>
                             <h4 class="font-green-haze">Water Pressure</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our recommendation that you have fitted a pressure limiting valve at the metre to avoid possible problems:
+                            Water pressure higher than 500KPA will void the warranty on all mixer sets; it is our
+                            recommendation that you have fitted a pressure limiting valve at the metre to avoid possible
+                            problems:
                             <div class="row">
                                 <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
                                 <div class="col-md-11">{!! nl2br($report->pressure_notes) !!}</div>
                             </div>
                             @if ($report->pressure_cost)
                                 <br>
-                                <hr style="margin: 0px"><span style="float: right;">at a cost of <b>${{ $report->pressure_cost }}</b> Incl GST</span>
+                                <hr style="margin: 0px"><span
+                                        style="float: right;">at a cost of <b>${{ $report->pressure_cost }}</b> Incl GST</span>
                             @endif
 
 
@@ -227,12 +247,14 @@
                             <div class="row" style="text-align: right;">
                                 <div class="col-md-12">
                                     Cost estimate <b>${{ $report->sewer_cost }}</b> (incl GST)<br>
-                                    Allowance in your tender document is <b>${{ $report->sewer_allowance }}</b> (incl GST)<br>
+                                    Allowance in your tender document is <b>${{ $report->sewer_allowance }}</b> (incl
+                                    GST)<br>
                                     Meaning you may incur extra costs of <b>${{ $report->sewer_extra }}</b> (incl GST)
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12" style="text-align: center"><h6>PRICE TO BE CONFIRMED AT TIME OF CONSTRUCTION AND DOES NOT INCLUDE BUILDERS MARGIN</h6><br></div>
+                                <div class="col-md-12" style="text-align: center"><h6>PRICE TO BE CONFIRMED AT TIME OF
+                                        CONSTRUCTION AND DOES NOT INCLUDE BUILDERS MARGIN</h6><br></div>
                             </div>
 
 
@@ -249,8 +271,10 @@
                             <div class="row" style="text-align: right;">
                                 <div class="col-md-12">
                                     Cost estimate <b>${{ $report->stormwater_cost }}</b> (incl GST)<br>
-                                    Allowance in your tender document is <b>${{ $report->stormwater_allowance }}</b> (incl GST)<br>
-                                    Meaning you may incur extra costs of <b>${{ $report->stormwater_extra }}</b> (incl GST)
+                                    Allowance in your tender document is <b>${{ $report->stormwater_allowance }}</b>
+                                    (incl GST)<br>
+                                    Meaning you may incur extra costs of <b>${{ $report->stormwater_extra }}</b> (incl
+                                    GST)
                                 </div>
                             </div>
 
@@ -275,7 +299,10 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h6>Please note that these remain best estimate until the final position and depth of services are located. Final estimates will be relayed to you at that time for your approval. <br><br>Thank you for your acknowledgment of the above and we will do our best to
+                                    <h6>Please note that these remain best estimate until the final position and depth
+                                        of services are located. Final estimates will be relayed to you at that time for
+                                        your approval. <br><br>Thank you for your acknowledgment of the above and we
+                                        will do our best to
                                         keep all costs to a minimum.</h6>
                                 </div>
                             </div>
@@ -297,14 +324,32 @@
                                     <p>The above report have been reviewed by the following people.</p>
                                 </div>
                             </div>
-                            {{-- Tech Manager Sign Off --}}
+                            <div class="row">
+                                <div class="col-sm-3 text-right">Admin Officer:</div>
+                                <div class="col-sm-9">
+                                    <div class="col-md-6">
+                                        @if ($report->supervisor_sign_by)
+                                            {!! \App\User::find($report->supervisor_sign_by)->full_name !!},
+                                            &nbsp;{{ $report->supervisor_sign_at->format('d/m/Y') }}
+                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->id == 1164 || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator')))
+                                            {{-- Brianna --}}
+                                            <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
+                                                {!! Form::select('supervisor_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor_sign_by']) !!}
+                                            </div>
+                                        @else
+                                            <span class="font-red">Pending Sign Off</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col-sm-3 text-right">Technical Manager:</div>
                                 <div class="col-sm-9">
                                     <div class="col-md-6">
                                         @if ($report->manager_sign_by)
-                                            {!! \App\User::find($report->manager_sign_by)->full_name !!}, &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
-                                        @elseif($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|gen-technical-manager|web-admin|mgt-general-manager'))
+                                            {!! \App\User::find($report->manager_sign_by)->full_name !!},
+                                            &nbsp;{{ $report->manager_sign_at->format('d/m/Y') }}
+                                        @elseif($report->status == 3 && $report->supervisor_sign_by && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('con-construction-manager|gen-technical-manager|web-admin|mgt-general-manager'))
                                             <div class="form-group {!! fieldHasError('approve_version', $errors) !!}">
                                                 {!! Form::select('manager_sign_by', ['' => 'Do you approve this inspection report', 'n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
                                             </div>
@@ -323,7 +368,7 @@
                                         <div class="col-md-6">
                                             @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator'))
                                                 <div class="form-group {!! fieldHasError('sent2_client', $errors) !!}">
-                                                    {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'manager_sign_by']) !!}
+                                                    {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'sent2_client']) !!}
                                                 </div>
                                             @endif
                                             @if($report->status == 0)
@@ -335,32 +380,32 @@
                             @endif
 
                             {{--}}
-                            @if ($report->trade_notes)
-                            <h4 class="font-green-haze">Cape Code Notes</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                            <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
-                            <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
+                        @if ($report->trade_notes)
+                        <h4 class="font-green-haze">Cape Code Notes</h4>
+                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                        <div class="row">
+                        <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
+                        <div class="col-md-11">{!! nl2br($report->trade_notes) !!}</div>
+                        </div>
+                        @endif --}}
+
+                            <div class="form-actions right">
+                                <a href="/site/inspection/plumbing" class="btn default"> Back</a>
+                                @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report))
+                                    <button type="submit" class="btn green"> Save</button>
+
+                                @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
+                                    <a href="/site/inspection/plumbing/{{ $report->id }}/status/3" class="btn blue"> Mark Not With Client</a>
+                                    <a href="/site/inspection/plumbing/{{ $report->id }}/status/1" class="btn green">Re-open Report</a>
+                                @endif
                             </div>
-                            @endif --}}
-
+                            {!! Form::close() !!}
                         </div>
-
-                        <div class="form-actions right">
-                            <a href="/site/inspection/plumbing" class="btn default"> Back</a>
-                            @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report))
-                                <button type="submit" class="btn green"> Save</button>
-
-                            @elseif (!$report->status && Auth::user()->allowed2('sig.site.inspection', $report))
-                                <a href="/site/inspection/plumbing/{{ $report->id }}/status/3" class="btn blue"> Mark Not With Client</a>
-                                <a href="/site/inspection/plumbing/{{ $report->id }}/status/1" class="btn green"> Re-open Report</a>
-                            @endif
-                        </div>
-                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     <div>
         <div class="pull-right" style="font-size: 12px; font-weight: 200; padding: 10px 10px 0 0">
@@ -377,11 +422,15 @@
         <div class="page-content-inner">
             <div class="row">
                 <div class="col-md-12">
-                    <h4 class="font-green-haze">Additional Notes for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
-                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
+                    <h4 class="font-green-haze">Additional Notes
+                        for {{ ($report->ownedBy->nickname) ? $report->ownedBy->nickname :  $report->ownedBy->name }}
+                        <button v-on:click.stop.prevent="$root.$broadcast('add-action-modal')"
+                                class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
+                        </button>
                     </h4>
                     <hr>
-                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
+                    <table v-show="actionList.length"
+                           class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
                             <th width="10%">Date</th>
@@ -413,12 +462,14 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet"
+          type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"
+            type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
@@ -439,9 +490,16 @@
 
         var xx = {
             dev: dev,
-            action: '', loaded: false,
-            table_name: 'site_inspection_plumbing', table_id: '', record_status: '', stage: '', next_review_date: '', client_contacted: '',
-            created_by: '', created_by_fullname: '',
+            action: '',
+            loaded: false,
+            table_name: 'site_inspection_plumbing',
+            table_id: '',
+            record_status: '',
+            stage: '',
+            next_review_date: '',
+            client_contacted: '',
+            created_by: '',
+            created_by_fullname: '',
         };
 
         Vue.component('app-actions', {

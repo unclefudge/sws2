@@ -2,41 +2,37 @@
 
 namespace App;
 
-use DB;
-use Session;
-use App\Models\Site\Site;
+use App\Http\Utilities\CompanyEntityTypes;
+use App\Models\Comms\Notify;
+use App\Models\Comms\Todo;
+use App\Models\Comms\TodoUser;
+use App\Models\Company\Company;
+use App\Models\Company\CompanySupervisor;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
-use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
-use App\Models\User\UserDoc;
-use App\Models\Company\Company;
-use App\Models\Company\CompanySupervisor;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Comms\Notify;
-use App\Models\Safety\ToolboxTalk;
-use App\Http\Utilities\CompanyEntityTypes;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
-
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-
-use App\Traits\UserRolesPermissions;
 use App\Traits\UserDocs;
+use App\Traits\UserRolesPermissions;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Support\Facades\Auth;
+use Session;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
+{
 
     use Authenticatable, CanResetPassword;
     use Authorizable;
@@ -63,6 +59,31 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $dates = ['last_login', 'apprentice_start', 'approved_at'];
 
     /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        }
+    }
+
+    /**
      * A User belongs to a company
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -70,6 +91,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function company()
     {
         return $this->belongsTo('App\Models\Company\Company');
+
     }
 
     /**
@@ -108,7 +130,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return rtrim($string, ', ');
     }
 
-
     /**
      * A User has many SiteAttendance
      *
@@ -131,20 +152,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * A user may have one or more Sub Supervisors they manage
-     */
-    public function subSupervisors()
-    {
-        $record = DB::table('company_supervisors')->where('user_id', $this->id)->where('parent_id', 0)->first();
-        $user_ids = [];
-
-        if ($record)
-            $user_ids = DB::table('company_supervisors')->where('parent_id', $record->id)->pluck('user_id')->toArray();
-
-        return User::whereIn('id', $user_ids)->get();
-    }
-
-    /**
      * A dropdown list of Sub Supervisors that this user manages
      *
      * @return array
@@ -160,6 +167,19 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return ($prompt) ? $array = array('' => 'Select supervisor') + $array : $array;
     }
 
+    /**
+     * A user may have one or more Sub Supervisors they manage
+     */
+    public function subSupervisors()
+    {
+        $record = DB::table('company_supervisors')->where('user_id', $this->id)->where('parent_id', 0)->first();
+        $user_ids = [];
+
+        if ($record)
+            $user_ids = DB::table('company_supervisors')->where('parent_id', $record->id)->pluck('user_id')->toArray();
+
+        return User::whereIn('id', $user_ids)->get();
+    }
 
     /**
      * A list of sites this user is supervisor for
@@ -192,6 +212,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return ($status) ? Site::where('status', $status)->whereIn('id', $site_list)->orderBy('name')->get() : Site::whereIn('id', $site_list)->orderBy('name')->get();
     }
 
+    /**
+     * User is a Area Supervisor
+     * @return boolean
+     */
+    public function isAreaSupervisor()
+    {
+        return (CompanySupervisor::where('user_id', $this->id)->where('parent_id', 0)->first()) ? true : false;
+    }
 
     /**
      * A dropdown list of types of Site Document user can access
@@ -214,7 +242,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return ($prompt && count($array) > 1) ? $array = array('' => 'Select Type') + $array : $array;
     }
 
-
     /**
      * A list of Site Hazards this user is allowed to view
      *
@@ -233,7 +260,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         // For special site 0003-Vehicles Cape Cod '809' allow specific users access to it.
-        if (in_array($this->id, ['3', '108', '351', '458', '1155'])) // Fudge, Kirstie, Tara, Georgie, Ross
+        if (in_array($this->id, ['3', '108', '458', '1155'])) // Fudge, Kirstie, Georgie, Ross
             $site_list[] = '809';
 
         if ($status != '')
@@ -347,15 +374,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * User is a Area Supervisor
-     * @return boolean
-     */
-    public function isAreaSupervisor()
-    {
-        return (CompanySupervisor::where('user_id', $this->id)->where('parent_id', 0)->first()) ? true : false;
-    }
-
-    /**
      * User is from same company as [company]
      * @param $company
      * @return boolean
@@ -418,21 +436,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * A User has multiple ToDoo tasks
-     */
-    public function todo($status = null)
-    {
-        $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
-
-        if ($status)
-            $status = (!is_array($status)) ? [$status] : $status; // convert status to an array if not
-
-
-
-        return ($status) ? Todo::whereIn('id', $todo_ids)->wherein('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->orderBy('due_at')->get();
-    }
-
-    /**
      * A User has multiple ToDoo tasks of Type (x)
      */
     public function todoType($type, $status = null)
@@ -462,6 +465,19 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * A User has multiple ToDoo tasks
+     */
+    public function todo($status = null)
+    {
+        $todo_ids = TodoUser::where('user_id', $this->id)->pluck('todo_id')->toArray();
+
+        if ($status)
+            $status = (!is_array($status)) ? [$status] : $status; // convert status to an array if not
+
+
+        return ($status) ? Todo::whereIn('id', $todo_ids)->wherein('status', $status)->orderBy('due_at')->get() : Todo::whereIn('id', $todo_ids)->orderBy('due_at')->get();
+    }
 
     /**
      * A User has multiple Toolbox Talks
@@ -670,7 +686,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return $array;
     }
 
-
     /**
      * Get the Status Text Both  (getter)
      */
@@ -684,32 +699,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         if ($this->status == 0)
             return '<span class="font-red">INACTIVE</span>';
-    }
-
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
     }
 }
 

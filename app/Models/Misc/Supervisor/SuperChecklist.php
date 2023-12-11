@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SuperChecklist extends Model {
+class SuperChecklist extends Model
+{
 
     protected $table = 'supervisor_checklist';
     protected $fillable = ['name', 'super_id', 'date',
@@ -24,8 +25,7 @@ class SuperChecklist extends Model {
     *
     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
-    public function supervisor()
-    {
+    public function supervisor(){
         return $this->belongsTo('App\User', 'super_id');
     }
 
@@ -92,10 +92,10 @@ class SuperChecklist extends Model {
     {
         $count = 0;
         $total = $this->responses->where('day', 1)->count();
-        for ($day = 1; $day < 6; $day ++) {
+        for ($day = 1; $day < 6; $day++) {
             $completed = $this->responsesCompleted($day)->count();
             if ($completed == $total)
-                $count ++;
+                $count++;
         }
 
         return $count;
@@ -108,10 +108,10 @@ class SuperChecklist extends Model {
     {
         $count = 0;
         $total = $this->responses->where('day', 1)->count();
-        for ($day = 1; $day < 6; $day ++) {
+        for ($day = 1; $day < 6; $day++) {
             $completed = $this->responsesCompleted($day)->count();
             if ($completed && $completed != $total)
-                $count ++;
+                $count++;
         }
 
         return $count;
@@ -125,10 +125,10 @@ class SuperChecklist extends Model {
         $total_responses = $this->responses->where('day', 1)->count();
         $summary = '';
         $days_completed = 0;
-        for ($day = 1; $day < 6; $day ++) {
+        for ($day = 1; $day < 6; $day++) {
             $completed = $this->responsesCompleted($day)->count();
             if ($completed == $total_responses) {
-                $days_completed ++;
+                $days_completed++;
                 $summary .= '<i class="fa fa-star font-green"></i>';
             } elseif ($completed)
                 $summary .= '<i class="fa fa-star-half-o"></i>';
@@ -149,20 +149,22 @@ class SuperChecklist extends Model {
         return $summary;
     }
 
+
     /**
      * Create ToDoo for Supervisor to complete checklist
      */
     public function createSupervisorToDo($user_list)
     {
         $todo_request = [
-            'type'       => 'super checklist',
-            'type_id'    => $this->id,
-            'type_id2'    => Carbon::now()->format('w'),
-            'name'       => 'Supervisor Checklist',
-            'info'       => 'Please complete your daily Supervisor tasks on the Checklist',
-            'due_at'     => Carbon::today()->toDateTimeString(),
+            'type' => 'super checklist',
+            'type_id' => $this->id,
+            'type_id2' => Carbon::now()->format('w'),
+            'name' => 'Supervisor Checklist',
+            'info' => 'Please complete your daily Supervisor tasks on the Checklist',
+            'due_at' => Carbon::today()->toDateTimeString(),
             'company_id' => '3',
         ];
+
 
         // Create ToDoo and assign to Site Supervisors
         $todo = Todo::create($todo_request);
@@ -176,11 +178,11 @@ class SuperChecklist extends Model {
     public function createSignOffToDo($user_list)
     {
         $todo_request = [
-            'type'       => 'super checklist signoff',
-            'type_id'    => $this->id,
-            'name'       => 'Weekly Supervisor Checklist - ' . $this->supervisor->name,
-            'info'       => 'Please sign off on completed items',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'super checklist signoff',
+            'type_id' => $this->id,
+            'name' => 'Weekly Supervisor Checklist - ' . $this->supervisor->name,
+            'info' => 'Please sign off on completed items',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => '3',
         ];
 

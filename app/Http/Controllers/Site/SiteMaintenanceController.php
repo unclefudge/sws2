@@ -2,40 +2,33 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
+use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceItem;
-use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Misc\Action;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Misc\Role2;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Site\SiteMaintenanceDoc;
+use App\Models\Site\SiteMaintenanceItem;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteMaintenanceController
  * @package App\Http\Controllers\Site
  */
-class SiteMaintenanceController extends Controller {
+class SiteMaintenanceController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -69,20 +62,6 @@ class SiteMaintenanceController extends Controller {
         }
 
         return view('site/maintenance/list', compact('under_review', 'assignedList'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.maintenance'))
-            return view('errors/404');
-
-        return view('site/maintenance/create');
     }
 
     /**
@@ -136,11 +115,11 @@ class SiteMaintenanceController extends Controller {
 
         $rules = ['site_id' => 'required', 'supervisor' => 'required', 'completed' => 'required', 'reported' => 'required', 'item1' => 'required'];
         $mesg = [
-            'site_id.required'    => 'The site field is required.',
+            'site_id.required' => 'The site field is required.',
             'supervisor.required' => 'The supervisor field is required.',
-            'completed.required'  => 'The prac completed field is required.',
-            'reported.required'   => 'The reported field is required.',
-            'item1.required'      => 'The item field is required.'];
+            'completed.required' => 'The prac completed field is required.',
+            'reported.required' => 'The reported field is required.',
+            'item1.required' => 'The item field is required.'];
         request()->validate($rules, $mesg); // Validate
 
         // Verify reported date
@@ -218,39 +197,18 @@ class SiteMaintenanceController extends Controller {
     }
 
     /**
-     * Update the specified resource in storage.
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
      */
-    /*
-    public function photos($id)
+    public function create()
     {
-        $main = SiteMaintenance::findOrFail($id);
-
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        $main->step = 3;
-        $main->save();
-
-        // Create ToDoo for assignment to Supervisor
-        $todo_request = [
-            'type'       => 'maintenance',
-            'type_id'    => $main->id,
-            'name'       => 'Site Maintenance Client Request - ' . $main->site->name,
-            'info'       => 'Please review request and assign to supervisor',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
-            'company_id' => $main->site->owned_by->id,
-        ];
-
-        $todo = Todo::create($todo_request);
-        $todo->assignUsers(array_merge(getUserIdsWithRoles('con-construction-manager'), [108])); // Con Manager
-        $todo->emailToDo();
-
-        Toastr::success("Updated Request");
-
-        return redirect('site/maintenance/' . $main->id . '/edit');
-    }*/
-
+        return view('site/maintenance/create');
+    }
 
     /**
      * Update the specified resource in storage.
@@ -265,10 +223,10 @@ class SiteMaintenanceController extends Controller {
 
         $rules = ['site_id' => 'required', 'supervisor' => 'required', 'completed' => 'required', 'item1' => 'required'];
         $mesg = [
-            'site_id.required'    => 'The site field is required.',
+            'site_id.required' => 'The site field is required.',
             'supervisor.required' => 'The supervisor field is required.',
-            'completed.required'  => 'The prac completed field is required.',
-            'item1.required'      => 'The item field is required.'];
+            'completed.required' => 'The prac completed field is required.',
+            'item1.required' => 'The item field is required.'];
 
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
             $rules = $rules + ['super_id' => 'required'];
@@ -380,8 +338,8 @@ class SiteMaintenanceController extends Controller {
             return view('errors/404');
 
         $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,4', 'planner_task_date' => 'required_with:planner_task_id'];
-        $mesg = ['supervisor.required'       => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
-                 'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
+        $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
+            'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
         request()->validate($rules, $mesg); // Validate
 
         $main_request = request()->all();
@@ -666,7 +624,7 @@ class SiteMaintenanceController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
 
             $doc_request = $request->only('site_id');
@@ -731,19 +689,18 @@ class SiteMaintenanceController extends Controller {
         }
 
 
-
-/*
-        $records = DB::table('site_maintenance AS m')
-            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
-                DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
-                DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
-                's.code as sitecode', 's.name as sitename'])
-            ->join('sites AS s', 'm.site_id', '=', 's.id')
-            ->whereIn('m.id', $request_ids)
-            ->where('m.status', request('status'));*/
+        /*
+                $records = DB::table('site_maintenance AS m')
+                    ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
+                        DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                        DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                        DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                        DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                        DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
+                        's.code as sitecode', 's.name as sitename'])
+                    ->join('sites AS s', 'm.site_id', '=', 's.id')
+                    ->whereIn('m.id', $request_ids)
+                    ->where('m.status', request('status'));*/
 
         //dd($records);
         $dt = Datatables::of($records)
@@ -836,7 +793,7 @@ class SiteMaintenanceController extends Controller {
                     $user_rec = $users[$item->done_by];
                 } else {
                     $user = User::find($item->done_by);
-                    $users[$item->done_by] = (object) ['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias];
+                    $users[$item->done_by] = (object)['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias];
                     $user_rec = $users[$item->done_by];
                 }
 
@@ -856,7 +813,7 @@ class SiteMaintenanceController extends Controller {
                     $user = $users[$item->sign_by];
                 } else {
                     $user = User::find($item->sign_by);
-                    $users[$item->sign_by] = (object) ['id' => $user->id, 'full_name' => $user->full_name];
+                    $users[$item->sign_by] = (object)['id' => $user->id, 'full_name' => $user->full_name];
                 }
 
                 $array['sign_at'] = $item->sign_at->format('Y-m-d');
@@ -906,11 +863,11 @@ class SiteMaintenanceController extends Controller {
                             $text = $trade->name . ':' . $task->name;
 
                         $sel_task[] = [
-                            'value'      => $task->id,
-                            'text'       => $text,
-                            'name'       => $task->name,
-                            'code'       => $task->code,
-                            'trade_id'   => $trade->id,
+                            'value' => $task->id,
+                            'text' => $text,
+                            'name' => $task->name,
+                            'code' => $task->code,
+                            'trade_id' => $trade->id,
                             'trade_name' => $trade->name,
                         ];
                     }

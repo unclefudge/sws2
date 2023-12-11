@@ -76,6 +76,7 @@
                             <div class="col-xs-12 text-center">
                                 <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -731,22 +732,22 @@
             paging: false,
             ajax: {
                 'url': '{!! url('safety/doc/dt/risk') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.site_id = 181; //$('#site_id').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+                'type': 'GET',
+                'data': function (d) {
+                    d.site_id = 181; //$('#site_id').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('#site_id').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('#site_id').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

@@ -2,28 +2,24 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use File;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Jobs\CompanyMissingInfoCsv;
+use App\Jobs\CompanyMissingInfoPlannerCsv;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\Permission2;
-use App\Models\Misc\Role2;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Jobs\CompanyMissingInfoCsv;
-use App\Jobs\CompanyMissingInfoPlannerCsv;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use File;
+use Illuminate\Support\Facades\Auth;
+use Session;
+use Yajra\Datatables\Datatables;
 
-class ReportUserCompanyController extends Controller {
+class ReportUserCompanyController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -262,8 +258,8 @@ class ReportUserCompanyController extends Controller {
         foreach ($companies_list as $c) {
             $company = Company::find($c->id);
 
-            $user_companies[] = (object) ['id'  => $company->id, 'name' => $company->name_both, 'users' => $c->users,
-                                          'sec' => $company->securityUsers(1)->count(), 'pu' => $company->primary_user, 'su' => $company->secondary_user, 'updated_at' => $company->updated_at->format('d/m/Y')];
+            $user_companies[] = (object)['id' => $company->id, 'name' => $company->name_both, 'users' => $c->users,
+                'sec' => $company->securityUsers(1)->count(), 'pu' => $company->primary_user, 'su' => $company->secondary_user, 'updated_at' => $company->updated_at->format('d/m/Y')];
 
         }
 
@@ -295,11 +291,11 @@ class ReportUserCompanyController extends Controller {
                 if (!$todo) {
                     // Create ToDoo
                     $todo_request = [
-                        'type'       => 'company privacy',
-                        'type_id'    => $company->id,
-                        'name'       => 'Cape Cod Privacy Policy Sign Off',
-                        'info'       => 'Please read and sign you have read Cape Cod Privacy Policy',
-                        'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                        'type' => 'company privacy',
+                        'type_id' => $company->id,
+                        'name' => 'Cape Cod Privacy Policy Sign Off',
+                        'info' => 'Please read and sign you have read Cape Cod Privacy Policy',
+                        'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
                         'company_id' => 3,
                     ];
 
@@ -334,12 +330,12 @@ class ReportUserCompanyController extends Controller {
                 // Missing Info
                 if ($company->missingInfo()) {
                     $missing_info[] = [
-                        'id'               => $company->id,
-                        'company_name'     => $company->name,
+                        'id' => $company->id,
+                        'company_name' => $company->name,
                         'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                        'data'             => $company->missingInfo(),
-                        'date'             => $company->updated_at->format('d/m/Y'),
-                        'link'             => "/company/$company->id"
+                        'data' => $company->missingInfo(),
+                        'date' => $company->updated_at->format('d/m/Y'),
+                        'link' => "/company/$company->id"
                     ];
                 }
 
@@ -358,30 +354,30 @@ class ReportUserCompanyController extends Controller {
                         $doc = $company->expiredCompanyDoc($type);
                         if (in_array($type, [1, 2, 3, 7, 12])) {
                             $expired_docs1[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         } elseif (in_array($type, [4, 5])) {
                             $expired_docs2[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         } elseif (in_array($type, [6])) {
                             $expired_docs3[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         }
                     }

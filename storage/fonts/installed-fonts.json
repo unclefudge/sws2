@@ -1,9 +1,9 @@
 {
     "fontawesome": {
-        "normal": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/fontawesome_normal_2fe2db79b09db90eeffbdc849c1b4cd5"
+        "normal": "fontawesome_normal_2fe2db79b09db90eeffbdc849c1b4cd5"
     },
     "glyphicons halflings": {
-        "normal": "\/home\/vagrant\/Sites\/laravel\/sws\/storage\/fonts\/\/glyphicons_halflings_normal_3666f2c75721d5d4133b57247675becf"
+        "normal": "glyphicons_halflings_normal_3666f2c75721d5d4133b57247675becf"
     },
     "pt sans": {
         "normal": "pt_sans_normal_e76a836bdb9b639f8f8481b37cb34a7a"

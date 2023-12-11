@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Site\Site;
 use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Site\SiteInspectionDoc;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteInspectionPlumbingController
  * @package App\Http\Controllers
  */
-class SiteInspectionPlumbingController extends Controller {
+class SiteInspectionPlumbingController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -44,20 +40,6 @@ class SiteInspectionPlumbingController extends Controller {
         $client_not_sent = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
 
         return view('site/inspection/plumbing/list', compact('non_assigned', 'pending', 'client_not_sent'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.inspection'))
-            return view('errors/404');
-
-        return view('site/inspection/plumbing/create');
     }
 
     /**
@@ -92,8 +74,8 @@ class SiteInspectionPlumbingController extends Controller {
 
         $rules = ['site_id' => 'required', 'client_name' => 'required', 'client_address' => 'required'];
         $mesg = [
-            'site_id.required'        => 'The site field is required.',
-            'client_name.required'    => 'The client name field is required.',
+            'site_id.required' => 'The site field is required.',
+            'client_name.required' => 'The client name field is required.',
             'client_address.required' => 'The client address field is required.'
         ];
         request()->validate($rules, $mesg); // Validate
@@ -113,11 +95,25 @@ class SiteInspectionPlumbingController extends Controller {
         }
 
         // Create Tdodoo to assign a company
-        $report->createConstructionToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+        $report->createAssignCompanyToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
 
         Toastr::success("Created inspection report");
 
         return redirect('/site/inspection/plumbing/' . $report->id . '/edit');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.inspection'))
+            return view('errors/404');
+
+        return view('site/inspection/plumbing/create');
     }
 
     /**
@@ -142,6 +138,7 @@ class SiteInspectionPlumbingController extends Controller {
     /**
      * Update the specified resource in storage.
      */
+    /*
     public function documents($id)
     {
         $report = SiteInspectionPlumbing::findOrFail($id);
@@ -152,11 +149,11 @@ class SiteInspectionPlumbingController extends Controller {
 
         $report->status = 1;  // Active
         $report->save();
-        $report->createConstructionToDo([108]);
+        $report->createAssignCompanyToDo([108]);
         Toastr::success("Updated Report");
 
         return redirect('site/inspection/plumbing');
-    }
+    }*/
 
     /**
      * Update the specified resource in storage.
@@ -172,27 +169,27 @@ class SiteInspectionPlumbingController extends Controller {
         if (!Auth::user()->allowed2('edit.site.inspection', $report))
             return view('errors/404');
 
-        $rules = ['client_name'               => 'required',
-                  'client_address'            => 'required',
-                  'inspected_at'              => 'required_if:status,0',
-                  'inspected_name'            => 'required_if:status,0',
-                  'inspected_lic'             => 'required_if:status,0',
-                  'pressure_reduction'        => 'required_if:status,0',
-                  'hammer'                    => 'required_if:status,0',
-                  'hotwater_lowered'          => 'required_if:status,0',
-                  'gas_position'              => 'required_if:status,0',
-                  'stormwater_detention_type' => 'required_if:status,0',
+        $rules = ['client_name' => 'required',
+            'client_address' => 'required',
+            'inspected_at' => 'required_if:status,0',
+            'inspected_name' => 'required_if:status,0',
+            'inspected_lic' => 'required_if:status,0',
+            'pressure_reduction' => 'required_if:status,0',
+            'hammer' => 'required_if:status,0',
+            'hotwater_lowered' => 'required_if:status,0',
+            'gas_position' => 'required_if:status,0',
+            'stormwater_detention_type' => 'required_if:status,0',
         ];
-        $mesg = ['client_name.required'                  => 'The client name field is required.',
-                 'client_address.required'               => 'The client address field is required.',
-                 'inspected_at.required_if'              => 'The date/time of inspection field is required.',
-                 'inspected_name.required_if'            => 'The inspection carried out by field is required.',
-                 'inspected_lic.required_if'             => 'The licence no. field is required.',
-                 'pressure_reduction.required_if'        => 'The pressure reduction value field is required.',
-                 'hammer.required_if'                    => 'The water hammer field is required.',
-                 'hotwater_lowered.required_if'          => 'The will pipes in roof hot water need to be lowered field is required.',
-                 'gas_position.required_if'              => 'The gas meter position field is required.',
-                 'stormwater_detention_type.required_if' => 'The onsite stormwater detention field is required.',
+        $mesg = ['client_name.required' => 'The client name field is required.',
+            'client_address.required' => 'The client address field is required.',
+            'inspected_at.required_if' => 'The date/time of inspection field is required.',
+            'inspected_name.required_if' => 'The inspection carried out by field is required.',
+            'inspected_lic.required_if' => 'The licence no. field is required.',
+            'pressure_reduction.required_if' => 'The pressure reduction value field is required.',
+            'hammer.required_if' => 'The water hammer field is required.',
+            'hotwater_lowered.required_if' => 'The will pipes in roof hot water need to be lowered field is required.',
+            'gas_position.required_if' => 'The gas meter position field is required.',
+            'stormwater_detention_type.required_if' => 'The onsite stormwater detention field is required.',
         ];
 
         if (in_array(Auth::user()->id, array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]))) {
@@ -219,8 +216,8 @@ class SiteInspectionPlumbingController extends Controller {
             $report_request['inspected_by'] = Auth::user()->id;
             $report_request['status'] = 3; // Pending
 
-            // Create ToDoo for Tech Mgr
-            $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
+            // Create ToDoo for Electrical Review
+            $report->createSignOffToDo([1164]); // Brianna
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
@@ -279,6 +276,36 @@ class SiteInspectionPlumbingController extends Controller {
         //dd(request()->all());
 
         $current_user = Auth::User()->full_name;
+
+        // Plumbing Admin Signoff
+        if (request('supervisor_sign_by')) {
+            if (request('supervisor_sign_by') == 'y') {
+                $report->supervisor_sign_by = Auth::User()->id;
+                $report->supervisor_sign_at = Carbon::now();
+                $report->status = 3; // Pending signoff
+                $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+
+                // Create ToDoo for Tech Mgr
+                $report->closeToDo();
+                $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
+            } else {
+                $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $report->inspected_name = null;
+                $report->inspected_lic = null;
+                $report->status = 1;
+
+                // Create ToDoo for trade to Re-complete report
+                $report->closeToDo();
+                $company = Company::find($report->assigned_to);
+                if ($company && $company->primary_user)
+                    $report->createAssignedToDo([$company->primary_user]);
+
+                Toastr::error("Report Rejected");
+            }
+            $report->save();
+        }
+
+        // Manager Signoff
         if (request('manager_sign_by')) {
             if (request('manager_sign_by') == 'y') {
                 $report->manager_sign_by = Auth::User()->id;

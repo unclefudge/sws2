@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
+use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Company\CompanyDocReviewFile;
-use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\Action;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class CompanyDocReviewController
  * @package App\Http\Controllers
  */
-class CompanyDocReviewController extends Controller {
+class CompanyDocReviewController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -154,7 +149,7 @@ class CompanyDocReviewController extends Controller {
                     // Ensure filename is unique by adding counter to similiar filenames
                     $count = 1;
                     while (file_exists(public_path("$path/$name")))
-                        $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                        $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
                     $file->move($path, $name);
                     $doc->current_doc = $name;
                     $doc->save();
@@ -176,141 +171,6 @@ class CompanyDocReviewController extends Controller {
 
         return redirect("company/doc/standard/review/$doc->id/edit");
     }
-
-    /**
-     * Delete the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function destroy($id)
-    {
-        $doc = CompanyDoc::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2("del.company.doc", $doc))
-            return json_encode("failed");
-
-        // Delete attached file
-        if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment)))
-            unlink(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment));
-
-        $doc->closeToDo();
-        $doc->delete();
-
-        return json_encode('success');
-    }*/
-
-
-    /**
-     * Reject the specified company document in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function reject($cid, $id)
-    {
-        $company = Company::find($cid);
-        $doc = CompanyDoc::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2("sig.company.doc", $doc))
-            return view('errors/404');
-
-        //dd(request()->all());
-        $doc->status = 2;
-        $doc->reject = request('reject');
-        $doc->closeToDo();
-        $doc->emailReject();
-        $doc->save();
-
-        Toastr::success("Updated document");
-
-        return redirect("company/$company->id/doc/$doc->id/edit");
-    }*/
-
-    /**
-     * Approve / Unarchive the specified company document.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function archive($cid, $id)
-    {
-        $company = Company::find($cid);
-        $doc = CompanyDoc::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2("del.company.doc", $doc))
-            return view('errors/404');
-
-        //dd(request()->all());
-        $doc->status = ($doc->status == 1) ?  0 :  1;
-        $doc->closeToDo();
-        $doc->save();
-
-        // Delete any assigned Supervisors for Contractor Licences
-        if ($doc->category_id == '7')
-            ContractorLicenceSupervisor::where('company_id', $doc->for_company_id)->delete();
-
-        if ($doc->status == 1)
-            Toastr::success("Document restored");
-        else {
-            //$doc->emailArchived();
-            Toastr::success("Document achived");
-        }
-
-        return redirect("company/$company->id/doc/$doc->id/edit");
-    }*/
-
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function upload($id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('add.company.doc.gen') || Auth::user()->allowed2('add.company.doc.lic') ||
-            Auth::user()->allowed2('add.company.doc.whs') || Auth::user()->allowed2('add.company.doc.ics'))
-        )
-            return json_encode("failed");
-
-        // Handle file upload
-        if (request()->hasFile('multifile')) {
-            $files = request()->file('multifile');
-            foreach ($files as $file) {
-                $path = "filebank/company/" . Auth::user()->company_id . '/docs';
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$path/$name")))
-                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-                $file->move($path, $name);
-
-                $doc_request['category_id'] = request('category_id');
-                $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $doc_request['company_id'] = Auth::user()->company_id;
-                $doc_request['for_company_id'] = Auth::user()->company_id;
-                $doc_request['expiry'] = null;
-
-                // Set Type
-                if ($doc_request['category_id'] > 6 && $doc_request['category_id'] < 10)
-                    $doc_request['type'] = 'lic';
-                elseif ($doc_request['category_id'] > 20)
-                    $doc_request['type'] = 'gen';
-
-                // Create Site Doc
-                $doc = CompanyDoc::create($doc_request);
-                $doc->attachment = $name;
-                $doc->save();
-            }
-        }
-
-        return json_encode("success");
-    } */
 
 
     /**
