@@ -2,47 +2,28 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-
-use DB;
-use PDF;
-use Mail;
-use File;
-use Carbon\Carbon;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Site;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\SiteUpcomingSettings;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\Planner\SiteCompliance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteQaAction;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentStocktake;
-use App\Models\Misc\Equipment\EquipmentStocktakeItem;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Comms\SafetyTip;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Company\Company;
+use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Site\Site;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceCategory;
+use App\Models\Site\SiteQa;
+use App\Models\Site\SiteQaAction;
+use App\Models\Site\SiteUpcomingSettings;
+use App\User;
+use Carbon\Carbon;
+use DB;
+use File;
+use Mail;
+use PDF;
 
-class CronReportController extends Controller {
+class CronReportController extends Controller
+{
 
     static public function nightly()
     {
@@ -103,7 +84,8 @@ class CronReportController extends Controller {
 
     }
 
-    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '') {
+    static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
+    {
         if (DEBUG_EMAIL) {
             $list = (is_array($list1)) ? implode(',', $list1) : $list1;
             app('log')->debug("DEBUG-EMAIL: $name1 [$list]");
@@ -159,18 +141,18 @@ class CronReportController extends Controller {
                 if ($plan->entity_type == 'c')
                     $entity_name = Company::find($plan->entity_id)->name;
                 $startdata[] = [
-                    'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
-                    'code'            => $site->code,
-                    'name'            => $site->name,
-                    'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorName,
-                    'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
+                    'date' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
+                    'code' => $site->code,
+                    'name' => $site->name,
+                    'company' => $entity_name,
+                    'supervisor' => $site->supervisorName,
+                    'contract_sent' => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
                     'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
-                    'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
-                    'eng'             => ($site->engineering) ? 'Y' : '-',
-                    'cc'              => ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-',
-                    'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-',
-                    'consultant'      => $site->consultant_name,
+                    'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
+                    'eng' => ($site->engineering) ? 'Y' : '-',
+                    'cc' => ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-',
+                    'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-',
+                    'consultant' => $site->consultant_name,
                 ];
             }
         }
@@ -184,11 +166,12 @@ class CronReportController extends Controller {
         $pdf->save($file);
 
         $data = [
-            'user_fullname'     => "Auto Generated",
+            'user_fullname' => "Auto Generated",
             'user_company_name' => "Cape Cod",
-            'startdata'         => $startdata
+            'startdata' => $startdata
         ];
         CronController::debugEmail('EL', $email_list);
+        dd($email_list);
         Mail::send('emails/jobstart', $data, function ($m) use ($email_list, $data, $file) {
             $send_from = 'do-not-reply@safeworksite.com.au';
             $m->from($send_from, 'Safe Worksite');
@@ -320,12 +303,12 @@ class CronReportController extends Controller {
                 // Missing Info
                 if ($company->missingInfo()) {
                     $missing_info[] = [
-                        'id'               => $company->id,
-                        'company_name'     => $company->name,
+                        'id' => $company->id,
+                        'company_name' => $company->name,
                         'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                        'data'             => $company->missingInfo(),
-                        'date'             => $company->updated_at->format('d/m/Y'),
-                        'link'             => "/company/$company->id"
+                        'data' => $company->missingInfo(),
+                        'date' => $company->updated_at->format('d/m/Y'),
+                        'link' => "/company/$company->id"
                     ];
                 }
 
@@ -344,30 +327,30 @@ class CronReportController extends Controller {
                         $doc = $company->expiredCompanyDoc($type);
                         if (in_array($type, [1, 2, 3, 7, 12])) {
                             $expired_docs1[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         } elseif (in_array($type, [4, 5])) {
                             $expired_docs2[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         } elseif (in_array($type, [6])) {
                             $expired_docs3[] = [
-                                'id'               => $company->id,
-                                'company_name'     => $company->name,
+                                'id' => $company->id,
+                                'company_name' => $company->name,
                                 'company_nickname' => ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '',
-                                'data'             => $name,
-                                'date'             => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
-                                'link'             => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
+                                'data' => $name,
+                                'date' => ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : 'never',
+                                'link' => ($doc != 'N/A') ? "/company/{{ $company->id }}/doc/{{ $doc->id }}/edit" : "/company/{{ $company->id }}/doc",
                             ];
                         }
                     }
@@ -665,7 +648,7 @@ class CronReportController extends Controller {
             foreach ($mains as $main) {
                 if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0')) {
                     if (!$main->client_appointment) {
-                        $super_count ++;
+                        $super_count++;
                         $found_request = true;
 
                         $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
@@ -715,7 +698,7 @@ class CronReportController extends Controller {
                     $nextTask = ($main->site->jobNextTask && $main->site->jobNextTask->lt(Carbon::now()->addDays(7))) ? $main->site->jobNextTask->format('d/m/Y') : null;
                     $futureTasks = ($main->site->futureTasks()->count()) ? true : false;
                     if ($main->lastUpdated()->lt(Carbon::now()->subDays(14)) && !($recentTask || $nextTask || $futureTasks)) {
-                        $super_count2 ++;
+                        $super_count2++;
                         $found_request = true;
 
                         $client_contacted = ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '-';
@@ -1196,9 +1179,9 @@ class CronReportController extends Controller {
                     elseif ($main->status == 1)
                         $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
 
-                    $count ++;
+                    $count++;
                 } else {
-                    $excluded ++;
+                    $excluded++;
                 }
 
 
