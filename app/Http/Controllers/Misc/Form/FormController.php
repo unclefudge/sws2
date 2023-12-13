@@ -2,40 +2,35 @@
 
 namespace App\Http\Controllers\Misc\Form;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use File;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Misc\Form\FormTemplate;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\Form\Form;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
-use App\Models\Misc\Form\FormResponse;
+use App\Models\Misc\Form\FormFile;
 use App\Models\Misc\Form\FormLogic;
 use App\Models\Misc\Form\FormNote;
-use App\Models\Misc\Form\FormFile;
+use App\Models\Misc\Form\FormPage;
+use App\Models\Misc\Form\FormQuestion;
+use App\Models\Misc\Form\FormResponse;
+use App\Models\Misc\Form\FormSection;
+use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\TemporaryFile;
 use App\Models\Site\Site;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use Intervention\Image\Facades\Image;
-use nilsenj\Toastr\Facades\Toastr;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use File;
+use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
+use Mail;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class FormController
  * @package App\Http\Controllers
  */
-class FormController extends Controller {
+class FormController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -130,12 +125,140 @@ class FormController extends Controller {
             }
         }
 
+
         //dd($page);
         //dd($formlogic);
+        //dd($sections);
+
+        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->orderBy('order')->with('allChildSections')->get();
+
+        //dd($sections2);
+        //dd('here');
 
         // Get Page data
-        return view('/site/inspection/custom/show', compact('form', 'page', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
+        return view('/site/inspection/custom/show', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
+
+    public function verifyFormCompleted($form)
+    {
+        $debug = false;
+        // Verify all required questions are completed.
+        if ($debug) echo " <br>Form Completed - Verify Required Fields <br>--------------------------------------------------</br> ";
+        $required_questions = [];
+        $failed_questions = [];
+        $logic_questions = [];
+        $delete_responses = [];
+        foreach ($form->questions() as $question) {
+            if ($question->required) {
+                $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
+                $val = ($response) ? $response->value : '';
+
+                // Convert $val to 'zero' in the cases it's '0' for checking if valid response
+                $val = ($val == '0') ? '{zero}' : $val;
+
+                // Media Only Question - check if media found
+                if ($question->type == 'media')
+                    $val = ($question->files($form->id)->count()) ? 'media found' : null;
+
+                // Check if question is affected by any logic
+                $affectedByLogic = $question->affectedByLogic();
+                if ($affectedByLogic->count() == 0) {
+                    // Standard Question not affected by any logic
+                    $required_questions[] = $question->id;
+                    if (!$val)
+                        $failed_questions[] = $question->id; // Questions has non blank/null response ie FAILS required check
+                } else {
+                    // Question is affected by logic
+                    foreach ($affectedByLogic as $logic) {
+                        // Get Source Question response values
+                        $sourceQuestion = FormQuestion::find($logic->question_id);
+                        $sourceResponseArray = $sourceQuestion->response($form->id)->pluck('value')->toArray();
+                        //$sourceResponseString = implode(',', $sourceResponseArray);
+
+                        $logic_questions[$question->id][$logic->id] = "<br> ===LOGIC[$logic->id] if (Q:$logic->question_id $logic->match_operation $logic->match_value) then Trigger:$logic->trigger[$logic->trigger_id] <br>";
+
+                        if ($logic->trigger == 'question' || true) {
+                            $match_array = explode(',', $logic->match_value);
+
+                            // Loop through each Logic Required Question/Section IDs (match_array) and determine if valid response exists
+                            foreach ($match_array as $match_val) {
+                                if (in_array($match_val, $sourceResponseArray)) {
+                                    $required_questions[] = $question->id;
+                                    if (!$val) {
+                                        $failed_questions[] = $question->id;
+                                    }
+                                    break;
+                                } else {
+                                    // Delete question from Required+Failed Questions as Question must match ALL logic
+                                    //  - this occures when single question has multiple logic statements eg Template 1, Q48
+                                    if (($key = array_search($question->id, $required_questions)) !== false)
+                                        unset($required_questions[$key]);
+
+                                    if (($key = array_search($question->id, $failed_questions)) !== false)
+                                        unset($failed_questions[$key]);
+                                }
+                            }
+                        }
+                    }
+
+                    // If question is affected by logic but a) has value + b) now not required then delete the response
+                    if ($val && !in_array($question->id, $required_questions))
+                        $delete_responses[] = $question->id;
+
+                } // End question is affected by logic
+
+                //
+                // Debug statements
+                //
+                if ($debug) {
+                    $fail = (in_array($question->id, $failed_questions)) ? " * " : '';
+                    $del = (in_array($question->id, $delete_responses)) ? "DELETE" : '';
+                    $req = '';
+                    $logic_mesg = '';
+
+                    // Check if question has an logic from LogicArray and if so then match to current question
+                    //  - a single question can be affected by multiple logic operations
+                    if (array_key_exists($question->id, $logic_questions)) {
+                        foreach ($logic_questions as $qid => $logic_array) {
+                            if ($qid == $question->id) {
+                                $req = (in_array($question->id, $required_questions)) ? " REQUIRED" : '';
+                                foreach ($logic_array as $logic_id => $mesg)
+                                    $logic_mesg .= $mesg;
+                            }
+                        }
+                    }
+                    echo "$fail Q:$question->id Page:$question->page_id Sect:$question->section_id == [$val] $req $del $logic_mesg <br>";
+                }
+            } // end required question
+        }
+
+        // Remove duplicates - these can occur when a question is affected by multiple logic statements eg Template 1, Q48
+        $required_questions = array_unique($required_questions);
+
+        // Debug values
+        if ($debug) {
+            echo " <br>Required Questions<br>";
+            var_dump($required_questions);
+            echo " <br>Logic Questions <br>";
+            var_dump($logic_questions);
+            echo " <br>Failed Questions <br>";
+            var_dump($failed_questions);
+            echo " <br>Delete Questions <br>";
+            var_dump($delete_responses);
+        }
+
+        // Delete Non Required empty/blank questions
+        if (count($delete_responses)) {
+            //$array1 = FormResponse::where('form_id', $form->id)->whereNotIn('question_id', $required_questions)->pluck('id')->toArray();
+            //$array2 = FormResponse::where('form_id', $form->id)->whereIn('question_id', $delete_responses)->pluck('id')->toArray();
+            //var_dump($array1);
+            //var_dump($array2);
+            $delete_non_required = FormResponse::where('form_id', $form->id)->wherein('question_id', $delete_responses)->delete();
+        }
+
+        return $failed_questions;
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -150,7 +273,6 @@ class FormController extends Controller {
 
         //return redirect('/misc/form/' . $form->id . /edit);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -168,7 +290,7 @@ class FormController extends Controller {
         $nextpage = request('nextpage');
         $questions_asked = [];
         $questions_media = [];
-        $debug = true;
+        $debug = false;
 
         //dd(request()->all());
 
@@ -334,127 +456,6 @@ class FormController extends Controller {
 
         return redirect("site/inspection/$form->id/$nextpage");
     }
-
-    public function verifyFormCompleted($form)
-    {
-        $debug = false;
-        // Verify all required questions are completed.
-        if ($debug) echo " <br>Form Completed - Verify Required Fields <br>--------------------------------------------------</br> ";
-        $required_questions = [];
-        $failed_questions = [];
-        $logic_questions = [];
-        $delete_responses = [];
-        foreach ($form->questions() as $question) {
-            if ($question->required) {
-                $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
-                $val = ($response) ? $response->value : '';
-
-                // Convert $val to 'zero' in the cases it's '0' for checking if valid response
-                $val = ($val == '0') ? '{zero}' : $val;
-
-                // Media Only Question - check if media found
-                if ($question->type == 'media')
-                    $val = ($question->files($form->id)->count()) ? 'media found' : null;
-
-                // Check if question is affected by any logic
-                $affectedByLogic = $question->affectedByLogic();
-                if ($affectedByLogic->count() == 0) {
-                    // Standard Question not affected by any logic
-                    $required_questions[] = $question->id;
-                    if (!$val)
-                        $failed_questions[] = $question->id; // Questions has non blank/null response ie FAILS required check
-                } else {
-                    // Question is affected by logic
-                    foreach ($affectedByLogic as $logic) {
-                        // Get Source Question response values
-                        $sourceQuestion = FormQuestion::find($logic->question_id);
-                        $sourceResponseArray = $sourceQuestion->response($form->id)->pluck('value')->toArray();
-                        //$sourceResponseString = implode(',', $sourceResponseArray);
-
-                        $logic_questions[$question->id][$logic->id] = "<br> ===LOGIC[$logic->id] if (Q:$logic->question_id $logic->match_operation $logic->match_value) then Trigger:$logic->trigger[$logic->trigger_id] <br>";
-
-                        if ($logic->trigger == 'question' || true) {
-                            $match_array = explode(',', $logic->match_value);
-
-                            // Loop through each Logic Required Question/Section IDs (match_array) and determine if valid response exists
-                            foreach ($match_array as $match_val) {
-                                if (in_array($match_val, $sourceResponseArray)) {
-                                    $required_questions[] = $question->id;
-                                    if (!$val) {
-                                        $failed_questions[] = $question->id;
-                                    }
-                                    break;
-                                } else {
-                                    // Delete question from Required+Failed Questions as Question must match ALL logic
-                                    //  - this occures when single question has multiple logic statements eg Template 1, Q48
-                                    if (($key = array_search($question->id, $required_questions)) !== false)
-                                        unset($required_questions[$key]);
-
-                                    if (($key = array_search($question->id, $failed_questions)) !== false)
-                                        unset($failed_questions[$key]);
-                                }
-                            }
-                        }
-                    }
-
-                    // If question is affected by logic but a) has value + b) now not required then delete the response
-                    if ($val && !in_array($question->id, $required_questions))
-                        $delete_responses[] = $question->id;
-
-                } // End question is affected by logic
-
-                //
-                // Debug statements
-                //
-                if ($debug) {
-                    $fail = (in_array($question->id, $failed_questions)) ? " * " : '';
-                    $del = (in_array($question->id, $delete_responses)) ? "DELETE" : '';
-                    $req = '';
-                    $logic_mesg = '';
-
-                    // Check if question has an logic from LogicArray and if so then match to current question
-                    //  - a single question can be affected by multiple logic operations
-                    if (array_key_exists($question->id, $logic_questions)) {
-                        foreach ($logic_questions as $qid => $logic_array) {
-                            if ($qid == $question->id) {
-                                $req = (in_array($question->id, $required_questions)) ? " REQUIRED" : '';
-                                foreach ($logic_array as $logic_id => $mesg)
-                                    $logic_mesg .= $mesg;
-                            }
-                        }
-                    }
-                    echo "$fail Q:$question->id Page:$question->page_id Sect:$question->section_id == [$val] $req $del $logic_mesg <br>";
-                }
-            } // end required question
-        }
-
-        // Remove duplicates - these can occur when a question is affected by multiple logic statements eg Template 1, Q48
-        $required_questions = array_unique($required_questions);
-
-        // Debug values
-        if ($debug) {
-            echo " <br>Required Questions<br>";
-            var_dump($required_questions);
-            echo " <br>Logic Questions <br>";
-            var_dump($logic_questions);
-            echo " <br>Failed Questions <br>";
-            var_dump($failed_questions);
-            echo " <br>Delete Questions <br>";
-            var_dump($delete_responses);
-        }
-
-        // Delete Non Required empty/blank questions
-        if (count($delete_responses)) {
-            //$array1 = FormResponse::where('form_id', $form->id)->whereNotIn('question_id', $required_questions)->pluck('id')->toArray();
-            //$array2 = FormResponse::where('form_id', $form->id)->whereIn('question_id', $delete_responses)->pluck('id')->toArray();
-            //var_dump($array1);
-            //var_dump($array2);
-            $delete_non_required = FormResponse::where('form_id', $form->id)->wherein('question_id', $delete_responses)->delete();
-        }
-
-        return $failed_questions;
-    }
-
 
     /**
      * Upload Filepond file

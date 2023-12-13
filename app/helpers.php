@@ -5,35 +5,35 @@
  */
 
 define("VALID_EMAIL_PATTERN", '/^(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){255,})(?!(?:(?:\x22?\x5C[\x00-\x7E]\x22?)|(?:\x22?[^\x5C\x22]\x22?)){65,}@)(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22))(?:\.(?:(?:[\x21\x23-\x27\x2A\x2B\x2D\x2F-\x39\x3D\x3F\x5E-\x7E]+)|(?:\x22(?:[\x01-\x08\x0B\x0C\x0E-\x1F\x21\x23-\x5B\x5D-\x7F]|(?:\x5C[\x00-\x7F]))*\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-[a-z0-9]+)*)|(?:\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\]))$/iD');
-define('TODO_TYPES', ['incident'                => "Incident Report",
-                      'incident prevent'        => "Incident Preventative Action",
-                      'incident witness'        => "Incident Witness",
-                      'incident review'         => "Incident Review",
-                      'accident'                => "Accident Report",
-                      'hazard'                  => 'Site Hazard',
-                      'extension'               => 'Contract Time Extensions',
-                      'extension signoff'       => 'Contract Time Extensions',
-                      'super checklist'         => 'Supervisor Checklist',
-                      'super checklist signoff' => 'Supervisor Checklist',
-                      'equipment'               => 'Equipment Transfer',
-                      'maintenance'             => 'Site Maintenance Requests',
-                      'maintenance_task'        => 'Site Maintenance Task',
-                      'inspection'              => 'Site Inspection',
-                      'supervisor'              => 'Supervisor Checkin',
-                      'inspection_electrical'   => 'Electrical Inspection Reports',
-                      'inspection_plumbing'     => 'Plumbing Inspection Reports',
-                      'scaffold handover'       => 'Scaffold Handover Certificate',
-                      'project supply'          => 'Project Supply Information',
-                      'toolbox'                 => 'Toolbox Talks',
-                      'swms'                    => 'Safe Work Method Statements',
-                      'qa'                      => 'Quality Assurance Reports',
-                      'company doc'             => 'Company Document',
-                      'company ptc'             => 'Period Trade Contract',
-                      'company privacy'         => 'Company Privacy Policy',
-                      'company doc review'      => 'Standard Details Review',
-                      'user doc'                => 'User Documents',]);
-define('PROJECT_MGRS', ['Kirstie Silk'       => 108, 'Jo Moerman' => 109, 'Scott Morrell' => 462, 'Nadia Lay' => 465,
-                        'Clinton Strickland' => 467, 'Jim Kapodistrias' => 511, 'Juliana Choufani' => 528]);
+define('TODO_TYPES', ['incident' => "Incident Report",
+    'incident prevent' => "Incident Preventative Action",
+    'incident witness' => "Incident Witness",
+    'incident review' => "Incident Review",
+    'accident' => "Accident Report",
+    'hazard' => 'Site Hazard',
+    'extension' => 'Contract Time Extensions',
+    'extension signoff' => 'Contract Time Extensions',
+    'super checklist' => 'Supervisor Checklist',
+    'super checklist signoff' => 'Supervisor Checklist',
+    'equipment' => 'Equipment Transfer',
+    'maintenance' => 'Site Maintenance Requests',
+    'maintenance_task' => 'Site Maintenance Task',
+    'inspection' => 'Site Inspection',
+    'supervisor' => 'Supervisor Checkin',
+    'inspection_electrical' => 'Electrical Inspection Reports',
+    'inspection_plumbing' => 'Plumbing Inspection Reports',
+    'scaffold handover' => 'Scaffold Handover Certificate',
+    'project supply' => 'Project Supply Information',
+    'toolbox' => 'Toolbox Talks',
+    'swms' => 'Safe Work Method Statements',
+    'qa' => 'Quality Assurance Reports',
+    'company doc' => 'Company Document',
+    'company ptc' => 'Period Trade Contract',
+    'company privacy' => 'Company Privacy Policy',
+    'company doc review' => 'Standard Details Review',
+    'user doc' => 'User Documents',]);
+define('PROJECT_MGRS', ['Kirstie Silk' => 108, 'Jo Moerman' => 109, 'Scott Morrell' => 462, 'Nadia Lay' => 465,
+    'Clinton Strickland' => 467, 'Jim Kapodistrias' => 511, 'Juliana Choufani' => 528]);
 define('DEBUG_EMAIL', true);
 
 function validEmail($email)
@@ -70,7 +70,7 @@ function sortName($a, $b)
     if ($a['name'] == $b['name'])
         return 0;
 
-    return ($a['name'] < $b['name']) ? - 1 : 1;
+    return ($a['name'] < $b['name']) ? -1 : 1;
 }
 
 function sortEntityName($a, $b)
@@ -78,7 +78,7 @@ function sortEntityName($a, $b)
     if ($a['entity_name'] == $b['entity_name'])
         return 0;
 
-    return ($a['entity_name'] < $b['entity_name']) ? - 1 : 1;
+    return ($a['entity_name'] < $b['entity_name']) ? -1 : 1;
 }
 
 function sortSiteName($a, $b)
@@ -86,7 +86,7 @@ function sortSiteName($a, $b)
     if ($a['site_name'] == $b['site_name'])
         return 0;
 
-    return ($a['site_name'] < $b['site_name']) ? - 1 : 1;
+    return ($a['site_name'] < $b['site_name']) ? -1 : 1;
 }
 
 /* Flattens a multi-dimesion arrary recursively into a flat array */
@@ -500,7 +500,7 @@ function nextWorkDate($date, $direction, $days, $format = null)
 {
     // Determine next 'work' day ie mon-fri (x) days from given date
     // either before (-) or after (+) given date
-    for ($i = 0; $i < $days; $i ++) {
+    for ($i = 0; $i < $days; $i++) {
         if ($direction == '+') {
             $date->addDays(1);
             if ($date->dayOfWeek == 6) // Skip Sat
@@ -552,6 +552,7 @@ function get_decorated_diff($old, $new)
  */
 function customFormSelectButtons($question_id, $option_id, $formStatus)
 {
+
     $str = '';
     $question = \App\Models\Misc\Form\FormQuestion::find($question_id);  // get question
     if (!$question) return '';
@@ -572,22 +573,22 @@ function customFormSelectButtons($question_id, $option_id, $formStatus)
     $logic = (count($question->logic)) ? "data-logic='true'" : '';
 
     // create button html
-    $str .= "<div class='btn-group' style='width:100%;'>\n\r";
+    $str .= "<div class='btn-group row' style='width:100%;'>\n\r";
     // YrN
-    if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN'])) {
+    if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN', 'CONN'])) {
         foreach ($question->options()->sortBy('order') as $option) {
             $active_class = '';
             if ($option_id && $option_id == $option->id) {
                 $active_class = ($option->colour) ? $option->colour : 'dark';
             }
-            $str .= "<button class='btn button-resp $active_class' id='q$question->id-"; // begin button
+            $str .= "<div class='col-sm-3'><button class='btn button-resp btn-block $active_class' id='q$question->id-"; // begin button
             $str .= "$option->id'"; // complete button id by adding 'option-id'
             $str .= "data-qid='$question_id'"; // add question id
             $str .= "data-rid='$option->id'"; // add option id
             $str .= "data-bval='$option->value'"; // add option value
             $str .= ($option->colour) ? "data-btype='$option->colour'" : "data-btype='dark'"; // add button class
             $str .= "$logic"; // add logic if exists
-            $str .= " style='margin-right: 10px;width: 25%;'>$option->text</button>\n\r"; // end button
+            $str .= " style='margin-bottom: 10px;'>$option->text</button></div>\n\r"; // end button
         }
     }
     $str .= "</div>\n\r";

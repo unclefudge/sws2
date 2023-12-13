@@ -2,17 +2,18 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
 use App\Models\Site\Site;
-//use App\Models\Company\Company;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class FormQuestion extends Model {
+//use App\Models\Company\Company;
+
+class FormQuestion extends Model
+{
 
     protected $table = 'forms_questions';
     protected $fillable = ['template_id', 'page_id', 'section_id', 'name', 'type', 'type_special', 'type_version', 'order', 'default', 'multiple', 'required',
@@ -24,6 +25,38 @@ class FormQuestion extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
+        }
+    }
+
     public function section()
     {
         return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id');
@@ -69,6 +102,19 @@ class FormQuestion extends Model {
         return FormLogic::find($logic_ids);
     }
 
+    /**
+     * A FormQuestion 'may' have many options
+     *
+     */
+    public function optionsArray()
+    {
+        if ($this->type == 'select')
+            $select_placeholder = ($this->multiple) ? ['' => 'Select one or more options'] : ['' => 'Select option'];
+
+        return $this->options()->pluck('text', 'id')->toArray();
+
+        return [];
+    }
 
     /**
      * A FormQuestion 'may' have many options
@@ -88,20 +134,6 @@ class FormQuestion extends Model {
             } else
                 return FormOption::where('question_id', $this->id)->where('status', 1)->orderBy('order')->get();
         }
-
-        return [];
-    }
-
-    /**
-     * A FormQuestion 'may' have many options
-     *
-     */
-    public function optionsArray()
-    {
-        if ($this->type == 'select')
-            $select_placeholder = ($this->multiple) ? ['' => 'Select one or more options'] : ['' => 'Select option'];
-
-        return $this->options()->pluck('text', 'id')->toArray();
 
         return [];
     }
@@ -180,32 +212,6 @@ class FormQuestion extends Model {
             }
 
             return $str;
-        }
-    }
-
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
         }
     }
 }

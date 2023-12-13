@@ -2,18 +2,13 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Form\FormTemplate;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class FormOption extends Model {
+class FormOption extends Model
+{
 
     protected $table = 'forms_options';
     protected $fillable = ['question_id', 'text', 'value', 'order', 'colour', 'score', 'group', 'master', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
@@ -23,14 +18,6 @@ class FormOption extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function question()
-    {
-        if ($this->master)
-            return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
-
-        return null;
-    }
-
 
     /**
      * The "booting" method of the model.
@@ -54,6 +41,20 @@ class FormOption extends Model {
             static::updating(function ($table) {
                 $table->updated_by = Auth::user()->id;
             });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
         }
+    }
+
+    public function question()
+    {
+        if ($this->master)
+            return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
+
+        return null;
     }
 }

@@ -2,18 +2,13 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Form\FormTemplate;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class FormLogic extends Model {
+class FormLogic extends Model
+{
 
     protected $table = 'forms_logic';
     protected $fillable = ['template_id', 'page_id', 'question_id', 'match_operation', 'match_value', 'trigger', 'trigger_id', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
@@ -23,11 +18,6 @@ class FormLogic extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function question()
-    {
-        return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
-    }
-
 
     /**
      * The "booting" method of the model.
@@ -51,6 +41,17 @@ class FormLogic extends Model {
             static::updating(function ($table) {
                 $table->updated_by = Auth::user()->id;
             });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
         }
+    }
+
+    public function question()
+    {
+        return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
     }
 }

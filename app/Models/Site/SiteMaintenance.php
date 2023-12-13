@@ -3,22 +3,20 @@
 namespace App\Models\Site;
 
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Misc\Action;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Task;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Misc\TemporaryFile;
 use App\Http\Controllers\CronCrontroller;
+use App\Models\Comms\Todo;
+use App\Models\Misc\Action;
+use App\Models\Misc\TemporaryFile;
+use App\Models\Site\Planner\SitePlanner;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class SiteMaintenance extends Model {
+class SiteMaintenance extends Model
+{
 
     protected $table = 'site_maintenance';
     protected $fillable = [
@@ -29,6 +27,30 @@ class SiteMaintenance extends Model {
     protected $dates = ['completed', 'reported', 'resolved', 'assigned_super_at', 'assigned_at', 'supervisor_sign_at', 'manager_sign_at',
         'client_contacted', 'client_appointment', 'ac_form_sent'];
 
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        }
+    }
 
     /**
      * A Site Maintenance belongs to a Site
@@ -185,9 +207,9 @@ class SiteMaintenance extends Model {
     {
         $count = 0;
         if ($this->supervisor_sign_by)
-            $count ++;
+            $count++;
         if ($this->manager_sign_by)
-            $count ++;
+            $count++;
 
         return $count;
     }
@@ -206,7 +228,6 @@ class SiteMaintenance extends Model {
         //return ($visit) ? $visit->from : null;
     }
 
-
     /**
      * Move Maintenance to On Hold by given user
      */
@@ -218,6 +239,20 @@ class SiteMaintenance extends Model {
 
         // Close current ToDoo for QA
         $this->closeToDo($user);
+    }
+
+    /**
+     * Close any outstanding ToDoo for this SiteMaintenance
+     */
+    public function closeToDo($type = 'maintenance')
+    {
+        $todos = Todo::where('type', $type)->where('type_id', $this->id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
     }
 
     /**
@@ -254,7 +289,7 @@ class SiteMaintenance extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 
@@ -271,7 +306,6 @@ class SiteMaintenance extends Model {
         }
     }
 
-
     /**
      * Create ToDoo for Maintenance Report and assign to given user(s)
      */
@@ -279,11 +313,11 @@ class SiteMaintenance extends Model {
     {
         // Create ToDoo for assignment to Supervisor
         $todo_request = [
-            'type'       => 'maintenance',
-            'type_id'    => $this->id,
-            'name'       => 'Site Maintenance Client Request - ' . $this->site->name,
-            'info'       => 'Please review request and assign to supervisor',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'maintenance',
+            'type_id' => $this->id,
+            'name' => 'Site Maintenance Client Request - ' . $this->site->name,
+            'info' => 'Please review request and assign to supervisor',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->site->owned_by->id,
         ];
 
@@ -299,12 +333,12 @@ class SiteMaintenance extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'maintenance',
-            'type_id'    => $this->id,
-            'name'       => "Maintenance Request Sign Off - $site->name",
-            'info'       => 'Please sign off on completed items',
-            'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'maintenance',
+            'type_id' => $this->id,
+            'name' => "Maintenance Request Sign Off - $site->name",
+            'info' => 'Please sign off on completed items',
+            'priority' => '1',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => '3',
         ];
 
@@ -321,12 +355,12 @@ class SiteMaintenance extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'maintenance',
-            'type_id'    => $this->id,
-            'name'       => "Maintenance Request Assigned - $site->name",
-            'info'       => 'Please review request and assign a company to carry out the work if required.',
-            'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'maintenance',
+            'type_id' => $this->id,
+            'name' => "Maintenance Request Assigned - $site->name",
+            'info' => 'Please review request and assign a company to carry out the work if required.',
+            'priority' => '1',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => '3',
         ];
 
@@ -335,21 +369,6 @@ class SiteMaintenance extends Model {
         $todo->assignUsers($user_list);
         $todo->emailToDo();
     }
-
-    /**
-     * Close any outstanding ToDoo for this SiteMaintenance
-     */
-    public function closeToDo($type = 'maintenance')
-    {
-        $todos = Todo::where('type', $type)->where('type_id', $this->id)->where('status', '1')->get();
-        foreach ($todos as $todo) {
-            $todo->status = 0;
-            $todo->done_at = Carbon::now();
-            $todo->done_by = Auth::user()->id;
-            $todo->save();
-        }
-    }
-
 
     /**
      * Email Assigned
@@ -426,6 +445,7 @@ class SiteMaintenance extends Model {
         return ($lastAction) ? $lastAction->action : '';
 
     }
+
     /**
      * Get the planner task date if it exists  (getter)
      *
@@ -446,32 +466,7 @@ class SiteMaintenance extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
-    }
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
 }

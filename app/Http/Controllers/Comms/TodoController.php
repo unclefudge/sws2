@@ -2,39 +2,34 @@
 
 namespace App\Http\Controllers\Comms;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
-use App\Models\Misc\Action;
 use App\Models\Company\Company;
-use App\Models\Site\Site;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\Incident\SiteIncident;
+use App\Models\Misc\Action;
 use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormQuestion;
-use App\Http\Requests;
-use App\Http\Requests\Comms\TodoRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\SiteAccident;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteMaintenance;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class TodoController
  * @package App\Http\Controllers
  */
-class TodoController extends Controller {
+class TodoController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -59,8 +54,9 @@ class TodoController extends Controller {
 
         $type = '';
         $type_id = 0;
+        $type_id2 = null;
 
-        return view('comms/todo/create', compact('type', 'type_id'));
+        return view('comms/todo/create', compact('type', 'type_id', 'type_id2'));
     }
 
     /**
@@ -284,7 +280,7 @@ class TodoController extends Controller {
             Toastr::error("Task Deleted");
             if ($todo->type == 'inspection') {
                 $FomQuestion = FormQuestion::find($type_id2);
-                return redirect("/site/inspection/$type_id/".$FomQuestion->section->page->order);
+                return redirect("/site/inspection/$type_id/" . $FomQuestion->section->page->order);
             }
             if ($todo->type == 'hazard')
                 return redirect("/site/hazard/$type_id");
@@ -317,7 +313,7 @@ class TodoController extends Controller {
 
 
         // Update Assigned Users
-        $current_users =  $user_list = $todo->users->pluck('user_id')->toArray();
+        $current_users = $user_list = $todo->users->pluck('user_id')->toArray();
         $assign_list = [];
         $newly_assigned = [];
         if (request('user_list')) {
@@ -377,7 +373,7 @@ class TodoController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = $todo->id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = $todo->id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
             $todo->attachment = $name;
             $todo->save();
@@ -417,7 +413,7 @@ class TodoController extends Controller {
      */
     public function getTodo()
     {
-        $status = (request('status')) ? [1,2] : [0];
+        $status = (request('status')) ? [1, 2] : [0];
         $records = TodoUser::select([
             'todo_user.todo_id', 'todo_user.user_id', 'todo_user.opened',
             'todo.id', 'todo.name', 'todo.info', 'todo.type', 'todo.type_id', 'todo.due_at', 'todo.created_by',
@@ -446,7 +442,7 @@ class TodoController extends Controller {
                 return $todo->duedate;
             })
             ->editColumn('task', function ($todo) {
-                return $todo->todo->name."<br>Assigned to: ".$todo->todo->assignedToBySBC();
+                return $todo->todo->name . "<br>Assigned to: " . $todo->todo->assignedToBySBC();
             })
             ->editColumn('created_by', function ($todo) {
                 $user = User::find($todo->created_by);

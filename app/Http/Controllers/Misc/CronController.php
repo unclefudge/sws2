@@ -680,14 +680,13 @@ class CronController extends Controller
                     $log .= "$doc->name [$expire_date] already on renewal cycle\n";
                 }
             }
-            //dd($newRenewals);
+           
             if ($newRenewals) {
                 $docs = "The following documents expired $expire_date and are due for renewal:\r\n";
                 foreach ($newRenewals as $doc_id) {
                     $doc = CompanyDoc::findOrFail($doc_id);
                     $docs .= "$doc->name\r\n";
                 }
-                //dd($docs);
 
                 $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
                 if (!\App::environment('prod')) $email_to = [env('EMAIL_DEV')];

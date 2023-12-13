@@ -13,7 +13,6 @@
 
 @section('content')
 
-
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -42,7 +41,9 @@
                                 <i class="fa fa-warning"></i><strong> The follwing questions require a response</strong>
                                 <ul>
                                     @foreach ($failed_questions as $question)
-                                        <li style="list-style-type: none;">@if ($form->pages()->count() > 1) Page {{ $question->section->page->order }}: @endif{{ $question->name }}</li>
+                                        <li style="list-style-type: none;">@if ($form->pages()->count() > 1)
+                                                Page {{ $question->section->page->order }}:
+                                            @endif{{ $question->name }}</li>
                                     @endforeach
                                 </ul>
                             </div>
@@ -53,17 +54,12 @@
                             {{-- Template name + description--}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)<span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>@endif</h3>
+                                    <h3 style="margin-top: 0px"> {{ $form->template->name }} @if (!$form->status)
+                                            <span class="font-red pull-right" style="margin-top: 0px">COMPLETED {{ ($form->completed_at) ? $form->completed_at->format('d/m/Y') : '' }}</span>
+                                        @endif</h3>
                                     {{ $form->template->description }}<br><br>
                                 </div>
                             </div>
-                            {{--}}
-                            <div class="row">
-                                <div class="col-md-12" style="height: 400px">
-                                    <input type="file" class="my-pond" name="qq">
-                                </div>
-                            </div>--}}
-
                             <hr class="field-hr">
 
                             {{-- Page Icons --}}
@@ -86,7 +82,8 @@
                             {{-- Current Page --}}
 
                             {{-- Sections --}}
-                            @foreach ($form->page($pagenumber)->sections as $section)
+                            @foreach ($sections as $section)
+                                {{ $section->name }}
                                 <div id="sdiv-{{$section->id}}">
                                     {{-- Section Title --}}
                                     @if ($section->name)
@@ -103,210 +100,18 @@
                                         {{-- Questions --}}
                                         <div style="margin-bottom: 0px">
                                             @foreach ($section->questions as $question)
-                                                <?php
-                                                $val = null;
-                                                $qLogic = (count($question->logic)) ? 'data-logic="true"' : '';
-                                                $response = $question->response($form->id);
-                                                if (count($response))
-                                                    $val = ($question->multiple) ? $response->pluck('value')->toArray() : $response->first()->value;
-
-                                                // Highlight required fields if form marked 'complete'
-                                                $highlight_required = false;
-                                                if ($showrequired && $question->required) {
-                                                    if ($question->type == 'media')
-                                                        $highlight_required = ($question->files($form->id)->count()) ? false : true; // check for media
-                                                    elseif ($question->multiple)
-                                                        $highlight_required = ($val) ? false : true;  // non empty array for multi select/button response
-                                                    else
-                                                        $highlight_required = ($val || $val == '0') ? false : true; // val not blank/null for text/textarea response
-                                                }
-                                                ?>
-
-
-                                                <div id="qdiv-{{$question->id}}">
-                                                    @if ($form->status)
-                                                        {{-- Active Form - allow edit --}}
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="form-group">
-                                                                    <?php $required = ($question->required) ? "<small><span class='fa fa-thin fa-asterisk font-red' style='opacity: 0.7'></span></small>" : '' ?>
-                                                                    <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{{ $question->name }} {!! $required  !!}
-                                                                        {{--}}<small>T:{{ $question->type }} TS: {{ $question->type_special }} V:{!! (is_array($val)) ? print_r(implode(',', $val)) : $val !!}</small>--}}
-                                                                    </label>
-
-                                                                    @switch($question->type)
-                                                                    @case('text') {{-- Text --}}
-                                                                    <input type="text" name="q{{$question->id}}" class="form-control" value="{{ $val }}" {{ (!$form->status) ? "disabled" : '' }}>
-                                                                    @break
-
-                                                                    @case('textarea'){{-- Textarea --}}
-                                                                    <textarea name="q{{$question->id}}" rows="5" class="form-control" placeholder="Details" {{ (!$form->status) ? "disabled" : '' }}>{!! $val !!}</textarea>
-                                                                    @break
-
-                                                                    @case('datetime'){{-- Datetime --}}
-                                                                    @if ($form->status)
-                                                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d" style="width: 300px">
-                                                                            <?php $val = ($question->id == 2 && $val) ? $val : Carbon\Carbon::now()->format('d/m/Y G:i') ?>
-                                                                            <input type="text" name="q{{$question->id}}" class="form-control" style="background:#FFF" value="{{ $val }}">
-                                                                            <span class="input-group-addon"><button class="btn default date-set" type="button" style="height: 34px;"><i class="fa fa-calendar"></i></button></span>
-                                                                        </div>
-                                                                    @else
-                                                                        <input type="text" name="q{{$question->id}}" class="form-control" value="{{ $val }}" style="width:300px" disabled>
-                                                                    @endif
-                                                                    @break
-
-                                                                    @case('select') {{-- Select --}}
-
-                                                                    {{-- Site --}}
-                                                                    @if ($question->type_special == 'site')
-                                                                        <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2" style="width:100%">
-                                                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', $val, '-1') !!}
-                                                                        </select>
-                                                                    @endif
-
-                                                                    {{-- Staff --}}
-                                                                    @if ($question->type_special == 'staff')
-                                                                        {!! Form::select("q$question->id", Auth::user()->company->staffSelect(null, '1'), ($val) ? $val : Auth::user()->id, ['class' => 'form-control select2', 'name' => "q$question->id", 'id' => "q$question->id"]) !!}
-                                                                    @endif
-
-                                                                    {{-- Special Rest--}}
-                                                                    @if ($question->type_special && !in_array($question->type_special, ['site', 'staff']))
-                                                                        <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $val }}">
-                                                                        {!! customFormSelectButtons($question->id, $val, $form->status) !!}
-                                                                    @endif
-
-                                                                    {{-- Other Selects--}}
-                                                                    @if (!$question->type_special)
-                                                                        @if ($question->multiple)
-                                                                            {!! Form::select("q$question->id", $question->optionsArray(), $val, ['class' => "form-control select2", 'name' => "q$question->id[]", 'id' => "q$question->id",  'multiple', $qLogic]) !!}
-                                                                        @else
-                                                                            {!! Form::select("q$question->id", ['' => 'Select option'] + $question->optionsArray(), $val, ['class' => "form-control select2", 'name' => "q$question->id", 'id' => "q$question->id", $qLogic]) !!}
-                                                                        @endif
-                                                                    @endif
-
-                                                                    @break
-
-
-                                                                    @default
-                                                                    @endswitch
-
-                                                                    {{-- Required check --}}
-                                                                    @if ($highlight_required)
-                                                                        <div class="font-red">You must provide a response to this question</div>
-                                                                    @endif
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @else
-                                                        {{-- Completed Form - display only text response --}}
-                                                        <div class="row" style="margin-bottom: 20px">
-                                                            <div class="col-md-12">
-                                                                <span class="" style="font-size:18px"><b>{{ $question->name }}</b></span><br>
-                                                                {!! nl2br($question->responseFormatted($form->id)) !!}
-                                                                @if (is_array($val))
-                                                                    @foreach ($val as $v)
-                                                                        <input type="hidden" id="q{{$question->id}}[]" name="q{{$question->id}}[]" value="{{ $v }}" disabled>
-                                                                    @endforeach
-                                                                @else
-                                                                    <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $val }}" disabled>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    {{-- Gallery --}}
-                                                    <div id="showmedia-{{$question->id}}" style="width: 400px; {{ ($question->type != 'media' || !$form->status) ? 'display:none' : '' }}">
-                                                        <input type="file" class="my-filepond" name="q{{$question->id}}-media[]" data-qid="{{$question->id}}" multiple/>
-                                                    </div>
-                                                    <div id="q{{$question->id}}-gallery" style="margin-bottom: 20px">
-                                                        @if ($question->files($form->id)->count())
-                                                            {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
-                                                            @foreach ($question->files($form->id) as $file)
-                                                                <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
-                                                            @endforeach
-                                                        @endif
-                                                    </div>
-
-
-                                                    {{-- Notes - Show --}}
-                                                    <input type="hidden" id="q{{$question->id}}-notes-orig" value="{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}">
-                                                    <div id="shownote-{{$question->id}}" class="row button-note" data-qid="{{$question->id}}" style="margin: 10px 0px; cursor: pointer; {{ ($question->extraNotesForm($form->id)) ? '' : 'display:none' }}">
-                                                        <b>Notes</b><br>
-                                                        <div class="col-md-12" id="shownote-{{$question->id}}-div" style="padding-left: 0px; margin-bottom: 10px">
-                                                            {!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}
-                                                        </div>
-                                                    </div>
-                                                    {{-- Notes - Edit --}}
-                                                    <div id="editnote-{{$question->id}}" style="margin-top:10px; display:none">
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <b>Notes</b><br>
-                                                                <textarea id="q{{$question->id}}-notes" name="q{{$question->id}}-notes" rows="5" class="form-control" placeholder="Notes">{!! ($question->extraNotesForm($form->id)) ? $question->extraNotesForm($form->id)->notes : '' !!}</textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row" style="margin: 10px 0px">
-                                                            <div class="col-md-12">
-                                                                <button class="btn green button-savenote" data-qid="{{$question->id}}">Save</button>
-                                                                <button class="btn default button-cancelnote" data-qid="{{$question->id}}">Cancel</button>
-                                                                <button class="btn dark button-delnote" data-qid="{{$question->id}}">&nbsp;<i class="fa fa-trash"></i>&nbsp;</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {{-- Actions - Show --}}
-                                                    @if ($question->actions($form->id)->count())
-                                                        <div class="row">
-                                                            <div class="col-md-12"><b>Actions</b><br></div>
-                                                        </div>
-
-                                                        @foreach($question->actions($form->id) as $todo)
-                                                            <div class="row hoverDiv" style="margin: 10px 0px; padding: 10px 0px; background-color: #f9f9f9; border: #ddd 1px solid" onclick="todo({{$todo->id}})">
-                                                                <div class="col-xs-8">
-                                                                    {!! nl2br($todo->info) !!}<br><br>
-                                                                    <b>Assigned to:</b> {{ $todo->assignedToBySBC() }}
-                                                                    @if ($todo->comments)
-                                                                        <br><b>Comments:</b> {!! nl2br($todo->comments) !!}
-                                                                    @endif
-                                                                    @if ($todo->attachment) <br><a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"> Attachment</i></a> @endif
-                                                                </div>
-                                                                <div class="col-xs-4 text-right">
-                                                                    <?php
-                                                                    $done_by = App\User::find($todo->done_by);
-                                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                                    ?>
-                                                                    @if ($todo->status == '1' && !$todo->done_by)
-                                                                        <span class="font-red">Outstanding</span>{!! ($todo->due_at) ? "<br>Due: " . $todo->due_at->format('d/m/Y') : '' !!}
-                                                                    @elseif ($todo->status == '2' && !$todo->done_by)
-                                                                        <span class="font-yellow">In Progress</span>{!! ($todo->due_at) ? "<br>Due: " . $todo->due_at->format('d/m/Y') : '' !!}
-                                                                    @elseif ($todo->status == '-1' && !$todo->done_by)
-                                                                        <span class="font-red">Can't do</span>{!! ($todo->due_at) ? "<br>Due: " . $todo->due_at->format('d/m/Y') : '' !!}
-                                                                    @else
-                                                                        <span class="font-green">Completed</span><br>{!! $done_by  !!} ({{ $done_at }})
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    @endif
-
-                                                    {{-- Question Extras (Notes, Media, Actions --}}
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <button class="btn default btn-xs pull-right button-action" data-qid="{{$question->id}}">Action <i class="fa fa-check-square-o"></i></button>
-                                                            @if ($question->type != 'media' || !$form->status)
-                                                                <button class="btn default btn-xs pull-right button-media" style="margin-right: 10px" data-qid="{{$question->id}}">Media <i class="fa fa-picture-o"></i></button>
-                                                            @endif
-                                                            <button class="btn default btn-xs pull-right button-note" style="margin-right: 10px" data-qid="{{$question->id}}">Note <i class="fa fa-edit"></i></button>
-                                                        </div>
-                                                    </div>
-                                                    <hr class="field-hr">
-                                                </div> {{-- end question div --}}
+                                                @include('site/inspection/custom/_show_question')
                                             @endforeach
                                         </div>
+
+                                        {{-- Child sections --}}
+                                        @foreach ($section->allChildSections as $childSection)
+                                            @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
+                                        @endforeach
                                     </div> {{-- end section-content div --}}
                                 </div> {{-- end section div --}}
                             @endforeach
+
 
                             {{-- Media Summary --}}
                             @if (!$form->status && $pagenumber == '1')
@@ -339,6 +144,18 @@
                             </div>
                         </div>
                         {!! Form::close() !!}
+
+                        {{--}}
+                        @if (count($projects) > 0)
+                            <ul>
+                                @foreach ($projects as $project)
+                                    @include('site/inspection/custom/_show_section', $project)
+                                @endforeach
+                            </ul>
+                        @else
+                            No Projects
+                        @endif
+                        --}}
                     </div>
                 </div>
             </div>
@@ -393,266 +210,293 @@
     <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-transform.min.js"></script>--}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/site-inspection-filepond.js"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        const formStatus = {{ $form->status }};
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/site-inspection-filepond.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const formStatus = {{ $form->status }};
 
-        // Define Select 2 questions
-        if (formStatus) {
-            /* Select2 */
-            var select2_ids = @json($s2_ids);
-            var select2_phs = @json($s2_phs);
-            for (var i = 0; i < select2_ids.length; i++) {
-                var id = select2_ids[i];
-                var placeholder = (select2_phs[id]) ? select2_phs[id] : "Select one or more options";
-                $("#q" + id).select2({placeholder: placeholder});
-                if (formStatus == 0)
-                    $("#q" + id).prop('disabled', true);
-                //console.log("s2:" + select2_ids[i]);
-            }
-        }
-
-        //
-        // Page Previous/Next/Complete/Reopen Buttons
-        //
-
-        // Prevent form from submitting for current page
-        $('#pagebtn-current').click(function (e) {
-            e.preventDefault(e);// do nothing
-        });
-
-        // Page buttons
-        $('.pagebtn').click(function (e) {
-            e.preventDefault(e);
-            $('#nextpage').val($(this).attr('gotopage'));
-            document.getElementById('custom_form').submit();
-        });
-
-        // Re-open button
-        $('#reopen').click(function (e) {
-            e.preventDefault(e);
-            var page = $(this).attr('page');
-            $('#nextpage').val($(this).attr('page'));
-            $('#status').val(1);
-            document.getElementById('custom_form').submit();
-        });
-
-        //
-        // Note functions
-        //
-
-        // Edit Note
-        $('.button-note').click(function (e) {
-            e.preventDefault(e);
-            var qid = $(this).attr('data-qid');
-
-            if ($('#shownote-' + qid).css('display') == 'none') {
-                $('#q' + qid + '-notes-orig').val($('#q' + qid + '-notes').val()); // Update orig note to new saved val
-                $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes').val());
+            // Define Select 2 questions
+            if (formStatus) {
+                /* Select2 */
+                var select2_ids = @json($s2_ids);
+                var select2_phs = @json($s2_phs);
+                for (var i = 0; i < select2_ids.length; i++) {
+                    var id = select2_ids[i];
+                    var placeholder = (select2_phs[id]) ? select2_phs[id] : "Select one or more options";
+                    $("#q" + id).select2({placeholder: placeholder});
+                    if (formStatus == 0)
+                        $("#q" + id).prop('disabled', true);
+                    //console.log("s2:" + select2_ids[i]);
+                }
             }
 
-            // If both or hidden then display only the edit
-            if ($('#shownote-' + qid).css('display') == 'none' && $('#editnote-' + qid).css('display') == 'none') {
-                $('#editnote-' + qid).show();
-            } else {
-                $('#shownote-' + qid).toggle();
-                $('#editnote-' + qid).toggle();
-            }
-        });
+            //
+            // Page Previous/Next/Complete/Reopen Buttons
+            //
 
-        // Save Note
-        $('.button-savenote').click(function (e) {
-            e.preventDefault(e);
-            //var qid = e.target.id.split('btn-savenote-').pop();
-            var qid = $(this).attr('data-qid');
-            $('#editnote-' + qid).hide();
-            $('#shownote-' + qid).show();
-            $('#q' + qid + '-notes-orig').val($('#q' + qid + '-notes').val()); // Update orig note to new saved val
-            $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes').val());
-        });
+            // Prevent form from submitting for current page
+            $('#pagebtn-current').click(function (e) {
+                e.preventDefault(e);// do nothing
+            });
 
-        // Cancel Note
-        $('.button-cancelnote').click(function (e) {
-            e.preventDefault(e);
-            var qid = $(this).attr('data-qid');
-            $('#editnote-' + qid).hide();
-            $('#shownote-' + qid).show();
-            // Reset val to orig for both value + div html
-            $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val())
-            $('#q' + qid + '-notes').val($('#q' + qid + '-notes-orig').val());
-        });
+            // Page buttons
+            $('.pagebtn').click(function (e) {
+                e.preventDefault(e);
+                $('#nextpage').val($(this).attr('gotopage'));
+                document.getElementById('custom_form').submit();
+            });
 
-        // Delete Note
-        $('.button-delnote').click(function (e) {
-            e.preventDefault(e);
-            //var qid = e.target.id.split('btn-delnote-').pop();
-            var qid = $(this).attr('data-qid');
-            $('#editnote-' + qid).hide();
-            $('#shownote-' + qid).hide();
-            $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val('')); // clear html for note
-            $('#q' + qid + '-notes').val('');  // clear val for note
-        });
+            // Re-open button
+            $('#reopen').click(function (e) {
+                e.preventDefault(e);
+                var page = $(this).attr('page');
+                $('#nextpage').val($(this).attr('page'));
+                $('#status').val(1);
+                document.getElementById('custom_form').submit();
+            });
 
-        //
-        // Media functions
-        //
+            //
+            // Note functions
+            //
 
-        // add Media
-        $('.button-media').click(function (e) {
-            e.preventDefault(e);
-            var qid = $(this).attr('data-qid');
-            $('#q' + qid + '-gallery').show();
-            $('#showmedia-' + qid).toggle();
-        });
+            // Edit Note
+            $('.button-note').click(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('data-qid');
 
-        $('.mygallery').click(function (e) {
-            var imageClicked = document.getElementById(e.target.id);
-            openGalleryPreview(imageClicked);
-        });
-
-        //
-        // Action functions
-        //
-
-        // add Action
-        $('.button-action').click(function (e) {
-            e.preventDefault(e);
-            var qid = $(this).attr('data-qid');
-            $('#addAction').val(qid);
-            document.getElementById('custom_form').submit();
-        });
-
-
-        //
-        // Select Buttons
-        //
-        $('.button-resp').click(function (e) {
-            e.preventDefault(e);
-            var qid = $(this).attr('data-qid');
-            var rid = $(this).attr('data-rid');
-            var btype = $(this).attr('data-btype');
-            var bval = $(this).attr('data-bval');
-            var logic = $(this).attr('data-logic');
-            //alert('q:'+qid+' r:'+rid);
-
-            // Loop through all buttons for selected question + remove active classes
-            var buttons = document.querySelectorAll(`[data-qid='${qid}']`);
-            for (var i = 0; i < buttons.length; i++) {
-                $('#' + buttons[i].id).removeClass('btn-default red green dark')
-            }
-
-            // Add active class to selected button
-            if ($('#q' + qid).val() != rid) {
-                $('#q' + qid + '-' + rid).addClass(btype);
-                $('#q' + qid).val(rid);
-                //console.log('adding:'+btype+' bval:'+bval + ' rid:'+rid+ ' qval:'+$('#q' + qid).val());
-            } else
-                $('#q' + qid).val('');
-
-            //console.log(buttons[0].id);
-            //console.log(buttons);
-
-            // Apply logic if required
-            if (logic)
-                performLogic();
-
-        });
-
-        // Select Buttons
-        $('select').change(function (e) {
-            var logic = $(this).attr('data-logic');
-            // Apply logic if required
-            if (logic)
-                performLogic();
-        });
-
-        //
-        // Page Logic
-        //
-        function performLogic() {
-            var logic = @json($formlogic);
-
-            for (var i = 0; i < logic.length; i++) {
-                var id = logic[i]['id'];
-                var question_id = logic[i]['question_id'];
-                var match_op = logic[i]['match_operation'];
-                var match_val = logic[i]['match_value'];
-                var trigger = logic[i]['trigger'];
-                var tid = logic[i]['trigger_id'];
-                var qval = String($('#q' + question_id).val());
-                var qval_array = (qval) ? qval.split(',') : [];
-
-                console.log("id:" + id + " q:" + question_id + " m:" + match_op + " mval:" + match_val + " t:" + trigger + ' tid:' + tid + ' qval:' + qval);
-
-                // Sections
-                if (trigger == 'section') {
-                    if (match_op == '=') {
-                        if (qval == match_val)
-                            $('#sdiv-' + tid).show();
-                        else
-                            $('#sdiv-' + tid).hide();
-                    }
+                if ($('#shownote-' + qid).css('display') == 'none') {
+                    $('#q' + qid + '-notes-orig').val($('#q' + qid + '-notes').val()); // Update orig note to new saved val
+                    $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes').val());
                 }
 
-                // Questions
-                if (trigger == 'question') {
-                    //console.log('Question qid:' + question_id + ' qval:' + qval + ' mval:' + match_val + ' tid:' + tid);
-                    if (match_op == '=') {
-                        if (qval == match_val)
-                            $('#qdiv-' + tid).show();
-                        else
-                            $('#qdiv-' + tid).hide();
+                // If both or hidden then display only the edit
+                if ($('#shownote-' + qid).css('display') == 'none' && $('#editnote-' + qid).css('display') == 'none') {
+                    $('#editnote-' + qid).show();
+                } else {
+                    $('#shownote-' + qid).toggle();
+                    $('#editnote-' + qid).toggle();
+                }
+            });
+
+            // Save Note
+            $('.button-savenote').click(function (e) {
+                e.preventDefault(e);
+                //var qid = e.target.id.split('btn-savenote-').pop();
+                var qid = $(this).attr('data-qid');
+                $('#editnote-' + qid).hide();
+                $('#shownote-' + qid).show();
+                $('#q' + qid + '-notes-orig').val($('#q' + qid + '-notes').val()); // Update orig note to new saved val
+                $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes').val());
+            });
+
+            // Cancel Note
+            $('.button-cancelnote').click(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('data-qid');
+                $('#editnote-' + qid).hide();
+                $('#shownote-' + qid).show();
+                // Reset val to orig for both value + div html
+                $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val())
+                $('#q' + qid + '-notes').val($('#q' + qid + '-notes-orig').val());
+            });
+
+            // Delete Note
+            $('.button-delnote').click(function (e) {
+                e.preventDefault(e);
+                //var qid = e.target.id.split('btn-delnote-').pop();
+                var qid = $(this).attr('data-qid');
+                $('#editnote-' + qid).hide();
+                $('#shownote-' + qid).hide();
+                $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val('')); // clear html for note
+                $('#q' + qid + '-notes').val('');  // clear val for note
+            });
+
+            //
+            // Media functions
+            //
+
+            // add Media
+            $('.button-media').click(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('data-qid');
+                $('#q' + qid + '-gallery').show();
+                $('#showmedia-' + qid).toggle();
+            });
+
+            $('.mygallery').click(function (e) {
+                var imageClicked = document.getElementById(e.target.id);
+                openGalleryPreview(imageClicked);
+            });
+
+            //
+            // Action functions
+            //
+
+            // add Action
+            $('.button-action').click(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('data-qid');
+                $('#addAction').val(qid);
+                document.getElementById('custom_form').submit();
+            });
+
+
+            //
+            // Select Buttons
+            //
+            $('.button-resp').click(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('data-qid');
+                var rid = $(this).attr('data-rid');
+                var btype = $(this).attr('data-btype');
+                var bval = $(this).attr('data-bval');
+                var logic = $(this).attr('data-logic');
+                //alert('q:'+qid+' r:'+rid);
+
+                // Loop through all buttons for selected question + remove active classes
+                var buttons = document.querySelectorAll(`[data-qid='${qid}']`);
+                for (var i = 0; i < buttons.length; i++) {
+                    $('#' + buttons[i].id).removeClass('btn-default red green dark yellow-saffron')
+                }
+
+                // Add active class to selected button
+                if ($('#q' + qid).val() != rid) {
+                    $('#q' + qid + '-' + rid).addClass(btype);
+                    $('#q' + qid).val(rid);
+                    //console.log('adding:'+btype+' bval:'+bval + ' rid:'+rid+ ' qval:'+$('#q' + qid).val());
+                } else
+                    $('#q' + qid).val('');
+
+                //console.log(buttons[0].id);
+                //console.log(buttons);
+
+                // Apply logic if required
+                if (logic)
+                    performLogic();
+
+            });
+
+            // Select Buttons
+            $('select').change(function (e) {
+                var logic = $(this).attr('data-logic');
+                // Apply logic if required
+                if (logic)
+                    performLogic();
+            });
+
+            //
+            // Page Logic
+            //
+            function performLogic() {
+                var logic = @json($formlogic);
+                console.log('\nLogic Check')
+                console.log(logic);
+
+                var aa = ['1', '2', '3'];
+                var str = String('');
+                var newa = str.split(',');
+
+                /*console.log('start bug');
+                console.log(aa);
+                console.log(str);
+                console.log(newa);
+                console.log('end bug');*/
+
+                for (var i = 0; i < logic.length; i++) {
+                    var id = logic[i]['id'];
+                    var question_id = logic[i]['question_id'];
+                    var match_op = logic[i]['match_operation'];
+                    var match_val = logic[i]['match_value'];
+                    var trigger = logic[i]['trigger'];
+                    var tid = logic[i]['trigger_id'];
+                    var qval = String($('#q' + question_id).val());
+                    var qval_array = (qval) ? qval.split(',') : [];
+
+                    // Sections
+                    if (trigger == 'section') {
+                        if (match_op == '=') {
+                            if (qval == match_val) {
+                                $('#sdiv-' + tid).show();
+                                //console.log('show section sdiv-' + tid);
+                            } else {
+                                $('#sdiv-' + tid).hide();
+                                //console.log('hide section sdiv-' + tid);
+                            }
+                        }
+
+                        // Match item in array
+                        if (match_op == '=*') {
+                            var match_array = match_val.split(',');
+                            $('#sdiv-' + tid).hide();
+                            // Loop through response value to determine if trigger is actioned
+                            for (var x = 0; x < qval_array.length; x++) {
+                                if (match_array.includes(qval_array[x])) {
+                                    $('#sdiv-' + tid).show();
+                                }
+                            }
+                        }
                     }
 
-                    // Match item in array
-                    if (match_op == '=*') {
-                        var match_array = match_val.split(',');
-                        $('#qdiv-' + tid).hide();
-                        // Loop through response value to determine if trigger is actioned
-                        for (var i = 0; i < qval_array.length; i++) {
-                            if (match_array.includes(qval_array[i])) {
+                    // Questions
+                    if (trigger == 'question') {
+                        //console.log('Trigger Question qid:' + question_id + ' qval:' + qval + ' mval:' + match_val + ' tid:' + tid);
+                        if (match_op == '=') {
+                            if (qval == match_val)
                                 $('#qdiv-' + tid).show();
+                            else
+                                $('#qdiv-' + tid).hide();
+                        }
+
+                        // Match item in array
+                        if (match_op == '=*') {
+                            var match_array = match_val.split(',');
+                            $('#qdiv-' + tid).hide();
+
+                            // Loop through response value to determine if trigger is actioned
+                            for (var x = 0; x < qval_array.length; x++) {
+                                if (match_array.includes(qval_array[x])) {
+                                    $('#qdiv-' + tid).show();
+                                }
                             }
                         }
                     }
                 }
             }
+
+            performLogic();
+        });
+
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
+        });
+
+        function todo(qid) {
+            document.getElementById('showAction').value = qid;
+            document.getElementById('custom_form').submit();
         }
 
-        performLogic();
-    });
+        //
+        // Toggle Sections
+        //
+        function toggleSection(sid) {
+            var section = document.getElementById('sdiv-' + sid + '-content');
+            var arrow = document.getElementById('sdiv-' + sid + '-arrow');
+            if (section.style.display === 'none') {
+                section.style.display = '';
+                arrow.classList.remove('fa-angle-right');
+                arrow.classList.add('fa-angle-down');
+            } else {
+                section.style.display = 'none';
+                arrow.classList.remove('fa-angle-down');
+                arrow.classList.add('fa-angle-right');
+            }
 
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-
-    function todo(qid) {
-        document.getElementById('showAction').value = qid;
-        document.getElementById('custom_form').submit();
-    }
-
-    //
-    // Toggle Sections
-    //
-    function toggleSection(sid) {
-        var section = document.getElementById('sdiv-' + sid + '-content');
-        var arrow = document.getElementById('sdiv-' + sid + '-arrow');
-        if (section.style.display === 'none') {
-            section.style.display = '';
-            arrow.classList.remove('fa-angle-right');
-            arrow.classList.add('fa-angle-down');
-        } else {
-            section.style.display = 'none';
-            arrow.classList.remove('fa-angle-down');
-            arrow.classList.add('fa-angle-right');
         }
 
-    }
 
-
-</script>
+    </script>
 @stop
