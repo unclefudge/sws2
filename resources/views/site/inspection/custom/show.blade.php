@@ -6,6 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
+        <li><a href="/site/inspection">Site Inspections</a><i class="fa fa-circle"></i></li>
         <li><a href="/site/inspection/list/{{ $form->template->parent_id }}">{{ $form->template->name }}</a><i class="fa fa-circle"></i></li>
         <li><span>View Report</span></li>
     </ul>
@@ -83,7 +84,6 @@
 
                             {{-- Sections --}}
                             @foreach ($sections as $section)
-                                {{ $section->name }}
                                 <div id="sdiv-{{$section->id}}">
                                     {{-- Section Title --}}
                                     @if ($section->name)

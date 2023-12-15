@@ -2,20 +2,19 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Company\Company;
+use App\Http\Controllers\CronCrontroller;
+use App\Models\Comms\Todo;
 use App\Models\Misc\Action;
 use App\Models\Site\Planner\Task;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Controllers\CronCrontroller;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class SiteQa extends Model {
+class SiteQa extends Model
+{
 
     protected $table = 'site_qa';
     protected $fillable = [
@@ -116,9 +115,9 @@ class SiteQa extends Model {
     {
         $count = 0;
         if ($this->supervisor_sign_by)
-            $count ++;
+            $count++;
         if ($this->manager_sign_by)
-            $count ++;
+            $count++;
 
         return $count;
     }
@@ -129,9 +128,9 @@ class SiteQa extends Model {
      *
      * @return collection
      */
-    public function allDocs ($status = '')
+    public function allDocs($status = '')
     {
-        return  ($status == '') ? SiteQa::where('site_id', $this->site_id)->get() : SiteQa::where('site_id', $this->site_id)->where('status', $status)->get();
+        return ($status == '') ? SiteQa::where('site_id', $this->site_id)->get() : SiteQa::where('site_id', $this->site_id)->where('status', $status)->get();
     }
 
     /**
@@ -197,11 +196,11 @@ class SiteQa extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'qa',
-            'type_id'    => $this->id,
-            'name'       => 'Quality Assurance - ' . $this->name . ' (' . $site->name . ')',
-            'info'       => 'Please sign off on completed items',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'qa',
+            'type_id' => $this->id,
+            'name' => 'Quality Assurance - ' . $this->name . ' (' . $site->name . ')',
+            'info' => 'Please sign off on completed items',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -218,12 +217,12 @@ class SiteQa extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'qa',
-            'type_id'    => $this->id,
-            'name'       => 'QA Sign Off - ' . $this->name . ' (' . $site->name . ')',
-            'info'       => 'Please sign off on completed items',
-            'priority'   => '1',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'qa',
+            'type_id' => $this->id,
+            'name' => 'QA Sign Off - ' . $this->name . ' (' . $site->name . ')',
+            'info' => 'Please sign off on completed items',
+            'priority' => '1',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -275,11 +274,13 @@ class SiteQa extends Model {
             'user_company_name' => $user_company_name,
         ];
 
-        Mail::send('emails/siteQA-overdue', $data, function ($m) use ($email_to) {
-            $m->from('do-not-reply@safeworksite.com.au');
-            $m->to($email_to);
-            $m->subject('Quality Assurance Overdue Notification');
-        });
+        if ($email_to) {
+            Mail::send('emails/siteQA-overdue', $data, function ($m) use ($email_to) {
+                $m->from('do-not-reply@safeworksite.com.au');
+                $m->to($email_to);
+                $m->subject('Quality Assurance Overdue Notification');
+            });
+         }
     }*/
 
 
@@ -313,7 +314,7 @@ class SiteQa extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

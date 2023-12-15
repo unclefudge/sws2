@@ -28,6 +28,11 @@ if ($showrequired && $question->required) {
                     <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{{$question->id}}. {{ $question->name }} {!! $required  !!}
                         {{--}}<small>T:{{ $question->type }} TS: {{ $question->type_special }} V:{!! (is_array($val)) ? print_r(implode(',', $val)) : $val !!}</small>--}}
                     </label>
+                    @if ($question->helper)
+                        <br>
+                        {!! $question->helper !!}
+                        <br>
+                    @endif
 
                     @switch($question->type)
                         @case('text')

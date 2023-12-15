@@ -2,17 +2,16 @@
 
 namespace App\Models\Client;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\TemporaryFile;
-use App\Models\Client\ClientPlannerEmailDoc;
 use App\Http\Controllers\CronCrontroller;
+use App\Models\Misc\TemporaryFile;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class ClientPlannerEmail extends Model {
+class ClientPlannerEmail extends Model
+{
 
     protected $table = 'client_planner_emails';
     protected $fillable = [
@@ -62,7 +61,7 @@ class ClientPlannerEmail extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
                 $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
@@ -108,20 +107,22 @@ class ClientPlannerEmail extends Model {
         $files = $this->docs;
 
 
-        Mail::send('emails/client/planner', $data, function ($m) use ($email_to, $email_cc, $data, $client_planner, $files) {
-            $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, 'Safe Worksite');
-            $m->to($email_to);
-            if ($email_cc)
-                $m->cc($email_cc);
-            $m->subject($client_planner->subject);
-            if ($files->count()) {
-                foreach ($files as $doc) {
-                    if (file_exists(public_path($doc->attachment_url)))
-                        $m->attach(public_path($doc->attachment_url));
+        if ($email_to) {
+            Mail::send('emails/client/planner', $data, function ($m) use ($email_to, $email_cc, $data, $client_planner, $files) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_to);
+                if ($email_cc)
+                    $m->cc($email_cc);
+                $m->subject($client_planner->subject);
+                if ($files->count()) {
+                    foreach ($files as $doc) {
+                        if (file_exists(public_path($doc->attachment_url)))
+                            $m->attach(public_path($doc->attachment_url));
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
 
@@ -135,7 +136,7 @@ class ClientPlannerEmail extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

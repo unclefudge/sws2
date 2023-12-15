@@ -2,31 +2,19 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\User;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentLocationOther;
-use App\Models\Misc\Equipment\EquipmentLocationItem;
-use App\Models\Misc\Equipment\EquipmentLost;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Equipment\EquipmentCategory;
-use App\Models\Comms\Todo;
-use App\Models\Site\Site;
-use Intervention\Image\Facades\Image;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
 use Alert;
+use App\Http\Controllers\Controller;
+use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentLocationOther;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
-class EquipmentLocationOtherController extends Controller {
+class EquipmentLocationOtherController extends Controller
+{
 
     /**
      * Display a listing of the resource.

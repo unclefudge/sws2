@@ -139,12 +139,12 @@
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         <li><h3 class="h3-submenu">&nbsp;</h3></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('site.inspection.whs'))
+                                                            <li><a href="/site/inspection" class="nav-link"> Site Inspection</a></li>
+                                                        @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.inspection'))
                                                             <li><a href="/site/inspection/electrical" class="nav-link"> Electrical Inspection </a></li>
                                                             <li><a href="/site/inspection/plumbing" class="nav-link"> Plumbing Inspection </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.inspection.whs'))
-                                                            <li><a href="/site/inspection/list/1" class="nav-link"> Safety In Design</a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.project.supply'))
                                                             <li><a href="/site/supply" class="nav-link"> Project Suppy Info </a></li>

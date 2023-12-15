@@ -758,6 +758,7 @@ Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbes
 Route::get('manage/resetform', '\App\Http\Controllers\Misc\Form\FormSetupController@resetFormTemplate');
 Route::get('manage/initform1', '\App\Http\Controllers\Misc\Form\FormSetupController@createFormTemplate1');
 Route::get('manage/initform2', '\App\Http\Controllers\Misc\Form\FormSetupController@createFormTemplate2');
+Route::get('manage/template/actions/{form_id}', '\App\Http\Controllers\Misc\Form\FormController@completedActionsConstructionWHS');
 Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\Form\FormSetupController@showTemplate');
 
 

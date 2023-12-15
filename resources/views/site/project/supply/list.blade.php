@@ -29,6 +29,15 @@
                             @endif
                         </div>
                     </div>
+
+                    @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
+                        <input type="hidden" id="supervisor_sel" value="1">
+                        <div class="col-md-4">
+                            {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : session('/site/qa:supervisor'), ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                        </div>
+                    @else
+                        <input type="hidden" id="supervisor_sel" value="0">
+                    @endif
                     <div class="row">
                         <div class="col-md-3 pull-right">
                             <div class="form-group">
@@ -69,33 +78,59 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    var status = $('#status').val();
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/supply/dt/list') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'sitename', name: 's.name'},
-            {data: 'updated_at', name: 'p.updated_at', searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        var status = $('#status').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/supply/dt/list') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.supervisor_sel = $('#supervisor_sel').val();
+                    d.supervisor = $('#supervisor').val();
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'sitename', name: 's.name'},
+                {data: 'updated_at', name: 'p.updated_at', searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
+
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
+
+        $('select#supervisor').change(function () {
+            //sessionStorage.setItem('qasites', $('#supervisor').val());
+            //console.log('S:'+sessionStorage.getItem('qasites'));
+            var supervisor = $('#supervisor').val();
+            $.ajax({
+                url: '/session/update',
+                type: "POST",
+                dataType: 'json',
+                data: {key: '/site/qa:supervisor', val: supervisor},
+                success: function (data) {
+                    let x = JSON.stringify(data);
+                    //console.log(x);
+                },
+                error: function (error) {
+                    console.log(`Error ${error}`);
+                }
+            }).always(function (data) {
+                $('#table1').DataTable().draw(true);
+            });
+        });
+    </script>
 @stop

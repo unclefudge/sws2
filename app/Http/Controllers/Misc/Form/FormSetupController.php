@@ -778,7 +778,7 @@ class FormSetupController extends Controller
         $sn = 1;
 
         // Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Site Information, Public Protection & Site Security', 'description' => "Section 2a", 'order' => $sn++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Site Information, Public Protection & Site Security', 'description' => "Section 1", 'order' => $sn++]);
         $sid = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Have all workers completed site sign in?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
@@ -832,12 +832,12 @@ class FormSetupController extends Controller
         $op13 = FormOption::create(['question_id' => $question->id, 'text' => 'Hot Works', 'value' => 'Hot Works', 'order' => 13, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         $op14 = FormOption::create(['question_id' => $question->id, 'text' => 'Manual Handling', 'value' => 'Manual Handling', 'order' => 14, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         $op15 = FormOption::create(['question_id' => $question->id, 'text' => 'Noise', 'value' => 'Noise', 'order' => 15, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op15 = FormOption::create(['question_id' => $question->id, 'text' => 'Powered Mobile Plant', 'value' => 'Powered Mobile Plant', 'order' => 15, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op16 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary load bearing support for structural alterations or repairs', 'value' => 'Temporary load bearing support for structural alterations or repairs', 'order' => 16, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op17 = FormOption::create(['question_id' => $question->id, 'text' => 'Tilt-up or pre-cast concrete elements', 'value' => 'Tilt-up or pre-cast concrete elements', 'order' => 17, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op18 = FormOption::create(['question_id' => $question->id, 'text' => 'Water - Work in or near water or other liquid that involves a risk of drowning', 'value' => 'Water - Work in or near water or other liquid that involves a risk of drowning', 'order' => 18, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op19 = FormOption::create(['question_id' => $question->id, 'text' => 'Working at heights', 'value' => 'Working at heights', 'order' => 19, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op20 = FormOption::create(['question_id' => $question->id, 'text' => 'Young / Vulnerable workers', 'value' => 'Young / Vulnerable workers', 'order' => 20, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op16 = FormOption::create(['question_id' => $question->id, 'text' => 'Powered Mobile Plant', 'value' => 'Powered Mobile Plant', 'order' => 16, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op17 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary load bearing support for structural alterations or repairs', 'value' => 'Temporary load bearing support for structural alterations or repairs', 'order' => 17, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op18 = FormOption::create(['question_id' => $question->id, 'text' => 'Tilt-up or pre-cast concrete elements', 'value' => 'Tilt-up or pre-cast concrete elements', 'order' => 18, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op19 = FormOption::create(['question_id' => $question->id, 'text' => 'Water - Work in or near water or other liquid that involves a risk of drowning', 'value' => 'Water - Work in or near water or other liquid that involves a risk of drowning', 'order' => 19, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op20 = FormOption::create(['question_id' => $question->id, 'text' => 'Working at heights', 'value' => 'Working at heights', 'order' => 20, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op21 = FormOption::create(['question_id' => $question->id, 'text' => 'Young / Vulnerable workers', 'value' => 'Young / Vulnerable workers', 'order' => 21, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
         // Logic Section (Asbestos)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Asbestos', 'description' => "Section 1a", 'order' => $sn++]);
@@ -858,8 +858,8 @@ class FormSetupController extends Controller
         $qid3 = $question->id;
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op3->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
 
-        // Sub Section 1b - Asbestos Removal
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => 'Asbestos Removal', 'description' => "Section 1b", 'order' => $sn++]);
+        // Sub Section 1aa - Asbestos Removal
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => 'Asbestos Removal', 'description' => "Section 1aa", 'order' => $sn++]);
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => 'Are all asbestos removal workers/workers involved in the removal task and area competent? (formal competency attained)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
@@ -872,7 +872,286 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid3, 'match_operation' => '=', 'match_value' => '5', 'trigger' => 'section', 'trigger_id' => $sid3]);
 
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => 'Asbestos Removal Child', 'description' => "Section 1b", 'order' => $sn++]);
+        // Logic Section (Chemicals / Hazard Substances)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Chemicals / Hazardous Substances', 'description' => "Section 1b", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1b
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is a Safety Data Sheet readily available for reference for the chemical/substance being used?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the appropriate PPE provided and being used correctly in reference to the chemical/substance?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is there adequate ventilation as required?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op4->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Safe Work Method Statements for High Risk Construction Work)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Safe Work Method Statements for High Risk Construction Work', 'description' => "Section 1c", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1c
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has a Safe Work Method Statement been completed and submitted to Cape Cod?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the work being conducted in accordance with the SWMS?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Are workers aware of the location of the SWMS?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "$op5->id,$op6->id,$op7->id,$op9->id,$op12->id,$op17->id,$op18->id,$op19->id", 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Dust / Airborne contaminants)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Dust / Airborne contaminants', 'description' => "Section 1d", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1d
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is dust being adequately controlled and/or managed? (e.g. ventilation, extraction fans, dust catcher/vacuum etc)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the appropriate PPE being worn?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op8->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Electrical)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Electrical', 'description' => "Section 1e", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1e
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Approach distances for work near low voltage overhead service lines and/or overhead powerlines adhered to?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'helper' => '<img src="/img/form/electrical_approach_distance_work_performed.jpeg" class="img-responsive"> <img src="/img/form/electrical_approach_distance_work_near_low_volatage.jpeg" class="img-responsive">']);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Tiger tails installed as applicable to provide visual indicator as to presence of overhead powerlines nearby work activities/areas', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Electricity appropriately terminated/isolated in reference to work taking place, including demolition?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op9->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Excavation)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Excavation', 'description' => "Section 1f", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1f
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has a SWMS been prepared and provided to Cape Cod where excavation at is a depth greater than 1.5m?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has current underground essential services information (Dial Before You Dig) been obtained for areas where the excavation work is being carried out and and readily available for inspection to any worker, Cape Cod and subcontractors?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op10->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Extremes of temperature)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Extremes of temperature', 'description' => "Section 1g", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1g
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is appropriate PPE and sun protection as applicable supplied and being used correctly?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is there evidence of appropriate controls in place to address extremes of temperature? (such as adequate hydration, rest areas and breaks, task rotation)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Are workers aware of signs and symptoms of dehydration/heat illness? (assess through conversation)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op11->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Hot Works)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Hot Works', 'description' => "Section 1h", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1h
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'What is the nature of the hot work? ', 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $qid4 = $question->id;
+        $opp1 = FormOption::create(['question_id' => $question->id, 'text' => 'Grinding', 'value' => 'Grinding', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $opp2 = FormOption::create(['question_id' => $question->id, 'text' => 'Welding', 'value' => 'Welding', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $opp3 = FormOption::create(['question_id' => $question->id, 'text' => 'Silver solder brazing', 'value' => 'Silver solder brazing', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $opp4 = FormOption::create(['question_id' => $question->id, 'text' => 'Oxy cutting', 'value' => 'Oxy cutting', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $opp5 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        // Logic (Other)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Others Hot Work Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid4, 'match_operation' => '=*', 'match_value' => "$opp5->id", 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the appropriate fire control equipment available & in appropriate working order (i.e. fire extinguisher has charge, fire blanket in good condition etc)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Does the worker demonstrate an appropriate process to manage the hot work (e.g. fire checks, exclusion areas established etc)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op13->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Manual Handling)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Manual Handling', 'description' => "Section 1i", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1i
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the path of travel appropriate and unobstructed when carrying/placing/manually handling items?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Have suitable controls been put in place to address hazardous manual handling where possible? (use of mechnical lifting aids, rotating workers, arranging workflows to avoid peak physical and mental demands as appropriate - such as start and end of shifts)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op14->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Noise)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Noise', 'description' => "Section 1j", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1j
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is appropriate hearing protection (PPE) supplied and being used correctly?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op15->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Mobile Plant)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Mobile Plant', 'description' => "Section 1k", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1k
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has a SWMS been prepared and provided to Cape Cod regarding any work in an area with movement of powered mobile plant?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the mobile plant work zone isolated from workers and/or the public with physical barriers to minimise the risk of contact occurring between a person and the mobile plant? (exclusion zone established)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is the person operating the plant competent to do so? (such as where a High Risk Work Licence applies)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has a method of communication been established between mobile plant operators and others?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has a spotter been implemented where overhead powerlines are situated nearby the operation of mobile plant?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op16->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Logic Section (Young / Vulnerable Workers)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Young / Vulnerable Workers', 'description' => "Section 1l", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1l
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Is appropriate Supervision available?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op21->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Section 2 (Equipment)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Equipment', 'description' => "Section 2", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Electrical equipment including lead and plug connections in good physical condition?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Portable electrical equipment tested and tagged within 3 months and evidence of testing affixed to equipment by physical tag?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Portable Residual Current Devices (RCD) used?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Tooling & equipment safety guards in place as applicable and in suitable condition?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+
+        //
+        // Page 4 - Working at Height
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Working at Height", 'description' => null, 'order' => 4]);
+        $pid = $page->id;
+        $sn = 1;
+
+        // Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Working at Height', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Adequate edge protection installed to perimeters?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Penetrations, openings in floors/work surfaces suitably protected?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Fragile roof materials/floor surfaces (such as skylights, plastic roof sheets etc) suitably protected?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Guardrailing incorporates top-rail between 900 mm and 1100 mm above the working surface, a mid-rail and toeboards (except where it may be impractical to do so and alternative control measures, such as ‘no go’ zones, to ensure no persons are at risk of being hit by falling objects from the work above)", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Are scaffolds erected on the site?", 'type' => "select", 'type_special' => 'YN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+
+        // Logic Section (Scaffolds)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Scaffolds', 'description' => "Section 1a", 'order' => $sn++]);
+        $sid2 = $section->id;
+        // Sub Section 1a
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Scaffold exceeding a deck height of 4m erected by a licensed scaffolder & handover certificate available?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Safe Work Load (SWL) not exceeded? (including weight of persons, tooling, materials etc)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'helper' => '<img src="/img/form/scaffold_working_platforms.jpeg" class="img-responsive">']);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Scaffold complete (platform full width, handrail, toeboards and access to platforms compliant)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Has environmental loading (e.g. wind forces, rain)  been adequately addressed in the scaffold design? (sufficiently tied in, suitable containment material etc.)', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Gaps between the face of the building or structure and the erected scaffold do not exceed 225mm?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => '4 metre approach distance from overhead powerlines maintained in any direction where metallic scaffold is erected', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Electrical wires or apparatus that pass through a scaffold  de-energised or fully enclosed to the requirements of the network operator?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Special duty scaffolds (designed to a designated allowable load) and timber scaffolds exceeding 2m have been designed by a competent person and detailed design drawings kept?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Edge protection provided at every open edge of the work platform?', 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '5', 'trigger' => 'section', 'trigger_id' => $sid2]);
+
+
+        // Section 2 (Falling Objects)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Falling Objects', 'description' => "Section 2", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Suitable material/containment screens affixed to scaffold/roof rail/elevated work areas to arrest the free fall of objects to area below as applicable? (i.e. brick guard mesh, shadecloth etc)", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Have appropriate exclusion zones been established as applicable to address the risk of workers and others below being struck by any objects that may fall/be dropped/thrown from elevated work areas?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+
+        //
+        // Page 5  (Summary)
+        //
+        $page = FormPage::create(['template_id' => $tid, 'name' => "Title Page", 'description' => null, 'order' => 5]);
+        $pid = $page->id;
+
+        // Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site Summary / Comments", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Worker Representative", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Signature of Inspector", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
 
 
         //
@@ -895,7 +1174,7 @@ class FormSetupController extends Controller
                 // Questions
                 foreach ($section->questions as $question) {
                     $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
-                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required]);
+                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper]);
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {
@@ -921,7 +1200,7 @@ class FormSetupController extends Controller
 
             // Convert the orig match_values if Original question is a select with custom values
             if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YNNA'])) {
-                $old_match_value = explode(',', $logic->match_value);
+                $old_match_value = explode(',', str_replace(' ', '', $logic->match_value));
                 foreach ($old_match_value as $val)
                     $new_match_value .= $match_options[$val] . ',';
                 $new_match_value = rtrim($new_match_value, ',');
@@ -933,9 +1212,13 @@ class FormSetupController extends Controller
 
             $l = FormLogic::create(['template_id' => $t->id, 'page_id' => $match_pages[$logic->page_id], 'question_id' => $match_questions[$logic->question_id], 'match_operation' => $logic->match_operation, 'match_value' => $new_match_value, 'trigger' => $logic->trigger, 'trigger_id' => $new_trigger_id]);
         }
-        //$template->current_id = $t->id;
-        //$template->save();
+        $template->current_id = $t->id;
+        $template->save();
 
+
+        $jjjj = 'jj';
+        $jjjj = 'jjj';
+        $arr = ['crap' => $jjjj];
         //
         // Create User Form
         //
@@ -950,23 +1233,6 @@ class FormSetupController extends Controller
         echo "<br>Options<br>";
         ksort($match_options);
         var_dump($match_options);*/
-
-
-        $test = [];
-
-        // Section 1
-        $test[] = ['section' => 'Section 1', 'child' => []];
-
-        // Section 2
-        $c2a = ['Section 2a', 'child' => []];
-        $test[] = ['section' => 'Section 2', 'child' => $c2a];
-
-        // Section 3
-        $c3aa = ['Section 3aa', 'child' => []];
-        $c3a = ['Section 3a', 'child' => $c3aa];
-        $test[] = ['section' => 'Section 3', 'child' => $c3a];
-
-        dd($test);
     }
 
 
@@ -984,7 +1250,8 @@ class FormSetupController extends Controller
         foreach ($template->pages as $page) {
             echo "<br>=====================================<br>Page $page->id : $page->name<br>=====================================<br>";
             foreach ($page->sections as $section) {
-                echo "Section $section->order : $section->name (pid:" . $section->page->id . " sid:$section->id  psid:$section->parent)<br>-------------------------------------<br>";
+                $section_type = ($section->parent) ? "Sub-Section" : "Section";
+                echo "$section_type $section->order : $section->name (pid:" . $section->page->id . " sid:$section->id  psid:$section->parent)<br>-------------------------------------<br>";
                 foreach ($section->questions as $question) {
                     echo "Q $question->id - $question->name (s:" . $question->section->id . ") &nbsp; T:$question->type  &nbsp; S:$question->type_special<br>";
                     if ($question->type == 'select' && count($question->options())) {

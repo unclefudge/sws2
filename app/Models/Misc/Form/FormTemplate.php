@@ -14,36 +14,6 @@ class FormTemplate extends Model
     protected $table = 'forms_templates';
     protected $fillable = ['parent_id', 'current_id', 'name', 'description', 'version', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        } else {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = 1;
-                $table->updated_by = 1;
-            });
-        }
-    }
 
     /**
      * A FormTemplate has many forms
@@ -109,5 +79,36 @@ class FormTemplate extends Model
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
             '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+    }
+
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
+        }
     }
 }

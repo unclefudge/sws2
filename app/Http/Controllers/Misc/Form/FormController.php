@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Misc\Form;
 
 use App\Http\Controllers\Controller;
+use App\Models\Misc\Action;
 use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormFile;
 use App\Models\Misc\Form\FormLogic;
 use App\Models\Misc\Form\FormNote;
+use App\Models\Misc\Form\FormOption;
 use App\Models\Misc\Form\FormPage;
 use App\Models\Misc\Form\FormQuestion;
 use App\Models\Misc\Form\FormResponse;
@@ -14,6 +16,7 @@ use App\Models\Misc\Form\FormSection;
 use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\TemporaryFile;
 use App\Models\Site\Site;
+use App\Models\Site\SiteHazard;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -50,11 +53,15 @@ class FormController extends Controller
     {
         $template = FormTemplate::find($template_id);
 
+        // Only allow master templates
+        if ($template->parent_id)
+            return view('errors/404');
+
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('site.inspection.whs'))
             return view('errors/404');
 
-        return view('site/inspection/custom/list', compact('template'));
+        return view('site/inspection/custom/list2', compact('template'));
     }
 
     /**
@@ -64,11 +71,18 @@ class FormController extends Controller
      */
     public function createForm($template_id)
     {
+        $template = FormTemplate::find($template_id);
+
+        // Only allow master templates
+        if ($template->parent_id)
+            return view('errors/404');
+
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.site.inspection.whs'))
             return view('errors/404');
 
-        $form = Form::create(['template_id' => $template_id, 'company_id' => Auth::user()->company->reportsTo()->id]);
+        // Create New Form based on Master template with Current revision (current_id)
+        $form = Form::create(['template_id' => $template->current_id, 'company_id' => Auth::user()->company->reportsTo()->id]);
 
         return redirect("/site/inspection/$form->id/1");
     }
@@ -392,7 +406,8 @@ class FormController extends Controller
                             if (file_exists($tempFilePublicPath)) {
                                 $newFile = "$form_dir/" . $question->id . '-' . $tempFile->filename;
                                 rename($tempFilePublicPath, public_path($newFile));
-                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => 'photo', 'attachment' => $newFile]);
+                                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
+                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => 'photo', 'name' => $filename, 'attachment' => $newFile]);
                                 $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file)->first();
                                 if (!$response)
                                     $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $form_file->id, 'option_id' => null, 'date' => null]);
@@ -442,6 +457,10 @@ class FormController extends Controller
                 $form->completed_at = Carbon::now()->toDateTimeString();
                 $form->status = 0;
                 $nextpage = 1;
+
+                // Perform Complete Form Sumbitted Actions
+                if ($form->template->parent_id == 3)  // Construction WHS inspection
+                    $this->completedActionsConstructionWHS($form->id);
             }
             $form->save();
         }
@@ -455,6 +474,61 @@ class FormController extends Controller
             return redirect("todo/" . request('showAction'));
 
         return redirect("site/inspection/$form->id/$nextpage");
+    }
+
+    public function completedActionsConstructionWHS($form_id)
+    {
+        $form = Form::findOrFail($form_id);
+
+        $formoption2 = FormOption::find(2);
+        $formoption3 = FormOption::find(3);
+
+        foreach ($form->questions() as $question) {
+            if ($question->required) {
+                $response = FormResponse::where('form_id', $form->id)->where('question_id', $question->id)->first();
+                $val = ($response) ? $response->value : '';
+
+                // Convert $val to 'zero' in the cases it's '0' for checking if valid response
+                $val = ($val == '0') ? '{zero}' : $val;
+
+                // For all CONN questions
+                if ($question->type == 'select' && $question->type_special == 'CONN') {
+
+
+                    // Create Site Hazard for Non-Compliant or Improvement responses
+                    if (in_array($val, [2, 3])) {
+
+                        $option = ($val == 2) ? $formoption2 : $formoption3;
+                        $reason = "$option->value: $question->name";
+                        $action_req = ($val == 2) ? '0' : '1';
+
+
+                        $haz_request = ['site_id' => $form->site_id, 'reason' => $reason, 'action_required' => $action_req, 'source' => 'WHS Inspection'];
+
+                        echo "Creating Hazard for site($form->site_id) : $reason<br>";
+
+                        $hazard = SiteHazard::create($haz_request);
+
+                        // Create action + add attachments
+                        if ($hazard) {
+                            $action = Action::create(['action' => 'Reported Hazard', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
+                            $hazard->touch(); // update timestamp
+
+                            // Copy any attachments
+                            if ($question->files($form->id)) {
+                                foreach ($question->files($form->id) as $file) {
+                                    $hazard->saveCopyAttachment($file->attachment);
+                                    echo "copy file: $file->attachment<br>";
+                                }
+                            }
+
+                            // Email hazard
+                            $hazard->emailHazard($action);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -547,7 +621,6 @@ class FormController extends Controller
     public function getForms()
     {
         $template_ids = FormTemplate::where('parent_id', request('template_id'))->pluck('id')->toArray();;
-
 
         $records = Form::select([
             'forms.id', 'forms.template_id', 'forms.site_name', 'forms.inspected_by_name', 'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',

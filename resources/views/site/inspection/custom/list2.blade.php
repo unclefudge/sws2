@@ -4,8 +4,9 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
+            <li><a href="/site/inspection">Site Inspections</a><i class="fa fa-circle"></i></li>
         @endif
-        <li>Site Inspections</li>
+        <li>{{ $template->name }}</li>
     </ul>
 @stop
 
@@ -19,26 +20,15 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Site Inspections</span>
+                            <span class="caption-subject bold uppercase font-green-haze">{{ $template->name }}</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.site.inspection.whs'))
-                                <div id="create_button" style="display: none">
-                                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/create/" id="add_inspection" data-original-title="Add">Add</a>
-                                </div>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/inspection/create/{{ $template->id }}" data-original-title="Add">Add</a>
                             @endif
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <select name="template_id" id="template_id" class="form-control bs-select">
-                                    <option value="o">Select inspection type</option>
-                                    <option value="1">Safety In Design</option>
-                                    <option value="3">Construction Site WHS Inspection</option>
-                                </select>
-                            </div>
-                        </div>
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
@@ -98,7 +88,7 @@
                     'url': '{!! url("site/inspection/dt/forms") !!}',
                     'type': 'GET',
                     'data': function (d) {
-                        d.template_id = $('#template_id').val();
+                        d.template_id = {{ $template->id }};
                         d.status = $('#status').val();
                     }
                 },
@@ -146,19 +136,6 @@
 
             $('select#status').change(function () {
                 table1.ajax.reload();
-            });
-
-            $('select#template_id').change(function () {
-                if ($('#template_id').val())
-                    $('#create_button').show()
-                else
-                    $('#create_button').hide;
-                table1.ajax.reload();
-            });
-
-            $("#add_inspection").click(function (e) {
-                e.preventDefault();
-                window.location.href = "/site/inspection/create/" + $('#template_id').val();
             });
 
         });

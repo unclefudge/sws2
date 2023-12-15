@@ -25,38 +25,6 @@ class FormQuestion extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        } else {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = 1;
-                $table->updated_by = 1;
-            });
-        }
-    }
-
     public function section()
     {
         return $this->belongsTo('App\Models\Misc\Form\FormSection', 'section_id');
@@ -212,6 +180,37 @@ class FormQuestion extends Model
             }
 
             return $str;
+        }
+    }
+
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
         }
     }
 }

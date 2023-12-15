@@ -2,41 +2,34 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteQaRequest;
+use App\Jobs\SiteQaPdf;
+use App\Models\Client\ClientPlannerEmailDoc;
+use App\Models\Company\Company;
+use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteQaAction;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Client\ClientPlannerEmail;
-use App\Models\Client\ClientPlannerEmailDoc;
-use App\Jobs\SiteQaPdf;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteQaRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Site\SiteQaItem;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteQaController
  * @package App\Http\Controllers\Site
  */
-class SiteQaController extends Controller {
+class SiteQaController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -147,18 +140,18 @@ class SiteQaController extends Controller {
         $newQA = SiteQa::create($qa_request);
 
         $order = 1;
-        for ($i = 1; $i <= 25; $i ++) {
+        for ($i = 1; $i <= 25; $i++) {
             if ($request->get("item$i")) {
                 $super = ($request->has("super$i")) ? '1' : '0';
                 $cert = ($request->has("cert$i")) ? '1' : '0';
                 $newItem = SiteQaItem::create(
-                    ['doc_id'        => $newQA->id,
-                     'task_id'       => $request->get("task$i"),
-                     'name'          => $request->get("item$i"),
-                     'super'         => $super,
-                     'certification' => $cert,
-                     'order'         => $order ++,
-                     'master'        => '1',
+                    ['doc_id' => $newQA->id,
+                        'task_id' => $request->get("task$i"),
+                        'name' => $request->get("item$i"),
+                        'super' => $super,
+                        'certification' => $cert,
+                        'order' => $order++,
+                        'master' => '1',
                     ]);
             }
         }
@@ -183,7 +176,7 @@ class SiteQaController extends Controller {
 
         // Increment minor version
         list($major, $minor) = explode('.', $qa->version);
-        $minor ++;
+        $minor++;
         $qa_request['version'] = $major . '.' . $minor;
         $qa_request['notes'] = "version $major.$minor released " . Carbon::now()->format('d/m/Y') . "\r\n" . $qa->notes;
 
@@ -195,18 +188,18 @@ class SiteQaController extends Controller {
 
         // Re-create new ones
         $order = 1;
-        for ($i = 1; $i <= 25; $i ++) {
+        for ($i = 1; $i <= 25; $i++) {
             if ($request->get("item$i") && $request->get("item$i") != 'DELETE-ITEM') {
                 $super = ($request->has("super$i")) ? '1' : '0';
                 $cert = ($request->has("cert$i")) ? '1' : '0';
                 $newItem = SiteQaItem::create(
-                    ['doc_id'        => $qa->id,
-                     'task_id'       => $request->get("task$i"),
-                     'name'          => $request->get("item$i"),
-                     'super'         => $super,
-                     'certification' => $cert,
-                     'order'         => $order ++,
-                     'master'        => '1',
+                    ['doc_id' => $qa->id,
+                        'task_id' => $request->get("task$i"),
+                        'name' => $request->get("item$i"),
+                        'super' => $super,
+                        'certification' => $cert,
+                        'order' => $order++,
+                        'master' => '1',
                     ]);
             }
         }
@@ -354,13 +347,6 @@ class SiteQaController extends Controller {
             elseif (request('supervisor') == 'signoff') {
                 $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
                 $qa_list = SiteQa::where('status', 1)->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
-                /*$qa_list = [];
-                foreach ($qas as $qa) {
-                    $total = $qa->items()->count();
-                    $completed = $qa->itemsCompleted()->count();
-                    if ($total == $completed && $total != 0)
-                        $qa_list[] = $qa->id;
-                }*/
             } else
                 $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
         } else
@@ -528,7 +514,7 @@ class SiteQaController extends Controller {
                 $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->get();
 
             foreach ($site_qa as $qa) {
-                $obj_qa = (object) [];
+                $obj_qa = (object)[];
                 $obj_qa->id = $qa->id;
                 $obj_qa->name = $qa->name;
                 $obj_qa->status = $qa->status;
@@ -708,7 +694,7 @@ class SiteQaController extends Controller {
                         $company = $companies[$array['done_by']];
                     } else {
                         $company = Company::find($array['done_by']);
-                        $companies[$array['done_by']] = (object) ['id' => $company->id, 'name_alias' => $company->name_alias, 'licence_no' => $company->licence_no];
+                        $companies[$array['done_by']] = (object)['id' => $company->id, 'name_alias' => $company->name_alias, 'licence_no' => $company->licence_no];
                     }
                     //$array['done_by'] = $item->done_by;
                     $array['done_by_company'] = $company->name_alias;
@@ -727,7 +713,7 @@ class SiteQaController extends Controller {
                     $user = $users[$item->sign_by];
                 } else {
                     $user = User::find($item->sign_by);
-                    $users[$item->sign_by] = (object) ['id' => $user->id, 'full_name' => $user->full_name];
+                    $users[$item->sign_by] = (object)['id' => $user->id, 'full_name' => $user->full_name];
                 }
 
                 $array['sign_at'] = $item->sign_at->format('Y-m-d');

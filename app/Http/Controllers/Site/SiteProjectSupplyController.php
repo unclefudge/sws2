@@ -2,35 +2,28 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Site\Site;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Site\SiteProjectSupplyProduct;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Input;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteProjectSupplyController
  * @package App\Http\Controllers\Site
  */
-class SiteProjectSupplyController extends Controller {
+class SiteProjectSupplyController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -43,7 +36,9 @@ class SiteProjectSupplyController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.project.supply'))
             return view('errors/404');
 
-        return view('site/project/supply/list');
+        $signoff = false;
+
+        return view('site/project/supply/list', compact('signoff'));
     }
 
     /**
@@ -174,7 +169,7 @@ class SiteProjectSupplyController extends Controller {
         if ($project) {
             // Increment major version
             list($major, $minor) = explode('.', $project->version);
-            $major ++;
+            $major++;
             $project->version = $major . '.0';
         } else
             $project = SiteProjectSupply::create(['site_id' => request('site_id'), 'version' => '1.0']);
@@ -183,7 +178,7 @@ class SiteProjectSupplyController extends Controller {
         if ($project) {
             $maxID = SiteProjectSupplyProduct::all()->count();
 
-            for ($i = 3; $i <= $maxID; $i ++) {
+            for ($i = 3; $i <= $maxID; $i++) {
                 $item = SiteProjectSupplyItem::where('supply_id', $project->id)->where('product_id', $i)->first();
                 $product = SiteProjectSupplyProduct::findOrFail($i);
 
@@ -195,16 +190,16 @@ class SiteProjectSupplyController extends Controller {
                     $item->save();
                 } else {
                     $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => $i, 'product' => $product->name,
-                                                                       'supplier'  => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
+                        'supplier' => request("supplier-$i"), 'type' => request("type-$i"), 'colour' => request("colour-$i"),]));
                 }
             }
         }
 
         // New Special items
-        for ($i = 1; $i <= 5; $i ++) {
+        for ($i = 1; $i <= 5; $i++) {
             if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
                 $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 2, 'product' => request("product-s$i"),
-                                                                   'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
+                    'supplier' => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
             }
         }
 
@@ -238,7 +233,7 @@ class SiteProjectSupplyController extends Controller {
 
         // Increment major version
         list($major, $minor) = explode('.', $project->version);
-        $major ++;
+        $major++;
         $project->version = $major . '.0';
 
         //dd(request()->all());
@@ -259,10 +254,10 @@ class SiteProjectSupplyController extends Controller {
         }
 
         // New Special items
-        for ($i = 1; $i <= 5; $i ++) {
+        for ($i = 1; $i <= 5; $i++) {
             if (request("product-s$i") || request("supplier-s$i") || request("type-s$i") || request("colour-s$i") || request("notes-s$i")) {
                 $project->items()->save(new SiteProjectSupplyItem(['supply_id' => $project->id, 'product_id' => 2, 'product' => request("product-s$i"),
-                                                                   'supplier'  => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
+                    'supplier' => request("supplier-s$i"), 'type' => request("type-s$i"), 'colour' => request("colour-s$i"),]));
             }
         }
         //dd(request()->all());
@@ -313,7 +308,7 @@ class SiteProjectSupplyController extends Controller {
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }
         $project->save();
-
+        
 
         if ($project->status)
             return redirect("/site/supply/$project->id/edit");
@@ -382,14 +377,34 @@ class SiteProjectSupplyController extends Controller {
      */
     public function getReports()
     {
-        $site_list = Auth::user()->authSites('view.site.project.supply')->pluck('id')->toArray();
+        if (request('supervisor_sel')) {
+            if (request('supervisor') == 'all')
+                $site_list = Site::all()->pluck('id')->toArray();
+            elseif (request('supervisor') == 'signoff') {
+                $site_list = Auth::user()->authSites('view.site.project.supply')->pluck('id')->toArray();
+                $project_list = SiteProjectSupply::where('status', 1)->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
+            } else
+                $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
+        } else
+            $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
+
+
+        //$site_list = Auth::user()->authSites('view.site.project.supply')->pluck('id')->toArray();
         $status = (request('status') == 0) ? [0] : [1];
-        //dd(request('status'));
-        $records = DB::table('project_supply AS p')
-            ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 'p.status', 's.name as sitename', 's.code'])
-            ->join('sites AS s', 'p.site_id', '=', 's.id')
-            ->whereIn('p.site_id', $site_list)
-            ->whereIn('p.status', $status);
+
+        if (request('supervisor') != 'signoff') {
+            $records = DB::table('project_supply AS p')
+                ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 'p.status', 's.name as sitename', 's.code'])
+                ->join('sites AS s', 'p.site_id', '=', 's.id')
+                ->whereIn('p.site_id', $site_list)
+                ->whereIn('p.status', $status);
+        } else {
+            $records = DB::table('project_supply AS p')
+                ->select(['p.id', 'p.site_id', 'p.attachment', 'p.updated_at', 'p.status', 's.name as sitename', 's.code'])
+                ->join('sites AS s', 'p.site_id', '=', 's.id')
+                ->whereIn('p.id', $project_list)
+                ->whereIn('p.status', $status);
+        }
 
         $dt = Datatables::of($records)
             ->editColumn('id', function ($project) {

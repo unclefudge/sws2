@@ -2,16 +2,17 @@
 
 namespace App\Models\Safety;
 
-use Mail;
-use URL;
-use App\User;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class ToolboxTalk extends Model {
+class ToolboxTalk extends Model
+{
 
     protected $table = 'toolbox_talks';
     protected $fillable = [
@@ -392,20 +393,22 @@ class ToolboxTalk extends Model {
         }
 
         $data = [
-            'talk_id'           => $this->id,
-            'talk_name'         => $this->name,
-            'talk_count'        => $this->completedBy()->count() . '/' . $this->assignedTo()->count(),
-            'talk_outstanding'  => $this->outstandingBySBC(),
-            'talk_url'          => URL::to('/') . $this->url(),
-            'user_fullname'     => $this->createdBy->fullname,
+            'talk_id' => $this->id,
+            'talk_name' => $this->name,
+            'talk_count' => $this->completedBy()->count() . '/' . $this->assignedTo()->count(),
+            'talk_outstanding' => $this->outstandingBySBC(),
+            'talk_url' => URL::to('/') . $this->url(),
+            'user_fullname' => $this->createdBy->fullname,
             'user_company_name' => $this->createdBy->company->name,
         ];
 
-        Mail::send('emails/toolbox-overdue', $data, function ($m) use ($email_to) {
-            $m->from('do-not-reply@safeworksite.com.au');
-            $m->to($email_to);
-            $m->subject('Toolbox Talk Overdue Notification');
-        });
+        if ($email_to) {
+            Mail::send('emails/toolbox-overdue', $data, function ($m) use ($email_to) {
+                $m->from('do-not-reply@safeworksite.com.au');
+                $m->to($email_to);
+                $m->subject('Toolbox Talk Overdue Notification');
+            });
+        }
     }
 
     /**

@@ -2,16 +2,17 @@
 
 namespace App\Models\Safety;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Company\Company;
 use App\Models\Comms\Todo;
+use App\Models\Company\Company;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class WmsDoc extends Model {
+class WmsDoc extends Model
+{
 
     protected $table = 'wms_docs';
     protected $fillable = [
@@ -88,11 +89,11 @@ class WmsDoc extends Model {
     {
         $mesg = ($expired == true) ? "SWMS - $this->name Expired " . $this->created_at->addYear()->format('d/m/Y') : "SWMS - $this->name due to expire " . $this->created_at->addYear()->format('d/m/Y');
         $todo_request = [
-            'type'       => 'swms',
-            'type_id'    => $this->id,
-            'name'       => $mesg,
-            'info'       => 'Please create a new SWMS to replace the current document.',
-            'due_at'     => Carbon::today()->addDays(7)->toDateTimeString(),
+            'type' => 'swms',
+            'type_id' => $this->id,
+            'name' => $mesg,
+            'info' => 'Please create a new SWMS to replace the current document.',
+            'due_at' => Carbon::today()->addDays(7)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -131,27 +132,30 @@ class WmsDoc extends Model {
         $email_user = (\App::environment('dev', 'prod') && $email_user) ? Auth::user()->email : '';
 
         $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
+            'user_email' => Auth::user()->email,
+            'user_fullname' => Auth::user()->fullname,
             'user_company_name' => Auth::user()->company->name,
-            'doc_name'          => $this->name,
-            'doc_company'       => Company::find($this->for_company_id)->name,
-            'doc_principle'     => $this->principle,
+            'doc_name' => $this->name,
+            'doc_company' => Company::find($this->for_company_id)->name,
+            'doc_principle' => $this->principle,
         ];
         $doc = $this;
-        Mail::send('emails/workmethod', $data, function ($m) use ($email_list, $email_user, $doc, $data) {
-            $user_email = $data['user_email'];
-            ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
 
-            $m->from($send_from, Auth::user()->fullname);
-            $m->to($email_list);
-            if (validEmail($email_user))
-                $m->cc($email_user);
-            $m->subject('Safe Work Method Statement - ' . $doc->name);
-            $file_path = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment);
-            if ($doc->attachment && file_exists($file_path))
-                $m->attach($file_path);
-        });
+        if ($email_list) {
+            Mail::send('emails/workmethod', $data, function ($m) use ($email_list, $email_user, $doc, $data) {
+                $user_email = $data['user_email'];
+                ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
+
+                $m->from($send_from, Auth::user()->fullname);
+                $m->to($email_list);
+                if (validEmail($email_user))
+                    $m->cc($email_user);
+                $m->subject('Safe Work Method Statement - ' . $doc->name);
+                $file_path = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment);
+                if ($doc->attachment && file_exists($file_path))
+                    $m->attach($file_path);
+            });
+        }
 
         /*
         if (count(Mail::failures()) > 0) {
@@ -175,25 +179,28 @@ class WmsDoc extends Model {
         }
 
         $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
+            'user_email' => Auth::user()->email,
+            'user_fullname' => Auth::user()->fullname,
             'user_company_name' => Auth::user()->company->name,
-            'doc_name'          => $this->name,
-            'doc_company'       => Company::find($this->for_company_id)->name,
-            'doc_principle'     => $this->principle,
+            'doc_name' => $this->name,
+            'doc_company' => Company::find($this->for_company_id)->name,
+            'doc_principle' => $this->principle,
         ];
         $doc = $this;
-        Mail::send('emails/workmethod-signoff', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
-            ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, Auth::user()->fullname);
-            $m->to($email_to);
-            if ($email_user)
-                $m->cc($email_user);
-            $m->subject('Safe Work Method Statement - ' . $doc->name);
-            $file_path = public_path($doc->attachmentUrl);
-            if ($doc->attachment && file_exists($file_path))
-                $m->attach($file_path);
-        });
+
+        if ($email_to) {
+            Mail::send('emails/workmethod-signoff', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
+                ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, Auth::user()->fullname);
+                $m->to($email_to);
+                if ($email_user)
+                    $m->cc($email_user);
+                $m->subject('Safe Work Method Statement - ' . $doc->name);
+                $file_path = public_path($doc->attachmentUrl);
+                if ($doc->attachment && file_exists($file_path))
+                    $m->attach($file_path);
+            });
+        }
     }
 
     /**
@@ -209,25 +216,27 @@ class WmsDoc extends Model {
         }
 
         $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
+            'user_email' => Auth::user()->email,
+            'user_fullname' => Auth::user()->fullname,
             'user_company_name' => Auth::user()->company->name,
-            'doc_name'          => $this->name,
-            'doc_company'       => Company::find($this->for_company_id)->name,
-            'doc_principle'     => $this->principle,
+            'doc_name' => $this->name,
+            'doc_company' => Company::find($this->for_company_id)->name,
+            'doc_principle' => $this->principle,
         ];
         $doc = $this;
-        Mail::send('emails/workmethod-archived', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
-            ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, Auth::user()->fullname);
-            $m->to($email_to);
-            if ($email_user)
-                $m->cc($email_user);
-            $m->subject('Safe Work Method Statement - ' . $doc->name);
-            $file_path = public_path($doc->attachmentUrl);
-            if ($doc->attachment && file_exists($file_path))
-                $m->attach($file_path);
-        });
+        if ($email_to) {
+            Mail::send('emails/workmethod-archived', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
+                ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, Auth::user()->fullname);
+                $m->to($email_to);
+                if ($email_user)
+                    $m->cc($email_user);
+                $m->subject('Safe Work Method Statement - ' . $doc->name);
+                $file_path = public_path($doc->attachmentUrl);
+                if ($doc->attachment && file_exists($file_path))
+                    $m->attach($file_path);
+            });
+        }
 
         /*
         if (count(Mail::failures()) > 0) {
@@ -260,22 +269,24 @@ class WmsDoc extends Model {
         $mesg = ($expired == true) ? "has Expired " . $this->updated_at->addYear()->format('d/m/Y') : "due to expire " . $this->updated_at->addYear()->format('d/m/Y');
 
         $data = [
-            'user_email'        => 'do-not-reply@safeworksite.com.au',
-            'user_fullname'     => 'Safeworksite',
+            'user_email' => 'do-not-reply@safeworksite.com.au',
+            'user_fullname' => 'Safeworksite',
             'user_company_name' => 'Safeworksite',
-            'company_name'      => $company->name,
-            'doc_name'          => $this->name,
-            'mesg'              => $mesg,
-            'url'               => URL::to('/safety/doc/wms') . '/' . $this->id,
+            'company_name' => $company->name,
+            'doc_name' => $this->name,
+            'mesg' => $mesg,
+            'url' => URL::to('/safety/doc/wms') . '/' . $this->id,
         ];
         $doc = $this;
-        Mail::send('emails/workmethod-expired', $data, function ($m) use ($email_to, $email_user, $doc, $mesg, $data) {
-            $m->from('do-not-reply@safeworksite.com.au');
-            $m->to($email_to);
-            if ($email_user)
-                $m->cc($email_user);
-            $m->subject('SWMS - ' . $doc->name . ' ' . $mesg);
-        });
+        if ($email_to) {
+            Mail::send('emails/workmethod-expired', $data, function ($m) use ($email_to, $email_user, $doc, $mesg, $data) {
+                $m->from('do-not-reply@safeworksite.com.au');
+                $m->to($email_to);
+                if ($email_user)
+                    $m->cc($email_user);
+                $m->subject('SWMS - ' . $doc->name . ' ' . $mesg);
+            });
+        }
     }
 
 
@@ -301,7 +312,7 @@ class WmsDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/company/'.$this->attributes['for_company_id']."/wms/".$this->attributes['attachment'];
+            return '/filebank/company/' . $this->attributes['for_company_id'] . "/wms/" . $this->attributes['attachment'];
         return '';
     }
 
@@ -329,7 +340,7 @@ class WmsDoc extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

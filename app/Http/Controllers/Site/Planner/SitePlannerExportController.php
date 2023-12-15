@@ -2,38 +2,34 @@
 
 namespace App\Http\Controllers\Site\Planner;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\Models\Site\Site;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Http\Requests\Site\Planner\SitePlannerExportRequest;
-use App\Jobs\SitePlannerPdf;
-use App\Jobs\SitePlannerCompanyPdf;
-use App\Jobs\SiteAttendancePdf;
-use App\Jobs\CompanyAttendancePdf;
-use App\User;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyLeave;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Http\Requests\Site\Planner\SitePlannerExportRequest;
+use App\Jobs\CompanyAttendancePdf;
+use App\Jobs\SiteAttendancePdf;
+use App\Jobs\SitePlannerCompanyPdf;
+use App\Jobs\SitePlannerPdf;
+use App\Models\Company\Company;
+use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Trade;
+use App\Models\Site\Site;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
 
 /**
  * Class SitePlannerExportController
  * @package App\Http\Controllers
  */
-class SitePlannerExportController extends Controller {
+class SitePlannerExportController extends Controller
+{
 
     public function index()
     {
@@ -117,7 +113,7 @@ class SitePlannerExportController extends Controller {
                 $site = Site::find($siteID);
                 if ($site) {
                     $site_list[$siteID] = $site->name;
-                    $site_list_csv .= $site->code.", ";
+                    $site_list_csv .= $site->code . ", ";
                 }
 
             }
@@ -131,14 +127,14 @@ class SitePlannerExportController extends Controller {
             $data = [];
             foreach ($site_list as $siteID => $siteName) {
                 $site = Site::findOrFail($siteID);
-                $obj_site = (object) [];
+                $obj_site = (object)[];
                 $obj_site->site_id = $site->id;
                 $obj_site->site_name = $site->name;
                 $obj_site->weeks = [];
 
                 // For each week get Entities on the Planner
                 $current_date = $date;
-                for ($w = 1; $w <= $weeks; $w ++) {
+                for ($w = 1; $w <= $weeks; $w++) {
                     $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
                     if ($date_from->isWeekend()) $date_from->addDays(1);
                     if ($date_from->isWeekend()) $date_from->addDays(1);
@@ -146,7 +142,7 @@ class SitePlannerExportController extends Controller {
                     // Calculate Date to ensuring not a weekend
                     $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date_from->format('Y-m-d H:i:s'));
                     $dates = [$date_from->format('Y-m-d')];
-                    for ($i = 2; $i < 6; $i ++) {
+                    for ($i = 2; $i < 6; $i++) {
                         $date_to->addDays(1);
                         if ($date_to->isWeekend())
                             $date_to->addDays(2);
@@ -190,7 +186,7 @@ class SitePlannerExportController extends Controller {
                                 $entity_name = ($trade) ? $trade->name : "Trade $plan->entity_id";
                             }
                             $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name,];
-                            for ($i = 0; $i < 5; $i ++)
+                            for ($i = 0; $i < 5; $i++)
                                 $entities[$key][$dates[$i]] = '';
                         }
                     };
@@ -205,7 +201,7 @@ class SitePlannerExportController extends Controller {
                         $offset = 0;
                     }
                     foreach ($dates as $d)
-                        $obj_site->weeks[$w][0][$i ++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
+                        $obj_site->weeks[$w][0][$i++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
 
                     // For each Entity on for current week get their Tasks for each day of the week
                     $entity_count = 1;
@@ -213,7 +209,7 @@ class SitePlannerExportController extends Controller {
                         foreach ($entities as $e) {
                             if ($request->has('export_site'))
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_name'];
-                            for ($i = 1; $i <= 5; $i ++) {
+                            for ($i = 1; $i <= 5; $i++) {
                                 if ($request->has('export_site'))
                                     $tasks = $site->entityTasksOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
                                 else
@@ -227,7 +223,7 @@ class SitePlannerExportController extends Controller {
 
                                 $obj_site->weeks[$w][$entity_count][$i] = $str;
                             }
-                            $entity_count ++;
+                            $entity_count++;
                         }
                     } else {
                         $obj_site->weeks[$w][1][$offset] = 'NOTHING-ON-PLAN';
@@ -288,7 +284,7 @@ class SitePlannerExportController extends Controller {
                 $company = Company::find($cid);
                 if ($company) {
                     $company_list[$cid] = $company->name;
-                    $company_list_csv .= $company->id.", ";
+                    $company_list_csv .= $company->id . ", ";
                 }
             }
             asort($company_list);
@@ -304,7 +300,7 @@ class SitePlannerExportController extends Controller {
             $data = [];
             foreach ($company_list as $cid => $cname) {
                 $company = Company::find($cid);
-                $obj_site = (object) [];
+                $obj_site = (object)[];
                 $obj_site->company_id = $company->id;
                 $obj_site->company_name = $company->name_alias;
                 $obj_site->weeks = [];
@@ -312,7 +308,7 @@ class SitePlannerExportController extends Controller {
 
                 // For each week get Sites on the Planner
                 $current_date = $date;
-                for ($w = 1; $w <= $weeks; $w ++) {
+                for ($w = 1; $w <= $weeks; $w++) {
                     $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
                     if ($date_from->isWeekend()) $date_from->addDays(1);
                     if ($date_from->isWeekend()) $date_from->addDays(1);
@@ -320,7 +316,7 @@ class SitePlannerExportController extends Controller {
                     // Calculate Date To ensuring not a weekend
                     $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date_from->format('Y-m-d H:i:s'));
                     $dates = [$date_from->format('Y-m-d')];
-                    for ($i = 2; $i < 6; $i ++) {
+                    for ($i = 2; $i < 6; $i++) {
                         $date_to->addDays(1);
                         if ($date_to->isWeekend())
                             $date_to->addDays(2);
@@ -359,7 +355,7 @@ class SitePlannerExportController extends Controller {
                         if (!isset($sites[$plan->site_id])) {
                             $site = Site::find($plan->site_id);
                             $sites[$plan->site_id] = ['site_id' => $plan->site_id, 'site_name' => $site->name, 'site_supervisor' => $site->supervisorInitials];
-                            for ($i = 0; $i < 5; $i ++)
+                            for ($i = 0; $i < 5; $i++)
                                 $sites[$plan->site_id][$dates[$i]] = '';
                         }
                     };
@@ -376,7 +372,7 @@ class SitePlannerExportController extends Controller {
                     if ($sites) {
                         foreach ($sites as $s) {
                             $obj_site->weeks[$w][$site_count][] = $s['site_name'] . ' (' . $s['site_supervisor'] . ')';
-                            for ($i = 1; $i <= 5; $i ++) {
+                            for ($i = 1; $i <= 5; $i++) {
                                 $site = Site::find($s['site_id']);
                                 $tasks = $site->entityTasksOnDate('c', $company->id, $dates[$i - 1]);
                                 if ($tasks) {
@@ -388,7 +384,7 @@ class SitePlannerExportController extends Controller {
 
                                 $obj_site->weeks[$w][$site_count][$i] = $str;
                             }
-                            $site_count ++;
+                            $site_count++;
                         }
                     } else {
                         $obj_site->weeks[$w][1][] = 'NOTHING-ON-PLAN';
@@ -442,7 +438,7 @@ class SitePlannerExportController extends Controller {
 
                 $current_date = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
                 if ($sites) {
-                    for ($x = 1; $x <= 14; $x ++) {
+                    for ($x = 1; $x <= 14; $x++) {
                         // Skip Weekends
                         if ($current_date->isWeekend()) $current_date->addDays(1);
                         if ($current_date->isWeekend()) $current_date->addDays(1);
@@ -477,8 +473,6 @@ class SitePlannerExportController extends Controller {
             SitePlannerCompanyPdf::dispatch($data, $output_file);
 
             return redirect('/manage/report/recent');
-
-
 
 
             //return view('pdf/plan-company', compact('company_id', 'date', 'weeks', 'sitedata'));
@@ -527,7 +521,7 @@ class SitePlannerExportController extends Controller {
         //
         if ($site_id) {
             $site = Site::findOrFail($site_id);
-            $obj_site = (object) [];
+            $obj_site = (object)[];
             $obj_site->site_id = $site->id;
             $obj_site->site_name = $site->name;
             $obj_site->attendance = [];
@@ -721,18 +715,18 @@ class SitePlannerExportController extends Controller {
                 if ($plan->entity_type == 'c')
                     $entity_name = Company::find($plan->entity_id)->name;
                 $startdata[] = [
-                    'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
-                    'code'            => $site->code,
-                    'name'            => $site->name,
-                    'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorName,
-                    'contract_sent'   => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
+                    'date' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
+                    'code' => $site->code,
+                    'name' => $site->name,
+                    'company' => $entity_name,
+                    'supervisor' => $site->supervisorName,
+                    'contract_sent' => ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-',
                     'contract_signed' => ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-',
-                    'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
-                    'eng'             => ($site->engineering) ? 'Y' : '-',
-                    'cc'              => ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-',
-                    'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-',
-                    'consultant'      => $site->consultant_name,
+                    'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-',
+                    'eng' => ($site->engineering) ? 'Y' : '-',
+                    'cc' => ($site->construction_rcvd) ? $site->construction_rcvd->format('d/m/Y') : '-',
+                    'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('d/m/Y') : '-',
+                    'consultant' => $site->consultant_name,
                 ];
             }
         }
@@ -764,7 +758,7 @@ class SitePlannerExportController extends Controller {
             return $pdf->stream();
 
         if ($request->has('email_pdf')) {
-            $file = public_path('filebank/tmp/jobstart-' . Auth::user()->id  . '.pdf');
+            $file = public_path('filebank/tmp/jobstart-' . Auth::user()->id . '.pdf');
             if (file_exists($file))
                 unlink($file);
             $pdf->save($file);
@@ -773,7 +767,7 @@ class SitePlannerExportController extends Controller {
                 //$email_list = explode(';', $request->get('email_list'));
                 //$email_list = array_map('trim', $email_list); // trim white spaces
                 $email_to = [];
-                foreach($request->get('email_list') as $user_id) {
+                foreach ($request->get('email_list') as $user_id) {
                     $user = User::findOrFail($user_id);
                     if ($user && validEmail($user->email)) {
                         $email_to[] .= $user->email;
@@ -782,25 +776,28 @@ class SitePlannerExportController extends Controller {
                 //dd($email_to);
 
                 $data = [
-                    'user_fullname'     => Auth::user()->fullname,
+                    'user_fullname' => Auth::user()->fullname,
                     'user_company_name' => Auth::user()->company->name,
-                    'startdata'         => $startdata
+                    'startdata' => $startdata
                 ];
-                Mail::send('emails/jobstart', $data, function ($m) use ($email_to, $data, $file) {
-                    $user_email = Auth::user()->email;
-                    ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
+                if ($email_to) {
+                    Mail::send('emails/jobstart', $data, function ($m) use ($email_to, $data, $file) {
+                        $user_email = Auth::user()->email;
+                        ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
 
-                    $m->from($send_from, Auth::user()->fullname);
-                    $m->to($email_to);
-                    $m->subject('Upcoming Job Start Dates');
-                    $m->attach($file);
-                });
-                // Comment out code as Mail::failures no longer works in laravel 9
-                //if (count(Mail::failures()) > 0) {
-                //    foreach (Mail::failures as $email_address)
-                //        Toastr::error("Failed to send to $email_address");
-                //} else
+                        $m->from($send_from, Auth::user()->fullname);
+                        $m->to($email_to);
+                        $m->subject('Upcoming Job Start Dates');
+                        $m->attach($file);
+                    });
+
+                    // Comment out code as Mail::failures no longer works in laravel 9
+                    //if (count(Mail::failures()) > 0) {
+                    //    foreach (Mail::failures as $email_address)
+                    //        Toastr::error("Failed to send to $email_address");
+                    //} else
                     Toastr::success("Sent email");
+                }
 
                 return view('site/export/start');
             }
@@ -828,11 +825,11 @@ class SitePlannerExportController extends Controller {
             if ($plan->entity_type == 'c')
                 $entity_name = Company::find($plan->entity_id)->name;
             $startdata[] = [
-                'date'              => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
-                'code'              => $site->code,
-                'name'              => $site->name,
-                'company'           => $entity_name,
-                'supervisor'        => $site->supervisorName,
+                'date' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M j'),
+                'code' => $site->code,
+                'name' => $site->name,
+                'company' => $entity_name,
+                'supervisor' => $site->supervisorName,
                 'completion_signed' => ($site->completion_signed) ? $site->completion_signed->format('d/m/Y') : '-',
             ];
         }
@@ -853,24 +850,26 @@ class SitePlannerExportController extends Controller {
                 $email_list = array_map('trim', $email_list); // trim white spaces
 
                 $data = [
-                    'user_fullname'     => Auth::user()->fullname,
+                    'user_fullname' => Auth::user()->fullname,
                     'user_company_name' => Auth::user()->company->name,
-                    'startdata'         => $startdata
+                    'startdata' => $startdata
                 ];
-                Mail::send('emails/site-plan-completion', $data, function ($m) use ($email_list, $data) {
-                    $user_email = Auth::user()->email;
-                    ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
+                if ($email_list) {
+                    Mail::send('emails/site-plan-completion', $data, function ($m) use ($email_list, $data) {
+                        $user_email = Auth::user()->email;
+                        ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
 
-                    $m->from($send_from, Auth::user()->fullname);
-                    $m->to($email_list);
-                    $m->subject('Practical Completion List');
-                });
-                // Comment out code as Mail::failures no longer works in laravel 9
-                //if (count(Mail::failures()) > 0) {
-                //    foreach (Mail::failures as $email_address)
-                //        Toastr::error("Failed to send to $email_address");
-                //} else
+                        $m->from($send_from, Auth::user()->fullname);
+                        $m->to($email_list);
+                        $m->subject('Practical Completion List');
+                    });
+                    // Comment out code as Mail::failures no longer works in laravel 9
+                    //if (count(Mail::failures()) > 0) {
+                    //    foreach (Mail::failures as $email_address)
+                    //        Toastr::error("Failed to send to $email_address");
+                    //} else
                     Toastr::success("Sent email");
+                }
 
                 return view('site/export/completion');
             }

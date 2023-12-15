@@ -171,16 +171,17 @@ class CronReportController extends Controller
             'startdata' => $startdata
         ];
         CronController::debugEmail('EL', $email_list);
-        dd($email_list);
-        Mail::send('emails/jobstart', $data, function ($m) use ($email_list, $data, $file) {
-            $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, 'Safe Worksite');
-            $m->to($email_list);
-            $m->subject('Upcoming Job Start Dates');
-            $m->attach($file);
-        });
-        echo "Sending email to: $emails<br>";
-        $log .= "Sending email to: $emails\n";
+        if ($email_list) {
+            Mail::send('emails/jobstart', $data, function ($m) use ($email_list, $data, $file) {
+                $send_from = 'do-not-reply@safeworksite.com.au';
+                $m->from($send_from, 'Safe Worksite');
+                $m->to($email_list);
+                $m->subject('Upcoming Job Start Dates');
+                $m->attach($file);
+            });
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
+        }
 
 
         echo "<h4>Completed</h4>";

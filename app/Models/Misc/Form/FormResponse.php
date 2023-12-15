@@ -2,17 +2,13 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class FormResponse extends Model {
+class FormResponse extends Model
+{
 
     protected $table = 'forms_responses';
     protected $fillable = ['form_id', 'question_id', 'option_id', 'value', 'date', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
@@ -37,6 +33,16 @@ class FormResponse extends Model {
     public function question()
     {
         return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
+    }
+
+    /*
+     * A FormResponse belongs to a FormOption
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function option()
+    {
+        return $this->belongsTo('App\Models\Misc\Form\FormOption', 'option_id');
     }
 
 

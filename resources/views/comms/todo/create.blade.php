@@ -182,7 +182,7 @@
                                 @if ($type == 'incident')
                                     <a href="/site/incident/{{ $type_id }}" class="btn default"> Back</a>
                                 @else
-                                    <a href="/todo" class="btn default"> Back</a>
+                                    <a href="{{url()->previous()}}" class="btn default"> Back</a>
                                 @endif
                                 <button type="submit" class="btn green">Submit</button>
                             </div>
@@ -211,81 +211,82 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#user_list").select2({placeholder: "Select", width: '100%',});
-        $("#company_list").select2({placeholder: "Select", width: '100%'});
-        $("#role_list").select2({placeholder: "Select", width: '100%'});
-        $("#type").select2({width: '100%'});
+        $(document).ready(function () {
+            /* Select2 */
+            $("#user_list").select2({placeholder: "Select", width: '100%',});
+            $("#company_list").select2({placeholder: "Select", width: '100%'});
+            $("#role_list").select2({placeholder: "Select", width: '100%'});
+            $("#type").select2({width: '100%'});
 
-        $("#date-reset").click(function () {
-            $('#due_at').val('');
-        })
+            $("#date-reset").click(function () {
+                $('#due_at').val('');
+            })
 
-        // On Change Assign To
-        $("#assign_to").change(function () {
+            // On Change Assign To
+            $("#assign_to").change(function () {
+                showAssignedList();
+                showHelp();
+            });
+
+            // On Change Assign Multi
+            $("#assign_multi").change(function () {
+                showHelp();
+            });
+
+            function showAssignedList() {
+                $("#user_div").hide();
+                $("#company_div").hide();
+                $("#role_div").hide();
+
+                // Assign to User selected
+                if ($("#assign_to").val() == 'user')
+                    $("#user_div").show();
+                // Assign to Company selected
+                if ($("#assign_to").val() == 'company')
+                    $("#company_div").show();
+                // Assign to Group selected
+                if ($("#assign_to").val() == 'role')
+                    $("#role_div").show();
+            }
+
+            // Display Help test
+            function showHelp() {
+                if ($("#assign_to").val() != '')
+                    $("#help_text").show();
+                else
+                    $("#help_text").hide();
+
+                var help_text = document.getElementById("help_text");
+                if ($("#assign_to").val() == 'user' && $("#assign_multi").val() == '0')
+                    help_text.textContent = "One ToDo but any user may complete it on behalf of all of the other users";
+                if ($("#assign_to").val() == 'user' && $("#assign_multi").val() == '1')
+                    help_text.textContent = "One ToDo per user which they must complete themselves.";
+
+                if ($("#assign_to").val() == 'company' && $("#assign_multi").val() == '0')
+                    help_text.textContent = "One ToDo per company but any user within that company may complete it on behalf of their company.";
+                if ($("#assign_to").val() == 'company' && $("#assign_multi").val() == '1')
+                    help_text.textContent = "One ToDo per user within each of the selected companies";
+
+                if ($("#assign_to").val() == 'role' && $("#assign_multi").val() == '0')
+                    help_text.textContent = "One ToDo per role but any user within that role may complete it on behalf of the role.";
+                if ($("#assign_to").val() == 'role' && $("#assign_multi").val() == '1')
+                    help_text.textContent = "One ToDo per user within each of the selected roles";
+            };
+
             showAssignedList();
             showHelp();
         });
-
-        // On Change Assign Multi
-        $("#assign_multi").change(function () {
-            showHelp();
-        });
-
-        function showAssignedList() {
-            $("#user_div").hide();
-            $("#company_div").hide();
-            $("#role_div").hide();
-
-            // Assign to User selected
-            if ($("#assign_to").val() == 'user')
-                $("#user_div").show();
-            // Assign to Company selected
-            if ($("#assign_to").val() == 'company')
-                $("#company_div").show();
-            // Assign to Group selected
-            if ($("#assign_to").val() == 'role')
-                $("#role_div").show();
-        }
-
-        // Display Help test
-        function showHelp() {
-            if ($("#assign_to").val() != '')
-                $("#help_text").show();
-            else
-                $("#help_text").hide();
-
-            var help_text = document.getElementById("help_text");
-            if ($("#assign_to").val() == 'user' && $("#assign_multi").val() == '0')
-                help_text.textContent = "One ToDo but any user may complete it on behalf of all of the other users";
-            if ($("#assign_to").val() == 'user' && $("#assign_multi").val() == '1')
-                help_text.textContent = "One ToDo per user which they must complete themselves.";
-
-            if ($("#assign_to").val() == 'company' && $("#assign_multi").val() == '0')
-                help_text.textContent = "One ToDo per company but any user within that company may complete it on behalf of their company.";
-            if ($("#assign_to").val() == 'company' && $("#assign_multi").val() == '1')
-                help_text.textContent = "One ToDo per user within each of the selected companies";
-
-            if ($("#assign_to").val() == 'role' && $("#assign_multi").val() == '0')
-                help_text.textContent = "One ToDo per role but any user within that role may complete it on behalf of the role.";
-            if ($("#assign_to").val() == 'role' && $("#assign_multi").val() == '1')
-                help_text.textContent = "One ToDo per user within each of the selected roles";
-        };
-
-        showAssignedList();
-        showHelp();
-    });
-</script>
+    </script>
 @stop
 

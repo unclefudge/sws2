@@ -2,20 +2,17 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Misc\TemporaryFile;
 use App\Http\Utilities\FailureTypes;
+use App\Models\Comms\Todo;
+use App\Models\Misc\Action;
+use App\Models\Misc\TemporaryFile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
+use URL;
 
-class SiteHazard extends Model {
+class SiteHazard extends Model
+{
 
     protected $table = 'site_hazards';
     protected $fillable = [
@@ -136,7 +133,7 @@ class SiteHazard extends Model {
     {
         $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
         if ($tempFile) {
-            // Move temp file to support ticket directory
+            // Move temp file to hazard directory
             $dir = "filebank/site/" . $this->site->id . '/hazard';
             if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 
@@ -149,7 +146,7 @@ class SiteHazard extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 
@@ -163,6 +160,34 @@ class SiteHazard extends Model {
             // Delete Temporary file directory + record
             $tempFile->delete();
             rmdir(public_path($tempFile->folder));
+        }
+    }
+
+    public function saveCopyAttachment($file)
+    {
+        if ($file) {
+            // Copy file to hazard directory
+            $dir = "filebank/site/" . $this->site->id . '/hazard';
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+
+            if (file_exists(public_path($file))) {
+                $newFile = "hazard-" . $this->id . '-' . pathinfo($file, PATHINFO_FILENAME);
+
+                // Ensure filename is unique by adding counter to similar filenames
+                $count = 1;
+                while (file_exists(public_path("$dir/$newFile"))) {
+                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
+                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
+                    $newFile = $filename . $count++ . ".$ext";
+                }
+                copy(public_path($file), public_path("$dir/$newFile"));
+
+                // Determine file extension and set type
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                $filename = pathinfo($newFile, PATHINFO_FILENAME);
+                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+                $new = SiteHazardFile::create(['hazard_id' => $this->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
+            }
         }
     }
 

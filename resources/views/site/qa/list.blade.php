@@ -76,76 +76,62 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    var status1 = $('#status1').val();
-    var table1 = $('#table1').DataTable({
-        pageLength: 20,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/qa/dt/qa_reports') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.supervisor_sel = $('#supervisor_sel').val();
-                d.supervisor = $('#supervisor').val();
-                d.status = $('#status1').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'sitename', name: 's.name'},
-            {data: 'name', name: 'q.name'},
-            {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
-            {data: 'updated_at', name: 'q.updated_at'},
-            {data: 'completed', name: 'completed', orderable: false, searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
-
-    $('select#status1').change(function () {
-        table1.ajax.reload();
-    });
-
-    $('select#supervisor').change(function () {
-        //sessionStorage.setItem('qasites', $('#supervisor').val());
-        //console.log('S:'+sessionStorage.getItem('qasites'));
-        var supervisor = $('#supervisor').val();
-        $.ajax({
-            url: '/session/update',
-            type: "POST",
-            dataType: 'json',
-            data: {key: '/site/qa:supervisor', val: supervisor},
-            success: function (data) {
-                let x = JSON.stringify(data);
-                //console.log(x);
+        var status1 = $('#status1').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 20,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/qa/dt/qa_reports') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.supervisor_sel = $('#supervisor_sel').val();
+                    d.supervisor = $('#supervisor').val();
+                    d.status = $('#status1').val();
+                }
             },
-            error: function (error) {
-                console.log(`Error ${error}`);
-            }
-        }).always(function (data) {
-            $('#table1').DataTable().draw(true);
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'sitename', name: 's.name'},
+                {data: 'name', name: 'q.name'},
+                {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
+                {data: 'updated_at', name: 'q.updated_at'},
+                {data: 'completed', name: 'completed', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
         });
 
-        //table1.ajax.reload();
+        $('select#status1').change(function () {
+            table1.ajax.reload();
+        });
 
-        /*
-        $.ajax({
-            url: url,
-            type: 'DELETE',
-            dataType: 'json',
-            data: {method: '_DELETE', submit: true},
-            success: function (data) {
-                toastr.error('Deleted document');
-            },
-        }).always(function (data) {
-            $('#table1').DataTable().draw(false);
-        });*/
-    });
-</script>
+        $('select#supervisor').change(function () {
+            //sessionStorage.setItem('qasites', $('#supervisor').val());
+            //console.log('S:'+sessionStorage.getItem('qasites'));
+            var supervisor = $('#supervisor').val();
+            $.ajax({
+                url: '/session/update',
+                type: "POST",
+                dataType: 'json',
+                data: {key: '/site/qa:supervisor', val: supervisor},
+                success: function (data) {
+                    let x = JSON.stringify(data);
+                    //console.log(x);
+                },
+                error: function (error) {
+                    console.log(`Error ${error}`);
+                }
+            }).always(function (data) {
+                $('#table1').DataTable().draw(true);
+            });
+        });
+    </script>
 @stop
