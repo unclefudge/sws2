@@ -90,13 +90,14 @@ class FormQuestion extends Model
     public function options()
     {
         if ($this->type == 'select') {
-            if (in_array($this->type_special, ['CONN', 'YN', 'YrN', 'YgN'])) {
+            if (in_array($this->type_special, ['CONN', 'YN', 'YrN', 'YgN', 'YgNr'])) {
                 $option_ids = [];
                 if ($this->type_special == 'CONN') $option_ids = [1, 2, 3, 4];
                 if ($this->type_special == 'YN') $option_ids = [5, 6];
                 if ($this->type_special == 'YrN') $option_ids = [7, 8];
                 if ($this->type_special == 'YgN') $option_ids = [9, 10];
                 if ($this->type_special == 'YNNA') $option_ids = [11, 12, 13];
+                if ($this->type_special == 'YgNr') $option_ids = [14, 15];
 
                 return FormOption::find($option_ids)->sortBy('order');
             } else
@@ -158,7 +159,7 @@ class FormQuestion extends Model
             return "$user->name";
         }
         // Custom Buttons
-        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, button, CONN
+        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, YgNr, button, CONN
             return customFormSelectButtons($this->id, $values[0], 0);
         }
 

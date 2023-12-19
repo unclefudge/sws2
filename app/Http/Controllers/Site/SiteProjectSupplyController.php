@@ -308,7 +308,7 @@ class SiteProjectSupplyController extends Controller
             if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }
         $project->save();
-        
+
 
         if ($project->status)
             return redirect("/site/supply/$project->id/edit");

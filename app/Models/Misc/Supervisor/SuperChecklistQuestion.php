@@ -2,18 +2,15 @@
 
 namespace App\Models\Misc\Supervisor;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Misc\Supervisor\SuperChecklistCategory;
-use App\Models\Misc\Supervisor\SuperChecklistResponse;
 use App\Models\Site\Site;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
+use App\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Mail;
+use URL;
 
-class SuperChecklistQuestion extends Model {
+class SuperChecklistQuestion extends Model
+{
 
     protected $table = 'supervisor_checklist_questions';
     protected $fillable = ['cat_id', 'name', 'type', 'order', 'default', 'multiple', 'required', 'placeholder',
@@ -35,13 +32,14 @@ class SuperChecklistQuestion extends Model {
     public function options()
     {
         if ($this->type == 'select') {
-            if (in_array($this->type_special, ['YN', 'YrN', 'YgN'])) {
+            if (in_array($this->type_special, ['YN', 'YrN', 'YgN', 'YgNr'])) {
                 $option_ids = [];
                 if ($this->type_special == 'CONN') $option_ids = [1, 2, 3, 4];
                 if ($this->type_special == 'YN') $option_ids = [5, 6];
                 if ($this->type_special == 'YrN') $option_ids = [7, 8];
                 if ($this->type_special == 'YgN') $option_ids = [9, 10];
                 if ($this->type_special == 'YNNA') $option_ids = [11, 12, 13];
+                if ($this->type_special == 'YgNr') $option_ids = [14, 15];
 
                 return FormOption::find($option_ids)->sortBy('order');
             } else
@@ -96,7 +94,7 @@ class SuperChecklistQuestion extends Model {
             return "$user->name";
         }
         // Custom Buttons
-        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, button, CONN
+        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, YgNr, button, CONN
             return customFormSelectButtons($this->id, $values[0], 0);
         }
 
@@ -121,7 +119,8 @@ class SuperChecklistQuestion extends Model {
         }
     }
 
-    public function isRequiredForSupervisor($super, $day) {
+    public function isRequiredForSupervisor($super, $day)
+    {
         $today = Carbon::now();
         if ($this->required) {
             // Only add New Project question for Supers with active jobs with future JobStart

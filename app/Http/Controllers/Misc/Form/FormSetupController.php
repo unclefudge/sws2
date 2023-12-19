@@ -57,6 +57,7 @@ class FormSetupController extends Controller
         DB::table('forms_questions')->truncate();
         DB::table('forms_options')->truncate();
         DB::table('forms_logic')->truncate();
+        DB::table('forms_notes')->truncate();
         DB::table('forms')->truncate();
         DB::table('forms_responses')->truncate();
         DB::table('forms_files')->truncate();
@@ -86,6 +87,9 @@ class FormSetupController extends Controller
         FormOption::create(['text' => 'Yes', 'value' => 'Yes', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1]);
         FormOption::create(['text' => 'No', 'value' => 'No', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1]);
         FormOption::create(['text' => 'N/A', 'value' => 'N/A', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => 'YNNA', 'master' => 1, 'status' => 1]);
+        // YgNr
+        FormOption::create(['text' => 'Yes', 'value' => 'Yes', 'order' => 1, 'score' => 0, 'colour' => 'green', 'group' => 'YrNg', 'master' => 1, 'status' => 1]);
+        FormOption::create(['text' => 'No', 'value' => 'No', 'order' => 2, 'score' => 1, 'colour' => 'red', 'group' => 'YrNg', 'master' => 1, 'status' => 1]);
 
         $this->createFormTemplate1();
         $this->createFormTemplate2();
@@ -95,7 +99,7 @@ class FormSetupController extends Controller
     // Show FormTemplate
     //
 
-    public function createFormTemplate1()
+    public function createFormTemplate0()
     {
         $now = Carbon::now()->format('d/m/Y g:i a');
         echo "<b>Creating Safety In Design Template - $now</b></br>";
@@ -476,7 +480,7 @@ class FormSetupController extends Controller
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {
-                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN)
+                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN, YgNr)
                         if (!$option->master) {
                             $o = FormOption::create(['question_id' => $q->id, 'text' => $option->text, 'value' => $option->value, 'order' => $option->order, 'score' => $option->score, 'colour' => $option->colour, 'group' => $option->group, 'master' => $option->master, 'status' => $option->status]);
                             $match_options[$option->id] = $o->id;
@@ -495,7 +499,7 @@ class FormSetupController extends Controller
             $question = FormQuestion::find($logic->question_id);
 
             // Convert the orig match_values if Original question is a select with custom values
-            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YNNA'])) {
+            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YgNr', 'YNNA'])) {
                 $old_match_value = explode(',', $logic->match_value);
                 foreach ($old_match_value as $val)
                     $new_match_value .= $match_options[$val] . ',';
@@ -527,6 +531,735 @@ class FormSetupController extends Controller
         var_dump($match_options);*/
     }
 
+    /*
+     * Create Template Form - Project Aspects & Conditions
+     */
+    public function createFormTemplate1()
+    {
+        $now = Carbon::now()->format('d/m/Y g:i a');
+        echo "<b>Creating Project Aspects & Conditions Template - $now</b></br>";
+
+
+        // Creating Safety In Design Template
+        $template = FormTemplate::create(['parent_id' => null, 'version' => '1.0', 'name' => 'Project Aspects & Conditions', 'description' => 'The following criteria is to be established in order to prompt identification of potential hazards related to the existing conditions of a project and those arising from the associated proposed design and contract works. All identified hazards must be captured within the site-specific risk assessment.', 'company_id' => 3]);
+        $tid = $template->id;
+        $pn = 1;
+
+        //
+        // Page 1
+        //
+        $page = FormPage::create(['template_id' => $tid, 'name' => "Title Page", 'description' => null, 'order' => 1]);
+        $pid = $page->id;
+        $sn = 1;
+
+        // Questions - Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 1a", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'placeholder' => 'Select site']);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Lot Size", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Local Government Area / Council", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0, 'placeholder' => 'Select option']);
+        $qid = $question->id;
+        // Add Options
+        FormOption::create(['question_id' => $question->id, 'text' => 'Auburn City Council', 'value' => 'Auburn City Council', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Blue Mountains City Council', 'value' => 'Blue Mountains City Council', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Camden Council', 'value' => 'Camden Council', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Blacktown', 'value' => 'City of Blacktown', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Campbelltown', 'value' => 'City of Campbelltown', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Canada Bay Council', 'value' => 'City of Canada Bay Council', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Fairfield', 'value' => 'City of Fairfield', 'order' => 7, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Liverpool', 'value' => 'City of Liverpool', 'order' => 8, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Parramatta Council', 'value' => 'City of Parramatta Council', 'order' => 9, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Penrith', 'value' => 'City of Penrith', 'order' => 10, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Randwick', 'value' => 'City of Randwick', 'order' => 11, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Rockdale', 'value' => 'City of Rockdale', 'order' => 12, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Ryde', 'value' => 'City of Ryde', 'order' => 13, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Shoalhaven', 'value' => 'City of Shoalhaven', 'order' => 14, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Sydney', 'value' => 'City of Sydney', 'order' => 15, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'City of Willoughby', 'value' => 'City of Willoughby', 'order' => 16, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Cumberland City Council', 'value' => 'Cumberland City Council', 'order' => 17, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Hawkesbury City Council', 'value' => 'Hawkesbury City Council', 'order' => 18, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Hornsby Shire', 'value' => 'Hornsby Shire', 'order' => 19, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Ku-ring-gai Council', 'value' => 'Ku-ring-gai Council', 'order' => 20, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Mosman Municipal Council', 'value' => 'Mosman Municipal Council', 'order' => 21, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Municipality of Burwood', 'value' => 'Municipality of Burwood', 'order' => 22, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Municipality of Hunters Hill', 'value' => 'Municipality of Hunters Hill', 'order' => 23, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Municipality of Lane Cove', 'value' => 'Municipality of Lane Cove', 'order' => 24, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Municipality of Strathfield', 'value' => 'Municipality of Strathfield', 'order' => 25, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'North Sydney Council', 'value' => 'North Sydney Council', 'order' => 26, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Shellharbour', 'value' => 'Shellharbour', 'order' => 27, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Sutherland Shire Council', 'value' => 'Sutherland Shire Council', 'order' => 28, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'The Council of the City of Botany Bay', 'value' => 'The Council of the City of Botany Bay', 'order' => 29, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'The Hills Shire', 'value' => 'The Hills Shire', 'order' => 30, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Waverley Council', 'value' => 'Waverley Council', 'order' => 31, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Wollondilly Shire Council', 'value' => 'Wollondilly Shire Council', 'order' => 32, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Woollahra Municipality', 'value' => 'Woollahra Municipality', 'order' => 33, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op = FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other (specify)', 'order' => 34, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+        // Logic (Other)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Other LGA', 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+
+        //
+        // Page 2 - Existing Site
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Existing Site", 'description' => null, 'order' => 2]);
+        $pid = $page->id;
+        $sn = 1;
+
+        // Section 1a - Structure
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Structure', 'description' => "Section 1a", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Orientation", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Type of construction", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "External Cladding", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Existing structure", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Estimated age", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+        // Section 1b - Roof
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Roof', 'description' => "Section 1b", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Existing Roof material and construction", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Sarking to existing roof", 'type' => "select", 'type_special' => 'YgNr', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Damaged or deteriorated condition of existing roof", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Other)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Roof Condition Details', 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => '7', 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+
+        // Section 1c - Foundation
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Foundation', 'description' => "Section 1c", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Evidence of settling", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+        // Section 1d - Zoning
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Zoning', 'description' => "Section 1d", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Project Zoning", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'R1', 'value' => 'R1', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'R2', 'value' => 'R2', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'R3', 'value' => 'R3', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'R4', 'value' => 'R4', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'RU5', 'value' => 'RU5', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        // Logic (Other)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'If Zoning is NOT the standard R2 Low Residential Zoning, Ensure Controls collected are for the correct zone', 'type' => null, 'type_special' => 'no-resp', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => $op5->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+        // Section 1e - Preliminary Compliance Checks
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Preliminary Compliance Checks', 'description' => 'Section 1e', 'order' => $sn++]);
+        $sid2 = $section->id;
+
+        // Sub Section 1e1 - Flood Zone
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e1', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Flood Zone / Flood Planning considerations", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e1a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e2 - Acid Sulphate
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e2', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Acid Sulphate Soils risk", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e2a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e3 - Bushfire Zone
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e3', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Bushfire Zone", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e3a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Closest fire hydrant >60m from farthest point", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Fire Hydrant distance from property", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e4 - Heritage listed or impacted
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e4', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Heritage listed or impacted", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e4a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e5 - Acoustic Controls
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e5', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Acoustic Controls", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e5a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e6 - Activity Hazard
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e6', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Activity Hazard", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e6a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e7 - Dual Occupancy Prohibition / Restriction
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e7', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Dual Occupancy Prohibition / Restriction", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e7a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Restriction details", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e8 - Landslide Risk
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e8', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Landslide Risk", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e8a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+        // Sub Section 1e9 - Property subject to covenants
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => '', 'description' => 'Section 1e9', 'order' => $sn++]);
+        $sid3 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
+            'name' => "Property subject to covenants", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (Y)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e9a", 'order' => $sn++]);
+        $sid4 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Covenants details", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
+
+
+        //
+        // Page 3
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Proposed Works", 'description' => '', 'order' => 3]);
+        $pid = $page->id;
+
+        // Questions -  Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 3a", 'order' => 1]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Summary of proposed works and design scope", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Proposed works by Owner", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+
+        //
+        // Page 4
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Project Position and Conditions", 'description' => '', 'order' => 4]);
+        $pid = $page->id;
+
+        // Section 1 - Proximity to Adjacent Properties and Infrastructure
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Proximity to Adjacent Properties and Infrastructure', 'description' => "Section 4a", 'order' => 1]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+            'name' => "Speed Limit in immediate vicinity", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Number of lanes at immediate access road(s)", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Pedestrian footpath intersecting site access", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Clearway within 100m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Bus or transit lane located within 100m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Bus stop within 200m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Roundabout within 100m of the site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Has or is adjacent to battle axe/right of way", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Within 100m of intersection with traffic lights", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Within 100m of intersection without traffic lights", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site positioned on or affected by a corner", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site positioned on/affected by a busy or main road", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+
+        // Section 2 - Recreational Facilities
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Recreational Facilities', 'description' => "Section 4b", 'order' => 1]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Public or government facilities nearby", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more facilities']);
+        $qid = $question->id;
+        // Add Options
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'School', 'value' => 'School', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Childcare Facility', 'value' => 'Childcare Facility', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Recreational Facility', 'value' => 'Recreational Facility', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Park', 'value' => 'Park', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Sporting Ground', 'value' => 'Sporting Ground', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Shopping Centre', 'value' => 'Shopping Centre', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op7 = FormOption::create(['question_id' => $question->id, 'text' => 'Service Station', 'value' => 'Service Station', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op8 = FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        // Logic (Other)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Detail of facilities', 'type' => 'textarea', 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "$op1->id,$op2->id,$op3->id,$op4->id,$op5->id,$op6->id,$op7->id,$op8->id", 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+
+        // Section 3 - Client/Stakeholders
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Client/Stakeholders', 'description' => "Section 4c", 'order' => 1]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Animals/Pets to reside on site during construction", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        /*
+
+                //
+                // Page 5
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Project Position and Conditions", 'description' => '', 'order' => 5]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => 'Section 5a', 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the Client to reside in the home for the entirety of the construction, or portion of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is a power supply outlet fitted to the electrical meter board (\"Builder's power\")", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Does the Client have any animals or pets residing on, or likely to be residing on the property at the time of construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => 6]);
+
+                // Questions - Section 2
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => "Animals & Pets", 'description' => null, 'order' => 2]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more pet(s)']);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Dog(s)', 'value' => 'Dog(s)', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Cat(s)', 'value' => 'Cat(s)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Pet Bird(s)', 'value' => 'Pet Bird(s)', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Livestock', 'value' => 'Livestock', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Horse(s)', 'value' => 'Horse(s)', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "What is the confinement or restraint practices available to control the risk of loss of pets or potential injury caused by interaction?", 'type' => "text", 'type_special' => null, 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                // Questions - Section 3
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 5c", 'order' => 3]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the Client aware of any adverse or aggravating factors in relationships with neighbours?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the client aware of any adverse conditions related to the property that may affect design or construction?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "What does the foundation of the structure comprise of?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Concrete slab', 'value' => 'Concrete slab', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Brick piers, bearers & joists', 'value' => 'Brick piers, bearers & joists', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Suspended slab', 'value' => 'Suspended slab', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the project, street or immediate vicinity of the project address subject to sloping?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                //
+                // Page 6
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Access", 'description' => '', 'order' => 6]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 6a", 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the project, or access to the project positioned on a narrow street?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is access to the property itself narrow or obstructed?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is use of adjacent streets or side access possible? (alleyways, side streets, back streets, rear access)", 'type' => "select", 'type_special' => 'YgN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is access via neighbouring properties possible (i.e. with neighbour permission)", 'type' => "select", 'type_special' => 'YgN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is access for deliveries foreseeably difficult?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is there adequate space for the storage of materials on site?", 'type' => "select", 'type_special' => 'YgN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '10', 'trigger' => 'question', 'trigger_id' => ($question->id + 1)]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Will a council permit be required for material storage?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                //
+                // Page 7
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Waste Management", 'description' => '', 'order' => 7]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 7a", 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Type of waste management system advised", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Skip Bin', 'value' => 'Skip Bin', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Enclosure', 'value' => 'Enclosure', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '23', 'trigger' => 'section', 'trigger_id' => '10']);
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '24', 'trigger' => 'section', 'trigger_id' => '11']);
+
+                // Questions - Section 2
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 7b", 'order' => 2]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Location", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Driveway', 'value' => 'Driveway', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Front yard', 'value' => 'Front yard', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'On street', 'value' => 'On street', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Size", 'type' => "select", 'type_special' => null, 'type_version' => 'select2', 'placeholder' => 'Select size',
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => '3m (L)2.4m x (W)1.6m x (H)0.9m', 'value' => '3m (L)2.4m x (W)1.6m x (H)0.9m', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => '4m (L)3.2m x (W)1.6m x (H)0.9m', 'value' => '4m (L)3.2m x (W)1.6m x (H)0.9m', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => '6m (L)3.6m x (W)1.6m x (H)1.2m', 'value' => '6m (L)3.6m x (W)1.6m x (H)1.2m', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => '10m (L)4.3m x (W)1.6m x (H)1.5m', 'value' => '10m (L)4.3m x (W)1.6m x (H)1.5m', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => '14m (L)4.8m x (W)1.6m x (H)1.6m', 'value' => '14m (L)4.8m x (W)1.6m x (H)1.6m', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is a council permit required?", 'type' => "select", 'type_special' => 'YN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                // Questions - Section 3
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 7c", 'order' => 3]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Size", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Large (metal)', 'value' => 'Large (metal)', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Small (timber)', 'value' => 'Small (timber)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                //
+                // Page 8
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Underground or Overhead Services", 'description' => '', 'order' => 8]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 8a", 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "What type of electrical infrastructure supplies the property?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Overhead powerlines / point of attachment', 'value' => 'Overhead powerlines / point of attachment', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Private pole', 'value' => 'Private pole', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Underground supply to property', 'value' => 'Underground supply to property', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the property affected by nearby overhead powerlines?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'No', 'value' => 'No', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (left)', 'value' => 'Parallel (left)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (right)', 'value' => 'Parallel (right)', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Front of property', 'value' => 'Front of property', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Rear of property', 'value' => 'Rear of property', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Intersecting property', 'value' => 'Intersecting property', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Has Dial Before You Dig been actioned as part of the design process?", 'type' => "select", 'type_special' => 'YN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '5', 'trigger' => 'section', 'trigger_id' => '13']);
+
+                // Questions - Section 2
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 8b", 'order' => 2]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => 'Dial Before You Dig Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => 'Are there any underground assets identified as affected (Detail of assets affected)', 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'question', 'trigger_id' => '48']);
+
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => 'Detail of assets affected', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                //
+                // Page 9
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Environmental Conditions", 'description' => '', 'order' => 9]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 9a", 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Is the location of the project subject to any adverse environmental conditions?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+                // Add Options
+                FormOption::create(['question_id' => $question->id, 'text' => 'Bushfire', 'value' => 'Bushfire', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Flooding', 'value' => 'Flooding', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Noise Pollution', 'value' => 'Noise Pollution', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Heritage', 'value' => 'Heritage', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+                FormOption::create(['question_id' => $question->id, 'text' => 'Not applicable', 'value' => 'Not applicable', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+                // Logic
+                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=*', 'match_value' => '44,45,46,47,48', 'trigger' => 'question', 'trigger_id' => '50']);
+
+                $question = FormQuestion::create(
+                    ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                        'name' => 'Environmental Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+                        'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+
+                //
+                // Page 10
+                //
+                $page = FormPage::create(['template_id' => $template->id, 'name' => "Hazardous Materials", 'description' => '', 'order' => 10]);
+                $pid = $page->id;
+
+                // Questions - Section 1
+                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 10a", 'order' => 1]);
+                $sid = $section->id;
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Has a hazardous materials survey been conducted?", 'type' => "select", 'type_special' => 'YgN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+                    'name' => "Has asbestos been identified on the property?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        */
+
+        //
+        // Duplicate 'Publish' new template
+        //
+        $match_pages = [];
+        $match_sections = [];
+        $match_questions = [];
+        $match_options = [];
+        $t = FormTemplate::create(['parent_id' => $template->id, 'version' => $template->version, 'name' => $template->name, 'description' => $template->description, 'company_id' => $template->company_id]);
+        // Pages
+        foreach ($template->pages as $page) {
+            $p = FormPage::create(['template_id' => $t->id, 'name' => $page->name, 'description' => $page->description, 'order' => $page->order]);
+            $match_pages[$page->id] = $p->id;
+            // Sections
+            foreach ($page->sections as $section) {
+                $parent_section = ($section->parent) ? $match_sections[$section->parent] : null;
+                $s = FormSection::create(['template_id' => $t->id, 'page_id' => $p->id, 'parent' => $parent_section, 'name' => $section->name, 'description' => $section->description, 'order' => $section->order]);
+                $match_sections[$section->id] = $s->id;
+                // Questions
+                foreach ($section->questions as $question) {
+                    $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
+                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper]);
+                    $match_questions[$question->id] = $q->id;
+                    // Question Options
+                    foreach ($question->options() as $option) {
+                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN, YgNr)
+                        if (!$option->master) {
+                            $o = FormOption::create(['question_id' => $q->id, 'text' => $option->text, 'value' => $option->value, 'order' => $option->order, 'score' => $option->score, 'colour' => $option->colour, 'group' => $option->group, 'master' => $option->master, 'status' => $option->status]);
+                            $match_options[$option->id] = $o->id;
+                        } else
+                            $match_options[$option->id] = $option->id;
+                    }
+                }
+            }
+        }
+
+
+        //
+        // Add logic (needs to be done after base templates copied to correct 'match' old question_ids to new Question Logic
+        //
+        foreach ($template->logic as $logic) {
+            $new_match_value = '';
+            $new_trigger_id = $logic->trigger_id;
+            $question = FormQuestion::find($logic->question_id);
+
+            // Convert the orig match_values if Original question is a select with custom values
+            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YgNr', 'YNNA'])) {
+                $old_match_value = explode(',', str_replace(' ', '', $logic->match_value));
+                foreach ($old_match_value as $val)
+                    $new_match_value .= $match_options[$val] . ',';
+                $new_match_value = rtrim($new_match_value, ',');
+            } else
+                $new_match_value = $logic->match_value;
+
+            if ($logic->trigger == 'question') $new_trigger_id = $match_questions[$logic->trigger_id];
+            if ($logic->trigger == 'section') $new_trigger_id = $match_sections[$logic->trigger_id];
+
+            $l = FormLogic::create(['template_id' => $t->id, 'page_id' => $match_pages[$logic->page_id], 'question_id' => $match_questions[$logic->question_id], 'match_operation' => $logic->match_operation, 'match_value' => $new_match_value, 'trigger' => $logic->trigger, 'trigger_id' => $new_trigger_id]);
+        }
+        $template->current_id = $t->id;
+        $template->save();
+
+        //
+        // Create User Form
+        //
+        $form = Form::create(['template_id' => $t->id, 'name' => 'MyForm', 'company_id' => 3]);
+
+        /*echo "<br>Pages<br>";
+        var_dump($match_pages);
+        echo "<br>Sections<br>";
+        var_dump($match_sections);
+        echo "<br>Questions<br>";
+        var_dump($match_questions);
+        echo "<br>Options<br>";
+        ksort($match_options);
+        var_dump($match_options);*/
+    }
 
     /*
      * Create Template Form - SafetyInDesign
@@ -1044,7 +1777,6 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op21->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
 
-
         // Section 2 (Equipment)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Equipment', 'description' => "Section 2", 'order' => $sn++]);
         $sid = $section->id;
@@ -1178,7 +1910,7 @@ class FormSetupController extends Controller
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {
-                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN)
+                        // Only create 'custom' options ie exclude master options ie (CONN, YN, YrY, YgN, YgNr)
                         if (!$option->master) {
                             $o = FormOption::create(['question_id' => $q->id, 'text' => $option->text, 'value' => $option->value, 'order' => $option->order, 'score' => $option->score, 'colour' => $option->colour, 'group' => $option->group, 'master' => $option->master, 'status' => $option->status]);
                             $match_options[$option->id] = $o->id;
@@ -1199,7 +1931,7 @@ class FormSetupController extends Controller
             $question = FormQuestion::find($logic->question_id);
 
             // Convert the orig match_values if Original question is a select with custom values
-            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YNNA'])) {
+            if ($question->type == 'select' && !in_array($question->type_special, ['site', 'staff', 'CONN', 'YN', 'YrN', 'YgN', 'YgNr', 'YNNA'])) {
                 $old_match_value = explode(',', str_replace(' ', '', $logic->match_value));
                 foreach ($old_match_value as $val)
                     $new_match_value .= $match_options[$val] . ',';
@@ -1216,9 +1948,6 @@ class FormSetupController extends Controller
         $template->save();
 
 
-        $jjjj = 'jj';
-        $jjjj = 'jjj';
-        $arr = ['crap' => $jjjj];
         //
         // Create User Form
         //

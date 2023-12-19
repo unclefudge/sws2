@@ -198,14 +198,16 @@ if ($showrequired && $question->required) {
     @endif
 
     {{-- Question Extras (Notes, Media, Actions --}}
-    <div class="row">
-        <div class="col-md-12">
-            <button class="btn default btn-xs pull-right button-action" data-qid="{{$question->id}}">Action <i class="fa fa-check-square-o"></i></button>
-            @if ($question->type != 'media' || !$form->status)
-                <button class="btn default btn-xs pull-right button-media" style="margin-right: 10px" data-qid="{{$question->id}}">Media <i class="fa fa-picture-o"></i></button>
-            @endif
-            <button class="btn default btn-xs pull-right button-note" style="margin-right: 10px" data-qid="{{$question->id}}">Note <i class="fa fa-edit"></i></button>
+    @if ($question->type_special != 'no-resp')
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn default btn-xs pull-right button-action" data-qid="{{$question->id}}">Action <i class="fa fa-check-square-o"></i></button>
+                @if ($question->type != 'media' || !$form->status)
+                    <button class="btn default btn-xs pull-right button-media" style="margin-right: 10px" data-qid="{{$question->id}}">Media <i class="fa fa-picture-o"></i></button>
+                @endif
+                <button class="btn default btn-xs pull-right button-note" style="margin-right: 10px" data-qid="{{$question->id}}">Note <i class="fa fa-edit"></i></button>
+            </div>
         </div>
-    </div>
+    @endif
     <hr class="field-hr">
 </div> {{-- end question div --}}

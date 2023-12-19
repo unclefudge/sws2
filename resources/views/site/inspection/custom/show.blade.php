@@ -98,16 +98,34 @@
 
                                     <div id="sdiv-{{$section->id}}-content">
                                         {{-- Questions --}}
-                                        <div style="margin-bottom: 0px">
+                                        {{--}}<div style="margin-bottom: 0px">
                                             @foreach ($section->questions as $question)
                                                 @include('site/inspection/custom/_show_question')
-                                            @endforeach
-                                        </div>
 
-                                        {{-- Child sections --}}
-                                        @foreach ($section->allChildSections as $childSection)
+                                                {{-- Child sections --}}
+                                        {{----@foreach ($section->allChildSections as $childSection)
+                                            Child Section {{ $childSection->name }}
                                             @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
                                         @endforeach
+                                    @endforeach
+                                </div>--}}
+
+
+                                        {{-- Child sections --}}
+                                        @if ($section->allChildSections->count())
+                                            @foreach ($section->allChildSections as $childSection)
+                                                @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
+                                            @endforeach
+                                        @else
+                                            {{-- Questions --}}
+                                            <div style="margin-bottom: 0px">
+                                                @foreach ($section->questions as $question)
+                                                    @include('site/inspection/custom/_show_question')
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+
                                     </div> {{-- end section-content div --}}
                                 </div> {{-- end section div --}}
                             @endforeach

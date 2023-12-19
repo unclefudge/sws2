@@ -673,7 +673,7 @@ class CronController extends Controller
                     $log .= "$doc->name [$expire_date] added to renewal cycle\n";
                     $newRenewals[] = $doc->id;
                     $review_doc = CompanyDocReview::create(['doc_id' => $doc->id, 'name' => $doc->name, 'stage' => '1', 'original_doc' => $doc->attachment, 'status' => 1, 'created_by' => '1', 'updated_by' => 1]);
-                    $review_doc->createAssignToDo(108); // Kirstie
+                    $review_doc->createAssignToDo(465); // Nadia
                     $action = Action::create(['action' => 'Standard Details review initiated', 'table' => 'company_docs_review', 'table_id' => $review_doc->id, 'created_by' => '1', 'updated_by' => '1']);
                 } else {
                     echo "$doc->name [$expire_date] already on renewal cycle<br>";

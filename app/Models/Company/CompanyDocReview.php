@@ -2,16 +2,17 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
+use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class CompanyDocReview extends Model {
+class CompanyDocReview extends Model
+{
 
     protected $table = 'company_docs_review';
     protected $fillable = [
@@ -127,11 +128,11 @@ class CompanyDocReview extends Model {
     {
         $due_date = ($due_at) ? Carbon::createFromFormat('d/m/Y H:i', $due_at . '00:00')->toDateTimeString() : nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString();
         $todo_request = [
-            'type'       => 'company doc review',
-            'type_id'    => $this->id,
-            'name'       => "Standard Details Review -  $this->name",
-            'info'       => "Please review the Standard Details document".$this->actionNotes(),
-            'due_at'     => $due_date,
+            'type' => 'company doc review',
+            'type_id' => $this->id,
+            'name' => "Standard Details Review -  $this->name",
+            'info' => "Please review the Standard Details document" . $this->actionNotes(),
+            'due_at' => $due_date,
             'company_id' => $this->company_doc->company_id,
         ];
 
@@ -152,11 +153,11 @@ class CompanyDocReview extends Model {
     {
         $mesg = ($expired == true) ? "$this->name Expired " . $this->expiry->format('d/m/Y') : "$this->name due to expire " . $this->expiry->format('d/m/Y');
         $todo_request = [
-            'type'       => 'company doc',
-            'type_id'    => $this->id,
-            'name'       => $mesg,
-            'info'       => 'Please uploaded a current version of the document',
-            'due_at'     => Carbon::today()->addDays(7)->toDateTimeString(),
+            'type' => 'company doc',
+            'type_id' => $this->id,
+            'name' => $mesg,
+            'info' => 'Please uploaded a current version of the document',
+            'due_at' => Carbon::today()->addDays(7)->toDateTimeString(),
             'company_id' => $this->company_doc->company_id,
         ];
 
@@ -271,15 +272,9 @@ class CompanyDocReview extends Model {
     public function getStageTextAttribute()
     {
         if ($this->attributes['stage'] == '1')
-            return 'Initial review by Con Mgr';
+            return 'Review by Drafting Team Manager';
         if ($this->attributes['stage'] == '2')
-            return 'Document to be assigned to draftsperson';
-        if ($this->attributes['stage'] == '3')
             return 'Document being updated by draftsperson';
-        if ($this->attributes['stage'] == '4')
-            return 'Document review by Con Mgr';
-        if ($this->attributes['stage'] == '9')
-            return 'Review completed: assign renewal date';
         if ($this->attributes['stage'] == '10')
             return 'Review completed';
     }
@@ -295,7 +290,7 @@ class CompanyDocReview extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

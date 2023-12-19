@@ -575,7 +575,7 @@ function customFormSelectButtons($question_id, $option_id, $formStatus)
     // create button html
     $str .= "<div class='btn-group row' style='width:100%;'>\n\r";
     // YrN
-    if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN', 'CONN'])) {
+    if (in_array($question->type_special, ['button', 'YN', 'YrN', 'YgN', 'YgNr', 'CONN'])) {
         foreach ($question->options()->sortBy('order') as $option) {
             $active_class = '';
             if ($option_id && $option_id == $option->id) {

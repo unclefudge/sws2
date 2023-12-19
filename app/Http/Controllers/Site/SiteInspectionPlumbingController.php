@@ -135,25 +135,6 @@ class SiteInspectionPlumbingController extends Controller
         return view('/site/inspection/plumbing/show', compact('report'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    /*
-    public function documents($id)
-    {
-        $report = SiteInspectionPlumbing::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.inspection'))
-            return view('errors/404');
-
-        $report->status = 1;  // Active
-        $report->save();
-        $report->createAssignCompanyToDo([108]);
-        Toastr::success("Updated Report");
-
-        return redirect('site/inspection/plumbing');
-    }*/
 
     /**
      * Update the specified resource in storage.
@@ -216,7 +197,7 @@ class SiteInspectionPlumbingController extends Controller
             $report_request['inspected_by'] = Auth::user()->id;
             $report_request['status'] = 3; // Pending
 
-            // Create ToDoo for Electrical Review
+            // Create ToDoo for Admin Review
             $report->createSignOffToDo([1164]); // Brianna
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
@@ -287,7 +268,8 @@ class SiteInspectionPlumbingController extends Controller
 
                 // Create ToDoo for Tech Mgr
                 $report->closeToDo();
-                $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
+                if (!$report->manager_sign_by)
+                    $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
             } else {
                 $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;

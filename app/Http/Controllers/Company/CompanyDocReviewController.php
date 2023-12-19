@@ -112,35 +112,13 @@ class CompanyDocReviewController extends Controller
             } else
                 return back()->withErrors(['next_review_date' => "The next review date field is required."]);
         } else {
-            if (request('approve_version')) {
-                // Version Approved by Con Mgr
-                $mesg = ($doc->stage == 1) ? 'Original Standard Details approved by Con Mgr - no changes required' : 'Updated Standard Details approved by Con Mgr';
-                $action = Action::create(['action' => $mesg, 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-
-                $doc->stage = 9; // Nadia set renew date
-                $doc->approved_con = Carbon::now()->toDateTimeString();
-                $doc->save();
-                $assigned_user = User::find(465); // Nadia
-            } elseif (request('assign_user')) {
+            if (request('assign_user')) {
                 // User assigned to update
-                $doc->stage = 3;
+                $doc->stage = 2;
                 $doc->save();
                 $assigned_user = User::findOrFail(request('assign_user'));
                 $action = Action::create(['action' => "Assigned to $assigned_user->fullname to update", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
             } else {
-                if ($doc->stage == 1 || $doc->stage == 4) { // Updates to Standard Details by Con Mgr
-                    $doc->stage = 2; // Nadia assign Eng
-                    $doc->save();
-                    $action = Action::create(['action' => 'Standard Details updated by Con Mgr', 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-                    $assigned_user = User::find(465); // Nadia
-                } else if ($doc->stage == 3) { // Updates to Current Doc
-                    $doc->stage = 4; // Assigned to Con Mgr to review changes
-                    $doc->save();
-                    $current_user = Auth::user();
-                    $action = Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-                    $assigned_user = User::find(108); // Kirstie
-                }
-
                 // Handle attached file
                 if (request()->hasFile('singlefile')) {
                     $file = request()->file('singlefile');
@@ -155,6 +133,15 @@ class CompanyDocReviewController extends Controller
                     $doc->save();
 
                     $doc_file = CompanyDocReviewFile::create(['review_id' => $doc->id, 'attachment' => $doc->current_doc]);
+
+                    // Updates to Current Doc
+                    if ($doc->stage == 2) {
+                        $doc->stage = 1; // Assigned to Drafting Mgr to review changes
+                        $doc->save();
+                        $current_user = Auth::user();
+                        $action = Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
+                        $assigned_user = User::find(465); // Nadia
+                    }
                 }
             }
         }
