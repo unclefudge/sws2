@@ -95,7 +95,7 @@ class SiteInspectionPlumbingController extends Controller
         }
 
         // Create Tdodoo to assign a company
-        $report->createAssignCompanyToDo(108));
+        $report->createAssignCompanyToDo(108);
 
         Toastr::success("Created inspection report");
 
