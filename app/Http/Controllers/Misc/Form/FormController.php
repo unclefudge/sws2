@@ -145,12 +145,14 @@ class FormController extends Controller
         //dd($sections);
 
         $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->orderBy('order')->with('allChildSections')->get();
+        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->get();
 
-        //dd($sections2);
+
+        //dd($sections);
         //dd('here');
 
         // Get Page data
-        return view('/site/inspection/custom/show', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
+        return view('/site/inspection/custom/show2', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
 
     public function verifyFormCompleted($form)

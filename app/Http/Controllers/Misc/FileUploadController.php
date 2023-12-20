@@ -2,23 +2,20 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Misc\TemporaryFile;
-use Intervention\Image\Facades\Image;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Intervention\Image\Facades\Image;
+use Session;
+use Validator;
 
 /**
  * Class FileUploadController
  * @package App\Http\Controllers
  */
-class FileUploadController extends Controller {
+class FileUploadController extends Controller
+{
 
     public function upload()
     {

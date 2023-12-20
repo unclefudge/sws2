@@ -97,38 +97,6 @@ class SiteHazard extends Model
     /**
      * Save attached Media to existing Issue
      */
-    /*public function saveAttachedMedia($file)
-    {
-        $site = Site::findOrFail($this->site_id);
-        $path = "filebank/site/" . $site->id . '/hazard';
-        $name = 'hazard-' . $site->code . '-' . $this->id . '-' . Auth::user()->id . '-1.' . strtolower($file->getClientOriginalExtension());
-
-        // Ensure filename is unique by adding counter to similiar filenames
-        $count = 2;
-        while (file_exists(public_path("$path/$name")))
-            $name = 'hazard-' . $site->code . '-' . $this->id . '-' . Auth::user()->id . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-        if (exif_imagetype($path_name)) {
-            Image::make(url($path_name))
-                ->resize(1024, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->save($path_name);
-        }// else
-        //    Toastr::error("Bad image");
-
-        $this->attachment = $name;
-        $this->save();
-    }*/
-
-    /**
-     * Save attached Media to existing Issue
-     */
     public function saveAttachment($tmp_filename)
     {
         $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();

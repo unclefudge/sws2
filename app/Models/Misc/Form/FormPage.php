@@ -20,6 +20,56 @@ class FormPage extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
 
+    public function template()
+    {
+        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id');
+    }
+
+    /**
+     * A FormPage has many sections
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function sections()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id');
+    }
+
+
+    public function sections2()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id'); //->whereNull('parent');
+    }
+
+    public function allSections2()
+    {
+        return $this->sections2()->with('allSections2');
+    }
+
+
+    public function childSections()
+    {
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'parent');
+    }
+
+    /*
+     * Recursive Relationship of All Child Sections
+     */
+    public function allChildSections()
+    {
+        return $this->childSections()->with('allChildSections');
+    }
+
+    /**
+     * A FormPage has many questions
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\hasMany
+     */
+    public function questions()
+    {
+        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+    }
+
     /**
      * The "booting" method of the model.
      *
@@ -49,30 +99,5 @@ class FormPage extends Model
                 $table->updated_by = 1;
             });
         }
-    }
-
-    public function template()
-    {
-        return $this->belongsTo('App\Models\Misc\Form\FormTemplate', 'template_id');
-    }
-
-    /**
-     * A FormPage has many sections
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function sections()
-    {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id');
-    }
-
-    /**
-     * A FormPage has many questions
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function questions()
-    {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
     }
 }

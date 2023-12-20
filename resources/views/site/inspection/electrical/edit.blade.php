@@ -431,6 +431,7 @@
                 fetch: null,
                 revert: null,
                 headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
+                //headers: {'X-CSRF-TOKEN': '{{ csrf_token() }},
             },
             allowMultiple: true,
         });

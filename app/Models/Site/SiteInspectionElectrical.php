@@ -101,9 +101,9 @@ class SiteInspectionElectrical extends Model
     /**
      * Save attached Media to existing Issue
      */
-    public function saveAttachment($tmp_filename)
+    public function saveAttachment($tmp_dir)
     {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
+        $tempFile = TemporaryFile::where('folder', $tmp_dir)->first();
         if ($tempFile) {
             // Move temp file to support ticket directory
             $dir = "filebank/site/" . $this->site_id . '/inspection';
@@ -131,6 +131,7 @@ class SiteInspectionElectrical extends Model
 
             // Delete Temporary file directory + record
             $tempFile->delete();
+            array_map('unlink', glob("$tmp_dir/*.*"));
             rmdir(public_path($tempFile->folder));
         }
     }

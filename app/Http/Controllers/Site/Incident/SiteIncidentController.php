@@ -2,38 +2,35 @@
 
 namespace App\Http\Controllers\Site\Incident;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\Models\Site\Site;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
+use App\Models\Misc\Action;
+use App\Models\Misc\FormQuestion;
+use App\Models\Misc\FormResponse;
 use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\Incident\SiteIncidentConversation;
 use App\Models\Site\Incident\SiteIncidentDoc;
 use App\Models\Site\Incident\SiteIncidentPeople;
 use App\Models\Site\Incident\SiteIncidentReview;
 use App\Models\Site\Incident\SiteIncidentWitness;
-use App\Models\Site\Incident\SiteIncidentConversation;
-use App\Models\Misc\FormQuestion;
-use App\Models\Misc\FormResponse;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Site\Site;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 use ZipArchive;
 
 /**
  * Class SiteIncidentController
  * @package App\Http\Controllers
  */
-class SiteIncidentController extends Controller {
+class SiteIncidentController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -195,8 +192,8 @@ class SiteIncidentController extends Controller {
         if (!Auth::user()->allowed2('add.site.incident'))
             return view('errors/404');
 
-        $rules = ['site_cc'  => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
-                  'describe' => 'required', 'actions_taken' => 'required'];
+        $rules = ['site_cc' => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
+            'describe' => 'required', 'actions_taken' => 'required'];
 
         // Treatment required if type = 2 'injury'
         if (request('type') && in_array('2', request('type'))) {
@@ -208,16 +205,16 @@ class SiteIncidentController extends Controller {
         if (request('type') && in_array('3', request('type'))) $rules['damage'] = 'required';  // Damage required if type = 3 'damage'
 
         $mesg = [
-            'site_cc.required'            => 'The incident occur field is required.',
-            'site_id.required_if'         => 'The site field is required.',
-            'site_name.required_if'       => 'The place of incident field is required.',
-            'date.required'               => 'The date/time field is required.',
-            'type.required'               => 'The type field is required.',
-            'describe.required'           => 'The what occured field is required.',
-            'actions_taken.required'      => 'The actions taken field is required.',
-            'injured_part.required'       => 'The part(s) of body injured field is required',
+            'site_cc.required' => 'The incident occur field is required.',
+            'site_id.required_if' => 'The site field is required.',
+            'site_name.required_if' => 'The place of incident field is required.',
+            'date.required' => 'The date/time field is required.',
+            'type.required' => 'The type field is required.',
+            'describe.required' => 'The what occured field is required.',
+            'actions_taken.required' => 'The actions taken field is required.',
+            'injured_part.required' => 'The part(s) of body injured field is required',
             'injured_part_other.required' => 'The other body part field is required',
-            'damage.required'             => 'The damage details field is required.',
+            'damage.required' => 'The damage details field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -280,15 +277,15 @@ class SiteIncidentController extends Controller {
         if (!Auth::user()->allowed2('edit.site.incident', $incident))
             return view('errors/404');
 
-        $rules = ['site_cc'  => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
-                  'describe' => 'required', 'actions_taken' => 'required'];
+        $rules = ['site_cc' => 'required', 'site_id' => 'required_if:site_cc,1', 'site_name' => 'required_if:site_cc,0', 'location' => 'required', 'date' => 'required', 'type' => 'required',
+            'describe' => 'required', 'actions_taken' => 'required'];
         $mesg = [
-            'site_cc.required'       => 'The incident occur field is required.',
-            'site_id.required_if'    => 'The site field is required.',
-            'site_name.required_if'  => 'The place of incident field is required.',
-            'date.required'          => 'The date/time field is required.',
-            'type.required'          => 'The type field is required.',
-            'describe.required'      => 'The what occured field is required.',
+            'site_cc.required' => 'The incident occur field is required.',
+            'site_id.required_if' => 'The site field is required.',
+            'site_name.required_if' => 'The place of incident field is required.',
+            'date.required' => 'The date/time field is required.',
+            'type.required' => 'The type field is required.',
+            'describe.required' => 'The what occured field is required.',
             'actions_taken.required' => 'The actions taken field is required.',
         ];
         //dd(request()->all());
@@ -363,7 +360,7 @@ class SiteIncidentController extends Controller {
         //if (request('type') && in_array('3', request('type'))) $rules['damage'] = 'required';  // Damage required if type = 3 'damage'
 
         $mesg = [
-            'injured_part.required'       => 'The part(s) of body injured field is required',
+            'injured_part.required' => 'The part(s) of body injured field is required',
             'injured_part_other.required' => 'The other body part field is required',
             //'damage.required'             => 'The damage details field is required.',
         ];
@@ -656,54 +653,6 @@ class SiteIncidentController extends Controller {
         return redirect('site/incident/' . $incident->id);
     }
 
-
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function uploadAttachment(Request $request)
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
-        //    return json_encode("failed");
-
-        //dd(request()->all());
-        // Handle file upload
-        $files = request()->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/incident/" . request('incident_id');
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $path_name = $path . '/' . $name;
-            $file->move($path, $name);
-
-            // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-            if (exif_imagetype($path_name)) {
-                Image::make(url($path_name))
-                    ->resize(1024, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->save($path_name);
-            }
-
-            $doc_request = request()->only('incident_id');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['attachment'] = $name;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteIncidentDoc
-            $doc = SiteIncidentDoc::create($doc_request);
-        }
-
-        return json_encode("success");
-    }*/
 
     public function reportPDF($id)
     {

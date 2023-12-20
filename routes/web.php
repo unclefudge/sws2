@@ -764,7 +764,7 @@ Route::get('manage/template/{id}', '\App\Http\Controllers\Misc\Form\FormSetupCon
 
 // PHP Info
 Route::get('php-info', function () {
-    //phpinfo();
+    phpinfo();
 });
 
 Route::get('test/email', function () {

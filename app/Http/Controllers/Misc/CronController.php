@@ -1023,6 +1023,8 @@ class CronController extends Controller
 
         $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
         $mon = new Carbon('monday this week');
+        $m = new Carbon('monday this week');
+        $mon = $m->addWeek();
         $week2ago = new Carbon('monday this week');
         $week2ago->subWeeks(2);
 

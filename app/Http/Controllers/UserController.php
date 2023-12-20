@@ -2,34 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Mail;
-use Carbon\Carbon;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Misc\Role2;
-use App\Models\Misc\Permission2;
-use App\Models\Misc\ComplianceOverride;
-use App\Models\Misc\PermissionRoleCompany;
-use App\Models\Misc\SettingsNotificationCategory;
-use App\Http\Utilities\OverrideTypesTypes;
-use App\Http\Requests;
 use App\Http\Requests\UserRequest;
-use App\Http\Controllers\Controller;
+use App\Http\Utilities\OverrideTypesTypes;
+use App\Models\Company\Company;
+use App\Models\Misc\ComplianceOverride;
+use App\Models\Misc\Permission2;
+use App\Models\Misc\Role2;
+use App\Models\Misc\SettingsNotificationCategory;
+use App\User;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 
 /**
  * Class CompaniesController
  * @package App\Http\Controllers
  */
-class UserController extends Controller {
+class UserController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -209,8 +205,8 @@ class UserController extends Controller {
         // Validate
         $rules = [
             'firstname' => 'required',
-            'lastname'  => 'required',
-            'email'     => 'required_if:status,1|email|max:255|unique:users,email,' . $user->id . ',id',
+            'lastname' => 'required',
+            'email' => 'required_if:status,1|email|max:255|unique:users,email,' . $user->id . ',id',
             //'roles'     => 'required_if:subscription,1',
         ];
 
@@ -291,7 +287,7 @@ class UserController extends Controller {
                     $user_request['notes'] = "updated email to " . $user_request['email'] . ' due to archiving';
             }
             // Remove user from any Notification emails
-            $notifications= DB::table('settings_notifications')->where('user_id', $user->id)->get();
+            $notifications = DB::table('settings_notifications')->where('user_id', $user->id)->get();
             if ($notifications) {
                 if ($user->isCC()) {
                     $email_list = $user->company->notificationsUsersEmailType('user.archived.notifications');
@@ -308,9 +304,9 @@ class UserController extends Controller {
         } else {
             // User is being re-activated so re-enable email if possible
             $pattern = "/^archived-$user->id-/";
-            if (preg_match($pattern,$user->email)) {
-                $len = strlen($pattern)-3;
-                $new_email = substr($user->email,$len);
+            if (preg_match($pattern, $user->email)) {
+                $len = strlen($pattern) - 3;
+                $new_email = substr($user->email, $len);
                 $existing_email = User::where('email', $new_email)->first();
                 if (!$existing_email)
                     $user->email = $new_email;
@@ -584,37 +580,6 @@ public function getSecurityPermissions(Request $request, $id)
 
    return $array;
 }*/
-
-    /**
-     * Update the photo on user model resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function updatePhoto(UserRequest $request, $username)
-    {
-        $user = User::where(compact('username'))->firstOrFail();
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.user', $user))
-            return view('errors/404');
-
-        $file = $request->file('photo');
-        $path = "filebank/users/" . $user->id;
-        $name = "photo." . strtolower($file->getClientOriginalExtension());
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        Image::make(url($path_name))
-            ->fit(740)
-            ->save($path_name);
-
-        $user->photo = $path_name;
-        $user->save();
-        Toastr::success("Saved changes");
-
-        return redirect('/user/' . $user->username . '/settings/photo');
-    }*/
 
 
     /**

@@ -5,11 +5,10 @@ namespace App\Models\Support;
 use App\Models\Misc\TemporaryFile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
 use Mail;
 
-class SupportTicketAction extends Model {
+class SupportTicketAction extends Model
+{
 
     protected $table = 'support_tickets_actions';
     protected $fillable = ['ticket_id', 'action', 'attachment', 'created_by', 'created_at'];
@@ -73,7 +72,7 @@ class SupportTicketAction extends Model {
                 // Determine file extension and set type
                 $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
                 $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext,['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
                 $new = SupportTicketActionFile::create(['action_id' => $this->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
             }
 
@@ -81,26 +80,6 @@ class SupportTicketAction extends Model {
             $tempFile->delete();
             rmdir(public_path($tempFile->folder));
         }
-
-/*
-        $path = "filebank/support/ticket/";
-        $name = 'ticket-' . $this->ticket->id . '-' . Auth::user()->id . '-' . sha1(time()) . '.' . strtolower($file->getClientOriginalExtension());
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-        if (exif_imagetype($path_name)) {
-            Image::make(url($path_name))
-                ->resize(1024, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->save($path_name);
-        }
-
-        $this->attachment = $name;
-        $this->save();
-*/
     }
 
     /**
