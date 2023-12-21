@@ -41,48 +41,48 @@ class CronController extends Controller
         $bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 
-        CronController::blessing();
-        CronController::nonattendees();
-        CronController::roster();
-        CronController::qa();
-        CronController::qaOnholdButCompleted();
-        CronController::completeToDoCompanyDoc();
-        CronController::completedToDoQA();
+//        CronController::blessing();
+//        CronController::nonattendees();
+//        CronController::roster();
+//        CronController::qa();
+//        CronController::qaOnholdButCompleted();
+//        CronController::completeToDoCompanyDoc();
+//        CronController::completedToDoQA();
         CronController::expiredCompanyDoc();
-        CronController::expiredStandardDetailsDoc();
+//        CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
-        CronController::archiveToolbox();
-        CronController::brokenQaItem();
-        CronController::emailPlannerKeyTasks();
-        CronController::actionPlannerKeyTasks();
-        CronController::siteExtensions();
-        CronController::superChecklists();
+//        CronController::archiveToolbox();
+//        CronController::brokenQaItem();
+//        CronController::emailPlannerKeyTasks();
+//        CronController::actionPlannerKeyTasks();
+//        CronController::siteExtensions();
+//        CronController::superChecklists();
         CronController::uploadCompanyDocReminder();
         CronController::verifyZohoImport();
 
         // Monday
         if (Carbon::today()->isMonday()) {
-            CronController::overdueToDo();
+//            CronController::overdueToDo();
         }
 
         // Tuesday
         if (Carbon::today()->isTuesday()) {
-            CronController::siteExtensionsSupervisorTask();
+//            CronController::siteExtensionsSupervisorTask();
         }
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            CronController::siteExtensionsSupervisorTaskReminder();
+//            CronController::siteExtensionsSupervisorTaskReminder();
         }
 
         // Friday
         if (Carbon::today()->isFriday()) {
-            CronController::siteExtensionsSupervisorTaskFinalReminder();
+//            CronController::siteExtensionsSupervisorTaskFinalReminder();
         }
 
 
         // Email Nightly Reports
-        CronReportController::nightly();
+//        CronReportController::nightly();
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
@@ -1023,8 +1023,6 @@ class CronController extends Controller
 
         $sites = Site::where('company_id', 3)->where('status', 1)->where('special', null)->get(); //whereNotIn('code', $hide_site_code);
         $mon = new Carbon('monday this week');
-        $m = new Carbon('monday this week');
-        $mon = $m->addWeek();
         $week2ago = new Carbon('monday this week');
         $week2ago->subWeeks(2);
 

@@ -963,7 +963,7 @@ class CronReportController extends Controller
         $log .= "Active Electrical: " . $electrical->count() . "\n";
         if ($electrical->count()) {
             CronController::debugEmail('EL', $email_list);
-            //Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
         }
@@ -973,7 +973,7 @@ class CronReportController extends Controller
         $log .= "Active Plumbing: " . $plumbing->count() . "\n";
         if ($plumbing->count()) {
             CronController::debugEmail('EL', $email_list);
-            //Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
         }
