@@ -2,23 +2,23 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Company\Company;
+use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class CompanyDocPrivacyPolicy extends Model {
+class CompanyDocPrivacyPolicy extends Model
+{
 
     protected $table = 'company_doc_privacy';
     protected $fillable = [
         'date', 'attachment', 'contractor_signed_id', 'contractor_signed_at', 'contractor_signed_name',
         'share', 'notes', 'for_company_id', 'company_id', 'status', 'created_by', 'updated_by'];
-    protected $dates = ['date', 'contractor_signed_at'];
+    protected $casts = ['date' => 'datetime', 'contractor_signed_at' => 'datetime'];
 
 
     /**
@@ -68,10 +68,10 @@ class CompanyDocPrivacyPolicy extends Model {
     {
         $company = Company::findOrFail($this->for_company_id);
         $todo_request = [
-            'type'       => 'company privacy',
-            'name'       => 'Cope Cod Privacy Policy Sign Off',
-            'info'       => 'Please read and sign you have read Cape Cod Privacy Policy',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'company privacy',
+            'name' => 'Cope Cod Privacy Policy Sign Off',
+            'info' => 'Please read and sign you have read Cape Cod Privacy Policy',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -124,7 +124,7 @@ class CompanyDocPrivacyPolicy extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

@@ -2,14 +2,12 @@
 
 namespace App\Models\Misc\Supervisor;
 
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Site\Site;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 class SuperChecklist extends Model
 {
@@ -18,14 +16,15 @@ class SuperChecklist extends Model
     protected $fillable = ['name', 'super_id', 'date',
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at', 'approved_by', 'approved_at',
         'attachment', 'notes', 'status', 'created_at', 'updated_at'];
-    protected $dates = ['date', 'supervisor_sign_at', 'manager_sign_at', 'approved_at'];
-
+    protected $casts = ['date' => 'datetime', 'supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime', 'approved_at' => 'datetime'];
+    
     /*
     * A SuperChecklist belongs to a Supervisor
     *
     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
-    public function supervisor(){
+    public function supervisor()
+    {
         return $this->belongsTo('App\User', 'super_id');
     }
 

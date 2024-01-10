@@ -17,7 +17,6 @@ class ClientPlannerEmail extends Model
     protected $fillable = [
         'client_id', 'site_id', 'type', 'name', 'email1', 'email2', 'intro', 'sent_to', 'sent_cc', 'sent_bcc', 'subject', 'body',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = [];
 
 
     /**

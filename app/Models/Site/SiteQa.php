@@ -21,7 +21,7 @@ class SiteQa extends Model
         'name', 'site_id', 'version', 'master', 'master_id', 'category_id',
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
         'notes', 'company_id', 'status', 'share', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['supervisor_sign_at', 'manager_sign_at'];
+    protected $casts = ['supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime'];
 
     /**
      * A Site QA Doc belongs to a Category

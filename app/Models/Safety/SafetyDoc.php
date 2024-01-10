@@ -6,21 +6,24 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SafetyDoc extends Model {
+class SafetyDoc extends Model
+{
 
     protected $table = 'safety_docs';
     protected $fillable = [
         'type', 'category_id', 'site_id', 'name', 'attachment', 'expiry',
         'reference', 'version', 'notes', 'company_id', 'share',
         'status', 'created_by', 'updated_by'];
-    protected $dates = ['expiry'];
+    protected $casts = ['expiry' => 'datetime'];
+
 
     /**
      * A Report belongs to a Company.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company() {
+    public function company()
+    {
         return $this->belongsTo('App\Models\Company\Company', 'company_id');
     }
 
@@ -29,7 +32,8 @@ class SafetyDoc extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category() {
+    public function category()
+    {
         return $this->belongsTo('App\Models\Safety\SafetyDocCategory', 'category_id');
     }
 
@@ -52,9 +56,9 @@ class SafetyDoc extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
-    
+
     /**
      * The "booting" method of the model.
      *
@@ -62,10 +66,11 @@ class SafetyDoc extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

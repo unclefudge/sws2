@@ -11,13 +11,14 @@ use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 
-class SiteAsbestos extends Model {
+class SiteAsbestos extends Model
+{
 
     protected $table = 'site_asbestos';
     protected $fillable = [
         'site_id', 'amount', 'friable', 'type', 'location', 'date_from', 'date_to', 'hours_from', 'hours_to', 'workers',
         'client_name', 'client_phone', 'super_id', 'super_phone', 'workplace', 'coalmine', 'hygiene', 'hygiene_report',
-        'assessor_name','assessor_phone', 'assessor_cert', 'assessor_lic', 'assessor_dept', 'assessor_state', 'safework', 'safework_ref',
+        'assessor_name', 'assessor_phone', 'assessor_cert', 'assessor_lic', 'assessor_dept', 'assessor_state', 'safework', 'safework_ref',
         'equip_overalls', 'equip_mask', 'equip_gloves', 'equip_half_face', 'equip_full_face', 'equip_other',
         'method_fencing', 'method_signage', 'method_water', 'method_pva', 'method_barriers', 'method_plastic', 'method_vacuum', 'method_other',
         'isolation', 'register', 'swms', 'inspection', 'supervisor_id', 'removalist', 'removalist_name',
@@ -25,8 +26,8 @@ class SiteAsbestos extends Model {
         'attachment', 'company_id', 'status', 'resolved_at',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
+    protected $casts = ['date_from' => 'datetime', 'date_to' => 'datetime', 'resolved_at' => 'datetime', 'safework_at' => 'datetime', 'supervisor_at' => 'datetime', 'neighbours_at' => 'datetime', 'removal_at' => 'datetime', 'reg_updated_at' => 'datetime'];
 
-    protected $dates = ['date_from', 'date_to', 'resolved_at', 'safework_at', 'supervisor_at', 'neighbours_at', 'removal_at', 'reg_updated_at'];
 
     /**
      * A SiteAsbestos belongs to a site
@@ -140,6 +141,7 @@ class SiteAsbestos extends Model {
             $this->emailAction($action, 'important');
         }
     }
+
     /**
      * Email Notification
      */

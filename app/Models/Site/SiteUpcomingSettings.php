@@ -10,15 +10,14 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
-class SiteUpcomingSettings extends Model {
+class SiteUpcomingSettings extends Model
+{
 
     protected $table = 'site_upcoming_settings';
     protected $fillable = [
         'field', 'name', 'value', 'colour', 'order', 'notes', 'status', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = [''];
 
     /**
      * The "booting" method of the model.

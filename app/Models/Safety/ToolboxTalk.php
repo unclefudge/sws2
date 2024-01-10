@@ -20,7 +20,8 @@ class ToolboxTalk extends Model
         'authorised_by', 'authorised_at', 'review_at',
         'for_company_id', 'company_id', 'share', 'status', 'created_by', 'updated_by'];
 
-    protected $dates = ['authorised_at', 'review_at'];
+    protected $casts = ['authorised_at' => 'datetime', 'review_at' => 'datetime'];
+
 
     /**
      * A ToolboxTalk is owned by a company.

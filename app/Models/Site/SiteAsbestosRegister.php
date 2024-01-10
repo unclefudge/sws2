@@ -11,15 +11,15 @@ use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 
-class SiteAsbestosRegister extends Model {
+class SiteAsbestosRegister extends Model
+{
 
     protected $table = 'site_asbestos_register';
     protected $fillable = [
         'site_id', 'version', 'approved_by', 'approved_at', 'attachment', 'notes', 'status',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = ['approved_at'];
+    protected $casts = ['approved_at' => 'datetime'];
 
     /**
      * A SiteAsbestosRegister belongs to a site

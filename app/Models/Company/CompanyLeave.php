@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
-class CompanyLeave extends Model {
+class CompanyLeave extends Model
+{
 
     use SoftDeletes;
 
@@ -15,7 +16,7 @@ class CompanyLeave extends Model {
         'company_id', 'from', 'to',
         'notes', 'created_by', 'updated_by', 'created_at', 'updated_at'];
 
-    protected $dates = ['from', 'to'];
+    protected $casts = ['from' => 'datetime', 'to' => 'datetime'];
 
     /**
      * A Company leave belongs to a company

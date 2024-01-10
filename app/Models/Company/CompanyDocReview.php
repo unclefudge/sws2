@@ -18,7 +18,7 @@ class CompanyDocReview extends Model
     protected $fillable = [
         'doc_id', 'todo_id', 'name', 'approved_con', 'approved_eng', 'approved_adm', 'stage', 'original_doc', 'current_doc',
         'notes', 'status', 'created_by', 'updated_by'];
-    protected $dates = ['approved_con', 'approved_eng', 'approved_adm'];
+    protected $casts = ['approved_con' => 'datetime', 'approved_eng' => 'datetime', 'approved_adm' => 'datetime'];
 
 
     /**

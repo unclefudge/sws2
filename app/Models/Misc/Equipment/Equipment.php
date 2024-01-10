@@ -2,16 +2,18 @@
 
 namespace App\Models\Misc\Equipment;
 
-use DB;
 use App\User;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class Equipment extends Model {
+class Equipment extends Model
+{
 
     protected $table = 'equipment';
     protected $fillable = ['category_id', 'name', 'length', 'min_stock', 'purchased_last', 'purchased', 'disposed', 'attachment', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['purchased_last'];
+    protected $casts = ['purchased_last' => 'datetime'];
+
     /**
      * A Equipment belongs to a category.
      *
@@ -97,7 +99,7 @@ class Equipment extends Model {
     {
         return DB::table('equipment_location_items')->join('equipment_location', 'equipment_location.id', '=', 'equipment_location_items.location_id')
             ->where('equipment_id', $this->id)->where('equipment_location.status', 1)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('equipment_location.other', null);
                 $query->orWhere('equipment_location.other', 'NOT LIKE', '%Transfer in progress:%');
             })->sum('qty');
@@ -125,7 +127,7 @@ class Equipment extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/equipment/'. $this->attributes['attachment'];
+            return '/filebank/equipment/' . $this->attributes['attachment'];
 
         return '';
     }
@@ -141,7 +143,7 @@ class Equipment extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

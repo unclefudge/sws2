@@ -5,15 +5,15 @@ namespace App\Models\Comms;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SafetyTip extends Model {
+class SafetyTip extends Model
+{
 
     protected $table = 'safety_tips';
     protected $fillable = [
         'title', 'body', 'last_published', 'action_required', 'status',
         'company_id', 'created_by', 'updated_by',
     ];
-
-    protected $dates = ['last_published'];
+    protected $casts = ['last_published' => 'datetime'];
 
     /**
      * A Safety Tip belongs to a Company

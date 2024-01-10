@@ -6,13 +6,14 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteQaItem extends Model {
+class SiteQaItem extends Model
+{
 
     protected $table = 'site_qa_items';
     protected $fillable = [
         'doc_id', 'name', 'task_id', 'super', 'certification', 'order', 'status', 'master', 'master_id',
         'sign_by', 'sign_at', 'done_by', 'done_by_other', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['sign_at'];
+    protected $casts = ['sign_at' => 'datetime'];
 
     /**
      * A Site QA Item belongs to a Site QA Doc
@@ -43,7 +44,7 @@ class SiteQaItem extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
@@ -53,10 +54,11 @@ class SiteQaItem extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

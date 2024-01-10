@@ -44,8 +44,8 @@
                             <tr class="mytable-header">
                                 <th width="5%"> #</th>
                                 <th> Site</th>
-                                <th> Inspected by</th>
-                                <th width="10%"> Conducted</th>
+                                <th width="20%"> Created by</th>
+                                <th width="10%"> Created</th>
                                 <th width="10%"> Completed</th>
                                 <th width="3%"></th>
                             </tr>
@@ -95,8 +95,9 @@
                 columns: [
                     {data: 'view', name: 'view', orderable: false, searchable: false},
                     {data: 'site_name', name: 'forms.site_name'},
-                    {data: 'inspected_by_name', name: 'forms.inspected_by_name'},
-                    {data: 'inspecteddate', name: 'forms.inspected_at'},
+                    //{data: 'inspected_by_name', name: 'forms.inspected_by_name'},
+                    {data: 'created_by', name: 'forms.created_by', orderable: false, searchable: false},
+                    {data: 'createddate', name: 'forms.created_at'},
                     {data: 'completeddate', name: 'forms.completed_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ],

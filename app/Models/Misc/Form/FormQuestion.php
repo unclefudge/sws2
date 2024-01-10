@@ -147,6 +147,8 @@ class FormQuestion extends Model
         else
             return '';
 
+        //dd($values);
+
         if ($this->type_special == 'site') {
             $site = Site::find($values[0]);
 
@@ -159,14 +161,25 @@ class FormQuestion extends Model
             return "$user->name";
         }
         // Custom Buttons
-        if ($this->type_special && !in_array($this->type_special, ['site', 'staff'])) { //i ie YN, YrN, YgN, YgNr, button, CONN
+        if ($this->type_special && !in_array($this->type_special, ['site', 'site_address', 'site_super', 'staff'])) { //i ie YN, YrN, YgN, YgNr, button, CONN
             return customFormSelectButtons($this->id, $values[0], 0);
+        }
+
+        // Date
+        if ($this->type == 'date') {
+            $response = FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
+            return ($response->date) ? $response->date->format('d/m/Y') : $response->value;
         }
 
         // Datetime
         if ($this->type == 'datetime') {
             $response = FormResponse::where('form_id', $form_id)->where('question_id', $this->id)->first();
             return ($response->date) ? $response->date->format('d/m/Y g:i a') : $response->value;
+        }
+
+        // Media
+        if ($this->type == 'media') {
+            return '';
         }
 
 

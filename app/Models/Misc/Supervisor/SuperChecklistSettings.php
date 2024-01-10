@@ -10,15 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SuperChecklistSettings extends Model {
+class SuperChecklistSettings extends Model
+{
 
     protected $table = 'supervisor_checklist_settings';
     protected $fillable = [
         'field', 'name', 'value', 'colour', 'order', 'notes', 'status', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = [''];
 
     /**
      * The "booting" method of the model.

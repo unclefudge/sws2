@@ -2,17 +2,15 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
 use App\User;
-use App\Models\Comms\Todo;
-use App\Models\Company\Company;
-use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class CompanyDocSubcontractorStatement extends Model {
+class CompanyDocSubcontractorStatement extends Model
+{
 
     protected $table = 'company_doc_ss';
     protected $fillable = [
@@ -22,7 +20,7 @@ class CompanyDocSubcontractorStatement extends Model {
         'contractor_full_name', 'contractor_signed_title', 'contractor_signed_id', 'contractor_signed_at', 'contractor_signed_name',
         'share', 'notes', 'reject', 'for_company_id', 'company_id', 'status', 'created_by', 'updated_by'];
 
-    protected $dates = ['from', 'to', 'claim_payment', 'wc_date', 'principle_signed_at', 'contractor_signed_at'];
+    protected $casts = ['from' => 'datetime', 'to' => 'datetime', 'claim_payment' => 'datetime', 'wc_date' => 'datetime', 'principle_signed_at' => 'datetime', 'contractor_signed_at' => 'datetime'];
 
     /**
      * A SS Doc is for a specific company.
@@ -107,7 +105,7 @@ class CompanyDocSubcontractorStatement extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

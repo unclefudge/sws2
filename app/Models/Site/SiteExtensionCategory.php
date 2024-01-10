@@ -10,15 +10,14 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
-class SiteExtensionCategory extends Model {
+class SiteExtensionCategory extends Model
+{
 
     protected $table = 'site_extensions_categories';
     protected $fillable = [
         'name', 'parent', 'order', 'notes', 'status', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = [''];
 
     /**
      * The "booting" method of the model.

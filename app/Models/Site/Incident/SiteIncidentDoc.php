@@ -11,15 +11,15 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteIncidentDoc extends Model {
+class SiteIncidentDoc extends Model
+{
 
     protected $table = 'site_incidents_docs';
     protected $fillable = [
         'incident_id', 'type', 'category', 'name', 'attachment',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['updated_at'];
+    protected $casts = ['updated_at' => 'datetime'];
 
     /**
      * A SiteIncidentDoc belongs to a SiteIncident
@@ -37,7 +37,7 @@ class SiteIncidentDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/incident/'.$this->incident_id.'/'.$this->attributes['attachment'];
+            return '/filebank/incident/' . $this->incident_id . '/' . $this->attributes['attachment'];
         return '';
     }
 
@@ -73,7 +73,7 @@ class SiteIncidentDoc extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

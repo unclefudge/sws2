@@ -9,7 +9,8 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteAccident extends Model {
+class SiteAccident extends Model
+{
 
     protected $table = 'site_accidents';
     protected $fillable = [
@@ -17,8 +18,7 @@ class SiteAccident extends Model {
         'referred', 'damage', 'info', 'action', 'extra_info', 'notes', 'status',
         'resolved_at', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['date', 'resolved_at'];
+    protected $casts = ['date' => 'datetime', 'resolved_at' => 'datetime'];
 
     /**
      * A SiteAccident belongs to a site
@@ -125,7 +125,7 @@ class SiteAccident extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

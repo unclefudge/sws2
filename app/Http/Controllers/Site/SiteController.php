@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Session;
-use App\User;
+use Alert;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteRequest;
+use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Site\Site;
 use App\Models\Site\SiteDoc;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteRequest;
-use App\Http\Controllers\Controller;
+use App\User;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
-use Alert;
+use PDF;
+use Session;
+use Validator;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use Yajra\Datatables\Datatables;
 
-class SiteController extends Controller {
+class SiteController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -115,7 +113,7 @@ class SiteController extends Controller {
     /**
      * Display the settings for the specified resource.
      *
-     * @param  int $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function showDocs($id)
@@ -293,7 +291,7 @@ class SiteController extends Controller {
 
         Toastr::success("Updated Supervisor");
         if (request()->ajax())
-            return response()->json(['success'=> '1']);
+            return response()->json(['success' => '1']);
         return redirect('/site/' . $site->id);
     }
 
@@ -310,12 +308,12 @@ class SiteController extends Controller {
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->jobstart_estimate = Carbon::createFromFormat('Y-m-d H:i',$date . '00:00')->toDateTimeString();
+        $site->jobstart_estimate = Carbon::createFromFormat('Y-m-d H:i', $date . '00:00')->toDateTimeString();
         $site->save();
 
         Toastr::success("Updated Start Estimate");
         if (request()->ajax())
-            return response()->json(['success'=> '1']);
+            return response()->json(['success' => '1']);
         return redirect('/site/' . $site->id);
     }
 
@@ -346,7 +344,7 @@ class SiteController extends Controller {
         $mergedPDF = PDFMerger::init();
         $master = public_path('WHS Management Plan.pdf');
         $mergedPDF->addPDF($cover, 'all');
-        $mergedPDF->addPDF($master, [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]);
+        $mergedPDF->addPDF($master, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 
         $mergedPDF->merge();
         $mergedPDF->save(public_path("filebank/site/$site_id/docs/WHS Management Plan.pdf"));
@@ -464,19 +462,19 @@ class SiteController extends Controller {
             ->addColumn('action', function ($doc) {
                 $record = SiteDoc::find($doc->id);
                 $actions = '';
-/*
-                if ($doc->type == 'PLAN') {
-                    if (Auth::user()->allowed2('edit.site.doc', $record))
-                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                    if (Auth::user()->allowed2('del.site.doc', $record))
-                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
-                } else {
-                    if (Auth::user()->allowed2('edit.safety.doc', $record))
-                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                    if (Auth::user()->allowed2('del.safety.doc', $record))
-                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
-                }
-*/
+                /*
+                                if ($doc->type == 'PLAN') {
+                                    if (Auth::user()->allowed2('edit.site.doc', $record))
+                                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                                    if (Auth::user()->allowed2('del.site.doc', $record))
+                                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                                } else {
+                                    if (Auth::user()->allowed2('edit.safety.doc', $record))
+                                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                                    if (Auth::user()->allowed2('del.safety.doc', $record))
+                                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                                }
+                */
                 return $actions;
             })
             ->rawColumns(['id', 'action'])
@@ -499,7 +497,8 @@ class SiteController extends Controller {
      */
     public function getSiteSuper($id)
     {
-        return Site::findOrFail($id)->supervisors->first();
+        $site = Site::findOrFail($id);
+        return ($site) ? $site->supervisor : null;
     }
 
     /**
@@ -511,8 +510,6 @@ class SiteController extends Controller {
         $site = Site::find($id);
         return $site->client->clientOfCompany;
     }*/
-
-
 
 
 }

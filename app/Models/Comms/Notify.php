@@ -2,25 +2,22 @@
 
 namespace App\Models\Comms;
 
-use DB;
-use Mail;
 use App\User;
-use App\Models\Company\Company;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
 
-class Notify extends Model {
+class Notify extends Model
+{
 
     protected $table = 'notify';
     protected $fillable = [
         'name', 'info', 'type', 'type_id', 'from', 'to',
         'priority', 'action', 'status', 'company_id', 'created_by', 'updated_by'
     ];
-
-    protected $dates = ['from', 'to'];
+    protected $casts = ['from' => 'datetime', 'to' => 'datetime'];
 
     /**
      * A Notify belongs to a user

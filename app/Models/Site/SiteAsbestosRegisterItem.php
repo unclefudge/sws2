@@ -11,15 +11,15 @@ use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 
-class SiteAsbestosRegisterItem extends Model {
+class SiteAsbestosRegisterItem extends Model
+{
 
     protected $table = 'site_asbestos_register_items';
     protected $fillable = [
         'register_id', 'date', 'type', 'location', 'friable', 'amount', 'condition', 'assessment', 'notes', 'status',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
 
     /**
      * A SiteAsbestosRegisterItem belongs to a SiteAsbestosRegister
@@ -41,7 +41,7 @@ class SiteAsbestosRegisterItem extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

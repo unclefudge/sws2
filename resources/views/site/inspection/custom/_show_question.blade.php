@@ -25,19 +25,23 @@ if ($showrequired && $question->required) {
             <div class="col-md-12">
                 <div class="form-group">
                         <?php $required = ($question->required) ? "<small><span class='fa fa-thin fa-asterisk font-red' style='opacity: 0.7'></span></small>" : '' ?>
-                    <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{{$question->id}}. {{ $question->name }} {!! $required  !!}
+                    <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{{ $question->id }}. {!! $question->name !!} {!! $required  !!}
                         {{--}}<small>T:{{ $question->type }} TS: {{ $question->type_special }} V:{!! (is_array($val)) ? print_r(implode(',', $val)) : $val !!}</small>--}}
                     </label>
                     @if ($question->helper)
                         <br>
-                        {!! $question->helper !!}
+                        <div id="helper{{$question->id}}">{!! $question->helper !!}</div>
                         <br>
                     @endif
 
                     @switch($question->type)
                         @case('text')
                             {{-- Text --}}
-                            <input type="text" name="q{{$question->id}}" class="form-control" value="{{ $val }}" {{ (!$form->status) ? "disabled" : '' }}>
+                            @php
+                                $siteAdd = ($question->type_special == 'site_address') ? 'siteAddress' : '';
+                                $siteSup = ($question->type_special == 'site_super') ? 'siteSuper' : '';
+                            @endphp
+                            <input type="text" name="q{{$question->id}}" class="form-control {{ $siteAdd }} {{ $siteSup }}" value="{{ $val }}" {{ (!$form->status) ? "disabled" : '' }}>
                             @break
 
                         @case('textarea')
@@ -45,6 +49,19 @@ if ($showrequired && $question->required) {
                             <textarea name="q{{$question->id}}" rows="5" class="form-control" placeholder="Details" {{ (!$form->status) ? "disabled" : '' }}>{!! $val !!}</textarea>
                             @break
 
+                        @case('date')
+                            {{-- Date --}}
+                            @if ($form->status)
+                                <div class="input-group date date-picker">
+                                    <input type="text" name="q{{$question->id}}" id="q{{$question->id}}" class="form-control form-control-inline" style="background:#FFF" data-date-format="dd-mm-yyyy" value="{{ $val }}">
+                                    <span class="input-group-btn">
+                                        <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                                    </span>
+                                </div>
+                            @else
+                                <input type="text" name="q{{$question->id}}" class="form-control" value="{{ $val }}" style="width:300px" disabled>
+                            @endif
+                            @break
                         @case('datetime')
                             {{-- Datetime --}}
                             @if ($form->status)
@@ -63,9 +80,10 @@ if ($showrequired && $question->required) {
 
                             {{-- Site --}}
                             @if ($question->type_special == 'site')
-                                <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2" style="width:100%">
+                                <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2 siteID" style="width:100%">
                                     {!! Auth::user()->authSitesSelect2Options('view.site.list', $val, '-1') !!}
                                 </select>
+                                <div id="siteinfo{{$question->id}}"></div>
                             @endif
 
                             {{-- Staff --}}
@@ -103,9 +121,9 @@ if ($showrequired && $question->required) {
         </div>
     @else
         {{-- Completed Form - display only text response --}}
-        <div class="row" style="margin-bottom: 20px">
+        <div class="row gggg" style="margin-bottom: 20px">
             <div class="col-md-12">
-                <span class="" style="font-size:18px"><b>{{ $question->name }}</b></span><br>
+                <span class="" style="font-size:18px"><b>{{ $question->id }}. {!! $question->name !!}</b></span><br>
                 {!! nl2br($question->responseFormatted($form->id)) !!}
                 @if (is_array($val))
                     @foreach ($val as $v)
@@ -124,11 +142,22 @@ if ($showrequired && $question->required) {
     </div>
     <div id="q{{$question->id}}-gallery" style="margin-bottom: 20px">
         @if ($question->files($form->id)->count())
-            {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
             @foreach ($question->files($form->id) as $file)
-                <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                @if ($file->type == 'image')
+                    <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                @endif
             @endforeach
         @endif
+    </div>
+    {{-- Files --}}
+    <div id="q{{$question->id}}-gallery" style="margin-bottom: 20px">
+        @foreach ($question->files($form->id) as $file)
+            @if ($file->type == 'file')
+                <div id="q{{$question->id}}-file-{{$file->id}}">
+                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a> &nbsp; <a href="#"><i class="fa fa-times font-red deleteFile" data-fid="q{{$question->id}}-file-{{$file->id}}" data-file="{{$question->id}}-{{$file->name}}"></i></a>
+                </div>
+            @endif
+        @endforeach
     </div>
 
 
@@ -198,7 +227,7 @@ if ($showrequired && $question->required) {
     @endif
 
     {{-- Question Extras (Notes, Media, Actions --}}
-    @if ($question->type_special != 'no-resp')
+    @if ($question->type != 'static')
         <div class="row">
             <div class="col-md-12">
                 <button class="btn default btn-xs pull-right button-action" data-qid="{{$question->id}}">Action <i class="fa fa-check-square-o"></i></button>

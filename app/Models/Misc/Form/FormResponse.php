@@ -12,7 +12,7 @@ class FormResponse extends Model
 
     protected $table = 'forms_responses';
     protected $fillable = ['form_id', 'question_id', 'option_id', 'value', 'date', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
 
 
     /*

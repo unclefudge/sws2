@@ -18,7 +18,8 @@ use App\User;
 use App\Models\Site\Planner\Task;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
-class Site extends Model {
+class Site extends Model
+{
 
     protected $table = 'sites';
     protected $fillable = [
@@ -32,9 +33,9 @@ class Site extends Model {
         'consultant_name', 'project_mgr', 'project_mgr_name', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
         'status', 'company_id', 'created_by', 'updated_by'];
-    protected $dates = [
-        'completed', 'jobstart_estimate', 'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval',
-        'completion_signed', 'engineering_cert', 'construction_rcvd', 'hbcf_start', 'forecast_completion'];
+    protected $casts = ['completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',
+        'completion_signed' => 'datetime', 'engineering_cert' => 'datetime', 'construction_rcvd' => 'datetime', 'hbcf_start' => 'datetime', 'forecast_completion' => 'datetime'];
+
 
     /**
      * A Site belongs to a company
@@ -642,7 +643,7 @@ class Site extends Model {
                 $email_to = (\App::environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inspection.onhold') : [env('EMAIL_DEV')];
                 Mail::to($email_to)->send(new \App\Mail\Site\SiteInspectionCancelled($this, $cancelled));
 
-                return "Canceled the following reports:<br>".nl2br($cancelled);
+                return "Canceled the following reports:<br>" . nl2br($cancelled);
             } else
                 return "No active reports";
         } else
@@ -889,7 +890,6 @@ class Site extends Model {
     }
 
 
-
     /**
      * Get the first task date if it exists
      *
@@ -961,7 +961,7 @@ class Site extends Model {
     public function getJobRecentTaskAttribute()
     {
         $today = Carbon::now()->format('Y-m-d');
-        $task = SitePlanner::where('site_id', $this->id)->whereDate('from','<=', $today)->orderByDesc('from')->first();
+        $task = SitePlanner::where('site_id', $this->id)->whereDate('from', '<=', $today)->orderByDesc('from')->first();
 
         return ($task) ? $task->from : null;
     }
@@ -974,7 +974,7 @@ class Site extends Model {
     public function getJobNextTaskAttribute()
     {
         $today = Carbon::now()->format('Y-m-d');
-        $task = SitePlanner::where('site_id', $this->id)->whereDate('from','>=', $today)->orderByDesc('from')->first();
+        $task = SitePlanner::where('site_id', $this->id)->whereDate('from', '>=', $today)->orderByDesc('from')->first();
 
         return ($task) ? $task->from : null;
     }
@@ -1228,13 +1228,13 @@ class Site extends Model {
         if ($this->status == 0)
             return '<span class="font-red">COMPLETED</span>';
 
-        if ($this->status == - 1)
+        if ($this->status == -1)
             return '<span class="font-yellow">UPCOMING</span>';
 
         if ($this->status == 2)
             return '<span class="font-yellow">MAINTENANCE</span>';
 
-        if ($this->status == - 2)
+        if ($this->status == -2)
             return '<span class="font-red">CANCELLED</span>';
 
     }

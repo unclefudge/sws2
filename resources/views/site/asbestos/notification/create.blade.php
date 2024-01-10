@@ -616,7 +616,7 @@
                     })
 
                     $.ajax({
-                        url: '/site/data/supervisor/' + site_id,
+                        url: '/site/data/super/' + site_id,
                         type: 'GET',
                         dataType: 'json',
                         success: function (data) {

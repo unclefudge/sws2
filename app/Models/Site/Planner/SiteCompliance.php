@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteCompliance extends Model {
+class SiteCompliance extends Model
+{
 
     protected $table = 'site_compliance';
     protected $fillable = [
         'site_id', 'user_id', 'date', 'reason', 'status', 'notes',
         'resolved_at', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['date', 'resolved_at'];
+    protected $casts = ['date' => 'datetime', 'resolved_at' => 'datetime'];
 
     /**
      * A SiteCompliance belongs to a site

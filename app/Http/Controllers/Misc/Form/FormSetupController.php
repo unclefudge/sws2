@@ -476,7 +476,7 @@ class FormSetupController extends Controller
                 // Questions
                 foreach ($section->questions as $question) {
                     $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
-                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required]);
+                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper, 'placeholder' => $question->placeholder]);
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {
@@ -559,7 +559,7 @@ class FormSetupController extends Controller
             'name' => "Site", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Date initiated", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'name' => "Date initiated", 'type' => "date", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Lot Size", 'type' => "text", 'type_special' => null, 'type_version' => null,
@@ -645,10 +645,10 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Sarking to existing roof", 'type' => "select", 'type_special' => 'YgNr', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Damaged or deteriorated condition of existing roof", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
@@ -662,14 +662,14 @@ class FormSetupController extends Controller
         $sid = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Evidence of settling", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
 
         // Section 1d - Zoning
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Zoning', 'description' => "Section 1d", 'order' => $sn++]);
         $sid = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Project Zoning", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         $on = 1;
         $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'R1', 'value' => 'R1', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
@@ -679,9 +679,9 @@ class FormSetupController extends Controller
         $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'RU5', 'value' => 'RU5', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => 'If Zoning is NOT the standard R2 Low Residential Zoning, Ensure Controls collected are for the correct zone', 'type' => null, 'type_special' => 'no-resp', 'type_version' => null,
+            'name' => 'If Zoning is NOT the standard R2 Low Residential Zoning, Ensure Controls collected are for the correct zone', 'type' => 'static', 'type_special' => 'no-resp', 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0]);
-        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => $op5->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "$op1->id,$op3->id,$op4->id,$op5->id", 'trigger' => 'question', 'trigger_id' => $question->id]);
 
         // Section 1e - Preliminary Compliance Checks
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Preliminary Compliance Checks', 'description' => 'Section 1e', 'order' => $sn++]);
@@ -692,17 +692,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Flood Zone / Flood Planning considerations", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e1a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e2 - Acid Sulphate
@@ -710,17 +710,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Acid Sulphate Soils risk", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e2a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e3 - Bushfire Zone
@@ -728,17 +728,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Bushfire Zone", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e3a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Closest fire hydrant >60m from farthest point", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Fire Hydrant distance from property", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e4 - Heritage listed or impacted
@@ -746,17 +746,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Heritage listed or impacted", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e4a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e5 - Acoustic Controls
@@ -764,17 +764,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Acoustic Controls", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e5a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e6 - Activity Hazard
@@ -782,17 +782,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Activity Hazard", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e6a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e7 - Dual Occupancy Prohibition / Restriction
@@ -800,7 +800,7 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Dual Occupancy Prohibition / Restriction", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e7a", 'order' => $sn++]);
@@ -815,17 +815,17 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Landslide Risk", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e8a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
-            'name' => "Date Report requested", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'name' => "Date Report requested", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Report", 'type' => "media", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
         // Sub Section 1e9 - Property subject to covenants
@@ -833,14 +833,14 @@ class FormSetupController extends Controller
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Property subject to covenants", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $qid = $question->id;
         // Logic (Y)
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid3, 'name' => '', 'description' => "Section 1e9a", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Covenants details", 'type' => "text", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'section', 'trigger_id' => $sid4]);
 
 
@@ -859,7 +859,7 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Proposed works by Owner", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
 
 
         //
@@ -872,36 +872,36 @@ class FormSetupController extends Controller
         // Section 1 - Proximity to Adjacent Properties and Infrastructure
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Proximity to Adjacent Properties and Infrastructure', 'description' => "Section 4a", 'order' => $sn++]);
         $sid = $section->id;
-        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Speed Limit in immediate vicinity", 'type' => "text", 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Number of lanes at immediate access road(s)", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Pedestrian footpath intersecting site access", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Clearway within 100m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Bus or transit lane located within 100m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Bus stop within 200m of site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Roundabout within 100m of the site", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Has or is adjacent to battle axe/right of way", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Within 100m of intersection with traffic lights", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Within 100m of intersection without traffic lights", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Site positioned on or affected by a corner", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
@@ -929,14 +929,27 @@ class FormSetupController extends Controller
         $op8 = FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => 'Detail of facilities', 'type' => 'textarea', 'type_special' => null, 'type_version' => null,
-            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 0]);
-        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "$op1->id,$op2->id,$op3->id,$op4->id,$op5->id,$op6->id,$op7->id,$op8->id", 'trigger' => 'question', 'trigger_id' => $question->id]);
-
+            'name' => 'Other facilities', 'type' => 'text', 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "$op8->id", 'trigger' => 'question', 'trigger_id' => $question->id]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Detail of facilities', 'type' => 'text', 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
 
         // Section 3 - Client/Stakeholders
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Client/Stakeholders', 'description' => "Section 4c", 'order' => $sn++]);
         $sid = $section->id;
+
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Client/tenant occupation during construction", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'placeholder' => 'Select one or more facilities']);
+        $qid = $question->id;
+        // Add Options
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Entirety of construction', 'value' => 'Entirety of construction', 'order' => $on++, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Partial/Nominal period of construction', 'value' => 'Partial/Nominal period of construction', 'order' => $on++, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Site will be unoccupied', 'value' => 'Site will be unoccupied', 'order' => $on++, 'score' => 0, 'colour' => 'green', 'group' => null, 'master' => 0, 'status' => 1]);
+
 
         // Sub-Section 3a - Animals & Pets
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => "", 'description' => 'Section 3a', 'order' => $sn++]);
@@ -953,7 +966,7 @@ class FormSetupController extends Controller
 
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Indicate the animals/pets on the property", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more pet(s)']);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null, 'placeholder' => 'Select one or more pet(s)']);
         // Add Options
         $on = 1;
         FormOption::create(['question_id' => $question->id, 'text' => 'Dog(s)', 'value' => 'Dog(s)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
@@ -1013,7 +1026,7 @@ class FormSetupController extends Controller
 
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Use of adjacent streets or side access possible? ", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more pet(s)']);
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more options(s)']);
         $qid = $question->id;
         // Add Options
         $on = 1;
@@ -1021,7 +1034,7 @@ class FormSetupController extends Controller
         $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Side Streets', 'value' => 'Side Streets', 'order' => $on++, 'score' => 0, 'colour' => 'green', 'group' => null, 'master' => 0, 'status' => 1]);
         $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Back Streets', 'value' => 'Back Streets', 'order' => $on++, 'score' => 0, 'colour' => 'green', 'group' => null, 'master' => 0, 'status' => 1]);
         $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Rear Access', 'value' => 'Rear Access', 'order' => $on++, 'score' => 0, 'colour' => 'green', 'group' => null, 'master' => 0, 'status' => 1]);
-        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Nil additional/alternative access points', 'value' => 'Nil additional/alternative access points', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Nil additional/alternative access points', 'value' => 'Nil additional/alternative access points', 'order' => $on++, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
         // Logic (All but Nil)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => 'Access Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
@@ -1048,14 +1061,14 @@ class FormSetupController extends Controller
         //
         $page = FormPage::create(['template_id' => $template->id, 'name' => "Waste Management", 'description' => '', 'order' => 6]);
         $pid = $page->id;
-        $on = 1;
+        $sn = 1;
 
         // Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 1", 'order' => $on++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 1", 'order' => $sn++]);
         $sid = $section->id;
 
         // Sub-Section 1a - Waste System
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => null, 'description' => "Section 1a", 'order' => $on++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => null, 'description' => "Section 1a", 'order' => $sn++]);
         $sid2 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
             'name' => "Type of waste management system advised", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
@@ -1067,7 +1080,7 @@ class FormSetupController extends Controller
 
 
         // Sub-Section 1a1 - Skip bin
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => null, 'description' => "Section 1a1", 'order' => $on++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => null, 'description' => "Section 1a1", 'order' => $sn++]);
         $sid3 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid3,
             'name' => "Location", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
@@ -1092,7 +1105,7 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
 
         // Sub-Section 1a2 - Enclosure
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => null, 'description' => "Section 1a2", 'order' => $on++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid2, 'name' => null, 'description' => "Section 1a2", 'order' => $sn++]);
         $sid4 = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid4,
             'name' => "Size", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
@@ -1112,110 +1125,173 @@ class FormSetupController extends Controller
         //
         $page = FormPage::create(['template_id' => $template->id, 'name' => "Underground or Overhead Services", 'description' => '', 'order' => 7]);
         $pid = $page->id;
-        $on = 1;
+        $sn = 1;
 
         // Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Proximity to Underground or Overhead Services', 'description' => "Section 1", 'order' => $on++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Proximity to Underground or Overhead Services', 'description' => "Section 1", 'order' => $sn++]);
         $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Electrical infrastructure supply to the property", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        $qid = $question->id;
+        // Add Options
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Overhead powerlines / point of attachment', 'value' => 'Overhead powerlines / point of attachment', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Private pole', 'value' => 'Private pole', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Underground supply to property', 'value' => 'Underground supply to property', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
-        /*
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Indicate position", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        // Logic (Overhead power)
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op1->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
 
 
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Property affected by nearby overhead powerlines ", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        // Add Options
+        FormOption::create(['question_id' => $question->id, 'text' => 'No', 'value' => 'No', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => 'green', 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (left)', 'value' => 'Parallel (left)', 'order' => 2, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (right)', 'value' => 'Parallel (right)', 'order' => 3, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Front of property', 'value' => 'Front of property', 'order' => 4, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Rear of property', 'value' => 'Rear of property', 'order' => 5, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
+        FormOption::create(['question_id' => $question->id, 'text' => 'Intersecting property', 'value' => 'Intersecting property', 'order' => 6, 'score' => 0, 'colour' => 'red', 'group' => null, 'master' => 0, 'status' => 1]);
 
-                //
-                // Page 8
-                //
-                $page = FormPage::create(['template_id' => $template->id, 'name' => "Underground or Overhead Services", 'description' => '', 'order' => 8]);
-                $pid = $page->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Has Dial Before You Dig been actioned as part of the design process?", 'type' => "select", 'type_special' => 'YN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
 
-                // Questions - Section 1
-                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 8a", 'order' => 1]);
-                $sid = $section->id;
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "What type of electrical infrastructure supplies the property?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
-                // Add Options
-                FormOption::create(['question_id' => $question->id, 'text' => 'Overhead powerlines / point of attachment', 'value' => 'Overhead powerlines / point of attachment', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Private pole', 'value' => 'Private pole', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Underground supply to property', 'value' => 'Underground supply to property', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        // Sub-Section 2 - Dial before you Dig
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => null, 'description' => "Section 2", 'order' => $sn++]);
+        $sid2 = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Dial Before You Dig Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Are there any underground assets identified as affected (Detail of assets affected)', 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid2 = $question->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,
+            'name' => 'Detail of assets affected', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        // Logic
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '5', 'trigger' => 'section', 'trigger_id' => $sid2]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid2, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'question', 'trigger_id' => $question->id]);
 
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "Is the property affected by nearby overhead powerlines?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
-                // Add Options
-                FormOption::create(['question_id' => $question->id, 'text' => 'No', 'value' => 'No', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (left)', 'value' => 'Parallel (left)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Parallel (right)', 'value' => 'Parallel (right)', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Front of property', 'value' => 'Front of property', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Rear of property', 'value' => 'Rear of property', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Intersecting property', 'value' => 'Intersecting property', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "Has Dial Before You Dig been actioned as part of the design process?", 'type' => "select", 'type_special' => 'YN', 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-                // Logic
-                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '5', 'trigger' => 'section', 'trigger_id' => '13']);
+        //
+        // Page 8 - Hazardous Materials
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Hazardous Materials", 'description' => '', 'order' => 8]);
+        $pid = $page->id;
+        $sn = 1;
 
-                // Questions - Section 2
-                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 8b", 'order' => 2]);
-                $sid = $section->id;
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => 'Dial Before You Dig Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => 'Are there any underground assets identified as affected (Detail of assets affected)', 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-                // Logic
-                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'question', 'trigger_id' => '48']);
+        // Section 1
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Proximity to Underground or Overhead Services', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Hazardous materials survey conducted", 'type' => "select", 'type_special' => 'YgNr', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $qid = $question->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Date of Inspection", 'type' => "date", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        // Logic (Y)
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '14', 'trigger' => 'question', 'trigger_id' => $question->id]);
 
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => 'Detail of assets affected', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Potential asbestos identified on the property", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Asbestos Register as per report', 'type' => 'media', 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        //Logic (Y)
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => '7', 'trigger' => 'question', 'trigger_id' => $question->id]);
 
-                //
-                // Page 9
-                //
-                $page = FormPage::create(['template_id' => $template->id, 'name' => "Environmental Conditions", 'description' => '', 'order' => 9]);
-                $pid = $page->id;
 
-                // Questions - Section 1
-                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 9a", 'order' => 1]);
-                $sid = $section->id;
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "Is the location of the project subject to any adverse environmental conditions?", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
-                    'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
-                // Add Options
-                FormOption::create(['question_id' => $question->id, 'text' => 'Bushfire', 'value' => 'Bushfire', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Flooding', 'value' => 'Flooding', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Noise Pollution', 'value' => 'Noise Pollution', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Heritage', 'value' => 'Heritage', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-                FormOption::create(['question_id' => $question->id, 'text' => 'Not applicable', 'value' => 'Not applicable', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        //
+        // Page 9 - Construction Methodology
+        //
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "Construction Methodology", 'description' => '', 'order' => 9]);
+        $pid = $page->id;
+        $sn = 1;
 
-                // Logic
-                $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $question->id, 'match_operation' => '=*', 'match_value' => '44,45,46,47,48', 'trigger' => 'question', 'trigger_id' => '50']);
+        // Section 1 - Scaffold & Work Platforms
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Scaffold & Work Platforms', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "A 4 metre approach distance applies in any direction where metallic scaffold is erected, used or dismantled near overhead power lines.<br><br>
+Where low voltage overhead powerlines (up to and including 1000 volts) cannot be de-energised and isolated, ‘tiger tails’ should be provided and installed by the network operator for the full length of the scaffolding plus a minimum distance beyond each end of the scaffolding of 5 metres.<br><br>
+Electrical wires or apparatus that pass through a scaffold must be de-energised or fully enclosed to the requirements of the network operator. These requirements must incorporate full enclosure of the wires or electrical apparatus by a non-conductive material such as moisture resistant flooring – grade particle board, dry timber, dry plywood or similar dry non-conductive material as approved by the network operator.<br><br>",
+            'type' => 'static', 'type_special' => 'no-resp', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null, 'helper' => "<img src='/img/form/work_near_overline_power.jpeg' class='img-responsive'>"]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Minimum approach distance from powerlines complied", 'type' => "select", 'type_special' => 'YgNr', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Minimum distance boundary to wall achievable", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $qid = $question->id;
+        $on = 1;
+        // Add Options
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => '2 Plank Wide 770mm', 'value' => '2 Plank Wide 770mm', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => '3 Plank Wide 970mm', 'value' => '3 Plank Wide 970mm', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Specify available clearance", 'type' => "text", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        //Logic (Other)
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=', 'match_value' => $op3->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
 
-                $question = FormQuestion::create(
-                    ['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                        'name' => 'Environmental Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
-                        'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Scaffold type", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $on = 1;
+        // Add Options
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Prefabricated', 'value' => 'Prefabricated', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Timber', 'value' => 'Timber', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Cantilevered', 'value' => 'Cantilevered', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Access Platform', 'value' => 'Access Platform', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
-                //
-                // Page 10
-                //
-                $page = FormPage::create(['template_id' => $template->id, 'name' => "Hazardous Materials", 'description' => '', 'order' => 10]);
-                $pid = $page->id;
 
-                // Questions - Section 1
-                $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 10a", 'order' => 1]);
-                $sid = $section->id;
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "Has a hazardous materials survey been conducted?", 'type' => "select", 'type_special' => 'YgN', 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-                $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-                    'name' => "Has asbestos been identified on the property?", 'type' => "select", 'type_special' => 'YrN', 'type_version' => null,
-                    'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-        */
+        // Section 2 - Deliveries
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Deliveries', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Deliveries to be accepted direct to property", 'type' => "select", 'type_special' => 'YgNr', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+
+        // Section 3 - Access
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Access', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Primary point of access during construction", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $on = 1;
+        // Add Options
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Timber Ramp', 'value' => 'Timber Ramp', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Aluminium Ramp', 'value' => 'Aluminium Ramp', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Scaffold Stair Bay', 'value' => 'Scaffold Stair Bay', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing', 'value' => 'Existing', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
+
+        // Section 4 - Protection of Property
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Protection of Property', 'description' => "Section 1", 'order' => $sn++]);
+        $sid = $section->id;
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Protection of Client property/existing site", 'type' => "select", 'type_special' => 'button', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => null]);
+        $on = 1;
+        // Add Options
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Trees', 'value' => 'Trees', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Garden', 'value' => 'Garden', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Path', 'value' => 'Path', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Fence/External Wall', 'value' => 'Fence/External Wall', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Gate', 'value' => 'Gate', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+
 
         //
         // Duplicate 'Publish' new template
@@ -1237,7 +1313,7 @@ class FormSetupController extends Controller
                 // Questions
                 foreach ($section->questions as $question) {
                     $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
-                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper]);
+                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper, 'placeholder' => $question->placeholder]);
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {
@@ -1322,14 +1398,23 @@ class FormSetupController extends Controller
             'name' => "Site", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Inspection date", 'type' => "datetime", 'type_special' => null, 'type_version' => null,
+            'name' => "Site Address", 'type' => "text", 'type_special' => 'site_address', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site Supervisor", 'type' => "text", 'type_special' => 'site_super', 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Site Photos", 'type' => "media", 'type_special' => null, 'type_version' => null,
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => null]);
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => "Inspection date", 'type' => "date", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Inspected by", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
 
         //
-        // Page 2
+        // Page 2 - General
         //
         $page = FormPage::create(['template_id' => $template->id, 'name' => "General", 'description' => null, 'order' => 2]);
         $pid = $page->id;
@@ -1346,18 +1431,18 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more options']);
         $qid = $question->id;
         // Add Options
-        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary Construction Fencing', 'value' => 'Temporary Construction Fencing', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing fencing at premises', 'value' => 'Existing fencing at premises', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Ply/boarding affixed to existing fencing/structure', 'value' => 'Ply/boarding affixed to existing fencing/structure', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Livestock', 'value' => 'Livestock', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Ramp Barricade', 'value' => 'Ramp Barricade', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary Construction Fencing', 'value' => 'Temporary Construction Fencing', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing fencing at premises', 'value' => 'Existing fencing at premises', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Ply/boarding affixed to existing fencing/structure', 'value' => 'Ply/boarding affixed to existing fencing/structure', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Ramp Barricade', 'value' => 'Ramp Barricade', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => 'Securing Site Details', 'type' => "textarea", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
-        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op6->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op5->id, 'trigger' => 'question', 'trigger_id' => $question->id]);
 
 
         // Logic Section (Fence)
@@ -1407,12 +1492,13 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more options']);
         $qid = $question->id;
         // Add Options
-        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Ramp', 'value' => 'Ramp', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Ladder(s)', 'value' => 'Ladder(s)', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Scaffold', 'value' => 'Scaffold', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Internal staircase', 'value' => 'Internal staircase', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Level ground access (such as finished doors)', 'value' => 'Level ground access (such as finished doors)', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Ramp', 'value' => 'Ramp', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Ladder(s)', 'value' => 'Ladder(s)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Scaffold', 'value' => 'Scaffold', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Internal staircase', 'value' => 'Internal staircase', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Level ground access (such as finished doors)', 'value' => 'Level ground access (such as finished doors)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
@@ -1491,11 +1577,12 @@ class FormSetupController extends Controller
             'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more options']);
         $qid = $question->id;
         // Add Options
-        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing bathroom', 'value' => 'Existing bathroom', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Self-contained portable toilet', 'value' => 'Self-contained portable toilet', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Potable drinking water', 'value' => 'Potable drinking water', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Handwashing facilities', 'value' => 'Handwashing facilities', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing bathroom', 'value' => 'Existing bathroom', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Self-contained portable toilet', 'value' => 'Self-contained portable toilet', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Potable drinking water', 'value' => 'Potable drinking water', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Handwashing facilities', 'value' => 'Handwashing facilities', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Other (provide detail)', 'value' => 'Other (provide detail)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
@@ -1537,30 +1624,65 @@ class FormSetupController extends Controller
 
 
         //
-        // Page 3
+        // Page 3 = Workers and Tasks
         //
         $page = FormPage::create(['template_id' => $template->id, 'name' => "Workers and Tasks", 'description' => null, 'order' => 3]);
         $pid = $page->id;
         $sn = 1;
 
         // Section 1
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => 'Site Information, Public Protection & Site Security', 'description' => "Section 1", 'order' => $sn++]);
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => '', 'description' => "Section 1", 'order' => $sn++]);
         $sid = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Have all workers completed site sign in?", 'type' => "select", 'type_special' => 'CONN', 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
+        $qid = $question->id;
+        // Logic (if Trades on site)
+        $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
+            'name' => 'Trades on site', 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
+            'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1]);
+        // Add Options
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'N/A - Nil trades on site', 'value' => 'N/A - Nil trades on site', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Airconditioning installers', 'value' => 'Airconditioning installers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Carpenters', 'value' => 'Carpenters', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Concreters', 'value' => 'Concreters', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Bricklayers', 'value' => 'Bricklayers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Brick Cleaners', 'value' => 'Brick Cleaners', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op7 = FormOption::create(['question_id' => $question->id, 'text' => 'Electricians', 'value' => 'Electricians', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op8 = FormOption::create(['question_id' => $question->id, 'text' => 'Fascia / Gutter', 'value' => 'Fascia / Gutter', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op9 = FormOption::create(['question_id' => $question->id, 'text' => 'Floor sanders', 'value' => 'Floor sanders', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op10 = FormOption::create(['question_id' => $question->id, 'text' => 'Floor & wall Tilers', 'value' => 'Floor & wall Tilers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op11 = FormOption::create(['question_id' => $question->id, 'text' => 'Insulation installers', 'value' => 'Insulation installers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op12 = FormOption::create(['question_id' => $question->id, 'text' => 'Labourers / Cleaners', 'value' => 'Labourers / Cleaners', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op13 = FormOption::create(['question_id' => $question->id, 'text' => 'Landscapers', 'value' => 'Landscapers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op14 = FormOption::create(['question_id' => $question->id, 'text' => 'Painters', 'value' => 'Painters', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op15 = FormOption::create(['question_id' => $question->id, 'text' => 'Plant Operators', 'value' => 'Plant Operators', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op16 = FormOption::create(['question_id' => $question->id, 'text' => 'Plasterers', 'value' => 'Plasterers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op17 = FormOption::create(['question_id' => $question->id, 'text' => 'Plumbers', 'value' => 'Plumbers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op18 = FormOption::create(['question_id' => $question->id, 'text' => 'Roofers', 'value' => 'Roofers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op19 = FormOption::create(['question_id' => $question->id, 'text' => 'Renderers', 'value' => 'Renderers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op20 = FormOption::create(['question_id' => $question->id, 'text' => 'Scaffolders (including safety rail installers)', 'value' => 'Scaffolders (including safety rail installers)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op21 = FormOption::create(['question_id' => $question->id, 'text' => 'Stair/Balustrade installers', 'value' => 'Stair/Balustrade installers', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op22 = FormOption::create(['question_id' => $question->id, 'text' => 'Waterproofer', 'value' => 'Waterproofer', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op23 = FormOption::create(['question_id' => $question->id, 'text' => 'Welder', 'value' => 'Welder', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op24 = FormOption::create(['question_id' => $question->id, 'text' => 'Other', 'value' => 'Other', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => "1,2,3", 'trigger' => 'question', 'trigger_id' => $question->id]);
+
+
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Others on site", 'type' => "select", 'type_special' => null, 'type_version' => 'select2',
             'order' => $pn++, 'default' => null, 'multiple' => 1, 'required' => 1, 'placeholder' => 'Select one or more options']);
         $qid = $question->id;
         // Add Options
-        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'N/A - Nil others on site', 'value' => 'N/A - Nil others on site', 'order' => 1, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Client', 'value' => 'Client', 'order' => 2, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Client appointed trades (provide detail)', 'value' => 'Client appointed trades (provide detail)', 'order' => 3, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Cape Cod staff (provide detail)', 'value' => 'Cape Cod staff (provide detail)', 'order' => 4, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Engineer', 'value' => 'Engineer', 'order' => 5, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Supervisor', 'value' => 'Supervisor', 'order' => 6, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
-        $op7 = FormOption::create(['question_id' => $question->id, 'text' => 'Surveyor', 'value' => 'Surveyor', 'order' => 7, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $on = 1;
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'N/A - Nil others on site', 'value' => 'N/A - Nil others on site', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Client', 'value' => 'Client', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Client appointed trades (provide detail)', 'value' => 'Client appointed trades (provide detail)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Cape Cod staff (provide detail)', 'value' => 'Cape Cod staff (provide detail)', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op5 = FormOption::create(['question_id' => $question->id, 'text' => 'Engineer', 'value' => 'Engineer', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op6 = FormOption::create(['question_id' => $question->id, 'text' => 'Supervisor', 'value' => 'Supervisor', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op7 = FormOption::create(['question_id' => $question->id, 'text' => 'Surveyor', 'value' => 'Surveyor', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
 
         // Logic (Other)
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
@@ -1912,10 +2034,10 @@ class FormSetupController extends Controller
             'name' => "Site Summary / Comments", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Worker Representative", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
+            'name' => "Worker Representative", 'type' => "text", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Signature of Inspector", 'type' => "select", 'type_special' => 'staff', 'type_version' => 'select2',
+            'name' => "Name of Inspector", 'type' => 'text', 'type_special' => 'signature', 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
 
 
@@ -1939,7 +2061,7 @@ class FormSetupController extends Controller
                 // Questions
                 foreach ($section->questions as $question) {
                     $q = FormQuestion::create(['template_id' => $t->id, 'page_id' => $p->id, 'section_id' => $s->id, 'name' => $question->name, 'type' => $question->type, 'type_special' => $question->type_special, 'type_version' => $question->type_version,
-                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper]);
+                        'order' => $question->order, 'default' => $question->default, 'multiple' => $question->multiple, 'required' => $question->required, 'helper' => $question->helper, 'placeholder' => $question->placeholder]);
                     $match_questions[$question->id] = $q->id;
                     // Question Options
                     foreach ($question->options() as $option) {

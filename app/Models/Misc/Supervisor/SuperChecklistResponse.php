@@ -12,11 +12,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SuperChecklistResponse extends Model {
+class SuperChecklistResponse extends Model
+{
 
     protected $table = 'supervisor_checklist_responses';
     protected $fillable = ['checklist_id', 'day', 'question_id', 'value', 'date', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
 
 
     /*
@@ -38,6 +39,7 @@ class SuperChecklistResponse extends Model {
     {
         return $this->belongsTo('App\Models\Misc\Supervisor\SuperChecklistQuestion', 'question_id');
     }
+
     /**
      * Get the DayOfWeek Alias  (getter)
      */
@@ -62,6 +64,7 @@ class SuperChecklistResponse extends Model {
 
         return ($this->value) ? $button_values[$this->value] : '';
     }
+
     /**
      * Get the DayOfWeek Alias  (getter)
      */

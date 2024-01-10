@@ -6,21 +6,24 @@ use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SafetyDataSheet extends Model {
+class SafetyDataSheet extends Model
+{
 
     protected $table = 'safety_sds_docs';
     protected $fillable = [
         'type', 'name', 'manufacturer', 'application', 'hazardous', 'dangerous', 'attachment', 'date', 'expiry',
         'reference', 'version', 'notes', 'company_id',
         'status', 'created_by', 'updated_by'];
-    protected $dates = ['date', 'expiry'];
+    protected $casts = ['date' => 'datetime', 'expiry' => 'datetime'];
+
 
     /**
      * A SDS belongs to a Company.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company() {
+    public function company()
+    {
         return $this->belongsTo('App\Models\Company\Company', 'company_id');
     }
 
@@ -43,7 +46,7 @@ class SafetyDataSheet extends Model {
     {
         $string = '';
         foreach ($this->categories as $cat) {
-                $string .= $cat->name . ', ';
+            $string .= $cat->name . ', ';
         }
 
         return rtrim($string, ', ');
@@ -79,9 +82,9 @@ class SafetyDataSheet extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
-    
+
     /**
      * The "booting" method of the model.
      *
@@ -89,10 +92,11 @@ class SafetyDataSheet extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 //$table->created_by = Auth::user()->id;

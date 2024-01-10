@@ -20,7 +20,8 @@ class WmsDoc extends Model
         'principle', 'principle_id', 'principle_signed_id', 'principle_signed_at', 'res_compliance', 'res_review',
         'user_signed_id', 'user_signed_at', 'notes', 'for_company_id', 'company_id',
         'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['principle_signed_at', 'user_signed_at'];
+    protected $casts = ['principle_signed_at' => 'datetime', 'user_signed_at' => 'datetime'];
+
 
     /**
      * A WMS Doc has many Steps.

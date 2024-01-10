@@ -17,7 +17,8 @@ Array.from(inputElements).forEach(inputElement => {
     const pond = FilePond.create(inputElement, {
         server: {
             headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
-            process: '/site/inspection/upload',
+            //process: '/site/inspection/upload',
+            process: '/file/upload',
             revert: null, // remove file from Filepond upload list
             restore: null,
             fetch: null,  // used to load files on server
@@ -25,7 +26,7 @@ Array.from(inputElements).forEach(inputElement => {
         },
 
         labelIdle: `<span class="btn btn-primary filepond--label-action">Add Media</span> &nbsp; or Drag & Drop your picture`,
-        acceptedFileTypes: ['image/png', 'image/jpeg', 'image/gif'],
+        //acceptedFileTypes: ['image/png', 'image/jpeg', 'image/gif'],
         allowFileTypeValidation: true,
         maxFileSize: '5MB',
         imagePreviewHeight: 170,
@@ -35,7 +36,9 @@ Array.from(inputElements).forEach(inputElement => {
         // display added file info to console for debuging
         onaddfile: (err, fileItem) => {
             console.log('File added');
-            console.log(err, fileItem.getMetadata('resize'));
+            //console.log(fileItem);
+            console.log(fileItem.fileType);
+            //console.log(fileItem.getMetadata('resize'));
             //console.log(inputElement);
             //console.log(inputElement.name);
             //console.log(inputElement.element.style);
@@ -44,32 +47,38 @@ Array.from(inputElements).forEach(inputElement => {
         // alter the output property
         onpreparefile: (fileItem, output) => {
             console.log('File prepared');
+            console.log('fileType:' + fileItem.fileType);
+            var imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
-            // Create thumbnail of image to display in gallery
-            //  - but hide it with display:none until pfile processed successfully
-            var question =  inputElement.name.split('-media[')[0];
-            const img = new Image();
-            img.src = URL.createObjectURL(output);
-            img.id = question + '-photo-' + fileItem.id; //URL.createObjectURL(output);
-            img.width = 100;
-            img.style = 'margin-right: 20px; display:none';
+            if (imageTypes.includes(fileItem.fileType)) {
 
-            //console.log(inputElement);
+                // Create thumbnail of image to display in gallery
+                //  - but hide it with display:none until pfile processed successfully
+                var question = inputElement.name.split('-media[')[0];
+                const img = new Image();
+                img.src = URL.createObjectURL(output);
+                img.id = question + '-photo-' + fileItem.id; //URL.createObjectURL(output);
+                img.width = 100;
+                img.style = 'margin-right: 20px; display:none';
 
-            var gallery = document.getElementById(question+'-gallery');
-            gallery.appendChild(img);
+                console.log('Ele:' + inputElement);
 
-            var thumbnail = document.getElementById(img.id);
-            thumbnail.style.opacity = '0.5';
-            console.log(thumbnail);
+                var gallery = document.getElementById(question + '-gallery');
+                gallery.appendChild(img);
+
+                var thumbnail = document.getElementById(img.id);
+                thumbnail.style.opacity = '0.5';
+                console.log(thumbnail);
+            }
         },
 
         onprocessfile: (err, fileItem) => {
-            console.log('File processing:'+err);
+            console.log('File processing:' + err);
             console.log(fileItem);
+            var imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
             // Reveal newly uploaded thumbnail image
-            if (!err) {
+            if (!err && imageTypes.includes(fileItem.fileType)) {
                 var question = inputElement.name.split('-media[')[0];
                 var thumbnail = document.getElementById(question + '-photo-' + fileItem.id);
                 thumbnail.style.display = 'inline';
@@ -79,8 +88,8 @@ Array.from(inputElements).forEach(inputElement => {
         // remove file
         // alter the output property
         onremovefile: (err, fileItem) => {
-            console.log('Remove File:'+err);
-            var question =  inputElement.name.split('-media[')[0];
+            console.log('Remove File:' + err);
+            var question = inputElement.name.split('-media[')[0];
             var thumbnail = document.getElementById(question + '-photo-' + fileItem.id);
             //console.log(fileItem);
             //console.log(thumbnail);
@@ -111,7 +120,8 @@ function deleteGalleryPreview() {
     var file = file_url.split('/filebank/inspection/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
     var qid = file.split('-')[0];
 
-    // Create new input element with na,e of file to delete and add to DOM
+    console.log('Delete image')
+    // Create new input element with name of file to delete and add to DOM
     var input = document.createElement("input");
     input.type = "text";
     input.name = "myGalleryDelete[]";
@@ -119,12 +129,14 @@ function deleteGalleryPreview() {
     input.style.display = 'none';
     document.getElementById('custom_form').appendChild(input); // put it into the DOM
 
+    var galleryDelete = document.getElementById('myGalleryDelete');
+
     // hide deleted file from gallery
-    var thumbnail = document.getElementById('q'+qid+'-photo-'+file_url);
+    var thumbnail = document.getElementById('q' + qid + '-photo-' + file_url);
     thumbnail.style.display = 'none';
 
-    console.log(host);
-    console.log(thumbnail);
+    //console.log(host);
+    //console.log(thumbnail);
 
     document.getElementById("myGalleryFullscreen").style.width = "0%"; // close Gallery Fullscreen
 

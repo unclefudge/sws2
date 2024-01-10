@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
-class SiteExtensionSite extends Model {
+class SiteExtensionSite extends Model
+{
 
     protected $table = 'site_extensions_sites';
     protected $fillable = ['extension_id', 'site_id', 'completion_date', 'reasons', 'days', 'notes', 'updated_by'];
-
-    protected $dates = ['completion_date'];
+    protected $casts = ['completion_date' => 'datetime'];
 
     /**
      * A SiteExtensionSite belongs to a SiteExtension

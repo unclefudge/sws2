@@ -9,15 +9,15 @@ use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 
-class SupportTicket extends Model {
+class SupportTicket extends Model
+{
 
     protected $table = 'support_tickets';
     protected $fillable = [
         'name', 'summary', 'type', 'priority', 'eta', 'hours', 'attachment', 'assigned_to', 'notes', 'status', 'resolved_at', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = ['eta', 'resolved_at'];
+    protected $casts = ['eta' => 'datetime', 'resolved_at' => 'datetime'];
 
     /**
      * A Support Ticket belongs to a company
@@ -104,6 +104,7 @@ class SupportTicket extends Model {
 
         return '';
     }
+
     /**
      * Get the owner of record  (getter)
      *

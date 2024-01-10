@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteAttendance extends Model {
+class SiteAttendance extends Model
+{
 
     protected $table = 'site_attendance';
     protected $fillable = ['site_id', 'user_id', 'date', 'safe_site', 'accept_whs'];
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
     public $timestamps = false;
 
     /**

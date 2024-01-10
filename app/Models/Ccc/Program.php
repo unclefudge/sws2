@@ -2,19 +2,16 @@
 
 namespace App\Models\Ccc;
 
-use App\Models\Ccc\Youth;
 use DB;
-use Mail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Mail;
 
-class Program extends Model {
+class Program extends Model
+{
 
     protected $table = 'zccc_programs';
     protected $fillable = ['name', 'date', 'cost', 'max', 'pickups', 'brief', 'notes'];
-
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
 
     /**
      * A Progam has many youth.

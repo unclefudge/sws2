@@ -3,18 +3,16 @@
 namespace App\Models\Ccc;
 
 use DB;
-use Mail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Mail;
 
-class Youth extends Model {
+class Youth extends Model
+{
 
     protected $table = 'zccc_youth';
-    protected $fillable = ['name', 'dob', 'address', 'parent','phone', 'email', 'pickup', 'medical',
+    protected $fillable = ['name', 'dob', 'address', 'parent', 'phone', 'email', 'pickup', 'medical',
         'consent_photo', 'consent_movie', 'consent_medicine', 'leave_unsupervised', 'notes'];
-
-    protected $dates = ['dob'];
+    protected $casts = ['dob' => 'datetime'];
 
     /**
      * A Youth attends many Programs.
@@ -29,14 +27,16 @@ class Youth extends Model {
     /**
      *  Add Youth to a Program
      */
-    public function add2program($program, $status) {
+    public function add2program($program, $status)
+    {
         DB::table('zccc_programs_youth')->insert(['youth_id' => $this->id, 'program_id' => $program->id, 'status' => $status]);
     }
 
     /**
      *  Youth sorted by Last Name
      */
-    public function sortedBylast() {
+    public function sortedBylast()
+    {
 
     }
 

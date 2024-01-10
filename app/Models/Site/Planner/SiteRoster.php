@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteRoster extends Model {
+class SiteRoster extends Model
+{
 
     protected $table = 'site_roster';
     protected $fillable = ['site_id', 'user_id', 'date', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['date'];
+    protected $casts = ['date' => 'datetime'];
 
 
     /**
@@ -72,16 +73,16 @@ class SiteRoster extends Model {
                 $site = Site::find($plan->site_id);
                 $company = Company::findOrFail($plan->entity_id);
                 $staff = $company->staffStatus(1)->pluck('id')->toArray();
-                $log .= "\nf:".$plan->from->format('Y-m-d').' t:'.$plan->to->format('Y-m-d').' ['.$plan->id.'] (' . $company->name_alias . ") Task:$plan->task_id Site: $site->name ($plan->site_id)\n";
+                $log .= "\nf:" . $plan->from->format('Y-m-d') . ' t:' . $plan->to->format('Y-m-d') . ' [' . $plan->id . '] (' . $company->name_alias . ") Task:$plan->task_id Site: $site->name ($plan->site_id)\n";
                 foreach ($staff as $staff_id) {
                     $user = User::findOrFail($staff_id);
                     if (!$site->isUserOnRoster($staff_id, $date)) {
                         //echo 'adding '.$user->fullname.' ('.$user->username.') to roster<br>';
-                        $log .= 'adding '.$user->fullname.' ('.$user->username.") to roster\n";
+                        $log .= 'adding ' . $user->fullname . ' (' . $user->username . ") to roster\n";
                         $newRoster = SiteRoster::create(array(
-                            'site_id'    => $site->id,
-                            'user_id'    => $staff_id,
-                            'date'       => $date . ' 00:00:00',
+                            'site_id' => $site->id,
+                            'user_id' => $staff_id,
+                            'date' => $date . ' 00:00:00',
                             'created_by' => '1',
                             'updated_by' => '1',
                         ));
@@ -91,14 +92,14 @@ class SiteRoster extends Model {
         }
 
         //echo "<h1>Completed</h1>";
-        $log .=  "\nCompleted";
+        $log .= "\nCompleted";
 
         $now = Carbon::now()->format('Y-m-d-G-i-s');
-        $bytes_written = File::put(public_path('filebank/log/nightly/'.$now.'.txt'), $log);
+        $bytes_written = File::put(public_path('filebank/log/nightly/' . $now . '.txt'), $log);
         if ($bytes_written === false)
             die("Error writing to file");
         else
-            echo 'Logfile filebank/log/nightly/'.$now.'.txt';
+            echo 'Logfile filebank/log/nightly/' . $now . '.txt';
 
         echo $log;
     }

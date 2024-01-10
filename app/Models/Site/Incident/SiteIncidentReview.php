@@ -11,15 +11,15 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteIncidentReview extends Model {
+class SiteIncidentReview extends Model
+{
 
     protected $table = 'site_incidents_review';
     protected $fillable = [
         'incident_id', 'user_id', 'type', 'type_other', 'name', 'address', 'contact', 'dob', 'occupation', 'engagement', 'employer', 'supervisor',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['dob'];
+    protected $casts = ['dob' => 'datetime'];
 
     /**
      * A SiteIncidentPeople belongs to a SiteIncident
@@ -83,7 +83,7 @@ class SiteIncidentReview extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

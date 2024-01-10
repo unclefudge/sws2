@@ -2,22 +2,18 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
 use App\User;
-use App\Models\Comms\Todo;
-use App\Models\Misc\ContractorLicence;
-use App\Models\Misc\ContractorLicenceSupervisor;
-use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class CompanyDocReviewFile extends Model {
+class CompanyDocReviewFile extends Model
+{
 
     protected $table = 'company_docs_review_files';
     protected $fillable = ['review_id', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
-    //protected $dates = ['expiry', 'approved_at'];
 
 
     /**
@@ -63,7 +59,7 @@ class CompanyDocReviewFile extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

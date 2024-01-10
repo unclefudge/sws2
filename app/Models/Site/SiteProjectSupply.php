@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
-class SiteProjectSupply extends Model {
+class SiteProjectSupply extends Model
+{
 
     protected $table = 'project_supply';
     protected $fillable = [
@@ -19,8 +20,7 @@ class SiteProjectSupply extends Model {
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at', 'notes', 'status',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = ['supervisor_sign_at', 'manager_sign_at', 'approved_at'];
+    protected $casts = ['supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime', 'approved_at' => 'datetime'];
 
     /**
      * A SiteProjectSupply belongs to a site
@@ -53,7 +53,7 @@ class SiteProjectSupply extends Model {
         foreach ($this->items as $item) {
             if ($item->product_id > 1) {
                 $product = SiteProjectSupplyProduct::find($item->product_id);
-                $order = ($product->id == 2) ? "100" . $specials ++ : $product->order;
+                $order = ($product->id == 2) ? "100" . $specials++ : $product->order;
                 $ordered[$order] = $item;
             }
         }
@@ -84,7 +84,7 @@ class SiteProjectSupply extends Model {
     {
         $maxID = SiteProjectSupplyProduct::all()->count();
 
-        for ($i = 3; $i <= $maxID; $i ++) {
+        for ($i = 3; $i <= $maxID; $i++) {
             $product = SiteProjectSupplyProduct::findOrFail($i);
             $item = SiteProjectSupplyItem::create(['supply_id' => $this->id, 'product_id' => $product->id, 'product' => $product->name]);
         }
@@ -107,11 +107,11 @@ class SiteProjectSupply extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'project supply',
-            'type_id'    => $this->id,
-            'name'       => 'Project Supply Information - ' . $site->name,
-            'info'       => 'Please update the supplied products for this site.',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'project supply',
+            'type_id' => $this->id,
+            'name' => 'Project Supply Information - ' . $site->name,
+            'info' => 'Please update the supplied products for this site.',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->site->company_id,
         ];
 
@@ -128,11 +128,11 @@ class SiteProjectSupply extends Model {
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [
-            'type'       => 'project supply',
-            'type_id'    => $this->id,
-            'name'       => 'Project Supply Information - ' . $site->name,
-            'info'       => 'Please sign off on completed items',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'project supply',
+            'type_id' => $this->id,
+            'name' => 'Project Supply Information - ' . $site->name,
+            'info' => 'Please sign off on completed items',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->site->company_id,
         ];
 

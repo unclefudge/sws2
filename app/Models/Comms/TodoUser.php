@@ -3,14 +3,11 @@
 namespace App\Models\Comms;
 
 use DB;
-use Mail;
-use App\User;
-
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
 
-class TodoUser extends Model {
+class TodoUser extends Model
+{
 
     protected $table = 'todo_user';
     protected $fillable = [
@@ -18,7 +15,7 @@ class TodoUser extends Model {
     ];
 
     public $timestamps = false;
-    protected $dates = ['opened_at'];
+    protected $casts = ['opened_at' => 'datetime'];
 
     /**
      * A TodoUser belongs to a ToDo

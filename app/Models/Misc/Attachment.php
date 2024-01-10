@@ -2,19 +2,18 @@
 
 namespace App\Models\Misc;
 
-use URL;
-use Mail;
-use App\Models\Misc\TemporaryFile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class Attachment extends Model {
+class Attachment extends Model
+{
 
     protected $table = 'attachments';
     protected $fillable = ['table', 'table_id', 'type', 'category', 'name', 'attachment', 'directory', 'order',
         'status', 'notes', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['updated_at'];
+    protected $casts = ['updated_at' => 'datetime'];
 
     /**
      * A Attachment belongs to a Parent Record
@@ -57,14 +56,14 @@ class Attachment extends Model {
 
             $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
             if (file_exists($tempFilePublicPath)) {
-                $newFile = ($filename_prefix) ? $filename_prefix.$tempFile->filename : $tempFile->filename;
+                $newFile = ($filename_prefix) ? $filename_prefix . $tempFile->filename : $tempFile->filename;
 
                 // Ensure filename is unique by adding counter to similar filenames
                 $count = 1;
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 

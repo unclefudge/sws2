@@ -14,12 +14,12 @@ use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 use nilsenj\Toastr\Facades\Toastr;
 
-class SiteHazardFile extends Model {
+class SiteHazardFile extends Model
+{
 
     protected $table = 'site_hazards_files';
     protected $fillable = ['hazard_id', 'type', 'name', 'attachment', 'notes', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-
-    protected $dates = ['updated_at'];
+    protected $casts = ['updated_at' => 'datetime'];
 
     /**
      * A SiteHazardFile belongs to a sitehazard

@@ -144,15 +144,14 @@ class FormController extends Controller
         //dd($formlogic);
         //dd($sections);
 
-        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->orderBy('order')->with('allChildSections')->get();
-        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->get();
+        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->orderBy('order')->get();
 
 
         //dd($sections);
         //dd('here');
 
         // Get Page data
-        return view('/site/inspection/custom/show2', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
+        return view('/site/inspection/custom/show', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
 
     public function verifyFormCompleted($form)
@@ -346,7 +345,7 @@ class FormController extends Controller
                                 $form->site_name = $site->name;
                             }
                             // Add the Inspected At details to form
-                            if ($question->name == 'Inspection date') {
+                            if ($question->name == 'Inspected at') {
                                 $form->inspected_at = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();
                             }
                             // Add the Inspected By details to form
@@ -358,8 +357,11 @@ class FormController extends Controller
 
                             // Set option_id + date field if required
                             $option_id = ($question->type == 'select' && !in_array($question->type_special, ['site', 'user'])) ? $resp : null;  // set option_id for select questions
-                            $date = ($question->type == 'datetime') ? $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString() : null;  // set date for datetime questions
-                            //$item_request['date'] = Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString();  date (no time)
+                            $date = null;
+                            if ($question->type == 'datetime')
+                                $date = Carbon::createFromFormat('d/m/Y H:i', $resp)->toDateTimeString();  // set date for datetime questions
+                            if ($question->type == 'date')
+                                $date = Carbon::createFromFormat('d/m/Y H:i:s', $resp . ' 00:00:00')->toDateTimeString();  // set date (not time) for datetime questions
 
                             $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $resp)->first();
                             if ($response) {
@@ -409,7 +411,13 @@ class FormController extends Controller
                                 $newFile = "$form_dir/" . $question->id . '-' . $tempFile->filename;
                                 rename($tempFilePublicPath, public_path($newFile));
                                 $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => 'photo', 'name' => $filename, 'attachment' => $newFile]);
+
+                                // Determine file extension and set type
+                                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
+                                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
+                                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+
+                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
                                 $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file)->first();
                                 if (!$response)
                                     $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $form_file->id, 'option_id' => null, 'date' => null]);
@@ -625,7 +633,8 @@ class FormController extends Controller
         $template_ids = FormTemplate::where('parent_id', request('template_id'))->pluck('id')->toArray();;
 
         $records = Form::select([
-            'forms.id', 'forms.template_id', 'forms.site_name', 'forms.inspected_by_name', 'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at',
+            'forms.id', 'forms.template_id', 'forms.site_name', 'forms.inspected_by_name', 'forms.inspected_at', 'forms.company_id', 'forms.status', 'forms.updated_at', 'forms.created_at', 'forms.created_by',
+            DB::raw('DATE_FORMAT(forms.created_at, "%d/%m/%y") AS createddate'),
             DB::raw('DATE_FORMAT(forms.inspected_at, "%d/%m/%y") AS inspecteddate'),
             DB::raw('DATE_FORMAT(forms.completed_at, "%d/%m/%y") AS completeddate')])
             ->whereIn('forms.template_id', $template_ids)
@@ -638,6 +647,10 @@ class FormController extends Controller
             ->addColumn('view', function ($report) {
                 return ('<div class="text-center"><a href="/site/inspection/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
             })
+            ->addColumn('created_by', function ($report) {
+                $user = User::find($report->created_by);
+                return ($user) ? $user->fullname : '';
+            })
             ->addColumn('action', function ($report) {
                 $actions = '';
                 if (Auth::user()->allowed2("del.site.inspection.whs", $report))
@@ -645,7 +658,7 @@ class FormController extends Controller
 
                 return $actions;
             })
-            ->rawColumns(['view', 'name', 'updated_at', 'created_at', 'action'])
+            ->rawColumns(['view', 'name', 'created_at', 'updated_at', 'created_at', 'action'])
             ->make(true);
 
         return $dt;

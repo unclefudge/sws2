@@ -97,34 +97,19 @@
                                     @endif
 
                                     <div id="sdiv-{{$section->id}}-content">
-                                        {{-- Child sections --}}
-                                        @if ($section->allChildSections->count())
-                                            @foreach ($section->allChildSections as $childSection)
-                                                @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
-                                            @endforeach
-                                        @else
-                                            {{-- Questions --}}
-                                            <div style="margin-bottom: 0px">
-                                                @foreach ($section->questions as $question)
-                                                    @include('site/inspection/custom/_show_question')
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        {{--
-                                         @if ($section->allChildSections->count())
-                                            @foreach ($section->allChildSections as $childSection)
-                                                @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
-                                            @endforeach
-                                       @endif
+                                        {{-- Questions --}}
                                         <div style="margin-bottom: 0px">
                                             @foreach ($section->questions as $question)
                                                 @include('site/inspection/custom/_show_question')
                                             @endforeach
                                         </div>
-                                        --}}
 
-
+                                        {{-- Child sections --}}
+                                        @if ($section->childSections)
+                                            @foreach ($section->childSections as $childSection)
+                                                @include('site/inspection/custom/_child_section', ['child_section' => $childSection])
+                                            @endforeach
+                                        @endif
                                     </div> {{-- end section-content div --}}
                                 </div> {{-- end section div --}}
                             @endforeach
@@ -134,10 +119,25 @@
                             @if (!$form->status && $pagenumber == '1')
                                 <h3 class="font-green-haze">Media Summary</h3>
                                 @if ($form->files()->count())
-                                    {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
-                                    @foreach ($form->files() as $file)
-                                        <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
-                                    @endforeach
+                                    {{-- Gallery --}}
+                                    <div id="media_gallery" style="margin-bottom: 20px">
+                                        @foreach ($form->files() as $file)
+                                            @if ($file->type == 'image')
+                                                <img src="{{$file->attachment}}" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    {{-- Files --}}
+                                    <div id="q{{$question->id}}-gallery" style="margin-bottom: 20px">
+                                        @foreach ($form->files() as $file)
+                                            @if ($file->type == 'file')
+                                                <div id="q{{$question->id}}-file-{{$file->id}}">
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+
                                 @else
                                     No media found
                                 @endif
@@ -194,19 +194,15 @@
     {{-- Filepond --}}
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>
     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-    {{--}}<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">--}}
 
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
-    {{--<script src="/assets/global/plugins/jquery.min.js" type="text/javascript"></script>--}}
-    {{--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>--}}
-    {{--}}<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>--}}
-    {{--}}<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>--}}
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
@@ -220,15 +216,11 @@
     <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
     <!--<script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>-->
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-    <!--<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>-->
-    {{--}}<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>--}}
-    {{--}}<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-resize.min.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-transform.min.js"></script>--}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script src="/js/site-inspection-filepond.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -239,6 +231,8 @@
                 /* Select2 */
                 var select2_ids = @json($s2_ids);
                 var select2_phs = @json($s2_phs);
+                //console.log(select2_ids);
+                //console.log(select2_phs);
                 for (var i = 0; i < select2_ids.length; i++) {
                     var id = select2_ids[i];
                     var placeholder = (select2_phs[id]) ? select2_phs[id] : "Select one or more options";
@@ -248,6 +242,45 @@
                     //console.log("s2:" + select2_ids[i]);
                 }
             }
+
+            // Site Select - set address + Supervisor
+            $('.siteID').change(function (e) {
+                e.preventDefault(e);
+                var qid = $(this).attr('id').substring(1);
+                var site_id = $("#q" + qid).select2("val");
+                $('#siteinfo' + qid).html('');
+                if (site_id != '') {
+                    // Site Address
+                    $.ajax({
+                        url: '/site/data/details/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var address = '';
+                            address = data.address;
+                            if (data.address != '') address = address + ', ';
+                            if (data.suburb != '') address = address + data.suburb + ', ';
+                            if (data.state != '') address = address + data.state + ' ';
+                            if (data.postcode != '') address = address + data.postcode + ' ';
+
+                            $('.siteAddress').val(address);
+                            //console.log(address);
+                        },
+                    });
+
+                    // Site Supervisor
+                    $.ajax({
+                        url: '/site/data/super/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var supervisor = data.firstname + ' ' + data.lastname;
+                            $('.siteSuper').val(supervisor);
+                            console.log(data);
+                        },
+                    })
+                }
+            });
 
             //
             // Page Previous/Next/Complete/Reopen Buttons
@@ -328,6 +361,22 @@
                 $('#shownote-' + qid).hide();
                 $('#shownote-' + qid + '-div').html($('#q' + qid + '-notes-orig').val('')); // clear html for note
                 $('#q' + qid + '-notes').val('');  // clear val for note
+            });
+
+            // Delete Files
+            $('.deleteFile').click(function (e) {
+                e.preventDefault(e);
+                var fid = $(this).attr('data-fid');
+                var file = $(this).attr('data-file');
+                $('#' + fid).hide();
+
+                // Create new input element with name of file to delete and add to DOM
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = "myGalleryDelete[]";
+                input.value = file;
+                input.style.display = 'none';
+                document.getElementById('custom_form').appendChild(input); // put it into the DOM
             });
 
             //
@@ -489,6 +538,12 @@
         $('.bs-datetime').datetimepicker({
             endDate: new Date(),
             format: 'dd/mm/yyyy hh:ii',
+        });
+
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
         });
 
         function todo(qid) {

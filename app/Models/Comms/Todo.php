@@ -2,31 +2,27 @@
 
 namespace App\Models\Comms;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Action;
-use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyDocReview;
 use App\Models\Company\CompanyDocPeriodTrade;
+use App\Models\Company\CompanyDocReview;
 use App\Models\Site\Incident\SiteIncidentWitness;
+use App\User;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
+use URL;
 
-class Todo extends Model {
+class Todo extends Model
+{
 
     protected $table = 'todo';
     protected $fillable = [
         'name', 'info', 'comments', 'type', 'type_id', 'type_id2', 'due_at', 'done_at', 'done_by',
         'priority', 'attachment', 'status', 'company_id', 'created_by', 'updated_by'
     ];
-
-    protected $dates = ['due_at', 'done_at'];
+    protected $casts = ['due_at' => 'datetime', 'done_at' => 'datetime'];
 
     /**
      * A Todoo belongs to a user

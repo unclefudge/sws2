@@ -2,17 +2,17 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Company\Company;
+use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class CompanyDocPeriodTrade extends Model {
+class CompanyDocPeriodTrade extends Model
+{
 
     protected $table = 'company_doc_ptc';
     protected $fillable = [
@@ -22,7 +22,8 @@ class CompanyDocPeriodTrade extends Model {
         'contractor_pl_name', 'contractor_pl_ref', 'contractor_pl_expiry', 'contractor_wc_name', 'contractor_wc_ref', 'contractor_wc_expiry',
         'contractor_sa_name', 'contractor_sa_ref', 'contractor_sa_expiry', 'contractor_signed_id', 'contractor_signed_at', 'contractor_signed_name',
         'share', 'notes', 'for_company_id', 'company_id', 'status', 'created_by', 'updated_by'];
-    protected $dates = ['date', 'expiry', 'contractor_pl_expiry', 'contractor_sa_expiry', 'contractor_wc_expiry', 'principle_signed_at', 'contractor_signed_at'];
+    protected $casts = ['date' => 'datetime', 'expiry' => 'datetime', 'contractor_pl_expiry' => 'datetime', 'contractor_sa_expiry' => 'datetime', 'contractor_wc_expiry' => 'datetime',
+        'principle_signed_at' => 'datetime', 'contractor_signed_at' => 'datetime'];
 
 
     /**
@@ -92,11 +93,11 @@ class CompanyDocPeriodTrade extends Model {
     {
         $company = Company::findOrFail($this->for_company_id);
         $todo_request = [
-            'type'       => 'company ptc',
-            'type_id'    => $this->id,
-            'name'       => 'Company Period Trade Contract Sign Off - ' . $company->name,
-            'info'       => 'Please sign/reject document',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'company ptc',
+            'type_id' => $this->id,
+            'name' => 'Company Period Trade Contract Sign Off - ' . $company->name,
+            'info' => 'Please sign/reject document',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -215,7 +216,7 @@ class CompanyDocPeriodTrade extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

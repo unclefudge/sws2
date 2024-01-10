@@ -2,21 +2,16 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Misc\Form\FormTemplate;
-use App\Models\Misc\Form\FormPage;
-use App\Models\Misc\Form\FormSection;
-use App\Models\Misc\Form\FormQuestion;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class FormFile extends Model {
+class FormFile extends Model
+{
 
     protected $table = 'forms_files';
-    protected $fillable = ['form_id', 'question_id', 'type', 'attachment', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
+    protected $fillable = ['form_id', 'question_id', 'type', 'name', 'attachment', 'order', 'notes', 'status', 'created_by', 'created_at', 'updated_at', 'updated_by'];
 
     /*
      * A FormFile belongs to a FormQuestion

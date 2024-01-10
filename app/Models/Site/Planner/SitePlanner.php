@@ -9,7 +9,8 @@ use Carbon\Carbon;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 
-class SitePlanner extends Model {
+class SitePlanner extends Model
+{
 
     //use SoftDeletes;
 
@@ -18,9 +19,7 @@ class SitePlanner extends Model {
         'site_id', 'from', 'to', 'days', 'entity_type', 'entity_id', 'task_id', 'weekend',
         'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['from', 'to'];
-    //protected $dates = ['from', 'to', 'deleted_at'];
+    protected $casts = ['from' => 'datetime', 'to' => 'datetime'];
 
     /**
      * A SitePlanner belongs to a site

@@ -13,13 +13,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class SiteScaffoldHandover extends Model {
+class SiteScaffoldHandover extends Model
+{
 
     protected $table = 'site_scaffold_handover';
     protected $fillable = [
         'site_id', 'location', 'use', 'duty', 'decks', 'inspector_name', 'inspector_licence', 'handover_date',
         'signed_by', 'signed_at', 'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $dates = ['handover_date', 'signed_at'];
+    protected $casts = ['handover_date' => 'datetime', 'sign_at' => 'datetime'];
 
 
     /**
@@ -122,7 +123,7 @@ class SiteScaffoldHandover extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 

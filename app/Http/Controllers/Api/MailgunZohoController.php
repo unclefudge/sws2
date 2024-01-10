@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use Mail;
-use File;
-use Carbon\Carbon;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Site\Site;
 use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Jobs\ZohoImportVerify;
+use App\Models\Site\Site;
+use Carbon\Carbon;
+use File;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Mail;
 
-class MailgunZohoController extends Controller {
+class MailgunZohoController extends Controller
+{
 
     public $debug = true;
     public $countSites = 0;
@@ -39,7 +38,7 @@ class MailgunZohoController extends Controller {
             if ($this->debug) app('log')->debug($valid_senders);
 
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Invalid email'
             ], 406);
         }
@@ -54,9 +53,10 @@ class MailgunZohoController extends Controller {
         if ($files->count() === 0) {
             if ($this->debug) app('log')->debug("========= Zoho Import Failed ==========");
             if ($this->debug) app('log')->debug("Missing expected CSV attachment");
+            if ($this->debug) app('log')->debug(request()->all());
 
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Missing expected CSV attachment'
             ], 406);
         } else {
@@ -83,7 +83,7 @@ class MailgunZohoController extends Controller {
                 //$mailgun_file = $this->retrieveMailgunFile($file['url']);  // Get file from Mailgun storage
 
                 // Save the file
-                $saved_file = public_path($dir . '/' . substr($file['name'], 0, - 4) . '.' . Carbon::now()->format('YmdHis') . '.csv');
+                $saved_file = public_path($dir . '/' . substr($file['name'], 0, -4) . '.' . Carbon::now()->format('YmdHis') . '.csv');
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
@@ -140,7 +140,7 @@ class MailgunZohoController extends Controller {
             if (!$save_enabled) $log .= "Save: DISABLED\n";
             if ($overwrite_with_blank) $log .= "Save: Overwrite With Blank\n";
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
-                $row ++;
+                $row++;
 
                 //
                 // Report Type Row
@@ -179,8 +179,8 @@ class MailgunZohoController extends Controller {
                 //
                 //if (stripos($data[0], "zcrm_") === 0) {
                 if ($row_report_type && $row_header && stripos($data[0], "zcrm_") === 0) {  // || $data[$head['code']] && $data[$head['name']]
-                    $row_data ++;
-                    $this->countSites ++;
+                    $row_data++;
+                    $this->countSites++;
                     $site = ($report_type == 'Jobs') ? Site::where('code', $data[$head['code']])->first() : Site::where('name', $data[$head['name']])->first();
                     $job_stage = (isset($head['job_stage'])) ? $data[$head['job_stage']] : '';
 
@@ -232,8 +232,8 @@ class MailgunZohoController extends Controller {
                             $site->save();
                             $site->cancelInspectionReports();
 
-                            if ($job_stage == '950 Sales Dropout') $sales_dropouts ++;
-                            if ($job_stage == '160 On Hold') $on_holds ++;
+                            if ($job_stage == '950 Sales Dropout') $sales_dropouts++;
+                            if ($job_stage == '160 On Hold') $on_holds++;
                         }
 
 
@@ -380,47 +380,47 @@ class MailgunZohoController extends Controller {
     {
         $this->convertHeaderFields = [
             // Jobs Module
-            'Record id'                  => 'zoho_id',
-            'Job Number'                 => 'code',
-            'ASC:Job Number'             => 'code',
-            'Job Name'                   => 'name',
+            'Record id' => 'zoho_id',
+            'Job Number' => 'code',
+            'ASC:Job Number' => 'code',
+            'Job Name' => 'name',
             // Address
-            'Street'                     => 'address',
-            'Suburb'                     => 'suburb',
-            'Post Code'                  => 'postcode',
+            'Street' => 'address',
+            'Suburb' => 'suburb',
+            'Post Code' => 'postcode',
             // Supervisor
-            'Super'                      => 'super_initials',
-            'Super Name'                 => 'super_name',
+            'Super' => 'super_initials',
+            'Super Name' => 'super_name',
             // Dates
-            'Approval Date'              => 'council_approval',
-            'CX Sent Date'               => 'contract_sent',
-            'CX Sign Date'               => 'contract_signed',
-            'CX Rcvd Date'               => 'contract_received',
-            'CX Deposit Date'            => 'deposit_paid',
-            'Prac Signed'                => 'completion_signed',
+            'Approval Date' => 'council_approval',
+            'CX Sent Date' => 'contract_sent',
+            'CX Sign Date' => 'contract_signed',
+            'CX Rcvd Date' => 'contract_received',
+            'CX Deposit Date' => 'deposit_paid',
+            'Prac Signed' => 'completion_signed',
             //'Eng Certified'       => 'engineering_cert',
-            'CC Rcvd Date'               => 'construction_rcvd',
-            'HBCF Start Date'            => 'hbcf_start',
-            'Fcst Comp Date'             => 'forecast_completion',
+            'CC Rcvd Date' => 'construction_rcvd',
+            'HBCF Start Date' => 'hbcf_start',
+            'Fcst Comp Date' => 'forecast_completion',
             // Other info
-            'Design Cons'                => 'consultant_initials',
-            'Design Cons (user)'         => 'consultant_name',
-            'Project Coordinator'        => 'project_mgr',
+            'Design Cons' => 'consultant_initials',
+            'Design Cons (user)' => 'consultant_name',
+            'Project Coordinator' => 'project_mgr',
             'Project Coordinator (user)' => 'project_mgr_name',
-            'Eng FJ Certified?'          => 'engineering',
-            'Job Stage'                  => 'job_stage',
+            'Eng FJ Certified?' => 'engineering',
+            'Job Stage' => 'job_stage',
 
             // Contacts Module
-            'Job Name (Job Name)'        => 'name',
-            'First Name 1'               => 'client1_firstname',
-            'Last Name 1'                => 'client1_lastname',
-            'Mobile'                     => 'client1_mobile',
-            'Email'                      => 'client1_email',
-            'First Name 2'               => 'client2_firstname',
-            'Last Name 2'                => 'client2_lastname',
-            'Mobile 2'                   => 'client2_mobile',
-            'Email 2'                    => 'client2_email',
-            'Letter Intro'               => 'client_intro'
+            'Job Name (Job Name)' => 'name',
+            'First Name 1' => 'client1_firstname',
+            'Last Name 1' => 'client1_lastname',
+            'Mobile' => 'client1_mobile',
+            'Email' => 'client1_email',
+            'First Name 2' => 'client2_firstname',
+            'Last Name 2' => 'client2_lastname',
+            'Mobile 2' => 'client2_mobile',
+            'Email 2' => 'client2_email',
+            'Letter Intro' => 'client_intro'
         ];
 
         $headers = [];
@@ -431,7 +431,7 @@ class MailgunZohoController extends Controller {
         foreach ($data as $name) {
             if (isset($this->convertHeaderFields[$name]))
                 $headers[$this->convertHeaderFields[$name]] = $col;
-            $col ++;
+            $col++;
 
             if ($report_type == 'Jobs')
                 $headers_jobs[] = $name;

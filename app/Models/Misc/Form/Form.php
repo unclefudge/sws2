@@ -2,19 +2,17 @@
 
 namespace App\Models\Misc\Form;
 
-use URL;
-use Mail;
-use App\User;
-use App\Models\Site\Site;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class Form extends Model {
+class Form extends Model
+{
 
     protected $table = 'forms';
     protected $fillable = ['template_id', 'name', 'site_id', 'site_name', 'inspected_by', 'inspected_by_name', 'inspected_at', 'submitted_at', 'completed_at', 'notes', 'status', 'company_id', 'created_by', 'created_at', 'updated_at', 'updated_by'];
-    protected $dates = ['inspected_at', 'submitted_at', 'completed_at'];
+    protected $casts = ['inspected_at' => 'datetime', 'submitted_at' => 'datetime', 'completed_at' => 'datetime'];
 
     /*
      * A Form belongs to a FormTemplate
@@ -110,6 +108,7 @@ class Form extends Model {
 
         return "Page $page_num";
     }
+
 
     /**
      * The "booting" method of the model.

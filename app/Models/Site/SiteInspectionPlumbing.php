@@ -24,8 +24,7 @@ class SiteInspectionPlumbing extends Model
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['client_contacted', 'inspected_at', 'assigned_at', 'supervisor_sign_at', 'manager_sign_at'];
+    protected $casts = ['client_contacted' => 'datetime', 'inspected_at' => 'datetime', 'assigned_at' => 'datetime', 'supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime'];
 
     /**
      * The "booting" method of the model.

@@ -20,9 +20,7 @@ class SiteHazard extends Model
         'attachment', 'notes', 'status', 'resolved_at',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
-
-    protected $dates = ['resolved_at'];
-    //public $timestamps = false;
+    protected $casts = ['resolved_at' => 'datetime'];
 
     /**
      * A SiteHazard belongs to a site

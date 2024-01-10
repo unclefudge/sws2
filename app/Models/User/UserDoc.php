@@ -13,14 +13,15 @@ use nilsenj\Toastr\Facades\Toastr;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class UserDoc extends Model {
+class UserDoc extends Model
+{
 
     protected $table = 'user_docs';
     protected $fillable = [
         'type', 'category_id', 'name', 'attachment', 'issued', 'expiry', 'ref_no', 'ref_name', 'ref_type',
         'version', 'private', 'share', 'notes', 'user_id', 'company_id',
         'status', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
-    protected $dates = ['expiry', 'issued', 'approved_at'];
+    protected $casts = ['expiry' => 'datetime', 'issued' => 'datetime', 'approved_at' => 'datetime'];
 
 
     /**
@@ -81,11 +82,11 @@ class UserDoc extends Model {
     {
         $user = User::findOrFail($this->user_id);
         $todo_request = [
-            'type'       => 'user doc',
-            'type_id'    => $this->id,
-            'name'       => 'User Document Approval Request - ' . $user->name . ' (' . $this->company->name . ')',
-            'info'       => 'Please approve/reject uploaded document',
-            'due_at'     => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'type' => 'user doc',
+            'type_id' => $this->id,
+            'name' => 'User Document Approval Request - ' . $user->name . ' (' . $this->company->name . ')',
+            'info' => 'Please approve/reject uploaded document',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -105,11 +106,11 @@ class UserDoc extends Model {
     {
         $mesg = ($expired == true) ? "$this->name Expired " . $this->expiry->format('d/m/Y') : "$this->name due to expire " . $this->expiry->format('d/m/Y');
         $todo_request = [
-            'type'       => 'user doc',
-            'type_id'    => $this->id,
-            'name'       => $mesg,
-            'info'       => 'Please uploaded a current version of the document',
-            'due_at'     => Carbon::today()->addDays(7)->toDateTimeString(),
+            'type' => 'user doc',
+            'type_id' => $this->id,
+            'name' => $mesg,
+            'info' => 'Please uploaded a current version of the document',
+            'due_at' => Carbon::today()->addDays(7)->toDateTimeString(),
             'company_id' => $this->company_id,
         ];
 
@@ -188,8 +189,6 @@ class UserDoc extends Model {
     }
 
 
-
-
     /**
      * Get the Attachment URL (setter)
      */
@@ -213,7 +212,7 @@ class UserDoc extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

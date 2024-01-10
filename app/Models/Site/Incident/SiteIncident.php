@@ -13,7 +13,8 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteIncident extends Model {
+class SiteIncident extends Model
+{
 
     protected $table = 'site_incidents';
     protected $fillable = [
@@ -25,8 +26,7 @@ class SiteIncident extends Model {
         'damage', 'damage_cost', 'damage_repair', 'risk_register', 'notes', 'step', 'status', 'company_id',
         'resolved_at', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-
-    protected $dates = ['date', 'regulator_date', 'resolved_at'];
+    protected $casts = ['date' => 'datetime', 'regulator_date' => 'datetime', 'resolved_at' => 'datetime'];
 
     /**
      * A SiteIncident belongs to a site
@@ -224,7 +224,7 @@ class SiteIncident extends Model {
                 while (file_exists(public_path("$dir/$newFile"))) {
                     $ext = pathinfo($newFile, PATHINFO_EXTENSION);
                     $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count ++ . ".$ext";
+                    $newFile = $filename . $count++ . ".$ext";
                 }
                 rename($tempFilePublicPath, public_path("$dir/$newFile"));
 

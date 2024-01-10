@@ -2,29 +2,29 @@
 
 namespace App\Models\Company;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-
-use Mail;
-use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
 use App\Models\Comms\SafetyTip;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\ToolboxTalk;
 use App\Models\Misc\Role2;
 use App\Models\Misc\SettingsNotificationCategory;
-//use App\Http\Utilities\SettingsNotificationTypes;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Safety\WmsDoc;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
+use App\Models\Site\Planner\Trade;
+use App\Models\Site\Site;
+use App\Traits\CompanyDocs;
+use App\User;
 use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
 use DB;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
 use Session;
 
-use App\Traits\CompanyDocs;
+//use App\Http\Utilities\SettingsNotificationTypes;
 
-class Company extends Model {
+class Company extends Model
+{
 
     use CompanyDocs;
 
@@ -37,7 +37,7 @@ class Company extends Model {
         'transient', 'maxjobs', 'notes', 'parent_company', 'subscription', 'signup_key', 'signup_step',
         'status', 'deactivated', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
 
-    protected $dates = ['licence_expiry', 'approved_at', 'deactivated'];
+    protected $casts = ['licence_expiry' => 'datetime', 'approved_at' => 'datetime', 'deactivated' => 'datetime'];
 
     /**
      * A Company has many staff.
@@ -365,7 +365,7 @@ class Company extends Model {
         foreach ($this->companies($status) as $company) {
             if ($status == '') {
                 $array[$company->id] = ($company->status == 0) ? $company->name_alias . " - INACTIVE" : $company->name_alias;
-            }else
+            } else
                 $array[$company->id] = $company->name_alias;
         }
 
@@ -490,7 +490,7 @@ class Company extends Model {
             }
             $user->status = 0;
             $user->save();
-            $count ++;
+            $count++;
         }
         if ($count)
             Toastr::error("($count) Users deactivated");
@@ -547,7 +547,7 @@ class Company extends Model {
 
         $count = 0;
         foreach ($planner as $plan) {
-            $count ++;
+            $count++;
             $trade_id = Task::findOrFail($plan->task_id)->trade_id;
             if ($trade_id) {
                 $plan->entity_type = 't';
@@ -840,7 +840,7 @@ class Company extends Model {
         $array = [];
         foreach ($this->supervisors() as $user) {
             if ($exclude_id != $user->id)
-            $array[$user->id] = $user->fullname;
+                $array[$user->id] = $user->fullname;
         }
 
         asort($array);
@@ -1047,13 +1047,13 @@ class Company extends Model {
     {
         if ($this->business_entity == '1' || $this->business_entity == '4' || $this->business_entity == '5') // Company or Trading Trust or Sole Trader with employees
             $array = [
-                'a. Is a Propriety Limited Company (Pty Ltd)'                  => 'a. Is a Propriety Limited Company (Pty Ltd)',
-                'b. Had a Workers Compensation Policy'                         => 'b. Had a Workers Compensation Policy',
+                'a. Is a Propriety Limited Company (Pty Ltd)' => 'a. Is a Propriety Limited Company (Pty Ltd)',
+                'b. Had a Workers Compensation Policy' => 'b. Had a Workers Compensation Policy',
                 'c. Work by Quotes or Tender (must refer to quote on invoice)' => 'c. Work by Quotes or Tender (must refer to quote on invoice)'];
         else
             $array = [
                 'c. Work by Quotes or Tender (must refer to quote on invoice)' => 'c. Work by Quotes or Tender (must refer to quote on invoice)',
-                '3. Contract of service (Written or Implied) - Hourly'         => '3. Contract of service (Written or Implied) - Hourly'];
+                '3. Contract of service (Written or Implied) - Hourly' => '3. Contract of service (Written or Implied) - Hourly'];
 
         return ($prompt) ? $array = array('' => 'Select category') + $array : $array;
     }
@@ -1431,7 +1431,7 @@ class Company extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

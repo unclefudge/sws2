@@ -11,14 +11,15 @@ use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class SiteIncidentConversation extends Model {
+class SiteIncidentConversation extends Model
+{
 
     protected $table = 'site_incidents_conversations';
     protected $fillable = [
         'incident_id', 'user_id', 'name', 'witness', 'start', 'end', 'details',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];
-    protected $dates = ['start', 'end'];
+    protected $casts = ['start' => 'datetime', 'end' => 'datetime'];
 
     /**
      * A SiteIncidentConversation belongs to a SiteIncident
@@ -71,7 +72,7 @@ class SiteIncidentConversation extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

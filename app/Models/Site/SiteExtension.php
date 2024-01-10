@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
-class SiteExtension extends Model {
+class SiteExtension extends Model
+{
 
     protected $table = 'site_extensions';
     protected $fillable = ['name', 'date', 'approved_by', 'approved_at', 'attachment', 'status', 'notes'];
 
-    protected $dates = ['date', 'approved_at'];
+    protected $casts = ['date' => 'datetime', 'approved_at' => 'datetime'];
 
     /**
      * A SiteExtension has many sites.
@@ -69,15 +70,15 @@ class SiteExtension extends Model {
         $data = [];
         foreach ($this->sites as $site_ext) {
             $data[] = [
-                'id'                   => $site_ext->id,
-                'name'                 => $site_ext->site->name,
-                'super_initials'       => $site_ext->site->supervisorInitials,
-                'completion_date'      => ($site_ext->completion_date) ? $site_ext->completion_date->format('d/m/y') : '',
-                'extend_reasons'       => $site_ext->reasons,
-                'extend_reasons_text'  => $site_ext->reasonsSBC(),
+                'id' => $site_ext->id,
+                'name' => $site_ext->site->name,
+                'super_initials' => $site_ext->site->supervisorInitials,
+                'completion_date' => ($site_ext->completion_date) ? $site_ext->completion_date->format('d/m/y') : '',
+                'extend_reasons' => $site_ext->reasons,
+                'extend_reasons_text' => $site_ext->reasonsSBC(),
                 'extend_reasons_array' => $site_ext->reasonsArray(),
-                'days'                 => $site_ext->days,
-                'notes'                => $site_ext->notes
+                'days' => $site_ext->days,
+                'notes' => $site_ext->notes
             ];
         }
 
@@ -108,11 +109,11 @@ class SiteExtension extends Model {
     public function createSignOffToDo($user_list)
     {
         $todo_request = [
-            'type'       => 'extension signoff',
-            'type_id'    => $this->id,
-            'name'       => 'Authorise Contract Time Extensions - ' . $this->date->format('d/m/Y'),
-            'info'       => 'Please sign off on completed items',
-            'due_at'     => Carbon::today()->toDateTimeString(),
+            'type' => 'extension signoff',
+            'type_id' => $this->id,
+            'name' => 'Authorise Contract Time Extensions - ' . $this->date->format('d/m/Y'),
+            'info' => 'Please sign off on completed items',
+            'due_at' => Carbon::today()->toDateTimeString(),
             'company_id' => 3,
         ];
 

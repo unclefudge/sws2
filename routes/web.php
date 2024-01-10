@@ -521,7 +521,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/{site_id}/whs-management-plan', '\App\Http\Controllers\Site\SiteController@createWhsManagementPlan');
     Route::get('site/data/doc/dt', '\App\Http\Controllers\Site\SiteController@getSiteDocs');
     Route::get('site/data/details/{id}', '\App\Http\Controllers\Site\SiteController@getSiteDetails');
-    Route::get('site/data/supervisor/{id}', '\App\Http\Controllers\Site\SiteController@getSiteSuper');
+    Route::get('site/data/super/{id}', '\App\Http\Controllers\Site\SiteController@getSiteSuper');
     //Route::get('site/data/owner/{id}', '\App\Http\Controllers\Site\SiteController@getSiteOwner');
     Route::resource('site', '\App\Http\Controllers\Site\SiteController');
 

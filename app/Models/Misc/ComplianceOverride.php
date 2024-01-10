@@ -2,23 +2,21 @@
 
 namespace App\Models\Misc;
 
-use DB;
-use URL;
-use Mail;
 use App\User;
-use App\Models\Comms\Todo;
-use App\Models\Company\Company;
-use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
-class ComplianceOverride extends Model {
+class ComplianceOverride extends Model
+{
 
     protected $table = 'compliance_override';
     protected $fillable = [
         'type', 'required', 'user_id', 'for_company_id', 'company_id', 'reason', 'expiry',
         'status', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
-    protected $dates = ['expiry'];
+    protected $casts = ['expiry' => 'datetime'];
 
 
     /**
@@ -72,7 +70,7 @@ class ComplianceOverride extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

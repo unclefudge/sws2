@@ -2,16 +2,16 @@
 
 namespace App\Models\Company;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
 use App\Models\Misc\ContractorLicence;
 use App\Models\Misc\ContractorLicenceSupervisor;
+use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use URL;
 
 class CompanyDoc extends Model
 {
@@ -21,7 +21,7 @@ class CompanyDoc extends Model
         'type', 'category_id', 'name', 'attachment', 'expiry', 'ref_no', 'ref_name', 'ref_type',
         'version', 'private', 'share', 'notes', 'for_company_id', 'company_id',
         'status', 'created_by', 'updated_by', 'approved_by', 'approved_at'];
-    protected $dates = ['expiry', 'approved_at'];
+    protected $casts = ['expiry' => 'datetime', 'approved_at' => 'datetime'];
 
 
     /**
@@ -145,15 +145,14 @@ class CompanyDoc extends Model
             $todo = Todo::create($todo_request);
             $todo->assignUsers($user_list);
             $todo->emailToDo();
-        }
-        if (\App::environment('prod')) {
-            if ($this->category->type == 'whs')
-                $todo->emailToDo(['kirstie@capecod.com.au', 'tara@capecod.com.au']);
-            else
-                $todo->emailToDo('kirstie@capecod.com.au');
-        }
 
-
+            if (\App::environment('prod')) {
+                if ($this->category->type == 'whs')
+                    $todo->emailToDo(['kirstie@capecod.com.au']);
+                else
+                    $todo->emailToDo('kirstie@capecod.com.au');
+            }
+        }
     }
 
     /**

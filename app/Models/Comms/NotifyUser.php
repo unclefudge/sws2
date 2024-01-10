@@ -3,14 +3,11 @@
 namespace App\Models\Comms;
 
 use DB;
-use Mail;
-use App\User;
-
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
 
-class NotifyUser extends Model {
+class NotifyUser extends Model
+{
 
     protected $table = 'notify_user';
     protected $fillable = [
@@ -18,7 +15,7 @@ class NotifyUser extends Model {
     ];
 
     public $timestamps = false;
-    protected $dates = ['opened_at'];
+    protected $casts = ['opened_at' => 'datetime'];
 
     /**
      * A NotifyUser belongs to a Notify
