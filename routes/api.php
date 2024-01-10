@@ -30,8 +30,9 @@ Route::group([
 
 Route::group([
     'prefix' => 'mailgun',
-],function () {
+], function () {
     Route::post('zoho', 'Api\MailgunZohoController@store');
+    Route::post('sitenote', 'Api\MailgunSiteNoteController@store');
 });
 
 
