@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Misc\Attachment;
 use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use Carbon\Carbon;
 use File;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Mail;
 
@@ -88,19 +86,7 @@ class MailgunSiteNoteController extends Controller
         // Create New Site Note
         $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "[System Generated Note Reply From: $sender]\n$emailBody", 'created_by' => 1, 'updated_by' => 1]);
 
-        // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
-        }
-
-
-        $bytes_written = File::append($this->logfile, $log);
-        if ($bytes_written === false) die("Error writing to file");
-
+        /*
         // Get the attachments
         $dir = '/filebank/tmp/sitenote';
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
@@ -108,19 +94,25 @@ class MailgunSiteNoteController extends Controller
         $files = collect(json_decode(request()->input('attachments'), true));
         if ($files->count()) {
             foreach ($files as $file) {
-                //$mailgun_file = $this->retrieveMailgunFile($file['url']);  // Get file from Mailgun storage
-
                 // Save the file
-                $saved_file = public_path($dir . '/' . substr($file['name'], 0, -4) . '.' . Carbon::now()->format('YmdHis') . '.csv');
+                $saved_file = public_path($dir . '/' .$file);
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
                 if ($this->debug) app('log')->debug("Saving file: $saved_file");
 
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment->saveAttachment($saved_file);
+
                 //$result = $this->parseFile($saved_file);
             }
-        }
+        }*/
 
+        // Email New Note
+        $note->emailNote();
+
+        $bytes_written = File::append($this->logfile, $log);
+        if ($bytes_written === false) die("Error writing to file");
 
         return response()->json(['status' => 'ok'], 200);
     }
