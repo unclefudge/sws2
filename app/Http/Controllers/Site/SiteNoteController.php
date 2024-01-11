@@ -2,30 +2,21 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
-use App\Models\Comms\Todo;
-use App\Models\Misc\Category;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Misc\Attachment;
-use App\Models\Site\Site;
+use App\Models\Misc\Category;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
-use App\Models\Company\Company;
-use App\Http\Controllers\Misc\CategoryController;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
+use Input;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteNoteController
@@ -101,6 +92,7 @@ class SiteNoteController extends Controller
 
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+        $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->pluck('name', 'id')->toArray();
 
         return view('site/note/create', compact('site_id', 'site_list', 'categories'));
     }
@@ -124,10 +116,10 @@ class SiteNoteController extends Controller
         $mesg = ['site_id.required' => 'The site field is required.',
             'category_id.required' => 'The category field is required.',
             'notes.required' => 'The notes field is required.',
-            'variation_name.required'       => 'The variation name field is required.',
-            'variation_info.required'       => 'The variation description field is required.',
-            'variation_cost.required'       => 'The variation cost field is required.',
-            'variation_days.required'       => 'The variation days field is required.'
+            'variation_name.required' => 'The variation name field is required.',
+            'variation_info.required' => 'The variation description field is required.',
+            'variation_cost.required' => 'The variation cost field is required.',
+            'variation_days.required' => 'The variation days field is required.'
         ];
         request()->validate($rules, $mesg); // Validate
         //dd(request()->all());
@@ -294,7 +286,7 @@ class SiteNoteController extends Controller
 
         $dt = Datatables::of($records)
             ->editColumn('id', function ($note) {
-                return ('<div class="text-center"><a href="/site/note/'.$note->id.'"><i class="fa fa-search"></i></a></div>');
+                return ('<div class="text-center"><a href="/site/note/' . $note->id . '"><i class="fa fa-search"></i></a></div>');
             })
             ->editColumn('updated_at', function ($note) {
                 return $note->updated_at->format('d/m/Y');
