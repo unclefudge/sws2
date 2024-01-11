@@ -95,7 +95,7 @@
                         </div>
 
                         {{-- Attachments --}}
-                        <h5>Attachments:</h5>
+                        <h5><b>Attachments:</b></h5>
                         @if ($note->attachments()->count())
                             <hr style="margin: 10px 0px; padding: 0px;">
                             {{-- Image attachments --}}

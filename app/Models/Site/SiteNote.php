@@ -13,7 +13,7 @@ class SiteNote extends Model
 {
 
     protected $table = 'site_notes';
-    protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_cost', 'variation_days', 'response_req', 'status', 'notes'];
+    protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_cost', 'variation_days', 'response_req', 'status', 'notes', 'created_by', 'updated_by'];
 
     /**
      * A SiteNote belongs to a Site
