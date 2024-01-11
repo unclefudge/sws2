@@ -59,7 +59,7 @@ class MailgunSiteNoteController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Invalid site'], 406);  // Mailgun fail message
         }
 
-        $note = SiteNote::where('id', $sitenote)->first();
+        $note = SiteNote::where('id', $siteNote)->first();
         if (!$note) {
             if ($this->debug) app('log')->debug("========= SiteNote Import Failed ==========");
             if ($this->debug) app('log')->debug("Invalid SiteNote: [$siteNote]");
