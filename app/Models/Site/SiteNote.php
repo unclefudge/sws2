@@ -77,7 +77,7 @@ class SiteNote extends Model
         }*/
 
         if ($email_to)
-            Mail::to($email_to)->cc('sitenote@capecod.com.au')->send(new \App\Mail\Site\SiteNoteCreated($this));
+            Mail::to($email_to)->cc('sitenote@safeworksite.com.au')->send(new \App\Mail\Site\SiteNoteCreated($this));
 
     }
 
