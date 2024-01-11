@@ -25,10 +25,11 @@ class MailgunSiteNoteController extends Controller
 
         // Ensure Email is sent from specified address
         $valid_senders_domains = ['jordan.net.au', 'capecod.com.au'];
-        list($send_name, $sender_domain) = explode('@', request('sender'));
-        if (!in_array($sender_domain, $valid_senders_domains) || request('sender') == 'do-not-reply@safeworksite.com.au') {  // Sender
+        $sender = request('sender');
+        list($send_name, $sender_domain) = explode('@', $sender);
+        if (!in_array($sender_domain, $valid_senders_domains) || $sender == 'do-not-reply@safeworksite.com.au') {  // Sender
             if ($this->debug) app('log')->debug("========= SiteNote Import Failed ==========");
-            if ($this->debug) app('log')->debug("Invalid Sender: [" . request('sender') . "]");
+            if ($this->debug) app('log')->debug("Invalid Sender: [$sender]");
 
             return response()->json(['status' => 'error', 'message' => 'Invalid email'], 406);  // Mailgun fail message
         }
@@ -85,7 +86,7 @@ class MailgunSiteNoteController extends Controller
 
 
         // Create New Site Note
-        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "<b>Email Reply:</b>\n$emailBody"]);
+        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "[Automated Email Reply From: $sender\n$emailBody", 'created_by' => 1, 'updated_by' => 1]);
 
         // Handle attachments
         $attachments = request("filepond");
