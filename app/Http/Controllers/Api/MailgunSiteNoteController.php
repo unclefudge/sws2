@@ -22,12 +22,11 @@ class MailgunSiteNoteController extends Controller
     {
         if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
         if ($this->debug) app('log')->debug(request()->all());
-        ray(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders_domains = ['jordan.net.au', 'capecod.com.au'];
         list($send_name, $sender_domain) = explode('@', request('From'));
-        if (!in_array($sender_domain, $valid_senders_domains) || request('From') == 'do-not-reply@capecod.com.au') {  // From
+        if (!in_array($sender_domain, $valid_senders_domains) || request('From') == 'do-not-reply@safeworksite.com.au') {  // From
             if ($this->debug) app('log')->debug("========= SiteNote Import Failed ==========");
             if ($this->debug) app('log')->debug("Invalid Sender: [" . request('From') . "]");
             if ($this->debug) app('log')->debug($valid_senders_domains);
