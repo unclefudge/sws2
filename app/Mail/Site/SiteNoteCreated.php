@@ -4,11 +4,12 @@ namespace App\Mail\Site;
 
 use App\Models\Site\SiteNote;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteNoteCreated extends Mailable implements ShouldQueue {
+class SiteNoteCreated extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -31,8 +32,8 @@ class SiteNoteCreated extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        //$subject = 'SafeWorksite - SiteNote[#'. $this->note->id .'] for ' . $this->note->site->name . ' ('. $this->note->category->name . ')';
-        $subject = 'SafeWorksite - SiteNote for ' . $this->note->site->name . ' ('. $this->note->category->name . ')';
+        $subject = 'SafeWorksite - SiteNote[#' . $this->note->site->code . '-' . $this->note->id . '] for ' . $this->note->site->name . ' (' . $this->note->category->name . ')';
+        //$subject = 'SafeWorksite - SiteNote for ' . $this->note->site->name . ' ('. $this->note->category->name . ')';
         $email = $this->markdown('emails/site/note-created')->subject($subject);
         // Attachments
         if ($this->note->attachments()->count()) {

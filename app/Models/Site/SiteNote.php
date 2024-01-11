@@ -3,7 +3,6 @@
 namespace App\Models\Site;
 
 use App\Models\Misc\Attachment;
-use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -61,6 +60,7 @@ class SiteNote extends Model
     {
         $email_to = [env('EMAIL_DEV')];
 
+        /*
         if (\App::environment('prod')) {
             $email_to = [];
             if ($this->category->notify_users) {
@@ -72,9 +72,9 @@ class SiteNote extends Model
                 }
             }
             // Include Site Supervisor on email
-            //if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
-            //    $email_to[] = $this->site->supervisor->email;
-        }
+            if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
+                $email_to[] = $this->site->supervisor->email;
+        }*/
 
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\SiteNoteCreated($this));

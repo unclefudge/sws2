@@ -47,9 +47,11 @@ class MailgunSiteNoteController extends Controller
         }
 
         // Get Site Details from Subject  #SiteNote:1234
-        list($crap, $rest) = explode('#SiteNote:', $emailSubject, 2);
-        $filteredNumbers = array_filter(preg_split("/\D+/", $rest));
-        $siteCode = reset($filteredNumbers);
+        list($crap, $rest) = explode('SiteNote[#', $emailSubject, 2);
+        list($siteCase, $crap) = explode(']', $rest, 2);
+        list($siteCode, $siteNote) = explode('-', $siteCase);
+        //$filteredNumbers = array_filter(preg_split("/\D+/", $rest));
+        //$siteCase = reset($filteredNumbers);
 
         $site = Site::where('code', $siteCode)->first();
         if (!$site) {
@@ -58,9 +60,18 @@ class MailgunSiteNoteController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Invalid site'], 406);  // Mailgun fail message
         }
 
+        $note = SiteNote::where('id', $sitenote)->first();
+        if (!$note) {
+            if ($this->debug) app('log')->debug("========= SiteNote Import Failed ==========");
+            if ($this->debug) app('log')->debug("Invalid SiteNote: [$siteNote]");
+            return response()->json(['status' => 'error', 'message' => 'Invalid note'], 406);  // Mailgun fail message
+        }
 
+        // Valid Site Note - Process
         if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
-        if ($this->debug) app('log')->debug("Site:" . $site->name . "\nBody:\n$emailBody\n**** End Body ****\n");
+        if ($this->debug) app('log')->debug("Site:" . $site->name);
+        if ($this->debug) app('log')->debug("Note:" . $note->id);
+        if ($this->debug) app('log')->debug("Body:\n$emailBody\n**** End Body ****\n");
 
 
         // SiteNote log
@@ -75,7 +86,7 @@ class MailgunSiteNoteController extends Controller
 
 
         // Create New Site Note
-        $note = SiteNote::create([]);
+        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => $emailBody]);
 
         // Handle attachments
         $attachments = request("filepond");
