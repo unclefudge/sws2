@@ -109,7 +109,7 @@ class MailgunSiteNoteController extends Controller
         }*/
 
         // Email New Note
-        $note->emailNote();
+        //$note->emailNote();
 
         $bytes_written = File::append($this->logfile, $log);
         if ($bytes_written === false) die("Error writing to file");
