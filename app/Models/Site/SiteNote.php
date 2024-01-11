@@ -2,17 +2,16 @@
 
 namespace App\Models\Site;
 
-use PDF;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Misc\Attachment;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 
-class SiteNote extends Model {
+class SiteNote extends Model
+{
 
     protected $table = 'site_notes';
     protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_cost', 'variation_days', 'response_req', 'status', 'notes'];
@@ -73,11 +72,11 @@ class SiteNote extends Model {
                 }
             }
             // Include Site Supervisor on email
-            if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
-                $email_to[] = $this->site->supervisor->email;
+            //if ($this->site->supervisor_id && validEmail($this->site->supervisor->email))
+            //    $email_to[] = $this->site->supervisor->email;
         }
 
-       if ($email_to)
+        if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\SiteNoteCreated($this));
 
     }
