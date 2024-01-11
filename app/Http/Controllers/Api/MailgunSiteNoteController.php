@@ -86,7 +86,7 @@ class MailgunSiteNoteController extends Controller
 
 
         // Create New Site Note
-        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "<b>Email Reply:</b>\n"$emailBody]);
+        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "<b>Email Reply:</b>\n$emailBody"]);
 
         // Handle attachments
         $attachments = request("filepond");
