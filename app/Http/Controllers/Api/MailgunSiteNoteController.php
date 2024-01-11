@@ -21,7 +21,7 @@ class MailgunSiteNoteController extends Controller
     public function store(Request $request)
     {
         //if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
-        if ($this->debug) app('log')->debug(request()->all());
+        //if ($this->debug) app('log')->debug(request()->all());
 
         // Ensure Email is sent from specified address
         $valid_senders_domains = ['jordan.net.au', 'capecod.com.au'];
