@@ -25,11 +25,12 @@ class MailgunSiteNoteController extends Controller
         ray(request()->all());
 
         // Ensure Email is sent from specified address
-        $valid_senders = ['<fudge@jordan.net.au>', 'fudge@jordan.net.au', '<systemgenerated@zohocrm.com>', 'systemgenerated@zohocrm.com'];
-        if (!(in_array(request('From'), $valid_senders) || in_array(request('X-Envelope-From'), $valid_senders))) {  // X-Envelope-From
+        $valid_senders_domains = ['jordan.net.au', 'capecod.com.au'];
+        list($send_name, $sender_domain) = explode('@', request('From'));
+        if (!in_array($sender_domain, $valid_senders_domains)) {  // From
             if ($this->debug) app('log')->debug("========= SiteNote Import Failed ==========");
-            if ($this->debug) app('log')->debug("Invalid Sender: [" . request('X-Envelope-From') . "]");
-            if ($this->debug) app('log')->debug($valid_senders);
+            if ($this->debug) app('log')->debug("Invalid Sender: [" . request('From') . "]");
+            if ($this->debug) app('log')->debug($valid_senders_domains);
 
             return response()->json(['status' => 'error', 'message' => 'Invalid email'], 406);  // Mailgun fail message
         }
@@ -86,7 +87,7 @@ class MailgunSiteNoteController extends Controller
 
 
         // Create New Site Note
-        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => $emailBody]);
+        $note = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "<b>Email Reply:</b>\n"$emailBody]);
 
         // Handle attachments
         $attachments = request("filepond");
