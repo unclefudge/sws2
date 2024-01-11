@@ -35,6 +35,16 @@ class MailgunSiteNoteController extends Controller
         }
 
         if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
+        $emailFrom = request('X-Envelope-From');
+        $emailSubject = request('subject');
+        $emailBody = request('body-plain');
+
+        // Get Site Details from Subject  #SiteNote:1234
+        list($crap, $rest) = explode('#SiteNote:', $emailSubject, 2);
+        $filteredNumbers = array_filter(preg_split("/\D+/", $rest));
+        $siteCode = reset($filteredNumbers);
+
+        if ($this->debug) app('log')->debug("From: $emailFrom\nSubject:$emailSubject\nSiteCode:$siteCode\nBodyStart\n$emailBody\nBodyEnd\n");
 
         // SiteNote log
         $dir = '/filebank/log/sitenote';
