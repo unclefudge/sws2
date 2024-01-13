@@ -25,7 +25,7 @@ if ($showrequired && $question->required) {
             <div class="col-md-12">
                 <div class="form-group">
                         <?php $required = ($question->required) ? "<small><span class='fa fa-thin fa-asterisk font-red' style='opacity: 0.7'></span></small>" : '' ?>
-                    <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{{ $question->id }}. {!! $question->name !!} {!! $required  !!}
+                    <label for="name" class="control-label {{ ($highlight_required) ? 'font-red' : ''}}" style="font-size: 18px">{!! $question->name !!} {!! $required  !!}
                         {{--}}<small>T:{{ $question->type }} TS: {{ $question->type_special }} V:{!! (is_array($val)) ? print_r(implode(',', $val)) : $val !!}</small>--}}
                     </label>
                     @if ($question->helper)
@@ -123,7 +123,7 @@ if ($showrequired && $question->required) {
         {{-- Completed Form - display only text response --}}
         <div class="row gggg" style="margin-bottom: 20px">
             <div class="col-md-12">
-                <span class="" style="font-size:18px"><b>{{ $question->id }}. {!! $question->name !!}</b></span><br>
+                <span class="" style="font-size:18px"><b>{!! $question->name !!}</b></span><br>
                 {!! nl2br($question->responseFormatted($form->id)) !!}
                 @if (is_array($val))
                     @foreach ($val as $v)
