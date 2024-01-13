@@ -44,12 +44,10 @@ class MailgunSiteNoteController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Invalid email'], 406);  // Mailgun fail message
         }
 
-        // Get Site Details from Subject  #SiteNote:1234
+        // Get Site Details from Subject  [SiteNote#1234-11]
         list($crap, $rest) = explode('SiteNote[#', $emailSubject, 2);
         list($siteCase, $crap) = explode(']', $rest, 2);
         list($siteCode, $siteNote) = explode('-', $siteCase);
-        //$filteredNumbers = array_filter(preg_split("/\D+/", $rest));
-        //$siteCase = reset($filteredNumbers);
 
         $site = Site::where('code', $siteCode)->first();
         if (!$site) {
@@ -66,16 +64,16 @@ class MailgunSiteNoteController extends Controller
         }
 
         // Valid Site Note - Process
-        if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
-        if ($this->debug) app('log')->debug("Site:" . $site->name);
-        if ($this->debug) app('log')->debug("Note:" . $note->id);
-        if ($this->debug) app('log')->debug("Body:\n$emailBody\n**** End Body ****\n");
+        //if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
+        //if ($this->debug) app('log')->debug("Site:" . $site->name);
+        //if ($this->debug) app('log')->debug("Note:" . $note->id);
+        //if ($this->debug) app('log')->debug("Body:\n$emailBody\n**** End Body ****\n");
 
 
         // SiteNote log
-        $dir = '/filebank/log/sitenote';
+        $dir = '/filebank/log';
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-        $this->logfile = public_path('filebank/log/sitenote/sitenote.txt');
+        $this->logfile = public_path('filebank/log/sitenote.txt');
 
         $log = "------------------------------------------\nSiteNote Import - " . Carbon::now()->format('d/m/Y g:i a') . "\n------------------------------------------\n\n";
         $log .= "From: $emailFrom\n";

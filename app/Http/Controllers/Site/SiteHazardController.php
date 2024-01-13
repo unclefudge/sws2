@@ -2,30 +2,26 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteHazardRequest;
+use App\Models\Misc\Action;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
-use App\Models\Misc\Action;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteHazardRequest;
-use App\Http\Controllers\Controller;
+use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteHazardController
  * @package App\Http\Controllers
  */
-class SiteHazardController extends Controller {
+class SiteHazardController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -68,7 +64,7 @@ class SiteHazardController extends Controller {
             return view('errors/404');
 
         $my_request = $request->except('action');
-        //dd($my_request);
+        dd($my_request);
         $hazard = SiteHazard::create($my_request);
 
         //Create action taken + attach image to issue

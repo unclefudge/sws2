@@ -24,8 +24,8 @@
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form']) !!}
-                        {!! Form::hidden('previous_url', url()->previous()) !!}
+                        {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <input name="previous_url" type="hidden" value="{!! url()->previous() !!}">
                         @include('form-error')
 
                         <div class="form-body">
@@ -35,6 +35,7 @@
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
+                                        {{--}}<x-input-select name='site_id' :options="$site_list" :default="$site_id" class="select2"></x-input-select>--}}
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>

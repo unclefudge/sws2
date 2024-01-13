@@ -122,7 +122,7 @@ class SiteNoteController extends Controller
             'variation_days.required' => 'The variation days field is required.'
         ];
         request()->validate($rules, $mesg); // Validate
-        //dd(request()->all());
+        dd(request()->all());
 
         // Create Site Note
         $note = SiteNote::create(request()->all());
@@ -131,10 +131,8 @@ class SiteNoteController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                if ($tmp_filename) {
-                    $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
-                    $attachment->saveAttachment($tmp_filename);
-                }
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment->saveAttachment($tmp_filename);
             }
         }
 
