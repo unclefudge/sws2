@@ -556,7 +556,7 @@ class FormSetupController extends Controller
         $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => null, 'name' => null, 'description' => "Section 1a", 'order' => $sn++]);
         $sid = $section->id;
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Site", 'type' => "select", 'type_special' => 'site', 'type_version' => 'select2',
+            'name' => "Site", 'type' => "select", 'type_special' => 'site_upcoming', 'type_version' => 'select2',
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1, 'placeholder' => 'Select site']);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
             'name' => "Date initiated", 'type' => "date", 'type_special' => null, 'type_version' => null,

@@ -81,6 +81,14 @@ if ($showrequired && $question->required) {
                             {{-- Site --}}
                             @if ($question->type_special == 'site')
                                 <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2 siteID" style="width:100%">
+                                    {!! Auth::user()->authSitesSelect2Options('view.site.list', $val, [1,2]) !!}
+                                </select>
+                                <div id="siteinfo{{$question->id}}"></div>
+                            @endif
+
+                            {{-- Site --}}
+                            @if ($question->type_special == 'site_upcoming')
+                                <select id="q{{$question->id}}" name="q{{$question->id}}" class="form-control select2 siteID" style="width:100%">
                                     {!! Auth::user()->authSitesSelect2Options('view.site.list', $val, '-1') !!}
                                 </select>
                                 <div id="siteinfo{{$question->id}}"></div>
@@ -92,7 +100,7 @@ if ($showrequired && $question->required) {
                             @endif
 
                             {{-- Special Rest--}}
-                            @if ($question->type_special && !in_array($question->type_special, ['site', 'staff']))
+                            @if ($question->type_special && !in_array($question->type_special, ['site', 'site_upcoming', 'staff']))
                                 <input type="hidden" id="q{{$question->id}}" name="q{{$question->id}}" value="{{ $val }}">
                                 {!! customFormSelectButtons($question->id, $val, $form->status) !!}
                             @endif
