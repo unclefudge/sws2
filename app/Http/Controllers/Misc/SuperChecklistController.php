@@ -2,36 +2,26 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use File;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistCategory;
-use App\Models\Misc\Supervisor\SuperChecklistQuestion;
-use App\Models\Misc\Supervisor\SuperChecklistResponse;
-use App\Models\Misc\Supervisor\SuperChecklistNote;
 use App\Models\Misc\Supervisor\SuperChecklistSettings;
-use App\Models\Site\Site;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use Intervention\Image\Facades\Image;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use File;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SuperChecklistController
  * @package App\Http\Controllers
  */
-class SuperChecklistController extends Controller {
+class SuperChecklistController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -64,7 +54,7 @@ class SuperChecklistController extends Controller {
 
         // Create classes for each cell in table
         $classes = [];
-        for ($i = 1; $i < 6; $i ++) {
+        for ($i = 1; $i < 6; $i++) {
             $classes[$i] = '';
             if ($today->format('w') > $i)
                 $classes[$i] = 'viewChecklist';
@@ -153,7 +143,7 @@ class SuperChecklistController extends Controller {
             if (!in_array($response->question->category->id, $cat_ids))
                 $cat_ids[] = $response->question->category->id;
         }
-        $categories = SuperChecklistCategory::whereIn('id',$cat_ids)->where('status', 1)->orderBy('order')->get();
+        $categories = SuperChecklistCategory::whereIn('id', $cat_ids)->where('status', 1)->orderBy('order')->get();
 
         return view("/supervisor/checklist/show", compact('checklist', 'day', 'categories'));
     }
@@ -175,7 +165,7 @@ class SuperChecklistController extends Controller {
             if (!in_array($response->question->category->id, $cat_ids))
                 $cat_ids[] = $response->question->category->id;
         }
-        $categories = SuperChecklistCategory::whereIn('id',$cat_ids)->where('status', 1)->orderBy('order')->get();
+        $categories = SuperChecklistCategory::whereIn('id', $cat_ids)->where('status', 1)->orderBy('order')->get();
 
         return view("/supervisor/checklist/weekly", compact('checklist', 'categories', 'mon'));
     }
@@ -249,11 +239,6 @@ class SuperChecklistController extends Controller {
             $checklist->manager_sign_by = Auth::user()->id;
             $checklist->manager_sign_at = Carbon::now();
             $checklist->status = 0;
-
-            // Email completion
-            //$email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-            //$report_file = ($checklist->attachment) ? public_path($checklist->attachmentUrl) : '';
-            //if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }
         $checklist->save();
         Toastr::success("Signed off");

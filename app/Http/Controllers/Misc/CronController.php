@@ -49,7 +49,7 @@ class CronController extends Controller
         CronController::completeToDoCompanyDoc();
         CronController::completedToDoQA();
         CronController::expiredCompanyDoc();
-        CronController::expiredStandardDetailsDoc();
+        //CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
         CronController::archiveToolbox();
         CronController::brokenQaItem();
