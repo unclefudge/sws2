@@ -205,7 +205,7 @@ class MailgunZohoController extends Controller
                         $sites_imported[] = $site->id;
 
                         $fields = [
-                            'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name',
+                            'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc',
                             'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
                             'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                         $datefields = [
@@ -408,6 +408,7 @@ class MailgunZohoController extends Controller
             'Project Coordinator' => 'project_mgr',
             'Project Coordinator (user)' => 'project_mgr_name',
             'Eng FJ Certified?' => 'engineering',
+            'Estimator FC' => 'estimator_fc',
             'Job Stage' => 'job_stage',
 
             // Contacts Module

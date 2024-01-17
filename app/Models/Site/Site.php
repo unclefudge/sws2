@@ -2,21 +2,19 @@
 
 namespace App\Models\Site;
 
-use DB;
-use Mail;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\Planner\SiteCompliance;
-use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Comms\Notify;
-use App\Models\Comms\NotifyUser;
+use App\Models\Misc\Equipment\EquipmentLocationItem;
+use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\Planner\SiteCompliance;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\SiteRoster;
+use App\Models\Site\Planner\Task;
+use App\User;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\User;
-use App\Models\Site\Planner\Task;
-use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use Mail;
 
 class Site extends Model
 {
@@ -30,7 +28,7 @@ class Site extends Model
         'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email',
         'client_phone', 'client_phone2', 'client_phone_desc', 'client_phone2_desc', 'client_email', 'client_email2',
         'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start',
-        'consultant_name', 'project_mgr', 'project_mgr_name', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
+        'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
         'status', 'company_id', 'created_by', 'updated_by'];
     protected $casts = ['completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',

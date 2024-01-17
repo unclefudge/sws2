@@ -184,6 +184,18 @@
             </div>
             <hr class="field-hr">
 
+            {{-- Estimator--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('estimator_fc', $errors) !!}">
+                    {!! Form::label('estimator_fc', 'Estimator FC', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        {!! Form::text('estimator_fc', null, ['class' => 'form-control']) !!}
+                        {!! fieldErrorMessage('estimator_fc', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+
             {{-- Jobstart Estimate--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('jobstart_estimate', $errors) !!}">

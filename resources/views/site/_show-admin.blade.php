@@ -65,6 +65,11 @@
         </div>
         <hr class="field-hr">
         <div class="row">
+            <div class="col-md-6">Estimator FC:</div>
+            <div class="col-xs-6">{!! $site->estimator_fc !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
             <div class="col-md-6">Start Estimate:</div>
             <div class="col-xs-6">{!! ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '-' !!}</div>
         </div>
