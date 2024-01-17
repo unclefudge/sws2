@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
 use App\Models\Site\Site;
 use App\Models\Site\SiteUpcomingSettings;
-use App\Models\Company\Company;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Input;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
 
 /**
  * Class SiteUpcomingComplianceController
  * @package App\Http\Controllers\Site
  */
-class SiteUpcomingComplianceController extends Controller {
+class SiteUpcomingComplianceController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -264,7 +260,7 @@ class SiteUpcomingComplianceController extends Controller {
         $settings = SiteUpcomingSettings::where('field', $field)->where('status', 1)->orderBy('order')->get();
         $order = 1;
         foreach ($settings as $setting) {
-            $setting->order = $order ++;
+            $setting->order = $order++;
             $setting->save();
             //echo "updated [$setting->id][$field] $order<br>";
         }
@@ -398,28 +394,29 @@ class SiteUpcomingComplianceController extends Controller {
                 }
                 $sites_started[] = $site->id;
                 $startdata[] = [
-                    'id'              => $site->id,
-                    'date'            => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
-                    'date_est'        => '',
-                    'date_ymd'        => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('Ymd'),
-                    'code'            => $site->code,
-                    'name'            => $site->name,
-                    'company'         => $entity_name,
-                    'supervisor'      => $site->supervisorInitials,
-                    'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
-                    'eng'             => ($site->engineering) ? 'Y' : '-',
-                    'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
-                    'design_con'      => $site->consultantInitials(),
-                    'cc'              => $cc,
-                    'cc_stage'        => $cc_stage,
-                    'fc_plans'        => $site->fc_plans,
-                    'fc_plans_stage'  => $site->fc_plans_stage,
-                    'fc_struct'       => $site->fc_struct,
+                    'id' => $site->id,
+                    'date' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
+                    'date_est' => '',
+                    'date_ymd' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('Ymd'),
+                    'code' => $site->code,
+                    'name' => $site->name,
+                    'company' => $entity_name,
+                    'supervisor' => $site->supervisorInitials,
+                    'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
+                    'eng' => ($site->engineering) ? 'Y' : '-',
+                    'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                    'design_con' => $site->consultantInitials(),
+                    'estimator_fc' => $site->estimator_fc,
+                    'cc' => $cc,
+                    'cc_stage' => $cc_stage,
+                    'fc_plans' => $site->fc_plans,
+                    'fc_plans_stage' => $site->fc_plans_stage,
+                    'fc_struct' => $site->fc_struct,
                     'fc_struct_stage' => $site->fc_struct_stage,
-                    'cf_est'          => $site->cf_est,
-                    'cf_est_stage'    => $site->cf_est_stage,
-                    'cf_adm'          => $site->cf_adm,
-                    'cf_adm_stage'    => $site->cf_adm_stage,
+                    'cf_est' => $site->cf_est,
+                    'cf_est_stage' => $site->cf_est_stage,
+                    'cf_adm' => $site->cf_adm,
+                    'cf_adm_stage' => $site->cf_adm_stage,
                 ];
             }
         }
@@ -475,28 +472,29 @@ class SiteUpcomingComplianceController extends Controller {
 
             // Consultant Initials
             $startdata[] = [
-                'id'              => $site->id,
-                'date'            => '',
-                'date_est'        => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
-                'date_ymd'        => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',
-                'code'            => $site->code,
-                'name'            => $site->name,
-                'company'         => '-',
-                'supervisor'      => $site->supervisorInitials,
-                'deposit_paid'    => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
-                'eng'             => ($site->engineering) ? 'Y' : '-',
-                'hbcf'            => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
-                'design_con'      => $site->consultantInitials(),
-                'cc'              => $cc,
-                'cc_stage'        => $cc_stage,
-                'fc_plans'        => $site->fc_plans,
-                'fc_plans_stage'  => $site->fc_plans_stage,
-                'fc_struct'       => $site->fc_struct,
+                'id' => $site->id,
+                'date' => '',
+                'date_est' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
+                'date_ymd' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',
+                'code' => $site->code,
+                'name' => $site->name,
+                'company' => '-',
+                'supervisor' => $site->supervisorInitials,
+                'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
+                'eng' => ($site->engineering) ? 'Y' : '-',
+                'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                'design_con' => $site->consultantInitials(),
+                'estimator_fc' => $site->estimator_fc,
+                'cc' => $cc,
+                'cc_stage' => $cc_stage,
+                'fc_plans' => $site->fc_plans,
+                'fc_plans_stage' => $site->fc_plans_stage,
+                'fc_struct' => $site->fc_struct,
                 'fc_struct_stage' => $site->fc_struct_stage,
-                'cf_est'          => $site->cf_est,
-                'cf_est_stage'    => $site->cf_est_stage,
-                'cf_adm'          => $site->cf_adm,
-                'cf_adm_stage'    => $site->cf_adm_stage,
+                'cf_est' => $site->cf_est,
+                'cf_est_stage' => $site->cf_est_stage,
+                'cf_adm' => $site->cf_adm,
+                'cf_adm_stage' => $site->cf_adm_stage,
             ];
         }
 

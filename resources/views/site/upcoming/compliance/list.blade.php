@@ -40,6 +40,7 @@
                                 <th width="5%">ENG</th>
                                 <th width="7%">HBCF</th>
                                 <th width="5%">DC</th>
+                                <th width="5%">FC-EST</th>
                                 <th>CC</th>
                                 <th>FC Plans</th>
                                 <th>FC Structural</th>
@@ -58,6 +59,7 @@
                                     <td>{!! $row['eng'] !!}</td>
                                     <td>{!! $row['hbcf'] !!}</td>
                                     <td>{!! $row['design_con'] !!}</td>
+                                    <td>{!! $row['estimator_fc'] !!}</td>
                                     <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours['opt'][$row['cc_stage']] : '' }}">
                                         <div id="cc-{{$row['id']}}">{!! $row['cc'] !!}</div>
                                         <input type="hidden" id="cc-{{$row['id']}}-s" value="{!! $row['cc_stage'] !!}">
@@ -203,97 +205,98 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-        $(".editField").click(function (e) {
-            var event_id = e.target.id.split('-');
-            var site_id = event_id[1];
-            $("#site_id").val(site_id);
+            $(".editField").click(function (e) {
+                var event_id = e.target.id.split('-');
+                var site_id = event_id[1];
+                $("#site_id").val(site_id);
 
-            $("#site_name").text($("#sitename-" + site_id).text());
-            // CC
-            $("#cc").val($("#cc-" + site_id).text());
-            $("#cc_stage").val($("#cc-" + site_id + "-s").val()).change();
-            // FC Plans
-            $("#fc_plans").val($("#fcp-" + site_id).text());
-            $("#fc_plans_stage").val($("#fcp-" + site_id + "-s").val()).change();
-            // FC Structural
-            $("#fc_struct").val($("#fcs-" + site_id).text());
-            $("#fc_struct_stage").val($("#fcs-" + site_id + "-s").val()).change();
-            // CF-EST
-            $("#cf_est").val($("#cfest-" + site_id).text());
-            $("#cf_est_stage").val($("#cfest-" + site_id + "-s").val()).change();
-            // CF-ADM
-            $("#cf_adm").val($("#cfadm-" + site_id).text());
-            $("#cf_adm_stage").val($("#cfadm-" + site_id + "-s").val()).change();
+                $("#site_name").text($("#sitename-" + site_id).text());
+                // CC
+                $("#cc").val($("#cc-" + site_id).text());
+                $("#cc_stage").val($("#cc-" + site_id + "-s").val()).change();
+                // FC Plans
+                $("#fc_plans").val($("#fcp-" + site_id).text());
+                $("#fc_plans_stage").val($("#fcp-" + site_id + "-s").val()).change();
+                // FC Structural
+                $("#fc_struct").val($("#fcs-" + site_id).text());
+                $("#fc_struct_stage").val($("#fcs-" + site_id + "-s").val()).change();
+                // CF-EST
+                $("#cf_est").val($("#cfest-" + site_id).text());
+                $("#cf_est_stage").val($("#cfest-" + site_id + "-s").val()).change();
+                // CF-ADM
+                $("#cf_adm").val($("#cfadm-" + site_id).text());
+                $("#cf_adm_stage").val($("#cfadm-" + site_id + "-s").val()).change();
 
-            $("#modal_edit").modal('show');
+                $("#modal_edit").modal('show');
+            });
+
+            $("#cc_stage").change(function (e) {
+                var default_text = @json($settings_text['opt']);
+
+                // Only perform action if Modal is open - avoids updating fields when initial modal creation
+                if ($('#modal_edit').hasClass('in')) {
+                    if (!$("#cc_stage").val())
+                        $('#cc').val('');
+                    else if (default_text[$("#cc_stage").val()])
+                        $('#cc').val(default_text[$("#cc_stage").val()]);
+                }
+            });
+
+            $("#fc_plans_stage").change(function (e) {
+                var default_text = @json($settings_text['opt']);
+
+                // Only perform action if Modal is open - avoids updating fields when initial modal creation
+                if ($('#modal_edit').hasClass('in')) {
+                    if (!$("#fc_plans_stage").val())
+                        $('#fc_plans').val('');
+                    else if (default_text[$("#fc_plans_stage").val()])
+                        $('#fc_plans').val(default_text[$("#fc_plans_stage").val()]);
+                }
+            });
+
+            $("#fc_struct_stage").change(function (e) {
+                var default_text = @json($settings_text['opt']);
+
+                // Only perform action if Modal is open - avoids updating fields when initial modal creation
+                if ($('#modal_edit').hasClass('in')) {
+                    if (!$("#fc_struct_stage").val())
+                        $('#fc_struct').val('');
+                    else if (default_text[$("#fc_struct_stage").val()])
+                        $('#fc_struct').val(default_text[$("#fc_struct_stage").val()]);
+                }
+            });
+
+            $("#cf_est_stage").change(function (e) {
+                var default_text = @json($settings_text['cfest']);
+
+                // Only perform action if Modal is open - avoids updating fields when initial modal creation
+                if ($('#modal_edit').hasClass('in')) {
+                    if (!$("#cf_est_stage").val())
+                        $('#cf_est').val('');
+                    else if (default_text[$("#cf_est_stage").val()])
+                        $('#cf_est').val(default_text[$("#cf_est_stage").val()]);
+                }
+            });
+
+            $("#cf_adm_stage").change(function (e) {
+                var default_text = @json($settings_text['cfadm']);
+
+                // Only perform action if Modal is open - avoids updating fields when initial modal creation
+                if ($('#modal_edit').hasClass('in')) {
+                    if (!$("#cf_adm_stage").val())
+                        $('#cf_adm').val('');
+                    else if (default_text[$("#cf_adm_stage").val()])
+                        $('#cf_adm').val(default_text[$("#cf_adm_stage").val()]);
+                }
+            });
+
         });
 
-        $("#cc_stage").change(function (e) {
-            var default_text = @json($settings_text['opt']);
 
-            // Only perform action if Modal is open - avoids updating fields when initial modal creation
-            if ($('#modal_edit').hasClass('in')) {
-                if (!$("#cc_stage").val())
-                    $('#cc').val('');
-                else if (default_text[$("#cc_stage").val()])
-                    $('#cc').val(default_text[$("#cc_stage").val()]);
-            }
-        });
-
-        $("#fc_plans_stage").change(function (e) {
-            var default_text = @json($settings_text['opt']);
-
-            // Only perform action if Modal is open - avoids updating fields when initial modal creation
-            if ($('#modal_edit').hasClass('in')) {
-                if (!$("#fc_plans_stage").val())
-                    $('#fc_plans').val('');
-                else if (default_text[$("#fc_plans_stage").val()])
-                    $('#fc_plans').val(default_text[$("#fc_plans_stage").val()]);
-            }
-        });
-
-        $("#fc_struct_stage").change(function (e) {
-            var default_text = @json($settings_text['opt']);
-
-            // Only perform action if Modal is open - avoids updating fields when initial modal creation
-            if ($('#modal_edit').hasClass('in')) {
-                if (!$("#fc_struct_stage").val())
-                    $('#fc_struct').val('');
-                else if (default_text[$("#fc_struct_stage").val()])
-                    $('#fc_struct').val(default_text[$("#fc_struct_stage").val()]);
-            }
-        });
-
-        $("#cf_est_stage").change(function (e) {
-            var default_text = @json($settings_text['cfest']);
-
-            // Only perform action if Modal is open - avoids updating fields when initial modal creation
-            if ($('#modal_edit').hasClass('in')) {
-                if (!$("#cf_est_stage").val())
-                    $('#cf_est').val('');
-                else if (default_text[$("#cf_est_stage").val()])
-                    $('#cf_est').val(default_text[$("#cf_est_stage").val()]);
-            }
-        });
-
-        $("#cf_adm_stage").change(function (e) {
-            var default_text = @json($settings_text['cfadm']);
-
-            // Only perform action if Modal is open - avoids updating fields when initial modal creation
-            if ($('#modal_edit').hasClass('in')) {
-                if (!$("#cf_adm_stage").val())
-                    $('#cf_adm').val('');
-                else if (default_text[$("#cf_adm_stage").val()])
-                    $('#cf_adm').val(default_text[$("#cf_adm_stage").val()]);
-            }
-        });
-
-    });
-
-
-</script>
+    </script>
 @stop

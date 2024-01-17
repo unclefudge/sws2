@@ -30,11 +30,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -43,6 +43,7 @@
             margin-bottom: -999px;
             padding-bottom: 999px;
         }
+
         td.pad5, th.pad5 {
             padding: 5px !important;
             line-height: 1em !important;
@@ -66,11 +67,12 @@
             <th width="5%" class="pad5">Start Date</th>
             <th width="15%" class="pad5">Site</th>
             <th width="5%" class="pad5">Super</th>
-            <th width="5%"class="pad5">Company</th>
+            <th width="5%" class="pad5">Company</th>
             <th width="5%" class="pad5">Deposit Paid</th>
             <th width="3%" class="pad5">ENG</th>
             <th width="5%" class="pad5">HBCF</th>
             <th width="3%" class="pad5">DC</th>
+            <th width="3%" class="pad5">FC-EST</th>
             <th width="15%" class="pad5">CC</th>
             <th width="15%" class="pad5">FC Plans</th>
             <th width="15%" class="pad5">FC Structural</th>
@@ -90,6 +92,7 @@
                 <td class="pad5">{!! $row['eng'] !!}</td>
                 <td class="pad5">{!! $row['hbcf'] !!}</td>
                 <td class="pad5">{!! $row['design_con'] !!}</td>
+                <td class="pad5">{!! $row['estimator_fc'] !!}</td>
                 <td class="pad5" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours['opt'][$row['cc_stage']] : '' }}">{!! $row['cc'] !!}</td>
                 <td class="pad5" style="{{ ($row['fc_plans_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_plans_stage']] : '' }}">{!! $row['fc_plans'] !!}</td>
                 <td class="pad5" style="{{ ($row['fc_struct_stage']) ? 'background:'.$settings_colours['opt'][$row['fc_struct_stage']] : '' }}">{!! $row['fc_struct'] !!}</td>
