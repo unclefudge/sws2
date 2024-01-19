@@ -50,12 +50,12 @@
                                         <?php $found = false; ?>
                                         @foreach (Auth::user()->authSitesSelect('view.site.planner', 1, 'prompt', 'started') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
-                                            <?php if ($site && $site->id == $id) $found = true; ?>
+                                                <?php if ($site && $site->id == $id) $found = true; ?>
                                         @endforeach
                                         <optgroup label="Maintenance"></optgroup>
                                         @foreach (Auth::user()->authSitesSelect('view.site.planner', 2, 'prompt') as $id => $name)
                                             <option value="{{ $id }}" {{ ($site && $site->id == $id) ? 'selected' : '' }}>{{ $name }}</option>
-                                            <?php if ($site && $site->id == $id) $found = true; ?>
+                                                <?php if ($site && $site->id == $id) $found = true; ?>
                                         @endforeach
 
                                         @if ($site && !$found)
@@ -257,9 +257,9 @@
            Entity Sidebar for editing entity
            -->
         <sidebar :show.sync="xx.showSidebar" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_ename }}</h3>
+            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_ename }}</h3>
 
-            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_ename }}
+            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_ename }}
                 <div v-if="xx.day_other_sites">
                     <small class="font-grey-silver">@{{{ xx.day_other_sites }}}</small>
                 </div>
@@ -434,29 +434,39 @@
                     <div v-else class="col-xs-2">Week @{{ calcWeekNumber(x) }}</div>
                     <!-- Monday -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}</div>
+                        Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}
+                    </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}
+                    </div>
                     <!-- Tuesday -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+1))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}</div>
+                        Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}
+                    </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}
+                    </div>
                     <!-- Wednesday -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+2))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}</div>
+                        Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}
+                    </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}
+                    </div>
                     <!-- Thursday -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+3))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}</div>
+                        Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}
+                    </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}
+                    </div>
                     <!-- Friday -->
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+4))" class="col-xs-2" style="padding-left: 25px; color: #999">
-                        Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
+                        Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}
+                    </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}
+                    </div>
                 </div>
 
                 <!-- Show Site Plan for each Entity on given week -->
@@ -466,7 +476,7 @@
             </template>
         </div>
 
-        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+        <pre v-if="xx.dev">@{{ $data | json }}</pre>
         -->
     </template>
 

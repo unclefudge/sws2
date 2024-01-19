@@ -65,17 +65,18 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     {!! Form::label('department', 'Department', ['class' => 'control-label']) !!}
-                                    {!! Form::select('department', Auth::user()->companyDocDeptSelect('view', $company, 'all'), null, ['class' => 'form-control bs-select']) !!}
+                                    {!! Form::select('department', Auth::user()->companyDocDeptSelect('view', $company, 'all'), session('/company/doc:department'), ['class' => 'form-control bs-select']) !!}
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="category_id" class="control-label">Category <span id="loader" style="visibility: hidden"><i class="fa fa-spinner fa-spin"></i></span></label>
-                                    <select name="category_id" class="form-control select2" id="category_id">
+                                    {!! Form::select('category_id', Auth::user()->companyDocTypeSelect('view', $company, 'all'), session('/company/doc:category_id'), ['class' => 'form-control select2', 'id' => 'category_id']) !!}
+                                    {{--}}<select name="category_id" class="form-control select2" id="category_id">
                                         @foreach (Auth::user()->companyDocTypeSelect('view', $company, 'all') as $key => $value)
                                             <option value="{{ $key }}">{{ $value }}</option>
                                         @endforeach
-                                    </select>
+                                    </select>--}}
                                 </div>
                             </div>
                         @else
@@ -141,7 +142,7 @@
             $("#category_id").select2({width: '100%', minimumResultsForSearch: -1});
             $("#department").on('change', function () {
                 var dept_id = $(this).val();
-                //alert(deptId);
+                alert(dept_id);
                 if (dept_id) {
                     $.ajax({
                         url: '/company/' + {{ Auth::user()->company_id }} + '/doc/cats/' + dept_id,
@@ -152,11 +153,11 @@
                         },
 
                         success: function (data) {
-                            console.log(data);
+                            //console.log(data);
                             $("#category_id").empty();
                             $("#category_id").append('<option value="ALL">All categories</option>');
                             $.each(data, function (key, value) {
-                                console.log('k:' + key + ' v:' + value);
+                                //console.log('k:' + key + ' v:' + value);
                                 $("#category_id").append('<option value="' + key + '">' + value + '</option>');
                             });
                         },
@@ -165,10 +166,42 @@
                             table1.ajax.reload();
                         }
                     });
+
+                    // Store dropdown in session
+                    $.ajax({
+                        url: '/session/update',
+                        type: "POST",
+                        dataType: 'json',
+                        data: {key: '/company/doc:department', val: dept_id},
+                        success: function (data) {
+                            let x = JSON.stringify(data);
+                        },
+                        error: function (error) {
+                            console.log(`Error ${error}`);
+                        }
+                    });
                 } else {
                     $('select[name="state"]').empty();
                 }
 
+            });
+
+            $("#category_id").on('change', function () {
+                var cat_id = $(this).val();
+                alert(cat_id);
+                // Store dropdown in session
+                $.ajax({
+                    url: '/session/update',
+                    type: "POST",
+                    dataType: 'json',
+                    data: {key: '/company/doc:category_id', val: cat_id},
+                    success: function (data) {
+                        let x = JSON.stringify(data);
+                    },
+                    error: function (error) {
+                        console.log(`Error ${error}`);
+                    }
+                });
             });
 
         });

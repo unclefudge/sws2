@@ -113,8 +113,6 @@
         });
 
         $('select#supervisor').change(function () {
-            //sessionStorage.setItem('qasites', $('#supervisor').val());
-            //console.log('S:'+sessionStorage.getItem('qasites'));
             var supervisor = $('#supervisor').val();
             $.ajax({
                 url: '/session/update',
