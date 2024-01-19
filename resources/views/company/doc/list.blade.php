@@ -142,7 +142,7 @@
             $("#category_id").select2({width: '100%', minimumResultsForSearch: -1});
             $("#department").on('change', function () {
                 var dept_id = $(this).val();
-                alert(dept_id);
+                //alert(dept_id);
                 if (dept_id) {
                     $.ajax({
                         url: '/company/' + {{ Auth::user()->company_id }} + '/doc/cats/' + dept_id,
@@ -188,7 +188,7 @@
 
             $("#category_id").on('change', function () {
                 var cat_id = $(this).val();
-                alert(cat_id);
+                //alert(cat_id);
                 // Store dropdown in session
                 $.ajax({
                     url: '/session/update',
