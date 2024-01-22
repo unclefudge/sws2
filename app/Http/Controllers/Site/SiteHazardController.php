@@ -64,7 +64,7 @@ class SiteHazardController extends Controller
             return view('errors/404');
 
         $my_request = $request->except('action');
-        dd($my_request);
+        //dd($my_request);
         $hazard = SiteHazard::create($my_request);
 
         //Create action taken + attach image to issue
