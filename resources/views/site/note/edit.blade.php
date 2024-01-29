@@ -53,14 +53,14 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_name', $errors) !!}">
                                             {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_name', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_name', $note->variation_name, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_name', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
                                             {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_info', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_info', $note->variation_info, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_info', $errors) !!}
                                         </div>
                                     </div>
@@ -69,15 +69,51 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
                                             {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_cost', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_cost', $note->variation_cost, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-5">
                                         <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
                                             {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label']) !!}
-                                            <input type="text" class="form-control" value="{{ old('variation_days') }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
+                                            <input type="text" class="form-control" value="{{$note->variation_days}}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
                                             {!! fieldErrorMessage('variation_days', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Costing Fields --}}
+                            <div id="costing_fields" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
+                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], $note->costing_extra_credit, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_item', $errors) !!}">
+                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
+                                            {!! Form::select('costing_item', ['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of'], $note->costing_item, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
+                                            {!! fieldErrorMessage('costing_item', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_room', $errors) !!}">
+                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_room', $note->costing_room, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('costing_room', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group {!! fieldHasError('costing_location', $errors) !!}">
+                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_location', $note->costing_location, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('costing_location', $errors) !!}
                                         </div>
                                     </div>
                                 </div>

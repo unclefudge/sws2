@@ -110,19 +110,26 @@ class SiteNoteController extends Controller
 
         $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
 
+        if (request('category_id') == 15) {
+            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required'];
+        }
         if (request('category_id') == 16) {
             $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required'];
         }
         $mesg = ['site_id.required' => 'The site field is required.',
             'category_id.required' => 'The category field is required.',
             'notes.required' => 'The notes field is required.',
+            'costing_extra_credit.required' => 'The costing credit/extra field is required.',
+            'costing_item.required' => 'The costing new item/in lieu field is required.',
+            'costing_room.required' => 'The costing room field is required.',
+            'costing_location.required' => 'The costing location days field is required.',
             'variation_name.required' => 'The variation name field is required.',
             'variation_info.required' => 'The variation description field is required.',
             'variation_cost.required' => 'The variation cost field is required.',
             'variation_days.required' => 'The variation days field is required.'
         ];
         request()->validate($rules, $mesg); // Validate
-        dd(request()->all());
+        //dd(request()->all());
 
         // Create Site Note
         $note = SiteNote::create(request()->all());
@@ -187,9 +194,25 @@ class SiteNoteController extends Controller
             return view('errors/404');
 
         $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
+
+        if (request('category_id') == 15) {
+            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required'];
+        }
+        if (request('category_id') == 16) {
+            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required'];
+        }
         $mesg = ['site_id.required' => 'The site field is required.',
             'category_id.required' => 'The category field is required.',
-            'notes.required' => 'The notes field is required.'];
+            'notes.required' => 'The notes field is required.',
+            'costing_extra_credit.required' => 'The costing credit/extra field is required.',
+            'costing_item.required' => 'The costing new item/in lieu field is required.',
+            'costing_room.required' => 'The costing room field is required.',
+            'costing_location.required' => 'The costing location days field is required.',
+            'variation_name.required' => 'The variation name field is required.',
+            'variation_info.required' => 'The variation description field is required.',
+            'variation_cost.required' => 'The variation cost field is required.',
+            'variation_days.required' => 'The variation days field is required.'
+        ];
         request()->validate($rules, $mesg); // Validate
 
         // Update Site Note

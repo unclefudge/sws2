@@ -1,3 +1,4 @@
+@php($notes_label = 'Note')
 @extends('layout')
 
 @section('breadcrumbs')
@@ -41,6 +42,39 @@
                                 </div>
                             </div>
 
+                            {{-- Costing fields --}}
+                            @if ($note->category_id == '15')
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_item', $note->costing_item, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_room', $note->costing_room, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label', 'readonly']) !!}
+                                            {!! Form::text('costing_location', $note->costing_location, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                @php($notes_label = 'Description')
+                            @endif
+
                             {{-- Variation fields --}}
                             @if ($note->category_id == '16')
                                 <div class="row">
@@ -71,6 +105,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @php($notes_label = 'Variation Breakup/Work Order Details')
                             @endif
 
                             {{-- Response Required --}}
@@ -88,7 +123,7 @@
                             {{-- Notes --}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <b>Notes:</b><br>
+                                    <b>{{ $notes_label }}:</b><br>
                                     {!! nl2br($note->notes) !!}
                                 </div>
                             </div>
@@ -103,10 +138,8 @@
                                 @foreach ($note->attachments() as $attachment)
                                     @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
                                         <div style="width: 60px; float: left; padding-right: 5px">
-                                            <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox"
-                                               title="{{ $attachment->name }}" data-lity>
-                                                <img src="{{ $attachment->url }}"
-                                                     class="thumbnail img-responsive img-thumbnail"></a>
+                                            <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
+                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                         </div>
                                     @endif
                                 @endforeach
@@ -115,8 +148,7 @@
                             <div class="row" style="margin: 0">
                                 @foreach ($note->attachments() as $attachment)
                                     @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}"
-                                                                                    target="_blank"> {{ $attachment->name }}</a>
+                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
                                         <br>
                                     @endif
                                 @endforeach

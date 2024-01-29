@@ -85,6 +85,42 @@
                                 </div>
                             </div>
 
+                            {{-- Costing Fields --}}
+                            <div id="costing_fields" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
+                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_item', $errors) !!}">
+                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
+                                            {!! Form::select('costing_item', ['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
+                                            {!! fieldErrorMessage('costing_item', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_room', $errors) !!}">
+                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_room', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('costing_room', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group {!! fieldHasError('costing_location', $errors) !!}">
+                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_location', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('costing_location', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Response Required --}}
                             <div id="response_req_field" style="display: none">
                                 <div class="row">
@@ -103,7 +139,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Note', ['class' => 'control-label']) !!}
+                                        {!! Form::label('notes', 'Note', ['class' => 'control-label', 'id' => 'notes_label']) !!}
                                         {!! Form::textarea('notes', null, ['rows' => '5', 'class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('notes', $errors) !!}
                                     </div>
@@ -182,11 +218,19 @@
                 var cat_id = $("#category_id").val();
 
                 $("#variation_fields").hide();
+                $("#costing_fields").hide();
                 $("#response_req_field").hide();
                 $("#savenote").show();
+                $("#notes_label").html('Note');
 
                 if (cat_id == '16') {
                     $("#variation_fields").show();
+                    $("#notes_label").html('Variation Breakup/Work Order Details');
+                }
+
+                if (cat_id == '15') {
+                    $("#costing_fields").show();
+                    $("#notes_label").html('Description');
                 }
 
                 var response_req_cats = ['12', '13', '14']
