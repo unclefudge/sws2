@@ -449,6 +449,13 @@ class SiteUpcomingComplianceController extends Controller
                 $site_list[] = $sid;
         */
 
+        // Add Active Sites without a JobStart
+        $extra_sites = Site::where('status', '1')->where('special', null)->where('company_id', 3)->get();
+        foreach ($extra_sites as $site)
+            if (!$site->jobStart && !in_array($site->id, $site_list))
+                $site_list[] = $site->id;
+
+
         // Add Specially Requested Sites to List
         $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
         $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];

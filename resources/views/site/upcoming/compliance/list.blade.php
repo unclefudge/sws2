@@ -32,7 +32,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="7%">Start Date</th>
+                                <th width="8%">Start Date</th>
                                 <th width="20%">Site</th>
                                 <th width="5%">Super</th>
                                 <th width="5%">Company</th>
