@@ -597,6 +597,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function getInitialsAttribute()
     {
+        if ($this->id == 136)
+            return 'TBC';
         return strtoupper($this->firstname[0]) . strtoupper($this->lastname[0]);
     }
 
