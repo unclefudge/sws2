@@ -2,38 +2,29 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
-use App\Jobs\SiteExtensionPdf;
-use App\Models\Comms\Todo;
-use App\Models\Site\Site;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteExtensionSite;
-use App\Models\Site\SiteExtensionCategory;
-use App\Models\Misc\Category;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Company\Company;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Comms\Todo;
+use App\Models\Misc\Category;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Input;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
 
 /**
  * Class SiteExtensionController
  * @package App\Http\Controllers\Site
  */
-class SiteExtensionController extends Controller {
+class SiteExtensionController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -192,7 +183,6 @@ class SiteExtensionController extends Controller {
         $extension->closeToDo();
 
         $email_cc = '';
-        $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
         $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         //$email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
@@ -320,23 +310,23 @@ class SiteExtensionController extends Controller {
                 //    $completion_date = $prac_completion->from->format('d/m/y');
                 //    $completion_type = 'prac';
                 //} elseif ($site->completion_date) {
-                    $completion_date = $site->completion_date->format('d/m/y');
-                    $completion_type = 'forecast';
+                $completion_date = $site->completion_date->format('d/m/y');
+                $completion_type = 'forecast';
                 //}
                 $data[] = [
-                    'id'                   => $site->id,
-                    'name'                 => $site->site->name,
-                    'super_initials'       => $site->site->supervisorInitials,
-                    'super_id'             => $site->site->supervisor_id,
-                    'completion_date'      => $completion_date,
-                    'completion_type'      => $completion_type,
-                    'extend_reasons'       => $site->reasons,
-                    'extend_reasons_text'  => $site->reasonsSBC(),
+                    'id' => $site->id,
+                    'name' => $site->site->name,
+                    'super_initials' => $site->site->supervisorInitials,
+                    'super_id' => $site->site->supervisor_id,
+                    'completion_date' => $completion_date,
+                    'completion_type' => $completion_type,
+                    'extend_reasons' => $site->reasons,
+                    'extend_reasons_text' => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
-                    'days'                 => $site->days,
-                    'notes'                => $site->notes,
-                    'total_days'           => $site->totalExtensionDays(),
-                    'past_extentions'      => $site->pastExtensions()
+                    'days' => $site->days,
+                    'notes' => $site->notes,
+                    'total_days' => $site->totalExtensionDays(),
+                    'past_extentions' => $site->pastExtensions()
                 ];
             }
         }
