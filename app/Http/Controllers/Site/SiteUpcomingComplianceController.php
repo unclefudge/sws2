@@ -395,6 +395,7 @@ class SiteUpcomingComplianceController extends Controller
                 $sites_started[] = $site->id;
                 $startdata[] = [
                     'id' => $site->id,
+                    'status' => $site->status,
                     'date' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('M-d'),
                     'date_est' => '',
                     'date_ymd' => Carbon::createFromFormat('Y-m-d H:i:s', $plan->from)->format('Ymd'),
@@ -480,6 +481,7 @@ class SiteUpcomingComplianceController extends Controller
             // Consultant Initials
             $startdata[] = [
                 'id' => $site->id,
+                'status' => $site->status,
                 'date' => '',
                 'date_est' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
                 'date_ymd' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',

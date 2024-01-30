@@ -50,8 +50,13 @@
                             </thead>
                             <tbody>
                             @foreach ($startdata as $row)
+                                @php
+                                    $date_bg  = '';
+                                    if ($row['status'] == 1 && !$row['date']) $date_bg = 'background:#FFFAAE';
+                                    elseif ($row['status'] != 1) $date_bg = 'background:#FDD7B1';
+                                @endphp
                                 <tr>
-                                    <td style="{{ ($row['date_est']) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
+                                    <td style="{{ $date_bg }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
                                     <td>{!! $row['supervisor'] !!}</td>
                                     <td>{!! $row['company'] !!}</td>
