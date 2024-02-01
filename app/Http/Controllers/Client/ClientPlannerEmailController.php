@@ -2,34 +2,31 @@
 
 namespace App\Http\Controllers\Client;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Site\Site;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\SiteQa;
+use App\Http\Controllers\Controller;
+use App\Http\Utilities\ClientPlannerActionItems;
 use App\Models\Client\ClientPlannerEmail;
 use App\Models\Client\ClientPlannerEmailDoc;
-use App\Http\Utilities\ClientPlannerActionItems;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Company\Company;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Trade;
+use App\Models\Site\Site;
+use App\Models\Site\SiteQa;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class ClientPlannerEmailController
  * @package App\Http\Controllers
  */
-class ClientPlannerEmailController extends Controller {
+class ClientPlannerEmailController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -96,12 +93,12 @@ class ClientPlannerEmailController extends Controller {
         }
         $mesg = [
             'site_id.required' => 'The site field is required.',
-            'intro.required'   => 'The introduction field is required.',
-            'type.required'    => 'The email type field is required.',
-            'email1.required'  => 'The email1 field is required.',
+            'intro.required' => 'The introduction field is required.',
+            'type.required' => 'The email type field is required.',
+            'email1.required' => 'The email1 field is required.',
         ];
         // Add date field error messages
-        for ($x = 1; $x < 20; $x ++)
+        for ($x = 1; $x < 20; $x++)
             $mesg["itemdate-$x.required"] = 'The date field is required.';
 
         request()->validate($rules, $mesg); // Validate
@@ -149,7 +146,7 @@ class ClientPlannerEmailController extends Controller {
         $email = ClientPlannerEmail::create($email_request);
 
         // Client Planner
-        $data = $this->clientPlanner($site->id);
+        //$data = $this->clientPlanner($site->id, request('weeks'));
         //$clientplan = $this->clientPlannerTable($data);
 
         // Actions template
@@ -226,7 +223,7 @@ class ClientPlannerEmailController extends Controller {
         }
 
         // Create planner PDF
-        $data = $this->clientPlanner($email->site_id);
+        $data = $this->clientPlanner($email->site_id, request('weeks'));
         //$filename = "$site->name: Weekly Planner " . Carbon::now()->format('YmdHis') . '.pdf';
         $filename = "$site->name Weekly Planner.pdf";
         $output_file = public_path("$dir/$filename");
@@ -334,10 +331,10 @@ class ClientPlannerEmailController extends Controller {
     /**
      * Generate Client Planner
      */
-    public function clientPlanner($site_id)
+    public function clientPlanner($site_id, $weeks = 2)
     {
         $site = Site::findOrFail($site_id);
-        $obj_site = (object) [];
+        $obj_site = (object)[];
         $obj_site->site_id = $site->id;
         $obj_site->site_name = $site->name;
         $obj_site->weeks = [];
@@ -345,12 +342,11 @@ class ClientPlannerEmailController extends Controller {
         // Upcoming Planner
         $date = Carbon::now()->format('Y-m-d');
         $date = Carbon::parse('next monday')->format('Y-m-d');
-        $weeks = 2;
         $data = [];
 
         // For each week get Entities on the Planner
         $current_date = $date;
-        for ($w = 1; $w <= $weeks; $w ++) {
+        for ($w = 1; $w <= $weeks; $w++) {
             $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
             if ($date_from->isWeekend()) $date_from->addDays(1);
             if ($date_from->isWeekend()) $date_from->addDays(1);
@@ -358,7 +354,7 @@ class ClientPlannerEmailController extends Controller {
             // Calculate Date to ensuring not a weekend
             $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date_from->format('Y-m-d H:i:s'));
             $dates = [$date_from->format('Y-m-d')];
-            for ($i = 2; $i < 6; $i ++) {
+            for ($i = 2; $i < 6; $i++) {
                 $date_to->addDays(1);
                 if ($date_to->isWeekend())
                     $date_to->addDays(2);
@@ -402,7 +398,7 @@ class ClientPlannerEmailController extends Controller {
                         $entity_name = ($trade) ? $trade->name : "Trade $plan->entity_id";
                     }
                     $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name,];
-                    for ($i = 0; $i < 5; $i ++)
+                    for ($i = 0; $i < 5; $i++)
                         $entities[$key][$dates[$i]] = '';
                 }
             };
@@ -413,13 +409,13 @@ class ClientPlannerEmailController extends Controller {
             $i = 1;
             $offset = 1; // Used to set column 0/1 for client export
             foreach ($dates as $d)
-                $obj_site->weeks[$w][0][$i ++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
+                $obj_site->weeks[$w][0][$i++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
 
             // For each Entity on for current week get their Tasks for each day of the week
             $entity_count = 1;
             if ($entities) {
                 foreach ($entities as $e) {
-                    for ($i = 1; $i <= 5; $i ++) {
+                    for ($i = 1; $i <= 5; $i++) {
                         $tasks = $site->entityTradesOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
                         if ($tasks) {
                             $str = '';
@@ -430,7 +426,7 @@ class ClientPlannerEmailController extends Controller {
 
                         $obj_site->weeks[$w][$entity_count][$i] = $str;
                     }
-                    $entity_count ++;
+                    $entity_count++;
                 }
             } else {
                 $obj_site->weeks[$w][1][$offset] = 'NOTHING-ON-PLAN';

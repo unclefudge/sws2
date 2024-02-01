@@ -84,6 +84,13 @@
                                         {!! fieldErrorMessage('type', $errors) !!}
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
+                                        {!! Form::label('weeks', 'No, of weeks for Client Planner', ['class' => 'control-label']) !!}
+                                        {!! Form::select('weeks', ['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7', '8' => '8'], '2', ['class' => 'form-control bs-select', 'title' => 'Select type']) !!}
+                                        {!! fieldErrorMessage('weeks', $errors) !!}
+                                    </div>
+                                </div>
                             </div>
 
                             <div id="action_template" style="display: none">
@@ -108,17 +115,17 @@
                                     <tbody>
 
                                     @foreach ($action_items::all() as $action_id => $action_name)
-                                        <?php
-                                        $old_include = (old('include')) ? old('include') : [];
-                                        $checked = '';
-                                        $rowcolour = 'font-grey-cascade';
-                                        $datefield = 'style="display: none"';
-                                        if (in_array($action_id, $old_include)) {
-                                            $checked = 'checked';
-                                            $rowcolour = '';
-                                            $datefield = '';
-                                        }
-                                        ?>
+                                            <?php
+                                            $old_include = (old('include')) ? old('include') : [];
+                                            $checked = '';
+                                            $rowcolour = 'font-grey-cascade';
+                                            $datefield = 'style="display: none"';
+                                            if (in_array($action_id, $old_include)) {
+                                                $checked = 'checked';
+                                                $rowcolour = '';
+                                                $datefield = '';
+                                            }
+                                            ?>
                                         <tr class="itemrow- {{ $rowcolour }}" id="itemrow-{{ $action_id }}">
                                             <td class="excludeitems">
                                                 <div class="text-center">
@@ -178,7 +185,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -192,9 +199,10 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
-    @stop
+@stop
 
-    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
     <script type="text/javascript">
         $(document).ready(function () {
             // Get a reference to the file input element
