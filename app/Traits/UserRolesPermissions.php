@@ -1,24 +1,25 @@
 <?php
+
 namespace App\Traits;
 
-use DB;
-use Auth;
-use Session;
-use App\User;
 use App\Models\Company\Company;
-use App\Models\Site\Site;
-use App\Models\Site\SiteHazard;
+use App\Models\Company\CompanyDocCategory;
+use App\Models\Misc\Permission2;
+use App\Models\Misc\Role2;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
-use App\Models\Misc\Role2;
-use App\Models\Misc\Permission2;
-use App\Models\Company\CompanyDocCategory;
+use App\Models\Site\Site;
+use App\Models\Site\SiteHazard;
 use App\Models\User\UserDocCategory;
-use App\Http\Utilities\CompanyDocTypes;
+use App\User;
+use Auth;
 use Carbon\Carbon;
+use DB;
+use Session;
 
 
-trait UserRolesPermissions {
+trait UserRolesPermissions
+{
 
     /**
      * A user belongs to many roles
@@ -873,6 +874,7 @@ trait UserRolesPermissions {
             // Site Scaffold Handover
             if ($permissiontype == 'site.scaffold.handover') {
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
+                if ($this->permissionLevel($permission, 3) == 30 && $record->created_by == $this->id) return true; // User has 'Planned For' permission to this record
                 if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
 
                 return false;

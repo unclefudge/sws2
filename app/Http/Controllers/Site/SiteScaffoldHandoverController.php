@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\Models\Company\Company;
+use App\Http\Controllers\Controller;
 use App\Models\Site\Site;
 use App\Models\Site\SiteScaffoldHandover;
-use App\Models\Site\SiteScaffoldHandoverDoc;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteScaffoldHandoverController
  * @package App\Http\Controllers
  */
-class SiteScaffoldHandoverController extends Controller {
+class SiteScaffoldHandoverController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -105,11 +100,11 @@ class SiteScaffoldHandoverController extends Controller {
 
         $rules = ['site_id' => 'required', 'location' => 'required', 'use' => 'required', 'duty' => 'required', 'decks' => 'required'];
         $mesg = [
-            'site_id.required'  => 'The site field is required.',
+            'site_id.required' => 'The site field is required.',
             'location.required' => 'The location field is required.',
-            'use.required'      => 'The intended use field is required.',
-            'duty.required'     => 'The duty classification field is required.',
-            'decks.required'    => 'The no. of decks field is required.',
+            'use.required' => 'The intended use field is required.',
+            'duty.required' => 'The duty classification field is required.',
+            'decks.required' => 'The no. of decks field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -165,9 +160,9 @@ class SiteScaffoldHandoverController extends Controller {
             return view('errors/404');
 
         $rules = ['inspector_name' => 'required', 'handover_date' => 'required', 'singlefile' => 'required'];
-        $mesg = ['client_name.required'   => 'The name field is required.',
-                 'handover_date.required' => 'The date/time field is required.',
-                 'singlefile.required' => 'The licence field is required.'];
+        $mesg = ['client_name.required' => 'The name field is required.',
+            'handover_date.required' => 'The date/time field is required.',
+            'singlefile.required' => 'The licence field is required.'];
 
         request()->validate($rules, $mesg); // Validate
 
@@ -194,7 +189,7 @@ class SiteScaffoldHandoverController extends Controller {
             // Ensure filename is unique by adding counter to similar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
             $report->inspector_licence = $name;
             $report->save();
@@ -316,7 +311,10 @@ class SiteScaffoldHandoverController extends Controller {
     {
         $status = (request('status') == 0) ? [0] : [1, 2, 3];
         $status = request('status');
-        $scaff_ids = SiteScaffoldHandover::where('status', $status)->pluck('id')->toArray();
+        if (Auth::user()->isCC())
+            $scaff_ids = SiteScaffoldHandover::where('status', $status)->pluck('id')->toArray();
+        else
+            $scaff_ids = SiteScaffoldHandover::where('status', $status)->where('created_by', Auth::user()->id)->pluck('id')->toArray();
         //dd($scaff_ids);
 
         $scaff_records = SiteScaffoldHandover::select([
@@ -329,7 +327,8 @@ class SiteScaffoldHandoverController extends Controller {
 
         $dt = Datatables::of($scaff_records)
             ->addColumn('view', function ($report) {
-                return ('<div class="text-center"><a href="/site/scaffold/handover/' . $report->id . '"><i class="fa fa-search"></i></a></div>');
+                $edit = ($report->status == 1 ? '/edit' : '');
+                return ('<div class="text-center"><a href="/site/scaffold/handover/' . $report->id . $edit . '"><i class="fa fa-search"></i></a></div>');
             })
             ->editColumn('sitename', function ($doc) {
                 $s = Site::find($doc->site_id);
