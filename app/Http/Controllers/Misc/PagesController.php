@@ -140,13 +140,15 @@ class PagesController extends Controller
     {
 
         echo "Not Logged in Users<br>";
-        $recs = SiteCompliance::where('reason', NULL)->get();
+        $recs = SiteCompliance::where('reason', 0)->get();
         echo $recs->count();
         echo "<br>";
         foreach ($recs as $rec) {
             if ($rec->status == 0) {
                 $rec->reason = 1;
-                $rec->reason = 'Bulk update requested by Kirsty';
+                $rec->status = 1;
+                $rec->notes = 'Bulk update requested by Kirsty';
+                $rec->resolved_at = Carbon::now()->toDateTimeString();
                 $rec->save();
             }
         }
