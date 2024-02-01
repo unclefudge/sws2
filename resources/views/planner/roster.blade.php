@@ -107,9 +107,9 @@
                             {{-- Key map --}}
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <span class="box state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span>
                                     <span class="box state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span>
-                                    <span class="box state-black"></span><span style="float:left; margin-right: 20px;">Roster Completed but not all On-Site </span>
+                                    <span class="box state-blue"></span><span style="float:left; margin-right: 20px;">Company All On-Site </span>
+                                    <span class="box state-black"></span><span style="float:left; margin-right: 20px;">Company partially On-Site </span>
                                     <span class="box state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
                                 </div>
                             </div>
