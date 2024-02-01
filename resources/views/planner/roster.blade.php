@@ -12,6 +12,30 @@
         .aside {
             z-index: 9999;
         }
+
+        .box {
+            float: left;
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 10px 15px 0px;
+        }
+
+        .state-blue {
+            background-color: #3598dc;
+        }
+
+        .state-purple {
+            background-color: #8E44AD;
+        }
+
+        .state-orange {
+            background-color: #E87E04;
+        }
+
+        .state-black {
+            background-color: #000;
+        }
     </style>
 
     <app-attend></app-attend>
@@ -78,6 +102,20 @@
                                         <button v-on:click="changeDay('+')" class="btn blue-hoki">Next Day</button>
                                     </div>
                                 </div>
+                            </div>
+
+                            {{-- Key map --}}
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <span class="box state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span>
+                                    <span class="box state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span>
+                                    <span class="box state-black"></span><span style="float:left; margin-right: 20px;">Roster Completed but not all On-Site </span>
+                                    <span class="box state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
+                                </div>
+                            </div>
+                            <div class="row text-bold" style="font-size: 16px; margin-top: 25px">
+                                <div class="col-md-6"><span style="margin-left: 70px">Company</span></div>
+                                <div class="col-md-6"><span style="margin-left: 70px">Users planned to be On-Site &nbsp; &nbsp;<small class="font-grey-silver">(currently no logged-in)</small></div>
                             </div>
 
                             {{-- Sites --}}
@@ -235,12 +273,13 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-planner-roster.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-planner-roster.js"></script>
 @stop
