@@ -1321,6 +1321,19 @@ class Site extends Model
     }
 
     /**
+     * Get the Project Manager (Coodinator) Initials  (getter)
+     */
+    public function getProjectManagerInitialsAttribute()
+    {
+        $string = '';
+
+        if ($this->attributes['project_mgr'])
+            $string = $this->projectManager->initials;
+
+        return ($string) ? $string : '-';
+    }
+
+    /**
      * The "booting" method of the model.
      *
      * Overrides parent function

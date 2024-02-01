@@ -40,6 +40,7 @@
                                 <th width="5%">ENG</th>
                                 <th width="7%">HBCF</th>
                                 <th width="5%">DC</th>
+                                <th width="5%">PC</th>
                                 <th width="5%">FC-EST</th>
                                 <th>CC</th>
                                 <th>FC Plans</th>
@@ -59,6 +60,7 @@
                                     <td>{!! $row['eng'] !!}</td>
                                     <td>{!! $row['hbcf'] !!}</td>
                                     <td>{!! $row['design_con'] !!}</td>
+                                    <td>{!! $row['project_mgr'] !!}</td>
                                     <td>{!! $row['estimator_fc'] !!}</td>
                                     <td class="hoverDiv editField" id="cc-{{$row['id']}}-td" style="{{ ($row['cc_stage']) ? 'background:'.$settings_colours['opt'][$row['cc_stage']] : '' }}">
                                         <div id="cc-{{$row['id']}}">{!! $row['cc'] !!}</div>
