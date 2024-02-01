@@ -115,7 +115,7 @@
                             </div>
                             <div class="row text-bold" style="font-size: 16px; margin-top: 25px">
                                 <div class="col-md-6"><span style="margin-left: 70px">Company</span></div>
-                                <div class="col-md-6"><span style="margin-left: 70px">Users planned to be On-Site &nbsp; &nbsp;<small class="font-grey-silver">(greyed is currently no logged-in)</small></div>
+                                <div class="col-md-6"><span style="margin-left: 70px">Users planned to be On-Site &nbsp; &nbsp;<small class="font-grey-silver">(greyed currently no logged-in)</small></div>
                             </div>
 
                             {{-- Sites --}}
