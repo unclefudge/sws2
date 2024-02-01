@@ -183,7 +183,7 @@
             Sidebar for editing record
            -->
         <sidebar :show.sync="xx.showSidebar" placement="right" header="Edit Compliance" :width="300">
-            <h3 style="margin: 0px">@{{  xx.record.user_name }} @{{ xx.record.id }}<br>
+            <h3 style="margin: 0px">@{{ xx.record.user_name }} @{{ xx.record.id }}<br>
                 <small class="font-grey-silver">@{{ xx.record.user_company }}</small>
             </h3>
 
@@ -192,7 +192,7 @@
                 <div class="col-xs-3"><b>Date:</b></div>
                 <div class="col-xs-9">@{{ xx.record.date | formatDate }}</div>
                 <div class="col-xs-3"><b>Site:</b></div>
-                <div class="col-xs-9">@{{  xx.record.site_name }}
+                <div class="col-xs-9">@{{ xx.record.site_name }}
                     <small class="font-grey-silver">(@{{ xx.record.site_id }})</small>
                 </div>
                 <div class="col-xs-12">
@@ -263,11 +263,12 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-compliance.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-compliance.js"></script>
 @stop
 

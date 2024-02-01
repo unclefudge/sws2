@@ -2,76 +2,26 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyDocReview;
-use App\Models\Company\CompanyDocReviewFile;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Site;
-use App\Models\Site\SiteDoc;
-use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteQaCategory;
-use App\Models\Site\SiteQaAction;
+use App\Models\Site\Planner\Task;
+use App\Models\Site\Planner\Trade;
+use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteHazardFile;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\Incident\SiteIncidentPeople;
-use App\Models\Site\Incident\SiteIncidentDoc;
-use App\Models\Site\SiteProjectSupply;
-use App\Models\Site\SiteProjectSupplyProduct;
-use App\Models\Site\SiteProjectSupplyItem;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteExtensionSite;
-use App\Models\Site\SiteExtensionCategory;
-use App\Models\Site\SiteInspectionDoc;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceDoc;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\SafetyDoc;
-use App\Models\Safety\SafetyDataSheet;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Comms\SafetyTip;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentCategory;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentLocationItem;
-use App\Models\Misc\Equipment\EquipmentLost;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Category;
-use App\Models\Ccc\Youth;
-use App\Models\Ccc\Program;
-use App\Models\Misc\FormQuestion;
-use App\Models\Misc\FormResponse;
-use App\Models\Misc\Permission2;
-use App\Models\Misc\Action;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Misc\Supervisor\SuperChecklistCategory;
-use App\Models\Misc\Supervisor\SuperChecklistQuestion;
-use App\Models\Misc\Supervisor\SuperChecklistResponse;
+use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteQa;
+use App\Models\Site\SiteQaAction;
+use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
-use App\Models\Support\SupportTicketAction;
-use App\Models\Support\SupportTicketActionFile;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\User;
 use Carbon\Carbon;
-use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use Session;
 
 class PagesController extends Controller
 {
@@ -189,13 +139,15 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "Doubled Signed QA's<br>";
-        $date = Carbon::now()->subDays(180)->format('Y-m-d');
-        $qas = SiteQa::where('status', 0)->where('master', 0)->where('supervisor_sign_by', '>', '0')->where('manager_sign_by', '>', '0')->whereDate('updated_at', '>', $date)->get();
-        foreach ($qas as $qa) {
-            if ($qa->supervisor_sign_by == $qa->manager_sign_by) {
-                $user = User::find($qa->manager_sign_by);
-                echo "[".$qa->site->name."] $qa->name  (signed: " . $qa->manager_sign_at->format('d/m/Y') . " $user->name)<br>";
+        echo "Not Logged in Users<br>";
+        $recs = SiteCompliance::where('reason', NULL)->get();
+        echo $recs->count();
+        echo "<br>";
+        foreach ($recs as $rec) {
+            if ($rec->status == 0) {
+                $rec->reason = 1;
+                $rec->reason = 'Bulk update requested by Kirsty';
+                $rec->save();
             }
         }
 
