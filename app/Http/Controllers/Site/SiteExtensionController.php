@@ -324,6 +324,7 @@ class SiteExtensionController extends Controller
                     'extend_reasons_text' => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
                     'days' => $site->days,
+                    'hols' => $site->holidays_added,
                     'notes' => $site->notes,
                     'total_days' => $site->totalExtensionDays(),
                     'past_extentions' => $site->pastExtensions()

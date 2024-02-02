@@ -444,7 +444,7 @@ class MailgunZohoController extends Controller
         $required_headers_jobs = [
             'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
             'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date', 'Fcst Comp Date',
-            'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Job Stage'
+            'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Estimator FC', 'Holidays Added', 'Job Stage'
         ];
         sort($required_headers_jobs);
         sort($headers_jobs);

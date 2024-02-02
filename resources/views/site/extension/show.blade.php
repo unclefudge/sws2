@@ -46,6 +46,9 @@
                                 <th style="width:5%">Days</th>
                                 <th>Extend Notes</th>
                                 <th style="width:5%">Total Days</th>
+                                @if (in_array(Auth::user()->id, ['3', '108']))
+                                    <th style="width:5%">Hols</th>
+                                @endif
                             </tr>
                             </thead>
                             <tbody>
@@ -85,6 +88,9 @@
                                             </td>
                                         @else
                                             <td>-</td>
+                                        @endif
+                                        @if (in_array(Auth::user()->id, ['3', '108']))
+                                            <td>{{ $row['hols'] }}</td>
                                         @endif
                                     </tr>
                                     <tr id="extrainfo-{{$row['id']}}" style="display: none">
@@ -211,7 +217,7 @@
                 $("#site_name").text($("#sitename-" + site_id).text());
                 $("#days").val($("#days-" + site_id).text());
 
-                // Extension reason + notes
+// Extension reason + notes
                 $("#extension_notes").val($("#note-" + site_id).text());
                 var reason_array_str = $("#reason-" + site_id + "-array").val();
                 var reason_array = reason_array_str.split(',');
@@ -256,7 +262,7 @@
 
                 if ($("#reasons option:selected").length) {
                     if ($("#reasons").val().includes(reason_na)) {
-                        // NA selected so clear all other options and leave NA only
+// NA selected so clear all other options and leave NA only
                         $("#reasons").val([reason_na]).trigger('change.select2'); // update select2 val without triggering change
                         $("#days").val('');
                         $("#extension_notes").val('');
@@ -269,7 +275,7 @@
                         $("#days_label").show();
                         $("#extension_notes").show();
                         $("#extension_notes_label").show();
-                        // Enforce Days + Notes are required
+// Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
                         let required = false;
                         $("#reasons").val().forEach(function (item, index) {
@@ -292,10 +298,10 @@
 
         /*
         function containsAny(source, target) {
-            var result = source.filter(function (item) {
-                return target.indexOf(item) > -1
-            });
-            return (result.length > 0);
+        var result = source.filter(function (item) {
+        return target.indexOf(item) > -1
+        });
+        return (result.length > 0);
         }*/
 
         function isNumber(evt) {
