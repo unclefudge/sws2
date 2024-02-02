@@ -2,36 +2,33 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Mail;
-use Carbon\Carbon;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyLeave;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Trade;
-use App\Models\Misc\ComplianceOverride;
-use App\Models\Misc\Action;
-use App\Models\Site\Planner\Task;
-use App\Http\Requests;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\CompanyRequest;
 use App\Http\Utilities\CompanyTypes;
 use App\Http\Utilities\OverrideTypes;
-use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use App\Models\Company\CompanyLeave;
+use App\Models\Misc\Action;
+use App\Models\Misc\ComplianceOverride;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Trade;
+use App\User;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class CompaniesController
  * @package App\Http\Controllers
  */
-class CompanyController extends Controller {
+class CompanyController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -69,10 +66,10 @@ class CompanyController extends Controller {
     public function store()
     {
         $this->validate(request(), [
-            'name'        => 'required',
+            'name' => 'required',
             'person_name' => 'required',
-            'email'       => 'required|email|max:255',
-            'category'    => 'required',
+            'email' => 'required|email|max:255',
+            'category' => 'required',
         ]);
 
         // Check authorisation and throw 404 if not
@@ -100,8 +97,6 @@ class CompanyController extends Controller {
             $user_list = ($email_user) ? [$email_user] : [env('EMAIL_DEV')];
             Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcome($newCompany, Auth::user()->company, request('person_name')));
         }
-
-
 
 
         // Mail notification to parent company
@@ -200,13 +195,13 @@ class CompanyController extends Controller {
 
         // Validate
         $validator = Validator::make(request()->all(), [
-            'name'         => 'required',
-            'phone'        => 'required',
-            'email'        => 'required|email|max:255',
-            'address'      => 'required',
-            'suburb'       => 'required',
-            'state'        => 'required',
-            'postcode'     => 'required',
+            'name' => 'required',
+            'phone' => 'required',
+            'email' => 'required|email|max:255',
+            'address' => 'required',
+            'suburb' => 'required',
+            'state' => 'required',
+            'postcode' => 'required',
             'primary_user' => 'required',
         ]);
 
@@ -331,6 +326,12 @@ class CompanyController extends Controller {
             // Email Parent if updated
             if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.updated.business'))
                 Mail::to($company->reportsTo()->notificationsUsersType('company.updated.business'))->send(new \App\Mail\Company\CompanyUpdatedBusiness($company));
+        }
+
+        // Updated Creditor Code
+        if ($company->creditor_code != request('creditor_code')) {
+            if ($company->parent_company && $company->reportsTo()->notificationsUsersType('company.updated.creditorcode'))
+                Mail::to($company->reportsTo()->notificationsUsersType('company.updated.creditorcode'))->send(new \App\Mail\Company\CompanyUpdatedBusinessCreditorCode($company));
         }
 
         $company->update($company_request);

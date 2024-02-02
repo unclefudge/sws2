@@ -8,10 +8,10 @@
         <li><a href="/settings">Settings</a><i class="fa fa-circle"></i></li>
         <li><span>Notifications</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
-            <!-- BEGIN PAGE CONTENT INNER -->
+@section('content')
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -33,6 +33,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.signup.completed')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.details')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.business')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.creditorcode')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.updated.trades')->first()->notificationSelect() !!}
                         @endif
                         {{-- Site --}}
@@ -126,17 +127,18 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $(".select2").select2({
-            placeholder: "Select one or more users",
-            width: '100%',
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $(".select2").select2({
+                placeholder: "Select one or more users",
+                width: '100%',
+            });
         });
-    });
 
-</script>
+    </script>
 @stop

@@ -409,6 +409,7 @@ class MailgunZohoController extends Controller
             'Project Coordinator (user)' => 'project_mgr_name',
             'Eng FJ Certified?' => 'engineering',
             'Estimator FC' => 'estimator_fc',
+            'Holidays Added' => 'holidays_added',
             'Job Stage' => 'job_stage',
 
             // Contacts Module
