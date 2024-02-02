@@ -73,13 +73,14 @@
         </tr>
         </thead>
         <tbody>
-        <?php $today = \Carbon\Carbon::now(); $completion_date = null; ?>
+        <?php $today = \Carbon\Carbon::now(); $completion_date = null; $counter = 0; ?>
         @foreach($data as $row)
                 <?php
                 $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
                 $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
                 ?>
             @if ($row['days'] || ($completion_date && $completion_date->lte($today)))
+                @php($counter++)
                 <tr>
                     <td class="pad5">{!! $row['name'] !!}</td>
                     <td class="pad5">{!! $row['super_initials'] !!}</td>
@@ -92,6 +93,8 @@
         @endforeach
         </tbody>
     </table>
+
+    <b>No. of Sites with days added: {{$counter}} out of a total of {{ count($data) }}</b>
 </div>
 </body>
 </html>

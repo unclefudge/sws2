@@ -212,70 +212,9 @@ class SiteExtensionController extends Controller
         Toastr::success("Updated categories");
 
         return redirect(url()->previous());
-
-        /*
-        if (request('add_field')) {
-            $rules = ['add_field_name' => 'required'];
-            $mesg = ['add_field_name.required' => 'The name field is required.'];
-            request()->validate($rules, $mesg); // Validate
-        }
-
-        //dd(request()->all());
-        $cats = SiteExtensionCategory::where('status', 1)->get();
-        // Get field values from request
-        foreach ($cats as $cat) {
-            if (request()->has("cat-$cat->id")) {
-                if (request("cat-$cat->id")) {
-                    $cat->name = request("cat-$cat->id");
-                    $cat->save();
-                } else
-                    return back()->withErrors(["cat-$cat->id" => "The name field is required."]);
-            }
-
-        }
-
-        // Add Extra Field
-        if (request('add_field')) {
-            $add_order = count($cats) + 1;
-            SiteExtensionCategory::create(['name' => request('add_field_name'), 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-        }
-
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/extension/settings");*/
+        
     }
 
-    /**
-     * Update a resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*public function deleteSetting($id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasPermission2('del.site.extension'))
-            return view('errors/404');
-
-        //dd(request()->all());
-
-        // Delete setting
-        $setting = SiteExtension::findOrFail($id);
-        $setting->status = 0;
-        $setting->save();
-
-        // Re-orer settings
-        $settings = SiteExtensionCategory::where('status', 1)->orderBy('order')->get();
-        $order = 1;
-        foreach ($settings as $setting) {
-            $setting->order = $order ++;
-            $setting->save();
-        }
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/extension/settings");
-    }*/
 
     /**
      * Create upcoming PDF
@@ -333,7 +272,6 @@ class SiteExtensionController extends Controller
         }
 
         usort($data, function ($a, $b) {
-            //return $a['name'] <=> $b['name'];
             return $a['name'] < $b['name'];
         });
 

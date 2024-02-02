@@ -2,14 +2,13 @@
 
 namespace App\Models\Site;
 
-use PDF;
-use URL;
-use Mail;
 use App\Models\Comms\Todo;
-use App\Jobs\SiteExtensionPdf;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use PDF;
+use URL;
 
 
 class SiteExtension extends Model
@@ -81,6 +80,11 @@ class SiteExtension extends Model
                 'notes' => $site_ext->notes
             ];
         }
+
+        // Sort by site name
+        usort($data, function ($a, $b) {
+            return $a['name'] < $b['name'];
+        });
 
         $dir = "/filebank/company/3/docs/contract-extension";
         // Create directory if required
