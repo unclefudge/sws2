@@ -11,8 +11,8 @@ if (host == 'safeworksite.com.au')
 
 Vue.component('select-picker', {
     template: '<select v-model="name" class="form-control" @change="function">' +
-    '<option v-for="option in options" value="{{ option.value }}">{{{ option.text }}}</option>' +
-    '</select>',
+        '<option v-for="option in options" value="{{ option.value }}">{{{ option.text }}}</option>' +
+        '</select>',
     name: 'selectpicker',
     props: ['options', 'name', 'function'],
     ready: function () {
@@ -66,6 +66,7 @@ function sortEntityKey(a, b) {
         return 1;
     return 0;
 }
+
 // Sort Entity by Name
 function sortEntityName(a, b) {
     if (a.entity_name < b.entity_name)
@@ -717,7 +718,7 @@ function addTaskToPlanner(plan, task) {
 function getTaskDB(task_id) {
     return new Promise(function (resolve, reject) {
         $.ajax({
-            url: '/planner/'+task_id,
+            url: '/planner/' + task_id,
             type: 'GET',
             success: function (result) {
                 console.log('DB got task:[' + result.id + '] ' + result.task_name + ' F:' + result.from + ' T:' + result.to + ' days:' + result.days);

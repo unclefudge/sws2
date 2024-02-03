@@ -31,6 +31,17 @@
             z-index: 888 !important;
         }
 
+        .hoverDivSelect {
+            min-height: 25px;
+            padding: 3px 5px 3px 5px;
+        }
+
+        .hoverDivSelect:hover {
+            background: #f5f5f5;
+            cursor: pointer;
+            cursor: hand;
+        }
+
     </style>
 
     <template id="weekly-template">
@@ -199,7 +210,7 @@
                         </div>
                     </div>
 
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    <pre v-if="xx.dev">@{{ $data | json }}</pre>
                     -->
 
                 </div>
@@ -217,8 +228,8 @@
            Upcoming Sidebar for editing entity
            -->
         <sidebarupcoming :show.sync="xx.showSidebarUpcoming" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_upcoming.entity_type == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_upcoming.entity_name }}</h3>
-            <h3 v-if="xx.day_upcoming.entity_type == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_upcoming.entity_name }}</h3>
+            <h3 v-if="xx.day_upcoming.entity_type == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_upcoming.entity_name }}</h3>
+            <h3 v-if="xx.day_upcoming.entity_type == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_upcoming.entity_name }}</h3>
             <hr style="margin: 10px 0px">
             <h4>Task for @{{ xx.day_upcoming.from | formatDate2 }}</h4>
 
@@ -317,8 +328,8 @@
            Entity Sidebar for editing entity
            -->
         <sidebar :show.sync="xx.showSidebar" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_ename }}</h3>
-            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_ename }}
+            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_ename }}</h3>
+            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_ename }}
                 <div v-if="xx.day_other_sites">
                     <small class="font-grey-silver">@{{{ xx.day_other_sites }}}</small>
                 </div>
@@ -335,7 +346,18 @@
                 <!-- Sites-->
                 <div class="row form-group">
                     <div class="col-xs-12">
-                        <select-picker :name.sync="xx.day_site_id" :options.sync="xx.sites" :function="showNewTask"></select-picker>
+                        <input v-model="xx.searchSites" type="text" class="form-control" placeholder="Search sites"/>
+                        <div v-if="xx.searchSites" style="border: 1px solid lightgrey">
+                            <template v-for="site in xx.sites">
+                                <div v-if="searchSite(site)">
+                                    <div class="hoverDivSelect" style="margin:0 5px 0 5px" v-on:click="searchSiteSelected(site)">@{{site.name}}</div>
+                                </div>
+                            </template>
+                        </div>
+                        <div v-if="!xx.searchSiteSelected">
+                            <div style="text-align: center">Or</div>
+                            <select-picker :name.sync="xx.day_site_id" :options.sync="xx.sites" :function="showNewTask"></select-picker>
+                        </div>
                     </div>
                 </div>
                 <!-- Tasks -->
@@ -450,7 +472,7 @@
                         <h3 style="margin-top: 0px">
                             <button class="btn btn-xs red pull-right" v-on:click="deleteConnectedTasks(site.site_id)">x</button>
                             Connected Tasks<br>
-                    <span style="font-size: 12px;">(
+                            <span style="font-size: 12px;">(
                         <template v-for="(index, task) in site.connected_tasks">
                             @{{ task.task_name }}<span v-if="index != site.connected_tasks.length - 1 ">, </span>
                         </template>
@@ -660,10 +682,11 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-planner-trade.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-planner-trade.js"></script>
 @stop

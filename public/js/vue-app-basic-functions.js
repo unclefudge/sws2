@@ -11,8 +11,8 @@ if (host == 'safeworksite.com.au')
 
 Vue.component('select-picker', {
     template: '<select v-model="name" class="form-control" @change="function">' +
-    '<option v-for="option in options" value="{{ option.value }}">{{{ option.text }}}</option>' +
-    '</select>',
+        '<option v-for="option in options" value="{{ option.value }}">{{{ option.text }}}</option>' +
+        '</select>',
     name: 'selectpicker',
     props: ['options', 'name', 'function'],
     ready: function () {
@@ -31,7 +31,6 @@ Vue.component('select-picker', {
         }.bind(this))
     }
 });
-
 
 // Post data to url via POST method
 function postAndRedirect(url, postData) {

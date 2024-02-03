@@ -7,7 +7,7 @@ var xx = {
     day_date: '', day_etype: '', day_eid: '', day_eid2: '', day_ename: '', day_site_id: '',
     day_task_id: '', day_task_code: '', day_task_name: '', day_move_days: 1, day_upcoming: '',
     assign_site: '', assign_trade: '', assign_type: '', assign_cid: '', assign_cname: '', assign_tasks: '', assign_super: '',
-    day_conflicts: '', day_other_sites: '',
+    day_conflicts: '', day_other_sites: '', searchSites: '', searchSiteSelected: false,
     day_plan: [], day_sites: [], connected_tasks: [],
     sel_site: [], sel_trade: [], sel_company: [], sel_task: [], sel_jobstart: [], sel_joballocate: [], sel_super: [],
     sel_assign_tasks: [{value: '', text: 'Select Action'}, {value: 'all', text: 'All future tasks for this trade'}, {value: 'day', text: 'Only todays tasks for this trade'}],
@@ -132,6 +132,20 @@ Vue.component('app-weekly', {
             this.xx.showNewTask = true;
             // Hack - set day_eid fror eid2 because eid not set on initial load of sidebar
             this.xx.day_eid = this.xx.day_eid2;
+        },
+        searchSite: function (site) {
+            if (this.xx.searchSites != '' && this.xx.searchSites != site.name) {
+                if (site.name.toLowerCase().includes(this.xx.searchSites.toLowerCase()))
+                    return true;
+                return false;
+            }
+            return false;
+        },
+        searchSiteSelected: function (site) {
+            this.xx.searchSiteSelected = true;
+            this.xx.searchSites = site.name;
+            this.xx.day_site_id = site.id;
+            this.showNewTask();
         },
         getSites: function () {
             $.getJSON('/planner/data/sites', function (sites) {
@@ -304,6 +318,8 @@ Vue.component('app-weekly', {
         addTask: function () {
             // Add task to planner
             this.xx.showNewTask = false;
+            this.xx.searchSiteSelected = false;  // reset siteSearch input
+            this.xx.searchSites = '';            // reset siteSearch input
 
             //alert('adding task');
             // Create new task
@@ -753,7 +769,7 @@ Vue.component('app-company', {
         compliant: function () {
             // Determine if Company is compliant
             //if (this.etype === 'c' && this.xx.leave[this.eid])
-                //return this.xx.leave[this.eid]['summary'];
+            //return this.xx.leave[this.eid]['summary'];
             //return false;
             //return 'PP'+this.ecompliant+'LL'+this.eid;
             return false;
@@ -808,6 +824,7 @@ Vue.component('app-dayplan', {
             this.xx.showNewTask = false;
             this.xx.showAssign = false;
             this.xx.enableActions = true;
+            this.xx.searchSiteSelected = false;
             this.xx.day_plan = this.entity_plan;
             this.xx.day_date = date;
             this.xx.day_etype = this.etype;
@@ -822,6 +839,7 @@ Vue.component('app-dayplan', {
             this.xx.assign_site = '';
             this.xx.assign_trade = '';
             this.xx.assign_tasks = '';
+            this.xx.searchSites = '';
             this.xx.sel_site = [];
             this.xx.sel_trade = [];
             this.getTaskOptions();
