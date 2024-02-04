@@ -7,7 +7,7 @@ var xx = {
     day_date: '', day_etype: '', day_eid: '', day_eid2: '', day_ename: '', day_site_id: '',
     day_task_id: '', day_task_code: '', day_task_name: '', day_move_days: 1, day_upcoming: '',
     assign_site: '', assign_trade: '', assign_type: '', assign_cid: '', assign_cname: '', assign_tasks: '', assign_super: '',
-    day_conflicts: '', day_other_sites: '', searchSites: '', searchSiteSelected: false,
+    day_conflicts: '', day_other_sites: '', search: '', searchSites: '', searchSiteSelected: false,
     day_plan: [], day_sites: [], connected_tasks: [],
     sel_site: [], sel_trade: [], sel_company: [], sel_task: [], sel_jobstart: [], sel_joballocate: [], sel_super: [],
     sel_assign_tasks: [{value: '', text: 'Select Action'}, {value: 'all', text: 'All future tasks for this trade'}, {value: 'day', text: 'Only todays tasks for this trade'}],
@@ -981,6 +981,14 @@ Vue.component('app-dayplan', {
             //    str = str + ' label label-warning';
 
             return str;
+        },
+        showSite: function (entity) {
+            if (this.xx.search != '') {
+                if (entity.site_name.toLowerCase().includes(this.xx.search.toLowerCase()))
+                    return true;
+                return false;
+            } else
+                return true;
         },
     },
 });

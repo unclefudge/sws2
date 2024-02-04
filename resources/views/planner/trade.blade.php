@@ -76,6 +76,11 @@
                                 @if (Auth::user()->hasPermission2('view.weekly.planner'))
                                     <button v-on:click="gotoURL('/planner/weekly')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</button>
                                 @endif
+                                @if (Auth::user()->isCC())
+                                    <div>
+                                        <input v-model="xx.search" type="text" class="form-control" placeholder="Search Site Names"/>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="row">
@@ -193,7 +198,7 @@
                                 <hr>
                             </div>
                             <div v-show="xx.companies.length">
-                                <h4 v-if="countUpcoming(xx.params.trade_id)">@{{ xx.trade_name }} Planner</h4>
+                                <h4 v-if="countUpcoming(xx.params.trade_id)">@{{ xx.trade_name }} Planner @{{xx.search}}</h4>
                                 <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                                     <div class="col-xs-2 ">Site</div>
                                     <div class="col-xs-2 ">Mon @{{ weekDateHeader(xx.mon_now, 0) }}</div>
@@ -652,7 +657,7 @@
         <div v-show="pastDateTrade(date) == true" style="padding: 10px; opacity: 0.4">
             <div v-if="entity_sites.length">
                 <template v-for="entity in entity_sites">
-                    <div class="@{{ entityClass(entity) }}">
+                    <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
                     </div>
                 </template>
@@ -662,7 +667,7 @@
         <div v-else class="hoverDiv" v-on:click="openSidebar(date)">
             <div v-if="entity_sites.length">
                 <template v-for="entity in entity_sites">
-                    <div class="@{{ entityClass(entity) }}">
+                    <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
                     </div>
                 </template>
