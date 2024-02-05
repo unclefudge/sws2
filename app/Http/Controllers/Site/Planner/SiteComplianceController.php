@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers\Site\Planner;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\User;
-use App\Models\Site\Site;
+use App\Http\Controllers\Controller;
 use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SiteComplianceReason;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Site\Site;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
 
 /**
  * Class SiteController
  * @package App\Http\Controllers
  */
-class SiteComplianceController extends Controller {
+class SiteComplianceController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -31,6 +29,7 @@ class SiteComplianceController extends Controller {
      */
     public function index(Request $request)
     {
+
         if ($request->ajax()) {
             $sites = [];
             $users = [];
@@ -47,7 +46,7 @@ class SiteComplianceController extends Controller {
                     $supers = $site->supers;
                 } else {
                     $site = Site::find($comply->site_id);
-                    $sites[$comply->site_id] = (object) ['id' => $site->id, 'name' => $site->name, 'supers' => $site->supervisorName];
+                    $sites[$comply->site_id] = (object)['id' => $site->id, 'name' => $site->name, 'supers' => $site->supervisorName];
                     $supers = $site->supervisorName;
                 }
                 $array['site_id'] = $site->id;
@@ -68,7 +67,7 @@ class SiteComplianceController extends Controller {
                     foreach ($dates as $date) {
                         $nc_dates[] = $date->format('d/m/Y');
                     }
-                    $users[$comply->user_id] = (object) ['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias, 'nc' => $nc, 'nc_dates' => $nc_dates];
+                    $users[$comply->user_id] = (object)['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias, 'nc' => $nc, 'nc_dates' => $nc_dates];
                     $company_name = $user->company->name_alias;
                 }
                 $array['user_id'] = $user->id;
@@ -87,7 +86,7 @@ class SiteComplianceController extends Controller {
                 $array['status'] = $comply->status;
                 $array['notes'] = $comply->notes;
                 $compliance[] = $array;
-            };
+            }
 
             // Reasons array in specific Vuejs 'select' format.
             $reason_recs = SiteComplianceReason::where('status', '1')
@@ -99,8 +98,8 @@ class SiteComplianceController extends Controller {
             foreach ($reason_recs as $reason) {
                 $reasons[] = [
                     'value' => $reason->id,
-                    'text'  => $reason->name,
-                    'name'  => $reason->name,
+                    'text' => $reason->name,
+                    'name' => $reason->name,
                 ];
             }
 
@@ -109,7 +108,8 @@ class SiteComplianceController extends Controller {
             $json[] = $reasons;
 
             return $json;
-        }
+        };
+
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('compliance'))

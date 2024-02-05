@@ -39,6 +39,7 @@ class SiteUpcomingComplianceController extends Controller
         $startdata = $this->getUpcomingData();
         $settings = SiteUpcomingSettings::where('field', 'opt')->where('status', 1)->get();
 
+        //dd('here');
         $types = ['opt', 'cfest', 'cfadm'];
         foreach ($types as $type) {
             $settings_select[$type] = ['' => 'Select stage'] + SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('name', 'order')->toArray();
@@ -59,6 +60,7 @@ class SiteUpcomingComplianceController extends Controller
         //var_dump($settings_colours);
         //dd($settings_text);
         //dd($startdata);
+
 
         return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours'));
     }
@@ -461,7 +463,6 @@ class SiteUpcomingComplianceController extends Controller
             if (!$site->jobStart && !in_array($site->id, $site_list))
                 $site_list[] = $site->id;
 
-
         // Add Specially Requested Sites to List
         $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
         $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
@@ -472,46 +473,51 @@ class SiteUpcomingComplianceController extends Controller
         //dd($site_list);
 
         foreach ($site_list as $site_id) {
-            $site = Site::findOrFail($site_id);
+            $site = Site::find($site_id);
 
-            $cc = $cc_stage = null;
-            if ($site->cc) {
-                $cc = $site->cc;
-                $cc_stage = $site->cc_stage;
-            } elseif ($site->construction_rcvd) {
-                $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
-                $cc_stage = 1;
+            if ($site) {
+                $cc = $cc_stage = null;
+                if ($site->cc) {
+                    $cc = $site->cc;
+                    $cc_stage = $site->cc_stage;
+                } elseif ($site->construction_rcvd) {
+                    $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
+                    $cc_stage = 1;
+                }
+
+
+                // Consultant Initials
+                $startdata[] = [
+                    'id' => $site->id,
+                    'status' => $site->status,
+                    'date' => '',
+                    'date_est' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
+                    'date_ymd' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',
+                    'code' => $site->code,
+                    'name' => $site->name,
+                    'company' => '-',
+                    'supervisor' => $site->supervisorInitials,
+                    'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
+                    'eng' => ($site->engineering) ? 'Y' : '-',
+                    'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
+                    'design_con' => $site->consultantInitials(),
+                    'project_mgr' => $site->projectManagerInitials,
+                    'estimator_fc' => $site->estimator_fc,
+                    'cc' => $cc,
+                    'cc_stage' => $cc_stage,
+                    'fc_plans' => $site->fc_plans,
+                    'fc_plans_stage' => $site->fc_plans_stage,
+                    'fc_struct' => $site->fc_struct,
+                    'fc_struct_stage' => $site->fc_struct_stage,
+                    'cf_est' => $site->cf_est,
+                    'cf_est_stage' => $site->cf_est_stage,
+                    'cf_adm' => $site->cf_adm,
+                    'cf_adm_stage' => $site->cf_adm_stage,
+                ];
             }
-
-            // Consultant Initials
-            $startdata[] = [
-                'id' => $site->id,
-                'status' => $site->status,
-                'date' => '',
-                'date_est' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('M-d') : '',
-                'date_ymd' => ($site->jobstart_estimate) ? $site->jobstart_estimate->format('Ymd') : '',
-                'code' => $site->code,
-                'name' => $site->name,
-                'company' => '-',
-                'supervisor' => $site->supervisorInitials,
-                'deposit_paid' => ($site->deposit_paid) ? $site->deposit_paid->format('M-d') : '-',
-                'eng' => ($site->engineering) ? 'Y' : '-',
-                'hbcf' => ($site->hbcf_start) ? $site->hbcf_start->format('M-d') : '-',
-                'design_con' => $site->consultantInitials(),
-                'project_mgr' => $site->projectManagerInitials,
-                'estimator_fc' => $site->estimator_fc,
-                'cc' => $cc,
-                'cc_stage' => $cc_stage,
-                'fc_plans' => $site->fc_plans,
-                'fc_plans_stage' => $site->fc_plans_stage,
-                'fc_struct' => $site->fc_struct,
-                'fc_struct_stage' => $site->fc_struct_stage,
-                'cf_est' => $site->cf_est,
-                'cf_est_stage' => $site->cf_est_stage,
-                'cf_adm' => $site->cf_adm,
-                'cf_adm_stage' => $site->cf_adm_stage,
-            ];
         }
+
+        //dd('hhh');
 
         // Sort by start date
         usort($startdata, function ($a, $b) {
