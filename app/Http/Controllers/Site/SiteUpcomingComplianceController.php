@@ -211,15 +211,19 @@ class SiteUpcomingComplianceController extends Controller
         }
 
         // Update Special Sites
+        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
         if (request('special_sites')) {
             $special_sites = implode(',', request('special_sites'));
-            $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
             if ($settings_sites) {
                 $settings_sites->value = $special_sites;
                 $settings_sites->save();
             } else
                 $settings_sites = SiteUpcomingSettings::create(['field' => 'sites', 'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+        } else {
+            $settings_sites->value = '';
+            $settings_sites->save();
         }
+
 
         // Update Email List
         /*
