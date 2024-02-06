@@ -24,7 +24,7 @@
                             <span class="caption-helper"> ID: {{ $report->id }}</span>
                         </div>
                         <div class="actions">
-                            @if($report->status == '0')
+                            @if(in_array($report->status, ['0', '3']))
                                 <a class="btn btn-circle green btn-outline btn-sm"
                                    href="/site/inspection/plumbing/{{ $report->id }}/report" target="_blank"
                                    data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
