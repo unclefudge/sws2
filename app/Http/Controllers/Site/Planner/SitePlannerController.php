@@ -1455,9 +1455,10 @@ class SitePlannerController extends Controller
             }
         }
 
-        $excluded_sites = ['0002', '0003', '0004', '0006', '0007', '0008', '0009'];  // Conference, Vehicles, Office, Truck, OnLeave, Management, Completed Jobs
+        $excluded_sites = ['0002', '0003', '0004', '0006', '0008', '0009'];  // Conference, Vehicles, Office, Truck, Management, Completed Jobs
         $sites = Site::select(['id', 'name'])->whereIn('status', [1, 2])->whereIn('id', $allowedSites)->whereNotIn('code', $excluded_sites)->orderBy('name')->get();
 
+        //dd($sites->toArray());
         $today = Carbon::now();
         $site_details = [];
         foreach ($sites as $site) {

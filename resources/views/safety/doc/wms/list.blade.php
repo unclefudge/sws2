@@ -67,7 +67,7 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> Safe Work Method Template Library</span>
                             </div>
                             <div class="actions">
-                                @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 6, 351, 109]))
+                                @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 108, 1155]))
                                     <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/wms/create" data-original-title="Add">Add</a>
                                 @endif
                                 <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"></a>
@@ -78,7 +78,7 @@
                                 <div class="form-group">
                                     <select name="status2" id="status2" class="form-control bs-select">
                                         <option value="1" selected>Active</option>
-                                        @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 6, 351, 109]))
+                                        @if(Auth::user()->hasPermission2('add.wms') && in_array(Auth::user()->id, [3, 108, 1155]))
                                             <option value="3">Pending</option>
                                             <option value="2">Draft</option>
                                             <option value="0">Archived</option>
@@ -118,61 +118,62 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    var status1 = $('#status1').val();
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/wms') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status1').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'd.name'},
-            {data: 'company_name', name: 'c.name'},
-            {data: 'principle', name: 'principle', searchable: false},
-            {data: 'updated_at', name: 'd.updated_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [4, "desc"]
-        ]
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        var status1 = $('#status1').val();
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/wms') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status1').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'd.name'},
+                {data: 'company_name', name: 'c.name'},
+                {data: 'principle', name: 'principle', searchable: false},
+                {data: 'updated_at', name: 'd.updated_at'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [4, "desc"]
+            ]
+        });
 
-    $('select#status1').change(function () {
-        table1.ajax.reload();
-    });
+        $('select#status1').change(function () {
+            table1.ajax.reload();
+        });
 
-    // Template
-    var status2 = $('#status2').val();
-    var table2 = $('#table2').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/wms_templates') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status2').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'd.name'},
-            {data: 'updated_at', name: 'd.updated_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        // Template
+        var status2 = $('#status2').val();
+        var table2 = $('#table2').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/wms_templates') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status2').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'd.name'},
+                {data: 'updated_at', name: 'd.updated_at'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status2').change(function () {
-        table2.ajax.reload();
-    });
-</script>
+        $('select#status2').change(function () {
+            table2.ajax.reload();
+        });
+    </script>
 @stop

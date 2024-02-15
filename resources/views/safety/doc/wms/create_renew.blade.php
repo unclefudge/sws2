@@ -86,8 +86,8 @@
                             </div>
 
                             <!-- Save as Template -->
-                            {{-- Only allowed Fudge/Tara/Jo access to add to library --}}
-                            @if(in_array(Auth::user()->id, [3, 351, 109, 6]))
+                            {{-- Only allowed Fudge access to add to library --}}
+                            @if(in_array(Auth::user()->id, [3, 108, 1155]))
                                 <div class="row" id="master_div">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -114,7 +114,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -128,58 +128,59 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#replace_id").select2({placeholder: "Select previous SWMS",});
-        $("#for_company_id").select2({placeholder: "Select Company",});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#replace_id").select2({placeholder: "Select previous SWMS",});
+            $("#for_company_id").select2({placeholder: "Select Company",});
 
 
-        $('#principle_id').change(function () {
+            $('#principle_id').change(function () {
+                principle_name();
+            });
+
+            function principle_name() {
+                if ($('#principle_id').val() == 'other')
+                    $('#principle-div').show();
+                else
+                    $('#principle-div').hide();
+            }
+
             principle_name();
-        });
 
-        function principle_name() {
-            if ($('#principle_id').val() == 'other')
+            /* toggle Principle + set in on page load */
+            if ($('#principle_switch').bootstrapSwitch('state') == false) {
                 $('#principle-div').show();
-            else
-                $('#principle-div').hide();
-        }
+            }
 
-        principle_name();
+            $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#principle-div').toggle();
+            });
 
-        /* toggle Principle + set in on page load */
-        if ($('#principle_switch').bootstrapSwitch('state') == false) {
-            $('#principle-div').show();
-        }
+            /* toggle Replace + set in on page load */
+            if ($('#replace_switch').bootstrapSwitch('state') == true) {
+                $('#replace-div').show();
+            }
 
-        $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#principle-div').toggle();
+            $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#replace-div').toggle();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#attachment").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
         });
-
-        /* toggle Replace + set in on page load */
-        if ($('#replace_switch').bootstrapSwitch('state') == true) {
-            $('#replace-div').show();
-        }
-
-        $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#replace-div').toggle();
-        });
-
-        /* Bootstrap Fileinput */
-        $("#attachment").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-    });
-</script>
+    </script>
 @stop
 

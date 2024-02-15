@@ -20,7 +20,7 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.sds'))
-                            {{--}}@if(in_array(Auth::user()->id, ['3', '109', '351', '6'])) {{-- Fudge, Jo, Tara, Rob --}}
+                                {{--}}@if(in_array(Auth::user()->id, ['3', '108', '1155'])) {{-- Fudge, Kirstie, Ross --}}
                                 <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
                             @endif
                         </div>
@@ -70,78 +70,79 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#category_id").select2({
-            placeholder: "Select Category",
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-    });
+        $(document).ready(function () {
+            /* Select2 */
+            $("#category_id").select2({
+                placeholder: "Select Category",
+            });
 
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        pageLength: 100,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/sds') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.category_id = $('#category_id').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'd.id', orderable: false, searchable: false},
-            {data: 'name', name: 'd.name'},
-            {data: 'manufacturer', name: 'd.manufacturer'},
-            {data: 'hazdanger', name: 'hazdanger'},
-            {data: 'application', name: 'd.application'},
-            //{data: 'categories', name: 'categories', orderable: false, searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [2, "asc"]
-        ]
-    });
+        });
 
-    table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 100,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/sds') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.category_id = $('#category_id').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'd.id', orderable: false, searchable: false},
+                {data: 'name', name: 'd.name'},
+                {data: 'manufacturer', name: 'd.manufacturer'},
+                {data: 'hazdanger', name: 'hazdanger'},
+                {data: 'application', name: 'd.application'},
+                //{data: 'categories', name: 'categories', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [2, "asc"]
+            ]
+        });
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this file!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted document');
-                },
-            }).always(function (data) {
-                $('#table1').DataTable().draw(false);
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this file!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
             });
         });
-    });
 
 
-    $('#category_id').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('#category_id').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

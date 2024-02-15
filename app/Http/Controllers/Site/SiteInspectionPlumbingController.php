@@ -198,7 +198,7 @@ class SiteInspectionPlumbingController extends Controller
             $report_request['status'] = 3; // Pending
 
             // Create ToDoo for Admin Review
-            $report->createSignOffToDo([1164]); // Brianna
+            $report->createSignOffToDo([464]); // Alethea
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
@@ -312,8 +312,8 @@ class SiteInspectionPlumbingController extends Controller
                 $pdf->save($file);
 
 
-                // Project Manager + Briana
-                $email_list = (\App::environment('prod')) ? ['briana@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                // Project Manager + Alethea
+                $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
                 if (\App::environment('prod') && $report->site->projectManager && validEmail($report->site->projectManager->email))
                     $email_list[] = $report->site->projectManager->email;
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReport($report, $file));

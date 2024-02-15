@@ -751,11 +751,11 @@ trait UserRolesPermissions
         }
 
 
-        // SDS add - Only Fudge, Jo, Tara, Rob, Demi
-        if (in_array($permission, ['add.sds', 'edit.sds', 'del.sds']) && in_array($this->id, ['3', '109', '351', '6', '424'])) return true;
+        // SDS add - Only Fudge, Demi, Kirstie, Ross
+        if (in_array($permission, ['add.sds', 'edit.sds', 'del.sds']) && in_array($this->id, ['3', '424', '108', '1155'])) return true;
 
         // Site QA Master templates
-        //if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '109', '351', '6'])) return true;
+        //if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '108', '1155'])) return true;
 
 
         // Get permission levels
@@ -827,12 +827,12 @@ trait UserRolesPermissions
                 if ($this->authUsers($permission)->contains('id', $record->created_by)) return true;
 
                 if ($record->site_id == '809') { // 0003-Vehicles Cape Cod
-                    // Fudge, Kirstie, Tara, Georgie, Ross
-                    if ($action == 'view' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '458', '1155'])) return true;
-                    // Fudge, Kirstie, Tara, Ross
-                    if ($action == 'edit' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '1155'])) return true;
-                    // Fudge, Kirstie, Tara, Ross
-                    if ($action == 'del' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '351', '1155'])) return true;
+                    // Fudge, Kirstie, Georgie, Ross
+                    if ($action == 'view' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '458', '1155'])) return true;
+                    // Fudge, Kirstie, Ross
+                    if ($action == 'edit' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '1155'])) return true;
+                    // Fudge, Kirstie, Ross
+                    if ($action == 'del' && $permissiontype == 'site.hazard' && in_array($this->id, ['3', '108', '1155'])) return true;
                 } else {
                     // User always allowed to view own Incident / Hazard
                     if ($action == 'view' && $this->id == $record->created_by) return true;

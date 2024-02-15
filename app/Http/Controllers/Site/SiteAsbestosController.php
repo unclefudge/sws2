@@ -2,36 +2,28 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteAsbestosRequest;
+use App\Models\Misc\Action;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteAsbestosAction;
-use App\Models\Misc\Action;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteAsbestosRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Input;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteAsbestosController
  * @package App\Http\Controllers\Site
  */
-class SiteAsbestosController extends Controller {
+class SiteAsbestosController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -110,8 +102,8 @@ class SiteAsbestosController extends Controller {
         // Additional Complex Custom Validation for Inspection + Supervisor fields
         $validator = Validator::make(request()->all(), []);
 
-        // Only allow Tara or Fudge override the Inspection field to No if friable
-        if (!in_array(Auth::user()->id, [3, 351])) {
+        // Only allow Kirstie/Ross or Fudge override the Inspection field to No if friable
+        if (!in_array(Auth::user()->id, [3, 108, 1155])) {
             $validator->after(function ($validator) {
                 if (request('friable') == '0' && request('amount_over') == '1' && request('inspection') != '1')
                     $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
@@ -186,8 +178,8 @@ class SiteAsbestosController extends Controller {
 
         // Additional Complex Custom Validation for Inspection + Supervisor fields
         $validator = Validator::make($request->all(), []);
-        // Only allow Tara or Fudge override the Inspection field to No if friable
-        if (!in_array(Auth::user()->id, [3, 351])) {
+        // Only allow Kirstie/Ross or Fudge override the Inspection field to No if friable
+        if (!in_array(Auth::user()->id, [3, 108, 1155])) {
             $validator->after(function ($validator) {
                 if (request()->get('friable') == '0' && request()->get('amount_over') == '1' && request()->get('inspection') != '1')
                     $validator->errors()->add('inspection', 'The inspection confirmation field must be YES');
@@ -277,7 +269,7 @@ class SiteAsbestosController extends Controller {
 
         // Neighbours_at
         if ($asb_request['neighbours_at'] && (!$asb->neighbours_at || $asb_request['neighbours_at'] != $asb->neighbours_at->format('d/m/Y')))
-            Action::create(['action' => "Neighbour form sent " .request('neighbours_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+            Action::create(['action' => "Neighbour form sent " . request('neighbours_at'), 'table' => 'site_asbestos', 'table_id' => $asb->id]);
 
         // Removal_at
         if ($asb_request['removal_at'] && (!$asb->removal_at || $asb_request['removal_at'] != $asb->removal_at->format('d/m/Y')))

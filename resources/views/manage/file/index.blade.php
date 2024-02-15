@@ -33,10 +33,11 @@
                             <tr>
                                 <td><a href="/company/{{ Auth::user()->company_id }}/doc"> Company Documents</a></td>
                             </tr>
-                            @if (in_array(Auth::user()->id, [3, 109, 351, 6])) {{-- Fudge, Jo, Tara, Rob --}}
-                            <tr>
-                                <td><a href="/safety/doc/sds">Safety Data Sheets</a></td>
-                            </tr>
+                            @if (in_array(Auth::user()->id, [3, 108, 1155]))
+                                {{-- Fudge, Kirstie, Ross --}}
+                                <tr>
+                                    <td><a href="/safety/doc/sds">Safety Data Sheets</a></td>
+                                </tr>
                             @endif
                             </tbody>
                         </table>
@@ -55,5 +56,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

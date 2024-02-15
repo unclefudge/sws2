@@ -80,8 +80,8 @@
                                 <i class="icon-layers"></i>
                                 <span class="caption-subject bold uppercase font-green-haze"> Toolbox Template Library</span>
                             </div>
-                            {{-- Only allowed Fudge/Tara/Kirstie/Ross access to add to library --}}
-                            @if(in_array(Auth::user()->id, [3, 351, 108, 1155]))
+                            {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                            @if(in_array(Auth::user()->id, [3, 108, 1155]))
                                 <div class="actions">
                                     @if(Auth::user()->hasPermission2('add.toolbox'))
                                         <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/toolbox2/create" data-original-title="Add">Add</a>
@@ -90,8 +90,8 @@
                                 </div>
                             @endif
                         </div>
-                        {{-- Only allowed Fudge/Tara/Kirstie/Ross access to add to library --}}
-                        @if(in_array(Auth::user()->id, [3, 351, 108, 1155]))
+                        {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                        @if(in_array(Auth::user()->id, [3, 108, 1155]))
                             <div class="row">
                                 <div class="col-md-2 pull-right">
                                     <div class="form-group">
@@ -139,125 +139,126 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    var status = $('#status').val();
-    var table1 = $('#table1').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/toolbox2') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 't.name'},
-            {data: 'company_name', name: 'c.name'},
-            {data: 'updated_at', name: 't.updated_at'},
-            {data: 'completed', name: 'completed', orderable: false, searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [3, "desc"]
-        ]
-    });
+        var status = $('#status').val();
+        var table1 = $('#table1').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/toolbox2') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 't.name'},
+                {data: 'company_name', name: 'c.name'},
+                {data: 'updated_at', name: 't.updated_at'},
+                {data: 'completed', name: 'completed', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [3, "desc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
-    });
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
 
-    table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted talk');
-                },
-            }).always(function (data) {
-                $('#table1').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted talk');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
             });
         });
-    });
 
-    //
-    // Templates
-    //
-    var status2 = $('#status2').val();
-    var table2 = $('#table2').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('safety/doc/dt/toolbox_templates') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status2').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 't.name'},
-            {data: 'updated_at', name: 't.updated_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        //
+        // Templates
+        //
+        var status2 = $('#status2').val();
+        var table2 = $('#table2').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('safety/doc/dt/toolbox_templates') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status2').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 't.name'},
+                {data: 'updated_at', name: 't.updated_at'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status2').change(function () {
-        table2.ajax.reload();
-    });
+        $('select#status2').change(function () {
+            table2.ajax.reload();
+        });
 
-    table2.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table2.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted template');
-                },
-            }).always(function (data) {
-                $('#table2').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to restore this talk!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted template');
+                    },
+                }).always(function (data) {
+                    $('#table2').DataTable().draw(false);
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop

@@ -184,7 +184,7 @@ class SiteInspectionElectricalController extends Controller
             $report_request['status'] = 3; // Pending signoff
 
             // Create ToDoo for Electrical Review
-            $report->createSignOffToDo([1164]); // Brianna
+            $report->createSignOffToDo([464]); // Alethea
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();
@@ -202,7 +202,7 @@ class SiteInspectionElectricalController extends Controller
                 $report->createAssignedToDo([$company->primary_user]);
 
                 // Email assigned notification
-                $email_list = (\App::environment('prod')) ? ['briana@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
 
                 // Email assigned notification to Next Point Admin
@@ -320,7 +320,7 @@ class SiteInspectionElectricalController extends Controller
 
                 // Create ToDoo for Electrical Review
                 $report->closeToDo();
-                $report->createElectricalReviewToDo([1164, 3]); // Brianna
+                $report->createElectricalReviewToDo([464]); // Alethea
                 Toastr::error("Report Rejected");
 
             }

@@ -79,7 +79,7 @@
                 <div class="col-md-2">
                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}">
                         @if ($ticket->status)
-                            {!! Form::select('assigned_to', ['' => 'None', '3' => 'Fudge', '108' => 'Kirstie', '351' =>'Tara', '1155' =>'Ross'], $ticket->assigned_to, ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                            {!! Form::select('assigned_to', ['' => 'None', '3' => 'Fudge', '108' => 'Kirstie', '1155' =>'Ross'], $ticket->assigned_to, ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
                         @else
                             {!! Form::text('assign_to_text', $ticket->assigned_to ? $ticket->assigned->fullname : 'None', ['class' => 'form-control', 'disabled']) !!}
                         @endif

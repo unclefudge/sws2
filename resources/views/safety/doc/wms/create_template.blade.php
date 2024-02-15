@@ -60,7 +60,7 @@
                             {!! Form::hidden('master_id', $doc->id) !!}
 
 
-                                    <!-- Name -->
+                            <!-- Name -->
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('name', $errors) !!}">
@@ -72,13 +72,13 @@
                             </div>
                             <!-- Principal Contractor -->
                             @if(Auth::user()->company->subscription)
-                                <?php
-                                $principle_array = ['other' => 'Other'];
-                                if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->id))
-                                    $principle_array = [Auth::user()->company->id => Auth::user()->company->name] + $principle_array;
-                                if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->parent_company))
-                                    $principle_array = [Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name] + $principle_array;
-                                ?>
+                                    <?php
+                                    $principle_array = ['other' => 'Other'];
+                                    if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->id))
+                                        $principle_array = [Auth::user()->company->id => Auth::user()->company->name] + $principle_array;
+                                    if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->parent_company))
+                                        $principle_array = [Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name] + $principle_array;
+                                    ?>
                                 <div class="row">
                                     <div class="col-md-6">
                                         {!! Form::label('principle_id', 'Principal Contractor', ['class' => 'control-label']) !!}
@@ -126,8 +126,8 @@
                             </div>
 
                             <!-- Save as Template -->
-                            {{-- Only allowed Fudge/Tara/Jo access to add to library --}}
-                            @if(in_array(Auth::user()->id, [3, 351, 109, 6]))
+                            {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                            @if(in_array(Auth::user()->id, [3, 108, 1155]))
                                 <div class="row" id="master_div">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -154,7 +154,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -168,45 +168,46 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#replace_id").select2({placeholder: "Select previous SWMS",});
-        $("#for_company_id").select2({placeholder: "Select Company",});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#replace_id").select2({placeholder: "Select previous SWMS",});
+            $("#for_company_id").select2({placeholder: "Select Company",});
 
 
-        $('#principle_id').change(function () {
+            $('#principle_id').change(function () {
+                principle_name();
+            });
+
+            function principle_name() {
+                if ($('#principle_id').val() == 'other')
+                    $('#principle-div').show();
+                else
+                    $('#principle-div').hide();
+            }
+
             principle_name();
-        });
 
-        function principle_name() {
-            if ($('#principle_id').val() == 'other')
+            /* toggle Principle + set in on page load */
+            if ($('#principle_switch').bootstrapSwitch('state') == false) {
                 $('#principle-div').show();
-            else
-                $('#principle-div').hide();
-        }
+            }
 
-        principle_name();
+            $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#principle-div').toggle();
+            });
 
-        /* toggle Principle + set in on page load */
-        if ($('#principle_switch').bootstrapSwitch('state') == false) {
-            $('#principle-div').show();
-        }
+            /* toggle Replace + set in on page load */
+            if ($('#replace_switch').bootstrapSwitch('state') == true) {
+                $('#replace-div').show();
+            }
 
-        $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#principle-div').toggle();
+            $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#replace-div').toggle();
+            });
         });
-
-        /* toggle Replace + set in on page load */
-        if ($('#replace_switch').bootstrapSwitch('state') == true) {
-            $('#replace-div').show();
-        }
-
-        $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#replace-div').toggle();
-        });
-    });
-</script>
+    </script>
 @stop
 

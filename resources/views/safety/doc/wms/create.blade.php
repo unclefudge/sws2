@@ -124,13 +124,13 @@
                                 </div>
                                 <!-- Principal Contractor -->
                                 @if(Auth::user()->company->subscription)
-                                    <?php
-                                    $principle_array = ['other' => 'Other'];
-                                    if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->id))
-                                        $principle_array = [Auth::user()->company->id => Auth::user()->company->name]+$principle_array;
-                                    if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->parent_company))
-                                        $principle_array = [Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name]+$principle_array;
-                                    ?>
+                                        <?php
+                                        $principle_array = ['other' => 'Other'];
+                                        if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->id))
+                                            $principle_array = [Auth::user()->company->id => Auth::user()->company->name] + $principle_array;
+                                        if (Auth::user()->permissionLevel('add.wms', Auth::user()->company->parent_company))
+                                            $principle_array = [Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name] + $principle_array;
+                                        ?>
                                     <div class="row">
                                         <div class="col-md-6">
                                             {!! Form::label('principle_id', 'Principal Contractor', ['class' => 'control-label']) !!}
@@ -189,8 +189,8 @@
                                 </div>
                             </div>
                             <!-- Save as Template -->
-                            {{-- Only allowed Fudge/Tara/Jo access to add to library --}}
-                            @if(in_array(Auth::user()->id, [3, 351, 109, 6]))
+                            {{-- Only allowed Fudge/Kirstie/Ross access to add to library --}}
+                            @if(in_array(Auth::user()->id, [3, 108, 1155]))
                                 <div class="row" id="master_div">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -217,7 +217,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -231,107 +231,108 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        display_fields();
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            display_fields();
 
-        $("#swms_type").change(function () {
-            display_fields()
-        });
+            $("#swms_type").change(function () {
+                display_fields()
+            });
 
-        function display_fields() {
-            if ($("#swms_type").val() == '') {
-                $('#required_fields').hide();
-                $('#library_div').hide();
-                $('#upload_div').hide();
+            function display_fields() {
+                if ($("#swms_type").val() == '') {
+                    $('#required_fields').hide();
+                    $('#library_div').hide();
+                    $('#upload_div').hide();
+                }
+                if ($("#swms_type").val() == 'library') {
+                    $('#required_fields').show();
+                    $('#library_div').show();
+                    $('#upload_div').hide();
+                    $('#scratch_div').hide();
+                }
+                if ($("#swms_type").val() == 'upload') {
+                    $('#required_fields').show();
+                    $('#library_div').hide();
+                    $('#upload_div').show();
+                }
+                if ($("#swms_type").val() == 'scratch') {
+                    $('#required_fields').show();
+                    $('#library_div').hide();
+                    $('#upload_div').hide();
+                }
             }
-            if ($("#swms_type").val() == 'library') {
-                $('#required_fields').show();
-                $('#library_div').show();
-                $('#upload_div').hide();
-                $('#scratch_div').hide();
+
+            /* Select2 */
+            $("#master_id").select2({placeholder: "Select template",});
+
+            $("#replace_id").select2({placeholder: "Select previous SWMS",});
+
+            $("#for_company_id").select2({placeholder: "Select Company",});
+
+            $('#master_id').change(function () {
+                $('#name').val('');
+                var name = $("#master_id option:selected").text().replace(/\(([^)]+)\)$/, ""); // (principle) out of text
+                var name = name.replace(/v([0-9]*[.])?[0-9]+/, ""); // strip the version vX.X
+                if ($(this).val())
+                    $('#name').val(name);
+            });
+
+            $('#principle_id').change(function () {
+                principle_name();
+            });
+
+            function principle_name() {
+                if ($('#principle_id').val() == 'other')
+                    $('#principle-div').show();
+                else
+                    $('#principle-div').hide();
             }
-            if ($("#swms_type").val() == 'upload') {
-                $('#required_fields').show();
-                $('#library_div').hide();
-                $('#upload_div').show();
-            }
-            if ($("#swms_type").val() == 'scratch') {
-                $('#required_fields').show();
-                $('#library_div').hide();
-                $('#upload_div').hide();
-            }
-        }
 
-        /* Select2 */
-        $("#master_id").select2({placeholder: "Select template",});
-
-        $("#replace_id").select2({placeholder: "Select previous SWMS",});
-
-        $("#for_company_id").select2({placeholder: "Select Company",});
-
-        $('#master_id').change(function () {
-            $('#name').val('');
-            var name = $("#master_id option:selected").text().replace(/\(([^)]+)\)$/, ""); // (principle) out of text
-            var name = name.replace(/v([0-9]*[.])?[0-9]+/, ""); // strip the version vX.X
-            if ($(this).val())
-                $('#name').val(name);
-        });
-
-        $('#principle_id').change(function () {
             principle_name();
-        });
 
-        function principle_name() {
-            if ($('#principle_id').val() == 'other')
+            /* toggle Principle + set in on page load */
+            if ($('#principle_switch').bootstrapSwitch('state') == false) {
                 $('#principle-div').show();
-            else
-                $('#principle-div').hide();
-        }
+            }
 
-        principle_name();
+            $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#principle-div').toggle();
+            });
 
-        /* toggle Principle + set in on page load */
-        if ($('#principle_switch').bootstrapSwitch('state') == false) {
-            $('#principle-div').show();
-        }
+            /* toggle Replace + set in on page load */
+            if ($('#replace_switch').bootstrapSwitch('state') == true) {
+                $('#replace-div').show();
+            }
 
-        $('#principle_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#principle-div').toggle();
+            $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#replace-div').toggle();
+            });
+
+            /* Set Master field to false if SWMS type = 'upload' */
+            $('#swms_type').change(function () {
+                if ($(this).val() == 'upload') {
+                    $('#master_div').hide();
+                    $('#master').bootstrapSwitch('state', false);
+                } else
+                    $('#master_div').show();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#attachment").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
         });
-
-        /* toggle Replace + set in on page load */
-        if ($('#replace_switch').bootstrapSwitch('state') == true) {
-            $('#replace-div').show();
-        }
-
-        $('#replace_switch').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#replace-div').toggle();
-        });
-
-        /* Set Master field to false if SWMS type = 'upload' */
-        $('#swms_type').change(function () {
-            if ($(this).val() == 'upload') {
-                $('#master_div').hide();
-                $('#master').bootstrapSwitch('state', false);
-            } else
-                $('#master_div').show();
-        });
-
-        /* Bootstrap Fileinput */
-        $("#attachment").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-    });
-</script>
+    </script>
 @stop
 
