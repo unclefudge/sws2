@@ -341,7 +341,7 @@ class ClientPlannerEmailController extends Controller
 
         // Upcoming Planner
         $date = Carbon::now()->format('Y-m-d');
-        $date = Carbon::parse('next monday')->format('Y-m-d');
+        $date = Carbon::parse('this monday')->format('Y-m-d');
         $data = [];
 
         // For each week get Entities on the Planner

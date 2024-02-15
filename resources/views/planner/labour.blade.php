@@ -142,7 +142,7 @@
                                 <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
                             </div>
                         </div>
-                        
+
                         <div class="portlet-body">
                             <div class="row">
                                 <div class="col-md-12">

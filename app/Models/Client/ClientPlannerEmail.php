@@ -87,7 +87,7 @@ class ClientPlannerEmail extends Model
         if (\App::environment('prod')) {
             $email_to = explode('; ', $this->sent_to);
             $email_cc = explode('; ', $this->sent_cc);
-            $email_cc = 'support@openhands.com.au';
+            //$email_cc = 'support@openhands.com.au';
             $email_bcc = explode('; ', $this->sent_bcc);
         }
 
