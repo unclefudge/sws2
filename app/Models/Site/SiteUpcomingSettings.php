@@ -2,12 +2,10 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\Models\Comms\Todo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 
 class SiteUpcomingSettings extends Model
@@ -18,6 +16,7 @@ class SiteUpcomingSettings extends Model
         'field', 'name', 'value', 'colour', 'order', 'notes', 'status', 'company_id',
         'created_by', 'updated_by', 'created_at', 'updated_at',
     ];
+
 
     /**
      * The "booting" method of the model.

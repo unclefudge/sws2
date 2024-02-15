@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # New Company Signed Up
 
@@ -24,10 +25,10 @@ The following users were created:
 
 
 @component('mail::button', ['url' => config('app.url').'/company/'.$company->id])
-View Company
+    View Company
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

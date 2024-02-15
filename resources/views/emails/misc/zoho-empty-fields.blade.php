@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Zoho Missing Data
 
@@ -5,6 +6,6 @@
 
 ---
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

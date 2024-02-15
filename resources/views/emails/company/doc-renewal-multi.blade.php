@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Standard Detail Documents are due for renewal
 
@@ -6,10 +7,10 @@
 Please review the Standard Detail documents and arrange for them to be updated
 
 @component('mail::button', ['url' => config('app.url').'/company/doc/standard/review'])
-View Documents
+    View Documents
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

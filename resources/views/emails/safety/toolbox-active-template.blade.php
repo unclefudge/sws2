@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # New Toolbox Talk Template
 
@@ -11,7 +12,7 @@ View Talk
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent
 

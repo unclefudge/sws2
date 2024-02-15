@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Password Reset Request
 
@@ -9,6 +10,6 @@ Reset Password
 
 If you did not request a password reset, no further action is required.
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

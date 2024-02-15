@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Company Document {!! ($doc->expiry->lt(\Carbon\Carbon::today())) ? "has Expired " : "due to expire " !!}
 
@@ -10,6 +11,6 @@ View Documents
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

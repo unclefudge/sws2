@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Company Document is due for renewal
 
@@ -6,10 +7,10 @@
 Please review the attached Standard Detail and arrange for it to be updated
 
 @component('mail::button', ['url' => config('app.url').'/company/'.$doc->for_company_id.'/doc/'.$doc->id.'/edit'])
-View Document
+    View Document
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

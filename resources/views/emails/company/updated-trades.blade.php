@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Company Updated Trades
 
@@ -12,10 +13,10 @@
 
 
 @component('mail::button', ['url' => config('app.url').'/company/'.$company->id])
-View Company
+    View Company
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Toolbox Talk Sign Off Request Rejected
 
@@ -12,6 +13,6 @@ View Talk
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

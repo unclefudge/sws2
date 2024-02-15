@@ -1,4 +1,5 @@
 @inject('companyTypes', 'App\Http\Utilities\CompanyTypes')
+{{-- @formatter:off --}}
 @component('mail::message')
 # New Company Created
 
@@ -14,6 +15,6 @@
 | **Created By** | {{ $company->createdBy->name  }} |
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

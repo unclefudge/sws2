@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # ToDo Notification {!! ($todo->due_at && $todo->due_at->lt(Carbon\Carbon::today()) ? ' - OVERDUE' : '') !!}
 
