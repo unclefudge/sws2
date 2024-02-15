@@ -22,7 +22,8 @@
             display: inline;
             height: 20px;
             width: 20px;
-            margin: 0px 10px 15px 0px;
+            margin: 0px 10px 5px 0px;
+            clear: both;
         }
 
         .state-blue {
@@ -133,14 +134,15 @@
                         </div>
 
                         {{-- Key map --}}
-                        <div class="row stickyKey">
-                            <div class="col-xs-12">
-                                <span class="keybox state-green"></span><span style="float:left; margin-right: 20px;">Exceeded Max #Jobs </span>
-                                <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span>
-                                <span class="keybox state-red"></span><span style="float:left; margin-right: 20px;">Not All On-Site </span>
-                                <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Not Rostered</span>
-                                <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
-                            </div>
+                        <div style="position: fixed; bottom:0px; right: 0px; width: 250px; z-index: 10; padding: 10px; background: #ffffff">
+                            <div><span class="keybox state-green"></span><span style="float:left; margin-right: 20px;">Exceeded Max #Jobs </span></div>
+                            <br>
+                            <div><span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span></div>
+                            <br>
+                            <div><span class="keybox state-red"></span><span style="float:left; margin-right: 20px;">Not All On-Site </span></div>
+                            <br>
+                            <div><span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Not Rostered</span></div>
+                            <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span><br>
                         </div>
 
                         <div class="portlet-body">

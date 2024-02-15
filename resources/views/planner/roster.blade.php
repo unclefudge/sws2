@@ -18,7 +18,8 @@
             display: inline;
             height: 20px;
             width: 20px;
-            margin: 0px 10px 15px 0px;
+            margin: 0px 10px 5px 0px;
+            clear: both;
         }
 
         .state-blue {
@@ -116,12 +117,16 @@
                             {{-- Key map --}}
                             <div class="row stickyKey">
                                 <div class="col-xs-12">
-                                    <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span>
-                                    <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">Company All On-Site </span>
-                                    <span class="keybox state-black"></span><span style="float:left; margin-right: 20px;">Company partially On-Site </span>
-                                    <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
+
                                 </div>
                             </div>
+                            <div style="position: fixed; bottom:0px; right: 0px; width: 250px; z-index: 10; padding: 10px; background: #ffffff">
+                                <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span><br>
+                                <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">Company All On-Site </span><br>
+                                <span class="keybox state-black"></span><span style="float:left; margin-right: 20px;">Company partially On-Site </span><br>
+                                <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span><br>
+                            </div>
+
                             <div class="row text-bold" style="font-size: 16px; margin-top: 25px">
                                 <div class="col-md-6"><span style="margin-left: 70px">Company</span></div>
                                 <div class="col-md-6"><span style="margin-left: 70px">Users planned to be On-Site &nbsp; &nbsp;<small class="font-grey-silver">(greyed currently no logged-in)</small></div>
