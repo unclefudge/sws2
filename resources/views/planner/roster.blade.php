@@ -13,7 +13,7 @@
             z-index: 9999;
         }
 
-        .box {
+        .keybox {
             float: left;
             display: inline;
             height: 20px;
@@ -35,6 +35,15 @@
 
         .state-black {
             background-color: #000;
+        }
+
+        .stickyKey {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 51px;
+            z-index: 10;
+            background: #ffffff;
+            padding: 5px 0 5px 0;
         }
     </style>
 
@@ -105,12 +114,12 @@
                             </div>
 
                             {{-- Key map --}}
-                            <div class="row">
+                            <div class="row stickyKey">
                                 <div class="col-xs-12">
-                                    <span class="box state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span>
-                                    <span class="box state-blue"></span><span style="float:left; margin-right: 20px;">Company All On-Site </span>
-                                    <span class="box state-black"></span><span style="float:left; margin-right: 20px;">Company partially On-Site </span>
-                                    <span class="box state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
+                                    <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Roster not Completed</span>
+                                    <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">Company All On-Site </span>
+                                    <span class="keybox state-black"></span><span style="float:left; margin-right: 20px;">Company partially On-Site </span>
+                                    <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
                                 </div>
                             </div>
                             <div class="row text-bold" style="font-size: 16px; margin-top: 25px">

@@ -31,6 +31,8 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
 use Session;
 
+//use Illuminate\Foundation\Auth\User as Authenticatable;
+
 class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
 

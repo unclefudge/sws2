@@ -8,6 +8,48 @@
 @stop
 
 @section('content')
+    <style>
+        .keybox {
+            float: left;
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 10px 15px 0px;
+        }
+
+        .state-blue {
+            background-color: #3598dc;
+        }
+
+        .state-purple {
+            background-color: #8E44AD;
+        }
+
+        .state-orange {
+            background-color: #E87E04;
+        }
+
+        .state-green {
+            background-color: #26c281;
+        }
+
+        .state-red {
+            background-color: #e7505a;
+        }
+
+        .state-black {
+            background-color: #000;
+        }
+
+        .stickyKey {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 51px;
+            z-index: 10;
+            background: #ffffff;
+            padding: 5px 0 5px 0;
+        }
+    </style>
     <div class="page-content-inner">
         <input v-model="xx.mon_now" type="hidden" value="{{ $date }}">
         <input v-model="xx.params.date" type="hidden" value="{{ $date }}">
@@ -35,7 +77,7 @@
                             <span class="caption-subject bold uppercase font-green-haze">Weekly Planner</span>
                         </div>
                         <div class="actions">
-                        @if (Auth::user()->hasPermission2('view.trade.planner'))
+                            @if (Auth::user()->hasPermission2('view.trade.planner'))
                                 <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
@@ -52,10 +94,10 @@
                             @endif
                             <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">W</button>
                             @if (Auth::user()->isCC())
-                            <div>
-                                <input v-model="xx.search" type="text" class="form-control" placeholder="Search Site Names" />
-                            </div>
-                                @endif
+                                <div>
+                                    <input v-model="xx.search" type="text" class="form-control" placeholder="Search Site Names"/>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -89,6 +131,19 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        {{-- Key map --}}
+                        <div class="row stickyKey">
+                            <div class="col-xs-12">
+                                <span class="keybox state-green"></span><span style="float:left; margin-right: 20px;">Exceeded Max #Jobs </span>
+                                <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span>
+                                <span class="keybox state-red"></span><span style="float:left; margin-right: 20px;">Not All On-Site </span>
+                                <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Not Rostered</span>
+                                <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
+                            </div>
+                        </div>
+
                         <div v-show="xx.sites.length">
                             <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                                 <div class="col-xs-2">Site</div>
@@ -99,7 +154,8 @@
                                 <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
                             </div>
                             <template v-for="site in xx.sites">
-                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start" :site_order="site.order" :site_prac_complete="site.prac_complete"></app-site>
+                                <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code" :site_contact="site.supervisors_contact" :site_address="site.address" :site_status="site.status" :site_preconstruct="site.start" :site_order="site.order"
+                                          :site_prac_complete="site.prac_complete"></app-site>
                             </template>
 
                         </div>
@@ -232,9 +288,10 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-planner-weekly.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-planner-weekly.js"></script>
 @stop

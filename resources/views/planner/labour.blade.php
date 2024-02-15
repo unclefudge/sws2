@@ -16,6 +16,48 @@
             z-index: 9999;
             height: 480px;
         }
+
+        .keybox {
+            float: left;
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 10px 15px 0px;
+        }
+
+        .state-blue {
+            background-color: #3598dc;
+        }
+
+        .state-purple {
+            background-color: #8E44AD;
+        }
+
+        .state-orange {
+            background-color: #E87E04;
+        }
+
+        .state-green {
+            background-color: #26c281;
+        }
+
+        .state-red {
+            background-color: #e7505a;
+        }
+
+        .state-black {
+            background-color: #000;
+        }
+
+        .stickyKey {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 51px;
+            z-index: 10;
+            background: #ffffff;
+            padding: 5px 0 5px 0;
+        }
+
         @media screen and (min-width: 1850px) {
             .aside {
                 height: 100%;
@@ -89,6 +131,18 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Key map --}}
+                        <div class="row stickyKey">
+                            <div class="col-xs-12">
+                                <span class="keybox state-green"></span><span style="float:left; margin-right: 20px;">Exceeded Max #Jobs </span>
+                                <span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span>
+                                <span class="keybox state-red"></span><span style="float:left; margin-right: 20px;">Not All On-Site </span>
+                                <span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Not Rostered</span>
+                                <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span>
+                            </div>
+                        </div>
+                        
                         <div class="portlet-body">
                             <div class="row">
                                 <div class="col-md-12">
@@ -169,8 +223,8 @@
            Upcoming Sidebar for editing entity
            -->
         <sidebarupcoming :show.sync="xx.showSidebarUpcoming" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_upcoming.entity_type == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_upcoming.entity_name }}</h3>
-            <h3 v-if="xx.day_upcoming.entity_type == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_upcoming.entity_name }}</h3>
+            <h3 v-if="xx.day_upcoming.entity_type == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_upcoming.entity_name }}</h3>
+            <h3 v-if="xx.day_upcoming.entity_type == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_upcoming.entity_name }}</h3>
             <hr style="margin: 10px 0px">
             <h4>Task for @{{ xx.day_upcoming.from | formatDate2 }}</h4>
 
@@ -255,8 +309,8 @@
            Entity Sidebar for editing entity
            -->
         <sidebar :show.sync="xx.showSidebar" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_ename }}</h3>
-            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_ename }}
+            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_ename }}</h3>
+            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_ename }}
                 <div v-if="xx.day_other_sites">
                     <small class="font-grey-silver">@{{{ xx.day_other_sites }}}</small>
                 </div>
@@ -287,7 +341,7 @@
 
             <!-- Current Tasks for Entity -->
             <div v-if="xx.day_plan.length" class="list-group">
-                <li v-for="task in xx.day_plan | orderBy 'site_name' 'task_name'" class="list-group-item"  style="padding: 0px 10px">
+                <li v-for="task in xx.day_plan | orderBy 'site_name' 'task_name'" class="list-group-item" style="padding: 0px 10px">
                     <h4 class="font-blue">
                         <button class="btn btn-xs red pull-right" v-on:click="deleteTask(task)">x</button>
                         <b>@{{ task.task_name }}</b><br>
@@ -386,7 +440,7 @@
                         <h3 style="margin-top: 0px">
                             <!--<button class="btn btn-xs red pull-right" v-on:click="deleteConnectedTasks(site.site_id)">x</button>-->
                             Connected Tasks<br>
-                    <span style="font-size: 12px;">(
+                            <span style="font-size: 12px;">(
                         <template v-for="(index, task) in site.connected_tasks">
                             @{{ task.task_name }}<span v-if="index != site.connected_tasks.length - 1 ">, </span>
                         </template>
@@ -440,7 +494,7 @@
         <div class="row row-striped" style="border-bottom: 1px solid lightgrey;  overflow: hidden;">
             <div class="col-xs-2 sideColBG">
                 <small class="text-uppercase" :class="{ 'font-yellow-gold': etype == 't' }">@{{ ename }}
-                <span v-if="etype == 't' && !ename">Labourer</span>
+                    <span v-if="etype == 't' && !ename">Labourer</span>
                 </small>
                 <small v-if="leaveSummary()" class="font-blue"><br>Leave: @{{ leaveSummary() }}</small>
             </div>
@@ -464,7 +518,7 @@
 
     <!-- Day plan for each entity on planner -->
     <template id="dayplan-template">
-        <div v-if="onleave"  style="padding-left: 10px">
+        <div v-if="onleave" style="padding-left: 10px">
             <small class="label label-sm label-warning" style="font-size: 11px;">ON LEAVE &nbsp;<br></small>
         </div>
         <!-- Past Events - disable sidebar and dim entry -->
@@ -501,10 +555,11 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-planner-trade.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-planner-trade.js"></script>
 @stop
