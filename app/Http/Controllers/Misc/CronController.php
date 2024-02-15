@@ -1204,7 +1204,7 @@ class CronController extends Controller
                 // Send email
                 $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
                 $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_to && $email_cc) {
                     CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));

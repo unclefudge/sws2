@@ -2,31 +2,21 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Mail;
-use Carbon\Carbon;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
-use App\Http\Requests;
-use App\Http\Requests\Company\CompanyRequest;
-use App\Http\Utilities\CompanyTypes;
 use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use App\User;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Yajra\Datatables\Datatables;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
+use Validator;
 
 /**
  * Class CompanySignUpController
  * @package App\Http\Controllers
  */
-class CompanySignUpController extends Controller {
+class CompanySignUpController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -64,15 +54,15 @@ class CompanySignUpController extends Controller {
 
         // Validate
         $rules = [
-            'username'           => 'required|min:3|max:50|unique:users,username,' . $user->id,
-            'firstname'          => 'required',
-            'lastname'           => 'required',
-            'email'              => 'required_if:status,1|email|max:255|unique:users,email,' . $user->id . ',id',
-            'employment_type'    => 'required',
+            'username' => 'required|min:3|max:50|unique:users,username,' . $user->id,
+            'firstname' => 'required',
+            'lastname' => 'required',
+            'email' => 'required_if:status,1|email|max:255|unique:users,email,' . $user->id . ',id',
+            'employment_type' => 'required',
             'subcontractor_type' => 'required_if:employment_type,3',
         ];
         $mesgs = [
-            'email.required_if'              => 'The email field is required if user active ie. Login Enabled.',
+            'email.required_if' => 'The email field is required if user active ie. Login Enabled.',
             'subcontractor_type.required_if' => 'The subcontractor entity is required',
         ];
         $this->validate(request(), $rules, $mesgs);
@@ -134,14 +124,14 @@ class CompanySignUpController extends Controller {
 
         // Validate
         $rules = [
-            'name'     => 'required',
-            'phone'    => 'required',
-            'email'    => 'required|email|max:255',
-            'address'  => 'required',
-            'suburb'   => 'required',
-            'state'    => 'required',
+            'name' => 'required',
+            'phone' => 'required',
+            'email' => 'required|email|max:255',
+            'address' => 'required',
+            'suburb' => 'required',
+            'state' => 'required',
             'postcode' => 'required',
-            'abn'      => 'required',
+            'abn' => 'required',
         ];
 
         $this->validate(request(), $rules);
@@ -203,7 +193,7 @@ class CompanySignUpController extends Controller {
             Mail::to($email_to)->send(new \App\Mail\Company\CompanySignup($company));
 
         if ($company->reportsTo()->id == 3) {
-            $email_cc = (\App::environment('prod')) ? ['courtney@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_cc = (\App::environment('prod')) ? ['accounts1@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($company->primary_user && validEmail($company->primary_contact()->email))
                 Mail::to($company->primary_contact()->email)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocs($company));
         }

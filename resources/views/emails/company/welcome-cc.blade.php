@@ -1,18 +1,18 @@
 @component('mail::message')
-# Welcome to SafeWorksite
+    # Welcome to SafeWorksite
 
-{{ $name }},
+    {{ $name }},
 
-Your company {{ $company->name }} has been invited to join SafeWorksite by <b>{{ $parent_company->name }}</b>.
+    Your company {{ $company->name }} has been invited to join SafeWorksite by <b>{{ $parent_company->name }}</b>.
 
-SafeWorksite is an online WHS platform that supports you and your workers in staying safe. To be able to perform any work on a site managed by {{ $parent_company->name }} you are required to sign up and register any workers within your company.
+    SafeWorksite is an online WHS platform that supports you and your workers in staying safe. To be able to perform any work on a site managed by {{ $parent_company->name }} you are required to sign up and register any workers within your company.
 
-@component('mail::button', ['url' => config('app.url').'/signup/ref/'.$company->signup_key])
-Sign Up
-@endcomponent
+    @component('mail::button', ['url' => config('app.url').'/signup/ref/'.$company->signup_key])
+        Sign Up
+    @endcomponent
 
-If you have any questions in regards to your sign up on SafeWorksite, please contact Courtney using the email courtney@capecod.com.au or call on (02) 9849 4444
+    If you have any questions in regards to your sign up on SafeWorksite, please email accounts1@capecod.com.au or call (02) 9849 4444 and ask to speak to our accounts team.
 
-Regards,<br>
-{{ config('app.name') }}
+    Regards,<br>
+    {{ config('app.name') }}
 @endcomponent

@@ -89,7 +89,7 @@ class CompanyController extends Controller
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         // Mail request to new company
         if ($newCompany->reportsTo()->id == 3) {
-            $user_list = (\App::environment('prod')) ? ['courtney@capecod.com.au'] : [env('EMAIL_DEV')];
+            $user_list = (\App::environment('prod')) ? ['accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($email_user)
                 $user_list[] = $email_user;
             Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcomeCC($newCompany, Auth::user()->company, request('person_name')));
