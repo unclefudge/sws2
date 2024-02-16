@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # New User
 
@@ -15,6 +16,6 @@ View User
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

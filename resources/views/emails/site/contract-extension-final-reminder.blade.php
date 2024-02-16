@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 
 # URGENT - Contract Time Extensions
@@ -9,6 +10,6 @@ View Contract Extensions
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

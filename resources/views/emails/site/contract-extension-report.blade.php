@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 
 # Contract Time Extensions Report
@@ -9,6 +10,6 @@ View Contract Extensions
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

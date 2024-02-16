@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Outstanding QA Checklists
 

@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Maintenance Requests Under Review
 

@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Welcome to SafeWorksite
 
@@ -18,6 +19,6 @@ Sign In
 
 If you have any questions in regards to SafeWorksite you may contact {{ $user->company->name }} on {{ $user->company->phone }}
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

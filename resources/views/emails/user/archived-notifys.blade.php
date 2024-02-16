@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # Archived User
 
@@ -14,6 +15,6 @@ View User
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

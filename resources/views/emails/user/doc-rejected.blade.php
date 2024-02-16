@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 # User Document Not Approved
 
@@ -15,6 +16,6 @@ View Document
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent

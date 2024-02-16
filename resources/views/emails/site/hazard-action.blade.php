@@ -1,3 +1,4 @@
+{{-- @formatter:off --}}
 @component('mail::message')
 <style>
     table:nth-of-type(1) th:nth-of-type(1) {
