@@ -140,7 +140,7 @@ class PagesController extends Controller
     {
 
         echo "Not Logged in Users<br>";
-        $recs = SiteCompliance::where('reason', 0)->get();
+        $recs = SiteCompliance::where('reason', 0)->orWhere('reason', null)->get();
         echo $recs->count();
         echo "<br>";
         foreach ($recs as $rec) {
