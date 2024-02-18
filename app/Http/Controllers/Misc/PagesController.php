@@ -147,7 +147,7 @@ class PagesController extends Controller
             if ($rec->status == 0) {
                 $rec->reason = 1;
                 $rec->status = 1;
-                $rec->notes = 'Bulk update requested by Kirsty';
+                $rec->notes = 'Nightly batch not logged in users as non-compliant';
                 $rec->resolved_at = Carbon::now()->toDateTimeString();
                 $rec->save();
             }
