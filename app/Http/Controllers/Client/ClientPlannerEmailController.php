@@ -340,9 +340,10 @@ class ClientPlannerEmailController extends Controller
         $obj_site->weeks = [];
 
         // Upcoming Planner
-        $date = Carbon::now()->format('Y-m-d');
-        $date = Carbon::parse('this monday')->format('Y-m-d');
+        $date = Carbon::now()->startOfWeek()->format('Y-m-d');  // Monday of current week
         $data = [];
+
+        $weeks = $weeks + 1;  // add an extra week to include current week in planner
 
         // For each week get Entities on the Planner
         $current_date = $date;

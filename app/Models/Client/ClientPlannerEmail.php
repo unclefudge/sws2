@@ -99,16 +99,15 @@ class ClientPlannerEmail extends Model
         elseif ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this));
          */
-        $data = [
-            'client_planner' => $this,
-        ];
+        $data = ['client_planner' => $this,];
         $client_planner = $this;
         $files = $this->docs;
 
 
         if ($email_to) {
             Mail::send('emails/client/planner', $data, function ($m) use ($email_to, $email_cc, $data, $client_planner, $files) {
-                $send_from = 'do-not-reply@safeworksite.com.au';
+                //$send_from = 'do-not-reply@safeworksite.com.au';
+                $send_from = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : 'do-not-reply@safeworksite.com.au';
                 $m->from($send_from, 'Safe Worksite');
                 $m->to($email_to);
                 if ($email_cc)
