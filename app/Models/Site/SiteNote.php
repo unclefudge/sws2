@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Misc\Attachment;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
