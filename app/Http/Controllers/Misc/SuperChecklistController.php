@@ -278,14 +278,17 @@ class SuperChecklistController extends Controller
         //dd(request()->all());
 
         // Update Supervisor List
+        $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
         if (request('super_list')) {
             $super_list = implode(',', request('super_list'));
-            $settings_supers = SuperChecklistSettings::where('field', 'supers')->where('status', 1)->first();
             if ($settings_supers) {
                 $settings_supers->value = $super_list;
                 $settings_supers->save();
             } else
                 $settings_supers = SuperChecklistSettings::create(['field' => 'supers', 'value' => $super_list, 'status' => 1]);
+        } else {
+            $settings_supers->value = '';
+            $settings_supers->save();
         }
 
 
