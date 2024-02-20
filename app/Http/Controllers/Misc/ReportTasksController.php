@@ -2,45 +2,33 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use File;
-use Session;
-use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteProjectSupply;
-use App\Models\Site\SiteExtension;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\SafetyDoc;
-use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocReview;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
+use App\Models\Misc\Equipment\EquipmentLocation;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Safety\WmsDoc;
+use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteProjectSupply;
+use App\Models\Site\SiteQa;
+use App\Models\User\UserDoc;
 use Carbon\Carbon;
+use DB;
+use File;
+use Illuminate\Support\Facades\Auth;
+use Session;
 
 
-class ReportTasksController extends Controller {
+class ReportTasksController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -82,7 +70,7 @@ class ReportTasksController extends Controller {
         $users_with_tasks = [];
         $count = 0;
         foreach ($todo_tasks as $task) {
-            $count ++;
+            $count++;
             //if ($count > 30000) continue;
 
 
@@ -100,7 +88,7 @@ class ReportTasksController extends Controller {
                         $user_name = $user->company->name_alias;
 
                     if (!in_array($user_name, $assigned_to)) {
-                        $assigned_count ++;
+                        $assigned_count++;
                         $assigned_to[] = $user_name;
                         if ($assigned_count < 4) {
                             $assigned_names .= "$user_name, ";
@@ -157,26 +145,26 @@ class ReportTasksController extends Controller {
             }
 
             $array = [
-                'id'                => $task->id,
-                'title'             => $task_title,
-                'name'              => $task->name,
-                'expand'            => 0,
-                'info'              => $info,
-                'type'              => $task_type,
-                'due_at'            => ($task->due_at) ? $task->due_at->format('Y-m-d') : '',
-                'lastupdated'       => $lastupdated,
+                'id' => $task->id,
+                'title' => $task_title,
+                'name' => $task->name,
+                'expand' => 0,
+                'info' => $info,
+                'type' => $task_type,
+                'due_at' => ($task->due_at) ? $task->due_at->format('Y-m-d') : '',
+                'lastupdated' => $lastupdated,
                 'lastupdated_human' => $lastupdated_human,
                 //'done_at' => ($task_done_at) ? $task->done_at->format('d/m/Y') : '',
                 //'done_by' => $task->done_by,
-                'status'            => $task->status,
-                'active'            => ($rec->status) ? 1 : 0,
-                'company_id'        => $task->company_id,
-                'created_by'        => $task->created_by,
-                'created_at'        => $task->created_at->format('Y-m-d'),
-                'assigned'          => count($assigned_to),
-                'assigned_names'    => $assigned_names,
-                'assigned_cc'       => $assigned_cc,
-                'assigned_to'       => $assigned_to,
+                'status' => $task->status,
+                'active' => ($rec->status) ? 1 : 0,
+                'company_id' => $task->company_id,
+                'created_by' => $task->created_by,
+                'created_at' => $task->created_at->format('Y-m-d'),
+                'assigned' => count($assigned_to),
+                'assigned_names' => $assigned_names,
+                'assigned_cc' => $assigned_cc,
+                'assigned_to' => $assigned_to,
             ];
             //if (count($assigned_to) > 0)
             $tasks[] = $array;
@@ -228,7 +216,7 @@ class ReportTasksController extends Controller {
             if (in_array($user->id, $users_with_tasks)) {
                 if (in_array($user->company_id, $company_list)) {
                     $sel_user_cc[] = ['value' => $user->name, 'text' => $user->name];
-                    $sel_user_all[] = ['value' => $user->name, 'text' => "-".$user->name];
+                    $sel_user_all[] = ['value' => $user->name, 'text' => "-" . $user->name];
                 }
             }
         }
