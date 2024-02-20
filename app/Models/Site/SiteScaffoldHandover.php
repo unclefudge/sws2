@@ -2,16 +2,15 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\User;
+use App\Http\Controllers\CronCrontroller;
 use App\Models\Comms\Todo;
 use App\Models\Misc\TemporaryFile;
-use App\Models\Site\SiteScaffoldHandoverDoc;
-use App\Http\Controllers\CronCrontroller;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 class SiteScaffoldHandover extends Model
 {
@@ -20,7 +19,7 @@ class SiteScaffoldHandover extends Model
     protected $fillable = [
         'site_id', 'location', 'use', 'duty', 'decks', 'inspector_name', 'inspector_licence', 'handover_date',
         'signed_by', 'signed_at', 'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'];
-    protected $casts = ['handover_date' => 'datetime', 'sign_at' => 'datetime'];
+    protected $casts = ['handover_date' => 'datetime', 'signed_at' => 'datetime'];
 
 
     /**
