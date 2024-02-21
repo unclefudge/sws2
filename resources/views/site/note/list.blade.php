@@ -133,14 +133,18 @@
                 },
                 {data: 'notes', name: 'site_notes.notes', orderable: false},
                 {data: 'full_name', name: 'full_name', searchable: false, searchable: false,},
-                {data: 'action', name: 'action', searchable: false, orderable: false},
-                {data: 'firstname', name: 'users.firstname', visible: false},
-                {data: 'lastname', name: 'users.lastname', visible: false},
                     @if (Auth::user()->hasPermission2("del.site.note"))
+                {
+                    data: 'action', name: 'action', searchable: false, orderable: false
+                },
+                    @endif
+                {
+                    data: 'firstname', name: 'users.firstname', visible: false
+                },
+                {data: 'lastname', name: 'users.lastname', visible: false},
                 {
                     data: 'name', name: 'categories.name', visible: false
                 },
-                @endif
             ],
             order: [
                 [1, "desc"]
