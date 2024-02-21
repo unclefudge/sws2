@@ -10,8 +10,23 @@
 
 A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "**Response Required**" : '' !!}
 
----
-
+{{-- Variation fields --}}
+@if ($note->category_id == '16')
+Credit/Extra: {{ $note->costing_extra_credit }}
+New item/In Lie of: {{ $note->costing_item }}
+Room: {{ $note->costing_room }}
+Location: {{ $note->costing_location }}
+Description:
+@elseif
+{{-- Variation fields --}}
+Name: {{ $note->variation_name }}
+Description: {{ $note->variation_info }}
+Cost:  {{ $note->variation_cost }}
+Total Extension Days: {{ $note->variation_days }}
+Variation Breakup/Work Order Details:
+@else
+Note:
+@endif
 {!! nl2br2($note->notes)  !!}
 
 ---
@@ -23,6 +38,6 @@ View Site Notes
 @endcomponent
 
 
-Regards,<br>
+Regards,
 {{ config('app.name') }}
 @endcomponent
