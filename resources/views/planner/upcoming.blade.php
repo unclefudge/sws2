@@ -37,7 +37,11 @@
                                 <th> Contracts Sent</th>
                                 <th> Contracts Signed</th>
                                 <th> Deposit Paid</th>
-                                <th> Construction Certificate</th>
+                                <th> Con Cert</th>
+                                <th> Elect Report</th>
+                                <th> Plumb Report</th>
+                                <th> OSD</th>
+                                <th> SW</th>
                             </tr>
                             </thead>
 
@@ -82,7 +86,29 @@
                                     <td>{!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '' !!}</td>
                                     <td>{!! ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '' !!}</td>
                                     <td>{!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '' !!}</td>
-                                    <td>{!! ($site->construction) ? 'Yes' : '' !!}</td>
+                                    <td>{!! ($site->construction) ? 'Y' : '' !!}</td>
+                                    <td>
+                                        @php
+                                            $inspected = '';
+                                            if ($site->inspection_electrical->count()) {
+                                                $report = $site->inspection_electrical->first();
+                                                $inspected = ($report && $report->inspected_at) ?  $report->inspected_name : '';
+                                            }
+                                        @endphp
+                                        {{ $inspected }}
+                                    </td>
+                                    <td>
+                                        @php
+                                            $inspected = '';
+                                            if ($site->inspection_plumbing->count()) {
+                                                $report = $site->inspection_plumbing->first();
+                                                $inspected = ($report && $report->inspected_at) ?  $report->inspected_name : '';
+                                            }
+                                        @endphp
+                                        {{ $inspected }}
+                                    </td>
+                                    <td>{!! $site->osd !!}</td>
+                                    <td>{!! $site->fw !!}</td>
                                 </tr>
                             @endforeach
                             </tbody>

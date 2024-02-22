@@ -97,6 +97,11 @@ class SiteInspectionElectrical extends Model
         return $this->belongsTo('App\User', 'created_by');
     }
 
+    public function inspectedByUser()
+    {
+        return $this->belongsTo('App\User', 'inspected_by');
+    }
+
     /**
      * Save attached Media to existing Issue
      */

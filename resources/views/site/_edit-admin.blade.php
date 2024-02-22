@@ -145,17 +145,39 @@
                         {!! Form::select('engineering', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('engineering', $errors) !!}
                     </div>
-                    {{--}}
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- Holidays Added --}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('holidays_added', $errors) !!}">
+                    {!! Form::label('holidays_added', 'Holidays Added:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
-                        <div class="input-group date date-picker">
-                            {!! Form::text('engineering_cert', ($site->engineering_cert) ? $site->engineering_cert->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
-                            'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                            <span class="input-group-btn">
-                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                        </span>
-                            {!! fieldErrorMessage('engineering_cert', $errors) !!}
-                        </div>
-                    </div>--}}
+                        {!! Form::select('holidays_added', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('holidays_added', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- OSD --}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('osd', $errors) !!}">
+                    {!! Form::label('osd', 'OSD:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        {!! Form::select('osd', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('osd', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- FW--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('fw', $errors) !!}">
+                    {!! Form::label('fw', 'FW:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        {!! Form::select('fw', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('fw', $errors) !!}
+                    </div>
                 </div>
             </div>
             <hr class="field-hr">

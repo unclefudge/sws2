@@ -55,6 +55,21 @@
         </div>
         <hr class="field-hr">
         <div class="row">
+            <div class="col-md-6">Holiday Added:</div>
+            <div class="col-xs-6">{!! ($site->holidays_added) ? $site->holidays_added : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6">OSD:</div>
+            <div class="col-xs-6">{!! ($site->osd) ? $site->osd : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
+            <div class="col-md-6">FW:</div>
+            <div class="col-xs-6">{!! ($site->fw) ? $site->fw : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
             <div class="col-md-6">Consultant:</div>
             <div class="col-xs-6">{!! $site->consultant_name !!}</div>
         </div>
