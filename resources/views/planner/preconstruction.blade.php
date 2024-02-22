@@ -28,20 +28,20 @@
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <a href="javascript: postAndRedirect('/planner/transient', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</a>
+                                <a href="javascript: postAndRedirect('/planner/transient', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>
                             @endif
-                            <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">P</button>
+                            <button class="btn btn-circle btn-icon-only grey-steel disabled popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</button>
                             @if (Auth::user()->hasPermission2('view.roster'))
-                                <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</a>
+                                <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.site.planner'))
-                                <a href="javascript: postAndRedirect('/planner/site', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</a>
+                                <a href="javascript: postAndRedirect('/planner/site', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</a>
+                                <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.weekly.planner'))
-                                <a href="javascript: postAndRedirect('/planner/weekly', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</a>
+                                <a href="javascript: postAndRedirect('/planner/weekly', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</a>
                             @endif
                         </div>
                     </div>
@@ -74,10 +74,10 @@
                                 </div>
                             </div>
                             @if (Auth::user()->hasPermission2('edit.preconstruction.planner') && $site && $site->status == '-1')
-                            <div class="col-md-3 pull-right">
-                                <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
-                                <a id="delete" class="btn red" style="margin: 3px">Cancel Site</a>
-                            </div>
+                                <div class="col-md-3 pull-right">
+                                    <a href="/planner/site/{{$site->id}}/status/1" class="btn blue" style="margin: 3px">Make Site Active</a>
+                                    <a id="delete" class="btn red" style="margin: 3px">Cancel Site</a>
+                                </div>
                             @endif
                         </div>
 
@@ -252,9 +252,9 @@
            Entity Sidebar for editing entity
            -->
         <sidebar :show.sync="xx.showSidebar" placement="left" header="Edit Planner" :width="350">
-            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{  xx.day_ename }}</h3>
+            <h3 v-if="xx.day_etype == 't'" class="font-yellow-gold" style="margin: 0px">@{{ xx.day_ename }}</h3>
 
-            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{  xx.day_ename }}
+            <h3 v-if="xx.day_etype == 'c'" :class="{ 'font-green-jungle': xx.day_conflicts }" style="margin: 0px">@{{ xx.day_ename }}
                 <div v-if="xx.day_other_sites">
                     <small class="font-grey-silver">@{{{ xx.day_other_sites }}}</small>
                 </div>
@@ -427,20 +427,25 @@
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="color: #999">Week @{{ calcWeekNumber(x) }}</div>
                     <div v-else class="col-xs-2">Week @{{ calcWeekNumber(x) }}</div>
                     <!-- Monday -->
-                    <div  class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}</div>
+                    <div class="col-xs-2 hoverHead" style="padding-left: 25px"
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}
+                    </div>
                     <!-- Tuesday -->
                     <div class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}
+                    </div>
                     <!-- Wednesday -->
                     <div class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}
+                    </div>
                     <!-- Thursday -->
                     <div class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}
+                    </div>
                     <!-- Friday -->
                     <div class="col-xs-2 hoverHead" style="padding-left: 25px"
-                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}</div>
+                         v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}
+                    </div>
                 </div>
 
                 <!--  Special Dates from Site Admin Profile  -->
@@ -453,7 +458,7 @@
                             <div v-html="adminDate(weekDate(xx.first_mon, x*7+0))"></div>
                         </div>
                     </div>
-                    <div class="col-xs-2" >
+                    <div class="col-xs-2">
                         <div>@{{ tue }}</div>
                         <div v-if="adminDate(weekDate(xx.first_mon, x*7+1))" style="padding: 5px; margin:5px">
                             <div v-html="adminDate(weekDate(xx.first_mon, x*7+1))"></div>

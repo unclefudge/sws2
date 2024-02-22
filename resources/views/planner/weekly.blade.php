@@ -79,21 +79,21 @@
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</button>
+                                <button v-on:click="gotoURL('/planner/transient')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                                <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</button>
+                                <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.roster'))
-                                <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</button>
+                                <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.site.planner'))
-                                <button v-on:click="gotoURL('/planner/site')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</button>
+                                <button v-on:click="gotoURL('/planner/site')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</button>
                             @endif
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</button>
+                                <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</button>
                             @endif
-                            <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">W</button>
+                            <button class="btn btn-circle btn-icon-only grey-steel disabled popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</button>
                             @if (Auth::user()->isCC())
                                 <div>
                                     <input v-model="xx.search" type="text" class="form-control" placeholder="Search Site Names"/>

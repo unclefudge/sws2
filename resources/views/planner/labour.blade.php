@@ -91,14 +91,14 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> Labourer Planner</span>
                             </div>
                             <div class="actions">
-                                <button class="btn btn-circle btn-icon-only btn-default grey-steel disabled" style="margin: 3px">L</button>
+                                <button class="btn btn-circle btn-icon-only btn-default grey-steel disabled popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</button>
                                 @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                                    <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</button>
+                                    <button v-on:click="gotoURL('/planner/preconstruction')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</button>
                                 @endif
-                                <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</button>
-                                <button v-on:click="gotoURL('/planner/site')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">S</button>
-                                <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</button>
-                                <button v-on:click="gotoURL('/planner/weekly')" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</button>
+                                <button v-on:click="gotoURL('/planner/roster')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</button>
+                                <button v-on:click="gotoURL('/planner/site')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</button>
+                                <button v-on:click="gotoURL('/planner/trade')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</button>
+                                <button v-on:click="gotoURL('/planner/weekly')" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</button>
                             </div>
                         </div>
                         <div class="row">

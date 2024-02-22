@@ -8,6 +8,49 @@
 @stop
 
 @section('content')
+    <style>
+        .keybox {
+            float: left;
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 10px 5px 0px;
+            clear: both;
+        }
+
+        .state-blue {
+            background-color: #3598dc;
+        }
+
+        .state-purple {
+            background-color: #8E44AD;
+        }
+
+        .state-orange {
+            background-color: #E87E04;
+        }
+
+        .state-green {
+            background-color: #26c281;
+        }
+
+        .state-red {
+            background-color: #e7505a;
+        }
+
+        .state-black {
+            background-color: #000;
+        }
+
+        .stickyKey {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 51px;
+            z-index: 10;
+            background: #ffffff;
+            padding: 5px 0 5px 0;
+        }
+    </style>
     <div class="page-content-inner">
         <input v-model="xx.params.date" type="hidden" value="{{ $date }}">
         <input v-model="xx.params.supervisor_id" type="hidden" value="{{ $supervisor_id }}">
@@ -24,20 +67,20 @@
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <a href="javascript: postAndRedirect('/planner/transient', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">L</a>
+                                <a href="javascript: postAndRedirect('/planner/transient', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Labourer">L</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.preconstruction.planner'))
-                                <a href="javascript: postAndRedirect('/planner/preconstruction', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">P</a>
+                                <a href="javascript: postAndRedirect('/planner/preconstruction', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Pre-construction">P</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.roster'))
-                                <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">R</a>
+                                <a href="javascript: postAndRedirect('/planner/roster', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Roster">R</a>
                             @endif
-                            <button class="btn btn-circle btn-icon-only grey-steel disabled" style="margin: 3px">S</button>
+                            <button class="btn btn-circle btn-icon-only grey-steel disabled popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Site">S</button>
                             @if (Auth::user()->hasPermission2('view.trade.planner'))
-                                <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">T</a>
+                                <a href="javascript: postAndRedirect('/planner/trade', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Trade">T</a>
                             @endif
                             @if (Auth::user()->hasPermission2('view.weekly.planner'))
-                                <a href="javascript: postAndRedirect('/planner/weekly', xx.params)" class="btn btn-circle btn-icon-only btn-default" style="margin: 3px">W</a>
+                                <a href="javascript: postAndRedirect('/planner/weekly', xx.params)" class="btn btn-circle btn-icon-only btn-default popovers" style="margin: 3px" data-container="body" data-trigger="hover" data-placement="top" data-content="Weekly">W</a>
                             @endif
                         </div>
                     </div>
@@ -85,6 +128,20 @@
                                 @endif
                             </div>
                         </div>
+
+                        {{-- Key Map --}}
+                        @if (Auth::user()->isCC())
+                            <div style="position: fixed; bottom:0px; right: 0px; width: 250px; z-index: 10; padding: 10px; background: #ffffff">
+                                <div><span class="keybox state-green"></span><span style="float:left; margin-right: 20px;">Exceeded Max #Jobs </span></div>
+                                <br>
+                                <div><span class="keybox state-blue"></span><span style="float:left; margin-right: 20px;">All On-Site </span></div>
+                                <br>
+                                <div><span class="keybox state-red"></span><span style="float:left; margin-right: 20px;">Not All On-Site </span></div>
+                                <br>
+                                <div><span class="keybox state-purple"></span><span style="float:left; margin-right: 20px;">Not Rostered</span></div>
+                                <span class="keybox state-orange"></span><span style="float:left; margin-right: 20px;">Generic Trade </span><br>
+                            </div>
+                        @endif
 
                         @if($site)
                             <app-siteplan :site_id="{{ $site->id }}"></app-siteplan>
@@ -476,7 +533,7 @@
             </template>
         </div>
 
-        <pre v-if="xx.dev">@{{ $data | json }}</pre>
+        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
         -->
     </template>
 
