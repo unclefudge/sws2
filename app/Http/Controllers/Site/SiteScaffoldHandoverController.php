@@ -82,7 +82,8 @@ class SiteScaffoldHandoverController extends Controller
             return view('errors/404');
 
         if ($report->status == 1)
-            return view('/site/scaffold/signoff', compact('report'));
+            //return view('/site/scaffold/signoff', compact('report'));
+            return view('/site/scaffold/edit', compact('report'));
         else
             return redirect('/site/scaffold/handover/' . $report->id);
     }

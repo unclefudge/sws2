@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Site\Site;
+use App\Models\Site\SiteInspectionDoc;
 use App\Models\Site\SiteInspectionElectrical;
 use Carbon\Carbon;
 use DB;
@@ -371,6 +372,27 @@ class SiteInspectionElectricalController extends Controller
         $report->delete();
 
         //return redirect('site/inspection/electrical/');
+
+    }
+
+    public function deleteAttachment($id, $doc_id)
+    {
+        $report = SiteInspectionElectrical::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+            return view('errors/404');
+
+        $doc = SiteInspectionDoc::where('id', $doc_id)->first();
+        if ($doc) {
+            $file = public_path($doc->AttachmentUrl);
+            if (file_exists($file))
+                unlink($file);
+            $doc->delete();
+        }
+
+
+        return redirect('site/inspection/electrical/' . $report->id . '/edit');
 
     }
 

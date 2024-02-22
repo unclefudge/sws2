@@ -425,6 +425,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/electrical/{id}/docs', '\App\Http\Controllers\Site\SiteInspectionElectricalController@documents');
     Route::get('site/inspection/electrical/{id}/report', '\App\Http\Controllers\Site\SiteInspectionElectricalController@reportPDF');
     Route::get('site/inspection/electrical/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionElectricalController@updateStatus');
+    Route::get('site/inspection/electrical/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteInspectionElectricalController@deleteAttachment');
     Route::post('site/inspection/electrical/{id}/signoff', '\App\Http\Controllers\Site\SiteInspectionElectricalController@signoff');
     Route::resource('site/inspection/electrical', '\App\Http\Controllers\Site\SiteInspectionElectricalController');
 

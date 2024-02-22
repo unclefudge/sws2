@@ -24,6 +24,7 @@ use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
+use App\Models\Site\SiteScaffoldHandover;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -940,7 +941,7 @@ class CronController extends Controller
         $found_tasks = 0;
 
         //
-        // Scaffold Up - taskid: 297
+        // Scaffold Up - taskid: 220
         //
         $platform_up_ids = [220];
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
@@ -971,6 +972,9 @@ class CronController extends Controller
 
                 // Send additional email to Michelle
                 $todo->emailToDo('michelle@capecod.com.au');
+
+                // Create Scaffold Certificate
+                SiteScaffoldHandover::create(['site_id' => $task->site->id]);
                 $found_tasks++;
             }
         }

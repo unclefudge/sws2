@@ -172,11 +172,11 @@
             <hr class="field-hr">
             {{-- FW--}}
             <div class="row">
-                <div class="form-group {!! fieldHasError('fw', $errors) !!}">
-                    {!! Form::label('fw', 'FW:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                <div class="form-group {!! fieldHasError('sw', $errors) !!}">
+                    {!! Form::label('sw', 'SW:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
-                        {!! Form::select('fw', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
-                        {!! fieldErrorMessage('fw', $errors) !!}
+                        {!! Form::select('sw', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('sw', $errors) !!}
                     </div>
                 </div>
             </div>

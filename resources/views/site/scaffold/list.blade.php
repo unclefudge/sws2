@@ -7,11 +7,11 @@
         @endif
         <li><span>Scaffold Handover Certificate</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -31,8 +31,8 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1">Active</option>
-                                    <option value="0" selected>Completed</option>
+                                    <option value="1" selected>Active</option>
+                                    <option value="0">Completed</option>
                                 </select>
                             </div>
                         </div>
@@ -68,35 +68,36 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/scaffold/handover/dt/list') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'sitename', name: 'sites.name'},
-            {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
-            {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
-        ],
-        order: [
-            [3, "desc"]
-        ]
-    });
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/scaffold/handover/dt/list') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'sitename', name: 'sites.name'},
+                {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
+                {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
+            ],
+            order: [
+                [3, "desc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('select#status').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

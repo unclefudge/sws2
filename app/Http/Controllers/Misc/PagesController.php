@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
-use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
@@ -15,6 +14,7 @@ use App\Models\Site\SiteDoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
+use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Support\SupportTicket;
 use App\User;
 use Carbon\Carbon;
@@ -139,19 +139,38 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "Not Logged in Users<br>";
-        $recs = SiteCompliance::where('reason', 0)->orWhere('reason', null)->get();
-        echo $recs->count();
+        echo "Scaffold certs for year<br>";
+        $date = Carbon::parse('2024-01-01');
+        $tasks = SitePlanner::whereDate('from', '>', $date)->whereIn('task_id', ['220', '24', '297'])->orderBy('site_id')->get();
+        echo $tasks->count();
         echo "<br>";
-        foreach ($recs as $rec) {
-            if ($rec->status == 0) {
-                $rec->reason = 1;
-                $rec->status = 1;
-                $rec->notes = 'Nightly batch not logged in users as non-compliant';
-                $rec->resolved_at = Carbon::now()->toDateTimeString();
-                $rec->save();
+        foreach ($tasks as $task) {
+            $scaf = SiteScaffoldHandover::where('site_id', $task->site_id)->first();
+            if ($scaf) {
+                echo "Has cert [$scaf->id]<br>";
+            } else {
+                if ($task->task_id == 220) $trade = 'Labourer';
+                if ($task->task_id == 24) $trade = 'Carpenter';
+                if ($task->task_id == 297) $trade = 'Scaffolder';
+                echo $task->from->format('d/m/Y') . " - " . $task->site->name . " - $trade" . "<br>";
             }
         }
+
+        /*
+                echo "Not Logged in Users<br>";
+                $recs = SiteCompliance::where('reason', 0)->orWhere('reason', null)->get();
+                echo $recs->count();
+                echo "<br>";
+                foreach ($recs as $rec) {
+                    if ($rec->status == 0) {
+                        $rec->reason = 1;
+                        $rec->status = 1;
+                        $rec->notes = 'Nightly batch not logged in users as non-compliant';
+                        $rec->resolved_at = Carbon::now()->toDateTimeString();
+                        $rec->save();
+                    }
+                }
+        */
 
         /*echo "Migrate Incident Doc<br>";
         $docs = SiteIncidentDoc::all();

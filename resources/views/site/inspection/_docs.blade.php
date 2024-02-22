@@ -1,9 +1,13 @@
 @if ($report->docs()->count())
-    <?php $doc_count = 0; ?>
+        <?php $doc_count = 0; ?>
     <div style="width: 100%; overflow: hidden;">
         @foreach ($report->docs() as $doc)
             @if ($doc->type == 'file')
-                <i class="fa fa-file-text-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a><br>
+                <i class="fa fa-file-text-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a>
+                @if(Auth::user()->allowed2('add.site.inspection') || Auth::user()->allowed2('edit.site.inspection', $report))
+                    <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $doc->name }}" data-did="{{$doc->id}}"></i>
+                @endif
+                <br>
             @endif
         @endforeach
     </div>

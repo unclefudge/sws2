@@ -108,7 +108,7 @@
                                         {{ $inspected }}
                                     </td>
                                     <td>{!! $site->osd !!}</td>
-                                    <td>{!! $site->fw !!}</td>
+                                    <td>{!! $site->sw !!}</td>
                                 </tr>
                             @endforeach
                             </tbody>
