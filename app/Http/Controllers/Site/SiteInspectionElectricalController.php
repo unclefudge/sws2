@@ -380,7 +380,7 @@ class SiteInspectionElectricalController extends Controller
         $report = SiteInspectionElectrical::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.inspection', $report))
+        if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
         $doc = SiteInspectionDoc::where('id', $doc_id)->first();

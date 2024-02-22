@@ -694,6 +694,24 @@
                 $('#photos-edit').hide();
             });
 
+            $('.deleteFile').on('click', function (e) {
+                e.preventDefault();
+                var id = $(this).data('did');
+                var name = $(this).data('name');
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to restore this file!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location = '/site/inspection/plumbing/' + {{$report->id}} + '/delfile/' + id;
+                });
+            });
+
             /* Bootstrap Fileinput */
             /*
             $("#multifile").fileinput({

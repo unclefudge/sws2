@@ -435,6 +435,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/inspection/plumbing/{id}/docs', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@documents');
     Route::get('site/inspection/plumbing/{id}/report', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@reportPDF');
     Route::get('site/inspection/plumbing/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@updateStatus');
+    Route::get('site/inspection/plumbing/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@deleteAttachment');
     Route::post('site/inspection/plumbing/{id}/signoff', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@signoff');
     Route::resource('site/inspection/plumbing', '\App\Http\Controllers\Site\SiteInspectionPlumbingController');
 
