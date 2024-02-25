@@ -57,7 +57,7 @@
                                 <th>
                                     <div style="writing-mode: vertical-lr;">Plumbing Report</div>
                                 </th>
-                                <th> Elect Works<br>Plumb Works</th>
+                                <th> Electrical Works<br>Plumbing Works</th>
                                 <th></th>
                             </tr>
                             </thead>
