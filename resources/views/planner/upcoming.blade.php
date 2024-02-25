@@ -24,24 +24,41 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+                        <table class="table table-striped table-bordered order-column" id="table_list">
                             <thead>
-                            <tr class="mytable-header">
-                                @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                    <th width="5%"> #</th>
-                                @endif
+                            <tr class="mytable-header" style="height: 150px">
                                 <th> Site Name</th>
                                 <th width="12%"> Start Estimate</th>
-                                <th> Supervisor</th>
-                                <th> Council Approval</th>
-                                <th> Contracts Sent</th>
-                                <th> Contracts Signed</th>
-                                <th> Deposit Paid</th>
-                                <th> Con Cert</th>
-                                <th> Elect Report</th>
-                                <th> Plumb Report</th>
-                                <th> OSD</th>
-                                <th> SW</th>
+                                <th> Super</th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Council Approved</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Contract Sent</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Contract Signed</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Deposit Paid</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Construction Cert.</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">OSD</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">SW</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Electrical Report</div>
+                                </th>
+                                <th>
+                                    <div style="writing-mode: vertical-lr;">Plumbing Report</div>
+                                </th>
+                                <th> Elect Works<br>Plumb Works</th>
+                                <th></th>
                             </tr>
                             </thead>
 
@@ -49,17 +66,17 @@
                             @foreach($site_list as $site_id)
                                     <?php $site = \App\Models\Site\Site::find($site_id) ?>
                                 <tr>
-                                    @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                        <td>
-                                            <div class="text-center"><a onclick="go2preconstruction({{ $site_id }})"><i
-                                                            class="fa fa-search"></i></a></div>
-                                        </td>
-                                    @endif
-                                    <td>{{ $site->name }}</td>
+                                    <td>
+                                        @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                            <a onclick="go2preconstruction({{ $site_id }})">{{ $site->name }}</a>
+                                        @else
+                                            {{ $site->name }}
+                                        @endif
+                                    </td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
                                             <div class="input-group date date-picker">
-                                                {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "s$site->id"]) !!}
+                                                {!! Form::text('jobstart_estimate', ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '', ['class' => 'form-control form-control-inline startEst', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy" , 'id' => "j$site->id"]) !!}
                                                 <span class="input-group-btn">
                                                 <button class="btn default date-set" type="button"
                                                         style="padding: 0"></button>
@@ -71,9 +88,9 @@
                                     </td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <select id="{{ $site->id }}" class="form-control bs-select"
+                                            <select id="s{{ $site->id }}" class="form-control bs-select superSelect"
                                                     name="supervisor" title="Select supervisor">
-                                                @foreach(Auth::user()->company->supervisorsSelect() as $id => $name)
+                                                @foreach(Auth::user()->company->supervisorsSelect('prompt', 'short') as $id => $name)
                                                     <option value="{{ $id }}"
                                                             @if ($site->supervisor_id && $id == $site->supervisor_id) selected @endif>{{ $name }}</option>
                                                 @endforeach
@@ -82,34 +99,76 @@
                                             {!! $site->supervisorInitials !!}
                                         @endif
                                     </td>
-                                    <td>{!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '' !!}</td>
-                                    <td>{!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '' !!}</td>
-                                    <td>{!! ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '' !!}</td>
-                                    <td>{!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '' !!}</td>
+                                    <td>{!! ($site->council_approval) ? 'Y' : '' !!}</td>
+                                    <td>{!! ($site->contract_sent) ? 'Y' : '' !!}</td>
+                                    <td>{!! ($site->contract_signed) ? 'Y' : '' !!}</td>
+                                    <td>{!! ($site->deposit_paid) ? 'Y' : '' !!}</td>
                                     <td>{!! ($site->construction) ? 'Y' : '' !!}</td>
-                                    <td>
-                                        @php
-                                            $inspected = '';
-                                            if ($site->inspection_electrical->count()) {
-                                                $report = $site->inspection_electrical->first();
-                                                $inspected = ($report && $report->inspected_at) ?  $report->inspected_name : '';
-                                            }
-                                        @endphp
-                                        {{ $inspected }}
-                                    </td>
-                                    <td>
-                                        @php
-                                            $inspected = '';
-                                            if ($site->inspection_plumbing->count()) {
-                                                $report = $site->inspection_plumbing->first();
-                                                $inspected = ($report && $report->inspected_at) ?  $report->inspected_name : '';
-                                            }
-                                        @endphp
-                                        {{ $inspected }}
-                                    </td>
                                     <td>{!! $site->osd !!}</td>
                                     <td>{!! $site->sw !!}</td>
+                                    <td>{{ $site->inspection_electrical->first() ? 'Y' : '' }}</td>
+                                    <td>{{ $site->inspection_plumbing->first() ? 'Y' : '' }}</td>
+                                    <td>
+                                        @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
+                                            <select id="e{{ $site->id }}" class="form-control bs-select eworksSelect" name="eworks" title="Select company">
+                                                @foreach(Auth::user()->company->tradeSelect(4, 'compact') as $id => $name)
+                                                    <option value="{{ $id }}"
+                                                            @if ($site->eworks && $id == $site->eworks) selected @endif>{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <select id="p{{ $site->id }}" class="form-control bs-select pworksSelect" name="pworks" title="Select company">
+                                                @foreach(Auth::user()->company->tradeSelect(8, 'compact') as $id => $name)
+                                                    <option value="{{ $id }}"
+                                                            @if ($site->pworks && $id == $site->pworks) selected @endif>{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            {!! $site->supervisorInitials !!}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <button class="btn dark btn-xs margin-bottom btn-expand " data-siteid="{{$site->id}}"><i class="fa fa-plus"></i></button>
+                                    </td>
                                 </tr>
+                                <tr id="info-{{$site->id}}" style="display: none">
+                                    <td colspan="15" style="width: 100%; background: #333; color: #fff">
+                                        {{ $site->name }}
+                                        <div class="row" style="background: #fff; color:#636b6f;  padding: 20px">
+                                            <div class="col-md-2">
+                                                Council Approval:<br>
+                                                Contracts Sent:<br>
+                                                Contracts Signed:<br>
+                                                Deposit Paid:<br>
+                                                Construction Certificate:<br>
+                                            </div>
+                                            <div class="col-md-2">
+                                                {!! ($site->council_approval) ? $site->council_approval->format('d/m/Y') : '-' !!}<br>
+                                                {!! ($site->contract_sent) ? $site->contract_sent->format('d/m/Y') : '-' !!}<br>
+                                                {!! ($site->contract_signed) ? $site->contract_signed->format('d/m/Y') : '-' !!}<br>
+                                                {!! ($site->deposit_paid) ? $site->deposit_paid->format('d/m/Y') : '-' !!}<br>
+                                                {!! ($site->construction) ? 'Y' : '-' !!}<br>
+                                            </div>
+                                            <div class="col-md-2">
+                                                Electrical Report:<br>
+                                                Plumbing Report:<br>
+                                            </div>
+                                            <div class="col-md-4">
+                                                @php
+                                                    $e_report = $site->inspection_electrical->first();
+                                                    $e_inspected = ($e_report && $e_report->inspected_at) ?  "$e_report->inspected_name (".$e_report->inspected_at->format('d/m/Y').")" : '';
+                                                    $p_report = $site->inspection_plumbing->first();
+                                                    $p_inspected = ($p_report && $p_report->inspected_at) ?  "$p_report->inspected_name (".$p_report->inspected_at->format('d/m/Y').")" : '';
+                                                @endphp
+                                                {{ $e_inspected }}<br>
+                                                {{ $p_inspected }}<br>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                </tr>
+
                             @endforeach
                             </tbody>
                         </table>
@@ -143,7 +202,7 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            $('select').change(function () {
+            $('.superSelect').change(function () {
                 //alert(this.value + ' : ' + this.id);
                 $.ajax({
                     url: '/site/' + this.id + '/supervisor/' + this.value,
@@ -168,6 +227,36 @@
                         console.log('updated supervisor for Site:')
                     },
                 })
+            });
+
+            $('.eworksSelect').change(function () {
+                var site_id = this.id.substring(1);
+                $.ajax({
+                    url: '/site/' + site_id + '/eworks/' + this.value,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('updated eworks for Site:')
+                    },
+                })
+            });
+
+            $('.pworksSelect').change(function () {
+                var site_id = this.id.substring(1);
+                $.ajax({
+                    url: '/site/' + site_id + '/pworks/' + this.value,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('updated pworks for Site:')
+                    },
+                })
+            });
+
+            $('.btn-expand').click(function (e) {
+                e.preventDefault();
+                var id = $(this).data('siteid');
+                $("#info-" + id).toggle();
             });
         });
 

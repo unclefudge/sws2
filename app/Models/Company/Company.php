@@ -819,11 +819,12 @@ class Company extends Model
      *
      * @return array
      */
-    public function supervisorsSelect($prompt = '')
+    public function supervisorsSelect($prompt = '', $short = '')
     {
         $array = [];
-        foreach ($this->supervisors() as $user)
-            $array[$user->id] = $user->fullname;
+        foreach ($this->supervisors() as $user) {
+            $array[$user->id] = ($short) ? $user->initials : $user->fullname;
+        }
 
         asort($array);
 
@@ -847,6 +848,33 @@ class Company extends Model
         $array = array('' => 'Select secondary supervisor(s)') + $array;
 
         return $array;
+    }
+
+    public function tradeSelect($trade_id, $compact = false)
+    {
+        $company_list = $this->companies('1')->pluck('id')->toArray();
+        $companies = Company::select(['companys.id', 'companys.name'])->join('company_trade', 'companys.id', '=', 'company_trade.company_id')
+            ->where('companys.status', '1')->where('company_trade.trade_id', $trade_id)
+            ->whereIn('companys.id', $company_list)->orderBy('name')->pluck('name', 'id')->toArray();
+
+        $compact_names = [
+            'Kings Langley Electrical Services PTY LTD' => 'Kings Langley',
+            'Moon Electrical PTY LTD' => 'Moon',
+            "O'brien Electrical Thornleigh" => "O'brien",
+            "Mazz's Plumbing Services PTY LTD" => "Mazz's",
+            "Scott Bartley Plumbing Services PTY LTD" => 'Scott Bartley',
+
+        ];
+        $select_array = [];
+
+        foreach ($companies as $id => $name) {
+            if ($compact && isset($compact_names[$name])) {
+                $select_array[$id] = $compact_names[$name];
+            } else
+                $select_array[$id] = $name;
+        }
+
+        return $select_array;
     }
 
     /**

@@ -1608,6 +1608,7 @@ class SitePlannerController extends Controller
             ->where('site_id', $site_id)->where('entity_type', 'c')
             ->groupBy('entity_id')->pluck('entity_id')->toArray();
 
+        $site = Site::find($site_id);
         $array = [];
         $array[] = ['value' => '', 'text' => 'Select company'];
         if ($company_id == 'match-trade')
@@ -1616,7 +1617,7 @@ class SitePlannerController extends Controller
         foreach ($companies as $company) {
             $c = Company::find($company->id);
             $text = $company->name_alias;
-            if (in_array($company->id, $companiesOnPlanner))
+            if (in_array($company->id, $companiesOnPlanner) || in_array($company->id, [$site->eworks, $site->pworks]))
                 $text = '<b>' . $company->name_alias . '</b>';
 
             $array[] = ['value' => $company->id, 'text' => $text, 'name' => $c->name_alias];

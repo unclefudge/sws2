@@ -317,6 +317,41 @@ class SiteController extends Controller
         return redirect('/site/' . $site->id);
     }
 
+    public function updateEworks($site_id, $cid)
+    {
+        $site = Site::findOrFail($site_id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
+            return view('errors/404');
+
+        $site->eworks = $cid;
+        $site->save();
+
+        Toastr::success("Updated Electrical Works");
+        if (request()->ajax())
+            return response()->json(['success' => '1']);
+        return redirect('/site/' . $site->id);
+    }
+
+    public function updatePworks($site_id, $cid)
+    {
+        $site = Site::findOrFail($site_id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
+            return view('errors/404');
+
+        $site->pworks = $cid;
+        $site->save();
+
+        Toastr::success("Updated Plumbing Works");
+        if (request()->ajax())
+            return response()->json(['success' => '1']);
+        return redirect('/site/' . $site->id);
+    }
+
+
     /**
      * Create WHS Management Plan
      *
