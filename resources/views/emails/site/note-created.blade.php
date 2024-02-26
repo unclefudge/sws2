@@ -10,22 +10,22 @@
 
 A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "**Response Required**" : '' !!}
 
+{{-- Costing fields --}}
+@if ($note->category_id == '15')
+Credit/Extra: {{ $note->costing_extra_credit }}<br>
+New item/In Lie of: {{ $note->costing_item }}<br>
+Room: {{ $note->costing_room }}<br>
+Location: {{ $note->costing_location }}<br>
+Description:<br>
+@elseif ($note->category_id == '16')
 {{-- Variation fields --}}
-@if ($note->category_id == '16')
-Credit/Extra: {{ $note->costing_extra_credit }}
-New item/In Lie of: {{ $note->costing_item }}
-Room: {{ $note->costing_room }}
-Location: {{ $note->costing_location }}
-Description:
-@elseif
-{{-- Variation fields --}}
-Name: {{ $note->variation_name }}
-Description: {{ $note->variation_info }}
-Cost:  {{ $note->variation_cost }}
-Total Extension Days: {{ $note->variation_days }}
-Variation Breakup/Work Order Details:
+Name: {{ $note->variation_name }}<br>
+Description: {{ $note->variation_info }}<br>
+Cost:  {{ $note->variation_cost }}<br>
+Total Extension Days: {{ $note->variation_days }}<br>
+Variation Breakup/Work Order Details:<br>
 @else
-Note:
+Note:<br>
 @endif
 {!! nl2br2($note->notes)  !!}
 
