@@ -325,7 +325,7 @@ class SiteController extends Controller
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->eworks = $cid;
+        $site->eworks = ($cid == 'null') ? null : $cid;
         $site->save();
 
         Toastr::success("Updated Electrical Works");
@@ -342,7 +342,7 @@ class SiteController extends Controller
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->pworks = $cid;
+        $site->pworks = ($cid == 'null') ? null : $cid;
         $site->save();
 
         Toastr::success("Updated Plumbing Works");

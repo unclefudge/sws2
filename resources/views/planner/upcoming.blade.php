@@ -110,15 +110,15 @@
                                     <td>{{ $site->inspection_plumbing->first() ? 'Y' : '' }}</td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <select id="e{{ $site->id }}" class="form-control bs-select eworksSelect" name="eworks" title="Select electrician">
-                                                <option value="">Select electrician</option>
+                                            <select id="e{{ $site->id }}" class="form-control bs-select eworksSelect" name="e{{ $site->id }}">
+                                                <option value="null">Select electrician</option>
                                                 @foreach(Auth::user()->company->tradeSelect(4, 'compact') as $id => $name)
                                                     <option value="{{ $id }}"
                                                             @if ($site->eworks && $id == $site->eworks) selected @endif>{{ $name }}</option>
                                                 @endforeach
                                             </select>
-                                            <select id="p{{ $site->id }}" class="form-control bs-select pworksSelect" name="pworks" title="Select plumber">
-                                                <option value="">Select plumber</option>
+                                            <select id="p{{ $site->id }}" class="form-control bs-select pworksSelect" name="p{{ $site->id }}">
+                                                <option value="null">Select plumber</option>
                                                 @foreach(Auth::user()->company->tradeSelect(8, 'compact') as $id => $name)
                                                     <option value="{{ $id }}"
                                                             @if ($site->pworks && $id == $site->pworks) selected @endif>{{ $name }}</option>
@@ -232,9 +232,12 @@
             });
 
             $('.eworksSelect').change(function () {
+                //alert(this.id);
                 var site_id = this.id.substring(1);
+                //alert(site_id)
+                var company = this.value;
                 $.ajax({
-                    url: '/site/' + site_id + '/eworks/' + this.value,
+                    url: '/site/' + site_id + '/eworks/' + company,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
@@ -245,8 +248,9 @@
 
             $('.pworksSelect').change(function () {
                 var site_id = this.id.substring(1);
+                var company = this.value;
                 $.ajax({
-                    url: '/site/' + site_id + '/pworks/' + this.value,
+                    url: '/site/' + site_id + '/pworks/' + company,
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
