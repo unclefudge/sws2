@@ -110,14 +110,14 @@
                                     <td>{{ $site->inspection_plumbing->first() ? 'Y' : '' }}</td>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <select id="e{{ $site->id }}" class="form-control bs-select eworksSelect" name="eworks" title="Select company">
+                                            <select id="e{{ $site->id }}" class="form-control bs-select eworksSelect" name="eworks" title="Select electrician">
                                                 <option value="">Select electrician</option>
                                                 @foreach(Auth::user()->company->tradeSelect(4, 'compact') as $id => $name)
                                                     <option value="{{ $id }}"
                                                             @if ($site->eworks && $id == $site->eworks) selected @endif>{{ $name }}</option>
                                                 @endforeach
                                             </select>
-                                            <select id="p{{ $site->id }}" class="form-control bs-select pworksSelect" name="pworks" title="Select company">
+                                            <select id="p{{ $site->id }}" class="form-control bs-select pworksSelect" name="pworks" title="Select plumber">
                                                 <option value="">Select plumber</option>
                                                 @foreach(Auth::user()->company->tradeSelect(8, 'compact') as $id => $name)
                                                     <option value="{{ $id }}"
