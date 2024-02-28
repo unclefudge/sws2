@@ -319,7 +319,7 @@ class SiteNoteController extends Controller
                 return $note->category->name;
             })
             ->editColumn('notes', function ($note) {
-                $string = nl2br($note->notes);
+                $string = truncate(nl2br($note->notes));
 
                 if ($note->attachments()->count()) {
                     $string .= "<br><b>Attachments:</b><br>";
