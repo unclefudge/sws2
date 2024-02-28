@@ -220,7 +220,7 @@ $duty_class = [
                             <div class="pull-right" style="min-height: 50px">
                                 <a href="/site/scaffold/handover" class="btn default"> Back</a>
                                 @if(Auth::user()->allowed2('add.site.scaffold.handover'))
-                                    <button id="signoff_button" type="submit" name="save" class="btn green"> Submit</button>
+                                    <button id="submit" type="submit" name="save" class="btn green"> Submit</button>
                                 @endif
                             </div>
                             <br><br>
@@ -252,24 +252,9 @@ $duty_class = [
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
-
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
-
 
         $(document).ready(function () {
             /* Bootstrap Fileinput */
@@ -286,7 +271,7 @@ $duty_class = [
             });
 
             // On Click Review Sign Off
-            $("#signoff_button").click(function (e) {
+            $("#submit").click(function (e) {
                 e.preventDefault();
                 swal({
                     title: "Confirm Sign Off",

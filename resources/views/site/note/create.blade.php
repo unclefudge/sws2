@@ -157,7 +157,7 @@
                             <br><br>
                             <div class="form-actions right">
                                 <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="savenote"> Save</button>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
                             </div>
 
                         </div>
@@ -183,26 +183,8 @@
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
-        //
-        // FilePond
-        //
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
-
-
         $(document).ready(function () {
             /* Select2 */
             $("#site_id").select2({placeholder: "Select Site",});

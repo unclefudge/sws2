@@ -99,7 +99,7 @@
 
                             <div class="form-actions right">
                                 <a href="/site/inspection/plumbing" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
                             </div>
                         </div>
                         {!! Form::close() !!} <!-- END FORM-->
@@ -108,7 +108,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -125,68 +125,55 @@
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+            $("#assigned_to").select2({placeholder: "Select Company"});
 
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-        $("#assigned_to").select2({placeholder: "Select Company"});
-
-        updateFields();
-
-        // On Change Site ID
-        $("#site_id").change(function () {
             updateFields();
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
+
+            function updateFields() {
+                var site_id = $("#site_id").select2("val");
+
+                if (site_id != '') {
+                    $.ajax({
+                        url: '/site/data/details/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var address = '';
+                            address = data.address;
+                            if (data.address != '') address = address + ', ';
+                            if (data.suburb != '') address = address + data.suburb + ', ';
+                            if (data.state != '') address = address + data.state + ' ';
+                            if (data.postcode != '') address = address + data.postcode + ' ';
+
+                            $("#client_address").val(address);
+                            $("#client_name").val(data.name);
+                            //console.log(address);
+                        },
+                    })
+                }
+            }
+
         });
 
-        function updateFields() {
-            var site_id = $("#site_id").select2("val");
-
-            if (site_id != '') {
-                $.ajax({
-                    url: '/site/data/details/' + site_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        var address = '';
-                        address = data.address;
-                        if (data.address != '') address = address + ', ';
-                        if (data.suburb != '') address = address + data.suburb + ', ';
-                        if (data.state != '') address = address + data.state + ' ';
-                        if (data.postcode != '') address = address + data.postcode + ' ';
-
-                        $("#client_address").val(address);
-                        $("#client_name").val(data.name);
-                        //console.log(address);
-                    },
-                })
-            }
-        }
-
-    });
-
-    // Force datepicker to not be able to select dates after today
-    //$('.bs-datetime').datetimepicker({
-    //    endDate: new Date()
-    //});
-</script>
+        // Force datepicker to not be able to select dates after today
+        //$('.bs-datetime').datetimepicker({
+        //    endDate: new Date()
+        //});
+    </script>
 @stop
 
 

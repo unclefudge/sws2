@@ -60,7 +60,7 @@
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/incident/{{ $incident->id }}" class="btn default"> Back</a>
-                            <button type="submit" class="btn green" name="add_docs"> Save</button>
+                            <button type="submit" class="btn green" name="add_docs" id="submit"> Save</button>
                         </div>
                         <br><br>
                         {!! Form::close() !!}
@@ -90,26 +90,13 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $.ajaxSetup({
             headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
-
+        
         $(document).ready(function () {
             /* Bootstrap Fileinput */
             $("#multifile").fileinput({

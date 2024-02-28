@@ -201,7 +201,7 @@
                             <a href="/site/hazard" class="btn default"> Back</a>
                             {{-- Status Open - allow save --}}
                             @if ($hazard->status)
-                                <button type="submit" class="btn green">Save</button>
+                                <button type="submit" class="btn green" id="submit">Save</button>
                             @endif
                             @if(!$hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
                                 <a href="/site/hazard/{{ $hazard->id }}/status/1" class="btn green"> Re-open Hazard</a>
@@ -288,28 +288,13 @@
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
     <!-- Vue -->
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-modal-component.js"></script>
     <script>
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
-
-
         Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
 
         var host = window.location.hostname;

@@ -127,7 +127,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <br><br>
-                                    <button type="submit" class="btn green pull-right">Save Action</button>
+                                    <button type="submit" class="btn green pull-right" id="submit">Save Action</button>
                                     <br><br>
                                 </div>
                             </div>
@@ -204,25 +204,11 @@
     {{--}}<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>--}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $('.date-picker').datepicker({
             autoclose: true,
             format: 'yyyy-mm-dd',
-        });
-
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
         });
 
         $(document).ready(function () {

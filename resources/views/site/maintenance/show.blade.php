@@ -493,7 +493,7 @@
 
                                 @if (Auth::user()->allowed2('edit.site.maintenance', $main))
                                     <div class="col-md-1 pull-right">
-                                        <button type="submit" name="save" class="btn blue" style="margin-top: 25px">
+                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">
                                             Save
                                         </button>
                                     </div>
@@ -830,6 +830,7 @@
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-strap.min.js"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
@@ -838,21 +839,6 @@
 
     <script>
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
-
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
 
         $(document).ready(function () {
             /* Select2 */

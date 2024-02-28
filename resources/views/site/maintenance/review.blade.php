@@ -72,14 +72,24 @@
                                         @endif
                                     </h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->site) <b>{{ $main->site->name }} (#{{ $main->site->code }})</b> @endif<br>
-                                    @if ($main->site) {{ $main->site->full_address }}<br> @endif
+                                    @if ($main->site)
+                                        <b>{{ $main->site->name }} (#{{ $main->site->code }})</b>
+                                    @endif<br>
+                                    @if ($main->site)
+                                        {{ $main->site->full_address }}<br>
+                                    @endif
                                     {{--@if ($main->site && $main->site->client_phone) {{ $main->site->client_phone }} ({{ $main->site->client_phone_desc }})  @endif --}}
                                     <br>
                                     <div id="site-show">
-                                        @if ($main->reported)<b>Reported:</b> {{ $main->reported->format('d/m/Y') }}<br> @endif
-                                        @if ($main->completed)<b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br> @endif
-                                        @if ($main->supervisor)<b>Supervisor:</b> {{ $main->supervisor }} @endif
+                                        @if ($main->reported)
+                                            <b>Reported:</b> {{ $main->reported->format('d/m/Y') }}<br>
+                                        @endif
+                                        @if ($main->completed)
+                                            <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
+                                        @endif
+                                        @if ($main->supervisor)
+                                            <b>Supervisor:</b> {{ $main->supervisor }}
+                                        @endif
                                     </div>
                                     <div id="site-edit">
                                         <div class="form-group {!! fieldHasError('reported', $errors) !!}">
@@ -110,9 +120,15 @@
                                     </h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                     <div id="client-show">
-                                        @if ($main->contact_name) <b>{{ $main->contact_name }}</b> @endif<br>
-                                        @if ($main->contact_phone) {{ $main->contact_phone }}<br> @endif
-                                        @if ($main->contact_email) {{ $main->contact_email }}<br> @endif
+                                        @if ($main->contact_name)
+                                            <b>{{ $main->contact_name }}</b>
+                                        @endif<br>
+                                        @if ($main->contact_phone)
+                                            {{ $main->contact_phone }}<br>
+                                        @endif
+                                        @if ($main->contact_email)
+                                            {{ $main->contact_email }}<br>
+                                        @endif
                                         @if($main->nextClientVisit())
                                             <br><b>Scheduled Visit:</b> {{ $main->nextClientVisit()->company->name }} &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
                                         @endif
@@ -149,7 +165,7 @@
 
                             {{-- Gallery --}}
                             <br>
-                            <div class="row"  id="photos-show">
+                            <div class="row" id="photos-show">
                                 <div class="col-md-7">
                                     <h4>Photos
                                         @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
@@ -319,9 +335,9 @@
                             <a href="/site/maintenance" class="btn default"> Back</a>
                             @if(Auth::user()->allowed2('edit.site.maintenance', $main))
                                 @if ($main->step == 3 && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                    <button type="submit" name="save" class="btn blue"> Assign Request</button>
+                                    <button type="submit" name="save" class="btn blue" id="submit"> Assign Request</button>
                                 @elseif (Auth::user()->allowed2('edit.site.maintenance', $main))
-                                    <button type="submit" name="save" class="btn blue"> Save</button>
+                                    <button type="submit" name="save" class="btn blue" id="submit"> Save</button>
                                 @endif
                             @endif
                         </div>
@@ -410,194 +426,181 @@
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-modal-component.js"></script>
-<script src="/js/vue-app-basic-functions.js"></script>
-<script>
-    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-modal-component.js"></script>
+    <script src="/js/vue-app-basic-functions.js"></script>
+    <script>
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
+        $(document).ready(function () {
+            /* Select2 */
+            $("#company_id").select2({placeholder: "Select Company", width: '100%'});
+            $("#category_id").select2({placeholder: "Select category", width: "100%"});
+            $("#assigned_to").select2({placeholder: "Select Company", width: '100%'});
+            $("#super_id").select2({placeholder: "Select Supervisor", width: "100%"});
 
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
+            /*
+             $("#more").click(function (e) {
+             e.preventDefault();
+             $('#more').hide();
+             $('#more_items').show();
+             });*/
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#company_id").select2({placeholder: "Select Company", width: '100%'});
-        $("#category_id").select2({placeholder: "Select category", width: "100%"});
-        $("#assigned_to").select2({placeholder: "Select Company", width: '100%'});
-        $("#super_id").select2({placeholder: "Select Supervisor", width: "100%"});
-
-        /*
-         $("#more").click(function (e) {
-         e.preventDefault();
-         $('#more').hide();
-         $('#more_items').show();
-         });*/
-
-        $('#site-edit').hide();
-        $('#client-edit').hide();
-        $('#photos-edit').hide();
-
-        $("#edit-site").click(function (e) {
-            e.preventDefault();
-            $('#edit-site').hide();
-            $('#site-show').hide();
-            $('#site-edit').show();
-        });
-
-        $("#edit-client").click(function (e) {
-            e.preventDefault();
-            $('#edit-client').hide();
-            $('#client-show').hide();
-            $('#client-edit').show();
-        });
-        $("#edit-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#edit-docs").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').hide();
-            $('#photos-edit').show();
-        });
-        $("#view-photos").click(function (e) {
-            e.preventDefault();
-            $('#photos-show').show();
+            $('#site-edit').hide();
+            $('#client-edit').hide();
             $('#photos-edit').hide();
+
+            $("#edit-site").click(function (e) {
+                e.preventDefault();
+                $('#edit-site').hide();
+                $('#site-show').hide();
+                $('#site-edit').show();
+            });
+
+            $("#edit-client").click(function (e) {
+                e.preventDefault();
+                $('#edit-client').hide();
+                $('#client-show').hide();
+                $('#client-edit').show();
+            });
+            $("#edit-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#edit-docs").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').hide();
+                $('#photos-edit').show();
+            });
+            $("#view-photos").click(function (e) {
+                e.preventDefault();
+                $('#photos-show').show();
+                $('#photos-edit').hide();
+            });
+
+
+            /* Bootstrap Fileinput */
+            /*$("#multifile").fileinput({
+                uploadUrl: "/site/maintenance/upload/", // server upload action
+                uploadAsync: true,
+                //allowedFileExtensions: ["image"],
+                //allowedFileTypes: ["image"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn red",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn dark",
+                uploadIcon: "<i class=\"fa fa-upload\"></i> ",
+                uploadExtraData: {
+                    "site_id": site_id,
+                    "main_id": main_id,
+                },
+                layoutTemplates: {
+                    main1: '<div class="input-group {class}">\n' +
+                    '   {caption}\n' +
+                    '   <div class="input-group-btn">\n' +
+                    '       {remove}\n' +
+                    '       {upload}\n' +
+                    '       {browse}\n' +
+                    '   </div>\n' +
+                    '</div>\n' +
+                    '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
+                    '{preview}\n'
+                },
+            });
+
+            $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
+                data.form.append("site_id", $("#site_id").val());
+                data.form.append("main_id", $("#main_id").val());
+            });*/
+        });
+    </script>
+    <script>
+        var host = window.location.hostname;
+        var dev = true;
+        if (host == 'safeworksite.com.au')
+            dev = false;
+
+        var xx = {
+            dev: dev,
+            action: '', loaded: false,
+            table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
+            created_by: '', created_by_fullname: '',
+        };
+
+        Vue.component('app-actions', {
+            template: '#actions-template',
+            props: ['table', 'table_id', 'status'],
+
+            created: function () {
+                this.getActions();
+            },
+            data: function () {
+                return {xx: xx, actionList: []};
+            },
+            events: {
+                'addActionEvent': function (action) {
+                    this.actionList.unshift(action);
+                },
+            },
+            methods: {
+                getActions: function () {
+                    $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
+                        this.actionList = actions;
+                    }.bind(this));
+                },
+            },
         });
 
-
-        /* Bootstrap Fileinput */
-        /*$("#multifile").fileinput({
-            uploadUrl: "/site/maintenance/upload/", // server upload action
-            uploadAsync: true,
-            //allowedFileExtensions: ["image"],
-            //allowedFileTypes: ["image"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn red",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn dark",
-            uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-            uploadExtraData: {
-                "site_id": site_id,
-                "main_id": main_id,
+        Vue.component('ActionModal', {
+            template: '#actionModal-template',
+            props: ['show'],
+            data: function () {
+                var action = {};
+                return {xx: xx, action: action, oAction: ''};
             },
-            layoutTemplates: {
-                main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
+            events: {
+                'add-action-modal': function () {
+                    var newaction = {};
+                    this.oAction = '';
+                    this.action = newaction;
+                    this.xx.action = 'add';
+                    this.show = true;
+                },
+                'edit-action-modal': function (action) {
+                    this.oAction = action.action;
+                    this.action = action;
+                    this.xx.action = 'edit';
+                    this.show = true;
+                }
             },
-        });
+            methods: {
+                close: function () {
+                    this.show = false;
+                    this.action.action = this.oAction;
+                },
+                addAction: function (action) {
+                    var actiondata = {
+                        action: action.action,
+                        table: this.xx.table_name,
+                        table_id: this.xx.table_id,
+                        niceDate: moment().format('DD/MM/YY'),
+                        created_by: this.xx.created_by,
+                        fullname: this.xx.created_by_fullname,
+                    };
 
-        $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-            data.form.append("site_id", $("#site_id").val());
-            data.form.append("main_id", $("#main_id").val());
-        });*/
-    });
-</script>
-<script>
-    var host = window.location.hostname;
-    var dev = true;
-    if (host == 'safeworksite.com.au')
-        dev = false;
-
-    var xx = {
-        dev: dev,
-        action: '', loaded: false,
-        table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
-        created_by: '', created_by_fullname: '',
-    };
-
-    Vue.component('app-actions', {
-        template: '#actions-template',
-        props: ['table', 'table_id', 'status'],
-
-        created: function () {
-            this.getActions();
-        },
-        data: function () {
-            return {xx: xx, actionList: []};
-        },
-        events: {
-            'addActionEvent': function (action) {
-                this.actionList.unshift(action);
-            },
-        },
-        methods: {
-            getActions: function () {
-                $.getJSON('/action/' + this.xx.table_name + '/' + this.table_id, function (actions) {
-                    this.actionList = actions;
-                }.bind(this));
-            },
-        },
-    });
-
-    Vue.component('ActionModal', {
-        template: '#actionModal-template',
-        props: ['show'],
-        data: function () {
-            var action = {};
-            return {xx: xx, action: action, oAction: ''};
-        },
-        events: {
-            'add-action-modal': function () {
-                var newaction = {};
-                this.oAction = '';
-                this.action = newaction;
-                this.xx.action = 'add';
-                this.show = true;
-            },
-            'edit-action-modal': function (action) {
-                this.oAction = action.action;
-                this.action = action;
-                this.xx.action = 'edit';
-                this.show = true;
-            }
-        },
-        methods: {
-            close: function () {
-                this.show = false;
-                this.action.action = this.oAction;
-            },
-            addAction: function (action) {
-                var actiondata = {
-                    action: action.action,
-                    table: this.xx.table_name,
-                    table_id: this.xx.table_id,
-                    niceDate: moment().format('DD/MM/YY'),
-                    created_by: this.xx.created_by,
-                    fullname: this.xx.created_by_fullname,
-                };
-
-                console.log(actiondata);
-                this.$http.post('/action', actiondata)
+                    console.log(actiondata);
+                    this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
                             actiondata.id = response.data.id;
@@ -607,26 +610,26 @@
                             alert('failed adding new action');
                         });
 
-                this.close();
-            },
-            updateAction: function (action) {
-                this.$http.patch('/action/' + action.id, action)
+                    this.close();
+                },
+                updateAction: function (action) {
+                    this.$http.patch('/action/' + action.id, action)
                         .then(function (response) {
                             toastr.success('Saved Action');
                         }.bind(this))
                         .catch(function (response) {
                             alert('failed to save action [' + action.id + ']');
                         });
-                this.show = false;
-            },
-        }
-    });
+                    this.show = false;
+                },
+            }
+        });
 
 
-    var myApp = new Vue({
-        el: 'body',
-        data: {xx: xx},
-    });
-</script>
+        var myApp = new Vue({
+            el: 'body',
+            data: {xx: xx},
+        });
+    </script>
 @stop
 

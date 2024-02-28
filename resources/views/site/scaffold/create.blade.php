@@ -12,11 +12,11 @@
 
 <?php
 $duty_class = [
-        ''        => 'Select type',
-        'Light'   => 'Light Duty - up to 225 kg per platform per bay including a concentrated load of 120 kg',
-        'Medium'  => 'Medium Duty – up to 450 kg per platform per bay including a concentrated load of 150 kg',
-        'Heavy'   => 'Heavy Duty – up to 675 kg per platform per bay including a concentrated load of 200 kg',
-        'Special' => 'Special Duty – designated allowable load as designed'];
+    '' => 'Select type',
+    'Light' => 'Light Duty - up to 225 kg per platform per bay including a concentrated load of 120 kg',
+    'Medium' => 'Medium Duty – up to 450 kg per platform per bay including a concentrated load of 150 kg',
+    'Heavy' => 'Heavy Duty – up to 675 kg per platform per bay including a concentrated load of 200 kg',
+    'Special' => 'Special Duty – designated allowable load as designed'];
 ?>
 @section('content')
     <div class="page-content-inner">
@@ -127,7 +127,7 @@ $duty_class = [
 
                             <div class="form-actions right">
                                 <a href="/site/scaffold/handover" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
                             </div>
                         </div>
                         {!! Form::close() !!} <!-- END FORM-->
@@ -136,7 +136,7 @@ $duty_class = [
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -153,30 +153,17 @@ $duty_class = [
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
-
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+        });
+    </script>
 @stop
 
 

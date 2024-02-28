@@ -564,7 +564,7 @@
 
                         <div class="form-actions right">
                             <a href="/site/inspection/plumbing" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> Save</button>
+                            <button type="submit" class="btn green" id="submit"> Save</button>
                         </div>
                     </div>
                     {!! Form::close() !!}
@@ -638,6 +638,7 @@
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script>
     <script src="/js/libs/moment.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-strap.min.js"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
@@ -645,21 +646,6 @@
     <script src="/js/vue-app-basic-functions.js"></script>
     <script type="text/javascript">
         $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
-
-        // Get a reference to the file input element
-        const inputElement = document.querySelector('input[type="file"]');
-
-        // Create a FilePond instance
-        const pond = FilePond.create(inputElement);
-        FilePond.setOptions({
-            server: {
-                url: '/file/upload',
-                fetch: null,
-                revert: null,
-                headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-            },
-            allowMultiple: true,
-        });
 
         $(document).ready(function () {
             /* Select2 */

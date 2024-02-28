@@ -194,17 +194,17 @@
                             @include('site/_checkin_hazard')
 
                             <div class="form-actions">
-                                <button type="submit" class="btn green" name="checkinTruck" value="true">Submit</button>
+                                <button type="submit" class="btn green" name="checkinTruck" value="true" id="submit">Submit</button>
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -217,43 +217,30 @@
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script>
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            //$('#safe_site').bootstrapSwitch('state', false);
+            //var state = $('#safe_site').bootstrapSwitch('state');
+            if ($('#safe_site').bootstrapSwitch('state'))
+                $('#unsafe-site').hide();
 
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
+            $('#safe_site').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#unsafe-site').toggle();
+            });
 
-    $(document).ready(function () {
-        //$('#safe_site').bootstrapSwitch('state', false);
-        //var state = $('#safe_site').bootstrapSwitch('state');
-        if ($('#safe_site').bootstrapSwitch('state'))
-            $('#unsafe-site').hide();
+            $('#open_docs').click(function () {
+                $('#docs').show();
+            });
 
-        $('#safe_site').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#unsafe-site').toggle();
+            $('#close_docs').click(function () {
+                $('#docs').hide();
+            });
         });
-
-        $('#open_docs').click(function () {
-            $('#docs').show();
-        });
-
-        $('#close_docs').click(function () {
-            $('#docs').hide();
-        });
-    });
-</script>
+    </script>
 @stop
 

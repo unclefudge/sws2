@@ -178,7 +178,7 @@
 
                         <div class="form-actions right">
                             <a href="/site/maintenance" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> Save</button>
+                            <button type="submit" class="btn green" id="submit"> Save</button>
                         </div>
                     </div>
                     {!! Form::close() !!}
@@ -186,7 +186,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -202,92 +202,79 @@
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site", width: "100%"});
+            $("#category_id").select2({placeholder: "Select category", width: "100%"});
+            //$("#super_id").select2({placeholder: "Select Supervisor", width: "100%"});
 
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site", width: "100%"});
-        $("#category_id").select2({placeholder: "Select category", width: "100%"});
-        //$("#super_id").select2({placeholder: "Select Supervisor", width: "100%"});
-
-        updateFields();
-
-        // On Change Site ID
-        $("#site_id").change(function () {
             updateFields();
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
+
+
+            function updateFields() {
+                var site_id = $("#site_id").select2("val");
+                $("#completed").val('');
+                //$('#multifile-div').hide();
+                //$('#items-div').hide();
+
+                if (site_id != '') {
+                    //$('#multifile-div').show();
+                    //$('#items-div').show();
+                    $.ajax({
+                        url: '/site/data/details/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            $("#site_suburb").val(data.suburb);
+                            $("#site_code").val(data.code);
+                            console.log(data.suburb);
+                        },
+                    })
+
+                    $.ajax({
+                        url: '/site/maintenance/data/prac_completion/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log(data);
+                            var year = data.substring(0, 4);
+                            var month = data.substring(5, 7);
+                            var day = data.substring(8, 10);
+                            $("#completed").val(day + '/' + month + '/' + year);
+                        },
+                    })
+
+                    $.ajax({
+                        url: '/site/maintenance/data/site_super/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log(data);
+                            $("#supervisor").val(data);
+                            //$('#supervisor').trigger('change.select2');
+                        },
+                    })
+                }
+            }
         });
 
-
-        function updateFields() {
-            var site_id = $("#site_id").select2("val");
-            $("#completed").val('');
-            //$('#multifile-div').hide();
-            //$('#items-div').hide();
-
-            if (site_id != '') {
-                //$('#multifile-div').show();
-                //$('#items-div').show();
-                $.ajax({
-                    url: '/site/data/details/' + site_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        $("#site_suburb").val(data.suburb);
-                        $("#site_code").val(data.code);
-                        console.log(data.suburb);
-                    },
-                })
-
-                $.ajax({
-                    url: '/site/maintenance/data/prac_completion/' + site_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        console.log(data);
-                        var year = data.substring(0, 4);
-                        var month = data.substring(5, 7);
-                        var day = data.substring(8, 10);
-                        $("#completed").val(day + '/' + month + '/' + year);
-                    },
-                })
-
-                $.ajax({
-                    url: '/site/maintenance/data/site_super/' + site_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        console.log(data);
-                        $("#supervisor").val(data);
-                        //$('#supervisor').trigger('change.select2');
-                    },
-                })
-            }
-        }
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop
 

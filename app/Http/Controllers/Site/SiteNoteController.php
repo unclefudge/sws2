@@ -148,7 +148,7 @@ class SiteNoteController extends Controller
         $note->emailNote();
 
         $previous_url = parse_url(request('previous_url'));
-        if (preg_match("/notes$/", $previous_url['path']))
+        if (preg_match("/notes/", $previous_url['path']))
             return redirect("site/$note->site_id/notes");
         else
             return redirect("site/$note->site_id");

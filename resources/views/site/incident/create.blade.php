@@ -206,7 +206,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group {!! fieldHasError('injured_nature', $errors) !!}">
-                                                <?php $qInjuredNature = App\Models\Misc\FormQuestion::find(50) ?>
+                                                    <?php $qInjuredNature = App\Models\Misc\FormQuestion::find(50) ?>
                                                 {!! Form::label('injured_nature', $qInjuredNature->name, ['class' => 'control-label']) !!}
                                                 {!! Form::select('injured_nature', $qInjuredNature->optionsArray(), null, ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_nature[]', 'id' => 'injured_nature']) !!}
                                                 {!! fieldErrorMessage('injured_nature', $errors) !!}
@@ -217,7 +217,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group {!! fieldHasError('injured_mechanism', $errors) !!}">
-                                                <?php $qInjuredMechanism = App\Models\Misc\FormQuestion::find(69) ?>
+                                                    <?php $qInjuredMechanism = App\Models\Misc\FormQuestion::find(69) ?>
                                                 {!! Form::label('injured_mechanism', $qInjuredMechanism->name, ['class' => 'control-label']) !!}
                                                 {!! Form::select('injured_mechanism', $qInjuredMechanism->optionsArray(), null, ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_mechanism[]', 'id' => 'injured_mechanism']) !!}
                                                 {!! fieldErrorMessage('injured_mechanism', $errors) !!}
@@ -228,7 +228,7 @@
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group {!! fieldHasError('injured_agency', $errors) !!}">
-                                                <?php $qInjuredAgency = App\Models\Misc\FormQuestion::find(92) ?>
+                                                    <?php $qInjuredAgency = App\Models\Misc\FormQuestion::find(92) ?>
                                                 {!! Form::label('injured_agency', $qInjuredAgency->name, ['class' => 'control-label']) !!}
                                                 {!! Form::select('injured_agency', $qInjuredAgency->optionsArray(), null, ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_agency[]', 'id' => 'injured_agency']) !!}
                                                 {!! fieldErrorMessage('injured_agency', $errors) !!}
@@ -280,7 +280,7 @@
 
                             <div class="form-actions right">
                                 <a href="/site/incident" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
                             </div>
                         </div>
                         {!! Form::close() !!} <!-- END FORM-->
@@ -289,7 +289,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -309,101 +309,88 @@
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-    // Get a reference to the file input element
-    const inputElement = document.querySelector('input[type="file"]');
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+            $("#type").select2({placeholder: "Check all applicable"});
+            $("#treatment").select2({placeholder: "Check all applicable"});
+            $("#injured_part").select2({placeholder: "Check all applicable"});
+            $("#injured_nature").select2({placeholder: "Check all applicable"});
+            $("#injured_mechanism").select2({placeholder: "Check all applicable"});
+            $("#injured_agency").select2({placeholder: "Check all applicable"});
 
-    // Create a FilePond instance
-    const pond = FilePond.create(inputElement);
-    FilePond.setOptions({
-        server: {
-            url: '/file/upload',
-            fetch: null,
-            revert: null,
-            headers: {'X-CSRF-TOKEN': $('meta[name=token]').attr('value')},
-        },
-        allowMultiple: true,
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-        $("#type").select2({placeholder: "Check all applicable"});
-        $("#treatment").select2({placeholder: "Check all applicable"});
-        $("#injured_part").select2({placeholder: "Check all applicable"});
-        $("#injured_nature").select2({placeholder: "Check all applicable"});
-        $("#injured_mechanism").select2({placeholder: "Check all applicable"});
-        $("#injured_agency").select2({placeholder: "Check all applicable"});
-
-        updateFields();
-
-        // On Change Site CC
-        $("#site_cc").change(function () {
             updateFields();
+
+            // On Change Site CC
+            $("#site_cc").change(function () {
+                updateFields();
+            });
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
+
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
+
+            // On Change Treatment
+            $("#treatment").change(function () {
+                updateFields();
+            });
+
+            // On Change Injured Part
+            $("#injured_part").change(function () {
+                updateFields();
+            });
+
+            function updateFields() {
+                var site_id = $("#site_id").select2("val");
+                var types = $("#type").select2("val");
+                var treatment = $("#treatment").select2("val");
+                var part = $("#injured_part").select2("val");
+
+                $("#injury_details").hide()
+                $("#damage_details").hide()
+                $("#field_site_id").hide()
+                $("#field_site_name").hide()
+                $("#field_treatment_other").hide()
+                $("#field_injured_part_other").hide()
+
+                if ($("#site_cc").val() == '1') $("#field_site_id").show() // Site id
+                if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
+                if (types != null && types.includes('2')) $("#injury_details").show()
+                if (types != null && types.includes('3')) $("#damage_details").show()
+                if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show() // Other treatment
+                if (part != null && part.includes('49')) $("#field_injured_part_other").show() // Other part
+            }
+
         });
 
-        // On Change Site ID
-        $("#site_id").change(function () {
-            updateFields();
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
         });
 
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
+        swal({
+            title: "Scene of Incident",
+            text: "The incident scene should be preserved and only disturbed to faciliate emergency response and/or to make safe!",
+            cancelButtonColor: "#555555",
+            confirmButtonColor: "#E7505A",
+            confirmButtonText: "Yes, I understand!",
+            allowOutsideClick: true,
+            html: true,
         });
-
-        // On Change Treatment
-        $("#treatment").change(function () {
-            updateFields();
-        });
-
-        // On Change Injured Part
-        $("#injured_part").change(function () {
-            updateFields();
-        });
-
-        function updateFields() {
-            var site_id = $("#site_id").select2("val");
-            var types = $("#type").select2("val");
-            var treatment = $("#treatment").select2("val");
-            var part = $("#injured_part").select2("val");
-
-            $("#injury_details").hide()
-            $("#damage_details").hide()
-            $("#field_site_id").hide()
-            $("#field_site_name").hide()
-            $("#field_treatment_other").hide()
-            $("#field_injured_part_other").hide()
-
-            if ($("#site_cc").val() == '1') $("#field_site_id").show() // Site id
-            if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
-            if (types != null && types.includes('2')) $("#injury_details").show()
-            if (types != null && types.includes('3')) $("#damage_details").show()
-            if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show() // Other treatment
-            if (part != null && part.includes('49')) $("#field_injured_part_other").show() // Other part
-        }
-
-    });
-
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-
-    swal({
-        title: "Scene of Incident",
-        text: "The incident scene should be preserved and only disturbed to faciliate emergency response and/or to make safe!",
-        cancelButtonColor: "#555555",
-        confirmButtonColor: "#E7505A",
-        confirmButtonText: "Yes, I understand!",
-        allowOutsideClick: true,
-        html: true,
-    });
-</script>
+    </script>
 @stop
 
 
