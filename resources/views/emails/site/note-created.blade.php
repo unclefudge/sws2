@@ -34,7 +34,7 @@ Note:<br>
 Created by: {{ $note->createdBy->name }}
 
 @component('mail::button', ['url' => config('app.url').'/site/'.$note->site_id])
-View Site Notes
+    View Site Notes
 @endcomponent
 
 
