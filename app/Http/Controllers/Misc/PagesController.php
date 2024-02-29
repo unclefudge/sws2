@@ -160,23 +160,8 @@ class PagesController extends Controller
                         if ($task->task_id == 297) $trade = 'Scaffolder';
                         echo $task->from->format('d/m/Y') . " - " . $task->site->name . " - $trade" . "<br>";
                     }
-                }*
+                }*/
 
-                /*
-                        echo "Not Logged in Users<br>";
-                        $recs = SiteCompliance::where('reason', 0)->orWhere('reason', null)->get();
-                        echo $recs->count();
-                        echo "<br>";
-                        foreach ($recs as $rec) {
-                            if ($rec->status == 0) {
-                                $rec->reason = 1;
-                                $rec->status = 1;
-                                $rec->notes = 'Nightly batch not logged in users as non-compliant';
-                                $rec->resolved_at = Carbon::now()->toDateTimeString();
-                                $rec->save();
-                            }
-                        }
-                */
 
         /*echo "Migrate Incident Doc<br>";
         $docs = SiteIncidentDoc::all();

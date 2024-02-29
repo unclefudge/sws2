@@ -92,6 +92,10 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
+    /*
+    * Blessing
+    */
+
     static public function blessing()
     {
         $log = "+----------------------+\n";
@@ -162,9 +166,6 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-    * Blessing
-    */
 
     static public function roster()
     {
@@ -172,6 +173,22 @@ class CronController extends Controller
         echo "<h2>Adding Users to Roster</h2>";
         $log .= "Adding New Users to Roster\n";
         $log .= "------------------------------------------------------------------------\n\n";
+
+
+        //
+        // Clearing out non-compliant users from previous day
+        //
+        $recs = SiteCompliance::where('reason', 0)->orWhere('reason', null)->get();
+        foreach ($recs as $rec) {
+            if ($rec->status == 0) {
+                $rec->reason = 1;
+                $rec->status = 1;
+                $rec->notes = 'Nightly batch not logged in users as non-compliant';
+                $rec->resolved_at = Carbon::now()->toDateTimeString();
+                $rec->save();
+            }
+        }
+
 
         $allowedSites = Site::all()->pluck('id')->toArray();
         if (Auth::check())
