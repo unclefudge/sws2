@@ -510,7 +510,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
                                                 {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Leon Carnevale' => 'Leon Carnevale', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Ray Ager' => 'Ray Ager', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
                                                 {!! fieldErrorMessage('assessor_name', $errors) !!}
                                             </div>
                                         </div>
