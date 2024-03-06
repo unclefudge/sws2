@@ -125,7 +125,9 @@ class SiteHazard extends Model
 
             // Delete Temporary file directory + record
             $tempFile->delete();
-            rmdir(public_path($tempFile->folder));
+            $files = scandir($tempFile->folder);
+            if (count($files) == 0)
+                rmdir(public_path($tempFile->folder));
         }
     }
 

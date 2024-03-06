@@ -3,15 +3,14 @@
 namespace App\Models\Site\Incident;
 
 
-use Mail;
-use App\User;
+use App\Models\Comms\Todo;
 use App\Models\Misc\FormQustion;
 use App\Models\Misc\FormResponse;
 use App\Models\Misc\TemporaryFile;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class SiteIncident extends Model
 {
@@ -237,7 +236,9 @@ class SiteIncident extends Model
 
             // Delete Temporary file directory + record
             $tempFile->delete();
-            rmdir(public_path($tempFile->folder));
+            $files = scandir($tempFile->folder);
+            if (count($files) == 0)
+                rmdir(public_path($tempFile->folder));
         }
     }
 
