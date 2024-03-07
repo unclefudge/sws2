@@ -166,7 +166,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('amount', $errors) !!}">
                                         {!! Form::label('amount', 'Amount to be removed (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ (old('amount')) ? old('amount') : $asb->amount }}" id="amount" name="amount"> {{--}} onkeydown="return isNumber(event)">--}}
+                                        <input type="text" class="form-control" value="{{ (old('amount')) ? old('amount') : $asb->amount }}" id="amount" name="amount" onkeydown="return isNumber(event)"> {{--}} onkeydown="return isNumber(event)">--}}
                                         {!! fieldErrorMessage('amount', $errors) !!}
                                     </div>
                                     <div class="note note-warning" style="display: none;" id="amount_note">
@@ -229,7 +229,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
                                             {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::select('removalist', ['' => 'Select removalist', '385' => 'Handy 1st Pty Ltd AD2122895', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select']) !!}
+                                            {!! Form::select('removalist', ['' => 'Select removalist', '385' => 'Handy 1st Pty Ltd AD2122895', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
                                             {!! fieldErrorMessage('removalist', $errors) !!}
                                         </div>
                                     </div>
@@ -502,14 +502,14 @@
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
                                                 {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Leon Carnevale' => 'Leon Carnevale', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Ray Ager' => 'Ray Ager', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select', 'id' => 'assessor_name']) !!}
                                                 {!! fieldErrorMessage('assessor_name', $errors) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_phone', $errors) !!}">
                                                 {!! Form::label('assessor_phone', 'Assessor Phone', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_phone', null, ['class' => 'form-control']) !!}
+                                                {!! Form::text('assessor_phone', null, ['class' => 'form-control', 'id' => 'assessor_phone']) !!}
                                                 {!! fieldErrorMessage('assessor_phone', $errors) !!}
                                             </div>
                                         </div>
@@ -527,21 +527,21 @@
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_lic', $errors) !!}">
                                                 {!! Form::label('assessor_lic', 'Licence No.', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_lic', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                                {!! Form::text('assessor_lic', null, ['class' => 'form-control', 'id' => 'assessor_lic']) !!}
+                                                {!! fieldErrorMessage('assessor_lic', $errors) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_dept', $errors) !!}">
                                                 {!! Form::label('assessor_dept', 'Department of Issue', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_dept', null, ['class' => 'form-control']) !!}
+                                                {!! Form::text('assessor_dept', null, ['class' => 'form-control', 'id' => 'assessor_dept']) !!}
                                                 {!! fieldErrorMessage('assessor_dept', $errors) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group {!! fieldHasError('assessor_state', $errors) !!}">
                                                 {!! Form::label('assessor_state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select', 'id' => 'assessor_state']) !!}
                                                 {!! fieldErrorMessage('assessor_state', $errors) !!}
                                             </div>
                                         </div>
@@ -579,180 +579,175 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({
-            placeholder: "Select Site",
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({
+                placeholder: "Select Site",
+            });
+
+            displayFields();
+
+            function displayFields() {
+                // Amount
+                if ($("#amount").val() > 9) {
+                    $("#amount_note").show();
+                    $("#amount_fields").show();
+                    $("#amount_over").val('1');
+                } else {
+                    $("#amount_note").hide();
+                    $("#amount_fields").hide();
+                    $("#amount_over").val('0');
+                }
+
+                // Class 'Friable'
+                $("#friable_note").hide();
+                $("#non_friable_fields").hide();
+                $("#non_friable_fields_part2").hide();
+                if ($("#friable").val() == '1')
+                    $("#friable_note").show();
+                if ($("#friable").val() == '0')
+                    $("#non_friable_removal").show();
+
+                // Removalist
+                $("#removalist_name_div").hide();
+                if ($("#removalist").val() == '3') {
+                    $("#removalist_name").val('Cape Cod Australia Pty Ltd AD205686');
+                    $("#non_friable_fields").show();
+                    $("#non_friable_fields_part2").show();
+                }
+                if ($("#removalist").val() == '385') {
+                    $("#removalist_name").val('Handy 1st Pty Ltd AD2122895');
+                    $("#non_friable_fields_part2").show();
+                }
+                if ($("#removalist").val() == 'other') {
+                    $("#non_friable_fields_part2").show();
+                    $("#removalist_name_div").show();
+                }
+
+                // Hygiene Report
+                $("#hygiene_report_div").hide();
+                if ($("#hygiene").val() == '1')
+                    $("#hygiene_report_div").show();
+
+                // Checkbox Equip
+                $('[name="equip[]"]').eq(5).is(':checked') ? $("#equip_other_div").show() : $("#equip_other_div").hide(); // Equip other
+                $('[name="method[]"]').eq(7).is(':checked') ? $("#method_other_div").show() : $("#method_other_div").hide(); // Method other
+
+                $("#type").val() == 'other' ? $("#type_other_div").show() : $("#type_other_div").hide(); // Type
+                $("#register").val() == '0' ? $("#register_note").show() : $("#register_note").hide(); // Register
+                $("#swms").val() == '0' ? $("#swms_note").show() : $("#swms_note").hide(); // SWMS
+                $("#inspection").val() == '0' ? $("#inspection_note").show() : $("#inspection_note").hide();  // Inspection
+
+            }
+
+            // On Change Supervisor
+            $("#supervisor_id").change(function () {
+                $.ajax({
+                    url: '/user/data/details/' + $("#supervisor_id").val(),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $("#super_phone").val(data.phone);
+                    },
+                })
+            });
+
+            // On Change Amount
+            $("#amount").keyup(function () {
+                displayFields();
+            });
+
+            // On Change Friable
+            $("#friable").change(function () {
+                displayFields();
+            });
+
+            // On Change Removalist
+            $("#removalist").change(function () {
+                $("#removalist_name").val('');
+                if ($("#removalist").val() == '385')
+                    $("#assessor_name").val('Ray Ager').change();
+                else
+                    $("#assessor_name").val('').change();
+                displayFields();
+            });
+
+            // On Change Type
+            $("#type").change(function () {
+                displayFields();
+            });
+
+            // On Change Equip
+            $("#equip").click(function () {
+                displayFields();
+            });
+
+            // On Change Register
+            $("#register").change(function () {
+                displayFields();
+            });
+
+            // On Change SWMS
+            $("#swms").change(function () {
+                displayFields();
+            });
+
+            // On Change Inspection
+            $("#inspection").change(function () {
+                displayFields();
+            });
+
+            // On Change Assessor
+            $("#assessor_name").change(function () {
+                if ($("#assessor_name").val() == 'Mark Spindler') {
+                    $("#assessor_phone").val('0417 064 161');
+                    $("#assessor_lic").val('');
+                    $("#assessor_state").val('NSW');
+                } else if ($("#assessor_name").val() == 'Ray Ager') {
+                    $("#assessor_phone").val('0407 050 694');
+                    $("#assessor_lic").val('AD212895');
+                    $("#assessor_state").val('NSW');
+                } else {
+                    $("#assessor_phone").val('');
+                    $("#assessor_lic").val('');
+                    $("#assessor_dept").val('');
+                    $("#assessor_state").val('');
+                }
+            });
         });
 
-        displayFields();
-
-        function displayFields() {
-            // Amount
-            if ($("#amount").val() > 9) {
-                $("#amount_note").show();
-                $("#amount_fields").show();
-                $("#amount_over").val('1');
-            } else {
-                $("#amount_note").hide();
-                $("#amount_fields").hide();
-                $("#amount_over").val('0');
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode == 190) // decimal .
+                return true;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
             }
-
-            // Class 'Friable'
-            $("#friable_note").hide();
-            $("#non_friable_fields").hide();
-            $("#non_friable_fields_part2").hide();
-            if ($("#friable").val() == '1')
-                $("#friable_note").show();
-            if ($("#friable").val() == '0')
-                $("#non_friable_removal").show();
-
-            // Removalist
-            $("#removalist_name_div").hide();
-            if ($("#removalist").val() == '3') {
-                $("#removalist_name").val('Cape Cod Australia Pty Ltd AD205686');
-                $("#non_friable_fields").show();
-                $("#non_friable_fields_part2").show();
-            }
-            if ($("#removalist").val() == '385') {
-                $("#removalist_name").val('Handy 1st Pty Ltd AD2122895');
-                $("#non_friable_fields_part2").show();
-            }
-            if ($("#removalist").val() == 'other') {
-                $("#non_friable_fields_part2").show();
-                $("#removalist_name_div").show();
-            }
-
-
-
-            // Hygiene Report
-            $("#hygiene_report_div").hide();
-            if ($("#hygiene").val() == '1')
-                $("#hygiene_report_div").show();
-
-            // Checkbox Equip
-            $('[name="equip[]"]').eq(5).is(':checked') ? $("#equip_other_div").show() : $("#equip_other_div").hide(); // Equip other
-            $('[name="method[]"]').eq(7).is(':checked') ? $("#method_other_div").show() : $("#method_other_div").hide(); // Method other
-            /*if ($('[name="equip[]"]').eq(5).is(':checked') || $old('equip_other')) {  // Equip other
-             $("#equip_other_div").show()
-             } else {
-             $("#equip_other_div").hide();
-             }
-             if ($('[name="method[]"]').eq(7).is(':checked') || $old('method_other')) {  // Equip method
-             $("#equip_other_div").show()
-             } else {
-             $("#equip_other_div").hide();
-             }*/
-            $("#type").val() == 'other' ? $("#type_other_div").show() : $("#type_other_div").hide(); // Type
-            $("#register").val() == '0' ? $("#register_note").show() : $("#register_note").hide(); // Register
-            $("#swms").val() == '0' ? $("#swms_note").show() : $("#swms_note").hide(); // SWMS
-            $("#inspection").val() == '0' ? $("#inspection_note").show() : $("#inspection_note").hide();  // Inspection
-
+            return true;
         }
 
-        // On Change Supervisor
-        $("#supervisor_id").change(function () {
-            $.ajax({
-                url: '/user/data/details/' + $("#supervisor_id").val(),
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    $("#super_phone").val(data.phone);
-                },
-            })
-        });
-
-        // On Change Amount
-        $("#amount").keyup(function () {
-            displayFields();
-        });
-
-        // On Change Class 'Friable'
-        $("#friable").change(function () {
-            displayFields();
-        });
-
-        // On Change Class 'Friable'
-        $("#removalist").change(function () {
-            $("#removalist_name").val('');
-            displayFields();
-        });
-
-        // On Change Type
-        $("#type").change(function () {
-            displayFields();
-        });
-
-        // On Change Equip
-        $("#equip").click(function () {
-            displayFields();
-        });
-
-        // On Change Register
-        $("#register").change(function () {
-            displayFields();
-        });
-
-        // On Change SWMS
-        $("#swms").change(function () {
-            displayFields();
-        });
-
-        // On Change Inspection
-        $("#inspection").change(function () {
-            displayFields();
-        });
-
-        // On Change Assessor
-        $("#assessor_name").change(function () {
-            if ($("#assessor_name").val() == 'Leon Carnevale') {
-                $("#assessor_phone").val('0451 308 020');
-                $("#assessor_lic").val('1234-567-890');
-                $("#assessor_dept").val('dept 1');
-                $("#assessor_state").val('NSW');
-            } else if ($("#assessor_name").val() == 'Mark Spindler') {
-                $("#assessor_phone").val('0417 064 161');
-                $("#assessor_lic").val('1234-567-890');
-                $("#assessor_dept").val('dept 2');
-                $("#assessor_state").val('NSW');
-            } else {
-                $("#assessor_phone").val('');
-                $("#assessor_lic").val('');
-                $("#assessor_dept").val('');
-                $("#assessor_state").val('');
+        function checkbox_equipOther(el) {
+            if (el.checked)
+                document.getElementById('equip_other_div').style.display = 'block'
+            else {
+                document.getElementById('equip_other_div').style.display = 'none';
+                $("#equip_other").val('');
             }
-        });
-    });
-
-    function isNumber(evt) {
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if ((charCode > 31 && charCode < 48) || charCode > 57) {
-            return false;
         }
-        return true;
-    }
 
-    function checkbox_equipOther(el) {
-        if (el.checked)
-            document.getElementById('equip_other_div').style.display = 'block'
-        else {
-            document.getElementById('equip_other_div').style.display = 'none';
-            $("#equip_other").val('');
+        function checkbox_methodOther(el) {
+            if (el.checked)
+                document.getElementById('method_other_div').style.display = 'block'
+            else {
+                document.getElementById('method_other_div').style.display = 'none';
+                $("#method_other").val('');
+            }
         }
-    }
-    function checkbox_methodOther(el) {
-        if (el.checked)
-            document.getElementById('method_other_div').style.display = 'block'
-        else {
-            document.getElementById('method_other_div').style.display = 'none';
-            $("#method_other").val('');
-        }
-    }
 
-</script>
+    </script>
 @stop
