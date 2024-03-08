@@ -958,41 +958,44 @@ class CronController extends Controller
         $found_tasks = 0;
 
         //
-        // Scaffold Up - taskid: 220
+        // Scaffold Up - taskid: 220, 24
         //
-        $platform_up_ids = [220];
+        $platform_up_ids = [220, 24];
         $tasks = SitePlanner::whereDate('from', '=', $date)->whereIn('task_id', $platform_up_ids)->orderBy('site_id')->get();
 
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {
-                if ($task->entity_type == 'c' && $task->company->seniorUsers())
+                $scaff = SiteScaffoldHandover::where('site_id', $task->site->id)->first();
+                if (!$scaff) {
+                    // Create Scaffold Certificate
+                    $scaff = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
+                    $found_tasks++;
+
+                    $todo_request = [
+                        'type' => 'scaffold handover',
+                        'type_id' => $scaff->id,
+                        'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
+                        'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
+                        'priority' => '1',
+                        'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                        'company_id' => '3',
+                        'created_by' => '1',
+                        'updated_by' => '1'
+                    ];
+
+                    // Create ToDoo and assign to Site Supervisors
+                    $todo = Todo::create($todo_request);
+                    $todo->assignUsers(1032); // Ian Ewin
+                    $todo->emailToDo();
+
+                    // Send additional email to Michelle
+                    $todo->emailToDo('michelle@capecod.com.au');
+
                     $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                $mesg .= " - email sent to " . implode("; ", $task->company->seniorUsersEmail()) . "\n";
-                echo "$mesg<br>";
-                $log .= "$mesg\n";
-                $todo_request = [
-                    'type' => 'scaffold handover',
-                    'type_id' => $task->site->id,
-                    'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
-                    'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
-                    'priority' => '1',
-                    'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
-                    'company_id' => '3',
-                    'created_by' => '1',
-                    'updated_by' => '1'
-                ];
-
-                // Create ToDoo and assign to Site Supervisors
-                $todo = Todo::create($todo_request);
-                $todo->assignUsers($task->company->seniorUsers()->pluck('id')->toArray());
-                $todo->emailToDo();
-
-                // Send additional email to Michelle
-                $todo->emailToDo('michelle@capecod.com.au');
-
-                // Create Scaffold Certificate
-                SiteScaffoldHandover::create(['site_id' => $task->site->id]);
-                $found_tasks++;
+                    $mesg .= " - email sent to ianscottewin@gmail.com\n";
+                    echo "$mesg<br>";
+                    $log .= "$mesg\n";
+                }
             }
         }
 

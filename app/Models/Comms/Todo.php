@@ -144,7 +144,7 @@ class Todo extends Model
             case 'super checklist signoff':
                 return "/supervisor/checklist/$this->type_id/weekly";
             case 'scaffold handover':
-                return "/site/scaffold/handover/create/$this->type_id";
+                return "/site/scaffold/handover/$this->type_id/edit";
             case 'extension':
                 return "/site/extension";
             case 'extension signoff':

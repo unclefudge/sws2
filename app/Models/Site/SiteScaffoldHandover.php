@@ -93,7 +93,7 @@ class SiteScaffoldHandover extends Model
      */
     public function closeToDo()
     {
-        $todos = Todo::where('type', 'scaffold handover')->where('type_id', $this->site_id)->where('status', '1')->get();
+        $todos = Todo::where('type', 'scaffold handover')->where('type_id', $this->id)->where('status', '1')->get();
         foreach ($todos as $todo) {
             $todo->status = 0;
             $todo->done_at = Carbon::now();

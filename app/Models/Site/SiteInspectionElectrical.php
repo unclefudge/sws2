@@ -166,7 +166,7 @@ class SiteInspectionElectrical extends Model
     /**
      * Create ToDoo for Electrical Report and assign to given user(s)
      */
-    public function createConstructionToDo($user_list)
+    public function createAssignCompanyToDo($user_list)
     {
         // Create ToDoo for Construction Manager to assign to company
         $todo_request = [

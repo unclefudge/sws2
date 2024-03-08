@@ -11,7 +11,7 @@
 
 
 @component('mail::button', ['url' => config('app.url').'/user/'.$user->id])
-View User
+     View User
 @endcomponent
 
 
