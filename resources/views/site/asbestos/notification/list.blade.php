@@ -27,6 +27,9 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-4">
+                            {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                        </div>
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
@@ -69,37 +72,42 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    var status1 = $('#status1').val();
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/asbestos/notification/dt/list') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status1').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            //{data: 'code', name: 's.code', orderable: false, searchable: false},
-            {data: 'sitename', name: 's.name', orderable: false, searchable: false},
-            {data: 'proposed_dates', name: 'proposed_dates', orderable: false, searchable: false},
-            {data: 'amount', name: 'amount', orderable: false, searchable: false},
-            {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
-            {data: 'updated_at', name: 'a.updated_at', orderable: false, searchable: false},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        var status1 = $('#status1').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/asbestos/notification/dt/list') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status1').val();
+                    d.supervisor = $('#supervisor').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                //{data: 'code', name: 's.code', orderable: false, searchable: false},
+                {data: 'sitename', name: 's.name', orderable: false, searchable: false},
+                {data: 'proposed_dates', name: 'proposed_dates', orderable: false, searchable: false},
+                {data: 'amount', name: 'amount', orderable: false, searchable: false},
+                {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
+                {data: 'updated_at', name: 'a.updated_at', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status1').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('select#status1').change(function () {
+            table1.ajax.reload();
+        });
+        $('select#supervisor').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

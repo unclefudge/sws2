@@ -311,7 +311,10 @@ class SiteAsbestosController extends Controller
      */
     public function getReports()
     {
-        $site_list = Auth::user()->authSites('view.site.asbestos')->pluck('id')->toArray();
+        $request_ids = (request('supervisor') == 'all') ? Auth::user()->company->sites()->pluck('id')->toArray() : Auth::user()->company->sites()->where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
+        //$site_records = Auth::user()->company->sites(request('status'))->whereIn('id', $request_ids);
+
+        $site_list = Auth::user()->authSites('view.site.asbestos')->whereIn('id', $request_ids)->pluck('id')->toArray();
         $records = DB::table('site_asbestos AS a')
             ->select(['a.id', 'a.site_id', 'a.amount', 'a.friable', 'a.type', 'a.amount', 'a.date_from', 'a.date_to', 'a.status', 'a.company_id', 'a.updated_at',
                 's.name as sitename', 's.code'])
