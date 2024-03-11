@@ -1327,7 +1327,7 @@ class Site extends Model
         if ($this->attributes['supervisor_id'])
             $string = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
 
-        return ($string) ? $string : '';
+        return $string;
     }
 
     /**
