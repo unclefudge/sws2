@@ -193,9 +193,6 @@ class CompanyDocReview extends Model
         $email_user = '';
 
         if (\App::environment('prod')) {
-            //$email_to = $this->site->company->notificationsUsersEmailType('site.qa');
-            //if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
-            //                $email_to[] = $this->site->supervisorEmail;
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
