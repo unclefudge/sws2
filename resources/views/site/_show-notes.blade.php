@@ -24,7 +24,7 @@
                         </div>
                         <div class="col-xs-9">
                             <small>
-                                {!! truncate(nl2br($note->notes, 50)) !!}<br>
+                                {!! truncate(nl2br($note->notes, 40)) !!}<br>
                                 @if ($note->category_id == '16')
                                     {{-- Approved Variation --}}
                                     <b>Approved Variation:</b> {{ $note->variation_name }}<br>
