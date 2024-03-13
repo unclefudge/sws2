@@ -164,14 +164,24 @@
                             None
                         @endif
 
-                        {{-- Attachments --}}
-                        {{--}}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Upload Attachments</h5>
-                                <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                            </div>
-                        </div>--}}
+
+                        {{-- Reply --}}
+                        @if ($note->extraNotes->count())
+                            <h5><b>Replies:</b></h5>
+                            <hr style="margin: 10px 0px; padding: 0px;">
+                            <table class="table table-striped table-bordered">
+                                <tr class="mytable-header text-bold">
+                                    <td>Date</td>
+                                    <td>Reply</td>
+                                </tr>
+                                @foreach ($note->extraNotes->sortByDesc('created_at') as $extra)
+                                    <tr>
+                                        <td>{{$extra->created_at->format('d/m/Y')}}</td>
+                                        <td>{!! nl2br($extra->notes) !!}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        @endif
 
 
                         <br><br>

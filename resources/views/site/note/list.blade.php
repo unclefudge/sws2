@@ -47,13 +47,14 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th style="width:5%"> #</th>
-                                <th style="width:7%"> Date</th>
+                                <th style="width:7%"> Updated</th>
                                 @if ($site_id == 'all')
                                     <th style="width:20%"> Site</th>
                                 @endif
                                 <th style="width:15%"> Category</th>
                                 <th> Note</th>
                                 <th style="width:15%"> Created by</th>
+                                <th style="width:7%"> Created at</th>
                                 @if (Auth::user()->hasPermission2("del.site.note"))
                                     <th style="width:5%"></th>
                                 @endif
@@ -122,7 +123,7 @@
             },
             columns: [
                 {data: 'id', name: 'site_notes.id', orderable: false, searchable: false},
-                {data: 'date_created', name: 'site_notes.created_at', searchable: false},
+                {data: 'date_updated', name: 'site_notes.updated_at', searchable: false},
                     @if ($site_id == 'all')
                 {
                     data: 'sitename', name: 'sites.name'
@@ -133,6 +134,7 @@
                 },
                 {data: 'notes', name: 'site_notes.notes', orderable: false},
                 {data: 'full_name', name: 'full_name', searchable: false, searchable: false,},
+                {data: 'date_created', name: 'site_notes.created_at', searchable: false},
                     @if (Auth::user()->hasPermission2("del.site.note"))
                 {
                     data: 'action', name: 'action', searchable: false, orderable: false

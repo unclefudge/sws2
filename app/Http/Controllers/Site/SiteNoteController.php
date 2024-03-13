@@ -297,9 +297,10 @@ class SiteNoteController extends Controller
         $site_list = (request('site_id') == 'all') ? Auth::user()->authSites('view.site.note')->pluck('id')->toArray() : [request('site_id')];
 
         $records = SiteNote::select([
-            'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.notes', 'site_notes.updated_at', 'site_notes.created_by', // 'sites.name',
+            'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.notes', 'site_notes.parent', 'site_notes.updated_at', 'site_notes.created_at', 'site_notes.created_by', // 'sites.name',
             'users.username', 'users.firstname', 'users.lastname', 'categories.name',
             DB::raw('DATE_FORMAT(site_notes.created_at, "%d/%m/%y") AS date_created'),
+            DB::raw('DATE_FORMAT(site_notes.updated_at, "%d/%m/%y") AS date_updated'),
             DB::raw('CONCAT(users.firstname, " ", users.lastname) AS full_name'),
             DB::raw('sites.name AS sitename')
         ])
@@ -307,6 +308,7 @@ class SiteNoteController extends Controller
             ->join('users', 'users.id', '=', 'site_notes.created_by')
             ->join('categories', 'categories.id', '=', 'site_notes.category_id')
             ->whereIn('site_notes.site_id', $site_list)
+            ->where('site_notes.parent', null)
             ->where('site_notes.status', 1);
 
         $dt = Datatables::of($records)

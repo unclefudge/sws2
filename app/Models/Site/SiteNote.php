@@ -45,6 +45,17 @@ class SiteNote extends Model
         return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
     }
 
+    // Extra Notes
+    public function extraNotes()
+    {
+        return $this->hasMany('App\Models\Site\SiteNote', 'parent');
+    }
+
+    public function parentNote()
+    {
+        return $this->belongsTo('App\Models\Site\SiteNote', 'parent');
+    }
+
     /**
      * A SiteNote belongs to a user
      *
