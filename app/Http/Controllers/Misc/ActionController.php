@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use Session;
-use App\Models\Misc\Action;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteAsbestos;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Company\CompanyDocReview;
-use App\Models\Company\Company;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Http\Requests;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Company\Company;
+use App\Models\Company\CompanyDocReview;
+use App\Models\Misc\Action;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Site\SiteAccident;
+use App\Models\Site\SiteAsbestos;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteQa;
+use DB;
+use Illuminate\Http\Request;
+use Mail;
+use Session;
 
 
 /**
  * Class ActionController
  * @package App\Http\Controllers
  */
-class ActionController extends Controller {
+class ActionController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -60,19 +60,49 @@ class ActionController extends Controller {
         if ($request->ajax()) {
             $action = Action::create($request->all());
             switch (request('table')) {
-                case 'site_accidents': $record = SiteAccident::find(request('table_id')); break;
-                case 'site_hazards': $record = SiteHazard::find(request('table_id')); break;
-                case 'site_asbestos': $record = SiteAsbestos::find(request('table_id')); break;
-                case 'site_qa': $record = SiteQa::find(request('table_id')); break;
-                case 'site_maintenance': $record = SiteMaintenance::find(request('table_id')); break;
-                case 'site_inspection_plumbing': $record = SiteInspectionPlumbing::find(request('table_id')); break;
-                case 'site_inspection_electrical': $record = SiteInspectionElectrical::find(request('table_id')); break;
-                case 'company_docs_review': $record = CompanyDocReview::find(request('table_id')); break;
-                case 'companys': $record = Company::find(request('table_id')); break;
-                case 'supervisor_checklist': $record = SuperChecklist::find(request('table_id')); break;
+                case 'site_accidents':
+                    $record = SiteAccident::find(request('table_id'));
+                    break;
+                case 'site_hazards':
+                    $record = SiteHazard::find(request('table_id'));
+                    break;
+                case 'site_asbestos':
+                    $record = SiteAsbestos::find(request('table_id'));
+                    break;
+                case 'site_qa':
+                    $record = SiteQa::find(request('table_id'));
+                    break;
+                case 'site_maintenance':
+                    $record = SiteMaintenance::find(request('table_id'));
+                    break;
+                case 'site_inspection_plumbing':
+                    $record = SiteInspectionPlumbing::find(request('table_id'));
+                    break;
+                case 'site_inspection_electrical':
+                    $record = SiteInspectionElectrical::find(request('table_id'));
+                    break;
+                case 'company_docs_review':
+                    $record = CompanyDocReview::find(request('table_id'));
+                    break;
+                case 'companys':
+                    $record = Company::find(request('table_id'));
+                    break;
+                case 'supervisor_checklist':
+                    $record = SuperChecklist::find(request('table_id'));
+                    break;
             }
             $record->touch();
             $record->emailAction($action);
+
+            $email_to = [env('EMAIL_DEV')];
+            // Email note
+            if (request('table') == 'site_maintenance') {
+                if ($record->super_id) {
+                    if (\App::environment('prod'))
+                        $email_to = ['kirstie@capecod.com.au'];
+                    Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceNote($record, $action));
+                }
+            }
 
             return response()->json($action);
         }

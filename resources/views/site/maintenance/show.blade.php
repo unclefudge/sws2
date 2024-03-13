@@ -1177,7 +1177,6 @@
                         fullname: this.xx.created_by_fullname,
                     };
 
-                    console.log(actiondata);
                     this.$http.post('/action', actiondata)
                         .then(function (response) {
                             toastr.success('Created new action ');
