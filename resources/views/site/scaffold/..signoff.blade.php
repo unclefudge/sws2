@@ -188,49 +188,47 @@
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
+        $(document).ready(function () {
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["jpg", "png", "gif", "jpeg"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
 
-    $(document).ready(function () {
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["jpg", "png", "gif", "jpeg"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
+            // On Click Review Sign Off
+            $("#signoff_button").click(function (e) {
+                e.preventDefault();
+                swal({
+                    title: "Confirm Sign Off",
+                    text: "I have reviewed and sign off on this Scaffold Handover Certificate.<br>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Sign Off",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $("#done_at").val(1);
+                    $('#form_signed').submit();
+                });
 
-        // On Click Review Sign Off
-        $("#signoff_button").click(function (e) {
-            e.preventDefault();
-            swal({
-                title: "Confirm Sign Off",
-                text: "I have reviewed and sign off on this Scaffold Handover Certificate.<br>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Sign Off",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $("#done_at").val(1);
-                $('#form_signed').submit();
             });
 
         });
-
-    });
-</script>
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    </script>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 

@@ -43,6 +43,7 @@ $duty_class = [
                             {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteScaffoldHandoverController@update', $report->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'form_signed']) !!}
                             <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
                             <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
+                            <input type="hidden" name="done_at" id="done_at" value="0">
 
                             @include('form-error')
 
@@ -105,9 +106,9 @@ $duty_class = [
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('info', $errors) !!}">
-                                        {!! Form::textarea("info", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                        {!! fieldErrorMessage('info', $errors) !!}
+                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
+                                        {!! Form::textarea("notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
+                                        {!! fieldErrorMessage('notes', $errors) !!}
                                     </div>
                                 </div>
                             </div>
@@ -186,7 +187,7 @@ $duty_class = [
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('inspector_name', $errors) !!}">
                                         {!! Form::label('inspector_name', 'Name of licensed scaffolder performing handover inspection', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspector_name', null, ['class' => 'form-control', 'required']) !!}
+                                        {!! Form::text('inspector_name', null, ['class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('inspector_name', $errors) !!}
                                     </div>
                                 </div>
@@ -194,7 +195,7 @@ $duty_class = [
                                     <div class="form-group {!! fieldHasError('handover_date', $errors) !!}">
                                         {!! Form::label('handover_date', 'Date & Time of Handover', ['class' => 'control-label']) !!}
                                         <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('handover_date', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
+                                            {!! Form::text('handover_date', ($report->handover_date) ? $report->handover_date->format('d F Y - H:i') : null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
                                             <span class="input-group-addon">
                                                 <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                             </span>
@@ -205,7 +206,6 @@ $duty_class = [
                             </div>
 
                             {{-- SingleFile Upload --}}
-                            {{--}}
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
@@ -214,13 +214,14 @@ $duty_class = [
                                         {!! fieldErrorMessage('singlefile', $errors) !!}
                                     </div>
                                 </div>
-                            </div>--}}
+                            </div>
 
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
                                 <a href="/site/scaffold/handover" class="btn default"> Back</a>
                                 @if(Auth::user()->allowed2('add.site.scaffold.handover'))
-                                    <button id="submit" type="submit" name="save" class="btn green"> Submit</button>
+                                    <button type="submit" name="save" class="btn green"> Save</button>
+                                    <button type="submit" name="save" class="btn red submitForm"> Sign Off</button>
                                 @endif
                             </div>
                             <br><br>
@@ -236,6 +237,7 @@ $duty_class = [
 
 
 @section('page-level-plugins-head')
+    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
@@ -243,7 +245,7 @@ $duty_class = [
 @stop
 
 @section('page-level-plugins')
-    {{--}}<script src="/js/libs/fileinput.min.js"></script>--}}
+    <script src="/js/libs/fileinput.min.js"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
@@ -271,7 +273,7 @@ $duty_class = [
             });
 
             // On Click Review Sign Off
-            $("#submit").click(function (e) {
+            $(".submitForm").click(function (e) {
                 e.preventDefault();
                 swal({
                     title: "Confirm Sign Off",
@@ -284,11 +286,10 @@ $duty_class = [
                     html: true,
                 }, function () {
                     $("#done_at").val(1);
-                    $('#form_signed').submit();
+                    $("#form_signed").submit();
                 });
 
             });
-
         });
     </script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>

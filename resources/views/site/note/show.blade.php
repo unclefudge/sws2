@@ -57,6 +57,12 @@
                                             {!! Form::text('costing_item', $note->costing_item, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_priority', 'Priority', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_priority', $note->costing_priority, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">

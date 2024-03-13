@@ -82,7 +82,6 @@ class SiteScaffoldHandoverController extends Controller
             return view('errors/404');
 
         if ($report->status == 1)
-            //return view('/site/scaffold/signoff', compact('report'));
             return view('/site/scaffold/edit', compact('report'));
         else
             return redirect('/site/scaffold/handover/' . $report->id);
@@ -127,26 +126,6 @@ class SiteScaffoldHandoverController extends Controller
         return redirect('/site/scaffold/handover/' . $report->id . '/edit');
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    /*
-    public function documents($id)
-    {
-        $report = SiteScaffoldHandover::findOrFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('add.site.scaffold.handover'))
-            return view('errors/404');
-
-        $report->status = 1;
-        $report->save();
-        Toastr::success("Updated Certificate");
-
-        return redirect('site/scaffold/handover/' . $report->id . '/edit');
-    } */
-
     /**
      * Update the specified resource in storage.
      *
@@ -160,8 +139,18 @@ class SiteScaffoldHandoverController extends Controller
         if (!Auth::user()->allowed2('edit.site.scaffold.handover', $report))
             return view('errors/404');
 
-        $rules = ['inspector_name' => 'required', 'handover_date' => 'required', 'singlefile' => 'required'];
-        $mesg = ['client_name.required' => 'The name field is required.',
+
+        $rules = ['site_id' => 'required', 'location' => 'required', 'use' => 'required', 'duty' => 'required', 'decks' => 'required'];
+        if (request('done_at')) {
+            $rules = $rules + ['inspector_name' => 'required', 'handover_date' => 'required', 'singlefile' => 'required'];
+        }
+        $mesg = [
+            'site_id.required' => 'The site field is required.',
+            'location.required' => 'The location field is required.',
+            'use.required' => 'The intended use field is required.',
+            'duty.required' => 'The duty classification field is required.',
+            'decks.required' => 'The no. of decks field is required.',
+            'client_name.required' => 'The name field is required.',
             'handover_date.required' => 'The date/time field is required.',
             'singlefile.required' => 'The licence field is required.'];
 
@@ -171,17 +160,28 @@ class SiteScaffoldHandoverController extends Controller
         //dd(request()->all());
 
         // Format date from datetime picker to mysql format
-        $handover_date = new Carbon (preg_replace('/-/', '', request('inspected_at')));
-        $report_request['handover_date'] = $handover_date->toDateTimeString();
-        $report_request['signed_by'] = Auth::user()->id;
-        $report_request['signed_at'] = Carbon::now()->toDateTimeString();
-        $report_request['status'] = 0;
+        if (request('handover_date')) {
+            $handover_date = new Carbon (preg_replace('/-/', '', request('handover_date')));
+            $report_request['handover_date'] = $handover_date->toDateTimeString();
+        }
+        if (request('done_at')) {
+            $report_request['signed_by'] = Auth::user()->id;
+            $report_request['signed_at'] = Carbon::now()->toDateTimeString();
+            $report_request['status'] = 0;
+        }
 
         //dd($report_request);
         $report->update($report_request);
         $report->closeToDo();
 
-        // Handle attached file
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename)
+                $report->saveAttachment($tmp_filename);
+        }
+
+        // Handle attached file license
         if (request()->hasFile('singlefile')) {
             $file = request()->file('singlefile');
 
@@ -200,44 +200,6 @@ class SiteScaffoldHandoverController extends Controller
         return redirect('site/scaffold/handover');
     }
 
-
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function uploadAttachment()
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.scaffold.handover') || Auth::user()->allowed2('edit.site.scaffold.handover', $report)))
-        //    return json_encode("failed");
-
-        //dd(request()->all());
-        // Handle file upload
-        $files = request()->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . request('site_id') . '/scaffold';
-            $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = request('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-
-            $doc_request['scaffold_id'] = request('report_id');
-            $doc_request['category'] = request('category');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['attachment'] = $name;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteScaffoldHandoverDoc
-            $doc = SiteScaffoldHandoverDoc::create($doc_request);
-        }
-
-        return json_encode("success");
-    } */
 
     /**
      * Generate PDF report

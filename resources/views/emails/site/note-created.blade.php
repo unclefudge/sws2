@@ -14,6 +14,7 @@ A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "
 @if ($note->category_id == '15')
 Credit/Extra: {{ $note->costing_extra_credit }}<br>
 New item/In Lie of: {{ $note->costing_item }}<br>
+Priority: {{ $note->costing_priority }}<br>
 Room: {{ $note->costing_room }}<br>
 Location: {{ $note->costing_location }}<br>
 Description:<br>

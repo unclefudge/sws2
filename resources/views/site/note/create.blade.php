@@ -102,6 +102,13 @@
                                             {!! fieldErrorMessage('costing_item', $errors) !!}
                                         </div>
                                     </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('costing_priority', $errors) !!}">
+                                            {!! Form::label('costing_priority', 'Priority', ['class' => 'control-label']) !!}
+                                            {!! Form::select('costing_priority', ['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
+                                            {!! fieldErrorMessage('costing_priority', $errors) !!}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
