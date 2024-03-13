@@ -24,11 +24,12 @@
                         </div>
                         <div class="col-xs-9">
                             <small>
-                                {!! nl2br($note->notes) !!}<br>
-                                @if ($note->category_id == '16') {{-- Approved Variation --}}
+                                {!! truncate(nl2br($note->notes)) !!}<br>
+                                @if ($note->category_id == '16')
+                                    {{-- Approved Variation --}}
                                     <b>Approved Variation:</b> {{ $note->variation_name }}<br>
-                                {{ $note->variation_info }}<br>
-                                Cost: {{ $note->variation_cost }} &nbsp: Days: {{ $note->variation_days }}
+                                    {{ $note->variation_info }}<br>
+                                    Cost: {{ $note->variation_cost }} &nbsp: Days: {{ $note->variation_days }}
                                 @endif
                                 <br>- {{ $note->createdBy->name  }}<br>
                                 @if ($note->attachments()->count())
