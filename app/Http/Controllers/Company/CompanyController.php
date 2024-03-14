@@ -194,7 +194,8 @@ class CompanyController extends Controller
             return view('errors/404');
 
         // Validate
-        $validator = Validator::make(request()->all(), [
+
+        $rules = [
             'name' => 'required',
             'phone' => 'required',
             'email' => 'required|email|max:255',
@@ -202,8 +203,12 @@ class CompanyController extends Controller
             'suburb' => 'required',
             'state' => 'required',
             'postcode' => 'required',
-            'primary_user' => 'required',
-        ]);
+        ];
+
+        if (count($company->staff))
+            $rules = $rules + ['primary_user' => 'required'];
+
+        $validator = Validator::make(request()->all(), $rules);
 
         if ($validator->fails()) {
             $validator->errors()->add('FORM', 'company');

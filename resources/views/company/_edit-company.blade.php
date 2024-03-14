@@ -110,7 +110,7 @@
                 <div class="form-group {!! fieldHasError('primary_user', $errors) !!}">
                     {!! Form::label('primary_user', 'Primary Contact:', ['class' => 'col-md-3 control-label']) !!}
                     <div class="col-md-9">
-                        {!! Form::select('primary_user', $company->usersSelect('prompt'),null, ['class' => 'form-control bs-select', 'required']) !!}
+                        {!! Form::select('primary_user', $company->usersSelect('prompt'),null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('primary_user', $errors) !!}
                     </div>
                 </div>
