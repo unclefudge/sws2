@@ -95,7 +95,7 @@ class SiteInspectionPlumbingController extends Controller
                 $report->saveAttachment($tmp_filename);
         }
 
-        // Create Tdodoo to assign a company
+        // Create Todoo to assign a company
         $report->createAssignCompanyToDo(108);
 
         Toastr::success("Created inspection report");

@@ -387,7 +387,7 @@ class CronReportController extends Controller
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        $mains = SiteAsbestos::where('status', 1)->orderBy('created_at', DESC)->get();
+        $mains = SiteAsbestos::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
 
         echo "Requests Under Review: " . $mains->count() . "<br>";
