@@ -387,25 +387,14 @@ class CronReportController extends Controller
         $cc = Company::find(3);
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        $mains = SiteAsbestos::where('status', 1)->orderBy('created_at')->get();
+        $abs = SiteAsbestos::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
 
-        echo "Requests Under Review: " . $mains->count() . "<br>";
-        $log .= "Requests Under Review: " . $mains->count() . "\n";
+        echo "Active Notifications: " . $abs->count() . "<br>";
+        $log .= "Active Notifications: " . $abs->count() . "\n";
 
-        if ($mains->count()) {
-            // Create PDF
-            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
-            //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
-            //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
-            $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
-            $pdf->save($file);
-
-            CronController::debugEmail('EL', $email_list);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+        if ($abs->count()) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteAsbestosActiveReport($abs));
 
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails";
