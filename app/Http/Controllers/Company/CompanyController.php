@@ -205,7 +205,7 @@ class CompanyController extends Controller
             'postcode' => 'required',
         ];
 
-        if (count($company->staff))
+        if (count($company->staffStatus(1)))
             $rules = $rules + ['primary_user' => 'required'];
 
         $validator = Validator::make(request()->all(), $rules);
