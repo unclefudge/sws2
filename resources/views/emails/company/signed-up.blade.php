@@ -10,7 +10,7 @@
 | **Phone**  | {{ $company->phone  }} |
 | **Email**  | {{ $company->email  }} |
 | **Address**  | {{ $company->address  }} {{ $company->SuburbStatePostcode }} |
-| **Primary Contact**  | {{ $company->primary_contact()->fullname  }} @if ($company->phone) ({{ $company->phone  }}) @endif |
+| **Primary Contact**  | {{ ($company->primary_contact()) ? $company->primary_contact()->fullname : 'none' }} @if ($company->phone) ({{ $company->phone  }}) @endif |
 | **Created By** | {{ $company->createdBy->name  }} |
 
 ----

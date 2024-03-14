@@ -10,7 +10,7 @@
 | **Phone**  | {{ $company->phone  }} |
 | **Email**  | {{ $company->email  }} |
 | **Address**  | {{ $company->address  }} {{ $company->SuburbStatePostcode }} |
-| **Primary Contact**  | {{ $company->primary_contact()->fullname  }} @if ($company->primary_contact() && $company->primary_contact()->phone) ({{ $company->primary_contact()->phone  }}) @endif |
+| **Primary Contact**  | {{ ($company->primary_contact()) ? $company->primary_contact()->fullname : 'none' }} @if ($company->primary_contact() && $company->primary_contact()->phone) ({{ $company->primary_contact()->phone  }}) @endif |
 | **Secondary Contact**  | {{ ($company->secondary_contact()) ? $company->secondary_contact()->fullname : 'none' }} @if ($company->secondary_contact() && $company->secondary_contact()->phone) ({{ $company->secondary_contact()->phone  }})@endif |
 | **Updated By** | {{ $company->updatedBy->name  }} |
 

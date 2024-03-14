@@ -8,6 +8,7 @@ use App\Models\Company\Company;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Site\Site;
+use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
@@ -40,6 +41,7 @@ class CronReportController extends Controller
             CronReportController::emailMaintenanceAppointment();
             CronReportController::emailMaintenanceUnderReview();
             CronReportController::emailMissingCompanyInfo();
+            CronReportController::emailActiveAsbestos();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -370,6 +372,52 @@ class CronReportController extends Controller
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    /*
+    * Email Active Asbestos
+    */
+    static public function emailActiveAsbestos()
+    {
+        $log = '';
+        $func_name = "Active Asbestos";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+        $mains = SiteAsbestos::where('status', 1)->orderBy('created_at', DESC)->get();
+        $today = Carbon::now();
+
+        echo "Requests Under Review: " . $mains->count() . "<br>";
+        $log .= "Requests Under Review: " . $mains->count() . "\n";
+
+        if ($mains->count()) {
+            // Create PDF
+            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
+
+            //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
+            //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
+            $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
+            $pdf->save($file);
+
+            CronController::debugEmail('EL', $email_list);
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 
     /*
    * Email Fortnightly Reports
