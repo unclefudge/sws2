@@ -581,7 +581,7 @@ $rec = $user;
                             <tr>
                                 <td>Inspection Reports (Electrical/Plumbing)<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                 <td width="15%">{!! permSelect('view.site.inspection', 'super.plan', $rec, $cid, $dis) !!}</td>
-                                <td width="15%">{!! permSelect('edit.site.inspection', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.inspection', 'super.plan', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('add.site.inspection', 'add', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('del.site.inspection', 'res', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('sig.site.inspection', 'sig', $rec, $cid, $dis) !!}</td>
