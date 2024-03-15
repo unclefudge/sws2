@@ -345,36 +345,6 @@ class CompanyController extends Controller
         return redirect("company/$company->id");
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-    public function updateWHS($id)
-    {
-        $company = Company::findorFail($id);
-
-        /// Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.company.whs', $company))
-            return view('errors/404');
-
-
-        // Validate
-        $validator = Validator::make(request()->all(), ['lic_override' => 'required_if:lic_override_tog,1'], ['lic_override.required_if' => 'The reason field is required.']);
-        if ($validator->fails()) {
-            $validator->errors()->add('FORM', 'whs');
-            Toastr::error("Failed to save changes");
-
-            return back()->withErrors($validator)->withInput();
-        }
-
-        //dd(request()->all());
-        $company->update(request()->all());
-        Toastr::success("Saved changes");
-
-        return back();
-    }*/
 
     /**
      * Update the specified resource in storage.

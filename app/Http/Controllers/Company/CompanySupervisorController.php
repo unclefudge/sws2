@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Company;
 
+use App\Http\Controllers\Controller;
+use App\Models\Company\Company;
+use App\Models\Company\CompanySupervisor;
+use App\User;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Validator;
 
-use DB;
-use App\Models\Company\CompanySupervisor;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
-
-class CompanySupervisorController extends Controller {
+class CompanySupervisorController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -53,7 +53,29 @@ class CompanySupervisorController extends Controller {
             return view('errors/404');
 
         if ($request->ajax()) {
-            return CompanySupervisor::create($request->all());
+            CompanySupervisor::create($request->all());
+
+            // Ensure each Supervisor has a CC company
+            if (request('company_id') == 3) {
+                $user = User::find(request('user_id'));
+                list($first, $last) = explode(' ', $user->fullname, 2);
+                $company_name = "Cc-" . strtolower($first) . " $last";
+                $exists = Company::where('name', $company_name)->first();
+                if ($exists) {
+                    if ($exists->status == 0) {
+                        $exists->status = 1;
+                        $exists->save();
+                    }
+                } else {
+                    $company = Company::create(
+                        ['name' => $company_name, 'email' => $user->email, 'phone' => $user->phone, 'address' => $user->company->address, 'suburb' => $user->company->suburb,
+                            'state' => $user->company->state, 'postcode' => $user->company->postcode, 'abn' => $user->company->abn, 'maxjobs' => 50,
+                            'gst' => 0, 'payroll_tax' => 0, 'category' => 0, 'approved_by' => 1, 'approved_at' => Carbon::now()->toDateTimeString(),
+                            'notes' => 'Working under Cape Cods Safe Work Method Statement', 'parent_company' => 3, 'status' => 1]);
+                    $company->tradesSkilledIn()->sync([31]);
+                }
+            }
+            return json_encode('success');
         }
 
         return view('errors/404');
@@ -66,13 +88,30 @@ class CompanySupervisorController extends Controller {
      */
     public function destroy($id)
     {
-        $super = CompanySupervisor::find($id);
+        $record = CompanySupervisor::find($id);
+        $user = User::find($record->user_id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.area.super', $super))
+        if (!Auth::user()->allowed2('edit.area.super', $user))
             return view('errors/404');
 
-        $super = CompanySupervisor::where('id', $id)->orWhere('parent_id', $id)->delete();
+        $deleted = CompanySupervisor::where('id', $id)->orWhere('parent_id', $id)->delete();
+
+        // Deactivate CC company if required
+        if ($user->company_id == 3) {
+            $active = CompanySupervisor::where('user_id', $user->id)->first();
+            if (!$active) {
+                list($first, $last) = explode(' ', $user->fullname, 2);
+                $company_name = "Cc-" . strtolower($first) . " $last";
+                $exists = Company::where('name', $company_name)->first();
+                if ($exists) {
+                    if ($exists->status == 1) {
+                        $exists->status = 0;
+                        $exists->save();
+                    }
+                }
+            }
+        }
         return json_encode('success');
     }
 
