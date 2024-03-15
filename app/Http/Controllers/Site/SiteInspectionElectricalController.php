@@ -38,8 +38,13 @@ class SiteInspectionElectricalController extends Controller
 
         $non_assigned = SiteInspectionElectrical::Where('assigned_to', null)->get();
         $pending = SiteInspectionElectrical::where('status', 3)->get();
+        $assignedList = ['all' => 'All sites'];
+        foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company) {
+            if (in_array('4', $company->tradesSkilledIn->pluck('id')->toArray()))
+                $assignedList[$company->id] = $company->name;
+        }
 
-        return view('site/inspection/electrical/list', compact('non_assigned', 'pending'));
+        return view('site/inspection/electrical/list', compact('non_assigned', 'pending', 'assignedList'));
     }
 
     /**
@@ -438,6 +443,10 @@ class SiteInspectionElectricalController extends Controller
         else
             $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
 
+        $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        if (request('assigned_to') != 'all')
+            $assigned = [request('assigned_to')];
+
 
         $inspect_records = SiteInspectionElectrical::select([
             'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.inspected_name', 'site_inspection_electrical.inspected_by',
@@ -451,7 +460,8 @@ class SiteInspectionElectricalController extends Controller
         ])
             ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')
             ->where('site_inspection_electrical.status', '=', request('status'))
-            ->where('site_inspection_electrical.assigned_to', '<>', null)
+            //->where('site_inspection_electrical.assigned_to', '<>', null)
+            ->whereIn('site_inspection_electrical.assigned_to', $assigned)
             ->whereIn('site_inspection_electrical.id', $inpect_ids);
 
         $dt = Datatables::of($inspect_records)

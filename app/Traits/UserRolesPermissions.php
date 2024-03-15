@@ -854,9 +854,9 @@ trait UserRolesPermissions
 
             // Site Inspection Reports (Electrical/Plumbing)
             if ($permissiontype == 'site.inspection') {
-                if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && $record->assigned_to == $this->company_id) return true; // Request is Assigned to user's company
+                if ($this->permissionLevel($permission, 3) == 30 && $record->assigned_to == $this->company_id) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
-                if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
+                //if ($this->authSites($permission)->contains('id', $record->site_id)) return true;
 
                 return false;
             }

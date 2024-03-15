@@ -39,8 +39,13 @@ class SiteInspectionPlumbingController extends Controller
         $non_assigned = SiteInspectionPlumbing::Where('assigned_to', null)->get();
         $pending = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->get();
         $client_not_sent = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+        $assignedList = ['all' => 'All sites'];
+        foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company) {
+            if (in_array('8', $company->tradesSkilledIn->pluck('id')->toArray()))
+                $assignedList[$company->id] = $company->name;
+        }
 
-        return view('site/inspection/plumbing/list', compact('non_assigned', 'pending', 'client_not_sent'));
+        return view('site/inspection/plumbing/list', compact('non_assigned', 'pending', 'client_not_sent', 'assignedList'));
     }
 
     /**
@@ -462,6 +467,10 @@ class SiteInspectionPlumbingController extends Controller
         else
             $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
 
+        $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        if (request('assigned_to') != 'all')
+            $assigned = [request('assigned_to')];
+
         $inspect_records = SiteInspectionPlumbing::select([
             'site_inspection_plumbing.id', 'site_inspection_plumbing.site_id', 'site_inspection_plumbing.inspected_name', 'site_inspection_plumbing.inspected_by',
             'site_inspection_plumbing.inspected_at', 'site_inspection_plumbing.created_at', 'site_inspection_plumbing.assigned_at', 'site_inspection_plumbing.client_contacted',
@@ -474,7 +483,7 @@ class SiteInspectionPlumbingController extends Controller
         ])
             ->join('sites', 'site_inspection_plumbing.site_id', '=', 'sites.id')
             ->where('site_inspection_plumbing.status', '=', request('status'))
-            ->where('site_inspection_plumbing.assigned_to', '<>', null)
+            ->whereIn('site_inspection_plumbing.assigned_to', $assigned)
             ->whereIn('site_inspection_plumbing.id', $inpect_ids);
 
         $dt = Datatables::of($inspect_records)

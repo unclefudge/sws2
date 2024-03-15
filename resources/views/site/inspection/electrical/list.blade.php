@@ -7,11 +7,11 @@
         @endif
         <li><span>Electrical Inspection Reports</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         {{-- To Be Assigned --}}
         @if (Auth::user()->isCC() && $non_assigned->count())
@@ -123,7 +123,16 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-2 pull-right">
+                        @if(Auth::user()->isCC())
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {!! Form::select('assigned_to', $assignedList, 'all', ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                                </div>
+                            </div>
+                        @else
+                            <input type="hidden" id="assigned_to" value="{{Auth::user()->company_id}}">
+                        @endif
+                        <div class=" col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status" id="status" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
@@ -168,107 +177,113 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-
-        var status = $('#status').val();
-
-        var table1 = $('#table1').DataTable({
-            pageLength: 100,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                'url': '{!! url('site/inspection/electrical/dt/list') !!}',
-                'type': 'GET',
-                'data': function (d) {
-                    d.status = $('#status').val();
-                }
-            },
-            columns: [
-                {data: 'view', name: 'view', orderable: false, searchable: false},
-                {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
-                {data: 'sitename', name: 'sites.name'},
-                {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
-                {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
-                {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
-                {data: 'inspected_date', name: 'site_inspection_electrical.inspected_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ],
-            order: [
-                [2, "desc"]
-            ]
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $('select#status').change(function () {
-            table1.ajax.reload();
-        });
+        $(document).ready(function () {
 
-        // Warning message for deleting report
-        $('.delete-report').click(function (e) {
-            e.preventDefault();
-            var url = "/site/inspection/electrical/" + $(this).data('id');
-            var name = $(this).data('name');
+            var status = $('#status').val();
 
-            swal({
-                title: "Are you sure?",
-                text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted report');
-                    },
-                }).always(function (data) {
-                    location.reload();
+            var table1 = $('#table1').DataTable({
+                pageLength: 100,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    'url': '{!! url('site/inspection/electrical/dt/list') !!}',
+                    'type': 'GET',
+                    'data': function (d) {
+                        d.status = $('#status').val();
+                        d.assigned_to = $('#assigned_to').val();
+                    }
+                },
+                columns: [
+                    {data: 'view', name: 'view', orderable: false, searchable: false},
+                    {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
+                    {data: 'sitename', name: 'sites.name'},
+                    {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
+                    {data: 'assigned_to', name: 'assigned_to', orderable: false, searchable: false},
+                    {data: 'client_date', name: 'site_inspection_electrical.client_contacted'},
+                    {data: 'inspected_date', name: 'site_inspection_electrical.inspected_at'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ],
+                order: [
+                    [2, "desc"]
+                ]
+            });
+
+            $('select#status').change(function () {
+                table1.ajax.reload();
+            });
+
+            $('select#assigned_to').change(function () {
+                table1.ajax.reload();
+            });
+
+            // Warning message for deleting report
+            $('.delete-report').click(function (e) {
+                e.preventDefault();
+                var url = "/site/inspection/electrical/" + $(this).data('id');
+                var name = $(this).data('name');
+
+                swal({
+                    title: "Are you sure?",
+                    text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {method: '_DELETE', submit: true},
+                        success: function (data) {
+                            toastr.error('Deleted report');
+                        },
+                    }).always(function (data) {
+                        location.reload();
+                    });
                 });
             });
-        });
 
-        table1.on('click', '.btn-delete[data-id]', function (e) {
-            e.preventDefault();
-            var url = "/site/inspection/electrical/" + $(this).data('id');
-            var name = $(this).data('name');
+            table1.on('click', '.btn-delete[data-id]', function (e) {
+                e.preventDefault();
+                var url = "/site/inspection/electrical/" + $(this).data('id');
+                var name = $(this).data('name');
 
-            swal({
-                title: "Are you sure?",
-                text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted report');
-                    },
-                }).always(function (data) {
-                    location.reload();
+                swal({
+                    title: "Are you sure?",
+                    text: "The report <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {method: '_DELETE', submit: true},
+                        success: function (data) {
+                            toastr.error('Deleted report');
+                        },
+                    }).always(function (data) {
+                        location.reload();
+                    });
                 });
             });
+
         });
 
-    });
 
-
-</script>
+    </script>
 @stop
