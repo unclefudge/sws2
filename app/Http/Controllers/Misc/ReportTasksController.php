@@ -191,8 +191,8 @@ class ReportTasksController extends Controller
         $sel_assigned_types[] = ['value' => 'maintenance', 'text' => 'Site Maintenance'];
         $sel_assigned_types[] = ['value' => 'inspection', 'text' => 'Site Inspection (Plumbing/Electrical)'];
         $sel_assigned_types[] = ['value' => 'super', 'text' => 'Supervisor Checklist'];
-        //$sel_assigned_types[] = ['value' => 'supervisor', 'text' => 'Supervisor Checkin'];
-        //$sel_assigned_types[] = ['value' => 'scaffold handover', 'text' => 'Scaffold Handover'];
+        $sel_assigned_types[] = ['value' => 'supervisor', 'text' => 'Supervisor Checkin'];
+        $sel_assigned_types[] = ['value' => 'scaffold handover', 'text' => 'Scaffold Handover'];
         $sel_assigned_types[] = ['value' => 'project supply', 'text' => 'Project Supply Information'];
         $sel_assigned_types[] = ['value' => 'qa', 'text' => 'Quality Assurance'];
         $sel_assigned_types[] = ['value' => 'extension', 'text' => 'Contract Time Extensions'];

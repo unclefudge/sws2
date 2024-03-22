@@ -161,17 +161,34 @@
 
                             {{-- Items --}}
                             <div id="items-div">
-                                <h4>Maintenance Item</h4>
+                                <h4>Maintenance Item(s)</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    {{-- Item Details  --}}
-                                    <div class="col-md-12 ">
-                                        <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                            {!! Form::label('item1', 'Item details', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea("item1", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request."]) !!}
-                                            {!! fieldErrorMessage('item1', $errors) !!}
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <div class="row">
+                                        <div class="col-xs-1 ">Item {{$i}}</div>
+                                        <div class="col-xs-11 ">
+                                            <div class="form-group {!! fieldHasError('item1', $errors) !!}">
+                                                {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
+                                                {!! fieldErrorMessage('item1', $errors) !!}
+                                            </div>
                                         </div>
                                     </div>
+                                @endfor
+
+                                {{-- Extra Items --}}
+                                <button class="btn blue" id="more">More Items</button>
+                                <div id="more_items" style="display: none">
+                                    @for ($i = 6; $i <= 20; $i++)
+                                        <div class="row">
+                                            <div class="col-xs-1 ">Item {{$i}}</div>
+                                            <div class="col-xs-11 ">
+                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
+                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
+                                                    {!! fieldErrorMessage('item1', $errors) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
                                 </div>
                             </div>
                         </div>
@@ -221,6 +238,12 @@
             // On Change Site ID
             $("#site_id").change(function () {
                 updateFields();
+            });
+
+            $("#more").click(function (e) {
+                e.preventDefault();
+                $('#more').hide();
+                $('#more_items').show();
             });
 
 

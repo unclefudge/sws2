@@ -2,27 +2,24 @@
 
 namespace App\Http\Controllers\Site\Incident;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentWitness;
-use App\Models\Comms\Todo;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
 
 /**
  * Class SiteIncidentWitnessController
  * @package App\Http\Controllers
  */
-class SiteIncidentWitnessController extends Controller {
+class SiteIncidentWitnessController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -83,10 +80,10 @@ class SiteIncidentWitnessController extends Controller {
 
         $rules = ['name' => 'required', 'event_before' => 'required_if:assign_task,0', 'event' => 'required_if:assign_task,0', 'event_after' => 'required_if:assign_task,0'];
         $mesg = [
-            'name.required'            => 'The name field is required.',
+            'name.required' => 'The name field is required.',
             'event_before_if.required' => 'The events leading up field is required.',
-            'event.required_if'        => 'The describe incident field is required.',
-            'event_after_if.required'  => 'The what happened after field is required.',
+            'event.required_if' => 'The describe incident field is required.',
+            'event_after_if.required' => 'The what happened after field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -127,10 +124,10 @@ class SiteIncidentWitnessController extends Controller {
 
         $rules = ['name' => 'required', 'event_before' => 'required', 'event' => 'required', 'event_after' => 'required'];
         $mesg = [
-            'name.required'         => 'The name field is required.',
+            'name.required' => 'The name field is required.',
             'event_before.required' => 'The events leading up field is required.',
-            'event.required'        => 'The describe incident field is required.',
-            'event_after.required'  => 'The what happened after field is required.',
+            'event.required' => 'The describe incident field is required.',
+            'event_after.required' => 'The what happened after field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -171,6 +168,9 @@ class SiteIncidentWitnessController extends Controller {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2("del.site.incident", $incident))
             return json_encode("failed");
+
+        // Delete any Todoo
+        $todo = Todo::where('type', 'incident witness')->where('type_id', $witness->id)->delete();
 
         $witness->delete();
 
