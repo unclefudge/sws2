@@ -19,6 +19,7 @@ use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
+use App\Models\Site\SiteScaffoldHandover;
 use App\Models\User\UserDoc;
 use Carbon\Carbon;
 use DB;
@@ -270,7 +271,7 @@ class ReportTasksController extends Controller
         if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'super checklist') return SuperChecklist::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'supervisor') return null;
-        if ($task_type == 'scaffold handover') null;
+        if ($task_type == 'scaffold handover') SiteScaffoldHandover::where('id', $type_id)->whereIn('status', $status)->first();;
         if ($task_type == 'project supply') return SiteProjectSupply::where('id', $type_id)->whereIn('status', $status)->first();
         if (in_array($task_type, ['extension', 'extension signoff'])) return SiteExtension::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'equipment') return EquipmentLocation::where('id', $type_id)->whereIn('status', $status)->first();
