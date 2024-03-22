@@ -126,6 +126,9 @@ class ReportTasksController extends Controller
             $rec = $this->todoRecord($task, $status_options);
             if (!$rec) continue;
 
+            if (in_array($task->id, ['44426', '44607', '44913']))
+                ray($task->name);
+
             $info .= $this->todoNotes($rec, $task);
 
             // Rename some Site Titles
@@ -144,6 +147,7 @@ class ReportTasksController extends Controller
                     $lastupdated_human = $last_action->updated_at->diffForHumans();
                 }
             }
+
 
             $array = [
                 'id' => $task->id,
@@ -243,6 +247,7 @@ class ReportTasksController extends Controller
         $json[] = $sel_user_ext;
         $json[] = $sel_user_all;
 
+        //dd($tasks);
         return $json;
     }
 
@@ -271,7 +276,7 @@ class ReportTasksController extends Controller
         if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'super checklist') return SuperChecklist::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'supervisor') return null;
-        if ($task_type == 'scaffold handover') SiteScaffoldHandover::where('id', $type_id)->whereIn('status', $status)->first();;
+        if ($task_type == 'scaffold handover') return SiteScaffoldHandover::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'project supply') return SiteProjectSupply::where('id', $type_id)->whereIn('status', $status)->first();
         if (in_array($task_type, ['extension', 'extension signoff'])) return SiteExtension::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'equipment') return EquipmentLocation::where('id', $type_id)->whereIn('status', $status)->first();
