@@ -999,23 +999,58 @@ class CronReportController extends Controller
         echo "Active Electrical: " . $electrical->count() . "<br>";
         $log .= "Active Electrical: " . $electrical->count() . "\n";
         if ($electrical->count()) {
-            CronController::debugEmail('EL', $email_list);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $electrical, 'Electrical'));
-            echo "Sending email to: $emails<br>";
-            $log .= "Sending email to: $emails\n";
+            $assignedTo = [];
+            foreach ($electrical as $report) {
+                if (isset($assignedTo[$report->assigned_to]))
+                    $assignedTo[$report->assigned_to][] = $report->id;
+                else
+                    $assignedTo[$report->assigned_to] = [$report->id];
+            }
+            foreach ($assignedTo as $cid => $ids) {
+                $electrical = SiteInspectionElectrical::whereIn('id', $ids)->get();
+                $company = Company::find($cid);
+
+                if (\App::environment('prod') && $company && validEmail($company->email)) {
+                    Mail::to($company->email)->cc($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
+                    echo "Sending email to: $company->email<br>";
+                    $log .= "Sending email to: $company->email\n";
+                } else
+                    Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
+
+                echo "Sending email to: $emails<br>";
+                $log .= "Sending email to: $emails\n";
+            }
         }
 
         // Plumbing
         echo "Active Plumbing: " . $plumbing->count() . "<br>";
         $log .= "Active Plumbing: " . $plumbing->count() . "\n";
         if ($plumbing->count()) {
-            CronController::debugEmail('EL', $email_list);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
-            echo "Sending email to: $emails<br>";
-            $log .= "Sending email to: $emails\n";
+            $assignedTo = [];
+            foreach ($plumbing as $report) {
+                if (isset($assignedTo[$report->assigned_to]))
+                    $assignedTo[$report->assigned_to][] = $report->id;
+                else
+                    $assignedTo[$report->assigned_to] = [$report->id];
+            }
+            foreach ($assignedTo as $cid => $ids) {
+                $plumbing = SiteInspectionPlumbing::whereIn('id', $ids)->get();
+                $company = Company::find($cid);
+
+                if (\App::environment('prod') && $company && validEmail($company->email)) {
+                    Mail::to($company->email)->cc($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+                    echo "Sending email to: $company->email<br>";
+                    $log .= "Sending email to: $company->email\n";
+                } else
+                    Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+
+                echo "Sending email to: $emails<br>";
+                $log .= "Sending email to: $emails\n";
+            }
         }
 
         // Inspections 8 weeks over
+        /*
         echo "<br>Inspections Over 8 weeks<br>";
         $log .= "\nInspections Over 8 weeks\n";
         $overdue_date = Carbon::now()->subWeek(8);
@@ -1046,6 +1081,7 @@ class CronReportController extends Controller
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
         }
+        */
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
