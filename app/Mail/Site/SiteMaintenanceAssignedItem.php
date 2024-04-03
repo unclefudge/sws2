@@ -2,27 +2,27 @@
 
 namespace App\Mail\Site;
 
-use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceItem;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SiteMaintenanceAssigned extends Mailable implements ShouldQueue
+class SiteMaintenanceAssignedItem extends Mailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
 
-    public $main;
+    public $item;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteMaintenance $main)
+    public function __construct(SiteMaintenanceItem $item)
     {
-        $this->main = $main;
+        $this->item = $item;
     }
 
     /**
@@ -32,6 +32,6 @@ class SiteMaintenanceAssigned extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->markdown('emails/site/maintenance-assigned')->subject('SafeWorksite - Maintenance Request Notification');
+        return $this->markdown('emails/site/maintenance-assigned-item')->subject('SafeWorksite - Maintenance Request Notification');
     }
 }

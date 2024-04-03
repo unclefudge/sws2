@@ -8,21 +8,16 @@
 
 # Maintenance Request Notification
 
-A maintenance request has been assigned for {{ $item->maintenance->site->name }}.
+A maintenance request has been assigned for {{ $main->site->name }}.
 
 |                       |        |
 | ---------------------:|--------|
-| **ID**  | {{ $item->maintenance->code  }} |
-| **Site Name**  | {{ $item->maintenance->site->name  }} |
-| **Site Address**  | {{ $item->maintenance->site->address }}, {{ $item->maintenance->site->SuburbStatePostcode }} |
-| **Assigned to**  | {{ ($item->assigned_to) ? $item->assigned->name : 'N/A' }} |
-@if ($item->planner_id)
-| **Task Date**  | {{ ($item->planner) ? $item->planner->from->format('d/m/Y') : '' }} |
-@endif
+| **ID**  | {{ $main->code  }} |
+| **Site Name**  | {{ $main->site->name  }} |
+| **Site Address**  | {{ $main->site->address }}, {{ $main->site->SuburbStatePostcode }} |
+| **Assigned to**  | {{ ($main->assignedToNames()) }} |
 
-
-
-@component('mail::button', ['url' => config('app.url').'/site/maintenance/'.$item->maintenance->id])
+@component('mail::button', ['url' => config('app.url').'/site/maintenance/'.$main->id])
 View Request
 @endcomponent
 

@@ -49,7 +49,7 @@ class SiteMaintenanceItem extends Model
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
-        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssignedItem($this));
 
     }
 
