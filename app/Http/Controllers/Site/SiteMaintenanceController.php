@@ -540,7 +540,7 @@ class SiteMaintenanceController extends Controller
         $planner_date = (request('planner_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('planner_date') . '00:00')->toDateTimeString() : null;
         if ($planner_task_id) {
             if ($planner_id_orig && $planner_id_orig != $planner_task_id)
-                $delTask = SitePlanner::find($planner_id_orig)->delete();  // Delete old planner task
+                $delTask = SitePlanner::where('id', $planner_id_orig)->delete();  // Delete old planner task
 
             // Create new
             $planner = SitePlanner::create(['site_id' => $main->site_id, 'from' => $planner_date, 'to' => $planner_date, 'days' => 1, 'entity_type' => 'c', 'entity_id' => request('assigned_to'), 'task_id' => $planner_task_id]);
@@ -548,8 +548,8 @@ class SiteMaintenanceController extends Controller
                 $item->planner_id = $planner->id;
                 $item->save();
             }
-        } else
-            $delTask = SitePlanner::find($planner_id_orig)->delete();  // Delete old planner task
+        } elseif ($planner_id_orig)
+            $delTask = SitePlanner::where('id', $planner_id_orig)->delete();  // Delete old planner task
 
         // Update resolve date if just modified
         if (request('status') != $status_orig) {
@@ -579,7 +579,7 @@ class SiteMaintenanceController extends Controller
         if (request('assigned_to') && request('assigned_to') != $assigned_to_orig) {
             $company = Company::find(request('assigned_to'));
             if ($company && $company->primary_contact())
-                $main->emailAssigned($company->primary_contact());
+                $item->emailAssigned($company->primary_contact());
             $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
             // Set Assigned to date field if not set
@@ -763,7 +763,7 @@ class SiteMaintenanceController extends Controller
             $array['assigned_to'] = (string)$item->assigned_to;
             $array['assigned_to_name'] = ($item->assigned_to) ? $item->assigned->name : 'Unassigned';
             $array['planner_id'] = (string)$item->planner_id;
-            $array['planner_task'] = ($item->planner_id) ? $item->planner->task->name : '';
+            $array['planner_task'] = ($item->planner_id && $item->planner->task) ? $item->planner->task->name : '';
             $array['planner_task_id'] = ($item->planner_id) ? $item->planner->task_id : '';
             $array['planner_date'] = ($item->planner_id) ? $item->planner->from->format('d/m/Y') : '';
             $array['order'] = $item->order;

@@ -5,6 +5,7 @@ namespace App\Models\Site;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class SiteMaintenanceItem extends Model
 {
@@ -33,6 +34,23 @@ class SiteMaintenanceItem extends Model
     public function assigned()
     {
         return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
+    }
+
+    /**
+     * Email Assigned
+     */
+    public function emailAssigned($user)
+    {
+        $email_to = [env('EMAIL_DEV')];
+        $email_user = '';
+
+        if (\App::environment('prod')) {
+            $email_to = (validEmail($user->email)) ? $user->email : '';
+            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        }
+
+        Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceAssigned($this));
+
     }
 
     /**
