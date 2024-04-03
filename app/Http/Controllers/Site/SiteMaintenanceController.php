@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
@@ -57,8 +56,10 @@ class SiteMaintenanceController extends Controller
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
         foreach ($mains as $main) {
-            if (!isset($assignedList[$main->assigned_to]))
-                $assignedList[$main->assigned_to] = $main->assignedTo->name;
+            foreach ($main->items as $item) {
+                if (!isset($assignedList[$item->assigned_to]))
+                    $assignedList[$item->assigned_to] = $item->assigned->name;
+            }
         }
 
         return view('site/maintenance/list', compact('under_review', 'assignedList'));
@@ -81,6 +82,7 @@ class SiteMaintenanceController extends Controller
             return view('site/maintenance/review', compact('main'));
         else
             return view('site/maintenance/show', compact('main'));
+        //return view('site/maintenance/show2', compact('main'));
     }
 
     /**
@@ -174,7 +176,12 @@ class SiteMaintenanceController extends Controller
         $action = Action::create(['action' => "Maintenance Request created", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
         // Add Request Items
-        SiteMaintenanceItem::create(['main_id' => $main->id, 'name' => request("item1"), 'order' => 1, 'status' => 0]);
+        for ($i = 1; $i < 25; $i++) {
+            if (request("item$i")) {
+                SiteMaintenanceItem::create(['main_id' => $main->id, 'name' => request("item$i"), 'order' => $i, 'status' => 0]);
+            }
+        }
+
 
         // Handle attachments
         $attachments = request("filepond");
@@ -302,6 +309,23 @@ class SiteMaintenanceController extends Controller
             $item1->save();
         }
 
+        // Add Request Items
+        for ($i = 1; $i < 25; $i++) {
+            if (request("item$i")) {
+                $item = $main->items->where('order', $i)->first();
+                if ($item && $item->name != request("item$i")) { // Items updated
+                    $action = Action::create(['action' => "Item details updated", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                    $item->name = request("item$i");
+                    $item->save();
+                }
+            } else {
+                $item = $main->items->where('order', $i)->first();
+                if ($item)
+                    $item->delete();
+            }
+
+        }
+
 
         //dd($main_request);
         $main->update($main_request);
@@ -328,23 +352,22 @@ class SiteMaintenanceController extends Controller
     public function update($id)
     {
         $main = SiteMaintenance::findOrFail($id);
-        $planner_id_orig = $main->planner_id;
         $super_id_orig = $main->super_id;
-        $assigned_to_orig = $main->assigned_to;
         $status_orig = $main->status;
+
+        //dd(request()->all());
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.maintenance', $main))
             return view('errors/404');
 
-        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,4', 'planner_task_date' => 'required_with:planner_task_id'];
+        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,4'];
         $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
-            'onhold_reason.required_if' => 'A reason is required to place request On Hold.', 'planner_task_date.required_with' => 'The task date field is required with the Planner task.'];
+            'onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
         request()->validate($rules, $mesg); // Validate
 
         $main_request = request()->all();
         //echo "[$super_id_orig]<br>";
-        //dd($main_request);
 
         // Verify prac completed date
         if (request('completed')) {
@@ -375,23 +398,6 @@ class SiteMaintenanceController extends Controller
                 $main->saveAttachment($tmp_filename);
         }
 
-        // Update Planer Task
-        $planner_id = request('planner_id');
-        $planner_task_id = request('planner_task_id');
-        $planner_task_date = (request('planner_task_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('planner_task_date') . '00:00')->toDateTimeString() : null;
-        if ($planner_task_id) {
-            if ($planner_id_orig && $planner_id_orig != $planner_task_id)
-                $delTask = SitePlanner::findOrFail($planner_id_orig)->delete();  // Delete old planner task
-
-            // Create new
-            $planner = SitePlanner::create(['site_id' => $main->site_id, 'from' => $planner_task_date, 'to' => $planner_task_date, 'days' => 1, 'entity_type' => 'c', 'entity_id' => $main->assigned_to, 'task_id' => $planner_task_id]);
-            if ($planner) {
-                $main->planner_id = $planner->id;
-                $main->save();
-            }
-        }
-
-
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($main_request['super_id']);
@@ -407,20 +413,6 @@ class SiteMaintenanceController extends Controller
             $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
             $main->site->supervisor_id = request('super_id'); // Update Site supervisor
             $main->site->save();
-        }
-
-        // Email if Company Assigned is updated
-        if (request('assigned_to') && request('assigned_to') != $assigned_to_orig) {
-            $company = Company::find($main_request['assigned_to']);
-            if ($company && $company->primary_contact())
-                $main->emailAssigned($company->primary_contact());
-            $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-
-            // Set Assigned to date field if not set
-            if (!$main->assigned_at)
-                $main->assigned_at = Carbon::now()->toDateTimeString();
-
-            $main->closeToDo();
         }
 
         // Add note if change of Status
@@ -535,40 +527,68 @@ class SiteMaintenanceController extends Controller
         if (!(Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->id == $main->super_id))
             return view('errors/404');
 
-        $item_request = $request->only(['status', 'done_by', 'sign_by']);
+        $item_request = $request->only(['assigned_to', 'status']);
         //dd($item_request);
 
+        $assigned_to_orig = $item->assigned_to;
+        $status_orig = $item->status;
+
+        // Update Planer Task
+        $planner_id = request('planner_id');
+        $planner_id_orig = $item->planner_id;
+        $planner_task_id = request('planner_task_id');
+        $planner_date = (request('planner_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('planner_date') . '00:00')->toDateTimeString() : null;
+        if ($planner_task_id) {
+            if ($planner_id_orig && $planner_id_orig != $planner_task_id)
+                $delTask = SitePlanner::find($planner_id_orig)->delete();  // Delete old planner task
+
+            // Create new
+            $planner = SitePlanner::create(['site_id' => $main->site_id, 'from' => $planner_date, 'to' => $planner_date, 'days' => 1, 'entity_type' => 'c', 'entity_id' => request('assigned_to'), 'task_id' => $planner_task_id]);
+            if ($planner) {
+                $item->planner_id = $planner->id;
+                $item->save();
+            }
+        } else
+            $delTask = SitePlanner::find($planner_id_orig)->delete();  // Delete old planner task
+
         // Update resolve date if just modified
-        if (!request('status')) {
-            $item->status = 0;
-            $item->done_by = null;
-            $item->done_at = null;
-            $item->sign_by = null;
-            $item->sign_at = null;
-            $item->save();
-            $action = Action::create(['action' => "Maintenance Item has been mark as NOT completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-        } else {
-            // Item completed
-            if ($item_request['status'] == 1 && $item->status != 1) {
-                $item_request['done_by'] = Auth::user()->id;
-                $item_request['done_at'] = Carbon::now()->toDateTimeString();
-                $item_request['sign_by'] = Auth::user()->id;
-                $item_request['sign_at'] = Carbon::now()->toDateTimeString();
-                $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+        if (request('status') != $status_orig) {
+            if (!request('status')) {
+                $item->status = 0;
+                $item->done_by = null;
+                $item->done_at = null;
+                $item->sign_by = null;
+                $item->sign_at = null;
+                $item->save();
+                $action = Action::create(['action' => "Maintenance Item has been mark as NOT completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            } else {
+                // Item completed
+                if ($item_request['status'] == 1 && $item->status != 1) {
+                    $item_request['done_by'] = Auth::user()->id;
+                    $item_request['done_at'] = Carbon::now()->toDateTimeString();
+                    $item_request['sign_by'] = Auth::user()->id;
+                    $item_request['sign_at'] = Carbon::now()->toDateTimeString();
+                    $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                }
+                //dd($item_request);
             }
-            /*
-            // Item signed off
-            if ($item_request['sign_by'] && !$item->sign_by) {
-                $item_request['sign_by'] = Auth::user()->id;
-                $item_request['sign_at'] = Carbon::now()->toDateTimeString();
+        }
+        $item->update($item_request);
+
+        // Email if Company Assigned is updated
+        if (request('assigned_to') && request('assigned_to') != $assigned_to_orig) {
+            $company = Company::find(request('assigned_to'));
+            if ($company && $company->primary_contact())
+                $main->emailAssigned($company->primary_contact());
+            $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+
+            // Set Assigned to date field if not set
+            if (!$main->assigned_at) {
+                $main->assigned_at = Carbon::now()->toDateTimeString();
+                $main->save();
             }
-            // item marked incomplete
-            if (!$item_request['sign_by'] && $item->sign_by) {
-                $item_request['sign_by'] = null;
-                $item_request['sign_at'] = null;
-            }*/
-            //dd($item_request);
-            $item->update($item_request);
+
+            $main->closeToDo();
         }
 
         // Update modified timestamp on QA Doc
@@ -657,50 +677,20 @@ class SiteMaintenanceController extends Controller
             $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
         }
 
-        $assigned_to = (request('assigned_to')) ? request('assigned_to') : null;
+        if (request('assigned_to') != 'all')
+            $request_ids = SiteMaintenanceItem::whereIn('main_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('main_id')->toArray();
 
-        if ($assigned_to == 'all') {
-            $records = DB::table('site_maintenance AS m')
-                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
-                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                    DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
-                    DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
-                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
-                ->join('sites AS s', 'm.site_id', '=', 's.id')
-                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
-                ->whereIn('m.id', $request_ids)
-                ->where('m.status', request('status'));
-        } else {
-            $records = DB::table('site_maintenance AS m')
-                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.client_appointment', 'm.client_contacted', 'm.status', 'm.updated_at', 'm.created_at',
-                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                    DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
-                    DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
-                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
-                ->join('sites AS s', 'm.site_id', '=', 's.id')
-                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
-                ->whereIn('m.id', $request_ids)
-                ->where('m.assigned_to', $assigned_to)
-                ->where('m.status', request('status'));
-        }
-
-
-        /*
-                $records = DB::table('site_maintenance AS m')
-                    ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.warranty', 'm.client_appointment', 'm.client_contacted', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
-                        DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                        DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                        DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                        DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
-                        DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
-                        's.code as sitecode', 's.name as sitename'])
-                    ->join('sites AS s', 'm.site_id', '=', 's.id')
-                    ->whereIn('m.id', $request_ids)
-                    ->where('m.status', request('status'));*/
+        $records = DB::table('site_maintenance AS m')
+            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
+                DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
+                's.code as sitecode', 's.name as sitename'])
+            ->join('sites AS s', 'm.site_id', '=', 's.id')
+            ->whereIn('m.id', $request_ids)
+            ->where('m.status', request('status'));
 
         //dd($records);
         $dt = Datatables::of($records)
@@ -719,7 +709,7 @@ class SiteMaintenanceController extends Controller
             ->editColumn('assigned_to', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 
-                return ($d->assigned_to) ? $d->assignedTo->name : '-';
+                return $d->assignedToNames();
             })
             ->addColumn('last_updated', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
@@ -770,6 +760,12 @@ class SiteMaintenanceController extends Controller
         foreach ($main->items as $item) {
             $array = [];
             $array['id'] = $item->id;
+            $array['assigned_to'] = (string)$item->assigned_to;
+            $array['assigned_to_name'] = ($item->assigned_to) ? $item->assigned->name : 'Unassigned';
+            $array['planner_id'] = (string)$item->planner_id;
+            $array['planner_task'] = ($item->planner_id) ? $item->planner->task->name : '';
+            $array['planner_task_id'] = ($item->planner_id) ? $item->planner->task_id : '';
+            $array['planner_date'] = ($item->planner_id) ? $item->planner->from->format('d/m/Y') : '';
             $array['order'] = $item->order;
             $array['name'] = $item->name;
             $array['super'] = $item->super;
@@ -828,7 +824,7 @@ class SiteMaintenanceController extends Controller
 
 
         $actions = [];
-        $actions[] = ['value' => '', 'text' => 'Select Action'];
+        $actions[] = ['value' => '0', 'text' => 'Incomplete'];
         $actions[] = ['value' => '1', 'text' => 'Completed'];
         //$actions[] = ['value' => '-1', 'text' => 'Mark N/A'];
         $actions2[] = ['value' => '', 'text' => 'Select Action'];
@@ -841,13 +837,14 @@ class SiteMaintenanceController extends Controller
 
         $sel_company = [];
         foreach ($company_list as $cid => $name) {
-            $sel_company[] = ['value' => $cid, 'text' => $name];
+            $sel_company[] = ['value' => "$cid", 'text' => $name];
         }
 
         // Company tasks
         $sel_task = [];
         $sel_task[] = ['value' => '', 'text' => 'Select task'];
 
+        /*
         if ($main->assigned_to) {
             // Create array in specific Vuejs 'select' format.
             //echo "As:$main->assigned_to<br>";
@@ -873,7 +870,7 @@ class SiteMaintenanceController extends Controller
                     }
                 }
             }
-        }
+        }*/
 
 
         $json = [];

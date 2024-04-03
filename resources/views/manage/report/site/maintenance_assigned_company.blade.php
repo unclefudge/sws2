@@ -127,7 +127,7 @@
                 {data: 'super_id', name: 'm.super_id'},
                 {data: 'assigned_to', name: 'm.assigned_to'},
                 {data: 'last_updated', name: 'last_updated', orderable: false, searchable: false},
-                {data: 'companyname', name: 'c.name', visible: false},
+                //{data: 'companyname', name: 'c.name', visible: false},
             ],
             order: [
                 [1, "desc"]

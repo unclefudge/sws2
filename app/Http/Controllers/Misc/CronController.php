@@ -61,9 +61,14 @@ class CronController extends Controller
         CronController::uploadCompanyDocReminder();
         CronController::verifyZohoImport();
 
+        // Weekdays only
+        if (Carbon::today()->isWeekday()) {
+            CronController::overdueToDo();
+        }
+
         // Monday
         if (Carbon::today()->isMonday()) {
-            CronController::overdueToDo();
+
         }
 
         // Tuesday
@@ -876,7 +881,7 @@ class CronController extends Controller
     }
 
     /*
-     * Check for overdue ToDoo
+     * Email Planner Key tasks
      */
 
     static public function emailPlannerKeyTasks()
@@ -955,6 +960,7 @@ class CronController extends Controller
         $cc = Company::find(3);
 
         $date = Carbon::now()->format('Y-m-d');
+        $yesterday = Carbon::now()->subDay()->format('Y-m-d');
         $found_tasks = 0;
 
         //
@@ -977,7 +983,7 @@ class CronController extends Controller
                         'name' => 'Scaffold Handover Certificate for ' . $task->site->name,
                         'info' => 'Please complete the Scaffold Handover Certificate for ' . $task->site->name,
                         'priority' => '1',
-                        'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                        'due_at' => nextWorkDate(Carbon::today(), '+', 1)->toDateTimeString(),
                         'company_id' => '3',
                         'created_by' => '1',
                         'updated_by' => '1'
@@ -1033,9 +1039,6 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-    * Email Planner Key Tasks
-    */
 
     static public function siteExtensions()
     {
@@ -1295,7 +1298,7 @@ class CronController extends Controller
     }
 
     /*
-     * Site Contract Extension Supervisor Task
+     * Overdue Tasks
      */
 
     static public function overdueToDo()
@@ -1306,35 +1309,49 @@ class CronController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $toolboxs_overdue = [];
+        //$scaffold_overdue = [];
         $todos = Todo::where('status', '1')->whereDate('due_at', '<', Carbon::today()->format('Y-m-d'))->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
         foreach ($todos as $todo) {
-            // Quality Assurance
-            if ($todo->type == 'qa') {
-                echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]<br>";
-                $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]\n";
-                //$todo->emailToDo();
-                $qa = SiteQa::find($todo->type_id);
-                $email_to = [env('EMAIL_DEV')];
-                if (\App::environment('prod') && $qa->site->areaSupervisorsEmails())
-                    $email_to = $qa->site->areaSupervisorsEmails();
-                //Mail::to($email_to)->send(new \App\Mail\Site\SiteQaOverdue($qa));
+            //
+            // Each Weekday
+            //
+            if ($todo->type == 'scaffold handover') {
+                $scaffold_overdue[$todo->type_id] = $todo->name;
             }
 
-            // Toolbox Talk
-            if ($todo->type == 'toolbox') {
-                $toolbox = ToolboxTalk::find($todo->type_id);
-                if ($toolbox && $toolbox->status == 1) {
-                    echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "<br>";
-                    $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "\n";
-                    $todo->emailToDo();
-                    if (!in_array($todo->type_id, $toolboxs_overdue))
-                        $toolboxs_overdue[] = $todo->type_id;
-                } else {
-                    // Toolbox is no longer active so close outstanding ToDos
-                    $todo->status = 0;
-                    $todo->done_at = Carbon::now();
-                    $todo->done_by = 1;
-                    $todo->save();
+
+            //
+            // Mondays Only
+            //
+            if (Carbon::today()->isMonday()) {
+                // Quality Assurance
+                if ($todo->type == 'qa') {
+                    echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]<br>";
+                    $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "]\n";
+                    //$todo->emailToDo();
+                    $qa = SiteQa::find($todo->type_id);
+                    $email_to = [env('EMAIL_DEV')];
+                    if (\App::environment('prod') && $qa->site->areaSupervisorsEmails())
+                        $email_to = $qa->site->areaSupervisorsEmails();
+                    //Mail::to($email_to)->send(new \App\Mail\Site\SiteQaOverdue($qa));
+                }
+
+                // Toolbox Talk
+                if ($todo->type == 'toolbox') {
+                    $toolbox = ToolboxTalk::find($todo->type_id);
+                    if ($toolbox && $toolbox->status == 1) {
+                        echo "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "<br>";
+                        $log .= "id[$todo->id] $todo->name [" . $todo->due_at->format('d/m/Y') . "] - " . $todo->assignedToBySBC() . "\n";
+                        $todo->emailToDo();
+                        if (!in_array($todo->type_id, $toolboxs_overdue))
+                            $toolboxs_overdue[] = $todo->type_id;
+                    } else {
+                        // Toolbox is no longer active so close outstanding ToDos
+                        $todo->status = 0;
+                        $todo->done_at = Carbon::now();
+                        $todo->done_by = 1;
+                        $todo->save();
+                    }
                 }
             }
         }
@@ -1349,6 +1366,18 @@ class CronController extends Controller
                 $log .= "id[$toolbox->id] $toolbox->name\n";
                 $toolbox->emailOverdue();
             }
+        }
+
+        // Email outstanding scaffold certificates
+        if ($scaffold_overdue) {
+            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n</b><br>";
+            $log .= "\n>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n";
+            foreach ($scaffold_overdue as $id => $name) {
+                echo "id[$id] $name<br>";
+                $log .= "id[$id] $name\n";
+            }
+            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));
         }
 
         echo "<h4>Completed</h4>";

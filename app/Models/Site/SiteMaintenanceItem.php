@@ -11,7 +11,7 @@ class SiteMaintenanceItem extends Model
 
     protected $table = 'site_maintenance_items';
     protected $fillable = [
-        'main_id', 'name', 'task_id', 'super', 'order', 'attachment', 'status', 'master', 'master_id',
+        'main_id', 'name', 'task_id', 'assigned_to', 'planner_id', 'super', 'order', 'attachment', 'status', 'master', 'master_id',
         'sign_by', 'sign_at', 'done_by', 'done_at', 'created_by', 'updated_by', 'created_at', 'updated_at'];
     protected $casts = ['sign_at' => 'datetime', 'done_at' => 'datetime'];
 
@@ -23,6 +23,16 @@ class SiteMaintenanceItem extends Model
     public function maintenance()
     {
         return $this->belongsTo('App\Models\Site\SiteMaintenance', 'main_id');
+    }
+
+    public function planner()
+    {
+        return $this->belongsTo('App\Models\Site\Planner\SitePlanner', 'planner_id');
+    }
+
+    public function assigned()
+    {
+        return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
     }
 
     /**

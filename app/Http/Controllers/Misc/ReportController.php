@@ -2,43 +2,28 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use File;
-use Session;
-use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteProjectSupply;
-use App\Models\Site\SiteExtension;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\SafetyDoc;
-use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\Planner\SitePlanner;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
-use App\Models\Misc\Supervisor\SuperChecklist;
-use App\Models\Misc\Equipment\Equipment;
-use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceCategory;
+use App\Models\Site\SiteMaintenanceItem;
+use App\Models\Site\SiteQa;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use File;
+use Illuminate\Support\Facades\Auth;
+use PDF;
+use Session;
+use Yajra\Datatables\Datatables;
 
 
-class ReportController extends Controller {
+class ReportController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -82,7 +67,7 @@ class ReportController extends Controller {
                 if (filesize(public_path("$dir/$file")) > 0)
                     $processed = true;
 
-                $date = Carbon::createFromFormat('YmdHis', substr($file, - 18, 4) . substr($file, - 14, 2) . substr($file, - 12, 2) . substr($file, - 10, 2) . substr($file, - 8, 2) . substr($file, - 6, 2));
+                $date = Carbon::createFromFormat('YmdHis', substr($file, -18, 4) . substr($file, -14, 2) . substr($file, -12, 2) . substr($file, -10, 2) . substr($file, -8, 2) . substr($file, -6, 2));
                 $deleted = false;
                 if ($date->lt(Carbon::today()->subDays(10))) {
                     unlink(public_path("$dir/$file"));
@@ -386,8 +371,10 @@ class ReportController extends Controller {
 
         $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
         foreach ($mains as $main) {
-            if (!isset($assignedList[$main->assigned_to]))
-                $assignedList[$main->assigned_to] = $main->assignedTo->name;
+            foreach ($main->items as $item) {
+                if (!isset($assignedList[$item->assigned_to]))
+                    $assignedList[$item->assigned_to] = $item->assigned->name;
+            }
         }
 
         return view('manage/report/site/maintenance_assigned_company', compact('mains', 'assignedList'));
@@ -404,10 +391,6 @@ class ReportController extends Controller {
             $mains = SiteMaintenance::where('status', 1)->whereIn('id', $request_ids)->where('assigned_to', $assigned_to)->orderBy('reported')->get();
 
         //dd($mains);
-        foreach ($mains as $main) {
-
-        }
-
         $today = Carbon::now();
 
         return PDF::loadView('pdf/site/maintenance-assigned-company', compact('mains', 'today'))->setPaper('a4', 'landscape')->stream();
@@ -416,32 +399,20 @@ class ReportController extends Controller {
     public function getMaintenanceAssignedCompany()
     {
         $request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
-        $assigned_to = (request('assigned_to')) ? request('assigned_to') : null;
+        if (request('assigned_to') != 'all')
+            $request_ids = SiteMaintenanceItem::whereIn('main_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('main_id')->toArray();
 
-        if ($assigned_to == 'all') {
-            $records = DB::table('site_maintenance AS m')
-                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
-                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
-                ->join('sites AS s', 'm.site_id', '=', 's.id')
-                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
-                ->whereIn('m.id', $request_ids)
-                ->where('m.status', 1);
-        } else {
-            $records = DB::table('site_maintenance AS m')
-                ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
-                    DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
-                    DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                    DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                    's.code as sitecode', 's.name as sitename', 'c.name as companyname'])
-                ->join('sites AS s', 'm.site_id', '=', 's.id')
-                ->leftJoin('companys AS c', 'm.assigned_to', '=', 'c.id')
-                ->whereIn('m.id', $request_ids)
-                ->where('m.assigned_to', $assigned_to)
-                ->where('m.status', 1);
-        }
+        $records = DB::table('site_maintenance AS m')
+            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.assigned_to', 'm.super_id', 'm.completed', 'm.reported', 'm.status', 'm.updated_at', 'm.created_at',
+                DB::raw('DATE_FORMAT(m.reported, "%d/%m/%y") AS reported_date'),
+                DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
+                DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
+                DB::raw('DATE_FORMAT(m.client_appointment, "%d/%m/%y") AS appointment_date'),
+                DB::raw('DATE_FORMAT(m.client_contacted, "%d/%m/%y") AS contacted_date'),
+                's.code as sitecode', 's.name as sitename'])
+            ->join('sites AS s', 'm.site_id', '=', 's.id')
+            ->whereIn('m.id', $request_ids)
+            ->where('m.status', 1);
 
         //dd($records);
         $dt = Datatables::of($records)
@@ -459,7 +430,7 @@ class ReportController extends Controller {
             ->editColumn('assigned_to', function ($doc) {
                 $d = SiteMaintenance::find($doc->id);
 
-                return ($d->assigned_to) ? $d->assignedTo->name : '-';
+                return $d->assignedToNames();
             })
             ->addColumn('last_updated', function ($doc) {
                 $main = SiteMaintenance::find($doc->id);
@@ -562,10 +533,10 @@ class ReportController extends Controller {
                     elseif ($main->status == 1)
                         $total_appoint = $total_appoint + $appoint_from->diffInWeekDays($to);
 
-                    $count ++;
+                    $count++;
                 } else {
                     //echo "$main->id : ". $main->created_at->format('d/m/Y') . "<br>";
-                    $excluded ++;
+                    $excluded++;
                 }
 
 
@@ -652,7 +623,7 @@ class ReportController extends Controller {
         $to_ymd = $end_year->format('Y-m-d');
 
         $select_fin = [];
-        for ($i = 0; $i < 4; $i ++)
+        for ($i = 0; $i < 4; $i++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
 
         //dd($from_ymd.' - '.$to_ymd.' * '. $from. ' - '. $to);
@@ -685,7 +656,7 @@ class ReportController extends Controller {
         $end_year = Carbon::createFromFormat('Y-m-d H:i:s', date('Y') . '-06-30 23:59:59')->addYear();
 
         $select_fin = [];
-        for ($i = 0; $i < 4; $i ++)
+        for ($i = 0; $i < 4; $i++)
             $select_fin[$start_year->subYear($i)->format('Y') . '-' . $end_year->subYear($i)->format('Y')] = $start_year->format('M Y') . ' - ' . $end_year->format('M Y');
 
         return view('manage/report/payroll', compact('companies', 'select_fin', 'fin_year', 'from', 'to', 'from_ymd', 'to_ymd'));

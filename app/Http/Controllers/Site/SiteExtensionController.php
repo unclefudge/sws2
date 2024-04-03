@@ -70,7 +70,7 @@ class SiteExtensionController extends Controller
         $reason_na = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'N/A')->first()->id;
         $reason_publichol = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'Public Holiday')->first()->id;
 
-        //dd($data);
+        dd($data);
 
         return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol'));
     }
@@ -212,7 +212,7 @@ class SiteExtensionController extends Controller
         Toastr::success("Updated categories");
 
         return redirect(url()->previous());
-        
+
     }
 
 
@@ -263,10 +263,10 @@ class SiteExtensionController extends Controller
                     'extend_reasons_text' => $site->reasonsSBC(),
                     'extend_reasons_array' => $site->reasonsArray(),
                     'days' => $site->days,
-                    'hols' => $site->holidays_added,
+                    'hols' => $site->site->holidays_added,
                     'notes' => $site->notes,
                     'total_days' => $site->totalExtensionDays(),
-                    'past_extentions' => $site->pastExtensions()
+                    'past_extensions' => $site->pastExtensions()
                 ];
             }
         }

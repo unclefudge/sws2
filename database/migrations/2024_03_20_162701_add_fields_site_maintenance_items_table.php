@@ -22,8 +22,8 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('site_maintenance_items', function (Blueprint $table) {
-            $table->dropColumn('parent');
-            $table->dropColumn('costing_priority');
+            $table->dropColumn('planner_id');
+            $table->dropColumn('assigned_to');
         });
     }
 };

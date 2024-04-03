@@ -318,8 +318,7 @@
                                     {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
                                     @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main))
                                         <div class="input-group" style="width=80%">
-                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy"
-                                                        :placeholder="choose date"></datepicker>
+                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                         </div>
                                         <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
                                                value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
@@ -333,8 +332,7 @@
                                     {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
                                     @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main) )
                                         <div class="input-group">
-                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy"
-                                                        :placeholder="choose date"></datepicker>
+                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
                                         </div>
                                         <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
                                                value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
@@ -377,9 +375,7 @@
                             <div class="row">
                                 {{-- Assigned Supervisor --}}
                                 <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}"
-                                         style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}"
-                                         id="company-div">
+                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
                                         {!! Form::label('super_id', 'Maintenance Supervisor', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
                                             {{-- Supervisor --}}
@@ -438,6 +434,7 @@
                             </div>
                             <div class="row">
                                 {{-- Assigned To Company --}}
+                                {{--}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}"
                                          style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}"
@@ -452,44 +449,40 @@
                                         @endif
                                         {!! fieldErrorMessage('assigned_to', $errors) !!}
                                     </div>
-                                </div>
+                                </div>--}}
 
                                 {{-- Planner Task --}}
+                                {{--}}
                                 <div class="col-md-3" v-show="xx.main.assigned_to != ''">
-                                    <div class="form-group">
-                                        {!! Form::label('planner_task_id', 'Planner Task', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <select-picker :name.sync="xx.main.planner_task_id"
-                                                           :options.sync="xx.sel_task"
-                                                           :function="doNothing"></select-picker>
-                                            <input v-model="xx.main.planner_task_id" type="hidden"
-                                                   name="planner_task_id"
-                                                   value="{{  ($main->planner) ? $main->planner->task_id : ''}}">
-                                        @else
-                                            {!! Form::text('planner_task_id_text', ($main->planner) ? $main->planner->task->name : 'None', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('planner_task_id', $errors) !!}
-                                    </div>
+                                <div class="form-group">
+                                    {!! Form::label('planner_task_id', 'Planner Task', ['class' => 'control-label']) !!}
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                        <select-picker :name.sync="xx.main.planner_task_id" :options.sync="xx.sel_task" :function="doNothing"></select-picker>
+                                        <input v-model="xx.main.planner_task_id" type="hidden" name="planner_task_id" value="{{  ($main->planner) ? $main->planner->task_id : ''}}">
+                                    @else
+                                        {!! Form::text('planner_task_id_text', ($main->planner) ? $main->planner->task->name : 'None', ['class' => 'form-control', 'readonly']) !!}
+                                    @endif
+                                    {!! fieldErrorMessage('planner_task_id', $errors) !!}
                                 </div>
+                            </div>
+                            --}}
 
                                 {{-- Planner Task Date --}}
-                                <div class="col-md-3" v-show="xx.main.planner_task_id != ''">
-                                    <div class="form-group">
-                                        {!! Form::label('planner_task_date', 'Task Date', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <div class="input-group">
-                                                <datepicker :value.sync="xx.main.planner_task_date" format="dd/MM/yyyy"
-                                                            :placeholder="choose date"></datepicker>
-                                            </div>
-                                        @else
-                                            {!! Form::text('planner_task_date_text', ($main->planner) ? $main->planner->from->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                        <input v-model="xx.main.planner_task_date" type="hidden"
-                                               name="planner_task_date"
-                                               value="{{  ($main->planner) ? $main->planner->from->format('d/m/Y') : ''}}">
-                                        {!! fieldErrorMessage('planner_task_date', $errors) !!}
-                                    </div>
-                                </div>
+                                {{--
+                                    <div class="col-md-3" v-show="xx.main.planner_task_id != ''">
+                                        <div class="form-group">
+                                            {!! Form::label('planner_task_date', 'Task Date', ['class' => 'control-label']) !!}
+                                            @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <div class="input-group">
+                                                    <datepicker :value.sync="xx.main.planner_task_date" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                                </div>
+                                            @else
+                                                {!! Form::text('planner_task_date_text', ($main->planner) ? $main->planner->from->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                            @endif
+                                            <input v-model="xx.main.planner_task_date" type="hidden" name="planner_task_date" value="{{  ($main->planner) ? $main->planner->from->format('d/m/Y') : ''}}">
+                                            {!! fieldErrorMessage('planner_task_date', $errors) !!}
+                                        </div>
+                                    </div>--}}
 
                                 @if (Auth::user()->allowed2('edit.site.maintenance', $main))
                                     <div class="col-md-1 pull-right">
@@ -625,6 +618,8 @@
                                           class="font-grey-silver">Waiting for items to be completed</span>
                                 @endif
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-sm-3 text-right">Construction Manager:</div>
                             <div class="col-sm-9">
                                 @if ($main->manager_sign_by)
@@ -680,77 +675,109 @@
     </div>
 
     <template id="main-template">
-        <!-- QA Items -->
+        <!-- Maintenance Items -->
         <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
             <thead>
             <tr class="mytable-header">
-                <th width="5%"></th>
                 <th> Maintenance Item</th>
+                <th width="30%"> Assigned Task</th>
                 <th width="15%"> Completed</th>
+                <th width="10%"> Action</th>
                 {{--}}<th width="15%"> Checked</th>--}}
             </tr>
             </thead>
             <tbody>
             <template v-for="item in xx.itemList | orderBy item.order">
-                <tr class="@{{ textColour(item)  }}">
-                    {{-- checkbox --}}
-                    <td class="text-center" style="padding-top: 15px">
-                        <span v-if="item.status == '-1'">N/A</span>
-                        <i v-if="item.done_by" class="fa fa-check-square-o font-green"
-                           style="font-size: 20px; padding-top: 5px"></i>
-                        <i v-if="!item.done_by && !item.status" class="fa fa-square-o font-red"
-                           style="font-size: 20px; padding-top: 5px"></i>
-                    </td>
+                <tr>
                     {{-- Item --}}
                     <td style="padding-top: 15px;">@{{ item.name }}</td>
+                    {{-- Assigned Task --}}
+                    <td style="padding-top: 15px;">
+                        @{{ item.assigned_to_name }}<br>
+                        <div v-if="item.planner_id">
+                            <b>Task:</b> @{{ item.planner_task}} (@{{ item.planner_date }})
+                        </div>
+                    </td>
                     {{-- Completed --}}
                     <td>
                         <div v-if="item.done_by">
-                            @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }} <a
-                                    v-if="xx.main.status != 0 && xx.main.signed != 1"
-                                    v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
+                            @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }}
                         </div>
-                        <div v-else>
-                            <select v-if="!item.done_by && xx.user_edit == 1 && xx.main.signed == 0"
-                                    v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
-                                <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
-                                        selected="@{{option.value == item.status}}">@{{ option.text }}
-                                </option>
-                            </select>
-                        </div>
-
+                        <div v-else>-</div>
+                    </td>
+                    <td>
+                        @if (!$main->supervisor_sign_by)
+                            <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
+                        @endif
                     </td>
                 </tr>
             </template>
             </tbody>
         </table>
-        <!--
-           Confirm Item Checked Modal
-         -->
-        <confirm-Signoff :show.sync="xx.showSignOff" effect="fade">
+
+        {{--  Confirm Item Checked Modal --}}
+        <confirm-Item :show.sync="xx.editItemModal" effect="fade" class="modal fade bs-modal-lg" header="Edit Item">
             <div slot="modal-header" class="modal-header">
-                <h4 class="modal-title text-center"><b>Update Item Company</b></h4>
+                <h4 class="modal-title text-center"><b>Edit Item</b></h4>
             </div>
             <div slot="modal-body" class="modal-body">
-                <p><b>@{{ xx.record.name }}</b></p>
-                Completed by
+                <b>Item</b><br>
+                @{{ xx.item.name_brief }}<br><br>
+
                 <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-8">
-                        <select-picker :name.sync="xx.done_by" :options.sync="xx.sel_company"
-                                       :function="doNothing"></select-picker>
+                    <div class="col-md-3">Assigned To</div>
+                    <div class="col-md-9">
+                        <select v-model="xx.item.assigned_to" class='form-control' v-on:change="updateTaskOptions(xx.item)">
+                            <option v-for="option in xx.sel_company" value="@{{ option.value }}"
+                                    selected="@{{option.value == item.assigned_to}}">@{{ option.text }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-3">Planner Task</div>
+                    <div class="col-md-9">
+                        <select v-model="xx.item.planner_task_id" class='form-control' v-on:change="doNothing">
+                            <option v-for="option in xx.sel_task" value="@{{ option.value }}"
+                                    selected="@{{option.value == item.planner_task_id}}">@{{ option.text }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div v-if="xx.item.planner_task_id" class="row" style="padding-bottom: 10px">
+                    <div class="col-md-3">Task Date</div>
+                    <div class="col-md-9">
+                        <div v-if="xx.editItemModal" class="input-group">
+                            <datepicker2 :value.sync="xx.item.planner_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-3">Status</div>
+                    <div class="col-md-9">
+                        <div v-if="xx.editItemModal" class="input-group">
+                            {{--}}<select-picker :name.sync="xx.item.status" :options.sync="xx.sel_checked" :function="doNothing"></select-picker>--}}
+                            <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
+                                <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
+                                        selected="@{{option.value == item.status}}">@{{ option.text }}
+                                </option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
-                <button type="button" class="btn dark btn-outline" v-on:click="xx.showSignOff = false">&nbsp; No
-                    &nbsp;
-                </button>
-                <button type="button" class="btn btn-success" v-on:click="updateItemCompany(xx.record, true)"
-                        :disabled="! xx.done_by">&nbsp; Save &nbsp;
-                </button>
+                <button type="button" class="btn dark btn-outline" v-on:click="xx.editItemModal = false">Cancel</button>
+                <button v-if="!xx.item.planner_task_id || (xx.item.planner_task_id && xx.item.planner_date)" type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
             </div>
-        </confirm-Signoff>
+        </confirm-Item>
+
     </template>
+
+
 
 
     <template id="actions-template">
@@ -777,7 +804,6 @@
                             <th width="10%">Date</th>
                             <th> Action</th>
                             <th width="20%"> Name</th>
-                            <th width="5%"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -786,17 +812,6 @@
                                 <td>@{{ action.niceDate }}</td>
                                 <td>@{{ action.action }}</td>
                                 <td>@{{ action.fullname }}</td>
-                                <td>
-                                    <!--<button v-show="xx.record_status != 0" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm>"> Assign Task</span>
-                                    </button>-->
-                                    <!--
-                                    <button v-show="action.created_by == xx.created_by" v-on:click.prevent="$root.$broadcast('edit-action-modal', action)"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">
-                                        <i class="fa fa-pencil"></i> <span class="hidden-xs hidden-sm>">Edit</span>
-                                    </button>
-                                    -->
-                                </td>
                             </tr>
                         </template>
                         </tbody>
@@ -843,7 +858,7 @@
         $(document).ready(function () {
             /* Select2 */
             $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
-            $("#assigned_to").select2({placeholder: "Select company", width: '100%'});
+            //$("#assigned_to").select2({placeholder: "Select company", width: '100%'});
             $("#category_id").select2({placeholder: "Select category", width: "100%"});
 
             $("#status").change(function () {
@@ -899,65 +914,17 @@
             $("#ac_form_mark_na").click(function (e) {
                 e.preventDefault();
             });
-
-            /* Bootstrap Fileinput */
-            /*
-            $("#multifile").fileinput({
-                uploadUrl: "/site/maintenance/upload/", // server upload action
-                uploadAsync: true,
-                //allowedFileExtensions: ["image"],
-                //allowedFileTypes: ["image"],
-                browseClass: "btn blue",
-                browseLabel: "Browse",
-                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-                //removeClass: "btn red",
-                removeLabel: "",
-                removeIcon: "<i class=\"fa fa-trash\"></i> ",
-                uploadClass: "btn dark",
-                uploadIcon: "<i class=\"fa fa-upload\"></i> ",
-                uploadExtraData: {
-                    "site_id": site_id,
-                    "main_id": main_id,
-                },
-                layoutTemplates: {
-                    main1: '<div class="input-group {class}">\n' +
-                        '   {caption}\n' +
-                        '   <div class="input-group-btn">\n' +
-                        '       {remove}\n' +
-                        '       {upload}\n' +
-                        '       {browse}\n' +
-                        '   </div>\n' +
-                        '</div>\n' +
-                        '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                        '{preview}\n'
-                },
-            });
-
-            $('#multifile').on('filepreupload', function (event, data, previewId, index, jqXHR) {
-                data.form.append("site_id", $("#site_id").val());
-                data.form.append("main_id", $("#main_id").val());
-            });*/
         });
     </script>
     <script>
         var xx = {
             dev: dev,
             main: {
-                id: '',
-                name: '',
-                site_id: '',
-                status: '',
-                warranty: '',
-                assigned_to: '',
-                planner_id: '',
-                planner_task_id: '',
-                planner_task_date: '',
-                signed: '',
-                items_total: 0,
-                items_done: 0
+                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '',
+                planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
-            spinner: false, showSignOff: false, showAction: false,
-            record: {},
+            spinner: false, showSignOff: false, editItemModal: false, showAction: false,
+            record: {}, item: {},
             action: '', loaded: false,
             table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
             created_by: '', created_by_fullname: '',
@@ -968,7 +935,7 @@
         };
 
         //
-        // QA Items
+        // Maintenance Items
         //
         Vue.component('app-main', {
             template: '#main-template',
@@ -994,10 +961,15 @@
             },
             components: {
                 confirmSignoff: VueStrap.modal,
+                confirmItem: VueStrap.modal,
+                datepicker2: VueStrap.datepicker,
             },
             filters: {
                 formatDate: function (date) {
                     return moment(date).format('DD/MM/YYYY');
+                },
+                max100chars: function (str) {
+                    return str.substring(0, 100);
                 },
             },
             methods: {
@@ -1026,59 +998,67 @@
                         this.xx.main.items_total++;
                     }
                 },
-                itemStatus: function (record) {
-                    if (record.status == '1') {
+                itemEdit: function (record) {
+                    this.xx.item = record;
+                    this.xx.item.name_brief = this.xx.item.name.substring(0, 150) + '....';
+                    this.updateTaskOptions(record);
+                    this.xx.editItemModal = true;
+                },
+                updateTaskOptions: function (item) {
+                    if (item.assigned_to) {
+                        $.getJSON('/planner/data/company/' + item.assigned_to + '/tasks/trade/all', function (tasks) {
+                            this.xx.sel_task = tasks;
+                        }.bind(this));
+                    } else {
+                        item.planner_task_id = '';
+                        item.planner_date = '';
+                    }
+                },
+                updateItem: function (record) {
+                    // Get company name + licence from dropdown menu array
+                    var company = objectFindByKey(this.xx.sel_company, 'value', record.assigned_to);
+                    record.assigned_to_name = company.text;
+
+                    // Get Task name from dropdown menu array
+                    var task = objectFindByKey(this.xx.sel_task, 'value', record.planner_task_id);
+                    record.planner_task = task.text;
+
+                    // Item just marked Completed
+                    if (record.status == '1' && !record.done_by) {
+                        // Update done by + Signed by
                         record.done_at = moment().format('YYYY-MM-DD');
                         record.done_by = this.xx.user_id;
                         record.done_by_name = this.xx.user_fullname;
-                    }
-                    this.updateItemDB(record);
-                },
-                itemStatusReset: function (record) {
-                    record.status = '';
-                    record.done_at = '';
-                    record.done_by = '';
-                    record.done_by_name = '';
-                    this.updateItemDB(record);
-                },
-                itemSign: function (record) {
-                    if (record.super == '1') {
                         record.sign_at = moment().format('YYYY-MM-DD');
                         record.sign_by = this.xx.user_id;
                         record.sign_by_name = this.xx.user_fullname;
-                        this.updateItemDB(record);
-                    } else
-                        this.itemStatusReset(record);
-                },
-                itemSignReset: function (record) {
-                    record.sign_at = '';
-                    record.sign_by = '';
-                    record.sign_by_name = '';
-                    this.updateItemDB(record);
-                },
-                updateItemCompany: function (record, response) {
-                    if (response) {
-                        record.done_by = this.xx.done_by;
-                        //alert('by:'+record.done_by);
-
-                        // Get company name + licence from dropdown menu array
-                        var company = objectFindByKey(this.xx.sel_company, 'value', record.done_by);
-                        record.done_by_company = company.text;
-                        record.dony_by_licence = company.licence;
-
-                        // Get original item from list
-                        var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
-                        obj = record;
-                        this.updateItemDB(obj);
                     }
-                    this.xx.record = {};
+
+                    // Item just marked Incomplete
+                    if (record.status == '0' && record.done_by) {
+                        record.done_at = '';
+                        record.done_by = '';
+                        record.done_by_name = '';
+                        record.sign_at = '';
+                        record.sign_by = '';
+                        record.sign_by_name = '';
+                    }
+
+                    console.log(record);
+
+                    // Get original item from list
+                    //var obj = objectFindByKey(this.xx.itemList, 'id', record.id);
+                    //obj = record;
+                    this.updateItemDB(record);
+                    this.xx.item = {};
                     this.xx.done_by = '';
-                    this.xx.showSignOff = false;
+                    this.xx.editItemModal = false;
                 },
                 updateItemDB: function (record) {
                     //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
                     this.$http.patch('/site/maintenance/item/' + record.id, record)
                         .then(function (response) {
+                            this.getMain();
                             this.itemsCompleted();
                             toastr.success('Updated record');
                         }.bind(this))
@@ -1210,16 +1190,6 @@
                 datepicker: VueStrap.datepicker,
             },
             methods: {
-                updateTaskOptions: function () {
-                    if (this.xx.main.assigned_to) {
-                        $.getJSON('/planner/data/company/' + this.xx.main.assigned_to + '/tasks/trade/all', function (tasks) {
-                            this.xx.sel_task = tasks;
-                        }.bind(this));
-                    } else {
-                        this.xx.main.planner_task_id = '';
-                        this.xx.main.planner_task_date = '';
-                    }
-                },
                 doNothing: function () {
                     //
                 },

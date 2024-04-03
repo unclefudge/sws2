@@ -97,7 +97,7 @@
                                         <td colspan="7" style="background: #333; color: #fff">
                                             <b>Summary of existing Extensions</b>
                                             <div style="background: #fff; color:#636b6f;  padding: 20px">
-                                                {!! nl2br($row['past_extentions']) !!}
+                                                {!! nl2br($row['past_extensions']) !!}
                                             </div>
                                         </td>
                                     </tr>

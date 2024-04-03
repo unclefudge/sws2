@@ -5,11 +5,13 @@ namespace App\Models\Site;
 
 use App\Http\Controllers\CronCrontroller;
 use App\Models\Comms\Todo;
+use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\TemporaryFile;
 use App\Models\Site\Planner\SitePlanner;
 use App\User;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -89,7 +91,21 @@ class SiteMaintenance extends Model
      */
     public function assignedTo()
     {
-        return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
+        $assigned = SiteMaintenanceItem::where('main_id', $this->id)->pluck('assigned_to')->toArray();
+        return array_unique($assigned);
+
+    }
+
+    public function assignedToNames()
+    {
+        $names = '';
+        foreach ($this->assignedTo() as $cid) {
+            $company = Company::find($cid);
+            if ($company)
+                $names .= $company->name . ", ";
+        }
+        return rtrim($names, ', ');
+
     }
 
     /**
@@ -97,10 +113,10 @@ class SiteMaintenance extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
-    public function planner()
+    /*public function planner()
     {
         return $this->belongsTo('App\Models\Site\Planner\SitePlanner', 'planner_id');
-    }
+    }*/
 
     /**
      * A Site Maintenance has many Docs.
@@ -126,10 +142,10 @@ class SiteMaintenance extends Model
      * A Site Maintenance Item.
      *
      */
-    public function item($order)
+    /*public function item($order)
     {
         return SiteMaintenanceItem::where('main_id', $this->id)->where('order', $order)->first();
-    }
+    }*/
 
     /**
      * Determine if a all items are completed

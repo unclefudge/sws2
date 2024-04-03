@@ -292,16 +292,17 @@
                         {{-- Items --}}
                         <h4>Maintenance Item</h4>
                         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                        <div class="row">
-                            {{-- Item Details  --}}
-                            <div class="col-md-12 ">
-                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                    {!! Form::label('item1', 'Item details', ['class' => 'control-label']) !!}
-                                    {!! Form::textarea("item1", $main->items->first()->name, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request."]) !!}
-                                    {!! fieldErrorMessage('item1', $errors) !!}
+                        @foreach ($main->items as $item)
+                            <div class="row">
+                                <div class="col-xs-1 ">Item {{$item->order}}</div>
+                                <div class="col-xs-11 ">
+                                    <div class="form-group {!! fieldHasError("item$item->order", $errors) !!}">
+                                        {!! Form::textarea("item$item->order", $item->name, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request $item->order."]) !!}
+                                        {!! fieldErrorMessage("item$item->order", $errors) !!}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
 
                         {{-- Planner --}}
                         <h4>Future Planner Tasks</h4>

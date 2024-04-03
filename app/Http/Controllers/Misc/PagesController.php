@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Misc\Action;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -12,7 +11,7 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -139,12 +138,18 @@ class PagesController extends Controller
 
     public function quick()
     {
+        echo "Maintenance Items Migrate to Multi-items<br>";
+        $docs = SiteMaintenance::all();
+        foreach ($docs as $doc) {
+            echo "[$doc->id] " . $doc->site->name . "<br>";
+            if (count($doc->items) == 1) {
+                $item = $doc->items->first();
+                $item->assigned_to = $doc->assigned_to;
+                $item->planner_id = $doc->planner_id;
+                $item->save();
+            }
+        }
 
-        echo "Manual trigger site hazard<br>";
-        $hazard = SiteHazard::find(967);
-        $action = Action::find(21464);
-        if ($hazard)
-            $hazard->emailHazard($action);
 
         /*
                 echo "Scaffold certs for year<br>";
