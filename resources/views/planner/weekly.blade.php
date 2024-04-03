@@ -165,7 +165,7 @@
                     </div>
                 </div>
 
-                <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                <pre v-if="xx.dev">@{{ $data | json }}</pre>
                 -->
 
             </div>
@@ -252,6 +252,7 @@
                     <div class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.entity_name | max10chars }} (@{{{ entity.tasks }}})</small>
                     </div>
+                    <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
                 </template>
             </div>
             <!-- Non-rostered -->
@@ -269,6 +270,7 @@
                     <div class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.entity_name | max10chars }} (@{{{ entity.tasks }}})</small>
                     </div>
+                    <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
                 </template>
             </div>
             <!-- Non-rostered -->

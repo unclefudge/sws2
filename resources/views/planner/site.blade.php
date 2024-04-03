@@ -533,7 +533,7 @@
             </template>
         </div>
 
-        <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+        <pre v-if="xx.dev">@{{ $data | json }}</pre>
         -->
     </template>
 
@@ -590,6 +590,7 @@
             <div v-if="entity_plan.length">
                 <template v-for="task in entity_plan">
                     <div class="@{{ taskNameClass(task) }}"><b>@{{ task.task_name }}</b></div>
+                    <div v-if="task.maintenance" class="label label-info">Maintenance Request</div>
                 </template>
                 <div v-if="etype == 't'" class="font-yellow-gold">
                     <small>@{{ ename }}</small>

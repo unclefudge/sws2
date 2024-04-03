@@ -683,8 +683,8 @@ Vue.component('app-weekof', {
                     // Return if task from or to is between mon-fri
                     // OR from is before mon + to after fri ie spans whole week but starts before current
                     return (moment(e.from).isSameOrAfter(this.mon) && moment(e.from).isSameOrBefore(friday) ||
-                    moment(e.to).isSameOrAfter(this.mon) && moment(e.to).isSameOrBefore(friday) ||
-                    moment(e.from).isBefore(this.mon) && moment(e.to).isAfter(friday));
+                        moment(e.to).isSameOrAfter(this.mon) && moment(e.to).isSameOrBefore(friday) ||
+                        moment(e.from).isBefore(this.mon) && moment(e.to).isAfter(friday));
                 }.bind(this));
 
                 // Add found 'unique' Companies / Entities to entities array
@@ -708,7 +708,7 @@ Vue.component('app-weekof', {
             this.fri = moment(this.mon).add(4, 'days').format('YYYY-MM-DD');
         },
         adminDate: function (date) {
-            var string = "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>" + date +"</div><br>"
+            var string = "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>" + date + "</div><br>"
             if (date == this.xx.council_approval) {   // Council Approval
                 string = string + "<div class='label label-sm label-success font-white' style='padding: 5px; margin:5px'>Council Approval</div><br>";
             }

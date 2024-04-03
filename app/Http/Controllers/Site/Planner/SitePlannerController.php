@@ -11,6 +11,7 @@ use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
+use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteProjectSupply;
 use App\User;
 use Carbon\Carbon;
@@ -1291,6 +1292,10 @@ class SitePlannerController extends Controller
                 $array['entity_name'] = $trade->name;
         }
 
+        // Determine if linked to maintenance request
+        $item = SiteMaintenanceItem::where('planner_id', $plan->id)->first();
+        $maintenance = ($item) ? 1 : 0;
+
         // Get task info
         $array['task_id'] = '';
         $array['task_code'] = '';
@@ -1314,6 +1319,7 @@ class SitePlannerController extends Controller
         $array['from'] = $plan->from->format('Y-m-d');
         $array['to'] = $plan->to->format('Y-m-d');
         $array['days'] = $plan->days;
+        $array['maintenance'] = $maintenance;
 
         return $array;
     }

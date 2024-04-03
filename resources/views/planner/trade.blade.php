@@ -714,6 +714,7 @@
                 <template v-for="entity in entity_sites">
                     <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
+                        <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
                     </div>
                 </template>
             </div>
@@ -724,6 +725,7 @@
                 <template v-for="entity in entity_sites">
                     <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
                         <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
+                        <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
                     </div>
                 </template>
             </div>
