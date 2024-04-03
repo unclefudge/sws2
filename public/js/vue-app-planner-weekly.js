@@ -6,7 +6,7 @@ $('#supervisor_id').change(function () {
 var xx = {
     dev: dev, permission: '', user_company_id: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'),  week_selected: '',
+    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'), week_selected: '',
     mon_now: '', mon_this: '', mon_prev: '', mon_next: '',
     sel_super: [], maxjobs: [], leave: [], sites: [],
     plan: [], non_rostered: [], entity_all_onsite: [],
@@ -108,7 +108,7 @@ Vue.component('app-site', {
             //if (selected_site.status == -1)
             //    postAndRedirect('/planner/preconstruction', this.xx.params);
             //else
-                postAndRedirect('/planner/site', this.xx.params);
+            postAndRedirect('/planner/site', this.xx.params);
         },
         showSite: function (site_id) {
             // Need to determine of User is from CapeCod to either hide/show maintenance sites
@@ -117,8 +117,7 @@ Vue.component('app-site', {
             if (this.xx.user_company_id == 3) {
                 if (this.xx.params.supervisor_id === 'all' && site.status == 1)
                     return this.siteSearch(site); //return true;
-            }
-            else if (this.xx.params.supervisor_id === 'all')
+            } else if (this.xx.params.supervisor_id === 'all')
                 return this.siteSearch(site); //return true;
 
             if (this.xx.params.supervisor_id === 'maint' && site.status == 2)
@@ -185,7 +184,7 @@ Vue.component('app-dayplan', {
             //if (selected_site.status == -1)
             //    postAndRedirect('/planner/preconstruction', this.xx.params);
             //else
-                postAndRedirect('/planner/site', this.xx.params);
+            postAndRedirect('/planner/site', this.xx.params);
         },
         getDayPlan: function () {
             // Get plan for current Entity
@@ -209,6 +208,7 @@ Vue.component('app-dayplan', {
                                 entity_type: task.entity_type,
                                 entity_id: task.entity_id,
                                 entity_name: task.entity_name,
+                                maintenance: task.maintenance,
                                 tasks: '', conflicts: '', leave: ''
                             };
 
