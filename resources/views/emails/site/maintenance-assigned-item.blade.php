@@ -15,7 +15,8 @@ A maintenance item has been assigned for {{ $item->maintenance->site->name }}.
 | **ID**  | {{ $item->maintenance->code  }} |
 | **Site Name**  | {{ $item->maintenance->site->name  }} |
 | **Site Address**  | {{ $item->maintenance->site->address }}, {{ $item->maintenance->site->SuburbStatePostcode }} |
-| **Assigned to**  | {{ ($item->assigned_to) ? $item->assigned->name : 'N/A' }} |
+| **Assigned Supervisor**  | {{ ($main->super_id) ? $main->taskOwner->name : '-' }} |
+| **Assigned Task(s)**  | {{ ($item->assigned_to) ? $item->assigned->name : 'N/A' }} |
 @if ($item->planner_id)
 | **Task Date**  | {{ ($item->planner) ? $item->planner->from->format('d/m/Y') : '' }} |
 @endif

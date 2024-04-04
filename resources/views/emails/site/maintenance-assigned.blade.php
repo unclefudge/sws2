@@ -15,7 +15,7 @@ A maintenance request has been assigned for {{ $main->site->name }}.
 | **ID**  | {{ $main->code  }} |
 | **Site Name**  | {{ $main->site->name  }} |
 | **Site Address**  | {{ $main->site->address }}, {{ $main->site->SuburbStatePostcode }} |
-| **Assigned to**  | {{ ($main->assignedToNames()) }} |
+| **Assigned Supervisor**  | {{ ($main->super_id) ? $main->taskOwner->name : '-' }} |
 
 @component('mail::button', ['url' => config('app.url').'/site/maintenance/'.$main->id])
 View Request
