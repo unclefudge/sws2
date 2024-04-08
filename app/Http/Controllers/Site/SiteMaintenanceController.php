@@ -411,8 +411,8 @@ class SiteMaintenanceController extends Controller
                 $main->assigned_super_at = Carbon::now()->toDateTimeString();
 
             $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
-            $main->site->supervisor_id = request('super_id'); // Update Site supervisor
-            $main->site->save();
+            //$main->site->supervisor_id = request('super_id'); // Update Site supervisor
+            //$main->site->save();
         }
 
         // Add note if change of Status
