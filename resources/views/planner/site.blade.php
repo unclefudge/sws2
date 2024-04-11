@@ -122,7 +122,7 @@
                                 @if ($site && $site->status == 2)
                                     <h3 class="pull-right font-red uppercase" style="margin:0 0 10px;">Maintenance</h3>
                                 @endif
-                                @if ($site && $site->status == 1 && Auth::user()->hasPermission2('edit.trade.planner'))
+                                @if ($site && $site->status == 1 && Auth::user()->hasPermission2('edit.preconstruction.planner'))
                                     <span v-if="!pastDate(xx.start_date)"><a href="/planner/site/{{$site->id}}/status/0" class="btn blue" style="margin: 3px">Move Site to Pre-construction</a></span>
                                     <span v-else><h5><b>Start Job:</b> @{{ formatDate(xx.start_date) }}</h5></span>
                                 @endif
