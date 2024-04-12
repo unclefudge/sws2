@@ -694,7 +694,7 @@
                     {{-- Assigned Task --}}
                     <td style="padding-top: 15px;">
                         @{{ item.assigned_to_name }}<br>
-                        <div v-if="item.planner_id">
+                        <div v-if="item.planner_id && item.planner_task && item.planner_date">
                             <b>Task:</b> @{{ item.planner_task}} (@{{ item.planner_date }})
                         </div>
                     </td>
