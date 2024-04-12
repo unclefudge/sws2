@@ -758,14 +758,22 @@ class SiteMaintenanceController extends Controller
         $users = [];
         $companies = [];
         foreach ($main->items as $item) {
+            $taskname = $taskdate = '';
+            if ($item->planner_id) {
+                $plan = SitePlanner::find($item->planner_id);
+                if ($plan) {
+                    $taskname = ($plan->task) ? $plan->task->name : '';
+                    $taskdate = ($plan->from) ? $plan->from->format('d/m/Y') : '';
+                }
+            }
             $array = [];
             $array['id'] = $item->id;
             $array['assigned_to'] = (string)$item->assigned_to;
             $array['assigned_to_name'] = ($item->assigned_to) ? $item->assigned->name : 'Unassigned';
             $array['planner_id'] = (string)$item->planner_id;
-            $array['planner_task'] = ($item->planner_id && $item->planner->task) ? $item->planner->task->name : '';
+            $array['planner_task'] = $taskname;
             $array['planner_task_id'] = ($item->planner_id) ? $item->planner->task_id : '';
-            $array['planner_date'] = ($item->planner_id) ? $item->planner->from->format('d/m/Y') : '';
+            $array['planner_date'] = $taskdate;
             $array['order'] = $item->order;
             $array['name'] = $item->name;
             $array['super'] = $item->super;
