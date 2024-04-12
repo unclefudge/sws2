@@ -758,10 +758,11 @@ class SiteMaintenanceController extends Controller
         $users = [];
         $companies = [];
         foreach ($main->items as $item) {
-            $taskname = $taskdate = '';
+            $taskid = $taskname = $taskdate = '';
             if ($item->planner_id) {
                 $plan = SitePlanner::find($item->planner_id);
                 if ($plan) {
+                    $taskid = $plan->task_id;
                     $taskname = ($plan->task) ? $plan->task->name : '';
                     $taskdate = ($plan->from) ? $plan->from->format('d/m/Y') : '';
                 }
@@ -772,7 +773,7 @@ class SiteMaintenanceController extends Controller
             $array['assigned_to_name'] = ($item->assigned_to) ? $item->assigned->name : 'Unassigned';
             $array['planner_id'] = (string)$item->planner_id;
             $array['planner_task'] = $taskname;
-            $array['planner_task_id'] = ($item->planner_id) ? $item->planner->task_id : '';
+            $array['planner_task_id'] = $taskid;
             $array['planner_date'] = $taskdate;
             $array['order'] = $item->order;
             $array['name'] = $item->name;
