@@ -186,7 +186,10 @@
                                                         <i class="fa fa-cog"> </i>&nbsp; Actions <i class="fa fa-angle-down"></i>
                                                     </a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a href="javascript:;" v-on:click="openSidebarAddstart()"> Add Job Start</a></li>
+                                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                                            {{-- Fudge, Kirstie, Ross --}}
+                                                            <li><a href="javascript:;" v-on:click="openSidebarAddstart()"> Add Job Start</a></li>
+                                                        @endif
                                                         <li><a href="javascript:;" v-on:click="openSidebarMovestart()"> Move Job Start</a></li>
                                                         <li><a href="javascript:;" v-on:click="openSidebarAllocatejob()"> Allocate Job </a></li>
                                                     </ul>
