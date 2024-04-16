@@ -190,7 +190,6 @@
                                                             <li><a href="javascript:;" v-on:click="openSidebarAddstart()"> Add Job Start</a></li>
                                                         @endif
                                                         <li><a href="javascript:;" v-on:click="openSidebarMovestart()"> Move Job Start</a></li>
-
                                                             @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
                                                             <li><a href="javascript:;" v-on:click="openSidebarAllocatejob()"> Allocate Job </a></li>
                                                         @endif

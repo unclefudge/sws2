@@ -281,6 +281,7 @@
                                                     @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
                                                         <li><h3 class="h3-submenu">Reports</h3></li>
                                                         <li><a href="/client/planner/email" class="nav-link"> Client Email </a></li>
+                                                        <li><a href="/site/export/plan" class="nav-link"> Planner Export </a></li>
                                                     @endif
                                                 </ul>
                                             </div>
