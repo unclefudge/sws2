@@ -307,7 +307,7 @@
         function isNumber(evt) {
             evt = (evt) ? evt : window.event;
             var charCode = (evt.which) ? evt.which : evt.keyCode;
-            const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 12, 33, 34, 35, 36, 37, 38, 39, 40, 45];  // top numbers, keypad, keypad (numlock)
+            const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 13];  // top numbers, keypad
             console.log(charCode);
             if (validNumbers.includes(charCode))
                 //if ((charCode > 31 && charCode < 48) || charCode > 57) {
