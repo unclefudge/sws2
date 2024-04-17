@@ -135,7 +135,7 @@
                                 <tr>
                                     <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                                 </tr>
-                           
+
                                 {{-- Inspection Reports --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Inspection Reports</th>
@@ -183,22 +183,24 @@
                                 @endif
                             @endif
                             {{-- Security --}}
-                            <tr style="background-color: #f0f6fa">
-                                <th> Security</th>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/roleusers">Roles assigned to Users</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="/manage/report/users_extra_permissions">Users with extra permissions (on top of what is provided by their role)</a></td>
-                            </tr>
+                            @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                <tr style="background-color: #f0f6fa">
+                                    <th> Security</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/roleusers">Roles assigned to Users</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/users_extra_permissions">Users with extra permissions (on top of what is provided by their role)</a></td>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/users_with_permission/user">Users with Specific Permission</a></td>
+                                </tr>
+                            @endif
                             @if (Auth::user()->hasRole2('web-admin'))
                                 {{-- Web Admin --}}
                                 <tr style="background-color: #f0f6fa">
                                     <th> Website Admin</th>
-                                </tr>
-                                <tr>
-                                    <td><a href="/manage/report/users_with_permission/user">Users with Specific Permission</a></td>
                                 </tr>
                                 <tr>
                                     <td><a href="/manage/report/nightly">Nightly Log</a></td>
