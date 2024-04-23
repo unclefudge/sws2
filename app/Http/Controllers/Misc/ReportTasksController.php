@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comms\Todo;
+use App\Models\Comms\TodoUser;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocReview;
@@ -478,7 +479,22 @@ class ReportTasksController extends Controller
     public function todoTasksDelete()
     {
         if (request()->ajax()) {
-            $todos = Todo::whereIn('id', request('deleteTasks'))->delete();
+            $todos = Todo::whereIn('id', request('checkedList'))->delete();
+            return json_encode('success');
+        }
+    }
+
+    public function todoTasksReassign()
+    {
+        if (request()->ajax()) {
+            if (request('assign_to')) {
+                $todos = Todo::whereIn('id', request('checkedList'))->get();
+                foreach ($todos as $todo) {
+                    // Clear existing assigned users + add new one
+                    TodoUser::where('todo_id', $todo->id)->delete();
+                    $todo->assignUsers(request('assign_to'));
+                }
+            }
             return json_encode('success');
         }
     }

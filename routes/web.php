@@ -170,6 +170,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/todo_inactive', '\App\Http\Controllers\Misc\ReportTasksController@todoInactive');
     Route::get('/manage/report/todo_inactive/tasks', '\App\Http\Controllers\Misc\ReportTasksController@todoTasksInactive');
     Route::post('/manage/report/todo_inactive/delete', '\App\Http\Controllers\Misc\ReportTasksController@todoTasksDelete');
+    Route::post('/manage/report/todo_inactive/reassign', '\App\Http\Controllers\Misc\ReportTasksController@todoTasksReassign');
 
 
     // User Docs

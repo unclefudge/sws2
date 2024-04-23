@@ -123,7 +123,7 @@
                     </tbody>
                 </table>
 
-                <pre v-if="xx.dev">@{{ $data | json }}</pre>
+                <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
                 -->
 
             </div>
@@ -141,27 +141,13 @@
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-3">Assign To</div>
                     <div class="col-md-9">
-                        <select v-model="xx.assign_to_type" class='form-control'>
-                            <option value="">Select type</option>
-                            <option value="cc">Cape Cod</option>
-                            <option value="ext">External Company</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">User</div>
-                    <div class="col-md-9">
-                        <select v-model="xx.assign_to" class='form-control'>
-                            <option v-for="option in xx.sel_users_active" value="@{{ option.value }}"
-                                    selected="@{{option.value == xx.assigned_to}}">@{{ option.text }}
-                            </option>
-                        </select>
+                        {!! Form::select('assignto', Auth::user()->company->reportsTo()->usersSelect('prompt', 1), null, ['class' => 'form-control select2', 'title' => 'Select user', 'id' => 'assignto']) !!}
                     </div>
                 </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.reassignModal = false">Cancel</button>
-                <button type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
+                <button type="button" class="btn green" v-on:click="reassignItems()">&nbsp; Save &nbsp;</button>
             </div>
         </confirm-Reassign>
 
@@ -170,10 +156,13 @@
 
 
 @section('page-level-plugins-head')
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/js/moment.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
 @section('page-level-scripts')
@@ -183,6 +172,16 @@
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-app-basic-functions.js"></script>
     <script src="/js/vue-modal-component.js"></script>
+
+    <script>
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+
+        $(document).ready(function () {
+            /* Select2 */
+            $("#assignto").select2({placeholder: "Select user", width: '100%'});
+        });
+    </script>
+
     <script>
 
         Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
@@ -194,7 +193,7 @@
         var xx = {
             record: {},
             dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', username: 'all', action: '', tasks_found: 0, status: 0,
-            reassignModal: false, assign_to: '', assign_to_type
+            reassignModal: false, assign_to: '',
             sortKey: 'title', sortOrder: 1, search: '',
             today: moment().format('YYYY-MM-DD'), days7past: moment().subtract(7, 'days').format('YYYY-MM-DD'), days28past: moment().subtract(28, 'days').format('YYYY-MM-DD'),
             list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_action: [], sel_users_cc: [], sel_users_ext: [], sel_users_all: [], sel_users: [],
@@ -326,16 +325,16 @@
                             return t.checked == true
                         });
                         //console.log(checked);
-                        deleteList = [];
+                        checkedList = [];
                         if (checked.length) {
                             for (var i = 0; i < checked.length; i++) {
-                                deleteList.push(checked[i].id);
+                                checkedList.push(checked[i].id);
                             }
-                            //console.log(deleteList);
+                            //console.log(checkedList);
                             $.ajax({
                                 url: '/manage/report/todo_inactive/delete',
                                 type: 'POST',
-                                data: {deleteTasks: deleteList},
+                                data: {checkedList: checkedList},
                                 success: function (result) {
                                     console.log('deleted tasks');
                                     window.location.href = "/manage/report/todo_inactive";
@@ -347,6 +346,42 @@
                             });
                         }
                     });
+                },
+                reassignItems: function () {
+                    var assign = $('#assignto').val();
+
+                    if (assign) {
+                        let checked = this.xx.list.filter((t) => {
+                            return t.checked == true
+                        });
+
+                        checkedList = [];
+                        if (checked.length) {
+                            for (var i = 0; i < checked.length; i++) {
+                                checkedList.push(checked[i].id);
+                            }
+                            console.log(checkedList);
+                            $.ajax({
+                                url: '/manage/report/todo_inactive/reassign',
+                                type: 'POST',
+                                data: {checkedList: checkedList, assign_to: assign},
+                                success: function (result) {
+                                    console.log('reassigned tasks');
+                                    window.location.href = "/manage/report/todo_inactive";
+                                },
+                                error: function (result) {
+                                    alert("Failed to delete tasks");
+                                    console.log('Failed to delete tasks');
+                                }
+                            });
+                        }
+                    } else {
+                        alert('You need to select a user to assign the tasks to')
+                    }
+
+                },
+                checkedList: function () {
+
                 }
             },
         });
