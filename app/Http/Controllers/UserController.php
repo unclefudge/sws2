@@ -274,7 +274,7 @@ class UserController extends Controller
         // If user being made inactive then update email
         if (request()->has('status') && request('status') == 0) {
             // Delete outstanding ToDoos (except Toolbox)
-            $user->todoDeleteAllActive();
+            //$user->todoDeleteAllActive();
 
             // If user being made inactive and has email then append 'achived-userid' to front to allow
             // for the email to be potentially reused by another user

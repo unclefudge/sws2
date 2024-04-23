@@ -808,10 +808,6 @@ class Company extends Model
         $super_ids = DB::table('company_supervisors')->where('company_id', $this->id)->pluck('user_id')->toArray();
 
         return (User::find($super_ids));
-
-        return DB::table('company_supervisors AS s')->select('s.id', 's.user_id',
-            DB::raw('CONCAT(users.firstname, " ", users.lastname) AS fullname'))->where('s.company_id', $this->id)
-            ->join('users', 's.user_id', '=', 'users.id')->groupBy('s.user_id')->get();
     }
 
     /**

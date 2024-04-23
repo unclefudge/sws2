@@ -92,12 +92,26 @@
                 </div>
                 <hr class="field-hr">
             @endif
+        @else
+            {{-- Pass Required Fields as hidden --}}
+            {!! Form::hidden('code', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('name', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('address', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('suburb', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('state', null, ['class' => 'form-control']) !!}
+            {!! Form::hidden('postcode', null, ['class' => 'form-control']) !!}
+        @endif
+        @if($site->status != 0 || Auth::user()->allowed2('del.site', $site))
             {{-- Primary Supervisor--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
                     {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'col-md-3 control-label']) !!}
                     <div class="col-md-9">
-                        {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
+                        @if($site->status != 0)
+                            {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
+                        @else
+                            {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
+                        @endif
                         {!! fieldErrorMessage('supervisor_id', $errors) !!}
                     </div>
                 </div>
@@ -114,14 +128,6 @@
                 </div>
             </div>
             <hr class="field-hr">
-        @else
-            {{-- Pass Required Fields as hidden --}}
-            {!! Form::hidden('code', null, ['class' => 'form-control']) !!}
-            {!! Form::hidden('name', null, ['class' => 'form-control']) !!}
-            {!! Form::hidden('address', null, ['class' => 'form-control']) !!}
-            {!! Form::hidden('suburb', null, ['class' => 'form-control']) !!}
-            {!! Form::hidden('state', null, ['class' => 'form-control']) !!}
-            {!! Form::hidden('postcode', null, ['class' => 'form-control']) !!}
         @endif
         {{-- Notes --}}
         @if (Auth::user()->company_id == $site->company_id)

@@ -18,7 +18,8 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject font-green-haze bold uppercase">ToDo Tasks</span>
+                            <span class="caption-subject font-green-haze bold uppercase">ToDo Tasks Assigned to Inactive Users</span>
+                            <small> &nbsp;Note: Toolbox, SWMS & Company/User Docs Tasks are excluded</small>
                         </div>
                     </div>
                     <div class="portlet-body form">
@@ -51,25 +52,24 @@
 
         <div class="row">
             <div class="col-md-3">
-                <select-picker :name.sync="xx.assigned_tasks" :options.sync="xx.sel_assigned_tasks" :function="doNothing"></select-picker>
-            </div>
-            <div class="col-md-3">
                 <select-picker :name.sync="xx.assigned_cc" :options.sync="xx.sel_assigned_cc" :function="updateUserList"></select-picker>
             </div>
             <div class="col-md-3">
                 <select-picker :name.sync="xx.username" :options.sync="xx.sel_users" :function="doNothing"></select-picker>
             </div>
-            <div class="col-md-3">
-                <select-picker :name.sync="xx.active_record" :options.sync="xx.sel_active_record" :function="doNothing"></select-picker>
-            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-4"><input v-model="xx.search" type="text" class="form-control" placeholder="Search"></div>
         </div>
         <br>
         <div class="row">
-            <div class="col-md-6">
-                <select-picker :name.sync="xx.task_type" :options.sync="xx.sel_task_types" :function="doNothing"></select-picker>
+            <div class="col-md-8">
             </div>
-            <div class="col-md-2"></div>
-            <div class="col-md-4"><input v-model="xx.search" type="text" class="form-control" placeholder="Search"></div>
+            <div class="col-md-2">
+                <button v-on:click="reassignTasks" class="btn blue">Reassign selected tasks</button>
+            </div>
+            <div class="col-md-2">
+                <button v-on:click="deleteTasks" class="btn btn-danger">Delete selected tasks</button>
+            </div>
         </div>
 
         <div class="row" style="margin-top: 0px; padding-top: 0px">
@@ -78,6 +78,7 @@
                 <table v-show="xx.list.length" class="table table-striped table-bordered table-nohover order-column">
                     <thead>
                     <tr class="mytable-header">
+                        <th></th>
                         <th><a href="#" class="mytable-header-link" v-on:click="sortBy('title')"> Task Name</a>
                             <i v-if="xx.sortKey == 'title' && xx.sortOrder == '1'" class="fa fa-caret-down"></i>
                             <i v-if="xx.sortKey == 'title' && xx.sortOrder == '-1'" class="fa fa-caret-up"></i>
@@ -100,15 +101,18 @@
                     <tbody>
                     {{--}}<template v-for="task in xx.list |  filterStatus xx.status | filterBy xx.search | orderBy xx.sortKey xx.sortOrder">--}}
                     <template v-for="task in filteredList  | orderBy xx.sortKey xx.sortOrder">
-                        <tr class="hoverDiv" v-on:click="task.expand = !task.expand"> {{--   v-if="verifyShow(task)"   filterAssigned xx.assigned_tasks | --}}
-                            <td>@{{ task.title }}</td>
-                            <td>@{{ task.assigned_names }}</td>
-                            <td class="@{{ dueDateColour(task)  }}">@{{ task.due_at | formatDate}}</td>
-                            <td>@{{ task.lastupdated_human}}</td>
+                        <tr> {{--   v-if="verifyShow(task)"   filterAssigned xx.assigned_tasks | --}}
+                            <td>
+                                <input v-model="task.checked" type="checkbox" name="checked">
+                            </td>
+                            <td class="hoverDiv" v-on:click="task.expand = !task.expand">@{{ task.title }}</td>
+                            <td class="hoverDiv" v-on:click="task.expand = !task.expand">@{{ task.assigned_names }}</td>
+                            <td class="hoverDiv" v-on:click="task.expand = !task.expand">@{{ task.due_at | formatDate}}</td>
+                            <td class="hoverDiv" v-on:click="task.expand = !task.expand">@{{ task.lastupdated_human}}</td>
                             {{--}}<td class="@{{ lastUpdateColour(task)  }}">@{{ task.lastupdated | formatDate}}</td>--}}
                         </tr>
                         <tr v-if="task.expand">
-                            <td colspan="4" style="width: 100%; background: #333; color: #fff">
+                            <td colspan="5" style="width: 100%; background: #333; color: #fff">
                                 Task ID: @{{ task.id }}
                                 <div style="background: #fff; color:#636b6f;  padding: 20px">
                                     <p v-html="task.info"></p>
@@ -124,6 +128,43 @@
 
             </div>
         </div>
+
+        {{--  Reassign  Modal --}}
+        <confirm-Reassign :show.sync="xx.reassignModal" effect="fade" class="modal fade bs-modal-lg" header="Ra-assign Tasks">
+            <div slot="modal-header" class="modal-header">
+                <h4 class="modal-title text-center"><b>Re-assign Tasks</b></h4>
+            </div>
+            <div slot="modal-body" class="modal-body">
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-12">This action will re-assign all the selected tasks to another user.<br><br></div>
+                </div>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-3">Assign To</div>
+                    <div class="col-md-9">
+                        <select v-model="xx.assign_to_type" class='form-control'>
+                            <option value="">Select type</option>
+                            <option value="cc">Cape Cod</option>
+                            <option value="ext">External Company</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-3">User</div>
+                    <div class="col-md-9">
+                        <select v-model="xx.assign_to" class='form-control'>
+                            <option v-for="option in xx.sel_users_active" value="@{{ option.value }}"
+                                    selected="@{{option.value == xx.assigned_to}}">@{{ option.text }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div slot="modal-footer" class="modal-footer">
+                <button type="button" class="btn dark btn-outline" v-on:click="xx.reassignModal = false">Cancel</button>
+                <button type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
+            </div>
+        </confirm-Reassign>
+
     </template>
 @stop
 
@@ -141,14 +182,23 @@
     <script src="/js/libs/vue-strap.min.js"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-app-basic-functions.js"></script>
+    <script src="/js/vue-modal-component.js"></script>
     <script>
+
+        Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
         var xx = {
             record: {},
-            dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', username: 'all', active_record: 1, tasks_found: 0, status: 0,
+            dev: dev, spinner: false, assigned_tasks: 1, assigned_cc: 1, task_type: 'all', username: 'all', action: '', tasks_found: 0, status: 0,
+            reassignModal: false, assign_to: '', assign_to_type
             sortKey: 'title', sortOrder: 1, search: '',
             today: moment().format('YYYY-MM-DD'), days7past: moment().subtract(7, 'days').format('YYYY-MM-DD'), days28past: moment().subtract(28, 'days').format('YYYY-MM-DD'),
-            list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_active_record: [], sel_users_cc: [], sel_users_ext: [], sel_users_all: [], sel_users: []
+            list: [], sel_assigned_tasks: [], sel_assigned_cc: [], sel_task_types: [], sel_action: [], sel_users_cc: [], sel_users_ext: [], sel_users_all: [], sel_users: [],
+            sel_users_active: [],
         };
 
         Vue.component('app-tasks', {
@@ -170,16 +220,6 @@
                         return task.title.toLowerCase().includes(this.searchLowercase) || task.assigned_names.toLowerCase().includes(this.searchLowercase)
                     });
 
-                    // Filter Assigned
-                    if (this.xx.assigned_tasks == '0') // Only non-assigned tasks
-                        result = result.filter(task => {
-                            return task.assigned_names == '-';
-                        });
-                    if (this.xx.assigned_tasks == '1') // Only assigned tasks
-                        result = result.filter(task => {
-                            return task.assigned_names != '-';
-                        });
-
                     // Filter Cape Cod Tasks
                     if (this.xx.assigned_cc == '1') // Only Cape Cod tasks
                         result = result.filter(task => {
@@ -197,23 +237,25 @@
                             return task.assigned_names.includes(this.xx.username);
                         });
 
-
                     // Filter Task type
-                    if (this.xx.task_type != 'all')
-                        result = result.filter(task => {
-                            return task.type == this.xx.task_type;
-                        });
+                    //if (this.xx.task_type != 'all')
+                    //    result = result.filter(task => {
+                    //        return task.type == this.xx.task_type;
+                    //    });
 
                     // Filter Record Active
-                    result = result.filter(task => {
-                        return task.active == this.xx.active_record;
-                    });
+                    //result = result.filter(task => {
+                    //    return task.active == this.xx.active_record;
+                    //});
 
                     return result;
                 },
                 filteredListCount() {
                     return this.filteredList.length;
                 },
+            },
+            components: {
+                confirmReassign: VueStrap.modal,
             },
             filters: {
                 formatDate: function (date) {
@@ -228,15 +270,16 @@
                     this.xx.spinner = true;
                     setTimeout(function () {
                         this.xx.load_plan = true;
-                        $.getJSON('/manage/report/todo/tasks', function (data) {
+                        $.getJSON('/manage/report/todo_inactive/tasks', function (data) {
                             this.xx.list = data[0];
                             this.xx.sel_assigned_tasks = data[1];
                             this.xx.sel_assigned_cc = data[2];
                             this.xx.sel_task_types = data[3];
-                            this.xx.sel_active_record = data[4];
+                            this.xx.sel_action = data[4];
                             this.xx.sel_users_cc = data[5];
                             this.xx.sel_users_ext = data[6];
                             this.xx.sel_users_all = data[7];
+                            this.xx.sel_users_active = data[8];
                             this.xx.sel_users = data[5];
                             this.xx.spinner = false;
                         }.bind(this));
@@ -258,16 +301,53 @@
                     if (this.xx.assigned_cc == 'all')
                         this.xx.sel_users = this.xx.sel_users_all;
                 },
-                lastUpdateColour: function (task) {
-                    /*if (moment(task.lastupdated).isBefore(this.xx.days28past))
-                        return 'font-red';
-                    if (moment(task.lastupdated).isBefore(this.xx.days7past))
-                        return 'font-yellow-gold';
-                     */
-                },
                 doNothing: function () {
                     // empty function
                 },
+                reassignTasks: function () {
+                    this.xx.reassignModal = true;
+                },
+                deleteTasks: function () {
+                    //this.xx.confirmDeleteModal = true;
+
+                    var tasklist = this.xx.list;
+
+                    swal({
+                        title: "Are you sure?",
+                        text: 'You will not be able to recover these tasks',
+                        showCancelButton: true,
+                        cancelButtonColor: "#555555",
+                        confirmButtonColor: "#E7505A",
+                        confirmButtonText: "Yes, delete them!",
+                        allowOutsideClick: true,
+                        html: true,
+                    }, function () {
+                        let checked = tasklist.filter((t) => {
+                            return t.checked == true
+                        });
+                        //console.log(checked);
+                        deleteList = [];
+                        if (checked.length) {
+                            for (var i = 0; i < checked.length; i++) {
+                                deleteList.push(checked[i].id);
+                            }
+                            //console.log(deleteList);
+                            $.ajax({
+                                url: '/manage/report/todo_inactive/delete',
+                                type: 'POST',
+                                data: {deleteTasks: deleteList},
+                                success: function (result) {
+                                    console.log('deleted tasks');
+                                    window.location.href = "/manage/report/todo_inactive";
+                                },
+                                error: function (result) {
+                                    alert("Failed to delete tasks");
+                                    console.log('Failed to delete tasks');
+                                }
+                            });
+                        }
+                    });
+                }
             },
         });
 

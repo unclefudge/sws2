@@ -180,6 +180,9 @@
                                     <tr>
                                         <td><a href="/manage/report/todo">Active Todo Tasks</a></td>
                                     </tr>
+                                    <tr>
+                                        <td><a href="/manage/report/todo_inactive">Todo Tasks Assigned to Inactive Users</a></td>
+                                    </tr>
                                 @endif
                             @endif
                             {{-- Security --}}
