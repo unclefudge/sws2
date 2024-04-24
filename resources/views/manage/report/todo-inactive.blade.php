@@ -304,61 +304,67 @@
                     // empty function
                 },
                 reassignTasks: function () {
-                    this.xx.reassignModal = true;
+                    let hasChecked = this.checkedList(this.xx.list);
+
+                    if (hasChecked.length)
+                        this.xx.reassignModal = true;
+                    else
+                        swal('No tasks selected', 'Please select some tasks before you perform this action.');
                 },
                 deleteTasks: function () {
-                    //this.xx.confirmDeleteModal = true;
-
                     var tasklist = this.xx.list;
 
-                    swal({
-                        title: "Are you sure?",
-                        text: 'You will not be able to recover these tasks',
-                        showCancelButton: true,
-                        cancelButtonColor: "#555555",
-                        confirmButtonColor: "#E7505A",
-                        confirmButtonText: "Yes, delete them!",
-                        allowOutsideClick: true,
-                        html: true,
-                    }, function () {
-                        let checked = tasklist.filter((t) => {
-                            return t.checked == true
-                        });
-                        //console.log(checked);
-                        checkedList = [];
-                        if (checked.length) {
-                            for (var i = 0; i < checked.length; i++) {
-                                checkedList.push(checked[i].id);
-                            }
-                            //console.log(checkedList);
-                            $.ajax({
-                                url: '/manage/report/todo_inactive/delete',
-                                type: 'POST',
-                                data: {checkedList: checkedList},
-                                success: function (result) {
-                                    console.log('deleted tasks');
-                                    window.location.href = "/manage/report/todo_inactive";
-                                },
-                                error: function (result) {
-                                    alert("Failed to delete tasks");
-                                    console.log('Failed to delete tasks');
-                                }
+                    let hasChecked = this.checkedList(this.xx.list);
+                    if (hasChecked.length) {
+                        swal({
+                            title: "Are you sure?",
+                            text: 'You will not be able to recover these tasks',
+                            showCancelButton: true,
+                            cancelButtonColor: "#555555",
+                            confirmButtonColor: "#E7505A",
+                            confirmButtonText: "Yes, delete them!",
+                            allowOutsideClick: true,
+                            html: true,
+                        }, function () {
+                            let checked = tasklist.filter((t) => {
+                                return t.checked == true
                             });
-                        }
-                    });
+                            //console.log(checked);
+                            checkedList = [];
+                            if (checked.length) {
+                                for (var i = 0; i < checked.length; i++) {
+                                    checkedList.push(checked[i].id);
+                                }
+                                //console.log(checkedList);
+                                $.ajax({
+                                    url: '/manage/report/todo_inactive/delete',
+                                    type: 'POST',
+                                    data: {checkedList: checkedList},
+                                    success: function (result) {
+                                        console.log('deleted tasks');
+                                        window.location.href = "/manage/report/todo_inactive";
+                                    },
+                                    error: function (result) {
+                                        alert("Failed to delete tasks");
+                                        console.log('Failed to delete tasks');
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        swal('No tasks selected', 'Please select some tasks before you perform this action.');
+                    }
                 },
                 reassignItems: function () {
                     var assign = $('#assignto').val();
 
                     if (assign) {
-                        let checked = this.xx.list.filter((t) => {
-                            return t.checked == true
-                        });
+                        let hasChecked = this.checkedList(this.xx.list);
 
                         checkedList = [];
-                        if (checked.length) {
-                            for (var i = 0; i < checked.length; i++) {
-                                checkedList.push(checked[i].id);
+                        if (hasChecked.length) {
+                            for (var i = 0; i < hasChecked.length; i++) {
+                                checkedList.push(hasChecked[i].id);
                             }
                             console.log(checkedList);
                             $.ajax({
@@ -380,8 +386,10 @@
                     }
 
                 },
-                checkedList: function () {
-
+                checkedList: function (list) {
+                    return list.filter((t) => {
+                        return t.checked == true
+                    });
                 }
             },
         });
