@@ -70,7 +70,20 @@ class SiteExtensionController extends Controller
         $reason_na = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'N/A')->first()->id;
         $reason_publichol = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'Public Holiday')->first()->id;
 
-        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol'));
+        // Auth::user()->areaSites()
+        $multi_site_sel = [];
+        foreach ($extension->sites as $ext) {
+            if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                $multi_site_sel[$ext->site->id] = $ext->site->name;
+            elseif (Auth::user()->isSupervisor() && Auth::user()->id == $ext->site->supervisor_id)
+                $multi_site_sel[$ext->site->id] = $ext->site->name;
+        }
+
+        ksort($multi_site_sel);
+        if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            $multi_site_sel = ['all' => 'All Active Sites'] + $multi_site_sel;
+
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel'));
     }
 
     /**
@@ -120,6 +133,11 @@ class SiteExtensionController extends Controller
         //
     }
 
+    public function show()
+    {
+
+    }
+
     /**
      * Update a resource in storage.
      *
@@ -132,13 +150,43 @@ class SiteExtensionController extends Controller
             return view('errors/404');
 
         //dd(request()->all());
+        if (request('ext_id')) {
+            $site_ext = SiteExtensionSite::findOrFail(request('ext_id'));
 
-        if (request('site_id')) {
-            $site_ext = SiteExtensionSite::findOrFail(request('site_id'));
             $site_ext->days = request('days');
             $site_ext->notes = request('extension_notes');
             $site_ext->reasons = (request('reasons')) ? implode(',', request('reasons')) : null;
             $site_ext->save();
+
+            if (request('multi_extension')) {
+                if (in_array('all', request('multi_sites'))) {
+                    foreach ($site_ext->extension->sites as $ext) {
+                        if ($ext->site_id == $site_ext->site_id) // skip selected extension
+                            continue;
+                        $ext->days = $ext->days + request('days');
+                        $ext->notes = $ext->notes . "\n" . request('extension_notes');
+                        $reasons = (request('reasons')) ? implode(',', request('reasons')) : '';
+                        $ext->reasons = ($ext->reasons) ? $ext->reasons . ",$reasons" : $reasons;
+                        $ext->save();
+                    }
+                } else {
+                    foreach (request('multi_sites') as $site_id) {
+                        if ($site_id == 'all' || $site_id == $site_ext->site_id) // skip selected extension 
+                            continue;
+                        $ext = SiteExtensionSite::where('extension_id', $site_ext->extension_id)->where('site_id', $site_id)->first();
+                        if ($ext) {
+                            $ext->days = $ext->days + request('days');
+                            $ext->notes = $ext->notes . "\n" . request('extension_notes');
+                            $old_reasons = explode(',', $ext->reasons);
+                            $old_reasons = array_diff($old_reasons, [1]); // remove N/A if present
+                            $combined_reasons = array_merge($old_reasons, request('reasons')); // merge
+                            $ext->reasons = implode(',', $combined_reasons);
+                            $ext->save();
+                        }
+                    }
+                }
+            }
+
             $site_ext->extension->createPDF();
 
             // Close ToDoo task for Supervisor if all completed

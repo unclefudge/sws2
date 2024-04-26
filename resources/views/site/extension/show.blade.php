@@ -146,7 +146,7 @@
                 </div>
                 <div class="modal-body">
                     {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
-                    <input type="hidden" name="site_id" id="site_id" value="">
+                    <input type="hidden" name="ext_id" id="ext_id" value="">
                     <input type="hidden" name="reason_na" id="reason_na" value="{{ $reason_na }}">
                     <input type="hidden" name="reason_publichol" id="reason_publichol" value="{{ $reason_publichol }}">
                     <div class="row">
@@ -173,6 +173,25 @@
                             </div>
                         </div>
                     </div>
+                    @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                        <div class="row">
+                            <div class="col-sm-2 col-xs-4 text-center">
+                                <div class="form-group">
+                                    {!! Form::checkbox('multi_extension', '1', null, ['class' => 'make-switch', 'data-size' => 'small', 'id' => 'multi_extension',
+                                     'data-on-text'=>'Yes', 'data-on-color'=>'success', 'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                </div>
+                            </div>
+                            <div class="col-sm-10 col-xs-8">Assign same Extension to other sites?</div>
+                        </div>
+                        <div class="row" id="multi-div" style="display: none">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    {!! Form::label('multi_sites', 'Multiple Sites', ['class' => 'control-label']) !!}
+                                    {!! Form::select('multi_sites', $multi_site_sel, null, ['class' => 'form-control select2', 'id' => 'multi_sites', 'name' => 'multi_sites[]', 'multiple', 'width' => '100%']) !!}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
@@ -202,24 +221,25 @@
         $(document).ready(function () {
             /* Select2 */
             $("#reasons").select2({placeholder: "Select one or more", width: '100%'});
+            $("#multi_sites").select2({placeholder: "Select one or more", width: '100%'});
 
             $(".toggleTotalDays").click(function (e) {
                 var event_id = e.target.id.split('-');
-                var site_id = event_id[1];
+                var ext_id = event_id[1];
 
-                $("#extrainfo-" + site_id).toggle();
+                $("#extrainfo-" + ext_id).toggle();
             });
 
             $(".editField").click(function (e) {
                 var event_id = e.target.id.split('-');
-                var site_id = event_id[1];
-                $("#site_id").val(site_id);
-                $("#site_name").text($("#sitename-" + site_id).text());
-                $("#days").val($("#days-" + site_id).text());
+                var ext_id = event_id[1];
+                $("#ext_id").val(ext_id);
+                $("#site_name").text($("#sitename-" + ext_id).text());
+                $("#days").val($("#days-" + ext_id).text());
 
-// Extension reason + notes
-                $("#extension_notes").val($("#note-" + site_id).text());
-                var reason_array_str = $("#reason-" + site_id + "-array").val();
+                // Extension reason + notes
+                $("#extension_notes").val($("#note-" + ext_id).text());
+                var reason_array_str = $("#reason-" + ext_id + "-array").val();
                 var reason_array = reason_array_str.split(',');
 
                 $("#reasons").val(reason_array);
@@ -250,6 +270,17 @@
             $("#extension_notes").keyup(function (e) {
                 e.preventDefault();
                 validateForm();
+            });
+
+            $("#multi_extension").change(function (e) {
+
+
+            });
+
+            $('#multi_extension').on('switchChange.bootstrapSwitch', function (event, state) {
+                $("#multi-div").hide();
+                if (state)
+                    $("#multi-div").show();
             });
 
             function validateForm() {
@@ -296,18 +327,10 @@
 
         });
 
-        /*
-        function containsAny(source, target) {
-        var result = source.filter(function (item) {
-        return target.indexOf(item) > -1
-        });
-        return (result.length > 0);
-        }*/
-
         function isNumber(evt) {
             evt = (evt) ? evt : window.event;
             var charCode = (evt.which) ? evt.which : evt.keyCode;
-            const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 13, 8, 46, 37, 39, 91, 92];  // top numbers, keypad, enter, backspace, delete, left/right arrow
+            const validNumbers = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 13, 8, 9, 46, 37, 39, 91, 92];  // top numbers, keypad, enter, backspace, delete, left/right arrow
             console.log(charCode);
             if (validNumbers.includes(charCode))
                 return true;
