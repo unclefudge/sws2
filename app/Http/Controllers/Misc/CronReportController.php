@@ -433,7 +433,7 @@ class CronReportController extends Controller
         if ($attendance->count()) {
             $supers = $cc->supervisors()->pluck('name', 'id')->toArray();
             asort($supers);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, $supers));
+            Mail::to($email_list)->bcc('fudge@jordan.net.au')->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, $supers));
 
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails";
