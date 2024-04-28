@@ -7,6 +7,7 @@ use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Company\Company;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteInspectionElectrical;
@@ -42,6 +43,7 @@ class CronReportController extends Controller
             CronReportController::emailMaintenanceUnderReview();
             CronReportController::emailMissingCompanyInfo();
             CronReportController::emailActiveAsbestos();
+            CronReportController::emailSupervisorAttendance();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -407,6 +409,42 @@ class CronReportController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
+    /*
+     * Email Supervisor Attendance
+     */
+    static public function emailSupervisorAttendance()
+    {
+        $log = '';
+        $func_name = "Supervisor Attendance";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? "kirstie@capecod.com.au" : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+        $date_to = Carbon::now()->subDays(1);
+        $date_from = Carbon::now()->subDays(7);
+        $user_ids = $cc->supervisors()->pluck('id')->toArray();
+        $attendance = SiteAttendance::whereIn('user_id', $user_ids)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
+
+        //dd($attendance);
+
+        if ($attendance->count()) {
+            $supers = $cc->supervisors()->pluck('name', 'id')->toArray();
+            asort($supers);
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, $supers));
+
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
 
     /*
    * Email Fortnightly Reports
