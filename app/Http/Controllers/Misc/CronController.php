@@ -1492,7 +1492,7 @@ class CronController extends Controller
 
                 // Send email to supervisor
                 $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
                 CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
@@ -1535,7 +1535,7 @@ class CronController extends Controller
             }
 
             // Send email
-            $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+            $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
             if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));

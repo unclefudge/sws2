@@ -47,7 +47,7 @@
                                 <th>Extend Notes</th>
                                 <th style="width:5%">Total Days</th>
                                 @if (in_array(Auth::user()->id, ['3', '108']))
-                                    <th style="width:5%">Hols</th>
+                                    <th style="width:5%">Hols Incl.</th>
                                 @endif
                             </tr>
                             </thead>
