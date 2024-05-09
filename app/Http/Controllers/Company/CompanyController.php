@@ -461,7 +461,14 @@ class CompanyController extends Controller
         Toastr::success("Created new leave");
 
         // Email Leave
-        $company->emailLeave(['kirstie@capecod.com.au'], 'added new');
+        $cc = Company::find(3);
+        $email_list = ['kirstie@capecod.com.au', 'ross@capecod.com.au'];
+        foreach ($cc->supervisors() as $super) {
+            if (validEmail($super->email))
+                $email_list[] .= $super->email;
+        }
+
+        $company->emailLeave($email_list, 'added new');
 
         return redirect("company/$company->id");
     }
@@ -490,7 +497,14 @@ class CompanyController extends Controller
                 // determine if changed
                 if ($leave && $leave_request['from'] != $leave->from || $leave_request['to'] != $leave->to || $leave_request['notes'] != $leave->notes) {
                     $leave->update($leave_request);
-                    $company->emailLeave(['kirstie@capecod.com.au'], 'updated existing');
+                    // Email Leave
+                    $cc = Company::find(3);
+                    $email_list = ['kirstie@capecod.com.au', 'ross@capecod.com.au'];
+                    foreach ($cc->supervisors() as $super) {
+                        if (validEmail($super->email))
+                            $email_list[] .= $super->email;
+                    }
+                    $company->emailLeave($email_list, 'updated existing');
                 }
             }
         }
