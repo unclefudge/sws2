@@ -9,7 +9,8 @@
 # Maintenance Request Note
 
 A note has been added to the Maintenance request (M{{$main->code}}) for {{ $main->site->name }}.
-Maintenance Request assigned to: {{ ($main->super_id) ? $main->taskOwner()->name}}
+
+Maintenance Request assigned to: {{ ($main->super_id) ? $main->taskOwner->name : 'unassigned' }}
 
 **Note**
 {!! nl2br2($action->action); !!}

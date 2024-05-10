@@ -11,7 +11,6 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -138,6 +137,27 @@ class PagesController extends Controller
 
     public function quick()
     {
+
+        echo "Update Site Eworks + Pworks<br>";
+        $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
+        foreach ($sites as $site) {
+            $up = '';
+            if ($site->inspection_electrical->first() && !$site->eworks) {
+                $site->eworks = $site->inspection_electrical->first()->assigned_to;
+                $site->save();
+                $up = 'E';
+            }
+
+            if ($site->inspection_plumbing->first() && !$site->pworks) {
+                $site->pworks = $site->inspection_plumbing->first()->assigned_to;
+                $site->save();
+                $up .= 'P';
+            }
+            echo "$up [$site->id] " . $site->name . "<br>";
+        }
+
+
+        /*
         echo "Maintenance Items Migrate to Multi-items<br>";
         $docs = SiteMaintenance::all();
         foreach ($docs as $doc) {
@@ -148,7 +168,7 @@ class PagesController extends Controller
                 $item->planner_id = $doc->planner_id;
                 $item->save();
             }
-        }
+        }*/
 
 
         /*
