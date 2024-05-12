@@ -191,6 +191,10 @@ class SiteInspectionElectricalController extends Controller
 
             // Create ToDoo for Electrical Review
             $report->createSignOffToDo([464]); // Alethea
+
+            // Set Eworks for Site
+            $report->site->eworks = $report->assigned_to;
+            $report->site->save();
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();

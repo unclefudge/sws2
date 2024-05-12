@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -56,12 +56,14 @@
 <div class="container">
     <?php $site_count = 0; ?>
     @foreach($data as $siteplan)
-        <?php $company = App\Models\Company\Company::find($siteplan->company_id) ?>
-        <?php $site_count ++ ?>
+            <?php $company = App\Models\Company\Company::find($siteplan->company_id) ?>
+            <?php $site_count++ ?>
         <div class="row">
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $company->name_alias }}
-                </h3>@if ($company->address){{ $company->address }}, {{  $company->suburb_state_postcode }}@endif</div>
+                </h3>@if ($company->address)
+                    {{ $company->address }}, {{  $company->suburb_state_postcode }}
+                @endif</div>
             <div class="col-xs-4">
             </div>
         </div>
@@ -124,6 +126,12 @@
         </table>
         <br>
 
+        <div class="row">
+            <div class="col-xs-12"><small>Please note while it is our aim to meet the above dates, forecasted dates are indicative only. We will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email the
+                    applicable Supervisor for each job.
+                </small>
+            </div>
+        </div>
         @if($site_count < count($data))
             <div class="page"></div>
         @endif

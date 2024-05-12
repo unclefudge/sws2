@@ -205,6 +205,10 @@ class SiteInspectionPlumbingController extends Controller
 
             // Create ToDoo for Admin Review
             $report->createSignOffToDo([464]); // Alethea
+
+            // Set Pworks for Site
+            $report->site->pworks = $report->assigned_to;
+            $report->site->save();
         } elseif (request('status') == '4' && $report->status != '4') {
             // Report placed OnHold so send out CancelledReport Notification
             $report->site->cancelInspectionReports();

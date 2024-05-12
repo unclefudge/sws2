@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -56,8 +56,8 @@
 <div class="container">
     <?php $site_count = 0; ?>
     @foreach($data as $siteplan)
-        <?php $site_count ++ ?>
-        <?php $site = App\Models\Site\Site::find($siteplan->site_id) ?>
+            <?php $site_count++ ?>
+            <?php $site = App\Models\Site\Site::find($siteplan->site_id) ?>
         <div class="row">
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
@@ -73,7 +73,7 @@
             </div>
             <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
                 @foreach($week_data as $row )
-                    <?php $cell_array = explode(' ', trim($row[1])) ?>
+                        <?php $cell_array = explode(' ', trim($row[1])) ?>
                     @if($cell_array[0] == 'MONDAY' || $cell_array[0] == 'TUESDAY' || $cell_array[0] == 'WEDNESDAY' || $cell_array[0] == 'THURSDAY' || $cell_array[0] == 'FRIDAY')
                         <thead>
                         <tr style="background-color: #F6F6F6; font-weight: bold;">
@@ -101,6 +101,11 @@
             </table>
             <br>
         @endforeach
+        <div class="row">
+            <div class="col-xs-12"><small>Please note while it is our aim to meet the above dates, forecasted dates are indicative only. We will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email
+                    your Supervisor.</small>
+            </div>
+        </div>
         @if ($site_count < count($data))
             <div class="page"></div>
         @endif
