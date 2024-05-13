@@ -846,6 +846,36 @@ class Company extends Model
         return $array;
     }
 
+    /**
+     * A Unique list of supervisors this company has
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function supervisorsAll()
+    {
+        $super_ids = DB::table('company_supervisors_list')->where('company_id', $this->id)->pluck('user_id')->toArray();
+
+        return (User::find($super_ids));
+    }
+
+    /**
+     * A dropdown list of users that have the role 'supervisor' for company.
+     *
+     * @return array
+     */
+    public function supervisorsAllSelect($prompt = '', $short = '')
+    {
+        $array = [];
+        foreach ($this->supervisorsAll() as $user) {
+            $array[$user->id] = ($short) ? $user->initials : $user->fullname;
+        }
+
+        asort($array);
+
+        return ($prompt) ? $array = array('' => 'Select supervisor') + $array : $array;
+    }
+
+
     public function tradeSelect($trade_id, $compact = false)
     {
         $company_list = $this->companies('1')->pluck('id')->toArray();

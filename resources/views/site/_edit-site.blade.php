@@ -107,10 +107,10 @@
                 <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
                     {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'col-md-3 control-label']) !!}
                     <div class="col-md-9">
-                        @if($site->status != 0)
+                        @if($site->status != 0 || $site->company_id != 3)
                             {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
                         @else
-                            {!! Form::select('supervisor_id', Auth::user()->company->supervisorsSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
+                            {!! Form::select('supervisor_id', Auth::user()->company->supervisorsAllSelect(), $site->supervisor_id, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'title' => 'Select supervisor']) !!}
                         @endif
                         {!! fieldErrorMessage('supervisor_id', $errors) !!}
                     </div>

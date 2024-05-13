@@ -55,8 +55,14 @@ class CompanySupervisorController extends Controller
         if ($request->ajax()) {
             CompanySupervisor::create($request->all());
 
-            // Ensure each Supervisor has a CC company
             if (request('company_id') == 3) {
+                // Add Supervior to full list if not there
+                $exists = DB::table('company_supervisors_list')->where('user_id', request('user_id'))->first();
+                if (!$exists)
+                    DB::table('company_supervisors_list')->insert(['user_id' => request('user_id'), 'company_id' => request('company_id'), 'created_at' => Carbon::now()->toDateTimeString()]);
+
+
+                // Ensure each Supervisor has a CC company
                 $user = User::find(request('user_id'));
                 list($first, $last) = explode(' ', $user->fullname, 2);
                 $company_name = "Cc-" . strtolower($first) . " $last";
