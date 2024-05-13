@@ -86,7 +86,7 @@
                             <br>
                         @endif
                         <div class="form-actions right">
-                            <a href="/site/export" class="btn default"> Back</a>
+                            <a href="{{ URL::previous() }}" class="btn default"> Back</a>
                         </div>
                     </div>
                 </div>
