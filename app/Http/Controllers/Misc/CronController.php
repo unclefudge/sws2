@@ -574,16 +574,16 @@ class CronController extends Controller
                         $todo->status = 0;
                         $todo->done_at = Carbon::now();
                         $todo->done_by = 1;
-                        //$todo->save();
+                        $todo->save();
                     }
                 }
             } else {
-                echo "ToDo [$todo->id] - $todo->name (No Record) " . $todo->created_at->format('d/m/Y') . " <br>";
-                $log .= "ToDo [$todo->id] (No record)\n";
+                echo "NoRec ToDo [$todo->id] - $todo->name :" . $todo->created_at->format('d/m/Y') . " <br>";
+                $log .= "NoRec ToDo [$todo->id] - $todo->name :" . $todo->created_at->format('d/m/Y') . "\n";
                 $todo->status = 0;
                 $todo->done_at = Carbon::now();
                 $todo->done_by = 1;
-                //$todo->save();
+                $todo->save();
             }
         }
         echo "<h4>Completed</h4>";
