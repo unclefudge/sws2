@@ -39,7 +39,7 @@
                             <tbody>
                             @foreach ($extensions as $extension)
                                 <tr>
-                                    <td>{{ $extension->date->format('d/m/Y') }}</td>
+                                    <td><a href="/site/extension/{{$extension->id}}/{{Auth::user()->id}}" target="_blank">{{ $extension->date->format('d/m/Y') }}</a></td>
                                     <td><a href="{{ $extension->attachmentUrl }}" target="_blank">{{ $extension->attachment }}</a></td>
                                 </tr>
                             @endforeach
@@ -66,12 +66,13 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-    });
+        });
 
 
-</script>
+    </script>
 @stop
