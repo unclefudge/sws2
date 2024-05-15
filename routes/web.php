@@ -742,6 +742,7 @@ Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Mi
 Route::get('cron/site-extensions-supervisor-final-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskFinalReminder');
 Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController@uploadCompanyDocReminder');
 Route::get('cron/super-checklists', '\App\Http\Controllers\Misc\CronController@superChecklists');
+Route::get('cron/rogue-todo', '\App\Http\Controllers\Misc\CronController@RogueToDo');
 
 
 // Import Data Routes

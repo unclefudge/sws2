@@ -269,7 +269,10 @@ class SiteExtensionController extends Controller
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
 
-        $extension->delete();
+        $extension->days = 0;
+        $extension->reasons = 1;  // N/A
+        $extension->notes = "original reason deleted by " . Auth::user()->name;
+        $extension->save();
 
         return redirect(url()->previous());
 

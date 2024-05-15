@@ -5,7 +5,21 @@ namespace App\Models\Comms;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
 use App\Models\Company\CompanyDocReview;
+use App\Models\Misc\Equipment\EquipmentLocation;
+use App\Models\Misc\Supervisor\SuperChecklist;
+use App\Models\Safety\ToolboxTalk;
+use App\Models\Safety\WmsDoc;
+use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Incident\SiteIncidentWitness;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteProjectSupply;
+use App\Models\Site\SiteQa;
+use App\Models\Site\SiteScaffoldHandover;
+use App\Models\User\UserDoc;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -172,6 +186,41 @@ class Todo extends Model
         }
 
         return '';
+    }
+
+    public function record()
+    {
+        $status = ['1', '2', '3'];
+        $task_type = $this->type;
+        $type_id = $this->type_id;
+        if (in_array($task_type, ['incident', 'incident prevent', 'incident review'])) return SiteIncident::find($type_id);
+        if ($task_type == 'accident') return null;
+        if ($task_type == 'hazard') return SiteHazard::find($type_id);
+        if ($task_type == 'maintenance') return SiteMaintenance::find($type_id);
+        if ($task_type == 'inspection_electrical') return SiteInspectionElectrical::find($type_id);
+        if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::find($type_id);
+        if (in_array($task_type, ['super checklist', 'super checkist signoff'])) return SuperChecklist::find($type_id);
+        if ($task_type == 'supervisor') return null;
+        if ($task_type == 'scaffold handover') return SiteScaffoldHandover::find($type_id);
+        if ($task_type == 'project supply') return SiteProjectSupply::find($type_id);
+        if (in_array($task_type, ['extension', 'extension signoff'])) return SiteExtension::find($type_id);
+        if ($task_type == 'equipment') return EquipmentLocation::find($type_id);
+        if ($task_type == 'qa') return SiteQa::find($type_id);
+        if ($task_type == 'toolbox') return ToolboxTalk::find($type_id);
+        if ($task_type == 'swms') return WmsDoc::find($type_id);
+        if ($task_type == 'company doc') return CompanyDoc::find($type_id);
+        if ($task_type == 'company doc review') return CompanyDocReview::find($type_id);
+        if ($task_type == 'user doc') return UserDoc::find($type_id);
+
+        return null;
+
+        /*
+          'inspection' => 'Site Inspection',
+          'company ptc' => 'Period Trade Contract',
+          'company privacy' => 'Company Privacy Policy',
+          'company doc review' => 'Standard Details Review',
+          'user doc' => 'User Documents',]);
+        */
     }
 
     /**

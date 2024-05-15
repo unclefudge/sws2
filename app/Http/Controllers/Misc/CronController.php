@@ -472,10 +472,6 @@ class CronController extends Controller
                 if ($doc) {
                     if ($doc->status == 1) {
                         //echo "ToDo [$todo->id] - $todo->name (".$doc->company->name.") ACTIVE DOC<br>";
-                        //$todo->status = 0;
-                        //$todo->done_at = Carbon::now();
-                        //$todo->done_by = 1;
-                        //$todo->save();
                     }
                     if ($doc->status == 0) {
                         if ($doc->company->activeCompanyDoc($doc->category_id)) {
@@ -494,6 +490,8 @@ class CronController extends Controller
 
                 } else {
                     echo "ToDo [$todo->id] - " . $todo->company->name . " (DELETED)<br>";
+                    $todo->status = 0;
+                    $todo->save();
                 }
             }
         }
@@ -552,6 +550,66 @@ class CronController extends Controller
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    }
+
+    static public function RogueToDo()
+    {
+        $log = '';
+        echo "<h2>Rogue Todo's</h2>";
+        $log .= "\nRogue Todo's\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $standard = [
+            'extension', 'extension signoff', 'super checklist', 'super checklist signoff', 'equipment', 'maintenance', 'supervisor',
+            'inspection_electrical', 'inspection_plumbing', 'scaffold handover', 'project supply'
+        ];
+        $todos = Todo::where('status', 1)->get();
+        foreach ($todos as $todo) {
+            $record = $todo->record();
+            if ($record) {
+                if (in_array($todo->type, $standard)) {
+                    echo "Record<br>";
+                    if ($record->status == 0) {
+                        echo "ToDo [$todo->id] - $todo->name COMPLETED QA<br>";
+                        $log .= "ToDo [$todo->id] - $todo->name COMPLETED QA\n";
+                        $todo->status = 0;
+                        $todo->done_at = Carbon::now();
+                        $todo->done_by = 1;
+                        //$todo->save();
+                    }
+                }
+            } else {
+                echo "ToDo [$todo->id] - $todo->name (No Record) " . $todo->created_at->format('d/m/Y') . " <br>";
+                $log .= "ToDo [$todo->id] (No record)\n";
+                $todo->status = 0;
+                $todo->done_at = Carbon::now();
+                $todo->done_by = 1;
+                //$todo->save();
+            }
+        }
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+
+        /*
+            'incident' => "Incident Report",
+            'incident prevent' => "Incident Preventative Action",
+            'incident witness' => "Incident Witness",
+            'incident review' => "Incident Review",
+            'accident' => "Accident Report",
+            'hazard' => 'Site Hazard',
+            'maintenance_task' => 'Site Maintenance Task',
+            'inspection' => 'Site Inspection',
+            'toolbox' => 'Toolbox Talks',
+            'swms' => 'Safe Work Method Statements',
+            'qa' => 'Quality Assurance Reports',
+            'company doc' => 'Company Document',
+            'company ptc' => 'Period Trade Contract',
+            'company privacy' => 'Company Privacy Policy',
+            'company doc review' => 'Standard Details Review',
+            'user doc' => 'User Documents' */
     }
 
 
