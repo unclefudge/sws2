@@ -240,7 +240,7 @@ class MailgunZohoController extends Controller
                         // If site 'Completed' then ensure Supervisor is same as Zoho
                         if ($site->status == '0') {
                             $supervisor_name = $data[$head['super_name']];
-                            if ($project_mgr_name) {
+                            if ($supervisor_name) {
                                 $user = $cc->supervisorMatch($supervisor_name);
                                 if ($user && $site->supervisor_id != $user->id) {
                                     $site->supervisor_id = $user->id;
