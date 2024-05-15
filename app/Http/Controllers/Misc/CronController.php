@@ -49,6 +49,7 @@ class CronController extends Controller
         CronController::qaOnholdButCompleted();
         CronController::completeToDoCompanyDoc();
         CronController::completedToDoQA();
+        CronController::rogueToDo();
         CronController::expiredCompanyDoc();
         //CronController::expiredStandardDetailsDoc();
         CronController::expiredSWMS();
@@ -552,7 +553,7 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    static public function RogueToDo()
+    static public function rogueToDo()
     {
         $log = '';
         echo "<h2>Rogue Todo's</h2>";
