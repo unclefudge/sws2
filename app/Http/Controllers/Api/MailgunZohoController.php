@@ -243,7 +243,7 @@ class MailgunZohoController extends Controller
                             if ($supervisor_name) {
                                 $user = $cc->supervisorMatch($supervisor_name);
                                 if ($user && $site->supervisor_id != $user->id) {
-                                    $updatedSupers .= "[$site->id] $site->name : " . $site->supervisor->name . " => $user->name\n";
+                                    //$updatedSupers .= "[$site->id] $site->name : " . $site->supervisor->name . " => $user->name\n";
                                     $site->supervisor_id = $user->id;
                                     //$site->save();
                                 }

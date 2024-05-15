@@ -421,23 +421,26 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? ["kirstie@capecod.com.au"] : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au"] : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $date_to = Carbon::now()->subDays(1);
         $date_from = Carbon::now()->subDays(7);
-        $user_ids = $cc->supervisors()->pluck('id')->toArray();
-        $attendance = SiteAttendance::whereIn('user_id', $user_ids)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
 
-        //dd($attendance);
 
-        if ($attendance->count()) {
-            $supers = $cc->supervisors()->pluck('name', 'id')->toArray();
-            asort($supers);
-            Mail::to($email_list)->bcc('fudge@jordan.net.au')->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, $supers));
+        // Supervisors list
+        foreach ($cc->supervisors() as $user) {
+            $attendance = SiteAttendance::where('user_id', $user->id)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
+            //dd($attendance);
+            if ($attendance->count()) {
+                $email_to = (\App::environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
+                $emailing = $emails . implode("; ", $email_to);
+                Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, [$user->id => $user->name]));
 
-            echo "Sending email to: $emails<br>";
-            $log .= "Sending email to: $emails";
+                echo "Sending email to: $emailing<br>";
+                $log .= "Sending email to: $emailing";
+            }
         }
+
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
