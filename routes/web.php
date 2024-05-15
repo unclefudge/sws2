@@ -306,6 +306,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/extension/past', '\App\Http\Controllers\Site\SiteExtensionController@past');
     Route::get('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@settings');
     Route::post('site/extension/settings', '\App\Http\Controllers\Site\SiteExtensionController@updateSettings');
+    Route::get('site/extension/site/{id}/delete', '\App\Http\Controllers\Site\SiteExtensionController@deleteSiteExtension');
     Route::get('site/extension/{id}/signoff', '\App\Http\Controllers\Site\SiteExtensionController@signoff');
     Route::get('site/extension/{id}/pdf', '\App\Http\Controllers\Site\SiteExtensionController@createPDF');
     Route::get('site/extension/{id}/{supervisor_id}', '\App\Http\Controllers\Site\SiteExtensionController@showExtensions');

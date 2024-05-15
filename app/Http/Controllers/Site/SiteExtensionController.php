@@ -261,6 +261,19 @@ class SiteExtensionController extends Controller
 
     }
 
+    public function deleteSiteExtension($id)
+    {
+        $extension = SiteExtensionSite::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.extension'))
+            return view('errors/404');
+
+        $extension->delete();
+
+        return redirect(url()->previous());
+
+    }
 
     /**
      * Create upcoming PDF

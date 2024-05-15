@@ -2,13 +2,11 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\Models\Comms\Todo;
 use App\Models\Misc\Category;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 
 class SiteExtensionSite extends Model
@@ -61,7 +59,10 @@ class SiteExtensionSite extends Model
         $past_extensions = SiteExtensionSite::where('site_id', $this->site_id)->where('days', '>', 0)->orderBy('created_at')->get();
         foreach ($past_extensions as $site_ext) {
             $day = ($site_ext->days == 1) ? 'day' : 'days';
-            $text .= $site_ext->updated_at->format('d/m/y') . " - " . $site_ext->days . " $day <b>" . $site_ext->reasonsSBC() . ":</b> $site_ext->notes<br>";
+            $text .= $site_ext->updated_at->format('d/m/y') . " - " . $site_ext->days . " $day <b>" . $site_ext->reasonsSBC() . ":</b> $site_ext->notes";
+            if (Auth::user()->hasPermission2('del.site.extension'))
+                $text .= " &nbsp; <a><i class='fa fa-times font-red deleteExt'  data-id='$site_ext->id'  data-date='" . $site_ext->updated_at->format('d/m/y') . "' data-days='$site_ext->days' data-reason='" . $site_ext->reasonsSBC() . "'></i></a>";
+            $text .= "<br>";
         }
         return $text;
     }

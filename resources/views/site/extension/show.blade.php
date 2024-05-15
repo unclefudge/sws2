@@ -272,15 +272,31 @@
                 validateForm();
             });
 
-            $("#multi_extension").change(function (e) {
-
-
-            });
 
             $('#multi_extension').on('switchChange.bootstrapSwitch', function (event, state) {
                 $("#multi-div").hide();
                 if (state)
                     $("#multi-div").show();
+            });
+
+            $(".deleteExt").click(function (e) {
+                e.preventDefault();
+                var url = "/site/extension/site/" + $(this).data('id') + "/delete";
+                var date = $(this).data('date');
+                var days = $(this).data('days');
+                var reason = $(this).data('reason');
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this extension!<br><b>Date: " + date + "<br><b>Days: " + days + "</b><br><b>Reason: " + reason,
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location.href = url;
+                });
             });
 
             function validateForm() {
