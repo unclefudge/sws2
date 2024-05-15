@@ -568,7 +568,6 @@ class CronController extends Controller
             $record = $todo->record();
             if ($record) {
                 if (in_array($todo->type, $standard)) {
-                    echo "Record<br>";
                     if ($record->status == 0) {
                         echo "ToDo [$todo->id] - $todo->name COMPLETED QA<br>";
                         $log .= "ToDo [$todo->id] - $todo->name COMPLETED QA\n";
