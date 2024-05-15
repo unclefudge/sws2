@@ -1623,7 +1623,7 @@ class SitePlannerController extends Controller
         foreach ($companies as $company) {
             $c = Company::find($company->id);
             $text = $company->name_alias;
-            if (in_array($company->id, $companiesOnPlanner) || ($site->eworks && $company->id == $site->eworks) || ($site->pworks && $company->id == $site->pworks))
+            if (in_array($company->id, $companiesOnPlanner) || ($site && $site->eworks && $company->id == $site->eworks) || ($site && $site->pworks && $company->id == $site->pworks))
                 $text = '<b>' . $company->name_alias . '</b>';
 
             $array[] = ['value' => $company->id, 'text' => $text, 'name' => $c->name_alias];
