@@ -875,6 +875,20 @@ class Company extends Model
         return ($prompt) ? $array = array('' => 'Select supervisor') + $array : $array;
     }
 
+    /**
+     * Match a Supervisor user to a name
+     *
+     */
+    public function supervisorMatch($name)
+    {
+        foreach ($this->staff as $user) {
+            if ($user->fullname === $name)
+                return $user;
+        }
+
+        return null;
+    }
+
 
     public function tradeSelect($trade_id, $compact = false)
     {

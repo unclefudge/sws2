@@ -128,6 +128,7 @@ class MailgunZohoController extends Controller
         $sales_dropouts = 0;
         $on_holds = 0;
         $differences = '';
+        $updatedSupers = '';
         $blankZohoFields = [];
         $newSites = [];
         $head = [];
@@ -236,6 +237,19 @@ class MailgunZohoController extends Controller
                             if ($job_stage == '160 On Hold') $on_holds++;
                         }
 
+                        // If site 'Completed' then ensure Supervisor is same as Zoho
+                        if ($site->status == '0') {
+                            $supervisor_name = $data[$head['super_name']];
+                            if ($project_mgr_name) {
+                                $user = $cc->supervisorMatch($supervisor_name);
+                                if ($user && $site->supervisor_id != $user->id) {
+                                    $site->supervisor_id = $user->id;
+                                    $updatedSupers .= "[$site->id] $site->name : " . $site->supervisor->name . " => $user->name\n";
+                                    //$site->save();
+                                }
+                            }
+                        }
+
 
                         //
                         // update Site record
@@ -315,6 +329,10 @@ class MailgunZohoController extends Controller
                 $log .= "New Jobs: " . count($newSites) . "\n\n";
                 $log .= "\nThe following differences were found:\n";
                 $log .= $differences;
+                if ($updatedSupers) {
+                    $log .= "\n\nThe following supervisors were updated:\n------------------------------------------------------\n";
+                    $log .= $updatedSupers;
+                }
 
                 // New Sites
                 if (count($newSites)) {

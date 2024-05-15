@@ -378,6 +378,7 @@ class SiteInspectionElectricalController extends Controller
         if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
+        $report->closeToDo();
         $report->delete();
 
         //return redirect('site/inspection/electrical/');
