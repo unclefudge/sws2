@@ -875,6 +875,16 @@ class Company extends Model
         return ($prompt) ? $array = array('' => 'Select supervisor') + $array : $array;
     }
 
+    public function supervisorsAllEmails()
+    {
+        $array = [];
+        foreach ($this->supervisorsAll() as $user) {
+            if ($user->id != '136' && validEmail($user->email)) // Exclude To Be Allocated Super
+                $array[] = $user->email;
+        }
+        return $array;
+    }
+
     /**
      * Match a Supervisor user to a name
      *

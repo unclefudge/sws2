@@ -56,8 +56,8 @@
 <div class="container">
     <?php $site_count = 0; ?>
     @foreach($data as $siteplan)
-            <?php $site_count++ ?>
             <?php $site = App\Models\Site\Site::find($siteplan->site_id) ?>
+            <?php $site_count++ ?>
         <div class="row">
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
@@ -73,10 +73,10 @@
             </div>
             <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
                 @foreach($week_data as $row )
-                        <?php $cell_array = explode(' ', trim($row[1])) ?>
-                    @if($cell_array[0] == 'MONDAY' || $cell_array[0] == 'TUESDAY' || $cell_array[0] == 'WEDNESDAY' || $cell_array[0] == 'THURSDAY' || $cell_array[0] == 'FRIDAY')
+                    @if($row[0] == 'TRADE')
                         <thead>
                         <tr style="background-color: #F6F6F6; font-weight: bold;">
+                            <th width="16%" class="pad5">{!! $row[0] !!}</th>
                             <th width="16%" class="pad5">{!! $row[1] !!}</th>
                             <th width="16%" class="pad5">{!! $row[2] !!}</th>
                             <th width="16%" class="pad5">{!! $row[3] !!}</th>
@@ -86,9 +86,10 @@
                         </thead>
                     @else
                         <tr>
-                            @if($row[1] == 'NOTHING-ON-PLAN')
-                                <td colspan="5" class="pad5">No tasks for this week</td>
+                            @if($row[0] == 'NOTHING-ON-PLAN')
+                                <td colspan="6" class="pad5">No tasks for this week</td>
                             @else
+                                <td width="16%" class="pad5">{!! $row[0] !!}</td>
                                 <td width="16%" class="pad5">{!! $row[1] !!}</td>
                                 <td width="16%" class="pad5">{!! $row[2] !!}</td>
                                 <td width="16%" class="pad5">{!! $row[3] !!}</td>

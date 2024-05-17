@@ -1079,9 +1079,14 @@ class CronReportController extends Controller
                 $company = Company::find($cid);
 
                 if (\App::environment('prod') && $company && validEmail($company->email)) {
-                    Mail::to($company->email)->cc($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
-                    echo "Sending email to: $company->email<br>";
-                    $log .= "Sending email to: $company->email\n";
+                    $email_to = [$company->email];
+                    if ($company->id == '69' && $company->primary_contact() && validEmail($company->primary_contact()->email)) // Scott Bartley
+                        $email_to[] = $company->primary_contact()->email;
+
+                    $emailing = implode("; ", $email_to);
+                    Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
+                    echo "Sending email to: $emailing<br>";
+                    $log .= "Sending email to: $emailing\n";
                 } else
                     Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Plumbing'));
 

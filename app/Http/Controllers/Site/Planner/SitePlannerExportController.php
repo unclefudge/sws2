@@ -11,6 +11,7 @@ use App\Jobs\SitePlannerPdf;
 use App\Models\Company\Company;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\User;
@@ -178,6 +179,12 @@ class SitePlannerExportController extends Controller
                         $key = $plan->entity_type . '.' . $plan->entity_id;
                         if (!isset($entities[$key])) {
                             //$entity_name = ($plan->entity_type == 'c') ? Company::find($plan->entity_id)->name : Trade::find($plan->entity_id)->name;
+
+                            // Task & Trade
+                            $task = Task::find($plan->task_id);
+                            $entity_task = ($task) ? $task->name : "Onsite";
+                            $entity_trade = ($task) ? $task->trade->name : "-";
+
                             if ($plan->entity_type == 'c') {
                                 $company = Company::find($plan->entity_id);
                                 $entity_name = ($company) ? $company->name : "Company $plan->entity_id";
@@ -185,21 +192,24 @@ class SitePlannerExportController extends Controller
                                 $trade = Trade::find($plan->entity_id);
                                 $entity_name = ($trade) ? $trade->name : "Trade $plan->entity_id";
                             }
-                            $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name,];
+                            $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name, 'entity_task' => $entity_task, 'entity_trade' => $entity_trade,];
                             for ($i = 0; $i < 5; $i++)
                                 $entities[$key][$dates[$i]] = '';
                         }
                     };
                     usort($entities, 'sortEntityName');
+                    //dd($entities);
 
                     // Create Header Row for Current Week
                     $obj_site->weeks[$w] = [];
                     $i = 1;
                     $offset = 1; // Used to set column 0/1 for client export
-                    if ($request->has('export_site')) {
+                    if ($request->has('export_site'))
                         $obj_site->weeks[$w][0][] = 'COMPANY';
-                        $offset = 0;
-                    }
+                    else
+                        $obj_site->weeks[$w][0][] = 'TRADE';
+
+                    $offset = 0;
                     foreach ($dates as $d)
                         $obj_site->weeks[$w][0][$i++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
 
@@ -209,11 +219,13 @@ class SitePlannerExportController extends Controller
                         foreach ($entities as $e) {
                             if ($request->has('export_site'))
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_name'];
+                            else
+                                $obj_site->weeks[$w][$entity_count][] = $e['entity_trade'];
                             for ($i = 1; $i <= 5; $i++) {
-                                if ($request->has('export_site'))
-                                    $tasks = $site->entityTasksOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
-                                else
-                                    $tasks = $site->entityTradesOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
+                                //if ($request->has('export_site'))
+                                $tasks = $site->entityTasksOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
+                                //else
+                                //    $tasks = $site->entityTradesOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
                                 if ($tasks) {
                                     $str = '';
                                     foreach ($tasks as $task_id => $task_name)
@@ -234,8 +246,8 @@ class SitePlannerExportController extends Controller
                     $current_date = $date_next->format('Y-m-d');
                 }
                 $data[] = $obj_site;
-                //dd($sitedata);
             }
+            //dd($data);
 
             $view = 'pdf.plan-site';
             $client = '';
