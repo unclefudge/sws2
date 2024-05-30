@@ -19,6 +19,10 @@
         color: #333 !important;
     }
 
+    .topmodal {
+        z-index: 9996 !important;
+    }
+
     @media screen and (min-width: 992px) {
         .datepicker-input {
             width: 130px !important;
@@ -433,68 +437,19 @@
                                 @endif
                             </div>
                             <div class="row">
-                                {{-- Assigned To Company --}}
-                                {{--}}
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('assigned_to', $errors) !!}"
-                                         style="{{ fieldHasError('assigned_to', $errors) ? '' : 'display:show' }}"
-                                         id="company-div">
-                                        {!! Form::label('assigned_to', 'Assigned to company', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <select-picker :name.sync="xx.main.assigned_to"
-                                                           :options.sync="xx.sel_company"
-                                                           :function="updateTaskOptions"></select-picker>
-                                        @else
-                                            {!! Form::text('assigned_text', ($main->assignedTo) ? $main->assignedTo->name : 'Unassigned', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('assigned_to', $errors) !!}
-                                    </div>
-                                </div>--}}
-
-                                {{-- Planner Task --}}
-                                {{--}}
-                                <div class="col-md-3" v-show="xx.main.assigned_to != ''">
-                                <div class="form-group">
-                                    {!! Form::label('planner_task_id', 'Planner Task', ['class' => 'control-label']) !!}
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                        <select-picker :name.sync="xx.main.planner_task_id" :options.sync="xx.sel_task" :function="doNothing"></select-picker>
-                                        <input v-model="xx.main.planner_task_id" type="hidden" name="planner_task_id" value="{{  ($main->planner) ? $main->planner->task_id : ''}}">
-                                    @else
-                                        {!! Form::text('planner_task_id_text', ($main->planner) ? $main->planner->task->name : 'None', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                    {!! fieldErrorMessage('planner_task_id', $errors) !!}
-                                </div>
-                            </div>
-                            --}}
-
-                                {{-- Planner Task Date --}}
-                                {{--
-                                    <div class="col-md-3" v-show="xx.main.planner_task_id != ''">
-                                        <div class="form-group">
-                                            {!! Form::label('planner_task_date', 'Task Date', ['class' => 'control-label']) !!}
-                                            @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                <div class="input-group">
-                                                    <datepicker :value.sync="xx.main.planner_task_date" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                                </div>
-                                            @else
-                                                {!! Form::text('planner_task_date_text', ($main->planner) ? $main->planner->from->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                            @endif
-                                            <input v-model="xx.main.planner_task_date" type="hidden" name="planner_task_date" value="{{  ($main->planner) ? $main->planner->from->format('d/m/Y') : ''}}">
-                                            {!! fieldErrorMessage('planner_task_date', $errors) !!}
-                                        </div>
-                                    </div>--}}
-
                                 @if (Auth::user()->allowed2('edit.site.maintenance', $main))
                                     <div class="col-md-1 pull-right">
-                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">
-                                            Save
-                                        </button>
+                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
                                     </div>
                                 @endif
                             </div>
                         </div>
 
-                        {{-- List Items --}}
+
+                        <br>
+
+
+                        {{-- Maintenance Items --}}
                         <div class="row">
                             <div class="col-md-12">
                                 <app-main></app-main>
@@ -533,7 +488,7 @@
                             <div class="col-md-12">
                                 <h3>Assigned Tasks
                                     {{-- Show add if user has permission to edit maintenance --}}
-                                    @if ($main->status && Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                    @if ($main->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
                                         <a href="/todo/create/maintenance_task/{{ $main->id}}"
                                            class="btn btn-circle green btn-outline btn-sm pull-right"
                                            data-original-title="Add">Add</a>
@@ -664,7 +619,7 @@
         </div>
     </div>
 
-    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+    <pre v-if="xx.dev">@{{ $data | json }}</pre>
     -->
 
     <!-- loading Spinner -->
@@ -675,7 +630,14 @@
     </div>
 
     <template id="main-template">
-        <!-- Maintenance Items -->
+        <h4 style="margin-bottom: 15px">Maintenance Items
+            {{-- Show add if user has permission to add items --}}
+            @if ($main->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
+                {{--}}<a href="/site/maintenance/{{ $main->id}}/items/add" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>--}}
+            @endif
+        </h4>
+        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
         <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
             <thead>
             <tr class="mytable-header">
@@ -709,14 +671,36 @@
                         @if (!$main->supervisor_sign_by)
                             <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
                         @endif
+                        @if ($main->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                            <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
+                        @endif
                     </td>
                 </tr>
             </template>
             </tbody>
         </table>
 
-        {{--  Confirm Item Checked Modal --}}
-        <confirm-Item :show.sync="xx.editItemModal" effect="fade" class="modal fade bs-modal-lg" header="Edit Item">
+        {{--  Add Item Modal --}}
+        <add-Item :show.sync="xx.addItemModal" effect="fade" class="modal fade bs-modal-lg topmodal" header="Edit Item">
+            <div slot="modal-header" class="modal-header">
+                <h4 class="modal-title text-center"><b>Add Item</b></h4>
+            </div>
+            <div slot="modal-body" class="modal-body">
+                <b>Item</b>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-12">
+                        <textarea v-model="xx.main.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of maintenance request item" cols="50"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div slot="modal-footer" class="modal-footer">
+                <button type="button" class="btn dark btn-outline" v-on:click="xx.addItemModal = false">Cancel</button>
+                <button v-if="xx.main.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
+            </div>
+        </add-Item>
+
+        {{--  Edit Item Modal --}}
+        <edit-Item :show.sync="xx.editItemModal" effect="fade" class="modal fade bs-modal-lg topmodal" header="Edit Item">
             <div slot="modal-header" class="modal-header">
                 <h4 class="modal-title text-center"><b>Edit Item</b></h4>
             </div>
@@ -773,7 +757,7 @@
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.editItemModal = false">Cancel</button>
                 <button v-if="!xx.item.planner_task_id || (xx.item.planner_task_id && xx.item.planner_date)" type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
             </div>
-        </confirm-Item>
+        </edit-Item>
 
     </template>
 
@@ -920,10 +904,10 @@
         var xx = {
             dev: dev,
             main: {
-                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '',
+                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
-            spinner: false, showSignOff: false, editItemModal: false, showAction: false,
+            spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,
             record: {}, item: {},
             action: '', loaded: false,
             table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
@@ -960,8 +944,8 @@
                 },
             },
             components: {
-                confirmSignoff: VueStrap.modal,
-                confirmItem: VueStrap.modal,
+                addItem: VueStrap.modal,
+                editItem: VueStrap.modal,
                 datepicker2: VueStrap.datepicker,
             },
             filters: {
@@ -997,6 +981,42 @@
                         }
                         this.xx.main.items_total++;
                     }
+                },
+                itemAdd: function (record) {
+                    this.xx.addItemModal = true;
+                },
+                saveItem: function (record) {
+                    var record = {};
+                    record.name = this.xx.main.newitem;
+                    record.order = this.xx.main.items_total + 1
+
+                    //console.log(record);
+                    this.xx.addItemModal = false;
+
+                    this.$http.patch('/site/maintenance/{{$main->id}}/additem', record)
+                        .then(function (response) {
+                            this.getMain();
+                            this.itemsCompleted();
+                            this.xx.main.newitem = '';
+                            toastr.success('Added record');
+                        }.bind(this))
+                        .catch(function (response) {
+                            alert('failed to add item');
+                        });
+                },
+                itemDelete: function (record) {
+                    swal({
+                        title: "Are you sure?",
+                        text: "You will not be able to restore this item!<br><b>" + record.name + "</b>",
+                        showCancelButton: true,
+                        cancelButtonColor: "#555555",
+                        confirmButtonColor: "#E7505A",
+                        confirmButtonText: "Yes, delete it!",
+                        allowOutsideClick: true,
+                        html: true,
+                    }, function () {
+                        window.location = '/site/maintenance/' + record.id + '/delitem';
+                    });
                 },
                 itemEdit: function (record) {
                     this.xx.item = record;
@@ -1044,7 +1064,7 @@
                         record.sign_by_name = '';
                     }
 
-                    console.log(record);
+                    //console.log(record);
 
                     // Get original item from list
                     //var obj = objectFindByKey(this.xx.itemList, 'id', record.id);

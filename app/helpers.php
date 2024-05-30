@@ -18,6 +18,7 @@ define('TODO_TYPES', ['incident' => "Incident Report",
     'equipment' => 'Equipment Transfer',
     'maintenance' => 'Site Maintenance Requests',
     'maintenance_task' => 'Site Maintenance Task',
+    'maintenance_item' => 'Site Maintenance Item',
     'inspection' => 'Site Inspection',
     'supervisor' => 'Supervisor Checkin',
     'inspection_electrical' => 'Electrical Inspection Reports',
@@ -34,7 +35,7 @@ define('TODO_TYPES', ['incident' => "Incident Report",
     'user doc' => 'User Documents',]);
 define('PROJECT_MGRS', ['Kirstie Silk' => 108, 'Jo Moerman' => 109, 'Scott Morrell' => 462, 'Nadia Lay' => 465,
     'Clinton Strickland' => 467, 'Jim Kapodistrias' => 511, 'Juliana Choufani' => 528]);
-define('DEBUG_EMAIL', true);
+define('DEBUG_EMAIL', false);
 
 function validEmail($email)
 {

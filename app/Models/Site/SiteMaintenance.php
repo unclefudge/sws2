@@ -29,30 +29,6 @@ class SiteMaintenance extends Model
     protected $casts = ['completed' => 'datetime', 'reported' => 'datetime', 'resolved' => 'datetime', 'assigned_super_at' => 'datetime', 'supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime',
         'client_contacted' => 'datetime', 'client_appointment' => 'datetime', 'ac_form_sent' => 'datetime'];
 
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
-
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
-    }
 
     /**
      * A Site Maintenance belongs to a Site
@@ -487,5 +463,29 @@ class SiteMaintenance extends Model
             '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
+    /**
+     * The "booting" method of the model.
+     *
+     * Overrides parent function
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        if (Auth::check()) {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = Auth::user()->id;
+                $table->updated_by = Auth::user()->id;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = Auth::user()->id;
+            });
+        }
+    }
 }
 

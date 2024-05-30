@@ -398,8 +398,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/categories/maintenance/dt/main_cats', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController@getMainCategories');
     Route::resource('site/maintenance/category', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController');
 
+    // Site Maintenance Items
+    //Route::resource('site/maintenance/item', '\App\Http\Controllers\Site\SiteMaintenanceItemController');
+
     // Site Maintenance
     Route::get('site/maintenance/{id}/items', '\App\Http\Controllers\Site\SiteMaintenanceController@getItems');
+    Route::any('site/maintenance/{id}/additem', '\App\Http\Controllers\Site\SiteMaintenanceController@addItem');
+    Route::any('site/maintenance/{id}/delitem', '\App\Http\Controllers\Site\SiteMaintenanceController@delItem');
     Route::any('site/maintenance/{id}/update', '\App\Http\Controllers\Site\SiteMaintenanceController@updateReport');
     Route::any('site/maintenance/item/{id}', '\App\Http\Controllers\Site\SiteMaintenanceController@updateItem');
     Route::get('site/maintenance/dt/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController@getMaintenance');

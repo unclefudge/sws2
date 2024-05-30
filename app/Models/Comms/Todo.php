@@ -16,6 +16,7 @@ use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteScaffoldHandover;
@@ -147,6 +148,10 @@ class Todo extends Model
                 return "/site/qa/$this->type_id";
             case 'maintenance':
                 return "/site/maintenance/$this->type_id";
+            case 'maintenance_item':
+                $item = SiteMaintenanceItem::find($this->type_id);
+                if ($item && $item->maintenance)
+                    return '/site/maintenance/' . $item->maintenance->id;
             case 'inspection_electrical':
                 return "/site/inspection/electrical/$this->type_id";
             case 'inspection_plumbing':
@@ -193,10 +198,12 @@ class Todo extends Model
         $status = ['1', '2', '3'];
         $task_type = $this->type;
         $type_id = $this->type_id;
+        $type_id2 = $this->type_id2;
         if (in_array($task_type, ['incident', 'incident prevent', 'incident review'])) return SiteIncident::find($type_id);
         if ($task_type == 'accident') return null;
         if ($task_type == 'hazard') return SiteHazard::find($type_id);
         if ($task_type == 'maintenance') return SiteMaintenance::find($type_id);
+        if ($task_type == 'maintenance_item') return SiteMaintenanceItem::find($type_id)->maintenance;
         if ($task_type == 'inspection_electrical') return SiteInspectionElectrical::find($type_id);
         if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::find($type_id);
         if (in_array($task_type, ['super checklist', 'super checkist signoff'])) return SuperChecklist::find($type_id);
@@ -341,68 +348,67 @@ class Todo extends Model
     /**
      * Email ToDoo
      */
-    public function emailToDo($email_list = '')
+    public function emailToDo($email_to = '', $email_cc = '')
     {
         if (\App::environment('prod')) {
-            if (!$email_list) {
-                $email_list = [];
+            if (!$email_to || $email_to = 'ASSIGNED') {
+                $email_to = [];
                 foreach ($this->assignedTo() as $user) {
                     if (validEmail($user->email))
-                        $email_list[] = $user->email;
+                        $email_to[] = $user->email;
                 }
             }
         } else if (\App::environment('local', 'dev'))
-            $email_list = [env('EMAIL_ME')];
+            $email_to = [env('EMAIL_ME')];
 
-        // Remove Gary from all ToDoo emails
-        /*if (is_array($email_list)) {
-            if (($key = array_search('gary@capecod.com.au', $email_list)) !== false)
-                unset($email_list[$key]);
-            else {
-                if ($email_list == 'gary@capecod.com.au')
-                    $email_list = '';
-            }
-        }*/
 
-        $email_user = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $cc = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? [Auth::user()->email] : [];
 
         // Exclude CC for users on certain ToDoo types
         $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover', 'maintenance'];
         if (in_array($this->type, $excludeCCtypes))
-            $email_user = '';
+            $cc = [];
 
         // Don't cc email to user if Todoo is a Company Doc Approval
         if (preg_match('/^Company Document Approval Request/', $this->name))
-            $email_user = '';
+            $cc = [];
 
-        if ($email_list && $email_user)
-            Mail::to($email_list)->cc([$email_user])->send(new \App\Mail\Comms\TodoCreated($this));
-        elseif ($email_list)
-            Mail::to($email_list)->send(new \App\Mail\Comms\TodoCreated($this));
+        // Include specified CC'ed users in arg
+        if (\App::environment('prod') && $email_cc) {
+            if (is_array($email_cc)) {
+                $cc = array_merge($cc, $email_cc);
+            } else
+                $cc[] = $email_cc;
+        }
+
+        if ($email_to && $cc)
+            Mail::to($email_to)->cc($cc)->send(new \App\Mail\Comms\TodoCreated($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Comms\TodoCreated($this));
     }
 
     /**
      * Email ToDoo
      */
-    public function emailToDoCompleted($email_list = '')
+    public function emailToDoCompleted($email_to = '')
     {
         if (\App::environment('prod')) {
-            if (!$email_list) {
-                $email_list = [];
+            if (!$email_to) {
+                $email_to = [];
                 foreach ($this->assignedTo() as $user) {
                     if (validEmail($user->email))
-                        $email_list[] = $user->email;
+                        $email_to[] = $user->email;
                 }
             }
         } else if (\App::environment('local', 'dev'))
-            $email_list = [env('EMAIL_ME')];
+            $email_to = [env('EMAIL_ME')];
 
         $email_user = (\App::environment('prod')) ? Auth::user()->email : '';
 
-        if ($email_list && $email_user)
-            Mail::to($email_list)->cc([$email_user])->send(new \App\Mail\Comms\TodoCompleted($this));
-        elseif ($email_list)
-            Mail::to($email_list)->send(new \App\Mail\Comms\TodoCompleted($this));
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Comms\TodoCompleted($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Comms\TodoCompleted($this));
     }
 
 

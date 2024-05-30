@@ -2,7 +2,9 @@
 
 namespace App\Models\Site;
 
+use App\Models\Comms\Todo;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -35,6 +37,43 @@ class SiteMaintenanceItem extends Model
     {
         return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
     }
+
+    public function todos($status = '')
+    {
+        if ($status)
+            return Todo::where('status', $status)->where('type', 'maintenance_item')->where('type_id', $this->id)->get();
+
+        return Todo::where('type', 'maintenance_item')->where('type_id', $this->id)->get();
+    }
+
+    public function closeToDo($type = 'maintenance_item')
+    {
+        $todos = Todo::where('type', $type)->where('type_id', $this->id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
+    }
+
+    public function createAssignSupervisorToDo($user_list)
+    {
+        // Create ToDoo for assignment to Supervisor
+        $todo_request = [
+            'type' => 'maintenance_item',
+            'type_id' => $this->id,
+            'name' => 'Site Maintenance Item Added - ' . $this->maintenance->site->name,
+            'info' => 'Please review maintenance item and assign to company',
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => $this->maintenance->site->owned_by->id,
+        ];
+
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au', 'veronica@capecode.com.au']);
+    }
+
 
     /**
      * Email Assigned

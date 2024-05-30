@@ -12,7 +12,7 @@ class SiteScaffoldHandoverOutstanding extends Mailable implements ShouldQueue
 
     use Queueable, SerializesModels;
 
-    public $report, $file_attachment;
+    public $outstanding;
 
     /**
      * Create a new message instance.

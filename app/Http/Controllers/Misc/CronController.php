@@ -561,7 +561,7 @@ class CronController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $standard = [
-            'extension', 'extension signoff', 'super checklist', 'super checklist signoff', 'equipment', 'maintenance', 'supervisor',
+            'extension', 'extension signoff', 'super checklist', 'super checklist signoff', 'equipment', 'maintenance', 'maintenance_item', 'supervisor',
             'inspection_electrical', 'inspection_plumbing', 'scaffold handover', 'project supply'
         ];
         $todos = Todo::where('status', 1)->get();
@@ -1050,10 +1050,10 @@ class CronController extends Controller
                     // Create ToDoo and assign to Site Supervisors
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers(1032); // Ian Ewin
-                    $todo->emailToDo();
+                    $todo->emailToDo('ASSIGNED', 'michelle@capecod.com.au');
 
                     // Send additional email to Michelle
-                    $todo->emailToDo('michelle@capecod.com.au');
+                    //$todo->emailToDo();
 
                     $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
                     $mesg .= " - email sent to ianscottewin@gmail.com\n";
@@ -1429,7 +1429,7 @@ class CronController extends Controller
         // Email outstanding scaffold certificates
         if ($scaffold_overdue) {
             echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\n>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n";
+            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n";
             foreach ($scaffold_overdue as $id => $name) {
                 echo "id[$id] $name<br>";
                 $log .= "id[$id] $name\n";

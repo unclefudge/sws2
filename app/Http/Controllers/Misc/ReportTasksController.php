@@ -18,6 +18,7 @@ use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteScaffoldHandover;
@@ -130,6 +131,7 @@ class ReportTasksController extends Controller
             if (strpos($task->type, 'inspection_electrical') !== false) $task_type = 'inspection';
             if (strpos($task->type, 'inspection_plumbing') !== false) $task_type = 'inspection';
             if (strpos($task->type, 'extension') !== false) $task_type = 'extension';
+            if (strpos($task->type, 'maintenance_item') !== false) $task_type = 'maintenance';
 
             //$site_tasks = ['incident', 'extension', 'hazard', 'maintenance', 'inspection', 'project supply', 'extension', 'equipment', 'scaffold handover', 'qa'];
 
@@ -137,10 +139,11 @@ class ReportTasksController extends Controller
             $info = '';
             $status_options = (in_array($task->type, ['inspection_electrical', 'inspection_plumbing'])) ? [0, 1, 2, 3] : [0, 1];
             $rec = $this->todoRecord($task, $status_options);
+
             if (!$rec) continue;
 
-            if (in_array($task->id, ['44426', '44607', '44913']))
-                ray($task->name);
+            //if ($task->type == 'maintenance_item')
+            //    ray($task->name);
 
             $info .= $this->todoNotes($rec, $task);
 
@@ -508,6 +511,7 @@ class ReportTasksController extends Controller
         if (in_array($task_type, ['incident', 'incident prevent', 'incident review'])) return SiteIncident::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'accident') return null;
         if ($task_type == 'maintenance') return SiteMaintenance::where('id', $type_id)->whereIn('status', $status)->first();
+        if ($task_type == 'maintenance_item') return SiteMaintenanceItem::where('id', $type_id)->whereIn('status', $status)->first()->maintenance;
         if ($task_type == 'inspection_electrical') return SiteInspectionElectrical::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::where('id', $type_id)->whereIn('status', $status)->first();
         if ($task_type == 'super checklist') return SuperChecklist::where('id', $type_id)->whereIn('status', $status)->first();

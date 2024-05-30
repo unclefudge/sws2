@@ -26,7 +26,7 @@ use Yajra\Datatables\Datatables;
  * Class SiteMaintenanceController
  * @package App\Http\Controllers\Site
  */
-class SiteMaintenanceController extends Controller
+class SiteMaintenanceItemController extends Controller
 {
 
     /**
@@ -36,33 +36,7 @@ class SiteMaintenanceController extends Controller
      */
     public function index()
     {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.maintenance'))
-            return view('errors/404');
-
-        $requests = Auth::user()->maintenanceRequests(2);
-        $request_ids = ($requests) ? $requests->pluck('id')->toArray() : [];
-
-        $under_review = DB::table('site_maintenance AS m')
-            ->select(['m.id', 'm.site_id', 'm.code', 'm.supervisor', 'm.completed', 'm.reported', 'm.warranty', 'm.goodwill', 'm.category_id', 'm.status', 'm.updated_at', 'm.created_at',
-                DB::raw('DATE_FORMAT(m.created_at, "%d/%m/%y") AS created_date'),
-                DB::raw('DATE_FORMAT(m.completed, "%d/%m/%y") AS completed_date'),
-                DB::raw('DATE_FORMAT(m.updated_at, "%d/%m/%y") AS updated_date'),
-                's.code as sitecode', 's.name as sitename'])
-            ->join('sites AS s', 'm.site_id', '=', 's.id')
-            ->whereIn('m.id', $request_ids)
-            ->where('m.status', 2)->get();
-
-        $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
-        $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
-        foreach ($mains as $main) {
-            foreach ($main->items as $item) {
-                if (!isset($assignedList[$item->assigned_to]))
-                    $assignedList[$item->assigned_to] = $item->assigned->name;
-            }
-        }
-
-        return view('site/maintenance/list', compact('under_review', 'assignedList'));
+        //
     }
 
     /**
@@ -72,16 +46,12 @@ class SiteMaintenanceController extends Controller
      */
     public function show($id)
     {
-        $main = SiteMaintenance::findOrFail($id);
+        $item = SiteMaintenanceItem::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('view.site.maintenance', $main))
+        if (!Auth::user()->allowed2('view.site.maintenance', $item->maintenance))
             return view('errors/404');
 
-        if ($main->step == 2)
-            return view('site/maintenance/review', compact('main'));
-        else
-            return view('site/maintenance/show', compact('main'));
         //return view('site/maintenance/show2', compact('main'));
     }
 
@@ -92,16 +62,12 @@ class SiteMaintenanceController extends Controller
      */
     public function edit($id)
     {
-        $main = SiteMaintenance::findOrFail($id);
+        $item = SiteMaintenanceItem::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site.maintenance', $main))
+        if (!Auth::user()->allowed2('view.site.maintenance', $item->maintenance))
             return view('errors/404');
 
-        if ($main->step == 2)
-            return view('site/maintenance/review', compact('main'));
-        else
-            return view('site/maintenance/show', compact('main'));
     }
 
     /**
@@ -183,13 +149,6 @@ class SiteMaintenanceController extends Controller
         }
 
 
-        // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $main->saveAttachment($tmp_filename);
-        }
-
         // Create ToDoo to assign Supervisor
         $main->createAssignSupervisorToDo(array_merge(getUserIdsWithRoles('con-construction-manager'), [108]));
 
@@ -208,13 +167,15 @@ class SiteMaintenanceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id)
     {
+        $main = SiteMaintenance::findOrFail($id);
+
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.site.maintenance'))
             return view('errors/404');
 
-        return view('site/maintenance/create');
+        return view('site/maintenance/item/create', compact('main'));
     }
 
     /**
@@ -517,64 +478,6 @@ class SiteMaintenanceController extends Controller
 
 
     /**
-     * Add Item the specified resource in storage.
-     *
-     */
-    public function addItem($id)
-    {
-        $main = SiteMaintenance::findOrFail($id);
-        // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->id == $main->super_id))
-            return view('errors/404');
-
-        //dd(request()->all());
-        $item = SiteMaintenanceItem::create(['main_id' => $main->id, 'name' => request('name'), 'order' => request('order'), 'status' => 0]);
-
-        // Assign ToDoo to Supervisor for item
-        if ($main->super_id)
-            $item->createAssignSupervisorToDo($main->super_id);
-
-        // Update modified timestamp
-        $main->touch();
-
-        Toastr::success("Added item");
-
-        return $item;
-    }
-
-    public function delItem($id)
-    {
-        $item = SiteMaintenanceItem::findOrFail($id);
-        $main = SiteMaintenance::findOrFail($item->main_id);
-        // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('del.site.maintenance', $item->maintenance)))
-            return view('errors/404');
-
-        //dd(request()->all());
-
-        // Delete planner task if present
-        if ($item->planner_id)
-            $delTask = SitePlanner::where('id', $item->planner_id)->delete();
-
-        $item->closeToDo();
-        $item->delete(); // Delete item
-
-        // Reorder items
-        $order = 1;
-        foreach ($main->items->sortBy('order') as $item) {
-            $item->order = $order++;
-            $item->save();
-        }
-
-        // Update modified timestamp
-        $main->touch();
-
-        Toastr::success("Deleted item");
-
-        return redirect('site/maintenance/' . $main->id);
-    }
-
-    /**
      * Update Item the specified resource in storage.
      *
      */
@@ -648,7 +551,6 @@ class SiteMaintenanceController extends Controller
             }
 
             $main->closeToDo();
-            $item->closeToDo();
         }
 
         // Update modified timestamp on QA Doc
