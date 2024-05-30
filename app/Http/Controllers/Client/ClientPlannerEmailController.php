@@ -225,7 +225,6 @@ class ClientPlannerEmailController extends Controller
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id, request('weeks'));
-        //dd($data);
         $filename = "$site->name Weekly Planner.pdf";
         $output_file = public_path("$dir/$filename");
         touch($output_file);
