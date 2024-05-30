@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col-xs-12"><h6 style="margin: 0px 0px 5px 0px"><b>Week {{ $week_num }}</b></h6></div>
             </div>
-            <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
+            <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px; width: 100%">
                 @foreach($week_data as $row )
                     @if($row[0] == 'TRADE')
                         <thead>

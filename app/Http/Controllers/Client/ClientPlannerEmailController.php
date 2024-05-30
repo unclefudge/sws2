@@ -8,6 +8,7 @@ use App\Models\Client\ClientPlannerEmail;
 use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
 use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteQa;
@@ -224,7 +225,7 @@ class ClientPlannerEmailController extends Controller
 
         // Create planner PDF
         $data = $this->clientPlanner($email->site_id, request('weeks'));
-        //$filename = "$site->name: Weekly Planner " . Carbon::now()->format('YmdHis') . '.pdf';
+        //dd($data);
         $filename = "$site->name Weekly Planner.pdf";
         $output_file = public_path("$dir/$filename");
         touch($output_file);
@@ -390,7 +391,11 @@ class ClientPlannerEmailController extends Controller
             foreach ($planner as $plan) {
                 $key = $plan->entity_type . '.' . $plan->entity_id;
                 if (!isset($entities[$key])) {
-                    //$entity_name = ($plan->entity_type == 'c') ? Company::find($plan->entity_id)->name : Trade::find($plan->entity_id)->name;
+                    // Task & Trade
+                    $task = Task::find($plan->task_id);
+                    $entity_task = ($task) ? $task->name : "Onsite";
+                    $entity_trade = ($task) ? $task->trade->name : "-";
+
                     if ($plan->entity_type == 'c') {
                         $company = Company::find($plan->entity_id);
                         $entity_name = ($company) ? $company->name : "Company $plan->entity_id";
@@ -398,7 +403,7 @@ class ClientPlannerEmailController extends Controller
                         $trade = Trade::find($plan->entity_id);
                         $entity_name = ($trade) ? $trade->name : "Trade $plan->entity_id";
                     }
-                    $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name,];
+                    $entities[$key] = ['key' => $key, 'entity_type' => $plan->entity_type, 'entity_id' => $plan->entity_id, 'entity_name' => $entity_name, 'entity_task' => $entity_task, 'entity_trade' => $entity_trade,];
                     for ($i = 0; $i < 5; $i++)
                         $entities[$key][$dates[$i]] = '';
                 }
@@ -407,8 +412,9 @@ class ClientPlannerEmailController extends Controller
 
             // Create Header Row for Current Week
             $obj_site->weeks[$w] = [];
+            $obj_site->weeks[$w][0][] = 'TRADE';
             $i = 1;
-            $offset = 1; // Used to set column 0/1 for client export
+            $offset = 0;
             foreach ($dates as $d)
                 $obj_site->weeks[$w][0][$i++] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
 
@@ -416,8 +422,9 @@ class ClientPlannerEmailController extends Controller
             $entity_count = 1;
             if ($entities) {
                 foreach ($entities as $e) {
+                    $obj_site->weeks[$w][$entity_count][] = $e['entity_trade'];
                     for ($i = 1; $i <= 5; $i++) {
-                        $tasks = $site->entityTradesOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
+                        $tasks = $site->entityTasksOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
                         if ($tasks) {
                             $str = '';
                             foreach ($tasks as $task_id => $task_name)

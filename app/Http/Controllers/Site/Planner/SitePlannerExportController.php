@@ -178,8 +178,6 @@ class SitePlannerExportController extends Controller
                     foreach ($planner as $plan) {
                         $key = $plan->entity_type . '.' . $plan->entity_id;
                         if (!isset($entities[$key])) {
-                            //$entity_name = ($plan->entity_type == 'c') ? Company::find($plan->entity_id)->name : Trade::find($plan->entity_id)->name;
-
                             // Task & Trade
                             $task = Task::find($plan->task_id);
                             $entity_task = ($task) ? $task->name : "Onsite";
@@ -222,10 +220,7 @@ class SitePlannerExportController extends Controller
                             else
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_trade'];
                             for ($i = 1; $i <= 5; $i++) {
-                                //if ($request->has('export_site'))
                                 $tasks = $site->entityTasksOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
-                                //else
-                                //    $tasks = $site->entityTradesOnDate($e['entity_type'], $e['entity_id'], $dates[$i - 1]);
                                 if ($tasks) {
                                     $str = '';
                                     foreach ($tasks as $task_id => $task_name)
