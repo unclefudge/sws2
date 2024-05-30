@@ -176,7 +176,7 @@ return [
              * After cleaning up the backups remove the oldest backup until
              * this amount of megabytes has been reached.
              */
-            'delete_oldest_backups_when_using_more_megabytes_than' => 200000,   // 200Gb
+            'delete_oldest_backups_when_using_more_megabytes_than' => 150000,   // 150Gb
         ],
     ],
 ];

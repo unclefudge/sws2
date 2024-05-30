@@ -11,11 +11,11 @@
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
         <li><span>Support Tickets</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <!-- Tickets -->
         <div class="row">
@@ -121,74 +121,75 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    var status = $('#status').val();
-    var table_list = $('#table_list').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('/support/ticket/dt/tickets') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'id', name: 't.id', orderable: false, searchable: false},
-            {data: 'nicedate', name: 't.updated_at'},
-            {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
-            {data: 'name', name: 't.name'},
-            {data: 'priority', name: 't.priority', orderable: false, searchable: false},
-            {data: 'assigned_to', name: 't.assigned_to'},
-        ],
-        order: [
-            [2, "desc"]
-        ]
-    });
+        var status = $('#status').val();
+        var table_list = $('#table_list').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('/support/ticket/dt/tickets') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'id', name: 't.id', orderable: false, searchable: false},
+                {data: 'nicedate', name: 't.updated_at'},
+                {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
+                {data: 'name', name: 't.name'},
+                {data: 'priority', name: 't.priority', orderable: true, searchable: false},
+                {data: 'assigned_to', name: 't.assigned_to'},
+            ],
+            order: [
+                [5, "desc"], [2, "desc"]
+            ]
+        });
 
-    $('select#status').change(function () {
-        table_list.ajax.reload();
-    });
+        $('select#status').change(function () {
+            table_list.ajax.reload();
+        });
 
-    //
-    // Upgrades
-    //
-    var status2 = $('#status2').val();
-    var table_list2 = $('#table_list2').DataTable({
-        processing: true,
-        serverSide: true,
-        iDisplayLength: 100,
-        ajax: {
-            'url': '{!! url('/support/ticket/dt/upgrades') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status2').val();
-            }
-        },
-        columns: [
-            {data: 'view', name: 'view', orderable: false, searchable: false},
-            {data: 'id', name: 't.id', orderable: false, searchable: false},
-            {data: 'nicedate', name: 't.updated_at'},
-            {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
-            {data: 'name', name: 't.name'},
-            {data: 'priority', name: 't.priority'},
-            {data: 'assigned_to', name: 't.assigned_to'},
-            //{data: 'hours', name: 't.hours'},
-            {data: 'niceeta', name: 't.eta'},
-        ],
-        order: [
-            [5, "desc"]
-        ]
-    });
+        //
+        // Upgrades
+        //
+        var status2 = $('#status2').val();
+        var table_list2 = $('#table_list2').DataTable({
+            processing: true,
+            serverSide: true,
+            iDisplayLength: 100,
+            ajax: {
+                'url': '{!! url('/support/ticket/dt/upgrades') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status2').val();
+                }
+            },
+            columns: [
+                {data: 'view', name: 'view', orderable: false, searchable: false},
+                {data: 'id', name: 't.id', orderable: false, searchable: false},
+                {data: 'nicedate', name: 't.updated_at'},
+                {data: 'fullname', name: 'fullname', orderable: false, searchable: false},
+                {data: 'name', name: 't.name'},
+                {data: 'priority', name: 't.priority'},
+                {data: 'assigned_to', name: 't.assigned_to'},
+                //{data: 'hours', name: 't.hours'},
+                {data: 'niceeta', name: 't.eta'},
+            ],
+            order: [
+                [5, "desc"]
+            ]
+        });
 
-    $('select#status2').change(function () {
-        table_list2.ajax.reload();
-    });
-</script>
+        $('select#status2').change(function () {
+            table_list2.ajax.reload();
+        });
+    </script>
 
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
