@@ -632,7 +632,7 @@
     <template id="main-template">
         <h4 style="margin-bottom: 15px">Maintenance Items
             {{-- Show add if user has permission to add items --}}
-            @if ($main->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            @if ($main->status && Auth::user()->hasAnyRole2('con-administrator|web-admin|mgt-general-manager'))
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
                 {{--}}<a href="/site/maintenance/{{ $main->id}}/items/add" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>--}}
             @endif
