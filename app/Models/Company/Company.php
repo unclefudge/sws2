@@ -879,7 +879,7 @@ class Company extends Model
     {
         $array = [];
         foreach ($this->supervisorsAll() as $user) {
-            if ($user->id != '136' && validEmail($user->email)) // Exclude To Be Allocated Super
+            if ($user->status && $user->id != '136' && validEmail($user->email)) // Exclude To Be Allocated Super
                 $array[] = $user->email;
         }
         return $array;
