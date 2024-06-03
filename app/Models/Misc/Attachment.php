@@ -32,6 +32,8 @@ class Attachment extends Model
             return $this->belongsTo('App\Models\Site\SiteAsbestos', 'table_id');
         if ($this->table == 'site_maintenance')
             return $this->belongsTo('App\Models\Site\SiteMaintenance', 'table_id');
+        if ($this->table == 'site_prac_completion')
+            return $this->belongsTo('App\Models\Site\SitePracCompletion', 'table_id');
         if ($this->table == 'site_inspection_plumbing')
             return $this->belongsTo('App\Models\Site\SiteInspectionPlumbing', 'table_id');
         if ($this->table == 'site_inspection_electrical')

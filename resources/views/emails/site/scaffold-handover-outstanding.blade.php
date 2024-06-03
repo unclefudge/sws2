@@ -4,8 +4,9 @@
 # Scaffold Handover Certificate Outstanding
 
 The following Scaffold Handover Certificates are outstanding:
+
 @foreach ($outstanding as $id => $name)
-    ID:{{$id}}  {{$name}}
+    {{$name}}
 @endforeach
 
 Regards,<br>

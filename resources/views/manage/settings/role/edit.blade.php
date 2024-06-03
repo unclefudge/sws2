@@ -727,6 +727,14 @@ $cc = 1;*/
                                             <h5 class="font-green-haze" style="font-size: 16px">Reports</h5>
                                             <table class="table table-bordered table-striped">
                                                 <tr>
+                                                    <td>Prac Completion<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                                    <td width="15%">{!! permSelect('view.prac.completion', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('edit.prac.completion', 'super', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('add.prac.completion', 'add', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('del.prac.completion', 'res', $rec, $cid, $dis) !!}</td>
+                                                    <td width="15%">{!! permSelect('sig.prac.completion', 'sig', $rec, $cid, $dis) !!}</td>
+                                                </tr>
+                                                <tr>
                                                     <td>Maintenance Requests<br><span class="font-grey-silver">Cape Cod Only</span>
                                                     </td>
                                                     <td width="15%">{!! permSelect('view.site.maintenance', 'super.plan', $rec, $cid, $dis) !!}</td>

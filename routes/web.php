@@ -398,9 +398,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/categories/maintenance/dt/main_cats', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController@getMainCategories');
     Route::resource('site/maintenance/category', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController');
 
-    // Site Maintenance Items
-    //Route::resource('site/maintenance/item', '\App\Http\Controllers\Site\SiteMaintenanceItemController');
-
     // Site Maintenance
     Route::get('site/maintenance/{id}/items', '\App\Http\Controllers\Site\SiteMaintenanceController@getItems');
     Route::any('site/maintenance/{id}/additem', '\App\Http\Controllers\Site\SiteMaintenanceController@addItem');
@@ -413,6 +410,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/maintenance/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@getSiteSupervisor');
     Route::any('site/maintenance/{id}/review', '\App\Http\Controllers\Site\SiteMaintenanceController@review');
     Route::resource('site/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController');
+
+    // Site Prac Completion
+    Route::get('site/prac-completion/{id}/items', '\App\Http\Controllers\Site\SitePracCompletionController@getItems');
+    Route::any('site/prac-completion/{id}/additem', '\App\Http\Controllers\Site\SitePracCompletionController@addItem');
+    Route::any('site/prac-completion/{id}/delitem', '\App\Http\Controllers\Site\SitePracCompletionController@delItem');
+    Route::any('site/prac-completion/{id}/update', '\App\Http\Controllers\Site\SitePracCompletionController@updateReport');
+    Route::any('site/prac-completion/item/{id}', '\App\Http\Controllers\Site\SitePracCompletionController@updateItem');
+    Route::get('site/prac-completion/dt/prac', '\App\Http\Controllers\Site\SitePracCompletionController@getPrac');
+    Route::any('site/prac-completion/upload', '\App\Http\Controllers\Site\SitePracCompletionController@uploadAttachment');
+    Route::get('site/prac-completion/data/prac_completion/{site_id}', '\App\Http\Controllers\Site\SitePracCompletionController@getPracCompletion');
+    Route::get('site/prac-completion/data/site_super/{site_id}', '\App\Http\Controllers\Site\SitePracCompletionController@getSiteSupervisor');
+    Route::any('site/prac-completion/{id}/review', '\App\Http\Controllers\Site\SitePracCompletionController@review');
+    Route::resource('site/prac-completion', '\App\Http\Controllers\Site\SitePracCompletionController');
 
 
     // Site Asbestos Register
@@ -496,7 +506,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
 
     // Supervisor Checklist
-
     Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');
     Route::get('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@settings');
     Route::post('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@updateSettings');

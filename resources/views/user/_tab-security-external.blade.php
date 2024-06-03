@@ -393,6 +393,12 @@ $rec = $user;
                         <h5 class="font-green-haze" style="font-size: 16px">Reports</h5>
                         <table class="table table-bordered table-striped">
                             <tr>
+                                <td>Prac Completion</td>
+                                <td width="15%">{!! permSelect('view.prac.completion', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.prac.completion', 'super', $rec, $cid) !!}</td>
+                                <td width="45%" colspan="3">&nbsp;</td>
+                            </tr>
+                            <tr>
                                 <td>Maintenance Requests</td>
                                 <td width="15%">{!! permSelect('view.site.maintenance', 'super.plan', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.maintenance', 'super', $rec, $cid) !!}</td>

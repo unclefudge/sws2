@@ -17,6 +17,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SitePracCompletion;
 use App\Traits\UserDocs;
 use App\Traits\UserRolesPermissions;
 use Carbon\Carbon;
@@ -360,8 +361,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         if ($this->permissionLevel('view.site.maintenance', 3) == 40) // User is 'Supervisor For' requests
             return SiteMaintenance::where('status', '=', $status)->where('super_id', $this->id)->get();
 
-        if ($this->permissionLevel('view.site.maintenance', 3) == 30) // User is 'Planned For' requests
-            return SiteMaintenance::where('status', '=', $status)->where('assigned_to', $this->company_id)->get();
+        //if ($this->permissionLevel('view.site.maintenance', 3) == 30) // User is 'Planned For' requests
+        //    return SiteMaintenance::where('status', '=', $status)->where('assigned_to', $this->company_id)->get();
+
+        return null;
+    }
+
+    /**
+     * A list of Prac Completion  this user is allowed to view
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function pracCompletion($status = '')
+    {
+        if ($this->permissionLevel('view.prac.completion', 3) == 99) // User has 'All' permission to requests
+            return SitePracCompletion::where('status', '=', $status)->get();
+
+        if ($this->permissionLevel('view.prac.completion', 3) == 40) // User is 'Supervisor For' requests
+            return SitePracCompletion::where('status', '=', $status)->where('super_id', $this->id)->get();
+
+        //if ($this->permissionLevel('view.prac.completion', 3) == 30) // User is 'Planned For' requests
+        //    return SitePracCompletion::where('status', '=', $status)->where('assigned_to', $this->company_id)->get();
 
         return null;
     }
