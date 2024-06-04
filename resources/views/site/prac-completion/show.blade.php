@@ -153,8 +153,7 @@
 
 
                             {{-- Attachments --}}
-                            <h4><b>Attachments</b>
-                            </h4>
+                            <h4>Attachments</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-9">
@@ -243,7 +242,7 @@
                                             </select>
                                             {!! fieldErrorMessage('super_id', $errors) !!}
                                         @else
-                                            {!! Form::text('assigned_super_text', ($prac->super_id) ? $prac->taskOwner->name : '-', ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::text('assigned_super_text', ($prac->super_id) ? $prac->supervisor->name : '-', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
                                         {!! fieldErrorMessage('super_id', $errors) !!}
                                     </div>
@@ -434,7 +433,7 @@
     <template id="prac-template">
         <h4 style="margin-bottom: 15px">Prac Completion Items
             {{-- Show add if user has permission to add items --}}
-            @if ($prac->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac))
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
             @endif
         </h4>
@@ -462,8 +461,8 @@
                     </td>
                     {{-- Completed --}}
                     <td>
-                        <div v-if="item.done_by">
-                            @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }}
+                        <div v-if="item.sign_by">
+                            @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
                         </div>
                         <div v-else>-</div>
                     </td>
@@ -772,7 +771,7 @@
                     this.xx.prac.items_total = 0;
                     this.xx.prac.items_done = 0;
                     for (var i = 0; i < this.xx.itemList.length; i++) {
-                        if ((this.xx.itemList[i]['done_by']))
+                        if ((this.xx.itemList[i]['sign_by']))
                             this.xx.prac.items_done++;
 
                         this.xx.prac.items_total++;
@@ -840,21 +839,21 @@
                     record.planner_task = task.text;
 
                     // Item just marked Completed
-                    if (record.status == '1' && !record.done_by) {
+                    if (record.status == '1' && !record.sign_by) {
                         // Update done by + Signed by
-                        record.done_at = moment().format('YYYY-MM-DD');
-                        record.done_by = this.xx.user_id;
-                        record.done_by_name = this.xx.user_fullname;
+                        record.sign_at = moment().format('YYYY-MM-DD');
+                        record.sign_by = this.xx.user_id;
+                        record.sign_by_name = this.xx.user_fullname;
                         record.sign_at = moment().format('YYYY-MM-DD');
                         record.sign_by = this.xx.user_id;
                         record.sign_by_name = this.xx.user_fullname;
                     }
 
                     // Item just marked Incomplete
-                    if (record.status == '0' && record.done_by) {
-                        record.done_at = '';
-                        record.done_by = '';
-                        record.done_by_name = '';
+                    if (record.status == '0' && record.sign_by) {
+                        record.sign_at = '';
+                        record.sign_by = '';
+                        record.sign_by_name = '';
                         record.sign_at = '';
                         record.sign_by = '';
                         record.sign_by_name = '';
@@ -867,11 +866,11 @@
                     //obj = record;
                     this.updateItemDB(record);
                     this.xx.item = {};
-                    this.xx.done_by = '';
+                    this.xx.sign_by = '';
                     this.xx.editItemModal = false;
                 },
                 updateItemDB: function (record) {
-                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
+                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.sign_by);
                     this.$http.patch('/site/prac-completion/item/' + record.id, record)
                         .then(function (response) {
                             this.getPrac();
@@ -880,9 +879,9 @@
                         }.bind(this))
                         .catch(function (response) {
                             record.status = '';
-                            record.done_at = '';
-                            record.done_by = '';
-                            record.done_by_name = '';
+                            record.sign_at = '';
+                            record.sign_by = '';
+                            record.sign_by_name = '';
                             alert('failed to update item');
                         });
                 },

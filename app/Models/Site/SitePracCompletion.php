@@ -8,7 +8,6 @@ use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
-use App\Models\Misc\TemporaryFile;
 use App\Models\Site\Planner\SitePlanner;
 use App\User;
 use Carbon\Carbon;
@@ -182,45 +181,6 @@ class SitePracCompletion extends Model
         $this->createToDo($site->supervisor_id);
     }
 
-    /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "filebank/site/" . $this->site_id . '/maintenance';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $this->site_id . '-' . $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteMaintenanceDoc::create(['main_id' => $this->id, 'type' => $type, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
-
 
     public function createAssignSupervisorToDo($user_list)
     {
@@ -260,7 +220,7 @@ class SitePracCompletion extends Model
     }
 
     /**
-     * Create ToDoo for Maintenance Report and assign to given user(s)
+     * Create ToDoo for Report and assign to given user(s)
      */
     public function createSupervisorAssignedToDo($user_list)
     {

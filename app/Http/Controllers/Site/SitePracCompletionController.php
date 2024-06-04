@@ -21,10 +21,6 @@ use Session;
 use Validator;
 use Yajra\Datatables\Datatables;
 
-/**
- * Class SiteMaintenanceController
- * @package App\Http\Controllers\Site
- */
 class SitePracCompletionController extends Controller
 {
 
@@ -38,9 +34,6 @@ class SitePracCompletionController extends Controller
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasAnyPermissionType('prac.completion'))
             return view('errors/404');
-
-        $requests = Auth::user()->maintenanceRequests(2);
-        $request_ids = ($requests) ? $requests->pluck('id')->toArray() : [];
 
         $progress = SitePracCompletion::where('status', 2)->get();
 
@@ -191,7 +184,7 @@ class SitePracCompletionController extends Controller
         if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($prac_request['super_id']);
             $prac->emailAssigned($super);
-            $action = Action::create(['action' => "Prac Completion  updated to $super->name", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
+            $action = Action::create(['action' => "Supervisor assigned $super->name", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
             if ($prac->status) $prac->status = 1; // Set to Active if in progress
             $prac->closeToDo();   // Delete Assign Super Todoo
@@ -249,7 +242,7 @@ class SitePracCompletionController extends Controller
                     $site = Site::findOrFail($prac->site_id);
                     $prac->createManagerSignOffToDo([108]);
                 }
-                $action = Action::create(['action' => "Request has been signed off by Supervisor", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Report has been signed off by Supervisor", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             }
             if ($signoff == 'manager') {
                 $prac_request['manager_sign_by'] = Auth::user()->id;
@@ -261,13 +254,13 @@ class SitePracCompletionController extends Controller
                 $prac->site->status = 0;
                 $prac->site->save();
 
-                $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
                 $email_list = [env('EMAIL_DEV')];
                 if (\App::environment('prod'))
                     $email_list = $prac->site->company->notificationsUsersEmailType('prac.completion.completed');
 
-                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceCompleted($prac));
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SitePracCompletionCompleted($prac));
             }
 
             //dd($prac_request);
@@ -277,8 +270,6 @@ class SitePracCompletionController extends Controller
             // Determine if Report Signed Off and if so mark completed
             if ($prac->supervisor_sign_by && $prac->manager_sign_by) {
                 $prac->status = 0;
-                if (!$prac->ac_form_required)
-                    $prac->ac_form_sent = "0001-01-01 01:01:01";
                 $prac->save();
             }
 
@@ -324,7 +315,7 @@ class SitePracCompletionController extends Controller
         $item = SitePracCompletionItem::findOrFail($id);
         $prac = SitePracCompletion::findOrFail($item->prac_id);
         // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('del.prac.completion', $item->maintenance)))
+        if (!(Auth::user()->allowed2('del.prac.completion', $item->prac)))
             return view('errors/404');
 
         //dd(request()->all());
@@ -389,18 +380,18 @@ class SitePracCompletionController extends Controller
 
         // Update resolve date if just modified
         if (request('status') != $status_orig) {
-            if (!request('status')) {
+            if (request('status') == 1) {
                 $item->status = 1;
                 $item->sign_by = null;
                 $item->sign_at = null;
                 $item->save();
-                $action = Action::create(['action' => "Maintenance Item has been mark as NOT completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Prac Item has been mark as NOT completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             } else {
                 // Item completed
                 if ($item_request['status'] == 0 && $item->status != 0) {
                     $item_request['sign_by'] = Auth::user()->id;
                     $item_request['sign_at'] = Carbon::now()->toDateTimeString();
-                    $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
+                    $action = Action::create(['action' => "Prac Item has been completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
                 }
                 //dd($item_request);
             }
@@ -457,9 +448,14 @@ class SitePracCompletionController extends Controller
      */
     public function getPrac()
     {
-        if (request('supervisor_sel'))
-            $request_ids = (request('supervisor') == 'all') ? SitePracCompletion::all()->pluck('id')->toArray() : SitePracCompletion::where('super_id', request('supervisor'))->pluck('id')->toArray();
-        else {
+        if (request('supervisor_sel')) {
+            if (request('supervisor') == 'all')
+                $request_ids = SitePracCompletion::all()->pluck('id')->toArray();
+            elseif (request('supervisor') == 'signoff')
+                $request_ids = SitePracCompletion::where('status', 1)->where('supervisor_sign_by', '<>', null)->pluck('id')->toArray();
+            else
+                $request_ids = SitePracCompletion::where('super_id', request('supervisor'))->pluck('id')->toArray();
+        } else {
             $requests = Auth::user()->pracCompletion(request('status'));
             $request_ids = ($requests) ? Auth::user()->pracCompletion(request('status'))->pluck('id')->toArray() : [];
         }
@@ -477,7 +473,6 @@ class SitePracCompletionController extends Controller
             ->whereIn('m.id', $request_ids)
             ->where('m.status', request('status'));
 
-        //dd($records);
         $dt = Datatables::of($records)
             ->editColumn('id', '<div class="text-center"><a href="/site/prac-completion/{{$id}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('site_id', function ($rec) {

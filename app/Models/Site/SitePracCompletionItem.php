@@ -20,7 +20,7 @@ class SitePracCompletionItem extends Model
 
     public function prac()
     {
-        return $this->belongsTo('App\Models\Site\SitePracCompletion', 'main_id');
+        return $this->belongsTo('App\Models\Site\SitePracCompletion', 'prac_id');
     }
 
     public function planner()
@@ -59,7 +59,7 @@ class SitePracCompletionItem extends Model
             'type' => 'prac_completion_item',
             'type_id' => $this->id,
             'name' => 'Prac Completion Item Added - ' . $this->prac->site->name,
-            'info' => 'Please review maintenance item and assign to company',
+            'info' => 'Please review practical completion item and assign to company',
             'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
             'company_id' => $this->prac->site->owned_by->id,
         ];

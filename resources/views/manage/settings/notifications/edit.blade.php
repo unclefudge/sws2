@@ -45,6 +45,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.asbestos')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.handover')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.qa.super.photo')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'prac.completion.completed')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.maintenance.completed')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.completed')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
