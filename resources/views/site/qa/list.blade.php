@@ -21,6 +21,11 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Reports</span>
                         </div>
+                        <div class="actions">
+                            @if (Auth::user()->hasAnyPermissionType('site.qa.templates'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates data-original-title=" Add">Templates</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="row">
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)

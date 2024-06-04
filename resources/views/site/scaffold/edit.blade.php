@@ -219,7 +219,7 @@ $duty_class = [
                             <hr>
                             <div class="pull-right" style="min-height: 50px">
                                 <a href="/site/scaffold/handover" class="btn default"> Back</a>
-                                @if(Auth::user()->allowed2('add.site.scaffold.handover'))
+                                @if(Auth::user()->allowed2('edit.site.scaffold.handover', $report ))
                                     <button type="submit" name="save" class="btn green"> Save</button>
                                     <button type="submit" name="save" class="btn red submitForm"> Sign Off</button>
                                 @endif

@@ -40,14 +40,9 @@ class SitePracCompletion extends Model
         return $this->belongsTo('App\User', 'super_id');
     }
 
-    public function docs()
-    {
-        return $this->hasMany('App\Models\Site\SiteMaintenanceDoc', 'main_id');
-    }
-
     public function items()
     {
-        return $this->hasMany('App\Models\Site\SiteMaintenanceItem', 'main_id');
+        return $this->hasMany('App\Models\Site\SitePracCompletionItem', 'prac_id');
     }
 
 

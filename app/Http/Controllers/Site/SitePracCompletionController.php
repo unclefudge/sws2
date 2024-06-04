@@ -8,7 +8,6 @@ use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
-use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SitePracCompletionItem;
 use App\User;
@@ -113,12 +112,12 @@ class SitePracCompletionController extends Controller
 
         // Create Prac Completion
         $prac = SitePracCompletion::create($prac_request);
-        $action = Action::create(['action' => "Prac Completion created", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+        $action = Action::create(['action' => "Prac Completion created", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
         // Add Request Items
         for ($i = 1; $i < 25; $i++) {
             if (request("item$i")) {
-                SitePracCompletionItem::create(['prac_id' => $prac->id, 'name' => request("item$i"), 'order' => $i, 'status' => 0]);
+                SitePracCompletionItem::create(['prac_id' => $prac->id, 'name' => request("item$i"), 'order' => $i, 'status' => 1]);
             }
         }
 
@@ -153,58 +152,13 @@ class SitePracCompletionController extends Controller
         return view('site/prac-completion/create');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function review($id)
-    {
-
-
-        // Supervisor Assigned
-        if (Auth::user()->allowed2('sig.prac.completion', $prac)) {
-            $super = User::find(request('super_id'));
-            $prac_request['step'] = 0;
-            $prac_request['status'] = 1; // Set status to active
-            $prac_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
-            $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'prac_completion', 'table_id' => $prac->id]);
-            Toastr::success("Assigned Request");
-
-            $prac->closeToDo();   // Delete Construction Mgr Todoo
-            $prac->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
-
-            // Update Site with new Maintenance Supervisor
-            $prac->site->supervisor_id = request('super_id');
-            $prac->site->save();
-
-            // Add to Client Visit planner
-            /*
-            $newPlanner = SitePlanner::create(array(
-                'site_id'     => $prac->site_id,
-                'from'        => $visit_date->format('Y-m-d') . ' 00:00:00',
-                'to'          => $visit_date->format('Y-m-d') . ' 00:00:00',
-                'days'        => 1,
-                'entity_type' => 'c',
-                'entity_id'   => request('company_id'),
-                'task_id'     => '524' // Client Visit
-            ));*/
-
-        }
-
-
-        // Email Assigned Supervisor
-        if (Auth::user()->allowed2('sig.prac.completion', $prac)) {
-            $prac->emailAssigned($super);
-        }
-
-        return (request('status') == 2) ? redirect('site/prac-completion/' . $prac->id . '/edit') : redirect('site/prac-completion/' . $prac->id);
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update($id)
     {
-        $prac = PracCompletion::findOrFail($id);
+        $prac = SitePracCompletion::findOrFail($id);
         $super_id_orig = $prac->super_id;
         $status_orig = $prac->status;
 
@@ -214,7 +168,7 @@ class SitePracCompletionController extends Controller
         if (!Auth::user()->allowed2('edit.prac.completion', $prac))
             return view('errors/404');
 
-        $rules = ['supervisor' => 'required', 'completed' => 'required', 'onhold_reason' => 'required_if:status,4'];
+        $rules = ['super_id' => 'required', 'onhold_reason' => 'required_if:status,4'];
         $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
             'onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
         request()->validate($rules, $mesg); // Validate
@@ -227,49 +181,38 @@ class SitePracCompletionController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $prac->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_prac_completion', 'table_id' => $prac->id, 'directory' => "/filebank/site/$prac->site_id/prac"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Email if Super Assigned is updated
         if (request('super_id') && request('super_id') != $super_id_orig) {
             $super = User::find($prac_request['super_id']);
             $prac->emailAssigned($super);
-            $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+            $action = Action::create(['action' => "Prac Completion  updated to $super->name", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
-            $prac->closeToDo();   // Delete Construction Mgr Todoo
-
-            // Set Assigned to Super date field if not set
-            if (!$prac->assigned_super_at)
-                $prac->assigned_super_at = Carbon::now()->toDateTimeString();
-
+            if ($prac->status) $prac->status = 1; // Set to Active if in progress
+            $prac->closeToDo();   // Delete Assign Super Todoo
             $prac->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for new supervisor
-            //$prac->site->supervisor_id = request('super_id'); // Update Site supervisor
-            //$prac->site->save();
         }
 
         // Add note if change of Status
         if (request('status') && $status_orig != 4 && request('status') == 4) {
-            $action = Action::create(['action' => "Request has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'prac_completion', 'table_id' => $prac->id]);
+            $action = Action::create(['action' => "Report has been placed On Hold for the following reason: \n" . request('onhold_reason'), 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             $prac->closeToDo();
         }
         if (request('status') && $status_orig != 1 && request('status') == 1) {
-            $action = Action::create(['action' => "Request has been Re-Activated", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+            $action = Action::create(['action' => "Report has been Re-Activated", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             $prac->supervisor_sign_by = null;
             $prac->supervisor_sign_at = null;
             $prac->manager_sign_by = null;
             $prac->manager_sign_at = null;
         }
         if (request('status') && $status_orig != '-1' && request('status') == '-1') {
-            $action = Action::create(['action' => "Request has been Declined", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+            $action = Action::create(['action' => "Report has been Declined", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             $prac->closeToDo();
-        }
-
-        // Add note if change of Category
-        if (request('category_id') && request('category_id') != $prac->category_id) {
-            $from = SiteMaintenanceCategory::find($prac->category_id)->name;
-            $to = SiteMaintenanceCategory::find(request('category_id'))->name;
-            $action = Action::create(['action' => "Request category updated from $from to $to", 'table' => 'prac_completion', 'table_id' => $prac->id]);
         }
 
         $prac->save();
@@ -304,9 +247,9 @@ class SitePracCompletionController extends Controller
                 $prac->closeToDo();
                 if (!$prac->manager_sign_by) {
                     $site = Site::findOrFail($prac->site_id);
-                    $prac->createManagerSignOffToDo(array_merge(getUserIdsWithRoles('con-construction-manager'), [108]));
+                    $prac->createManagerSignOffToDo([108]);
                 }
-                $action = Action::create(['action' => "Request has been signed off by Supervisor", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Request has been signed off by Supervisor", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             }
             if ($signoff == 'manager') {
                 $prac_request['manager_sign_by'] = Auth::user()->id;
@@ -318,7 +261,7 @@ class SitePracCompletionController extends Controller
                 $prac->site->status = 0;
                 $prac->site->save();
 
-                $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
                 $email_list = [env('EMAIL_DEV')];
                 if (\App::environment('prod'))
@@ -356,12 +299,13 @@ class SitePracCompletionController extends Controller
     public function addItem($id)
     {
         $prac = SitePracCompletion::findOrFail($id);
+
         // Check authorisation and throw 404 if not
         if (!(Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->id == $prac->super_id))
             return view('errors/404');
 
         //dd(request()->all());
-        $item = SitePracCompletionItem::create(['prac_id' => $prac->id, 'name' => request('name'), 'order' => request('order'), 'status' => 0]);
+        $item = SitePracCompletionItem::create(['prac_id' => $prac->id, 'name' => request('name'), 'order' => request('order'), 'status' => 1]);
 
         // Assign ToDoo to Supervisor for item
         if ($prac->super_id)
@@ -446,21 +390,17 @@ class SitePracCompletionController extends Controller
         // Update resolve date if just modified
         if (request('status') != $status_orig) {
             if (!request('status')) {
-                $item->status = 0;
-                $item->done_by = null;
-                $item->done_at = null;
+                $item->status = 1;
                 $item->sign_by = null;
                 $item->sign_at = null;
                 $item->save();
-                $action = Action::create(['action' => "Maintenance Item has been mark as NOT completed", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+                $action = Action::create(['action' => "Maintenance Item has been mark as NOT completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
             } else {
                 // Item completed
-                if ($item_request['status'] == 1 && $item->status != 1) {
-                    $item_request['done_by'] = Auth::user()->id;
-                    $item_request['done_at'] = Carbon::now()->toDateTimeString();
+                if ($item_request['status'] == 0 && $item->status != 0) {
                     $item_request['sign_by'] = Auth::user()->id;
                     $item_request['sign_at'] = Carbon::now()->toDateTimeString();
-                    $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'prac_completion', 'table_id' => $prac->id]);
+                    $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
                 }
                 //dd($item_request);
             }
@@ -472,13 +412,7 @@ class SitePracCompletionController extends Controller
             $company = Company::find(request('assigned_to'));
             if ($company && $company->primary_contact())
                 $item->emailAssigned($company->primary_contact());
-            $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'prac_completion', 'table_id' => $prac->id]);
-
-            // Set Assigned to date field if not set
-            if (!$prac->assigned_at) {
-                $prac->assigned_at = Carbon::now()->toDateTimeString();
-                $prac->save();
-            }
+            $action = Action::create(['action' => "Company assigned to request updated to $company->name", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
             $prac->closeToDo();
             $item->closeToDo();
@@ -545,12 +479,9 @@ class SitePracCompletionController extends Controller
 
         //dd($records);
         $dt = Datatables::of($records)
-            //->editColumn('id', '<div class="text-center"><a href="/site/prac-completion/{{$id}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('id', function ($rec) {
-                return "<div class='text-center'><a href='/site/prac-completion/$rec->id'>$rec->id</a></div>";
-            })
+            ->editColumn('id', '<div class="text-center"><a href="/site/prac-completion/{{$id}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('site_id', function ($rec) {
-                return $red->sitecode;
+                return $rec->sitecode;
             })
             ->editColumn('super_id', function ($rec) {
                 $d = SitePracCompletion::find($rec->id);
@@ -630,34 +561,6 @@ class SitePracCompletionController extends Controller
             $array['name'] = $item->name;
             $array['super'] = $item->super;
 
-            // Task Info
-            //$array['task_id'] = $item->task_id;
-            //$task = Task::find($item->task_id);
-            //$array['task_name'] = $task->name;
-            //$array['task_code'] = $task->code;
-
-
-            // Done By
-            $array['done_at'] = '';
-            $array['done_by'] = '';
-            $array['done_by_name'] = '';
-            $array['done_by_company'] = '';
-            $array['done_by_licence'] = '';
-            if ($item->done_by) {
-                // User Info - Array of unique users (store previous users to speed up)
-                if (isset($users[$item->done_by])) {
-                    $user_rec = $users[$item->done_by];
-                } else {
-                    $user = User::find($item->done_by);
-                    $users[$item->done_by] = (object)['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias];
-                    $user_rec = $users[$item->done_by];
-                }
-
-                $array['done_at'] = $item->done_at->format('Y-m-d');
-                $array['done_by'] = $user_rec->id;
-                $array['done_by_name'] = $user_rec->full_name;
-                $array['done_by_company'] = $user_rec->company_name;
-            }
 
             // Signed By
             $array['sign_at'] = '';
@@ -684,8 +587,8 @@ class SitePracCompletionController extends Controller
 
 
         $actions = [];
-        $actions[] = ['value' => '0', 'text' => 'Incomplete'];
-        $actions[] = ['value' => '1', 'text' => 'Completed'];
+        $actions[] = ['value' => '1', 'text' => 'Incomplete'];
+        $actions[] = ['value' => '0', 'text' => 'Completed'];
         //$actions[] = ['value' => '-1', 'text' => 'Mark N/A'];
         $actions2[] = ['value' => '', 'text' => 'Select Action'];
         $actions2[] = ['value' => '0', 'text' => 'Incomplete'];

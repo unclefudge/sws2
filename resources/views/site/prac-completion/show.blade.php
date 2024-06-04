@@ -1,4 +1,3 @@
-@inject('maintenanceWarranty', 'App\Http\Utilities\MaintenanceWarranty')
 @extends('layout')
 
 @section('breadcrumbs')
@@ -55,11 +54,11 @@
 
                             @include('form-error')
 
-                            <input v-model="xx.main.id" type="hidden" id="main_id" value="{{ $prac->id }}">
-                            <input v-model="xx.main.name" type="hidden" id="main_name" value="{{ $prac->name }}">
-                            <input v-model="xx.main.site_id" type="hidden" id="main_site_id" value="{{ $prac->site_id }}">
-                            <input v-model="xx.main.status" type="hidden" id="main_status" value="{{ $prac->status }}">
-                            <input v-model="xx.main.signed" type="hidden" id="main_signed" value="{{ $prac->isSigned() }}">
+                            <input v-model="xx.prac.id" type="hidden" id="prac_id" value="{{ $prac->id }}">
+                            <input v-model="xx.prac.name" type="hidden" id="prac_name" value="{{ $prac->name }}">
+                            <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
+                            <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
+                            <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
                             <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
                             <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
                             <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
@@ -98,8 +97,8 @@
                                 </div>
                                 <div class="col-md-1"></div>
 
-                                {{-- Client Details --}}
                                 <div class="col-md-6">
+                                    {{-- Status --}}
                                     <div class="row">
                                         <div class="col-md-5"><h4>Client Details</h4></div>
                                         <div class="col-md-7">
@@ -118,8 +117,8 @@
                                                     <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
                                                 @endif
                                                 @if($prac->status == '2')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">UNDER REVIEW</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">UNDER REVIEW</span>
+                                                    <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
+                                                    <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
                                                 @endif
                                                 @if($prac->status == '4')
                                                     <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
@@ -129,6 +128,7 @@
                                         </div>
                                     </div>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    {{-- Client Details --}}
                                     <div class="row">
                                         <div class="col-md-6">
                                             @if ($prac->site->client1_name)
@@ -153,33 +153,42 @@
 
 
                             {{-- Attachments --}}
-                            <h5><b>Attachments:</b></h5>
-                            @if ($prac->attachments()->count())
-                                <hr style="margin: 10px 0px; padding: 0px;">
-                                {{-- Image attachments --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($prac->attachments() as $attachment)
-                                        @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
-                                            <div style="width: 60px; float: left; padding-right: 5px">
-                                                <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
-                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                            </div>
-                                        @endif
-                                    @endforeach
+                            <h4><b>Attachments</b>
+                            </h4>
+                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="row">
+                                <div class="col-md-9">
+                                    @if ($prac->attachments()->count())
+                                        {{-- Image attachments --}}
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($prac->attachments() as $attachment)
+                                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                                        <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
+                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        {{-- File attachments  --}}
+                                        <div class="row" style="margin: 0">
+                                            @foreach ($prac->attachments() as $attachment)
+                                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
+                                                    <br>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        <br>
+                                    @else
+                                        None
+                                    @endif
                                 </div>
-                                {{-- File attachments  --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($prac->attachments() as $attachment)
-                                        @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                            <br>
-                                        @endif
-                                    @endforeach
+                                {{-- Add Attachments --}}
+                                <div class="col-md-3" style="background: #f1f0ef;">
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                 </div>
-                                <br>
-                            @else
-                                None
-                            @endif
+                            </div>
 
 
                             {{-- Under Review - asign to super --}}
@@ -217,7 +226,7 @@
                                 {{-- Assigned Supervisor --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Maintenance Supervisor', ['class' => 'control-label']) !!}
+                                        {!! Form::label('super_id', 'Prac Supervisor', ['class' => 'control-label']) !!}
                                         @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
                                             {{-- Supervisor --}}
                                             <select id="super_id" name="super_id" class="form-control select2"
@@ -253,7 +262,7 @@
                         {{-- Prac Items --}}
                         <div class="row">
                             <div class="col-md-12">
-                                <app-main></app-main>
+                                <app-prac></app-prac>
                             </div>
                         </div>
 
@@ -288,9 +297,9 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h3>Assigned Tasks
-                                    {{-- Show add if user has permission to edit maintenance --}}
+                                    {{-- Show add if user has permission to edit prac --}}
                                     @if ($prac->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/maintenance_task/{{ $prac->id}}"
+                                        <a href="/todo/create/prac_completion_task/{{ $prac->id}}"
                                            class="btn btn-circle green btn-outline btn-sm pull-right"
                                            data-original-title="Add">Add</a>
                                     @endif
@@ -299,19 +308,18 @@
                                     <table class="table table-striped table-bordered table-nohover order-column">
                                         <thead>
                                         <tr class="mytable-header">
-                                            <th width="5%">#</th>
+                                            <th style="width:5%">#</th>
                                             <th> Action</th>
-                                            <th width="15%">Created by</th>
-                                            <th width="15%">Completed by</th>
-                                            <th width="5%"></th>
+                                            <th style="width:15%">Created by</th>
+                                            <th style="width:15%">Completed by</th>
+                                            <th style="width:5%"></th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($prac->todos() as $todo)
                                             <tr>
                                                 <td>
-                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i
-                                                                    class="fa fa-search"></i></a></div>
+                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
                                                 </td>
                                                 <td>
                                                     {{ $todo->info }}<br><br><i>Assigned
@@ -334,8 +342,7 @@
                                                     @endif</td>
                                                 <td>
                                                     @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity
-                                                           class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
+                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -353,8 +360,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h5><b>PRACTICAL COMPLETION ELECTRONIC SIGN-OFF</b></h5>
-                                <p>The above items have been checked by the site construction supervisor and
-                                    conform to the Cape Cod standard set.</p>
+                                <p>The above items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
                             </div>
                         </div>
                         <div class="row">
@@ -364,13 +370,13 @@
                                     {!! \App\User::find($prac->supervisor_sign_by)->full_name !!},
                                     &nbsp;{{ $prac->supervisor_sign_at->format('d/m/Y') }}
                                 @else
-                                    <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 1"
+                                    <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 1"
                                             v-on:click.prevent="$root.$broadcast('signOff', 'super')"
                                             class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                     </button>
-                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 0"
+                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 0"
                                           class="font-red">Pending</span>
-                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
+                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total"
                                           class="font-grey-silver">Waiting for items to be completed</span>
                                 @endif
                             </div>
@@ -383,18 +389,15 @@
                                     &nbsp;{{ $prac->manager_sign_at->format('d/m/Y') }}
                                 @else
                                     @if ($prac->supervisor_sign_by)
-                                        <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
-                                                class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign
+                                        <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && (xx.user_manager == 1 || xx.user_signoff)"
+                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign
                                             Off
                                         </button>
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_manager == 0 && !xx.user_signoff"
+                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_manager == 0 && !xx.user_signoff"
                                               class="font-red">Pending</span>
                                     @else
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total"
-                                              class="font-red">Waiting for Maintenance Supervisor Sign Off</span>
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
-                                              class="font-grey-silver">Waiting for items to be completed</span>
+                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total" class="font-red">Waiting for Prac Supervisor Sign Off</span>
+                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                     @endif
                                 @endif
                             </div>
@@ -403,13 +406,11 @@
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/prac-completion" class="btn default"> Back</a>
-                            @if (!$prac->master && Auth::user()->allowed2('edit.site.main', $prac))
-                                <button v-if="xx.main.status == 1 && xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
-                                        class="btn blue"
+                            @if (!$prac->master && Auth::user()->allowed2('edit.prac.completion', $prac))
+                                <button v-if="xx.prac.status == 1 && xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="btn blue"
                                         v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
                                 </button>
-                                <button v-if="xx.main.status == 2 || xx.main.status == -1 " class="btn green"
-                                        v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
+                                <button v-if="xx.prac.status == 2 || xx.prac.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
                                 </button>
                             @endif
                         </div>
@@ -430,7 +431,7 @@
         </div>
     </div>
 
-    <template id="main-template">
+    <template id="prac-template">
         <h4 style="margin-bottom: 15px">Prac Completion Items
             {{-- Show add if user has permission to add items --}}
             @if ($prac->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
@@ -442,10 +443,9 @@
             <thead>
             <tr class="mytable-header">
                 <th> Prac Item</th>
-                <th width="30%"> Assigned Task</th>
-                <th width="15%"> Completed</th>
-                <th width="10%"> Action</th>
-                {{--}}<th width="15%"> Checked</th>--}}
+                <th style="width:30%"> Assigned Task</th>
+                <th style="width:15%"> Completed</th>
+                <th style="width:10%"> Action</th>
             </tr>
             </thead>
             <tbody>
@@ -489,13 +489,13 @@
                 <b>Item</b>
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-12">
-                        <textarea v-model="xx.main.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of maintenance request item" cols="50"></textarea>
+                        <textarea v-model="xx.prac.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of practical completion item" cols="50"></textarea>
                     </div>
                 </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.addItemModal = false">Cancel</button>
-                <button v-if="xx.main.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
+                <button v-if="xx.prac.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
             </div>
         </add-Item>
 
@@ -543,7 +543,6 @@
                     <div class="col-md-3">Status</div>
                     <div class="col-md-9">
                         <div v-if="xx.editItemModal" class="input-group">
-                            {{--}}<select-picker :name.sync="xx.item.status" :options.sync="xx.sel_checked" :function="doNothing"></select-picker>--}}
                             <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
                                 <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
                                         selected="@{{option.value == item.status}}">@{{ option.text }}
@@ -574,20 +573,17 @@
             <div class="row">
                 <div class="col-md-12">
                     <h3>Notes
-                        {{-- Show add if user has permission to edit maintenance --}}
-                        {{--}}@if (Auth::user()->allowed2('edit.site.main', $prac)) --}}
                         <button v-on:click.prevent="$root.$broadcast('add-action-modal')"
                                 class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
                         </button>
-                        {{--}}@endif --}}
                     </h3>
                     <table v-show="actionList.length"
                            class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -703,14 +699,14 @@
     <script>
         var xx = {
             dev: dev,
-            main: {
+            prac: {
                 id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
             spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,
             record: {}, item: {},
             action: '', loaded: false,
-            table_name: 'site_maintenance', table_id: '', record_status: '', record_resdate: '',
+            table_name: 'site_prac_completion', table_id: '', record_status: '', record_resdate: '',
             created_by: '', created_by_fullname: '',
             done_by: '',
             itemList: [],
@@ -719,25 +715,25 @@
         };
 
         //
-        // Maintenance Items
+        // Prac Items
         //
-        Vue.component('app-main', {
-            template: '#main-template',
+        Vue.component('app-prac', {
+            template: '#prac-template',
 
             created: function () {
-                this.getMain();
+                this.getPrac();
             },
             data: function () {
                 return {xx: xx};
             },
             events: {
                 'updateReportStatus': function (status) {
-                    this.xx.main.status = status;
-                    this.updateReportDB(this.xx.main, true);
+                    this.xx.prac.status = status;
+                    this.updateReportDB(this.xx.prac, true);
                 },
                 'signOff': function (type) {
-                    this.xx.main.signoff = type;
-                    this.updateReportDB(this.xx.main, true);
+                    this.xx.prac.signoff = type;
+                    this.updateReportDB(this.xx.prac, true);
                 },
                 'ac_form_na': function (status) {
                     this.xx.ac_form_sent = 'N/A';
@@ -757,11 +753,11 @@
                 },
             },
             methods: {
-                getMain: function () {
+                getPrac: function () {
                     this.xx.spinner = true;
                     setTimeout(function () {
                         this.xx.load_plan = true;
-                        $.getJSON('/site/prac-completion/' + this.xx.main.id + '/items', function (data) {
+                        $.getJSON('/site/prac-completion/' + this.xx.prac.id + '/items', function (data) {
                             this.xx.itemList = data[0];
                             this.xx.sel_checked = data[1];
                             this.xx.sel_checked2 = data[2];
@@ -773,13 +769,13 @@
                     }.bind(this), 100);
                 },
                 itemsCompleted: function () {
-                    this.xx.main.items_total = 0;
-                    this.xx.main.items_done = 0;
+                    this.xx.prac.items_total = 0;
+                    this.xx.prac.items_done = 0;
                     for (var i = 0; i < this.xx.itemList.length; i++) {
-                        if ((this.xx.itemList[i]['done_by'])) { // || this.xx.itemList[i]['status'] == -1)) && this.xx.itemList[i]['sign_by']) {
-                            this.xx.main.items_done++;
-                        }
-                        this.xx.main.items_total++;
+                        if ((this.xx.itemList[i]['done_by']))
+                            this.xx.prac.items_done++;
+
+                        this.xx.prac.items_total++;
                     }
                 },
                 itemAdd: function (record) {
@@ -787,17 +783,17 @@
                 },
                 saveItem: function (record) {
                     var record = {};
-                    record.name = this.xx.main.newitem;
-                    record.order = this.xx.main.items_total + 1
+                    record.name = this.xx.prac.newitem;
+                    record.order = this.xx.prac.items_total + 1
 
                     //console.log(record);
                     this.xx.addItemModal = false;
 
                     this.$http.patch('/site/prac-completion/{{$prac->id}}/additem', record)
                         .then(function (response) {
-                            this.getMain();
+                            this.getPrac();
                             this.itemsCompleted();
-                            this.xx.main.newitem = '';
+                            this.xx.prac.newitem = '';
                             toastr.success('Added record');
                         }.bind(this))
                         .catch(function (response) {
@@ -878,7 +874,7 @@
                     //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
                     this.$http.patch('/site/prac-completion/item/' + record.id, record)
                         .then(function (response) {
-                            this.getMain();
+                            this.getPrac();
                             this.itemsCompleted();
                             toastr.success('Updated record');
                         }.bind(this))

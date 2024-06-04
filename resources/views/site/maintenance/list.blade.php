@@ -79,7 +79,7 @@
                         @if (Auth::user()->permissionLevel('view.site.maintenance', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">

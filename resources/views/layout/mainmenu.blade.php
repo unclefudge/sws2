@@ -119,14 +119,14 @@
                                                         @if (Auth::user()->hasAnyPermissionType('site.attendance'))
                                                             <li><a href="/site/attendance" class="nav-link"> Site Attendance </a></li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('prac.completion'))
+                                                            <li><a href="/site/prac-completion" class="nav-link"> Prac Completion </a></li>
+                                                        @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.maintenance'))
                                                             <li><a href="/site/maintenance" class="nav-link"> Maintenance Requests </a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.qa'))
                                                             <li><a href="/site/qa" class="nav-link"> Quality Assurance </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.qa.templates'))
-                                                            <li><a href="/site/qa/templates" class="nav-link"> QA Templates </a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('super.checklist'))
                                                             <li><a href="/supervisor/checklist" class="nav-link"> Supervisor Checklist </a></li>

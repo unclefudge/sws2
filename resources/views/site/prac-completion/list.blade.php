@@ -75,7 +75,7 @@
                         @if (Auth::user()->permissionLevel('view.site.maintenance', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
@@ -99,17 +99,14 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Site</th>
                                 {{--}}<th width="10%"> Client Contacted</th>
                                 <th width="10%"> Appointment</th>--}}
-                                <th width="10%"> Supervisor</th>
+                                <th style="width:10%"> Supervisor</th>
                                 <th> Assigned Company</th>
-                                <th width="10%"> Updated</th>
-                                {{--}}
-                                <th width="10%"> Completed</th>
-                                --}}
-                                <th width="5%"></th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>

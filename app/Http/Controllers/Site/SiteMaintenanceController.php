@@ -730,9 +730,15 @@ class SiteMaintenanceController extends Controller
      */
     public function getMaintenance()
     {
-        if (request('supervisor_sel'))
-            $request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
-        else {
+        if (request('supervisor_sel')) {
+            //$request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
+            if (request('supervisor') == 'all')
+                $request_ids = SiteMaintenance::all()->pluck('id')->toArray();
+            elseif (request('supervisor') == 'signoff')
+                $request_ids = Auth::user()->maintenanceRequests(request('status'))->where('status', 1)->where('supervisor_sign_by', '<>', null)->pluck('id')->toArray();
+            else
+                $request_ids = SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
+        } else {
             $requests = Auth::user()->maintenanceRequests(request('status'));
             $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
         }
