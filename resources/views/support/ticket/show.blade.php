@@ -110,7 +110,7 @@
                     <div class="portlet-body form">
                         @if ($ticket->status && ((!$ticket->type && Auth::user()->allowed2('edit.support.ticket', $ticket )) || ($ticket->type && Auth::user()->hasPermission2('edit.support.ticket.upgrade')) ))
                             <div class="row">
-                                <div class="col-md-8">
+                                <div class="col-md-12">
                                     <div class="form-group {!! fieldHasError('action', $errors) !!}">
                                         {!! Form::label('action', 'Add Action', ['class' => 'control-label']) !!}
                                         {!! Form::textarea('action', null, ['rows' => '8', 'class' => 'form-control']) !!}

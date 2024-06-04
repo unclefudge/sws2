@@ -65,8 +65,8 @@ class SitePracCompletionItem extends Model
         ];
 
         $todo = Todo::create($todo_request);
-        $todo->assignUsers($user_list);
-        $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au', 'veronica@capecode.com.au']);
+        //$todo->assignUsers($user_list);
+        //$todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au', 'veronica@capecode.com.au']);
     }
 
 
@@ -83,7 +83,7 @@ class SitePracCompletionItem extends Model
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
 
-        Mail::to($email_to)->send(new \App\Mail\Site\SitePracCompletionAssignedItem($this));
+        //Mail::to($email_to)->send(new \App\Mail\Site\SitePracCompletionAssignedItem($this));
 
     }
 
