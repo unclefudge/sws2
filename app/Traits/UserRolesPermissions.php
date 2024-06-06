@@ -846,7 +846,7 @@ trait UserRolesPermissions
 
             // Site Maintenance + Prac Completion
             if ($permissiontype == 'site.maintenance' || $permissiontype == 'prac.completion') {
-                //if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && $record->assigned_to == $this->company_id) return true; // Request is Assigned to user's company
+                if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && in_array($this->company_id, $record->assignedTo())) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
                 if ($this->permissionLevel($permission, 3) == 40 && $record->super_id == $this->id) return true; // User has 'Supervisor For' permission to this record
                 return false;

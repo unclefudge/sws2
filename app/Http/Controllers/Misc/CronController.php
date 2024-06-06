@@ -1411,6 +1411,18 @@ class CronController extends Controller
                         $todo->save();
                     }
                 }
+
+                // Email outstanding scaffold certificates
+                if ($scaffold_overdue) {
+                    echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n</b><br>";
+                    $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n";
+                    foreach ($scaffold_overdue as $id => $name) {
+                        echo "id[$id] $name<br>";
+                        $log .= "id[$id] $name\n";
+                    }
+                    $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+                    Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));
+                }
             }
         }
 
@@ -1424,18 +1436,6 @@ class CronController extends Controller
                 $log .= "id[$toolbox->id] $toolbox->name\n";
                 $toolbox->emailOverdue();
             }
-        }
-
-        // Email outstanding scaffold certificates
-        if ($scaffold_overdue) {
-            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com for Outstanding Scaffold Handover Certificates:\n";
-            foreach ($scaffold_overdue as $id => $name) {
-                echo "id[$id] $name<br>";
-                $log .= "id[$id] $name\n";
-            }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));
         }
 
         echo "<h4>Completed</h4>";

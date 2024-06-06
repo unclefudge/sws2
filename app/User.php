@@ -17,7 +17,9 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SitePracCompletion;
+use App\Models\Site\SitePracCompletionItem;
 use App\Traits\UserDocs;
 use App\Traits\UserRolesPermissions;
 use Carbon\Carbon;
@@ -361,8 +363,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         if ($this->permissionLevel('view.site.maintenance', 3) == 40) // User is 'Supervisor For' requests
             return SiteMaintenance::where('status', '=', $status)->where('super_id', $this->id)->get();
 
-        //if ($this->permissionLevel('view.site.maintenance', 3) == 30) // User is 'Planned For' requests
-        //    return SiteMaintenance::where('status', '=', $status)->where('assigned_to', $this->company_id)->get();
+        if ($this->permissionLevel('view.site.maintenance', 3) == 30) { // User is 'Planned For' requests
+            $ids = SiteMaintenanceItem::where('assigned_to', $this->company_id)->pluck('main_id')->toArray();
+            return SiteMaintenance::where('status', '=', $status)->whereIn('id', $ids)->get();
+        }
 
         return null;
     }
@@ -380,8 +384,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         if ($this->permissionLevel('view.prac.completion', 3) == 40) // User is 'Supervisor For' requests
             return SitePracCompletion::where('status', '=', $status)->where('super_id', $this->id)->get();
 
-        //if ($this->permissionLevel('view.prac.completion', 3) == 30) // User is 'Planned For' requests
-        //    return SitePracCompletion::where('status', '=', $status)->where('assigned_to', $this->company_id)->get();
+        if ($this->permissionLevel('view.prac.completion', 3) == 30) { // User is 'Planned For' requests
+            $ids = SitePracCompletionItem::where('assigned_to', $this->company_id)->pluck('prac_id')->toArray();
+            return SitePracCompletion::where('status', '=', $status)->whereIn('id', $ids)->get();
+        }
 
         return null;
     }

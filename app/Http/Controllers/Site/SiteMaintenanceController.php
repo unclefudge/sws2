@@ -54,13 +54,17 @@ class SiteMaintenanceController extends Controller
             ->where('m.status', 2)->get();
 
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
-        $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
-        foreach ($mains as $main) {
-            foreach ($main->items as $item) {
-                if (!isset($assignedList[$item->assigned_to]))
-                    $assignedList[$item->assigned_to] = $item->assigned->name;
+
+        if (Auth::user()->isCC()) {
+            $assignedList = ['all' => 'All companies', '' => 'Not assigned'];
+            foreach ($mains as $main) {
+                foreach ($main->items as $item) {
+                    if (!isset($assignedList[$item->assigned_to]))
+                        $assignedList[$item->assigned_to] = $item->assigned->name;
+                }
             }
-        }
+        } else
+            $assignedList = [Auth::user()->company_id => Auth::user()->company->name];
 
         return view('site/maintenance/list', compact('under_review', 'assignedList'));
     }
@@ -739,10 +743,12 @@ class SiteMaintenanceController extends Controller
             else
                 $request_ids = SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
         } else {
+            ray(request()->all());
             $requests = Auth::user()->maintenanceRequests(request('status'));
             $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
         }
 
+        ray($request_ids);
         if (request('assigned_to') != 'all')
             $request_ids = SiteMaintenanceItem::whereIn('main_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('main_id')->toArray();
 
