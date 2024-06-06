@@ -403,6 +403,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/maintenance/{id}/additem', '\App\Http\Controllers\Site\SiteMaintenanceController@addItem');
     Route::any('site/maintenance/{id}/delitem', '\App\Http\Controllers\Site\SiteMaintenanceController@delItem');
     Route::any('site/maintenance/{id}/update', '\App\Http\Controllers\Site\SiteMaintenanceController@updateReport');
+    Route::get('site/maintenance/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@deleteAttachment');
     Route::any('site/maintenance/item/{id}', '\App\Http\Controllers\Site\SiteMaintenanceController@updateItem');
     Route::get('site/maintenance/dt/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController@getMaintenance');
     Route::any('site/maintenance/upload', '\App\Http\Controllers\Site\SiteMaintenanceController@uploadAttachment');

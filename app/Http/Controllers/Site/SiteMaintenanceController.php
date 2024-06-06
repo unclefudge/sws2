@@ -728,6 +728,27 @@ class SiteMaintenanceController extends Controller
         return json_encode("success");
     }
 
+    public function deleteAttachment($id, $doc_id)
+    {
+        $main = SiteMaintenance::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.maintenance', $main))
+            return view('errors/404');
+
+        $doc = SiteMaintenanceDoc::where('id', $doc_id)->first();
+        if ($doc) {
+            $file = public_path($doc->AttachmentUrl);
+            if (file_exists($file))
+                unlink($file);
+            $doc->delete();
+        }
+
+
+        return redirect('site/maintenance/' . $main->id . '/edit');
+
+    }
+
 
     /**
      * Get QA Reports current user is authorised to manage + Process datatables ajax request.
@@ -735,7 +756,6 @@ class SiteMaintenanceController extends Controller
     public function getMaintenance()
     {
         if (request('supervisor_sel')) {
-            //$request_ids = (request('supervisor') == 'all') ? SiteMaintenance::all()->pluck('id')->toArray() : SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
             if (request('supervisor') == 'all')
                 $request_ids = SiteMaintenance::all()->pluck('id')->toArray();
             elseif (request('supervisor') == 'signoff')
@@ -743,12 +763,10 @@ class SiteMaintenanceController extends Controller
             else
                 $request_ids = SiteMaintenance::where('super_id', request('supervisor'))->pluck('id')->toArray();
         } else {
-            ray(request()->all());
             $requests = Auth::user()->maintenanceRequests(request('status'));
             $request_ids = ($requests) ? Auth::user()->maintenanceRequests(request('status'))->pluck('id')->toArray() : [];
         }
 
-        ray($request_ids);
         if (request('assigned_to') != 'all')
             $request_ids = SiteMaintenanceItem::whereIn('main_id', $request_ids)->where('assigned_to', request('assigned_to'))->pluck('main_id')->toArray();
 
