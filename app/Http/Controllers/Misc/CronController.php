@@ -1155,6 +1155,17 @@ class CronController extends Controller
         echo "$mesg week: " . $mon->format('d/m/Y') . "<br>";
         $log .= "$mesg week: " . $mon->format('d/m/Y') . "\n";
 
+        // Last Week Site Note Variations
+        $last_mon = Carbon::now()->subDays(7)->startOfWeek();
+        $last_sun = Carbon::now()->subDays(7)->endOfWeek();
+
+        $site_ids = [];
+        foreach ($extension->sites as $site_ext)
+            $site_ids[] = $site_ext->site_id;
+
+        $notes = SiteNote::where('category_id', 16)->where('variation_days', '>', 0)->whereIn('site_id', $site_ids)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();
+
+
         // Create individual extension record for each site
         foreach ($data as $site) {
             $ext_site = SiteExtensionSite::where('extension_id', $ext->id)->where('site_id', $site['id'])->first();
@@ -1162,6 +1173,15 @@ class CronController extends Controller
                 $ext_site = SiteExtensionSite::create(['extension_id' => $ext->id, 'site_id' => $site['id'], 'completion_date' => $site['completion_date']]);
                 echo "Adding site [" . $site['id'] . "] " . $site['name'] . "<br>";
                 $log .= "Adding site [" . $site['id'] . "] " . $site['name'] . "\n";
+
+                if ($notes->count()) {
+                    foreach ($notes as $note) {
+                        if ($note->site_id == $ext_site->site_id) {
+                            $ext_site->notes = "Add [$note->variation_days] for Approved Site Variation-[$note->variation_name] and include the SV number in the Notes a reference\r\n";
+                            $ext_site->save();
+                        }
+                    }
+                }
             } elseif ($ext_site->completion_date != $site['completion_date']) {
                 $ext_site->completion_date = $site['completion_date'];
                 $ext_site->save();
