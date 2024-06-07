@@ -36,6 +36,17 @@
                                 <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
                             @endif
                         </h3>
+
+                        @if ($notes->count())
+                            <div class="col-md-12 note note-warning">
+                                The following sites had Approved Site Variations Notes added the previous week:
+                                <ul>
+                                    @foreach ($notes as $note)
+                                        <li><b>{{ $note->site->name }}</b> &nbsp; Days: {{ $note->variation_days }} &nbsp; Variation:{{$note->variation_name}} ({{$note->created_at->format('d/m/Y')}})</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <table class="table table-striped table-bordered table-nohover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">

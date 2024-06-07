@@ -8,6 +8,7 @@ use App\Models\Comms\Todo;
 use App\Models\Misc\Category;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
+use App\Models\Site\SiteNote;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -65,7 +66,6 @@ class SiteExtensionController extends Controller
 
 
         $data = $this->getData($extension);
-        //$extend_reasons = SiteExtensionCategory::where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $extend_reasons = Category::where('type', 'site_extension')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $reason_na = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'N/A')->first()->id;
         $reason_publichol = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'Public Holiday')->first()->id;
@@ -83,7 +83,19 @@ class SiteExtensionController extends Controller
         if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             $multi_site_sel = ['all' => 'All Active Sites'] + $multi_site_sel;
 
-        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel'));
+        $today = Carbon::now();
+        $last_mon = Carbon::now()->subDays(7)->startOfWeek();
+        $last_sun = Carbon::now()->subDays(7)->endOfWeek();
+
+        $site_ids = [];
+        foreach ($extension->sites as $site_ext) {
+            if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager') || $site_ext->site->isSupervisorOrAreaSupervisor(Auth::user()))
+                $site_ids[] = $site_ext->site_id;
+        }
+        //ray($site_ids);
+        $notes = SiteNote::where('category_id', 16)->whereIn('site_id', $site_ids)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();
+
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes'));
     }
 
     /**

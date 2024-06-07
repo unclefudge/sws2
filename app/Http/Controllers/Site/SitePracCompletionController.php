@@ -342,6 +342,25 @@ class SitePracCompletionController extends Controller
         return redirect('site/prac-completion/' . $prac->id);
     }
 
+    public function deleteAttachment($id, $doc_id)
+    {
+        $prac = SitePracCompletion::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.inspection', $prac))
+            return view('errors/404');
+
+        $doc = Attachment::where('id', $doc_id)->first();
+        if ($doc) {
+            if (file_exists(public_path($doc->url)))
+                unlink(public_path($doc->url));
+            $doc->delete();
+        }
+
+        return redirect('site/prac-completion/' . $prac->id . '/edit');
+
+    }
+
     /**
      * Update Item the specified resource in storage.
      *

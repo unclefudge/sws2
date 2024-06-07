@@ -21,6 +21,7 @@ use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
+use App\Models\Site\SiteNote;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -1471,15 +1472,36 @@ class CronController extends Controller
             }
         }
 
+        $today = Carbon::now();
+        $last_mon = Carbon::now()->subDays(7)->startOfWeek();
+        $last_sun = Carbon::now()->subDays(7)->endOfWeek();
+
         foreach ($super_list as $super_id => $site_array) {
             $super = User::findOrFail($super_id);
+
+            // Create Site List
             $site_list = '';
-            $site_list2 = '';
+            //$site_list2 = '';
+            $site_list2 = [];
             foreach ($site_array as $site_id) {
                 $site = Site::findOrFail($site_id);
                 $site_list .= "- $site->name\r\n";
-                $site_list2 .= "$site->id, ";
+                $site_list2[] = $site->id;
             }
+            //ray($site_list2);
+
+            // Add Site Note Extension reminders
+            // Add [Number of Days] for Approved Site Variation-[Variation Name] and include the SV number in the Notes a reference
+            $notes = SiteNote::where('category_id', 16)->whereIn('site_id', $site_list2)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();
+            //ray($notes);
+            $note_reminder = '';
+            if ($notes->count()) {
+                $note_reminder = "\r\n\r\n\r\nPlease remember to add the following Site Note Variations from previous week and include the SV number in the Notes a reference:\r\n\r\n";
+                foreach ($notes as $note) {
+                    $note_reminder .= "- " . $note->site->name . "  Days: $note->variation_days Variation:$note->variation_name\r\n";
+                }
+            }
+
 
             // Create task for Supervisor
             $todo_request = [
@@ -1503,6 +1525,7 @@ class CronController extends Controller
             $todo->assignUsers($super_id);
             $todo->emailToDo();
 
+            $site_list2 = implode(', ', $site_list2);
             echo "$super->name: $site_list2<br>";
             $log .= "$super->name: $site_list2\n";
         }

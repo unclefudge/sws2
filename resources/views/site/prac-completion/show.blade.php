@@ -163,6 +163,9 @@
                                             @foreach ($prac->attachments() as $attachment)
                                                 @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
                                                     <div style="width: 60px; float: left; padding-right: 5px">
+                                                        @if(Auth::user()->allowed2('del.prac.completion', $prac))
+                                                            <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
+                                                        @endif
                                                         <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
                                                             <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                                     </div>
@@ -174,6 +177,9 @@
                                             @foreach ($prac->attachments() as $attachment)
                                                 @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
                                                     <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
+                                                    @if(Auth::user()->allowed2('del.prac.completion', $prac))
+                                                        <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
+                                                    @endif
                                                     <br>
                                                 @endif
                                             @endforeach
@@ -637,8 +643,6 @@
         $(document).ready(function () {
             /* Select2 */
             $("#super_id").select2({placeholder: "Select supervisor", width: '100%'});
-            //$("#assigned_to").select2({placeholder: "Select company", width: '100%'});
-            $("#category_id").select2({placeholder: "Select category", width: "100%"});
 
             $("#status").change(function () {
                 $('#onhold-div').hide();
@@ -648,50 +652,22 @@
                 }
             });
 
-            $("#warranty").change(function () {
-                //alert('gg');
-                $('#goodwill-div').hide();
-
-                if ($("warranty").val() == 'other') {
-                    $('#goodwill-div').show();
-                }
-            });
-
-            $('#site-edit').hide();
-            $('#client-edit').hide();
-            $('#photos-edit').hide();
-
-            $("#edit-site").click(function (e) {
+            $('.deleteFile').on('click', function (e) {
                 e.preventDefault();
-                $('#edit-site').hide();
-                $('#site-show').hide();
-                $('#site-edit').show();
-            });
-
-            $("#edit-client").click(function (e) {
-                e.preventDefault();
-                $('#edit-client').hide();
-                $('#client-show').hide();
-                $('#client-edit').show();
-            });
-            $("#edit-photos").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').hide();
-                $('#photos-edit').show();
-            });
-            $("#edit-docs").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').hide();
-                $('#photos-edit').show();
-            });
-            $("#view-photos").click(function (e) {
-                e.preventDefault();
-                $('#photos-show').show();
-                $('#photos-edit').hide();
-            });
-
-            $("#ac_form_mark_na").click(function (e) {
-                e.preventDefault();
+                var id = $(this).data('did');
+                var name = $(this).data('name');
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to restore this file!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location = '/site/prac-completion/' + {{$prac->id}} + '/delfile/' + id;
+                });
             });
         });
     </script>
