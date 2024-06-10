@@ -368,7 +368,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return SiteMaintenance::where('status', '=', $status)->whereIn('id', $ids)->get();
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -389,7 +389,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return SitePracCompletion::where('status', '=', $status)->whereIn('id', $ids)->get();
         }
 
-        return null;
+        return;
     }
 
     /**

@@ -10,8 +10,6 @@
 
 A prac completion has been completed for {{ $prac->site->name }}.
 
-An AfterCare Form is {{ ($main->ac_form_required) ? 'required' : 'not required' }}
-
 |                       |        |
 | ---------------------:|--------|
 | **ID**  | {{ $prac->id  }} |

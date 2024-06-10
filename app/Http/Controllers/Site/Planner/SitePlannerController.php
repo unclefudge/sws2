@@ -1509,7 +1509,8 @@ class SitePlannerController extends Controller
             $sort['order'][$k] = $v['order'];
         }
         // It is sorted by 'order' in descending order and the title is sorted in ascending order.
-        array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
+        if (is_array($sort['name']) && is_array($sort['order']))
+            array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
 
         return $site_details;
     }

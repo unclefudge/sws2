@@ -2,30 +2,27 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Company\CompanyDocRequest;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\ContractorLicenceSupervisor;
-use App\Http\Utilities\CompanyDocTypes;
-use App\Http\Requests;
-use App\Http\Requests\Company\CompanyDocRequest;
-use App\Http\Requests\Company\CompanyProfileDocRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class CompanyDocController
  * @package App\Http\Controllers
  */
-class CompanyDocController extends Controller {
+class CompanyDocController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -155,7 +152,7 @@ class CompanyDocController extends Controller {
         //dd($doc_request);
 
         // Calculate Test & Tag expiry
-        if (request('category_id') == '6') {
+        if (request('category_id') == '6' && request('tag_date')) {
             $doc_request['expiry'] = Carbon::createFromFormat('d/m/Y H:i', request('tag_date') . '00:00')->addMonths(request('tag_type'))->toDateTimeString();
             $doc_request['ref_type'] = request('tag_type');
         }
@@ -212,7 +209,7 @@ class CompanyDocController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
             $doc->attachment = $name;
             $doc->save();
@@ -373,7 +370,7 @@ class CompanyDocController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
             $doc->attachment = $name;
             $doc->save();
@@ -424,7 +421,7 @@ class CompanyDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $doc->status = ($doc->status == 1) ?  0 :  1;
+        $doc->status = ($doc->status == 1) ? 0 : 1;
         $doc->closeToDo();
         $doc->save();
 
@@ -465,7 +462,7 @@ class CompanyDocController extends Controller {
                 // Ensure filename is unique by adding counter to similiar filenames
                 $count = 1;
                 while (file_exists(public_path("$path/$name")))
-                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
                 $file->move($path, $name);
 
                 $doc_request['category_id'] = $request->get('category_id');

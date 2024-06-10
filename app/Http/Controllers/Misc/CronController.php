@@ -1160,7 +1160,7 @@ class CronController extends Controller
         $last_sun = Carbon::now()->subDays(7)->endOfWeek();
 
         $site_ids = [];
-        foreach ($extension->sites as $site_ext)
+        foreach ($ext->sites as $site_ext)
             $site_ids[] = $site_ext->site_id;
 
         $notes = SiteNote::where('category_id', 16)->where('variation_days', '>', 0)->whereIn('site_id', $site_ids)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();

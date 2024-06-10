@@ -686,7 +686,7 @@
             done_by: '',
             itemList: [],
             actionList: [], sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
-            ac_form_sent: '', client_contacted: '', client_appointment: ''
+            client_contacted: '', client_appointment: ''
         };
 
         //
@@ -709,9 +709,6 @@
                 'signOff': function (type) {
                     this.xx.prac.signoff = type;
                     this.updateReportDB(this.xx.prac, true);
-                },
-                'ac_form_na': function (status) {
-                    this.xx.ac_form_sent = 'N/A';
                 },
             },
             components: {
