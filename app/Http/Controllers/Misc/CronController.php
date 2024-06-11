@@ -26,6 +26,7 @@ use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteScaffoldHandover;
+use App\Models\Support\SupportHour;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -44,6 +45,7 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
 
         CronController::blessing();
+        CronController::supporthours();
         CronController::nonattendees();
         CronController::roster();
         CronController::qa();
@@ -99,9 +101,6 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-    * Blessing
-    */
 
     static public function blessing()
     {
@@ -122,6 +121,20 @@ class CronController extends Controller
         $log .= "\n\nAmen.";
         $bytes_written = File::put(public_path('filebank/tmp/blessing.txt'), $log);
     }
+
+    static public function supporthours()
+    {
+        $hours = SupportHour::all()->sortBy('order');
+        foreach ($hours as $hour) {
+            $hour->h9_11 = 0;
+            $hour->h11_1 = 0;
+            $hour->h1_3 = 0;
+            $hour->h3_5 = 0;
+            $hour->notes = '';
+            $hour->save();
+        }
+    }
+
 
     static public function nonattendees()
     {
