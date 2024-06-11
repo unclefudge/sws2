@@ -12,7 +12,15 @@
 
     <style>
         .keybox {
-            float: left;
+            /*float: left;*/
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 3px 5px 0px;
+            cursor: pointer !important;
+        }
+
+        .keybox2 {
             display: inline;
             height: 20px;
             width: 20px;
@@ -36,14 +44,6 @@
             background-color: #e9edef;
         }
 
-        .stickyKey {
-            position: -webkit-sticky; /* Safari */
-            position: sticky;
-            top: 51px;
-            z-index: 10;
-            background: #ffffff;
-            padding: 5px 0 5px 0;
-        }
     </style>
 
     <!-- BEGIN PAGE CONTENT INNER -->
@@ -65,13 +65,6 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span class="keybox state-red"></span> Unavailable
-                                <span class="keybox state-orange"></span> Available
-                                <span class="keybox state-green"></span> Working
-                            </div>
-                        </div>
                         <table style="width:100%">
                             <tr style="font-weight: bold;">
                                 <td style="width: 140px">Day</td>
@@ -99,6 +92,14 @@
                                 </tr>
                             @endforeach
                         </table>
+                        <br><br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span class="keybox state-red">&nbsp; &nbsp;&nbsp;</span> Unavailable
+                                <span class="keybox state-orange" style="margin-left: 20px">&nbsp; &nbsp;&nbsp;</span> Available to work
+                                <span class="keybox state-green" style="margin-left: 20px">&nbsp; &nbsp;&nbsp;</span> Working
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
