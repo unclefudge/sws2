@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-ticket"></i> Support Tickets</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -27,6 +21,9 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Support Tickets</span>
                         </div>
                         <div class="actions">
+                            @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/support/hours" data-original-title="Hours">Support Hours</a>
+                            @endif
                             <a class="btn btn-circle green btn-outline btn-sm" href="/support/ticket/create" data-original-title="Add">Add</a>
                         </div>
                     </div>

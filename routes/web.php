@@ -693,6 +693,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('support/ticket/{id}/assigned/{assigned}', '\App\Http\Controllers\Support\SupportTicketController@updateAssigned');
     Route::resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
 
+    // Support Hours
+    Route::get('support/hours/update', '\App\Http\Controllers\Support\SupportHourController@updateHours');
+    Route::get('support/hours/load', '\App\Http\Controllers\Support\SupportHourController@getHours');
+    Route::post('support/hours/save', '\App\Http\Controllers\Support\SupportHourController@saveHours');
+    Route::resource('support/hours', '\App\Http\Controllers\Support\SupportHourController');
+
     // Temp File Uploads
     Route::post('file/upload', '\App\Http\Controllers\Misc\FileUploadController@upload');
 
