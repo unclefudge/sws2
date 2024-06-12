@@ -23,7 +23,7 @@
                         </div>
                         <div class="actions">
                             @if (Auth::user()->hasAnyPermissionType('site.qa.templates'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates data-original-title=" Add">Templates</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates" data-original-title="Add">Templates</a>
                             @endif
                         </div>
                     </div>
