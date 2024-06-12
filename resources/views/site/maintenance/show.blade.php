@@ -596,7 +596,7 @@
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/maintenance" class="btn default"> Back</a>
-                            @if (!$main->master && Auth::user()->allowed2('edit.site.main', $main))
+                            @if (!$main->master && Auth::user()->allowed2('edit.site.maintenance', $main))
                                 <button v-if="xx.main.status == 1 && xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
                                         class="btn blue"
                                         v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
@@ -769,7 +769,7 @@
                 <div class="col-md-12">
                     <h3>Notes
                         {{-- Show add if user has permission to edit maintenance --}}
-                        {{--}}@if (Auth::user()->allowed2('edit.site.main', $main)) --}}
+                        {{--}}@if (Auth::user()->allowed2('edit.site.maintenance', $main)) --}}
                         <button v-on:click.prevent="$root.$broadcast('add-action-modal')"
                                 class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
                         </button>
