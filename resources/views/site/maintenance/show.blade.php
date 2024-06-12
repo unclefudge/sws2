@@ -662,7 +662,7 @@
                         <div v-else>-</div>
                     </td>
                     <td>
-                        @if (!$main->supervisor_sign_by && Auth::user()->allowed2('edit.site.main', $main))
+                        @if (!$main->supervisor_sign_by && Auth::user()->allowed2('edit.site.maintenance', $main))
                             <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
                         @endif
                         @if ($main->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
