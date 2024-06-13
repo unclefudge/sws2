@@ -47,17 +47,6 @@ class SiteQaController extends Controller
         return view('site/qa/list', compact('signoff'));
     }
 
-    /*public function listSignoff()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.qa'))
-            return view('errors/404');
-
-        $signoff = true;
-
-        return view('site/qa/list', compact('signoff'));
-    }*/
-
     public function templates()
     {
         // Check authorisation and throw 404 if not
@@ -65,6 +54,15 @@ class SiteQaController extends Controller
             return view('errors/404');
 
         return view('site/qa/templates/list');
+    }
+
+    public function upcoming()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.qa'))
+            return view('errors/404');
+
+        return view('site/qa/upcoming');
     }
 
     /**

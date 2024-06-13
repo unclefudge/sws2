@@ -95,6 +95,7 @@ class SiteExtensionController extends Controller
         //ray($site_ids);
         $notes = SiteNote::where('category_id', 16)->where('variation_days', '>', 0)->whereIn('site_id', $site_ids)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();
 
+        //ray($notes);
         return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes'));
     }
 

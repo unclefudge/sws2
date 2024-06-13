@@ -124,14 +124,16 @@ class CronController extends Controller
 
     static public function supporthours()
     {
-        $hours = SupportHour::all()->sortBy('order');
-        foreach ($hours as $hour) {
-            $hour->h9_11 = 0;
-            $hour->h11_1 = 0;
-            $hour->h1_3 = 0;
-            $hour->h3_5 = 0;
-            $hour->notes = '';
-            $hour->save();
+        if (Carbon::today()->isMonday()) {
+            $hours = SupportHour::all()->sortBy('order');
+            foreach ($hours as $hour) {
+                $hour->h9_11 = 0;
+                $hour->h11_1 = 0;
+                $hour->h1_3 = 0;
+                $hour->h3_5 = 0;
+                $hour->notes = '';
+                $hour->save();
+            }
         }
     }
 

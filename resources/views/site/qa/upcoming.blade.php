@@ -19,14 +19,11 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Quality Assurance Reports</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Upcoming QA Reports</span>
                         </div>
                         <div class="actions">
-                            @if (Auth::user()->hasAnyPermissionType('site.qa.templates'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates" data-original-title="Add">Templates</a>
-                            @endif
                             @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/upcoming" data-original-title="Upcoming">Upcoming</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa" data-original-title="QA">Current QA Reports</a>
                             @endif
                         </div>
                     </div>
@@ -34,22 +31,12 @@
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : session('/site/qa:supervisor'), ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
                         @endif
 
-                        <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status1" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="4">On Hold</option>
-                                    <option value="0">Completed</option>
-                                    <option value="-1">Not Required</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
@@ -95,12 +82,10 @@
             processing: true,
             serverSide: true,
             ajax: {
-                'url': '{!! url('site/qa/dt/qa_reports') !!}',
+                'url': '{!! url('site/qa/dt/qa_upcoming') !!}',
                 'type': 'GET',
                 'data': function (d) {
-                    d.supervisor_sel = $('#supervisor_sel').val();
                     d.supervisor = $('#supervisor').val();
-                    d.status = $('#status1').val();
                 }
             },
             columns: [
@@ -115,31 +100,6 @@
             order: [
                 [1, "asc"]
             ]
-        });
-
-        $('select#status1').change(function () {
-            table1.ajax.reload();
-        });
-
-        $('select#supervisor').change(function () {
-            //sessionStorage.setItem('qasites', $('#supervisor').val());
-            //console.log('S:'+sessionStorage.getItem('qasites'));
-            var supervisor = $('#supervisor').val();
-            $.ajax({
-                url: '/session/update',
-                type: "POST",
-                dataType: 'json',
-                data: {key: '/site/qa:supervisor', val: supervisor},
-                success: function (data) {
-                    let x = JSON.stringify(data);
-                    //console.log(x);
-                },
-                error: function (error) {
-                    console.log(`Error ${error}`);
-                }
-            }).always(function (data) {
-                $('#table1').DataTable().draw(true);
-            });
         });
     </script>
 @stop

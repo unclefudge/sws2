@@ -1154,8 +1154,8 @@ class PagesController extends Controller
     public function triggerQA()
     {
         echo "Manually trigger QA creation<br><br>";
-        $master_qas = ['2581', '2563']; // Handover, On Completion
-        $site_ids = ['672'];
+        $master_qas = ['2581']; // 2581 Handover, 2563 On Completion
+        $site_ids = ['702'];
 
         foreach ($master_qas as $master_qa) {
             // Create new QA by copying required template

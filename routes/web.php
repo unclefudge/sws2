@@ -384,6 +384,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('site/qa/category', '\App\Http\Controllers\Site\SiteQaCategoryController');
 
     // Site Quality Assurance
+    Route::get('site/qa/upcoming', '\App\Http\Controllers\Site\SiteQaController@upcoming');
     Route::get('site/qa/sigonoff', '\App\Http\Controllers\Site\SiteQaController@listSignoff');
     Route::get('site/qa/{id}/items', '\App\Http\Controllers\Site\SiteQaController@getItems');
     Route::any('site/qa/{id}/update', '\App\Http\Controllers\Site\SiteQaController@updateReport');
@@ -391,6 +392,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/qa/company/{task_id}', '\App\Http\Controllers\Site\SiteQaController@getCompaniesForTask');
     Route::get('site/qa/dt/qa_reports', '\App\Http\Controllers\Site\SiteQaController@getQaReports');
     Route::get('site/qa/dt/qa_templates', '\App\Http\Controllers\Site\SiteQaController@getQaTemplates');
+    Route::get('site/qa/dt/qa_upcoming', '\App\Http\Controllers\Site\SiteQaController@getQaUpcoming');
     Route::get('site/qa/templates', '\App\Http\Controllers\Site\SiteQaController@templates');
     Route::resource('site/qa', '\App\Http\Controllers\Site\SiteQaController');
 
