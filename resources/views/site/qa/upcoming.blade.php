@@ -31,7 +31,7 @@
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                {!! Form::select('supervisor', ['all' => 'Active sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $super_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
@@ -39,18 +39,45 @@
 
                     </div>
                     <div class="portlet-body">
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                        <table class="table table-striped table-bordered order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
                                 <th> Site</th>
-                                <th> Name</th>
                                 <th> Supervisor</th>
-                                <th width="10%"> Updated</th>
-                                <th width="10%"> Completed</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> No#</th>
                             </tr>
                             </thead>
+                            <tbody>
+                            @foreach ($sites as $site)
+                                <tr>
+                                    <td><a class="toggleExtra" data-site_id="{{ $site->id }}">{{ $site->name }}</a></td>
+                                    <td>{{ $site->supervisor }}</td>
+                                    <td></td>
+                                </tr>
+                                <tr id="extrainfo-{{ $site->id }}" style="display: none">
+                                    <td colspan="4" style="background: #333; color: #fff">
+                                        <b>Upcoming + Potential QA's</b>
+                                        <div style="background: #fff; color:#636b6f;  padding: 15px">
+                                            <table style="width:100%">
+                                                <tr style="font-weight: bold">
+                                                    <td style="width:15%">Date</td>
+                                                    <td>QA Name</td>
+                                                    <td style="width:20%">Trigger(s)</td>
+                                                </tr>
+                                                @foreach ($site->qas as $qa)
+                                                    <tr>
+                                                        <td>{{$qa['date']}}</td>
+                                                        <td><a class="triggerQA" data-qid="{{$qa['template']}}" data-name="{{$qa['name']}}" data-site="{{$site->name}}" data-site_id="{{$site->id}}">{{$qa['name'] }}</a></td>
+                                                        <td>{{$qa['task']}}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="display: none">
+                            @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -74,32 +101,37 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script type="text/javascript">
-        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-        var status1 = $('#status1').val();
-        var table1 = $('#table1').DataTable({
-            pageLength: 20,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                'url': '{!! url('site/qa/dt/qa_upcoming') !!}',
-                'type': 'GET',
-                'data': function (d) {
-                    d.supervisor = $('#supervisor').val();
-                }
-            },
-            columns: [
-                {data: 'id', name: 'id', orderable: false, searchable: false},
-                {data: 'sitename', name: 's.name'},
-                {data: 'name', name: 'q.name'},
-                {data: 'supervisor', name: 'supervisor', orderable: false, searchable: false},
-                {data: 'updated_at', name: 'q.updated_at'},
-                {data: 'completed', name: 'completed', orderable: false, searchable: false},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ],
-            order: [
-                [1, "asc"]
-            ]
+        $("#supervisor").change(function (e) {
+            window.location.href = "/site/qa/upcoming/" + $("#supervisor").val();
+        });
+
+        $(".toggleExtra").click(function (e) {
+            var event_id = e.target.id.split('-');
+            var site_id = event_id[1];
+            var site_id = $(this).data('site_id');
+
+            $("#extrainfo-" + site_id).toggle();
+        });
+
+        $(".triggerQA").click(function (e) {
+            e.preventDefault();
+            var url = "/site/qa/trigger/" + $(this).data('qid') + "/" + $(this).data('site_id');
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var site = $(this).data('site');
+            swal({
+                title: "Create QA",
+                text: "<b>" + name + "</b><br>" + site,
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#32c5d2",
+                confirmButtonText: "Create",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                window.location.href = url;
+            });
         });
     </script>
 @stop

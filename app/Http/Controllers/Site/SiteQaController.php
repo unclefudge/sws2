@@ -56,15 +56,6 @@ class SiteQaController extends Controller
         return view('site/qa/templates/list');
     }
 
-    public function upcoming()
-    {
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->hasAnyPermissionType('site.qa'))
-            return view('errors/404');
-
-        return view('site/qa/upcoming');
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -479,6 +470,96 @@ class SiteQaController extends Controller
         return $dt;
     }
 
+    public function getQaUpcoming()
+    {
+
+        // Get list of sites
+        if (request('supervisor') == 'all')
+            $site_list = Site::where('status', 1)->pluck('id')->toArray();
+        else
+            $site_list = Site::where('status', 1)->where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
+
+        // Get All Active templates
+        $templates = SiteQa::where('company_id', Auth::user()->company_id)->where('master', '1')->where('status', 1)->get();
+        $template_ids = SiteQa::where('company_id', Auth::user()->company_id)->where('master', '1')->where('status', 1)->pluck('id')->toArray();
+
+        // Get All templates for given site(s)
+        $site_qas = SiteQa::where('company_id', Auth::user()->company_id)->where('master', '0')->whereIn('site_id', $site_list)->get();
+        $site_qa_ids = SiteQa::where('company_id', Auth::user()->company_id)->where('master', '0')->whereIn('site_id', $site_list)->pluck('id')->toArray();
+
+        $missing_qas = [];
+
+
+        $records = DB::table('site_qa AS q')
+            ->select(['q.id', 'q.name', 'q.site_id', 'q.version', 'q.master_id', 'q.company_id', 'q.status', 'q.updated_at',
+                's.name as sitename'])
+            ->join('sites AS s', 'q.site_id', '=', 's.id')
+            ->where('q.company_id', Auth::user()->company_id)
+            ->where('q.master', '0')
+            ->whereIn('q.id', $qa_list)
+            ->where('q.status', request('status'));
+
+        //dd($records);
+        $dt = Datatables::of($records)
+            ->editColumn('id', '<div class="text-center"><a href="/site/qa/{{$id}}"><i class="fa fa-search"></i></a></div>')
+            ->editColumn('sitename', function ($doc) {
+                return $doc->sitename;
+            })
+            ->editColumn('name', function ($doc) {
+                $name = $doc->name . ' &nbsp;<span class="font-grey-silver">v' . $doc->version . '</span>';
+
+                return $name;
+            })
+            ->addColumn('supervisor', function ($doc) {
+                $site = Site::find($doc->site_id);
+
+                return $site->supervisorName;
+            })
+            ->editColumn('updated_at', function ($doc) {
+                if ($doc->status == 1) {
+                    $now = Carbon::now();
+                    $weekago = $now->subWeek()->toDateTimeString();
+                    if ($doc->updated_at <= $weekago)
+                        return '<span class="font-red">' . (new Carbon($doc->updated_at))->format('d/m/Y') . '</span>';
+                }
+
+                return (new Carbon($doc->updated_at))->format('d/m/Y');
+            })
+            ->addColumn('completed', function ($doc) {
+                $qa = SiteQa::find($doc->id);
+                $total = $qa->items()->count();
+                $completed = $qa->itemsCompleted()->count();
+                $pending = '';
+                if ($qa->status != 0) {
+                    if (Auth::user()->allowed2('edit.site.qa', $qa)) {
+                        if ($total == $completed && $total != 0) {
+                            $label_type = ($qa->supervisor_sign_by && $qa->manager_sign_by) ? 'label-success' : 'label-warning';
+                            if (!$qa->supervisor_sign_by)
+                                $pending = '<br><span class="badge badge-info badge-roundless pull-right">Pending Supervisor</span>';
+                            elseif (!$qa->manager_sign_by)
+                                $pending = '<br><span class="badge badge-primary badge-roundless pull-right">Pending Manager</span>';
+                        } else
+                            $label_type = 'label-danger';
+
+                        return '<span class="label pull-right ' . $label_type . '">' . $completed . ' / ' . $total . '</span>' . $pending;
+                    }
+                }
+
+                return '<span class="label pull-right label-success">' . $completed . ' / ' . $total . '</span>';
+            })
+            ->addColumn('action', function ($qa) {
+                if (($qa->status && Auth::user()->allowed2('edit.site.qa', $qa)) || (!$qa->status && Auth::user()->allowed2('sig.site.qa', $qa)))
+                    return '<a href="/site/qa/' . $qa->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+
+                return '<a href="/site/qa/' . $qa->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
+
+            })
+            ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action'])
+            ->make(true);
+
+        return $dt;
+    }
+
 
     /**
      * Display the specified resource.
@@ -761,4 +842,99 @@ class SiteQaController extends Controller
         return $array;
     }
 
+    public function upcoming($super_id = 'all')
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.qa'))
+            return view('errors/404');
+
+        // Get All Active templates
+        $templates = SiteQa::where('company_id', Auth::user()->company_id)->where('master', '1')->where('status', 1)->orderBy('name')->get();
+
+        // Get list of sites
+        if ($super_id == 'all')
+            $site_list = Site::where('status', 1)->where('company_id', Auth::user()->company_id)->whereNull('special')->orderBy('name')->get();
+        else
+            $site_list = Site::where('status', 1)->where('company_id', Auth::user()->company_id)->whereNull('special')->orderBy('name')->where('supervisor_id', $super_id)->get();
+
+        $sites = [];
+        foreach ($site_list as $site) {
+            $obj = (object)[];
+            $obj->id = $site->id;
+            $obj->name = $site->name;
+            $obj->supervisor = $site->supervisor->name;
+
+            // QA's
+            $qa_array = [];
+            foreach ($templates as $template) {
+                if (!$site->hasTemplateQa($template->id)) {
+                    $next_plan = $site->nextPlannedQa($template->id);
+                    if ($next_plan)
+                        $qa_array[$next_plan->from->format('Ymd')] = [
+                            'date' => $next_plan->from->format('M d'),
+                            'name' => $template->name,
+                            'task' => $next_plan->task->code,
+                            'template' => $template->id,
+                        ];
+                    else {
+                        $tasks = implode(', ', $template->tasks()->pluck('code')->toArray());
+                        $qa_array["99999999$template->name"] = ['date' => '-', 'name' => $template->name, 'task' => $tasks, 'template' => $template->id];
+                    }
+                }
+            }
+            ksort($qa_array);
+            $obj->qas = $qa_array;
+            $sites[] = $obj;
+        }
+
+        //ray($sites);
+
+        return view('site/qa/upcoming', compact('super_id', 'sites', 'site_list', 'templates'));
+    }
+
+    public function triggerQa($master_id, $site_id)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyPermissionType('site.qa'))
+            return view('errors/404');
+
+        $site = Site::findOrFail($site_id);
+
+        // Create new QA by copying required template
+        $qa_master = SiteQa::findOrFail($master_id);
+
+        // Create new QA Report for Site
+        $newQA = SiteQa::create([
+            'name' => $qa_master->name,
+            'site_id' => $site_id,
+            'version' => $qa_master->version,
+            'master' => '0',
+            'master_id' => $qa_master->id,
+            'company_id' => $qa_master->company_id,
+            'status' => '1',
+            'created_by' => '1',
+            'updated_by' => '1',
+        ]);
+
+        // Copy items from template
+        foreach ($qa_master->items as $item) {
+            $newItem = SiteQaItem::create(
+                ['doc_id' => $newQA->id,
+                    'task_id' => $item->task_id,
+                    'name' => $item->name,
+                    'order' => $item->order,
+                    'super' => $item->super,
+                    'master' => '0',
+                    'master_id' => $item->id,
+                    'created_by' => '1',
+                    'updated_by' => '1',
+                ]);
+        }
+        // Create Supervisor ToDoo
+        $newQA->createToDo($site->supervisor_id);
+
+        Toastr::success("Created QA");
+
+        return redirect('site/qa/upcoming/all');
+    }
 }

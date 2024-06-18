@@ -202,6 +202,37 @@ class Site extends Model
         return $this->hasMany('App\Models\Site\SiteQa');
     }
 
+    public function templateQaTaskIds($id)
+    {
+        $qa = SiteQa::find($id);
+        $trigger_ids = [];
+        if ($qa) {
+            foreach ($qa->tasks() as $task) {
+                if (!in_array($task->id, $trigger_ids))
+                    $trigger_ids[] = $task->id;
+            }
+        }
+        return $trigger_ids;
+    }
+
+    public function nextPlannedQa($id)
+    {
+        $today = Carbon::now();
+
+        $qa = SiteQa::find($id);
+        $trigger_ids = [];
+        if ($qa) {
+            foreach ($qa->tasks() as $task) {
+                if (!in_array($task->id, $trigger_ids))
+                    $trigger_ids[] = $task->id;
+            }
+        }
+
+        $planner = SitePlanner::where('site_id', $this->id)->where('from', '>=', $today->format('Y-m-d'))->whereIn('task_id', $trigger_ids)->orderBy('from')->first();
+
+        return $planner;
+    }
+
     /**
      * A Site has QA Report ($x)
      *
@@ -225,6 +256,7 @@ class Site extends Model
 
         return false;
     }
+
 
     /**
      * A Site has many SiteMaintenance
