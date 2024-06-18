@@ -462,7 +462,7 @@ class CompanyController extends Controller
 
         // Email Leave
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] + $cc->supervisorsAllEmails() : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'fudge@jordan.net.au'] + $cc->supervisorsAllEmails() : [env('EMAIL_DEV')];
         $company->emailLeave($email_list, 'added new');
 
         return redirect("company/$company->id");

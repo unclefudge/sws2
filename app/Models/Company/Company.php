@@ -1467,9 +1467,8 @@ class Company extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (\App::environment('prod'))
             $email_to = ($email_list) ? $email_list : [env('EMAIL_DEV')];
-        }
 
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyLeave($this, $action));
