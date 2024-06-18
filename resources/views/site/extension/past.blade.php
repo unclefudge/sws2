@@ -39,7 +39,7 @@
                             <tbody>
                             @foreach ($extensions as $extension)
                                 <tr>
-                                    <td><a href="/site/extension/{{$extension->id}}/{{Auth::user()->id}}" target="_blank">{{ $extension->date->format('d/m/Y') }}</a></td>
+                                    <td><a href="/site/extension/{{$extension->id}}/0" target="_blank">{{ $extension->date->format('d/m/Y') }}</a></td>
                                     <td><a href="{{ $extension->attachmentUrl }}" target="_blank">{{ $extension->attachment }}</a></td>
                                 </tr>
                             @endforeach
