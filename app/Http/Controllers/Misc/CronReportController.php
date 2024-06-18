@@ -431,14 +431,12 @@ class CronReportController extends Controller
         foreach ($cc->supervisors() as $user) {
             $attendance = SiteAttendance::where('user_id', $user->id)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
             //dd($attendance);
-            if ($attendance->count()) {
-                $email_to = (\App::environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
-                $emailing = $emails . implode("; ", $email_to);
-                Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, [$user->id => $user->name]));
+            $email_to = (\App::environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
+            $emailing = $emails . implode("; ", $email_to);
+            Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, [$user->id => $user->name]));
 
-                echo "Sending email to: $emailing<br>";
-                $log .= "Sending email to: $emailing";
-            }
+            echo "Sending email to: $emailing<br>";
+            $log .= "Sending email to: $emailing";
         }
 
 

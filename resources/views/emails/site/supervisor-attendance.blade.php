@@ -13,15 +13,21 @@
                         <td width="80" style="border: 1px solid">Time</td>
                         <td width="400" style="border: 1px solid">Site</td>
                     </tr>
-                    @foreach($attendance as $attend)
-                        @if ($attend->user_id == $id)
-                            <tr>
-                                <td style="border: 1px solid">{{ $attend->date->format('d/m/Y') }}</td>
-                                <td style="border: 1px solid">{{ $attend->date->format('g:i a') }}</td>
-                                <td style="border: 1px solid">{{ $attend->site->name  }}</td>
-                            </tr>
-                        @endif
-                    @endforeach
+                    @if ($attendance->count())
+                        @foreach($attendance as $attend)
+                            @if ($attend->user_id == $id)
+                                <tr>
+                                    <td style="border: 1px solid">{{ $attend->date->format('d/m/Y') }}</td>
+                                    <td style="border: 1px solid">{{ $attend->date->format('g:i a') }}</td>
+                                    <td style="border: 1px solid">{{ $attend->site->name  }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="3" style="border: 1px solid">Didn't log into any sites this week</td>
+                        </tr>
+                    @endif
                 </table>
                 <br><br>
             @endforeach

@@ -1192,7 +1192,7 @@ class CronController extends Controller
                 if ($notes->count()) {
                     foreach ($notes as $note) {
                         if ($note->site_id == $ext_site->site_id) {
-                            $ext_site->notes = "Add [$note->variation_days] days for Approved Site Variation-[$note->variation_name] and include the SV number in the Notes a reference\r\n";
+                            $ext_site->notes = "Add [$note->variation_days] days for Approved Site Variation-[$note->variation_name] and include the SV number in the Notes as a reference\r\n";
                             $ext_site->save();
                             echo "Adding variation note [" . $note->variation_name . "] " . $site['name'] . "<br>";
                             $log .= "Adding variation note [" . $note->variation_name . "] " . $site['name'] . "\n";
