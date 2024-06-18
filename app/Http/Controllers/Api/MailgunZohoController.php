@@ -71,8 +71,10 @@ class MailgunZohoController extends Controller
             //ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
 
             $log = "------------------------------------------\nZoho Import - " . Carbon::now()->format('d/m/Y g:i a') . "\n------------------------------------------\n\n";
-            $bytes_written = File::append($this->logfile, $log);
-            //$bytes_written = File::put($this->logfile, $log);
+            if (file_exists($this->logfile))
+                $bytes_written = File::append($this->logfile, $log);
+            else
+                $bytes_written = File::put($this->logfile, $log);
             if ($bytes_written === false) die("Error writing to file");
 
             // Get the attachments
