@@ -2,30 +2,27 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Mail;
-use Session;
-use App\User;
+use Alert;
+use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Misc\Equipment\EquipmentLocationOther;
-use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Comms\Todo;
+use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Site\Site;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
-use Alert;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
-class EquipmentTransferController extends Controller {
+class EquipmentTransferController extends Controller
+{
 
 
     /**
@@ -156,9 +153,9 @@ class EquipmentTransferController extends Controller {
 
         $rules = ['type' => 'required', 'site_id' => 'required_if:type,site', 'other' => 'required_if:type,other', 'reason' => 'required_if:type,dispose'];
         $mesg = [
-            'type.required'      => 'The transfer to field is required',
-            'site.required_if'   => 'The site field is required',
-            'other.required_if'  => 'The other location field is required',
+            'type.required' => 'The transfer to field is required',
+            'site.required_if' => 'The site field is required',
+            'other.required_if' => 'The other location field is required',
             'reason.required_if' => 'The reason field is required',
         ];
         request()->validate($rules, $mesg); // Validate
@@ -209,10 +206,10 @@ class EquipmentTransferController extends Controller {
     {
         $rules = ['location_id' => 'required', 'type' => 'required', 'site_id' => 'required_if:type,site', 'other' => 'required_if:type,other', 'reason' => 'required_if:type,dispose'];
         $mesg = [
-            'type.required'       => 'The transfer to field is required',
+            'type.required' => 'The transfer to field is required',
             'site_id.required_if' => 'The site field is required',
-            'other.required_if'   => 'The other location field is required',
-            'reason.required_if'  => 'The reason field is required',
+            'other.required_if' => 'The other location field is required',
+            'reason.required_if' => 'The reason field is required',
         ];
         request()->validate($rules, $mesg); // Validate
 
@@ -360,6 +357,12 @@ class EquipmentTransferController extends Controller {
             // Email Notification of Material transfer
             if ($site_id) {
                 $site = Site::find($site_id);
+                app('log')->debug("========= Equipment Transfer ==========");
+                app('log')->debug("UserID: " . Auth::user()->id);
+                app('log')->debug($site);
+                app('log')->debug($item);
+                app('log')->debug("Qty: 
+                $qty");
                 Mail::to("construct@capecod.com.au")->send(new \App\Mail\Misc\EquipmentMaterialTransfer($site, $item, $qty));
             }
         }
@@ -419,11 +422,11 @@ class EquipmentTransferController extends Controller {
 
             // Create ToDoo and assign to user
             $todo_request = [
-                'type'       => 'equipment',
-                'type_id'    => $newLocation->id,
-                'name'       => "Equipment transfer - $old_location => $new_location",
-                'info'       => "Please transfer equipment from the locations below.\nFrom: $old_location_full\nTo: $new_location_full",
-                'due_at'     => Carbon::createFromFormat('d/m/Y H:i', $due_at . '00:00')->toDateTimeString(),
+                'type' => 'equipment',
+                'type_id' => $newLocation->id,
+                'name' => "Equipment transfer - $old_location => $new_location",
+                'info' => "Please transfer equipment from the locations below.\nFrom: $old_location_full\nTo: $new_location_full",
+                'due_at' => Carbon::createFromFormat('d/m/Y H:i', $due_at . '00:00')->toDateTimeString(),
                 'company_id' => $item->company_id,
             ];
             $todo = Todo::create($todo_request);
@@ -462,7 +465,6 @@ class EquipmentTransferController extends Controller {
         $new_location = ($new_site) ? "$new_site->suburb ($new_site->name)" : $other;
 
         foreach ($location->items as $item) {
-            //    $this->performTransfer($item, $item->qty, $orig_location->site_id, $orig_location->other);
             $log = new EquipmentLog(['equipment_id' => $item->equipment_id, 'qty' => $item->qty, 'action' => 'X', 'notes' => "Task cancelled to transfer items from $orig_location_name => $new_location"]);
             $log->save();
         }
@@ -484,7 +486,7 @@ class EquipmentTransferController extends Controller {
         // Subtract items from current location
         $remain_qty = $item->qty - $qty;
         if ($remain_qty < 1) {
-            $extra_amount = $remain_qty * - 1;
+            $extra_amount = $remain_qty * -1;
             $lost_items = EquipmentLost::where('equipment_id', $item->equipment_id)->orderBy('created_at', 'DESC')->get();
             if ($extra_amount && $lost_items) {
                 // Found extra item on current site and lost ones of same type

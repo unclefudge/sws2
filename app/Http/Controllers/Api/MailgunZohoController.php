@@ -223,31 +223,36 @@ class MailgunZohoController extends Controller
                         if ($diffs)
                             $differences .= $diffs;
 
-                        // If site was previously 'Cancelled' then set status to 'Upcoming'
-                        if ($site->status == '-2') {
-                            $site->status = '-1';
-                            $site->save();
-                        }
+                        //
+                        // Job Import
+                        //
+                        if ($report_type == 'Jobs') {
+                            // If site was previously 'Cancelled' then set status to 'Upcoming'
+                            if ($site->status == '-2') {
+                                $site->status = '-1';
+                                $site->save();
+                            }
 
-                        // For Stages '950 + 160' update Status to 'Cancelled'
-                        if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
-                            $site->status = '-2';
-                            $site->save();
-                            $site->cancelInspectionReports();
+                            // For Stages '950 + 160' update Status to 'Cancelled'
+                            if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
+                                $site->status = '-2';
+                                $site->save();
+                                $site->cancelInspectionReports();
 
-                            if ($job_stage == '950 Sales Dropout') $sales_dropouts++;
-                            if ($job_stage == '160 On Hold') $on_holds++;
-                        }
+                                if ($job_stage == '950 Sales Dropout') $sales_dropouts++;
+                                if ($job_stage == '160 On Hold') $on_holds++;
+                            }
 
-                        // If site 'Completed' then ensure Supervisor is same as Zoho
-                        if ($site->status == '0') {
-                            $supervisor_name = $data[$head['super_name']];
-                            if ($supervisor_name) {
-                                $user = $cc->supervisorMatch($supervisor_name);
-                                if ($user && $site->supervisor_id != $user->id) {
-                                    $updatedSupers .= "[$site->id] $site->name : " . $site->supervisor->name . " => $user->name\n";
-                                    $site->supervisor_id = $user->id;
-                                    $site->save();
+                            // If site 'Completed' then ensure Supervisor is same as Zoho
+                            if ($site->status == '0') {
+                                $supervisor_name = (isset($head['super_name'])) ? $data[$head['super_name']] : '';
+                                if ($supervisor_name) {
+                                    $user = $cc->supervisorMatch($supervisor_name);
+                                    if ($user && $site->supervisor_id != $user->id) {
+                                        $updatedSupers .= "[$site->id] $site->name : " . $site->supervisor->name . " => $user->name\n";
+                                        $site->supervisor_id = $user->id;
+                                        $site->save();
+                                    }
                                 }
                             }
                         }
