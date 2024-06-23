@@ -1503,15 +1503,19 @@ class SitePlannerController extends Controller
         }
 
         // Sort Site List by Order then Job Number
-        $sort = array();
-        foreach ($site_details as $k => $v) {
-            $sort['name'][$k] = $v['name'];
-            $sort['order'][$k] = $v['order'];
-        }
-        // It is sorted by 'order' in descending order and the title is sorted in ascending order.
-        if (is_array($sort['name']) && is_array($sort['order']))
-            array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
 
+        if ($site_details) {
+            $sort = array();
+
+            foreach ($site_details as $k => $v) {
+                $sort['name'][$k] = $v['name'];
+                $sort['order'][$k] = $v['order'];
+            }
+            // It is sorted by 'order' in descending order and the title is sorted in ascending order.
+            if (is_array($sort['name']) && is_array($sort['order']))
+                array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
+        }
+        
         return $site_details;
     }
 

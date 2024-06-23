@@ -10,7 +10,7 @@ A transfer of Equipment with the following details:
 | **Qty**  | {{ $qty  }} |
 | **Site** | {{ $site->name  }} |
 | **Date/Time** | {{ $item->updated_at->format('d/m/Y g:i a')  }} |
-| **Created By** | {{ $item->user->name  }} |
+| **Created By** | {{ ($item->user) ? $item->user->name : 'n/a' }} |
 
 <br><br>
 Regards,<br>
