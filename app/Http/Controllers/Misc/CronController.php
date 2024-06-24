@@ -61,7 +61,7 @@ class CronController extends Controller
         CronController::emailPlannerKeyTasks();
         CronController::actionPlannerKeyTasks();
         CronController::siteExtensions();
-        CronController::superChecklists();
+        //CronController::superChecklists();  disabled 24/06/2024
         CronController::uploadCompanyDocReminder();
         CronController::verifyZohoImport();
 
