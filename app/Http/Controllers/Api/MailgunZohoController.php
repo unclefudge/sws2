@@ -234,7 +234,7 @@ class MailgunZohoController extends Controller
                             }
 
                             // For Stages '950 + 160' update Status to 'Cancelled'
-                            if (in_array($job_stage, ['950 Sales Dropout', '160 Onld'] Ho) && $site->status != '-2') {
+                            if (in_array($job_stage, ['950 Sales Dropout', '160 Onld']) && $site->status != '-2') {
                                 $site->status = '-2';
                                 $site->save();
                                 $site->cancelInspectionReports();
@@ -426,7 +426,7 @@ class MailgunZohoController extends Controller
             //'Eng Certified'       => 'engineering_cert',
             'CC Rcvd Date' => 'construction_rcvd',
             'HBCF Start Date' => 'hbcf_start',
-            'Fcst Comp Date' => 'forecast_completion',
+            //'Fcst Comp Date' => 'forecast_completion',
             'Completion Deadlin' => 'forecast_completion',
             // Other info
             'Design Cons' => 'consultant_initials',
