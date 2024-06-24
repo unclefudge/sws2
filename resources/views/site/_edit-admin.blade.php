@@ -239,7 +239,7 @@
             {{-- Forecast Completion--}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('forecast_completion', $errors) !!}">
-                    {!! Form::label('forecast_completion', 'Forecast Completion:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    {!! Form::label('forecast_completion', 'Completion Deadline:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
                         <div class="input-group date date-picker">
                             {!! Form::text('forecast_completion', ($site->forecast_completion) ? $site->forecast_completion->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',

@@ -427,6 +427,7 @@ class MailgunZohoController extends Controller
             'CC Rcvd Date' => 'construction_rcvd',
             'HBCF Start Date' => 'hbcf_start',
             'Fcst Comp Date' => 'forecast_completion',
+            'Completion Deadlin' => 'forecast_completion',
             // Other info
             'Design Cons' => 'consultant_initials',
             'Design Cons (user)' => 'consultant_name',
@@ -470,7 +471,7 @@ class MailgunZohoController extends Controller
         // Verify Correct Headers are all present for Jobs import
         $required_headers_jobs = [
             'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
-            'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date', 'Fcst Comp Date',
+            'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date', 'Fcst Comp Date', 'Completion Deadline',
             'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Estimator FC', 'Holidays Added', 'OSD Y/N', 'SW Y/N', 'Job Stage'
         ];
         sort($required_headers_jobs);
