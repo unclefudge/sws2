@@ -26,7 +26,7 @@
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates" data-original-title="Add">Templates</a>
                             @endif
                             @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/upcoming" data-original-title="Upcoming">Upcoming</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/upcoming/0" data-original-title="Upcoming">Upcoming</a>
                             @endif
                         </div>
                     </div>
