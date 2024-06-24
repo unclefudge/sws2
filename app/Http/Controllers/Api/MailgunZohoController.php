@@ -427,7 +427,7 @@ class MailgunZohoController extends Controller
             'CC Rcvd Date' => 'construction_rcvd',
             'HBCF Start Date' => 'hbcf_start',
             //'Fcst Comp Date' => 'forecast_completion',
-            'Completion Deadlin' => 'forecast_completion',
+            'Completion Deadline' => 'forecast_completion',
             // Other info
             'Design Cons' => 'consultant_initials',
             'Design Cons (user)' => 'consultant_name',
