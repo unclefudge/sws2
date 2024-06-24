@@ -66,6 +66,12 @@ class SuperChecklistController extends Controller
         return view('supervisor/checklist/list', compact('checklists', 'checklists_previous_week', 'fri', 'today', 'classes', 'supervisors'));
     }
 
+    public function checklist()
+    {
+        $categories = SuperChecklistCategory::where('status', 1)->orderBy('order')->get();
+        return view('supervisor/checklist/checklist', compact('categories'));
+    }
+
     /**
      * Display the specified resource.
      */

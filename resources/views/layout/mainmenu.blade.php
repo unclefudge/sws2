@@ -128,8 +128,8 @@
                                                         @if (Auth::user()->hasAnyPermissionType('site.qa'))
                                                             <li><a href="/site/qa" class="nav-link"> Quality Assurance </a></li>
                                                         @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('super.checklist'))
-                                                            <li><a href="/supervisor/checklist" class="nav-link"> Supervisor Checklist </a></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('super.checklist') || Auth::user()->hasAnyRole2('con-supervisor|web-admin|mgt-general-manager'))
+                                                            <li><a href="/supervisor/checklist/checklist" class="nav-link"> Supervisor Checklist </a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.note'))
                                                             <li><a href="/site/note" class="nav-link"> Site Notes </a></li>

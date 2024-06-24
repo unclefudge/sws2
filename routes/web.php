@@ -512,6 +512,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Supervisor Checklist
     Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');
+    Route::get('supervisor/checklist/checklist', '\App\Http\Controllers\Misc\SuperChecklistController@checklist');
     Route::get('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@settings');
     Route::post('supervisor/checklist/settings', '\App\Http\Controllers\Misc\SuperChecklistController@updateSettings');
     Route::get('supervisor/checklist/past', '\App\Http\Controllers\Misc\SuperChecklistController@pastWeeks');
