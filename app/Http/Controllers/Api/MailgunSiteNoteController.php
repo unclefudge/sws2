@@ -25,9 +25,9 @@ class MailgunSiteNoteController extends Controller
         $valid_senders_domains = ['jordan.net.au', 'capecod.com.au'];
         $sender = request('sender');
         list($send_name, $sender_domain) = explode('@', $sender);
-        if (!in_array($sender_domain, $valid_senders_domains) || str_contains('safeworksite.com.au', $sender) {  // Sender
-            if ($this->debug && !str_contains('safeworksite.com.au', $sender) app('log')->debug("========= SiteNote Import Failed ==========");
-            if ($this->debug && !str_contains('safeworksite.com.au', $sender) app('log')->debug("Invalid Sender: [$sender]");
+        if (!in_array($sender_domain, $valid_senders_domains) || str_contains($sender,'safeworksite.com.au') {  // Sender
+            if ($this->debug && !str_contains($sender, 'safeworksite.com.au') app('log')->debug("========= SiteNote Import Failed ==========");
+            if ($this->debug && !str_contains($sender, 'safeworksite.com.au') app('log')->debug("Invalid Sender: [$sender]");
 
             return response()->json(['status' => 'error', 'message' => 'Invalid email'], 406);  // Mailgun fail message
         }
