@@ -19,15 +19,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 // Mailgun Routes
-/*
-Route::group([
-    'prefix' => 'mailgun',
-    'middleware' => ['mailgun.webhook'],
-],function () {
-    Route::post('zoho', 'Api\MailgunZohoController@store');
-});*/
-
-
 Route::group([
     'prefix' => 'mailgun',
 ], function () {
@@ -35,4 +26,7 @@ Route::group([
     Route::post('sitenote', 'Api\MailgunSiteNoteController@store');
 });
 
+
+//Route::apiResource('site', 'Api\SiteController');
+Route::middleware('auth:sanctum')->apiResource('site', 'Api\SiteController');
 

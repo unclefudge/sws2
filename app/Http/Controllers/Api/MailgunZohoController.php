@@ -558,7 +558,11 @@ class MailgunZohoController extends Controller
                 $zoho_data = ($data[$head[$field]] == '-') ? '' : $data[$head[$field]];
 
                 if ($zoho_data) { //} && preg_match('/^\d+\/d+\/d+$/', $zoho_data)) {
-                    list($d, $m, $y) = explode('/', $zoho_data);
+                    list($d, $m, $year_time) = explode('/', $zoho_data);
+                    if (str_contains($year_time, ' '))
+                        list($y, $time) = explode(' ', $year_time);
+                    else
+                        $y = $year_time;
                     $date_with_leading_zeros = sprintf('%02d', $d) . '/' . sprintf('%02d', $m) . '/' . str_pad($y, 4, "20", STR_PAD_LEFT);  // produces "-=-=-Alien"sprintf('%02d', $y);
                 } else
                     $date_with_leading_zeros = '';

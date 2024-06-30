@@ -32,6 +32,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\HasApiTokens;
 use Session;
 
 //use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -43,6 +44,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     use Authorizable;
     use UserRolesPermissions;
     use UserDocs;
+    use HasApiTokens;
 
     // The database table used by the model.
     protected $table = 'users';
@@ -553,6 +555,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         $site_ids = SiteRoster::whereDate('date', $date)->where('user_id', $this->id)->pluck('site_id')->toArray();
 
         return ($site_ids) ? Site::find($site_ids) : null;
+    }
+
+    public function createApiToken()
+    {
+        $token = $this->createToken('API Token');
+        //ray($token);
+
+        return ['token' => $token->plainTextToken];
     }
 
     /**

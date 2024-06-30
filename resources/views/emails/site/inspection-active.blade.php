@@ -41,7 +41,7 @@
                         <tr>
                             <td style="border: 1px solid">{{ $report->created_at->format('d/m/Y') }}</td>
                             <td style="border: 1px solid">{{ $report->site->name }}</td>
-                            <td style="border: 1px solid">{{ $report->assigned_at->format('d/m/Y') }}</td>
+                            <td style="border: 1px solid">{{ ($report->assigned_at) ? $report->assigned_at->format('d/m/Y') : '-' }}</td>
                             <td style="border: 1px solid">{{ ($report->assignedTo) ? $report->assignedTo->name : '-' }}</td>
                         </tr>
                     @endforeach

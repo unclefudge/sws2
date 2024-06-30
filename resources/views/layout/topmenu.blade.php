@@ -22,7 +22,7 @@
                                 <li>
                                     <a href="{{ $todo->url() }}">
                                         <span class="time">{!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '' !!}</span>
-                                    <span class="details">
+                                        <span class="details">
                                         <span class="badge badge-success badge-roundless"><i class="fa fa-plus"></i></span>
                                     <span style="line-height: 25px">&nbsp; {{ $todo->name }} [{{ $todo->id }}]</span>
                                 </span>
@@ -30,92 +30,17 @@
                                 </li>
                             @endforeach
                         @endforeach
-{{--}}
-                        <?php $todo_types = ['company doc', 'company ptc', 'company privacy']; ?>
-                        @foreach ($todo_types as $type)
-                            @foreach(Auth::user()->todoType($type, [1, 2]) as $todo)
-                                <li>
-                                    <a href="{{ $todo->url() }}">
-                                        <span class="time">{!! ($todo->due_at) ? $todo->due_at->format('d/m/Y') : '' !!}</span>
-                                    <span class="details">
-                                        <span class="badge badge-success badge-roundless"><i class="fa fa-plus"></i></span>
-                                    <span style="line-height: 25px">&nbsp; {{ $todo->name }} [{{ $todo->id }}]</span>
-                                </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        @endforeach
-                        --}}
                     </ul>
                 </li>
             </ul>
         </li>
         <!-- END NOTIFICATION DROPDOWN -->
-        <!-- BEGIN TODO DROPDOWN -->
-        {{--
-        <li class="dropdown dropdown-extended dropdown-tasks dropdown-dark" id="header_task_bar">
-            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                <i class="icon-calendar"></i>
-                <span class="badge badge-default">3</span>
-            </a>
-            <ul class="dropdown-menu extended tasks">
-                <li class="external">
-                    <h3>You have
-                        <strong>12 pending</strong> tasks</h3>
-                    <a href="app_todo_2.html">view all</a>
-                </li>
-                <li>
-                    <ul class="dropdown-menu-list scroller" style="height: 275px;" data-handle-color="#637283">
-                        <li>
-                            <a href="javascript:;">
-                                <span class="task">
-                                    <span class="desc">New release v1.2 </span>
-                                    <span class="percent">30%</span>
-                                </span>
-                                <span class="progress">
-                                    <span style="width: 40%;" class="progress-bar progress-bar-success" aria-valuenow="40"
-                                          aria-valuemin="0" aria-valuemax="100">
-                                        <span class="sr-only">40% Complete</span>
-                                    </span>
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>--}}
-                <!-- END TODO DROPDOWN -->
         <li class="droddown dropdown-separator">
             <span class="separator"></span>
         </li>
         <!-- BEGIN INBOX DROPDOWN -->
         <li class="dropdown dropdown-extended dropdown-inbox dropdown-dark" id="header_inbox_bar">
-            <!--<a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                <span class="circle">3</span>
-                <span class="corner"></span>
-            </a>
-            <ul class="dropdown-menu">
-                <li class="external">
-                    <h3>You have
-                        <strong>7 New</strong> Messages</h3>
-                    <a href="app_inbox.html">view all</a>
-                </li>
-                <li>
-                    <ul class="dropdown-menu-list scroller" style="height: 275px;" data-handle-color="#637283">
-                        <li>
-                            <a href="#">
-                                                    <span class="photo">
-                                                        <img src="/assets/layouts/layout3/img/avatar3.jpg" class="img-circle" alt=""> </span>
-                                                    <span class="subject">
-                                                        <span class="from"> Richard Doe </span>
-                                                        <span class="time">46 mins </span>
-                                                    </span>
-                                <span class="message"> Vivamus sed congue nibh auctor nibh congue nibh. auctor nibh auctor nibh... </span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul> -->
+
         </li>
         <!-- END INBOX DROPDOWN -->
         <!-- BEGIN USER LOGIN DROPDOWN -->
@@ -141,6 +66,7 @@
                 @endif
                 <li class="divider"></li>
                 @if (Auth::user()->id == 3)
+                    <li><a href="/userlog"><i class="fa fa-users"></i> Login as User </a></li>
                     <li><a href="/userlog"><i class="fa fa-users"></i> Login as User </a></li>
                     <li class="divider"></li>
                 @endif

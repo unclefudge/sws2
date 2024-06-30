@@ -359,7 +359,7 @@ class EquipmentTransferController extends Controller
                 $site = Site::find($site_id);
                 app('log')->debug("========= Equipment Transfer ==========");
                 app('log')->debug("UserID: " . Auth::user()->id);
-                app('log')->debug("Site: "$site->name);
+                app('log')->debug("Site: " . $site->name);
                 app('log')->debug($item);
                 app('log')->debug("Qty: $qty");
                 Mail::to("construct@capecod.com.au")->send(new \App\Mail\Misc\EquipmentMaterialTransfer($site, $item, $qty));
