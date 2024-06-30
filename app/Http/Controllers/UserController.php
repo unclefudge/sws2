@@ -563,23 +563,19 @@ class UserController extends Controller
         return redirect('/user/' . $user->id . '/security');
     }
 
-    /**
-     * Get the security permissions for user resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    /*
-public function getSecurityPermissions(Request $request, $id)
-{
-   $user = User::findOrFail($id);
-   $permissions = DB::table('permission_user')
-       ->where('user_id', $user->id)
-       ->lists('permission_id');
-   foreach ($permissions as $permission)
-       $array[] = "$permission";
+    public function createApiToken($id)
+    {
+        $user = User::findOrFail($id);
 
-   return $array;
-}*/
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.user.security', $user))
+            return view('errors/404');
+
+        $user->tokens()->delete(); // Delete all existing tokens
+        $token = $user->createApiToken(); // Create New API token
+
+        return view('/user/token-create', compact('user', 'token'));
+    }
 
 
     /**

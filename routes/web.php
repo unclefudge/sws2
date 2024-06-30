@@ -195,6 +195,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user/{id}/resetpermissions', '\App\Http\Controllers\UserController@resetPermissions');
     Route::post('user/{id}/compliance', '\App\Http\Controllers\UserController@storeCompliance');
     Route::post('user/{id}/compliance/update', '\App\Http\Controllers\UserController@updateCompliance');
+    Route::get('user/{id}/token/create', '\App\Http\Controllers\UserController@createApiToken');
     Route::get('contractor', '\App\Http\Controllers\UserController@contractorList');
     Route::resource('user', '\App\Http\Controllers\UserController');
 
