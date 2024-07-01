@@ -876,7 +876,7 @@ class CronReportController extends Controller
         $user_list3 = [];
         foreach ($user_list2 as $user) {
             if (in_array($user->company->category, [1, 2]) && $user->company->status == 1 && $user->hasAnyRole2('ext-leading-hand|tradie|labourers')) { // Onsite Trade + Active Company + appropriate role
-                if (!$user->last_login || ($user->last_login->lt($date_3_month) && $user->last_login->lt(Carbon::createFromFormat('Y-m-d', $user->company->lastDateOnPlanner()->format('Y-m-d)'))))) { // User not logged in or not logged in last 3 months but company has been on planner
+                if (!$user->last_login || ($user->last_login->lt($date_3_month) && $user->company->lastDateOnPlanner() && $user->last_login->lt(Carbon::createFromFormat('Y-m-d', $user->company->lastDateOnPlanner()->format('Y-m-d)'))))) { // User not logged in or not logged in last 3 months but company has been on planner
                     $user_list3[] = $user->id;
                 }
             }
