@@ -879,8 +879,6 @@ class CronReportController extends Controller
                 if (!$user->last_login)
                     $user_list3[] = $user->id;
                 elseif ($user->company->lastDateOnPlanner()) {
-                    //$lastDateOnPlanner = Carbon::createFromFormat('Y-m-d', $user->company->lastDateOnPlanner()->format('Y-m-d)');
-
                     if ($user->last_login->lt($date_3_month) && $user->last_login->lt($user->company->lastDateOnPlanner())) // User not logged in or not logged in last 3 months but company has been on planner
                         $user_list3[] = $user->id;
                 }

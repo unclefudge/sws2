@@ -63,7 +63,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = ['password', 'remember_token'];
 
     // The date fields to be converted to Carbon instances
-    protected $dates = ['last_login', 'apprentice_start', 'approved_at'];
+    protected $casts = ['last_login' => 'datetime', 'apprentice_start' => 'datetime', 'approved_at' => 'datetime'];
 
     /**
      * The "booting" method of the model.
