@@ -26,12 +26,13 @@ class SiteController extends Controller
     {
         $site_request = request()->all();
         ray(request()->all());
+        return request()->all();
 
         if (request('code') && request('company_id')) {
             $site = Site::where('code', request('code'))->where('company_id', request('company_id'))->first();
 
             if ($site) {
-                
+
                 return SiteResource::make($site);
             }
         }
