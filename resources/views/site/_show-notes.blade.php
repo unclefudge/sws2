@@ -43,8 +43,8 @@
                     <hr class="field-hr">
                 @endforeach
             </div>
-        @elseif ($site->sitenotes->count())
-                <?php $notes = $site->sitenotes()->orderBy('created_at', 'DESC')->first(); ?>
+        @elseif (count($site->sitenotes))
+                <?php $note = $site->sitenotes()->orderBy('created_at', 'DESC')->first(); ?>
             <div class="row">
                 <div class="col-xs-12">Last note on {{ $note->created_at->format('d/m/Y') }}
                     by {{ $note->createdBy->name }}<br>{!! nl2br($note->notes) !!}</div>
