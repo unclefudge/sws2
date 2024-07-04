@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Company;
+namespace App\Traits;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;

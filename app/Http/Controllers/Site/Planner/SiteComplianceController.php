@@ -16,7 +16,7 @@ use Session;
 use Validator;
 
 /**
- * Class SiteController
+ * Class SiteSyncController
  * @package App\Http\Controllers
  */
 class SiteComplianceController extends Controller

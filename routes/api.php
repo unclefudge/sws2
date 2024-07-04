@@ -27,6 +27,6 @@ Route::group([
 });
 
 
-//Route::apiResource('site', 'Api\SiteController');
-Route::middleware('auth:sanctum')->apiResource('site', 'Api\SiteController');
+//Route::apiResource('site', 'Api\SiteSyncController');
+Route::middleware('auth:sanctum')->apiResource('site', 'Api\SiteSyncController');
 
