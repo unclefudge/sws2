@@ -15,9 +15,11 @@ return new class extends Migration {
             $table->integer('site_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->string('user_name')->nullable();
-            $table->boolean('new');
+            $table->string('action', 25);
             $table->integer('qty')->unsigned()->nullable();
             $table->text('fields')->nullable();
+            $table->text('old')->nullable();
+            $table->text('new')->nullable();
             $table->text('log')->nullable();
 
             // Foreign keys

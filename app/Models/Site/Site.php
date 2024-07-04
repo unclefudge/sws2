@@ -1019,6 +1019,11 @@ class Site extends Model
         return ($task) ? $task->from : null;
     }
 
+    public function setHolidaysAddedAttribute($value)
+    {
+        $this->attributes['holidays_added'] = ucfirst(strtolower($value));
+    }
+
 
     /**
      * Get the owner of record  (getter)

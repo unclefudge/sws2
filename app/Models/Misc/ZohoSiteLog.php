@@ -8,8 +8,7 @@ class ZohoSiteLog extends Model
 {
 
     protected $table = 'zoho_sitelog';
-    protected $fillable = ['site_id', 'user_id', 'user_name', 'new', 'qty', 'fields', 'log'];
-    protected $casts = ['new' => 'boolean'];
+    protected $fillable = ['site_id', 'user_id', 'user_name', 'action', 'qty', 'fields', 'old', 'new', 'log'];
 
     /**
      * A ZohoSiteLog belongs to a Site.

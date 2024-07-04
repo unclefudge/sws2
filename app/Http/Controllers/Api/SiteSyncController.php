@@ -38,6 +38,7 @@ class SiteSyncController extends Controller
 
         // Logging
         $log = "Zoho Sync: " . $today->format('Y-m-d h:ia') . "  (" . request('username') . ")\n";
+        $log = '';
         if (!$save_enabled) $log .= "Save: DISABLED\n";
         if ($overwrite_with_blank) $log .= "Save: Overwrite With Blank\n";
 
@@ -48,12 +49,12 @@ class SiteSyncController extends Controller
 
         if ($code && $cid) {
             $site = Site::where('code', request('code'))->where('company_id', request('company_id'))->first();
-            $newsite = false;
+            $action = 'update';
 
             $job_stage = request('job_stage');
             // Create new site except for Stages '950 + 160'
             if (!$site && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
-                $newsite = true;
+                $action = 'create';
                 if ($save_enabled) {
                     // Assigned 'TO BE ALLOCATED' as Supervisor;
                     $site = Site::create(['name' => request('name'), 'code' => request('code'), 'state' => 'NSW', 'supervisor_id' => '136', 'status' => "-1", 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
@@ -104,8 +105,8 @@ class SiteSyncController extends Controller
                 //
                 $textfields = [
                     'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'osd', 'sw', 'holidays_added',
-                    'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
-                    'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
+                    'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
+                    'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                 $datefields = [
                     'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
                     'construction_rcvd', 'hbcf_start', 'forecast_completion'];
@@ -117,6 +118,8 @@ class SiteSyncController extends Controller
                 //
                 // Loop through all fields and compare differences (after Zoho/SWS data converted to same format)
                 //
+                $old = [];
+                $new = [];
                 foreach ($all_fields as $field) {
                     $zRaw = request($field);    // Zoho original paramater
                     $zDat = $zRaw;              // Zoho data in valid SWS format
@@ -134,7 +137,7 @@ class SiteSyncController extends Controller
                             $sTxt = ($site->{$field}) ? $site->{$field} : '{empty}';
                         } elseif (in_array($field, $datefields)) {
                             // Date fields - Convert to Y-m-d
-                            $sDat = Carbon::parse($zRaw);
+                            $zDat = Carbon::parse($zRaw);
                             $sTxt = ($site->{$field}) ? $site->{$field}->format('Y-m-d') : '{empty}';
                         } elseif (in_array($field, $yesno_fields)) {
                             // Yes/No fields - Convert to binary 1/0
@@ -142,11 +145,12 @@ class SiteSyncController extends Controller
                             $zDat = ($zTxt == 'Yes') ? 1 : 0;
                             $sTxt = ($site->{$field}) ? 'Yes' : 'No';
                         }
+                        //ray("Field: $field - zTxt: $zTxt  - sTxt: $sTxt");
 
-                        if ($sTxt == '{empty}') {
-                            $diffDat[$field] = $zDat;
-                            $diffTxt[$field] = "{empty} => $zTxt";
-                        } elseif ($sTxt != $zTxt) {
+                        // Zoho and SWS data is different
+                        if ($sTxt != $zTxt) {
+                            $old[$field] = $sTxt;
+                            $new[$field] = $zTxt;
                             $diffDat[$field] = $zDat;
                             $diffTxt[$field] = "$sTxt => $zTxt";
                         }
@@ -175,14 +179,17 @@ class SiteSyncController extends Controller
                     }
                     $uid = ($zuser) ? $zuser->id : 1;
 
+
                     // Save log
                     $logged = ZohoSiteLog::create([
                         'site_id' => $site->id,
                         'user_id' => $uid,
                         'user_name' => request('username'),
-                        'new' => $newsite,
+                        'action' => $action,
                         'qty' => count($diffDat),
                         'fields' => $fields_csv,
+                        'old' => json_encode($old),
+                        'new' => json_encode($new),
                         'log' => $log
                     ]);
                     return $this->success("updated job", json_encode($diffTxt));
