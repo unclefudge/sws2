@@ -52,7 +52,7 @@ class SiteSyncController extends Controller
             $action = 'update';
 
             $job_stage = request('job_stage');
-            // Create new site except for Stages '950 + 160'
+            // Create new site if required (except for Stages '950 + 160')
             if (!$site && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                 $action = 'create';
                 if ($save_enabled) {
