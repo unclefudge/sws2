@@ -96,6 +96,7 @@ class SitePracCompletionController extends Controller
         $mesg = [
             'site_id.required' => 'The site field is required.',
             'item1.required' => 'The item field is required.'];
+
         request()->validate($rules, $mesg); // Validate
 
         $site_id = request('site_id');
@@ -161,9 +162,9 @@ class SitePracCompletionController extends Controller
         if (!Auth::user()->allowed2('edit.prac.completion', $prac))
             return view('errors/404');
 
-        $rules = ['super_id' => 'required', 'onhold_reason' => 'required_if:status,4'];
-        $mesg = ['supervisor.required' => 'The supervisor field is required.', 'completed.required' => 'The prac completed field is required.',
-            'onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
+        $rules = ['onhold_reason' => 'required_if:status,4'];
+        $mesg = ['onhold_reason.required_if' => 'A reason is required to place request On Hold.'];
+
         request()->validate($rules, $mesg); // Validate
 
         $prac_request = request()->all();
@@ -437,6 +438,18 @@ class SitePracCompletionController extends Controller
         return $item;
     }
 
+    public function destroy($id)
+    {
+        $report = SitePracCompletion::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.prac.completion', $report))
+            return view('errors/404');
+
+        $report->closeToDo();
+        $report->delete();
+    }
+
     /**
      * Get Prac Completion date.
      */
@@ -523,24 +536,23 @@ class SitePracCompletionController extends Controller
             })
             ->addColumn('action', function ($rec) {
                 $prac = SitePracCompletion::find($rec->id);
+                $action = '';
                 if (($rec->status && Auth::user()->allowed2('edit.prac.completion', $prac)) || (!$rec->status && Auth::user()->allowed2('sig.prac.completion', $prac)))
-                    return '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                    $action .= '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
 
-                return '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
+                //if ($rec->status && Auth::user()->allowed2('del.prac.completion', $prac))
+                //    $action .= '<button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="' . $prac->id . '" data-name="' . $prac->site->name . '"><i class="fa fa-trash"></i></button>';
+
+                return $action;
+                //return '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+
+                //return '<a href="/site/prac-completion/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 
             })
             ->rawColumns(['id', 'name', 'updated_at', 'completed', 'action', 'last_updated'])
             ->make(true);
 
         return $dt;
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function exportQA()
-    {
-        return view('site/export/qa');
     }
 
 

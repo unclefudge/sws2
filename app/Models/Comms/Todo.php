@@ -152,6 +152,8 @@ class Todo extends Model
                 $item = SiteMaintenanceItem::find($this->type_id);
                 if ($item && $item->maintenance)
                     return '/site/maintenance/' . $item->maintenance->id;
+            case 'prac_completion':
+                return "/site/prac-completion/$this->type_id";
             case 'inspection_electrical':
                 return "/site/inspection/electrical/$this->type_id";
             case 'inspection_plumbing':
