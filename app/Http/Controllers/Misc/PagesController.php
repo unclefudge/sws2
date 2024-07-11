@@ -138,6 +138,18 @@ class PagesController extends Controller
     public function quick()
     {
 
+        echo "QA templates with Inspection task<br><br>";
+        $qas = SiteQa::where('company_id', '3')->where('status', 1)->where('master', 1)->get();
+        foreach ($qas as $qa) {
+            foreach ($qa->tasks() as $task) {
+                if ($task->trade_id == 19) {
+                    echo "$qa->name - Task: $task->name<br>";
+                }
+            }
+        }
+
+
+        /*
         echo "Update Site Eworks + Pworks<br>";
         $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
         foreach ($sites as $site) {
@@ -154,7 +166,7 @@ class PagesController extends Controller
                 $up .= 'P';
             }
             echo "$up [$site->id] " . $site->name . "<br>";
-        }
+        }*/
 
 
         /*

@@ -13,6 +13,8 @@ use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteNote;
+use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SiteQa;
 use DB;
 use Illuminate\Http\Request;
@@ -71,6 +73,12 @@ class ActionController extends Controller
                     break;
                 case 'site_qa':
                     $record = SiteQa::find(request('table_id'));
+                    break;
+                case 'site_notes':
+                    $record = SiteNote::find(request('table_id'));
+                    break;
+                case 'site_prac_completion':
+                    $record = SitePracCompletion::find(request('table_id'));
                     break;
                 case 'site_maintenance':
                     $record = SiteMaintenance::find(request('table_id'));

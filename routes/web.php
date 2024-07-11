@@ -188,9 +188,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user/data/details/{id}', '\App\Http\Controllers\UserController@getUserDetails');
     Route::post('user/{id}/login', '\App\Http\Controllers\UserController@updateLogin');
     Route::get('user/{id}/security', '\App\Http\Controllers\UserController@showSecurity');
+    Route::post('user/{id}/security', '\App\Http\Controllers\UserController@updateSecurity');
     Route::get('user/{id}/resetpassword', '\App\Http\Controllers\UserController@showResetPassword');
     Route::post('user/{id}/resetpassword', '\App\Http\Controllers\UserController@updatePassword');
-    Route::post('user/{id}/security', '\App\Http\Controllers\UserController@updateSecurity');
     Route::post('user/{id}/construction', '\App\Http\Controllers\UserController@updateConstruction');
     Route::get('user/{id}/resetpermissions', '\App\Http\Controllers\UserController@resetPermissions');
     Route::post('user/{id}/compliance', '\App\Http\Controllers\UserController@storeCompliance');
