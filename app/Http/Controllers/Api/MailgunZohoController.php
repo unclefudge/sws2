@@ -439,8 +439,8 @@ class MailgunZohoController extends Controller
             'Project Coordinator (user)' => 'project_mgr_name',
             'Eng FJ Certified?' => 'engineering',
             'Estimator FC' => 'estimator_fc',
-            'OSD Y/N' => 'osd',
-            'SW Y/N' => 'sw',
+            'OSD Design Y/N' => 'osd',
+            'SW Design Y/N' => 'sw',
             'Holidays Added' => 'holidays_added',
             'Job Stage' => 'job_stage',
 
@@ -476,7 +476,7 @@ class MailgunZohoController extends Controller
         $required_headers_jobs = [
             'Job Name', 'Street', 'Suburb', 'Post Code', 'Super', 'Super Name', 'Approval Date',
             'CX Sent Date', 'CX Sign Date', 'CX Rcvd Date', 'CX Deposit Date', 'Prac Signed', 'CC Rcvd Date', 'HBCF Start Date', 'Fcst Comp Date', 'Completion Deadline',
-            'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Estimator FC', 'Holidays Added', 'OSD Y/N', 'SW Y/N', 'Job Stage'
+            'Design Cons', 'Design Cons (user)', 'Project Coordinator', 'Project Coordinator (user)', 'Eng FJ Certified?', 'Estimator FC', 'Holidays Added', 'OSD Design Y/N', 'SW Design Y/N', 'Job Stage'
         ];
         sort($required_headers_jobs);
         sort($headers_jobs);
