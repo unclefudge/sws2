@@ -138,14 +138,18 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "QA templates with Inspection task<br><br>";
-        $qas = SiteQa::where('company_id', '3')->where('status', 1)->where('master', 1)->get();
-        foreach ($qas as $qa) {
-            foreach ($qa->tasks() as $task) {
-                if ($task->trade_id == 19) {
-                    echo "$qa->name - Task: $task->name<br>";
-                }
-            }
+        echo "Start Job Planner tasks - TRADE<br><br>";
+        $plans = SitePlanner::where('entity_type', 't')->where('task_id', 11)->orderby('from')->get();
+        foreach ($plans as $plan) {
+            $assigned = ($plan->entity_type == 'c') ? $plan->company->name : 'none';
+            echo $plan->from->format('Y-m-d') . " : " . $plan->site->name . " ($assigned)<br>";
+        }
+
+        echo "<br><br>Start Job Planner tasks - COMPANY<br><br>";
+        $plans = SitePlanner::where('entity_type', 'c')->where('task_id', 11)->orderby('from')->get();
+        foreach ($plans as $plan) {
+            $assigned = ($plan->entity_type == 'c') ? $plan->company->name : 'none';
+            echo $plan->from->format('Y-m-d') . " : " . $plan->site->name . " ($assigned)<br>";
         }
 
 

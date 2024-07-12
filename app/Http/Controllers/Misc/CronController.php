@@ -63,7 +63,7 @@ class CronController extends Controller
         CronController::siteExtensions();
         //CronController::superChecklists();  disabled 24/06/2024
         CronController::uploadCompanyDocReminder();
-        CronController::verifyZohoImport();
+        //CronController::verifyZohoImport();
 
         // Weekdays only
         if (Carbon::today()->isWeekday()) {

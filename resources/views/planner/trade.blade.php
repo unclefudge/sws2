@@ -186,7 +186,7 @@
                                                         <i class="fa fa-cog"> </i>&nbsp; Actions <i class="fa fa-angle-down"></i>
                                                     </a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|w  eb-admin'))
+                                                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
                                                             <li><a href="javascript:;" v-on:click="openSidebarAddstart()"> Add Job Start</a></li>
                                                         @endif
                                                         <li><a href="javascript:;" v-on:click="openSidebarMovestart()"> Move Job Start</a></li>
@@ -274,7 +274,7 @@
                         </div>
                     </div>
 
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>
+                    <pre v-if="xx.dev">@{{ $data | json }}</pre>
                     -->
 
                 </div>
@@ -639,6 +639,12 @@
                     <span class="input-group-btn pull-left"><button class="btn default" type="button"><i class="fa fa-calendar"></i></button></span>
                 </div>
             </div>
+            <div class="row" style="padding-bottom: 10px">
+                <div class="col-xs-12">
+                    <label for="xx.assign_site">Linked Tasks (StartCarp, PU, LF, CU, FF, etc)</label>
+                    <select-picker :name.sync="xx.move_linked_start" :options.sync="xx.sel_linked_start" :function="doNothing"></select-picker>
+                </div>
+            </div>
             <br>
             <button class="btn dark" v-on:click="xx.showSidebarMovestart = false">cancel</button>
             <button class="btn blue" v-on:click="moveJobstart" :disabled="!validJobstart()">Save</button>
@@ -648,7 +654,7 @@
         </sidebarmovestart>
 
         <!--
-           Jobstart Sidebar for adding Job Start
+           Supervisor Sidebar for adding Job Supervisor
          -->
         <sidebarallocate :show.sync="xx.showSidebarAllocate" placement="left" header="Allocate Site" :width="350">
             <h3 style="margin: 0px">Allocate Site to Supervisor</h3>

@@ -7,10 +7,11 @@ var xx = {
     day_date: '', day_etype: '', day_eid: '', day_eid2: '', day_ename: '', day_site_id: '',
     day_task_id: '', day_task_code: '', day_task_name: '', day_move_days: 1, day_upcoming: '',
     assign_site: '', assign_trade: '', assign_type: '', assign_cid: '', assign_cname: '', assign_tasks: '', assign_super: '',
-    day_conflicts: '', day_other_sites: '', search: '', searchSites: '', searchSiteSelected: false,
+    day_conflicts: '', day_other_sites: '', search: '', searchSites: '', searchSiteSelected: false, move_linked_start: '',
     day_plan: [], day_sites: [], connected_tasks: [],
     sel_site: [], sel_trade: [], sel_company: [], sel_task: [], sel_jobstart: [], sel_joballocate: [], sel_super: [],
     sel_assign_tasks: [{value: '', text: 'Select Action'}, {value: 'all', text: 'All future tasks for this trade'}, {value: 'day', text: 'Only todays tasks for this trade'}],
+    sel_linked_start: [{value: 'linked', text: 'Moved linked tasks as well'}, {value: 'only', text: 'Move Only Start Job task'}],
     maxjobs: [], leave: [],
     plan: [], sites: [], companies: [], upcoming_task: [], upcoming_plan: [],
 };
@@ -656,9 +657,6 @@ Vue.component('app-weekly', {
             var arr = this.xx.jobstart.split('/');
             var new_start = arr[2] + '-' + arr[1] + '-' + arr[0];
             // Split old start
-            //var obj = objectFindByKey(this.xx.sel_jobstart, 'value', this.xx.assign_site);
-            //var arr2 = obj.text.slice(-10).split('/'); //this.xx.assign_site; //obj.text;
-            //var old_start = arr2[2] + '-' + arr2[1] + '-' + arr2[0];
             var obj = objectFindByKey(this.xx.sites, 'id', this.xx.assign_site);
             var old_start = obj.start;
             var old_first = obj.first;
@@ -668,36 +666,58 @@ Vue.component('app-weekly', {
             var new_date = moment(new_start);
 
             if (!old_date.isSame(new_date)) {
-                if (new_date.isBefore(old_date))
-                    var direction = '-';
-                else
-                    var direction = '+'
-                var days = workDaysBetween(old_start, new_start) - 1;
-                var days_between = Math.abs(moment(new_start).diff(moment(old_start), 'days'));
-                //alert('old:' + old_start + ' new:' + new_start + ' days:' + days + ' dir:' + direction + ' diff:'+days_between);
-                if (direction == '-' && moment(moment(old_first).subtract(days_between, 'day')).isSameOrBefore(moment(), 'day')) {
-                    // The new date for the first task 'Pre-Construction' will be before today so manually make it tomorrow
-                    // and move the START task to the selected new date
-                    this.moveJobFromDate(this.xx.assign_site, old_start, direction, days);
-
-                    var dayAfterToday1 = nextWorkDate(this.xx.today, '+', '1')
-                    //alert('short:'+dayAfterToday1);
-                    getTaskDB(obj.first_id).then(function (task) {
+                if (this.xx.move_linked_start == 'only') {
+                    // Move only JobStart
+                    var selected = objectFindByKey(this.xx.sel_jobstart, 'value', this.xx.assign_site);
+                    var movedate = new_date.format('YYYY-MM-DD');
+                    getTaskDB(selected.jobstart_id).then(function (task) {
                         if (task) {
-                            console.log('*** id:' + task.id + ' F:' + task.from + ' new:' + dayAfterToday1);
-                            task.from = dayAfterToday1;
-                            task.to = dayAfterToday1;
+                            console.log('*** id:' + task.id + ' F:' + task.from + ' new:' + movedate);
+                            task.from = movedate;
+                            task.to = movedate;
                             updateTaskDB(task).then(function (result) {
                                 if (result) {
                                     this.$broadcast('refreshWeekPlanEvent');
                                     this.getPlan();
-                                    obj.first = dayAfterToday1;
+                                    //postAndRedirect('/planner/trade', this.xx.params);
                                 }
                             }.bind(this));
                         }
                     }.bind(this));
-                } else
-                    this.moveJobFromDate(this.xx.assign_site, old_first, direction, days);
+                } else {
+                    // Move StartJob + linked tasks
+
+                    if (new_date.isBefore(old_date))
+                        var direction = '-';
+                    else
+                        var direction = '+'
+                    var days = workDaysBetween(old_start, new_start) - 1;
+                    var days_between = Math.abs(moment(new_start).diff(moment(old_start), 'days'));
+                    //alert('old:' + old_start + ' new:' + new_start + ' days:' + days + ' dir:' + direction + ' diff:'+days_between);
+                    if (direction == '-' && moment(moment(old_first).subtract(days_between, 'day')).isSameOrBefore(moment(), 'day')) {
+                        // The new date for the first task 'Pre-Construction' will be before today so manually make it tomorrow
+                        // and move the START task to the selected new date
+                        this.moveJobFromDate(this.xx.assign_site, old_start, direction, days);
+
+                        var dayAfterToday1 = nextWorkDate(this.xx.today, '+', '1')
+                        //alert('short:'+dayAfterToday1);
+                        getTaskDB(obj.first_id).then(function (task) {
+                            if (task) {
+                                console.log('*** id:' + task.id + ' F:' + task.from + ' new:' + dayAfterToday1);
+                                task.from = dayAfterToday1;
+                                task.to = dayAfterToday1;
+                                updateTaskDB(task).then(function (result) {
+                                    if (result) {
+                                        this.$broadcast('refreshWeekPlanEvent');
+                                        this.getPlan();
+                                        obj.first = dayAfterToday1;
+                                    }
+                                }.bind(this));
+                            }
+                        }.bind(this));
+                    } else
+                        this.moveJobFromDate(this.xx.assign_site, old_first, direction, days);
+                }
 
                 // Email Jobstart
                 var data = {site_id: this.xx.assign_site, newdate: new_start, olddate: old_start};
@@ -740,6 +760,9 @@ Vue.component('app-weekly', {
                 });
             this.xx.showSidebarAllocate = false;
         },
+        doNothing: function () {
+            //
+        }
     },
 });
 

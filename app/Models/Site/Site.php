@@ -969,6 +969,24 @@ class Site extends Model
         return ($startTask) ? $startTask->from : null;
     }
 
+    public function getJobStartTaskAttribute()
+    {
+        return $startTask = SitePlanner::where('site_id', $this->id)->where('task_id', '11')->first();
+    }
+
+    public function getTasksBeforeJobStartAttribute()
+    {
+        $startTask = SitePlanner::where('site_id', $this->id)->where('task_id', '11')->first();
+        $firstTask = SitePlanner::where('site_id', $this->id)->orderBy('from')->first();
+
+        if ($startTask) {
+            return SitePlanner::where('site_id', $this->id)->where('from', '<', $startTask->from->format('Y-m-d'))->count();
+        } elseif ($firstTask)
+            return SitePlanner::where('site_id', $this->id)->count();
+
+        return 0;
+    }
+
     /**
      * Get the 'Prac Complete' job task date if it exists  (getter)
      *

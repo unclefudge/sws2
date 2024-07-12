@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
+use Alert;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentCategory;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
+use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentStocktake;
 use App\Models\Misc\Equipment\EquipmentStocktakeItem;
-use App\Models\Misc\Equipment\EquipmentLost;
-use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Site\Site;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
-use Alert;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
-class EquipmentStocktakeController extends Controller {
+class EquipmentStocktakeController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -123,9 +120,9 @@ class EquipmentStocktakeController extends Controller {
         }
 
         if ($items) {
-            $items->sortBy('item_name');
+            $items = $items->sortBy('item_name');
             if ($category == 3)
-                $items->sortBy('item_category_name');
+                $items = $items->sortBy('item_category_name');
         }
 
         return view('misc/equipment/stocktake-edit', compact('location', 'sites', 'others', 'items', 'category', 'items_count'));
@@ -244,7 +241,7 @@ class EquipmentStocktakeController extends Controller {
         $stocktake->save();
 
         // Add extra items to location
-        for ($i = 1; $i <= 10; $i ++) {
+        for ($i = 1; $i <= 10; $i++) {
             if (request("$i-extra_qty") && request("$i-extra_id")) {
                 $equip = Equipment::findOrFail(request("$i-extra_id"));
                 $extra_items[$equip->id] = request("$i-extra_qty");

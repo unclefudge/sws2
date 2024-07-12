@@ -99,9 +99,9 @@
                                         </thead>
                                         <tbody>
                                         @if (count($items))
-                                            <?php $x = 0; ?>
+                                                <?php $x = 0; ?>
                                             @foreach($items as $loc)
-                                                <?php $x ++; ?>
+                                                    <?php $x++; ?>
                                                 <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
                                                     @if ($category == 3)
                                                         <td>{{ $loc->item_category_name }}</td>
@@ -161,24 +161,24 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <?php
-                                                $max = ($location->site_id && $location->site_id == 25) ? 10 : 3;
-                                                $gen_cats = [1];
-                                                $sca_cats = [2];
-                                                $mat_cats = \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
-                                                if ($items) {
-                                                    //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                    $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                    $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                    $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
-                                                } else {
-                                                    //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->get();
-                                                    $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->get();
-                                                    $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->get();
-                                                    $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->get();
-                                                }
+                                                    <?php
+                                                    $max = ($location->site_id && $location->site_id == 25) ? 10 : 3;
+                                                    $gen_cats = [1];
+                                                    $sca_cats = [2];
+                                                    $mat_cats = \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
+                                                    if ($items) {
+                                                        //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
+                                                        $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
+                                                        $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
+                                                        $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
+                                                    } else {
+                                                        //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->get();
+                                                        $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->get();
+                                                        $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->get();
+                                                        $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->get();
+                                                    }
 
-                                                ?>
+                                                    ?>
                                                 @for ($x = 1; $x <= $max; $x++)
                                                     <tr class="add-item" style="display: none">
                                                         <td colspan="2">
@@ -279,98 +279,99 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#location_id").select2({placeholder: "Select location", width: '100%'});
-        $(".sel_add_item").select2({placeholder: "Add additional item", width: '100%'});
-        // Cape Cod Store by default has all items excluded
-        if ($("#site_id").val() == 25) {
-            $(".itemrow-").addClass("font-grey-cascade");
-            $(".itemactual-").hide();
-        } else {
-            $(".excludeitems").hide();
-        }
-
-        // Add extra items
-        $("#btn-add-item").click(function (e) {
-            e.preventDefault();
-            $("#add-items").show();
-            $(".add-item").show();
-            $("#btn-add-item").hide();
-        });
-
-        // Exclude some items
-        $("#btn-exclude").click(function (e) {
-            e.preventDefault();
-            $(".excludeitems").show();
-            $("#exclude-div").hide();
-        });
-
-        // Location
-        $("#location_id").change(function () {
-            $("#equipment_list").hide();
-            $("#btn-add-item").hide();
-            $("#spinner").show();
-            window.location.href = "/equipment/stocktake/" + $("#location_id").val();
-        });
-
-
-        $(".stockitem").click(function (e) {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#location_id").select2({placeholder: "Select location", width: '100%'});
+            $(".sel_add_item").select2({placeholder: "Add additional item", width: '100%'});
+            // Cape Cod Store by default has all items excluded
             if ($("#site_id").val() == 25) {
-                // Cape Cod Store by default has all items excluded
-                if ($("#itemcheck-" + $(this).val()).prop('checked')) {
-                    $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
-                    $("#itemactual-" + $(this).val()).show();
-                } else {
-                    $("#itemactual-" + $(this).val()).hide();
-                    $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
-                }
+                $(".itemrow-").addClass("font-grey-cascade");
+                $(".itemactual-").hide();
             } else {
-                // All other location by default has all items included
-                if ($("#itemcheck-" + $(this).val()).prop('checked')) {
-                    $("#itemactual-" + $(this).val()).hide();
-                    $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
-                } else {
-                    $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
-                    $("#itemactual-" + $(this).val()).show();
-                }
+                $(".excludeitems").hide();
             }
-        });
+
+            // Add extra items
+            $("#btn-add-item").click(function (e) {
+                e.preventDefault();
+                $("#add-items").show();
+                $(".add-item").show();
+                $("#btn-add-item").hide();
+            });
+
+            // Exclude some items
+            $("#btn-exclude").click(function (e) {
+                e.preventDefault();
+                $(".excludeitems").show();
+                $("#exclude-div").hide();
+            });
+
+            // Location
+            $("#location_id").change(function () {
+                $("#equipment_list").hide();
+                $("#btn-add-item").hide();
+                $("#spinner").show();
+                window.location.href = "/equipment/stocktake/" + $("#location_id").val();
+            });
 
 
-        var table_history = $('#table_history').DataTable({
-            pageLength: 10,
-            processing: true,
-            serverSide: true,
-            ajax: {
-                'url': '{!! url('equipment/stocktake/dt/stocktake') !!}',
-                'type': 'GET',
-                'data': function (d) {
-                    d.location_id = "{{ ($location) ? $location->id : 0 }}";
+            $(".stockitem").click(function (e) {
+                if ($("#site_id").val() == 25) {
+                    // Cape Cod Store by default has all items excluded
+                    if ($("#itemcheck-" + $(this).val()).prop('checked')) {
+                        $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
+                        $("#itemactual-" + $(this).val()).show();
+                    } else {
+                        $("#itemactual-" + $(this).val()).hide();
+                        $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
+                    }
+                } else {
+                    // All other location by default has all items included
+                    if ($("#itemcheck-" + $(this).val()).prop('checked')) {
+                        $("#itemactual-" + $(this).val()).hide();
+                        $("#itemrow-" + $(this).val()).addClass("font-grey-cascade");
+                    } else {
+                        $("#itemrow-" + $(this).val()).removeClass("font-grey-cascade");
+                        $("#itemactual-" + $(this).val()).show();
+                    }
                 }
-            },
-            columns: [
-                {data: 'id', name: 'id', orderable: false, searchable: false},
-                {data: 'created_at', name: 'created_at'},
-                {data: 'created_by', name: 'created_by'},
-                {data: 'summary', name: 'summary'},
-            ],
-            order: [
-                [1, "desc"]
-            ]
-        });
-    });
+            });
 
-    function isNumber(evt) {
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if ((charCode > 31 && charCode < 48) || charCode > 57) {
-            return false;
+
+            var table_history = $('#table_history').DataTable({
+                pageLength: 10,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    'url': '{!! url('equipment/stocktake/dt/stocktake') !!}',
+                    'type': 'GET',
+                    'data': function (d) {
+                        d.location_id = "{{ ($location) ? $location->id : 0 }}";
+                    }
+                },
+                columns: [
+                    {data: 'id', name: 'id', orderable: false, searchable: false},
+                    {data: 'created_at', name: 'created_at'},
+                    {data: 'created_by', name: 'created_by'},
+                    {data: 'summary', name: 'summary'},
+                ],
+                order: [
+                    [1, "desc"]
+                ]
+            });
+        });
+
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
-</script>
+    </script>
 @stop

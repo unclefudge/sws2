@@ -1515,7 +1515,7 @@ class SitePlannerController extends Controller
             if (is_array($sort['name']) && is_array($sort['order']))
                 array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
         }
-        
+
         return $site_details;
     }
 
@@ -1818,10 +1818,11 @@ class SitePlannerController extends Controller
         // Create array in specific Vuejs 'select' format.
         foreach ($sites as $site) {
             $jobstart_est = ($site->jobstart_estimate) ? $site->jobstart_estimate->format('d/m/Y') : '';
+            $jobstart_id = ($site->jobStartTask) ? $site->jobStartTask->id : null;
             if (!$site->job_start)
-                $without[] = ['value' => $site->id, 'text' => $site->name, 'name' => $site->name, 'jobstart_estimate' => $jobstart_est];
+                $without[] = ['value' => $site->id, 'text' => $site->name, 'name' => $site->name, 'jobstart_estimate' => $jobstart_est, 'jobstart_id' => ''];
             else if ($site->job_start->gt($today))
-                $with[] = ['value' => $site->id, 'text' => $site->name . ' - ' . $site->job_start->format('d/m/Y'), 'name' => $site->name, 'jobstart_estimate' => $jobstart_est];
+                $with[] = ['value' => $site->id, 'text' => $site->name . ' - ' . $site->job_start->format('d/m/Y'), 'name' => $site->name, 'jobstart_estimate' => $jobstart_est, 'jobstart_id' => $jobstart_id];
         }
 
         return ($exists == 'true') ? $with : $without;

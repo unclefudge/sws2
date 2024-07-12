@@ -11,6 +11,42 @@
 @stop
 
 @section('content')
+    <style>
+        .keybox {
+            /*float: left;*/
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 3px 5px 0px;
+            cursor: pointer !important;
+        }
+
+        .keybox2 {
+            display: inline;
+            height: 20px;
+            width: 20px;
+            margin: 0px 3px 5px 0px;
+            cursor: pointer !important;
+        }
+
+        .state-red {
+            background-color: #e26a6a;
+        }
+
+        .state-orange {
+            background-color: #FDD7B1;
+        }
+
+        .state-green {
+            background-color: #36d7b7;
+        }
+
+        .state-grey {
+            background-color: #e9edef;
+        }
+
+    </style>
+
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -52,7 +88,12 @@
                             <tbody>
                             @foreach ($startdata as $row)
                                 <tr>
-                                    <td style="{{ ($row['status'] != 1) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
+                                    <td style="{{ ($row['status'] != 1) ? 'background:#FDD7B1' : '' }}">
+                                        {!! ($row['date']) ? $row['date'] : $row['date_est'] !!}
+                                        @if ($row['tasks_before_start'] > 1)
+                                            <span class="font-red">{{$row['tasks_before_start']}} tasks before START</span>
+                                        @endif
+                                    </td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
                                     <td>{!! $row['supervisor'] !!}</td>
                                     <td>{!! $row['company'] !!}</td>
@@ -86,6 +127,12 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span class="keybox state-orange" style="margin-left: 20px"> &nbsp; &nbsp; </span> &nbsp; Start Date Estimate
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
