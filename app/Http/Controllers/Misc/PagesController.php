@@ -97,7 +97,7 @@ class PagesController extends Controller
 
     public function userlog()
     {
-        if (Auth::user()->id == 3)
+        if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('pages/userlog');
 
         return view('errors/404');
@@ -105,7 +105,7 @@ class PagesController extends Controller
 
     public function userlogAuth()
     {
-        if (Auth::user()->id == 3) {
+        if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager')) {
             $userlog = User::find(request('user'));
             Auth::login($userlog);
 
