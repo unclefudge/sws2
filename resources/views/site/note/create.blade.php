@@ -89,7 +89,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                {{-- Variatoin items --}}
+                                {{-- Variation items --}}
                                 <div class="row">
                                     <div class="col-md-12">Variation items</div>
                                 </div>
