@@ -8,6 +8,7 @@ use App\Models\Misc\Attachment;
 use App\Models\Misc\Category;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
+use App\Models\Site\SiteNoteCost;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,10 +92,11 @@ class SiteNoteController extends Controller
             return view('errors/404');
 
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $cost_centres = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->pluck('name', 'id')->toArray();
 
-        return view('site/note/create', compact('site_id', 'site_list', 'categories'));
+        return view('site/note/create', compact('site_id', 'site_list', 'categories', 'cost_centres'));
     }
 
     /**
@@ -108,14 +110,7 @@ class SiteNoteController extends Controller
         if (!Auth::user()->hasPermission2('add.site.note'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
-
-        if (request('category_id') == 15) {
-            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required'];
-        }
-        if (request('category_id') == 16) {
-            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required'];
-        }
+        $rules = ['site_id' => 'required', 'category_id' => 'required'];
         $mesg = ['site_id.required' => 'The site field is required.',
             'category_id.required' => 'The category field is required.',
             'notes.required' => 'The notes field is required.',
@@ -126,9 +121,29 @@ class SiteNoteController extends Controller
             'costing_priority.required' => 'The priority field is required.',
             'variation_name.required' => 'The name field is required.',
             'variation_info.required' => 'The description field is required.',
-            'variation_cost.required' => 'The cost field is required.',
+            'variation_net.required' => 'The net cost field is required.',
+            'variation_cost.required' => 'The gross cost field is required.',
             'variation_days.required' => 'The days field is required.'
         ];
+
+        // Costing Request
+        if (request('category_id') == 15)
+            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
+
+        // Variations
+        elseif (request('category_id') == 16) {
+            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required', 'cc-1' => 'required'];
+            for ($i = 1; $i <= 20; $i++) {
+                if (request("cc-$i")) {
+                    $rules = $rules + ["cinfo-$i" => 'required'];
+                    $mesg = $mesg + ["cinfo-$i.required" => "The variation item $i details required"];
+                }
+            }
+        } else {
+            $rules = $rules + ['notes' => 'required'];
+        }
+
+
         request()->validate($rules, $mesg); // Validate
         //dd(request()->all());
 
@@ -142,6 +157,21 @@ class SiteNoteController extends Controller
                 $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
                 $attachment->saveAttachment($tmp_filename);
             }
+        }
+
+        // Create Variations Cost Items
+        if (request('category_id') == 16) {
+            $notes = "Cost Centres & Item Details\n-------------------------------\n";
+            for ($i = 1; $i <= 20; $i++) {
+                if (request("cc-$i") && request("cinfo-$i")) {
+                    $item = SiteNoteCost::create(['note_id' => $note->id, 'cost_id' => request("cc-$i"), 'details' => request("cinfo-$i")]);
+                    $cost = Category::find(request("cc-$i"));
+                    $notes .= "$cost->name: " . request("cinfo-$i") . "\n";
+                }
+            }
+            // Prepend CostCentres to notes
+            $note->notes = "$notes\n$note->notes";
+            $note->save();
         }
 
         //dd(request()->all());
@@ -265,7 +295,7 @@ class SiteNoteController extends Controller
 
         $cats = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->get();
 
-        return view('site/note/settings', compact('cats'));
+        return view('site/note/settings-categories', compact('cats'));
     }
 
 
@@ -282,6 +312,37 @@ class SiteNoteController extends Controller
 
         //dd(request()->all());
         CategoryController::updateCategories('site_note', $request);
+
+        Toastr::success("Updated categories");
+
+        return redirect(url()->previous());
+    }
+
+    public function costCentres()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        $cats = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->get();
+
+        return view('site/note/settings-costcentres', compact('cats'));
+    }
+
+
+    /**
+     * Update a resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateCostCentres(Request $request)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        //dd(request()->all());
+        CategoryController::updateCategories('site_note_cost', $request);
 
         Toastr::success("Updated categories");
 

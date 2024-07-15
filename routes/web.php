@@ -320,6 +320,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/note/dt/list', '\App\Http\Controllers\Site\SiteNoteController@getNotes');
     Route::get('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@settings');
     Route::post('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@updateSettings');
+    Route::get('site/note/settings/cost-centres', '\App\Http\Controllers\Site\SiteNoteController@costCentres');
+    Route::post('site/note/settings/cost-centres', '\App\Http\Controllers\Site\SiteNoteController@updateCostCentres');
     //Route::get('site/note/{id}/signoff', '\App\Http\Controllers\Site\SiteNoteController@signoff');
     //Route::get('site/note/{id}/pdf', '\App\Http\Controllers\Site\SiteNoteController@createPDF');
     Route::resource('site/note', '\App\Http\Controllers\Site\SiteNoteController');

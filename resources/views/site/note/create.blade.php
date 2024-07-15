@@ -35,7 +35,6 @@
                                     <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                         {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
-                                        {{--}}<x-input-select name='site_id' :options="$site_list" :default="$site_id" class="select2"></x-input-select>--}}
                                         {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
@@ -68,6 +67,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
+                                            {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
+                                            {!! Form::text('variation_net', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('variation_net', $errors) !!}
+                                        </div>
+                                    </div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
                                             {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
@@ -83,6 +89,50 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- Variatoin items --}}
+                                <div class="row">
+                                    <div class="col-md-12">Variation items</div>
+                                </div>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <div class="row">
+                                        <div class="col-md-1 text-center">{{ $i }}.</div>
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
+                                                {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
+                                                {!! fieldErrorMessage("cc-$i", $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
+                                                {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details of item $i."]) !!}
+                                                {!! fieldErrorMessage("cinfo-$i", $errors) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endfor
+
+                                {{-- Extra Items --}}
+                                <button class="btn blue" id="more">More Items</button>
+                                <div id="more_items" style="display: none">
+                                    @for ($i = 6; $i <= 20; $i++)
+                                        <div class="row">
+                                            <div class="col-md-1 text-center">{{ $i }}.</div>
+                                            <div class="col-md-3">
+                                                <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
+                                                    {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
+                                                    {!! fieldErrorMessage("cc-$i", $errors) !!}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
+                                                    {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details of item $i."]) !!}
+                                                    {!! fieldErrorMessage("cinfo-$i", $errors) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
+                                </div>
+                                <br><br>
                             </div>
 
                             {{-- Costing Fields --}}
@@ -201,6 +251,12 @@
                 displayFields();
             });
 
+            $("#more").click(function (e) {
+                e.preventDefault();
+                $('#more').hide();
+                $('#more_items').show();
+            });
+
             displayFields();
 
             function displayFields() {
@@ -214,7 +270,7 @@
 
                 if (cat_id == '16') {
                     $("#variation_fields").show();
-                    $("#notes_label").html('Variation Breakup/Work Order Details');
+                    //$("#notes_label").html('Variation Breakup/Work Order Details');
                 }
 
                 if (cat_id == '15') {

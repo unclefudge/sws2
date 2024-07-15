@@ -14,7 +14,7 @@ class SiteNote extends Model
 {
 
     protected $table = 'site_notes';
-    protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_cost', 'variation_days', 'response_req',
+    protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_net', 'variation_cost', 'variation_days', 'response_req',
         'costing_location', 'costing_room', 'costing_item', 'costing_extra_credit', 'costing_priority', 'parent', 'status', 'notes', 'created_by', 'updated_by'];
 
     /**
@@ -43,6 +43,11 @@ class SiteNote extends Model
     public function attachments()
     {
         return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
+    }
+
+    public function costs()
+    {
+        return $this->hasMany('App\Models\Site\SiteNoteCost', 'parent');
     }
 
     // Extra Notes

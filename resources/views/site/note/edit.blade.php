@@ -66,6 +66,13 @@
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
+                                            {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
+                                            {!! Form::text('variation_net', $note->variation_cost, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('variation_net', $errors) !!}
+                                        </div>
+                                    </div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
                                             {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
