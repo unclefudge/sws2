@@ -7,7 +7,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><a href="/site/{{$note->site_id}}/notes">Site Notes</a><i class="fa fa-circle"></i></li>
+        <li><a href="/site/{{$note->id}}/notes">Site Notes</a><i class="fa fa-circle"></i></li>
         <li><span>View</span></li>
     </ul>
 @stop
@@ -194,7 +194,9 @@
                         <br><br>
                         <div class="form-actions right">
                             <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
-                            {{--}}<button type="submit" class="btn green"> Save</button>--}}
+                            @if (in_array($note->category_id, [19,20]))
+                                <a href="/site/{{$note->id}}/notes/convert" class="btn green"> Copy & Create To Approved Site Variation </a>
+                            @endif
                         </div>
 
                     </div>

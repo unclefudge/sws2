@@ -42,7 +42,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
                                         {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', ['' => 'Select category'] + $categories, null, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
+                                        {!! Form::select('category_id', ['' => 'Select category'] + $categories, 16, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
                                         {!! fieldErrorMessage('category_id', $errors) !!}
                                     </div>
                                 </div>
@@ -54,14 +54,14 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_name', $errors) !!}">
                                             {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_name', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_name', $existing->variation_name, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_name', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
                                             {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_info', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_info', $existing->variation_info, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_info', $errors) !!}
                                         </div>
                                     </div>
@@ -72,21 +72,21 @@
                                     <div class="col-md-2">
                                         <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
                                             {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_net', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_net', $existing->variation_net, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_net', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
                                             {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_cost', null, ['class' => 'form-control']) !!}
+                                            {!! Form::text('variation_cost', $existing->variation_cost, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
                                             {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], $existing->costing_extra_credit, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
                                             {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
                                         </div>
                                     </div>
@@ -95,7 +95,7 @@
                                     <div class="col-md-5">
                                         <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
                                             {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label']) !!}
-                                            <input type="text" class="form-control" value="{{ old('variation_days') }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
+                                            <input type="text" class="form-control" value="{{ $existing->variation_days }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
                                             {!! fieldErrorMessage('variation_days', $errors) !!}
                                         </div>
                                     </div>
@@ -104,28 +104,30 @@
                                 <div class="row">
                                     <div class="col-md-12">Variation items</div>
                                 </div>
-                                @for ($i = 1; $i <= 5; $i++)
+                                @php ($i = 0)
+                                @foreach ($existing->costs as $cost)
+                                    @php ($i++)
                                     <div class="row">
                                         <div class="col-md-1 text-center">{{ $i }}.</div>
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
-                                                {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
+                                                {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, $cost->cost_id, ['class' => 'form-control bs-select']) !!}
                                                 {!! fieldErrorMessage("cc-$i", $errors) !!}
                                             </div>
                                         </div>
                                         <div class="col-md-8">
                                             <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details of item $i."]) !!}
+                                                {!! Form::text("cinfo-$i", $cost->details, ['class' => 'form-control', 'placeholder' => "Details of item $cost->order."]) !!}
                                                 {!! fieldErrorMessage("cinfo-$i", $errors) !!}
                                             </div>
                                         </div>
                                     </div>
-                                @endfor
+                                @endforeach
 
                                 {{-- Extra Items --}}
                                 <button class="btn blue" id="more">More Items</button>
                                 <div id="more_items" style="display: none">
-                                    @for ($i = 6; $i <= 20; $i++)
+                                    @for ($i = $existing->costs->count() + 1; $i <= 20; $i++)
                                         <div class="row">
                                             <div class="col-md-1 text-center">{{ $i }}.</div>
                                             <div class="col-md-3">

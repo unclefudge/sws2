@@ -47,7 +47,7 @@ class SiteNote extends Model
 
     public function costs()
     {
-        return $this->hasMany('App\Models\Site\SiteNoteCost', 'parent');
+        return $this->hasMany('App\Models\Site\SiteNoteCost', 'note_id');
     }
 
     // Extra Notes

@@ -99,6 +99,23 @@ class SiteNoteController extends Controller
         return view('site/note/create', compact('site_id', 'site_list', 'categories', 'cost_centres'));
     }
 
+    public function createNoteFrom($id)
+    {
+        $existing = SiteNote::findOrFail($id);
+        $site_id = $existing->site_id;
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('add.site.note'))
+            return view('errors/404');
+
+        $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $cost_centres = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+        $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->pluck('name', 'id')->toArray();
+
+        return view('site/note/createFrom', compact('site_id', 'site_list', 'categories', 'cost_centres', 'existing'));
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -131,7 +148,7 @@ class SiteNoteController extends Controller
             $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
 
         // Variations
-        elseif (request('category_id') == 16) {
+        elseif (in_array(request('category_id'), [16, 19])) { // Approved / For Issue to Client
             $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required', 'cc-1' => 'required'];
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i")) {
@@ -139,6 +156,8 @@ class SiteNoteController extends Controller
                     $mesg = $mesg + ["cinfo-$i.required" => "The variation item $i details required"];
                 }
             }
+        } elseif (request('category_id') == 20) { // TBA Site Variations
+            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'notes' => 'required'];
         } else {
             $rules = $rules + ['notes' => 'required'];
         }
@@ -159,8 +178,8 @@ class SiteNoteController extends Controller
             }
         }
 
-        // Create Variations Cost Items
-        if (request('category_id') == 16) {
+        // Create Variations Cost Items for Approved/For Issue
+        if (in_array(request('category_id'), [16, 19])) {
             $notes = "Cost Centres & Item Details\n-------------------------------\n";
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i") && request("cinfo-$i")) {
@@ -179,7 +198,7 @@ class SiteNoteController extends Controller
         $note->emailNote();
 
         $previous_url = parse_url(request('previous_url'));
-        if (preg_match("/notes/", $previous_url['path']))
+        if (preg_match("/notes/", $previous_url['path']) || preg_match("/site\/note/", $previous_url['path']))
             return redirect("site/$note->site_id/notes");
         else
             return redirect("site/$note->site_id");

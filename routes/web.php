@@ -317,6 +317,7 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::post('site/extension/update_job', '\App\Http\Controllers\Site\SiteExtensionController@updateJob');
     Route::get('site/{site_id}/notes', '\App\Http\Controllers\Site\SiteNoteController@showSiteNotes');
     Route::get('site/{site_id}/notes/create', '\App\Http\Controllers\Site\SiteNoteController@createNote');
+    Route::get('site/{id}/notes/convert', '\App\Http\Controllers\Site\SiteNoteController@createNoteFrom');
     Route::get('site/note/dt/list', '\App\Http\Controllers\Site\SiteNoteController@getNotes');
     Route::get('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@settings');
     Route::post('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController@updateSettings');
