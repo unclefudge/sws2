@@ -453,11 +453,8 @@ function addStartTaskToPlanner(plan, site_id, date) {
     };
 
     // Same Day
-    //var startJob = {
-    //    id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
-    //};
     var startJob = {
-        id: '', site_id: site_id, entity_type: 't', entity_id: 31, entity_name: 'Supervisors', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
+        id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
     };
     var loadJob = {
         id: '', site_id: site_id, entity_type: 't', entity_id: 21, entity_name: 'Labourer', task_id: 200, task_code: 'Load', task_name: 'Load Job', from: date, to: date, days: 1
@@ -574,7 +571,7 @@ function addStartTaskToPlanner2(plan, site_id, date) {
 
         // Same Day
         var startJob = {
-            id: '', site_id: site_id, entity_type: 't', entity_id: 31, entity_name: 'Supervisors', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
+            id: '', site_id: site_id, entity_type: 't', entity_id: 2, entity_name: 'Carpenter', task_id: 11, task_code: 'START', task_name: 'Start Job', from: date, to: date, days: 1
         };
         var loadJob = {
             id: '', site_id: site_id, entity_type: 't', entity_id: 21, entity_name: 'Labourer', task_id: 200, task_code: 'Load', task_name: 'Load Job', from: date, to: date, days: 1
