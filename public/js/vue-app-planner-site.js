@@ -63,7 +63,12 @@ Vue.component('app-siteplan', {
             postAndRedirect(url, this.xx.params);
         },
         weekDateHeader: function (date, days) {
-            return moment(date).add(days, 'days').format('DD/MM');
+            var currentYear = moment().year();
+            var cellYear = moment(date).add(days, 'days').year();
+            if (currentYear == cellYear)
+                return moment(date).add(days, 'days').format('DD/MM');
+            else
+                return moment(date).add(days, 'days').format('DD/MM/YY');
         },
         weekDate: function (date, days) {
             return moment(date).add(days, 'days').format('YYYY-MM-DD');
