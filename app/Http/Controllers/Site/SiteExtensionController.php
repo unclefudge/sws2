@@ -70,7 +70,6 @@ class SiteExtensionController extends Controller
         $reason_na = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'N/A')->first()->id;
         $reason_publichol = Category::where('type', 'site_extension')->where('status', 1)->where('name', 'Public Holiday')->first()->id;
 
-        // Auth::user()->areaSites()
         $multi_site_sel = [];
         foreach ($extension->sites as $ext) {
             if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))

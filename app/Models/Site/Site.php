@@ -427,6 +427,17 @@ class Site extends Model
                 $array[$user->id] = $user->fullname . ' (' . $user->phone . ')';
         }
 
+        // Add Maintenance Supervisors
+        $super_ids = SiteMaintenance::where('site_id', $this->id)->pluck('super_id')->toArray();
+        foreach ($super_ids as $uid) {
+            $user = User::find($uid);
+            if ($user && $user->status)
+                $array[$user->id] = $user->fullname . ' (' . $user->phone . ')';
+        }
+
+        // Add Maintenance Supervisors
+
+
         $string = '';
         foreach ($array as $uid => $contact)
             $string .= "$contact, ";

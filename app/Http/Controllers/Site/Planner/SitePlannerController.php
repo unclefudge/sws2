@@ -11,6 +11,7 @@ use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
+use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteProjectSupply;
 use App\User;
@@ -1483,8 +1484,30 @@ class SitePlannerController extends Controller
                 $array['first'] = ($firstTask) ? $firstTask->from->format('Y-m-d') : '';
                 $array['first_id'] = ($firstTask) ? $firstTask->id : '';
 
-                $array['supervisors'] = $site_record->supervisorsSelect();
+                //
+                //  Site + Maintenance Supervisors
+                //
+                $site_supers = [];
+                // Add primary supervisor
+                if ($site->supervisor && $this->supervisor->status)
+                    $site_supers[$this->supervisor_id] = $this->supervisor->fullname;
+                // Add secondary supervisors
+                foreach ($site->supervisors as $user) {
+                    if ($user->status)
+                        $site_supers[$user->id] = $user->fullname;
+                }
+                // Add Maintenance Supervisors
+                $super_ids = SiteMaintenance::where('site_id', $site->id)->pluck('super_id')->toArray();
+                foreach ($super_ids as $uid) {
+                    $super = User::find($uid);
+                    if ($super && $super->status)
+                        $site_supers[$super->id] = $super->fullname;
+                }
+                asort($site_supers);
+                $array['supervisors'] = $site_supers; //$site_record->supervisorsSelect();
                 $array['supervisors_contact'] = $site_record->supervisorsContactSBC();
+
+
                 $array['address'] = $site_record->address_formatted;
                 $array['status'] = $site_record->status;
                 $array['maintenance'] = $site_record->hasMaintenanceActive();

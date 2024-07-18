@@ -140,7 +140,8 @@ class SiteNoteController extends Controller
             'variation_info.required' => 'The description field is required.',
             'variation_net.required' => 'The net cost field is required.',
             'variation_cost.required' => 'The gross cost field is required.',
-            'variation_days.required' => 'The days field is required.'
+            'variation_days.required' => 'The days field is required.',
+            'cc-1.required' => 'The cost centre item 1 required'
         ];
 
         // Costing Request
@@ -153,7 +154,7 @@ class SiteNoteController extends Controller
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i")) {
                     $rules = $rules + ["cinfo-$i" => 'required'];
-                    $mesg = $mesg + ["cinfo-$i.required" => "The variation item $i details required"];
+                    $mesg = $mesg + ["cc-$i.required" => "The cost centre item $i required", "cinfo-$i.required" => "The variation item $i details required"];
                 }
             }
         } elseif (request('category_id') == 20) { // TBA Site Variations

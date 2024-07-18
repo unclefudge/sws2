@@ -117,7 +117,7 @@
                                         </div>
                                         <div class="col-md-8">
                                             <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                {!! Form::text("cinfo-$i", $cost->details, ['class' => 'form-control', 'placeholder' => "Details of item $cost->order."]) !!}
+                                                {!! Form::text("cinfo-$i", $cost->details, ['class' => 'form-control', 'placeholder' => "Details & Cost of item $cost->order."]) !!}
                                                 {!! fieldErrorMessage("cinfo-$i", $errors) !!}
                                             </div>
                                         </div>
@@ -138,7 +138,7 @@
                                             </div>
                                             <div class="col-md-7">
                                                 <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                    {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details of item $i."]) !!}
+                                                    {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details & Cost of item $i."]) !!}
                                                     {!! fieldErrorMessage("cinfo-$i", $errors) !!}
                                                 </div>
                                             </div>

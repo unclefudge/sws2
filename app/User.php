@@ -215,6 +215,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         $primary = Site::whereIn('supervisor_id', $user_list)->pluck('id')->toArray();
         $secondary = DB::table('site_supervisor')->whereIn('user_id', $user_list)->pluck('site_id')->toArray();
         $site_list = array_merge($primary, $secondary);
+        // Include any sites they have a Maintenance Request For
+        $site_ids = SiteMaintenance::where('super_id', $this->id)->pluck('site_id')->toArray();
+        $site_list = array_merge($site_list, $site_ids);
 
         return ($status) ? Site::where('status', $status)->whereIn('id', $site_list)->orderBy('name')->get() : Site::whereIn('id', $site_list)->orderBy('name')->get();
     }
