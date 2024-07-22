@@ -2,76 +2,28 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Company\CompanyDoc;
-use App\Models\Company\CompanyDocReview;
-use App\Models\Company\CompanyDocReviewFile;
-use App\Models\Site\Planner\Trade;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Site;
-use App\Models\Site\SiteDoc;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\Planner\SiteCompliance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteRoster;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteQaCategory;
-use App\Models\Site\SiteQaAction;
-use App\Models\Site\SiteAsbestosRegister;
-use App\Models\Site\SiteHazard;
-use App\Models\Site\SiteHazardFile;
-use App\Models\Site\SiteAccident;
-use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\Incident\SiteIncidentPeople;
-use App\Models\Site\Incident\SiteIncidentDoc;
-use App\Models\Site\SiteProjectSupply;
-use App\Models\Site\SiteProjectSupplyProduct;
-use App\Models\Site\SiteProjectSupplyItem;
-use App\Models\Site\SiteExtension;
-use App\Models\Site\SiteExtensionSite;
-use App\Models\Site\SiteExtensionCategory;
-use App\Models\Site\SiteInspectionDoc;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceDoc;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\SafetyDoc;
-use App\Models\Safety\SafetyDataSheet;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Models\Comms\SafetyTip;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentCategory;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
-use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Category;
-use App\Models\Ccc\Youth;
-use App\Models\Ccc\Program;
 use App\Models\Misc\FormQuestion;
-use App\Models\Misc\FormResponse;
-use App\Models\Misc\Permission2;
-use App\Models\Misc\Action;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Misc\Supervisor\SuperChecklistCategory;
 use App\Models\Misc\Supervisor\SuperChecklistQuestion;
 use App\Models\Misc\Supervisor\SuperChecklistResponse;
-use App\Models\Support\SupportTicket;
-use App\Models\Support\SupportTicketAction;
-use App\Models\Support\SupportTicketActionFile;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Site\Site;
+use App\Models\Site\SiteExtension;
+use App\Models\Site\SiteExtensionSite;
+use App\Models\Site\SiteQaAction;
+use App\User;
 use Carbon\Carbon;
-use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use DB;
+use Illuminate\Http\Request;
+use Mail;
+use Session;
 
 class PagesImportController extends Controller
 {
@@ -773,5 +725,96 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
             echo "$mesg week: " . $mon->format('d/m/Y') . " Super:$super->name<br>";
             //$log .= "$mesg week: " . $mon->format('d/m/Y') . "Super:$super->name\n";
         }
+    }
+
+    public function importSiteSupervivors()
+    {
+        echo "Importing Site Supervisors from Zoho<br>---------------------<br><br>";
+        $row = 0;
+
+        $superLookup = [
+            'X-Dean B' => 'Dean Beringer',
+            'X-Andrew C' => 'Andrew Cashmore',
+            'X-Phil D' => 'Philip Doughty',
+            'X-Todd' => 'Todd Fordham',
+            'X-David W' => 'David Wahba',
+            'X-Jaimie S' => 'Jaimie Smith',
+            'JL' => 'Josh Lay',
+        ];
+        $superIds = [
+            'Dean Beringer' => '5',
+            'Andrew Cashmore' => '281',
+            'Philip Doughty' => '9',
+            'David Wahba' => '133',
+            'Jaimie Smith' => '538',
+            'Josh Lay' => '696',
+            'Aaron Graham' => '432',
+            'Damian Cook' => '2252',
+            'Jason Frazer' => '2216',
+            'Josh James' => '2215',
+            'Robert Ristevski' => '1065',
+            'Ross Thomson' => '1155',
+            'TO BE ALLOCATED' => 136,
+            'Gary Klomp' => '7',
+        ];
+        $siteStatus = ['1' => 'Active', '0' => 'Completed', '-1' => 'Upcoming', '2' => 'Maintenance', '-2' => 'Cancelled'];
+        $siteStatusColour = ['1' => 'color:#26c281', '0' => 'color:#555', '-1' => '', '2' => 'color:#f7ca18', '-2' => 'color:#d91e18'];
+        if (($handle = fopen(public_path("Jobs_for_Fudge.csv"), "r")) !== false) {
+            while (($data = fgetcsv($handle, 5000, ",")) !== false) {
+                $row++;
+                if ($row == 1) continue;
+                //echo $data[0];
+                $job = $data[1];
+                $super_initials = $data[6];
+                $super_name = $data[7];
+                $site = Site::where('code', $job)->first();
+                if ($site && $site->status != 1 && ($super_name || $super_initials) && $super_initials != 'X-Todd') {
+                    $textColour = $siteStatusColour[$site->status];
+
+                    if ($site->supervisor) {
+                        $sName = $site->supervisor->name;
+                        $sInit = $site->supervisor->initials;
+                    } else {
+                        echo "No SUPER: $site->name<br>";
+                        $sName = '';
+                        $sInit = '';
+                    }
+
+                    if ($super_name) {
+                        // Check for exact SuperName
+                        if ($sName != $super_name) {
+                            echo '<span style="' . $textColour . '">' . "$site->name: [$sName] <= [$super_name] &nbsp; (" . $siteStatus[$site->status] . ")</span><br>";
+                            if (isset($superIds[$super_name])) {
+                                $site->supervisor_id = $superIds[$super_name];
+                                $site->save();
+                            } else
+                                echo "***** SuperID Not Found ***<br>";
+                        }
+                    } elseif ($super_initials) {
+                        // Check for Same SuperInitials
+                        if ($sInit != $super_initials) {
+                            // Check for Deactived Zoho SuperInitials to SWS SuperName
+                            if (isset($superLookup[$super_initials])) {
+                                $super_name = $superLookup[$super_initials];
+                                if ($sName != $super_name) {
+                                    echo '<span style="' . $textColour . '">' . "$site->name: [$sName] <= [$super_name] &nbsp; (" . $siteStatus[$site->status] . ")</span><br>";
+                                    if (isset($superIds[$super_name])) {
+                                        $site->supervisor_id = $superIds[$super_name];
+                                        $site->save();
+                                    } else
+                                        echo "***** SuperID Not Found ***<br>";
+                                }
+
+                            } else {
+                                //echo "*** $site->name: [$super] <= [$super_initials] - [$super_name]<br>";
+                            }
+                        }
+                    }
+
+                }
+            }
+            fclose($handle);
+        }
+        echo "<br><br>Completed<br>-------------<br>";
     }
 }

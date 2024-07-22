@@ -778,6 +778,7 @@ Route::get('cron/rogue-todo', '\App\Http\Controllers\Misc\CronController@rogueTo
 // Import Data Routes
 Route::get('manage/import-payroll', '\App\Http\Controllers\Misc\PagesImportController@importPayroll');
 Route::get('manage/import-maintenance', '\App\Http\Controllers\Misc\PagesImportController@importMaintenance');
+Route::get('manage/import-supers', '\App\Http\Controllers\Misc\PagesImportController@importSiteSupervivors');
 Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesImportController@importQuestions');
 Route::get('manage/import-time-extensions', '\App\Http\Controllers\Misc\PagesController@importTimeExtensions');
 Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesImportController@initSuperChecklist');
