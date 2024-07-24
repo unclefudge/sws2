@@ -1489,22 +1489,28 @@ class SitePlannerController extends Controller
                 //
                 $site_supers = [];
                 // Add primary supervisor
-                if ($site->supervisor && $this->supervisor->status)
-                    $site_supers[$this->supervisor_id] = $this->supervisor->fullname;
+                if ($site_record->supervisor && $site_record->supervisor->status)
+                    $site_supers[$site_record->supervisor_id] = $site_record->supervisor->fullname;
                 // Add secondary supervisors
-                foreach ($site->supervisors as $user) {
+                foreach ($site_record->supervisors as $user) {
                     if ($user->status)
                         $site_supers[$user->id] = $user->fullname;
                 }
+                //if ($site_record->id == '710')
+                //    ray($site_supers);
+
                 // Add Maintenance Supervisors
-                $super_ids = SiteMaintenance::where('site_id', $site->id)->pluck('super_id')->toArray();
+                $super_ids = SiteMaintenance::where('site_id', $site_record->id)->pluck('super_id')->toArray();
                 foreach ($super_ids as $uid) {
                     $super = User::find($uid);
                     if ($super && $super->status)
                         $site_supers[$super->id] = $super->fullname;
                 }
                 asort($site_supers);
+                //if ($site_record->id == '710')
+                //    ray($site_supers);
                 $array['supervisors'] = $site_supers; //$site_record->supervisorsSelect();
+                //$array['supervisors'] = $site_record->supervisorsSelect();
                 $array['supervisors_contact'] = $site_record->supervisorsContactSBC();
 
 
