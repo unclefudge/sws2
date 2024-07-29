@@ -252,8 +252,8 @@ class SitePracCompletionController extends Controller
                 $prac->closeToDo();
 
                 // Update Site Status back to completed
-                $prac->site->status = 0;
-                $prac->site->save();
+                //$prac->site->status = 0;
+                //$prac->site->save();
 
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
