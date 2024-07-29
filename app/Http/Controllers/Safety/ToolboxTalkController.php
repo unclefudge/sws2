@@ -2,32 +2,31 @@
 
 namespace App\Http\Controllers\Safety;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Safety\ToolboxTalk;
-use App\Models\Company\Company;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Safety\ToolboxRequest;
+use App\Http\Utilities\Diff2;
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Requests\Safety\ToolboxRequest;
-use App\Http\Controllers\Controller;
-use App\Http\Utilities\Diff2;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Company\Company;
+use App\Models\Safety\ToolboxTalk;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class ToolboxTalkController
  * @package App\Http\Controllers\Safety
  */
-class ToolboxTalkController extends Controller {
+class ToolboxTalkController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -90,7 +89,7 @@ class ToolboxTalkController extends Controller {
             $talk->markOpened(Auth::user());  // Mark as opened for current user
 
         // Active or Archived
-        if (in_array($talk->status, [0, 1]))
+        if (in_array($talk->status, [0, 1, -1]))
             return view('safety/doc/toolbox/show', compact('talk'));
 
         // Draft or Pending - default to edit mode
@@ -149,7 +148,7 @@ class ToolboxTalkController extends Controller {
             return view('errors/404');
 
         // Draft / Pending mode
-        if (in_array($talk->status, [2,3]))
+        if (in_array($talk->status, [2, 3]))
             return view('safety/doc/toolbox/edit', compact('talk'));
 
         return redirect('/safety/doc/toolbox2/' . $talk->id);
@@ -185,7 +184,7 @@ class ToolboxTalkController extends Controller {
                 // Talk modified so increment version
                 if ($talk->name != request('name') || $mod_overview || $mod_hazards || $mod_controls || $mod_further) {
                     list($major, $minor) = explode('.', $talk->version);
-                    $minor ++;
+                    $minor++;
                     $tool_request['version'] = $major . '.' . $minor;
                 }
 
@@ -237,11 +236,11 @@ class ToolboxTalkController extends Controller {
             // Edit Active Toolbox with Users / Status
             //
             $todo_request = [
-                'type'       => 'toolbox',
-                'type_id'    => $id,
-                'name'       => 'Toolbox Talk - ' . request('name'),
-                'info'       => 'Please acknowledge you have read and understood the toolbox talk.',
-                'due_at'     => nextWorkDate(Carbon::today(), '+', 5)->toDateTimeString(),
+                'type' => 'toolbox',
+                'type_id' => $id,
+                'name' => 'Toolbox Talk - ' . request('name'),
+                'info' => 'Please acknowledge you have read and understood the toolbox talk.',
+                'due_at' => nextWorkDate(Carbon::today(), '+', 5)->toDateTimeString(),
                 'company_id' => request('for_company_id')
             ];
 
@@ -341,7 +340,7 @@ class ToolboxTalkController extends Controller {
 
             // Increment minor version
             list($major, $minor) = explode('.', $talk->version);
-            $minor ++;
+            $minor++;
             $tool_request['version'] = $major . '.' . $minor;
 
             $talk->update($request->all());
@@ -369,7 +368,7 @@ class ToolboxTalkController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
         }
         Toastr::success("Saved changes");
@@ -660,7 +659,7 @@ class ToolboxTalkController extends Controller {
         // Increment major version if copying from previous Talk or new talk is a Master Template
         if (!$master->master || $talk->master) {
             list($major, $minor) = explode('.', $master->version);
-            $major ++;
+            $major++;
             $talk->version = $major . '.0';
         } else
             $talk->version = $master->version;
