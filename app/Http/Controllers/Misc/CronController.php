@@ -1475,7 +1475,7 @@ class CronController extends Controller
                 echo "id[$id] $name<br>";
                 $log .= "id[$id] $name\n";
             }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
+            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au'] : [env('EMAIL_DEV')];
             Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));
         }
 

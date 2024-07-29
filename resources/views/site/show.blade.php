@@ -32,19 +32,19 @@
                     @include('site/_edit-client')
                 @endif
 
-                    {{-- Client Planner Email --}}
-                    @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
-                        @include('site/_show-clientemail')
-                    @endif
-            </div>
+                {{-- Client Planner Email --}}
+                @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                    @include('site/_show-clientemail')
+                @endif
 
-
-            <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Site Notes --}}
                 @if (Auth::user()->hasAnyPermissionType('site.note'))
                     @include('site/_show-notes')
                 @endif
+            </div>
 
+
+            <div class="col-lg-6 col-xs-12 col-sm-12">
                 {{-- Admin Details --}}
                 @if (Auth::user()->allowed2('view.site.admin', $site))
                     @include('site/_show-admin')
@@ -91,50 +91,51 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#roles").select2({placeholder: "Select one or more", width: '100%'});
-        $("#trades").select2({placeholder: "Select one or more", width: '100%'});
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#roles").select2({placeholder: "Select one or more", width: '100%'});
+            $("#trades").select2({placeholder: "Select one or more", width: '100%'});
+        });
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'site' || errors.FORM == 'client' || errors.FORM == 'admin' || errors.FORM == 'attendance' || errors.FORM == 'compliance') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'site' || errors.FORM == 'client' || errors.FORM == 'admin' || errors.FORM == 'attendance' || errors.FORM == 'compliance') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
+        }
 
-    console.log(errors)
-    @endif
+        console.log(errors)
+        @endif
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
 
-</script>
+    </script>
 @stop
