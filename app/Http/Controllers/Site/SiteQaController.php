@@ -335,7 +335,7 @@ class SiteQaController extends Controller
                 $site_list = Site::all()->pluck('id')->toArray();
             elseif (request('supervisor') == 'signoff') {
                 $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
-                $qa_list = SiteQa::where('status', 1)->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
+                $qa_list = SiteQa::whereIn('status', [1, 4])->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
             } else
                 $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
         } else

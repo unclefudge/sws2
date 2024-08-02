@@ -1072,7 +1072,7 @@ class CronController extends Controller
                     //$todo->emailToDo();
 
                     $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                    $mesg .= " - email sent to ianscottewin@gmail.com\n";
+                    $mesg .= " - email sent to ianscottewin@gmail.com, cc'ed michelle@capecod.com.au\n";
                     echo "$mesg<br>";
                     $log .= "$mesg\n";
                 }
