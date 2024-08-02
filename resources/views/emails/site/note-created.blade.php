@@ -10,7 +10,7 @@
 
 A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "**Response Required**" : '' !!}
 
-{{-- Costing fields --}}
+{{-- 15. Costing fields --}}
 @if ($note->category_id == '15')
 Credit/Extra: {{ $note->costing_extra_credit }}<br>
 New item/In Lie of: {{ $note->costing_item }}<br>
@@ -18,13 +18,19 @@ Priority: {{ $note->costing_priority }}<br>
 Room: {{ $note->costing_room }}<br>
 Location: {{ $note->costing_location }}<br>
 Description:<br>
-@elseif ($note->category_id == '16')
-{{-- Variation fields --}}
+@endif
+{{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
+@if (in_array($note->category_id, [16, 19, 20]))
 Name: {{ $note->variation_name }}<br>
 Description: {{ $note->variation_info }}<br>
-Cost:  {{ $note->variation_cost }}<br>
+@endif
+{{-- 16. + 19. additional fields --}}
+@if (in_array($note->category_id, [16, 19]))
+Net Cost:  {{ $note->variation_net }}<br>
+Gross  Cost:  {{ $note->variation_cost }}<br>
+Credit/Extra: {{ $note->costing_extra_credit }}<br>
 Total Extension Days: {{ $note->variation_days }}<br>
-Variation Breakup/Work Order Details:<br>
+Note:<br>
 @else
 Note:<br>
 @endif

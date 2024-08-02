@@ -7,6 +7,7 @@ use App\Http\Requests\Site\SiteQaRequest;
 use App\Jobs\SiteQaPdf;
 use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
@@ -219,6 +220,13 @@ class SiteQaController extends Controller
                 $qa_request['supervisor_sign_by'] = Auth::user()->id;
                 $qa_request['supervisor_sign_at'] = Carbon::now();
 
+                // Update QA to Active if not already
+                if ($qa->status != 1) {
+                    $action = Action::create(['action' => 'Moved report to Active', 'table' => 'site_qa', 'table_id' => $qa->id]);
+                    $qa->status = 1;
+                    $qa->save();
+                }
+
                 // Close any outstanding ToDos for supervisors and Create one for Area Super / Con Mgr
                 $qa->closeToDo(Auth::user());
                 if (!$qa->manager_sign_by) {
@@ -288,8 +296,13 @@ class SiteQaController extends Controller
             $item->save();
         } else {
             if ($item_request['status'] == 1 && $item->status != 1) {
+                // Item signed off
                 $item_request['sign_by'] = Auth::user()->id;
                 $item_request['sign_at'] = Carbon::now()->toDateTimeString();
+                // Update QA to Active if not already
+                if ($qa->status != 1)
+                    $qa->moveToActive(Auth::user());
+
             }
             $item->update($item_request);
         }

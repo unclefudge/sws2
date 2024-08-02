@@ -81,8 +81,8 @@
                                 @php($notes_label = 'Description')
                             @endif
 
-                            {{-- Variation fields --}}
-                            @if ($note->category_id == '16')
+                            {{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
+                            @if (in_array($note->category_id, [16, 19, 20]))
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -97,9 +97,13 @@
                                         </div>
                                     </div>
                                 </div>
+                            @endif
+
+                            {{-- 16. + 19. additional fields --}}
+                            @if (in_array($note->category_id, [16, 19]))
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
+                                        <div class="form-group">
                                             {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
                                             {!! Form::text('variation_net',  $note->variation_net, ['class' => 'form-control', 'readonly']) !!}
                                             {!! fieldErrorMessage('variation_net', $errors) !!}
@@ -111,6 +115,14 @@
                                             {!! Form::text('variation_cost', $note->variation_cost, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                            {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-5">
                                         <div class="form-group">
                                             {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label', 'readonly']) !!}
@@ -118,7 +130,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @php($notes_label = 'Variation Breakup/Work Order Details')
+                                @php($notes_label = 'Note')
                             @endif
 
                             {{-- Response Required --}}
