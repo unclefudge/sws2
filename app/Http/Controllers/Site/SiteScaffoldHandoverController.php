@@ -282,7 +282,7 @@ class SiteScaffoldHandoverController extends Controller
 
         $scaff_records = SiteScaffoldHandover::select([
             'site_scaffold_handover.id', 'site_scaffold_handover.site_id', 'site_scaffold_handover.inspector_name',
-            'site_scaffold_handover.handover_date', 'site_scaffold_handover.status',
+            'site_scaffold_handover.handover_date', 'site_scaffold_handover.status', 'site_scaffold_handover.created_at',
             DB::raw('DATE_FORMAT(site_scaffold_handover.handover_date, "%d/%m/%y") AS handoverdate'),
             DB::raw('sites.name AS sitename'), 'sites.code'])
             ->join('sites', 'site_scaffold_handover.site_id', '=', 'sites.id')
@@ -293,9 +293,13 @@ class SiteScaffoldHandoverController extends Controller
                 $edit = ($report->status == 1 ? '/edit' : '');
                 return ('<div class="text-center"><a href="/site/scaffold/handover/' . $report->id . $edit . '"><i class="fa fa-search"></i></a></div>');
             })
-            ->editColumn('sitename', function ($doc) {
-                $s = Site::find($doc->site_id);
+            ->editColumn('sitename', function ($report) {
+                $s = Site::find($report->site_id);
                 return "$s->name ($s->address, $s->suburb)";
+            })
+            ->addColumn('due_at', function ($report) {
+                $created_at = Carbon::createFromFormat('Y-m-d', $report->created_at->format('Y-m-d'));
+                return nextWorkDate($created_at, '+', 1)->format('d/m/Y');
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

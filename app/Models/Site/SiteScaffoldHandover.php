@@ -66,6 +66,26 @@ class SiteScaffoldHandover extends Model
 
     }
 
+    public function emailReportCreated()
+    {
+        $email_cc = [];
+
+        if (\App::environment('prod')) {
+            $email_to = [];
+            if (validEmail($this->site->supervisorEmail))
+                $email_to[] = $this->site->supervisorEmail;
+            $email_cc = ['ianscottewin@gmail.com', 'kirstie@capecod.com.au', 'michelle@capecod.com.au'];
+        } else
+            $email_to = [env('EMAIL_DEV')];
+
+
+        if ($email_to && $email_cc)
+            Mail::to($email_to)->cc([$email_cc])->send(new \App\Mail\Site\SiteScaffoldHandoverCreated($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverCreated($this));
+
+    }
+
     /**
      * Create ToDoo for Report and assign to given user(s)
      *//*

@@ -1066,13 +1066,13 @@ class CronController extends Controller
                     // Create ToDoo and assign to Site Supervisors
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers(1032); // Ian Ewin
-                    $todo->emailToDo('ASSIGNED', 'michelle@capecod.com.au');
+                    $todo->emailToDo('ASSIGNED');
 
-                    // Send additional email to Michelle
-                    //$todo->emailToDo();
+                    // Send email to Supervisor, Ian, Kirstie, Michelle
+                    $scaff->emailReportCreated();
 
                     $mesg = 'Creating ToDo task Scaffold Handover Certificate for ' . $task->site->name . "\n";
-                    $mesg .= " - email sent to ianscottewin@gmail.com, cc'ed michelle@capecod.com.au\n";
+                    $mesg .= " - email sent to ianscottewin@gmail.com\n";
                     echo "$mesg<br>";
                     $log .= "$mesg\n";
                 }
@@ -1450,7 +1450,7 @@ class CronController extends Controller
 
                 // Scaffold Handover
                 if ($todo->type == 'scaffold handover') {
-                    $scaffold_overdue[$todo->type_id] = $todo->name;
+                    $scaffold_overdue[$todo->type_id] = ['name' => $todo->name, 'due_at' => $todo->due_at->format('d/m/Y')];
                 }
             }
         }
@@ -1471,9 +1471,9 @@ class CronController extends Controller
         if ($scaffold_overdue) {
             echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
             $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n";
-            foreach ($scaffold_overdue as $id => $name) {
-                echo "id[$id] $name<br>";
-                $log .= "id[$id] $name\n";
+            foreach ($scaffold_overdue as $id => $array) {
+                echo "id[$id] " . $array['name'] . "<br>";
+                $log .= "id[$id] " . $array['name'] . "\n";
             }
             $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au'] : [env('EMAIL_DEV')];
             Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));

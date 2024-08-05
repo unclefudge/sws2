@@ -150,7 +150,9 @@ class SiteNoteController extends Controller
 
         // Variations
         elseif (in_array(request('category_id'), [16, 19])) { // Approved / For Issue to Client
-            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required', 'cc-1' => 'required'];
+            $rules = $rules + [
+                    'variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required',
+                    'variation_days' => 'required', 'variation_extra_credit' => 'required', 'cc-1' => 'required'];
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i")) {
                     $rules = $rules + ["cinfo-$i" => 'required'];

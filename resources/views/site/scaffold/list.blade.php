@@ -41,10 +41,12 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:" 5%
+                                "> #</th>
                                 <th> Site</th>
+                                <th style="width:10%"> Due Date</th>
                                 <th> Scaffolder</th>
-                                <th width="10%"> Handover Date</th>
+                                <th style="width:10%"> Handover Date</th>
                             </tr>
                             </thead>
                         </table>
@@ -88,6 +90,7 @@
             columns: [
                 {data: 'view', name: 'view', orderable: false, searchable: false},
                 {data: 'sitename', name: 'sites.name'},
+                {data: 'due_at', name: 'due_at', orderable: false, searchable: false},
                 {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
                 {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
             ],
