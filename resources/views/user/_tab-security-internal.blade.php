@@ -134,9 +134,12 @@ $rec = $user;
                 <table class="table table-bordered table-striped">
                     <tr>
                         <td>Company Record</td>
-                        <td width="30%" colspan="2"></td>
-                        <td width="15%">{!! permSelect('add.company', 'add', $rec, $cid, $dis) !!}</td>
-                        <td width="15%">{!! permSelect('del.company', 'arc', $rec, $cid, $dis) !!}</td>
+                        {{--}}<td width="30%" colspan="2"></td>--}}
+                        <td width="15%">{!! permSelect('view.company', 'all', $rec, $cid, $dis) !!}</td>
+                        <td width="15%">{!! permSelect('edit.company', 'all', $rec, $cid, $dis) !!}</td>
+                        <td width="30%" colspan="2">
+                        {{--}}<td width="15%">{!! permSelect('add.company', 'add', $rec, $cid, $dis) !!}</td>
+                        <td width="15%">{!! permSelect('del.company', 'arc', $rec, $cid, $dis) !!}</td>--}}
                         <td width="15%">&nbsp;</td>
                     </tr>
                     <tr>

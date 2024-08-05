@@ -167,8 +167,13 @@ class SiteNoteController extends Controller
         request()->validate($rules, $mesg); // Validate
         //dd(request()->all());
 
+        $note_request = request()->all();
+
+        if (request('variation_extra_credit'))
+            $note_request['costing_extra_credit'] = request('variation_extra_credit');
+
         // Create Site Note
-        $note = SiteNote::create(request()->all());
+        $note = SiteNote::create($note_request);
 
         // Handle attachments
         $attachments = request("filepond");
@@ -181,17 +186,17 @@ class SiteNoteController extends Controller
 
         // Create Variations Cost Items for Approved/For Issue
         if (in_array(request('category_id'), [16, 19])) {
-            $notes = "Cost Centres & Item Details\n-------------------------------\n";
+            //$notes = "Cost Centres & Item Details\n-------------------------------\n";
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i") && request("cinfo-$i")) {
                     $item = SiteNoteCost::create(['note_id' => $note->id, 'cost_id' => request("cc-$i"), 'details' => request("cinfo-$i")]);
-                    $cost = Category::find(request("cc-$i"));
-                    $notes .= "$cost->name: " . request("cinfo-$i") . "\n";
+                    //$cost = Category::find(request("cc-$i"));
+                    //$notes .= "$cost->name: " . request("cinfo-$i") . "\n";
                 }
             }
             // Prepend CostCentres to notes
-            $note->notes = "$notes\n$note->notes";
-            $note->save();
+            //$note->notes = "$notes\n$note->notes";
+            //$note->save();
         }
 
         //dd(request()->all());
@@ -394,7 +399,7 @@ class SiteNoteController extends Controller
 
         $dt = Datatables::of($records)
             ->editColumn('id', function ($note) {
-                return ('<div class="text-center"><a href="/site/note/' . $note->id . '"><i class="fa fa-search"></i></a></div>');
+                return ('<div class="text-center"><a href="/site/note/' . $note->id . '">' . $note->id . '</a></div>');
             })
             ->editColumn('updated_at', function ($note) {
                 return $note->updated_at->format('d/m/Y');

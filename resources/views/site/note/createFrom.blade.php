@@ -210,7 +210,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group {!! fieldHasError('notes', $errors) !!}">
                                         {!! Form::label('notes', 'Note', ['class' => 'control-label', 'id' => 'notes_label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '5', 'class' => 'form-control']) !!}
+                                        {!! Form::textarea('notes', $existing->notes, ['rows' => '5', 'class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('notes', $errors) !!}
                                     </div>
                                 </div>

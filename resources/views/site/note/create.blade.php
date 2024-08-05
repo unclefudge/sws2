@@ -84,10 +84,10 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
-                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
+                                        <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
+                                            {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                            {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
+                                            {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
                                         </div>
                                     </div>
                                 </div>

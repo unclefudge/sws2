@@ -373,6 +373,7 @@ class UserController extends Controller
         if (!Auth::user()->allowed2('edit.user.security', $user))
             return view('errors/404');
 
+        //dd(request()->all());
 
         // Update Security but ensure at least one user from company has security access
         $remove_security_access = true;

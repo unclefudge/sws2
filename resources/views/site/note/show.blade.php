@@ -130,6 +130,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-md-12"><b>Cost Centres & Item Details:</b></div>
+                                </div>
+                                {{-- Cost centre & Details --}}
+                                @foreach ($note->costs as $cost)
+                                    <div class="row">
+                                        <div class="col-md-3">{{$cost->category->name}}</div>
+                                        <div class="col-md-9">{{$cost->details}}</div>
+                                    </div>
+                                @endforeach
+                                <br>
                                 @php($notes_label = 'Note')
                             @endif
 

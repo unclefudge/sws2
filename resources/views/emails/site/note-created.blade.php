@@ -30,8 +30,13 @@ Net Cost:  {{ $note->variation_net }}<br>
 Gross  Cost:  {{ $note->variation_cost }}<br>
 Credit/Extra: {{ $note->costing_extra_credit }}<br>
 Total Extension Days: {{ $note->variation_days }}<br>
-Note:<br>
-@else
+<br>Cost Centres & Item Details:<br>
+@foreach ($note->costs as $cost)
+    {{$cost->category->name}}: {{$cost->details}}<br>
+@endforeach
+@endif
+{{-- Note for all categories except 15. --}}
+@if ($note->category_id != '15')
 Note:<br>
 @endif
 {!! nl2br2($note->notes)  !!}
