@@ -76,7 +76,7 @@
                             <div class="col-xs-12 text-center">
                                 <a href="/checkin" class="btn btn-lg dark hidden-sm hidden-xs"> Site Check-in </a>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -345,7 +345,7 @@
 
                             {{-- Open Site Incidents for CC admin/super --}}
                             <?php $count = 0 ?>
-                            @foreach(App\Models\Site\Incident\SiteIncident::where('status', '1')->get() as $doc)
+                            @foreach(App\Models\Site\Incident\SiteIncident::whereIn('status', ['1', '2'])->get() as $doc)
                                 @if(Auth::user()->allowed2('view.site.accident', $doc))
                                         <?php $count++ ?>
                                     @if ($count == 1)

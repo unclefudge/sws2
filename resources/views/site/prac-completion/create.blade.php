@@ -134,13 +134,8 @@
 
 
             function updateFields() {
-                
-            }
-        });
 
-        $('.date-picker').datepicker({
-            autoclose: true,
-            format: 'dd/mm/yyyy',
+            }
         });
     </script>
 @stop
