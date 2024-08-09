@@ -26,6 +26,7 @@
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
                         {!! Form::model('modal', ['action' => 'Site\SitePracCompletionController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <input type="hidden" id="item_count" value="5">
                         @include('form-error')
 
                         <div class="form-body">
@@ -67,10 +68,40 @@
                                     </div>
                                 @endfor
 
-                                {{-- Extra Items --}}
-                                <button class="btn blue" id="more">More Items</button>
-                                <div id="more_items" style="display: none">
-                                    @for ($i = 6; $i <= 20; $i++)
+                                {{-- Extra 5 Items --}}
+                                <button class="btn blue" id="more5">More Items</button>
+                                <div id="more_items5" style="display: none">
+                                    @for ($i = 6; $i <= 10; $i++)
+                                        <div class="row">
+                                            <div class="col-xs-1 ">Item {{$i}}</div>
+                                            <div class="col-xs-11 ">
+                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
+                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
+                                                    {!! fieldErrorMessage('item1', $errors) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
+                                    <button class="btn blue" id="more10">More Items</button>
+                                </div>
+                                {{-- Extra 10 Items --}}
+                                <div id="more_items10" style="display: none">
+                                    @for ($i = 11; $i <= 15; $i++)
+                                        <div class="row">
+                                            <div class="col-xs-1 ">Item {{$i}}</div>
+                                            <div class="col-xs-11 ">
+                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
+                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
+                                                    {!! fieldErrorMessage('item1', $errors) !!}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
+                                    <button class="btn blue" id="more15">More Items</button>
+                                </div>
+                                {{-- Extra 15 Items --}}
+                                <div id="more_items15" style="display: none">
+                                    @for ($i = 16; $i <= 20; $i++)
                                         <div class="row">
                                             <div class="col-xs-1 ">Item {{$i}}</div>
                                             <div class="col-xs-11 ">
@@ -126,10 +157,22 @@
                 updateFields();
             });
 
-            $("#more").click(function (e) {
+            $("#more5").click(function (e) {
                 e.preventDefault();
-                $('#more').hide();
-                $('#more_items').show();
+                $('#more5').hide();
+                $('#more_items5').show();
+            });
+
+            $("#more10").click(function (e) {
+                e.preventDefault();
+                $('#more10').hide();
+                $('#more_items10').show();
+            });
+
+            $("#more15").click(function (e) {
+                e.preventDefault();
+                $('#more15').hide();
+                $('#more_items15').show();
             });
 
 
