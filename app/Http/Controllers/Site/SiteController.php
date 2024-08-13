@@ -399,8 +399,8 @@ class SiteController extends Controller
         //echo "CMD: $cmd_run<br>"''
         exec($cmd_run, $output, $retval);
         //echo "Returned with status $retval and output:<br>";
-        print_r($output);
-        //return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
+        //print_r($output);
+        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
     }
 
     /**
