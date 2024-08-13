@@ -17,7 +17,6 @@ use nilsenj\Toastr\Facades\Toastr;
 use PDF;
 use Session;
 use Validator;
-use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Yajra\Datatables\Datatables;
 
 class SiteController extends Controller
@@ -400,7 +399,7 @@ class SiteController extends Controller
         exec($cmd_run, $output, $retval);
         //echo "Returned with status $retval and output:\n";
         //print_r($output);
-        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf")
+        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
     }
 
     /**
