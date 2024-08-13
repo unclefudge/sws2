@@ -140,10 +140,16 @@ class PagesController extends Controller
 
         $output = null;
         $retval = null;
-        exec('pwd', $output, $retval);
+        $cmd = 'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=';
+        $outfile = 'whs_out.pdf';
+        $master = 'WHS_Management_Plan_Master.pdf';
+        $cover = "period_trade_contract_conditions.pdf";
+        $cmd_run = $cmd . $outfile . " $cover $master";
+
+        exec($cmd_run, $output, $retval);
         echo "Returned with status $retval and output:\n";
         print_r($output);
-       
+
         /*
         echo "Update Site Eworks + Pworks<br>";
         $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
