@@ -370,13 +370,13 @@ class SiteController extends Controller
         //return view('pdf/site/whs-management-plan-cover', compact('site'));
         //return PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4')->stream();
         $pdf = PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4');
-        $cover = public_path("filebank/site/$site_id/docs/WHS Management Plan Cover.pdf");
+        $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
         if (file_exists($cover))
             unlink($cover);
         $pdf->save($cover);
 
         // Merge Cover page with Master document
-        $mergedPDF = PDFMerger::init();
+        /*$mergedPDF = PDFMerger::init();
         $master = public_path('WHS Management Plan.pdf');
         $mergedPDF->addPDF($cover, 'all');
         $mergedPDF->addPDF($master, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
@@ -384,7 +384,23 @@ class SiteController extends Controller
         $mergedPDF->merge();
         $mergedPDF->save(public_path("filebank/site/$site_id/docs/WHS Management Plan.pdf"));
 
-        return $mergedPDF->stream();
+        return $mergedPDF->stream();*/
+
+        // Use Exec and GhostScipt to merge Cover PDF with Master
+        $output = null;
+        $retval = null;
+        $cmd = 'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=';
+        //$outfile = 'whs_out.pdf';
+        $outfile = public_path("filebank/site/$site_id/docs/WHS_Management_Plan.pdf")
+        $master = public_path('WHS_Management_Plan_Master.pdf');
+        //$cover = "period_trade_contract_conditions.pdf";
+        $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
+        $cmd_run = $cmd . $outfile . " $cover $master";
+
+        exec($cmd_run, $output, $retval);
+        //echo "Returned with status $retval and output:\n";
+        //print_r($output);
+        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf")
     }
 
     /**
