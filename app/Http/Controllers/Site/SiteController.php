@@ -396,11 +396,11 @@ class SiteController extends Controller
         $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
         $cmd_run = $cmd . $outfile . " $cover $master";
 
-        echo "CMD: $cmd_run<br>"''
+        //echo "CMD: $cmd_run<br>"''
         exec($cmd_run, $output, $retval);
-        echo "Returned with status $retval and output:<br>";
+        //echo "Returned with status $retval and output:<br>";
         print_r($output);
-        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
+        //return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
     }
 
     /**
