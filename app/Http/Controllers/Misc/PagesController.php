@@ -138,21 +138,12 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "Start Job Planner tasks - TRADE<br><br>";
-        $plans = SitePlanner::where('entity_type', 't')->where('task_id', 11)->orderby('from')->get();
-        foreach ($plans as $plan) {
-            $assigned = ($plan->entity_type == 'c') ? $plan->company->name : 'none';
-            echo $plan->from->format('Y-m-d') . " : " . $plan->site->name . " ($assigned)<br>";
-        }
-
-        echo "<br><br>Start Job Planner tasks - COMPANY<br><br>";
-        $plans = SitePlanner::where('entity_type', 'c')->where('task_id', 11)->orderby('from')->get();
-        foreach ($plans as $plan) {
-            $assigned = ($plan->entity_type == 'c') ? $plan->company->name : 'none';
-            echo $plan->from->format('Y-m-d') . " : " . $plan->site->name . " ($assigned)<br>";
-        }
-
-
+        $output = null;
+        $retval = null;
+        exec('pwd', $output, $retval);
+        echo "Returned with status $retval and output:\n";
+        print_r($output);
+       
         /*
         echo "Update Site Eworks + Pworks<br>";
         $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
