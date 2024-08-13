@@ -391,7 +391,7 @@ class SiteController extends Controller
         $retval = null;
         $cmd = 'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=';
         //$outfile = 'whs_out.pdf';
-        $outfile = public_path("filebank/site/$site_id/docs/WHS_Management_Plan.pdf")
+        $outfile = public_path("filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
         $master = public_path('WHS_Management_Plan_Master.pdf');
         //$cover = "period_trade_contract_conditions.pdf";
         $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
