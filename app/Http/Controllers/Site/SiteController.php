@@ -379,7 +379,7 @@ class SiteController extends Controller
         $mergedPDF = PDFMerger::init();
         $master = public_path('WHS Management Plan.pdf');
         $mergedPDF->addPDF($cover, 'all');
-        $mergedPDF->addPDF($master, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+        $mergedPDF->addPDF($master, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 
         $mergedPDF->merge();
         $mergedPDF->save(public_path("filebank/site/$site_id/docs/WHS Management Plan.pdf"));
