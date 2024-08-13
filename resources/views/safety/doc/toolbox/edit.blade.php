@@ -211,9 +211,8 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <!-- <script src="/ckeditor/ckeditor.js" type="text/javascript"></script> -->
-    <!-- <script src="https://cdn.ckeditor.com/4.7.0/standard-all/ckeditor.js"></script> -->
     <script src="https://cdn.ckeditor.com/4.7.0/standard-all/ckeditor.js"></script>
+    {{--}}<script src="https://cdn.ckeditor.com/4.24.0-lts/standard-all/ckeditor.js"></script>--}}
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
 @stop
 
@@ -222,121 +221,122 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        header: $('meta[name="_token"]').attr('content')
-    })
-
-    CKEDITOR.replace('ck_overview', {
-        customConfig: '/js/libs/ckeditor/customConfig.js',
-    });
-
-    CKEDITOR.replace('ck_hazards', {
-        customConfig: '/js/libs/ckeditor/customConfig.js',
-    });
-
-    CKEDITOR.replace('ck_controls', {
-        customConfig: '/js/libs/ckeditor/customConfig.js',
-    });
-
-    CKEDITOR.replace('ck_further', {
-        customConfig: '/js/libs/ckeditor/customConfig.js',
-        height: 200, // Make the editing area bigger than default.
-        /*toolbar: [
-         { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
-         { name: 'styles', items: [ 'Styles', 'Format' ] },
-         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
-         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
-         { name: 'links', items: [ 'Link', 'Unlink' ] },
-         { name: 'insert', items: [ 'Image', 'EmbedSemantic', 'Table' ] },
-         { name: 'tools', items: [ 'Maximize' ] },
-         { name: 'editing', items: [ 'Scayt' ] },
-         { name: 'document', items: [ 'Source' ] }
-         ],
-         customConfig: '',
-         extraPlugins: 'autoembed,embedsemantic,image2,',//uploadimage,uploadfile',
-         removePlugins: 'image', // Remove the default image plugin because image2, which offers captions for images*/
-    });
-
-
-    $('#name-show').on('click', function () {
-        $('#name-show').hide();
-        $('#name-edit').show();
-    });
-
-    $('#talk_form').on('submit', function (e) {
-        e.preventDefault(e);
-        submit_form();
-    });
-
-    $('#active').on('click', function () {
-        $('#status').val(1);
-        submit_form();
-    });
-
-    $('#continue').on('click', function () {
-        $('#status').val(1);
-        submit_form();
-    });
-
-    $('#upload_media').on('click', function () {
-        $('#overview').val(CKEDITOR.instances.ck_overview.getData());
-        $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
-        $('#controls').val(CKEDITOR.instances.ck_controls.getData());
-        $('#further').val(CKEDITOR.instances.ck_further.getData());
-        $.ajax({
-            type: "POST",
-            url: '/safety/doc/toolbox2/' + $('#talk_id').val(),
-            data: $("#talk_form").serialize(),
-            dataType: 'json',
-            success: function (data) {
-                document.getElementById('upload_form').submit();
-            },
-            error: function (data) {
-                alert('Failed to upload media talk id:' + $('#talk_id').val());
-            }
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            header: $('meta[name="_token"]').attr('content')
         })
-    });
 
-    function submit_form() {
-        $('#overview').val(CKEDITOR.instances.ck_overview.getData());
-        $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
-        $('#controls').val(CKEDITOR.instances.ck_controls.getData());
-        $('#further').val(CKEDITOR.instances.ck_further.getData());
-        $.ajax({
-            type: "POST",
-            url: '/safety/doc/toolbox2/' + $('#talk_id').val(),
-            data: $("#talk_form").serialize(),
-            dataType: 'json',
-            success: function (data) {
-                window.location = "/safety/doc/toolbox2/" + $('#talk_id').val() + '/edit';
-            },
-            error: function (data) {
-                ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
-                swal({
-                    title: 'Failed to save Toolbox',
-                    text: "<b>We apologise but we were unable to save your Toolbox Talk (id:"+$('#talk_id').val()+")<br><br>Please try again but if the problem persists let us know.</b>",
-                    html: true
-                });
-            }
-        })
-    }
+        CKEDITOR.replace('ck_overview', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
 
-    /* Bootstrap Fileinput */
-    $("#singlefile").fileinput({
-        showUpload: false,
-        previewFileType: "image",
-        //allowedFileExtensions: ['gif', 'jpg', 'png'],
-        browseClass: "btn blue",
-        browseLabel: "Browse",
-        browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-        //removeClass: "btn btn-danger",
-        removeLabel: "",
-        removeIcon: "<i class=\"fa fa-trash\"></i> ",
-        uploadClass: "btn btn-info",
-    });
-</script>
+        CKEDITOR.replace('ck_hazards', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
+
+        CKEDITOR.replace('ck_controls', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
+
+        CKEDITOR.replace('ck_further', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+            height: 200, // Make the editing area bigger than default.
+            /*toolbar: [
+             { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+             { name: 'styles', items: [ 'Styles', 'Format' ] },
+             { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
+             { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
+             { name: 'links', items: [ 'Link', 'Unlink' ] },
+             { name: 'insert', items: [ 'Image', 'EmbedSemantic', 'Table' ] },
+             { name: 'tools', items: [ 'Maximize' ] },
+             { name: 'editing', items: [ 'Scayt' ] },
+             { name: 'document', items: [ 'Source' ] }
+             ],
+             customConfig: '',
+             extraPlugins: 'autoembed,embedsemantic,image2,',//uploadimage,uploadfile',
+             removePlugins: 'image', // Remove the default image plugin because image2, which offers captions for images*/
+        });
+
+
+        $('#name-show').on('click', function () {
+            $('#name-show').hide();
+            $('#name-edit').show();
+        });
+
+        $('#talk_form').on('submit', function (e) {
+            e.preventDefault(e);
+            submit_form();
+        });
+
+        $('#active').on('click', function () {
+            $('#status').val(1);
+            submit_form();
+        });
+
+        $('#continue').on('click', function () {
+            $('#status').val(1);
+            submit_form();
+        });
+
+        $('#upload_media').on('click', function () {
+            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
+            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
+            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
+            $('#further').val(CKEDITOR.instances.ck_further.getData());
+            $.ajax({
+                type: "POST",
+                url: '/safety/doc/toolbox2/' + $('#talk_id').val(),
+                data: $("#talk_form").serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    document.getElementById('upload_form').submit();
+                },
+                error: function (data) {
+                    alert('Failed to upload media talk id:' + $('#talk_id').val());
+                }
+            })
+        });
+
+        function submit_form() {
+            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
+            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
+            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
+            $('#further').val(CKEDITOR.instances.ck_further.getData());
+            $.ajax({
+                type: "POST",
+                url: '/safety/doc/toolbox2/' + $('#talk_id').val(),
+                data: $("#talk_form").serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    window.location = "/safety/doc/toolbox2/" + $('#talk_id').val() + '/edit';
+                },
+                error: function (data) {
+                    ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
+                    swal({
+                        title: 'Failed to save Toolbox',
+                        text: "<b>We apologise but we were unable to save your Toolbox Talk (id:" + $('#talk_id').val() + ")<br><br>Please try again but if the problem persists let us know.</b>",
+                        html: true
+                    });
+                }
+            })
+        }
+
+        /* Bootstrap Fileinput */
+        $("#singlefile").fileinput({
+            showUpload: false,
+            previewFileType: "image",
+            //allowedFileExtensions: ['gif', 'jpg', 'png'],
+            browseClass: "btn blue",
+            browseLabel: "Browse",
+            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+            //removeClass: "btn btn-danger",
+            removeLabel: "",
+            removeIcon: "<i class=\"fa fa-trash\"></i> ",
+            uploadClass: "btn btn-info",
+        });
+    </script>
 @stop
 

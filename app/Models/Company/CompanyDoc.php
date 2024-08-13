@@ -144,6 +144,7 @@ class CompanyDoc extends Model
         if ($user_list) {
             $todo = Todo::create($todo_request);
             $todo->assignUsers($user_list);
+            ray($user_list);
             $todo->emailToDo();
 
             if (\App::environment('prod')) {

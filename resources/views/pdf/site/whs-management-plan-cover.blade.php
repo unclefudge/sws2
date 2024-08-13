@@ -108,18 +108,18 @@
             </tr>
             <tr>
                 <td class="pad5" width="40%" style="border-top: none; border-left: 1px solid #111">CONSTRUCTION SITE SUPERVISOR</td>
-                <td class="pad5" width="20%" style="border-top: none;">{!! ($site->supervisors()->first()) ? $site->supervisors()->first()->name : '' !!}</td>
-                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {!! ($site->supervisors()->first()) ? $site->supervisors()->first()->phone : '' !!}</td>
+                <td class="pad5" width="20%" style="border-top: none;">{!! ($site->supervisor) ? $site->supervisor->name : '' !!}</td>
+                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {!! ($site->supervisor) ? $site->supervisor->phone : '' !!}</td>
             </tr>
             <tr>
-                <td class="pad5" width="40%" style="border-top: none; border-left: 1px solid #111">CONSTRUCTION MANAGER</td>
-                <td class="pad5" width="20%" style="border-top: none;">{{ \App\User::find(7)->name }}</td>
-                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {{ \App\User::find(7)->phone }}</td>
+                <td class="pad5" width="40%" style="border-top: none; border-left: 1px solid #111">MANAGING DIRECTOR</td>
+                <td class="pad5" width="20%" style="border-top: none;">{{ \App\User::find(1155)->name }}</td>
+                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {{ \App\User::find(1155)->phone }}</td>
             </tr>
             <tr>
-                <td class="pad5" width="40%" style="border-top: none; border-left: 1px solid #111">WHS & HR MANAGER</td>
-                <td class="pad5" width="20%" style="border-top: none;">{{ \App\User::find(351)->name }}</td>
-                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {{ \App\User::find(351)->phone }}</td>
+                <td class="pad5" width="40%" style="border-top: none; border-left: 1px solid #111">GENERAL MANAGER</td>
+                <td class="pad5" width="20%" style="border-top: none;">{{ \App\User::find(108)->name }}</td>
+                <td class="pad5" style="border-top: none; border-right: 1px solid #111">PH: {{ \App\User::find(108)->phone }}</td>
             </tr>
             <tr>
                 <td class="pad5" style="border-top: none; border-left: 1px solid #111;  border-right: 1px solid #111;" colspan="3"><h5 style="text-align: center;">IN THE EVENT OF AN EMERGENCY CALL 000</h5></td>
@@ -133,7 +133,7 @@
         </table>
         <table class="table" style="padding: 0px; margin: 0px">
             <tr>
-                <td class="pad5" width="20%" style="border-top: 1px solid #111; border-left: 1px solid #111"><b>I.D</b></td>
+                <td class="pad5" width="20%" style="border-top: 1px solid #111; border-left: 1px solid #111"><b>SITE REF</b></td>
                 <td class="pad5" style="border-top: 1px solid #111; border-right: 1px solid #111">{{ $site->name }}</td>
             </tr>
         </table>
@@ -179,6 +179,26 @@
                 <td class="pad5" width="20%" style="border: 1px solid #111">12/05/2022</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Revision of responsibilities (WHS Officer, Maintenance & Construction)</td>
+            </tr>
+            <tr>
+                <td class="pad5" width="20%" style="border: 1px solid #111">23/08/2022</td>
+                <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
+                <td class="pad5" style="border: 1px solid #111">Update to site rules</td>
+            </tr>
+            <tr>
+                <td class="pad5" width="20%" style="border: 1px solid #111">01/12/2022</td>
+                <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
+                <td class="pad5" style="border: 1px solid #111">Removal of Covid-19 Risk references and requirements as repealed under the Public Health Order</td>
+            </tr>
+            <tr>
+                <td class="pad5" width="20%" style="border: 1px solid #111">13/09/2023</td>
+                <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
+                <td class="pad5" style="border: 1px solid #111">Inclusion of Acid Sulphate Soils management scope</td>
+            </tr>
+            <tr>
+                <td class="pad5" width="20%" style="border: 1px solid #111">05/12/2023</td>
+                <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
+                <td class="pad5" style="border: 1px solid #111">Reassignment of Managing Director references and responsibilities</td>
             </tr>
         </table>
     </div>

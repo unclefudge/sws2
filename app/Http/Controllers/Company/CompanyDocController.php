@@ -234,10 +234,17 @@ class CompanyDocController extends Controller
             // Create approval ToDoo
             if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
                 $userlist = $doc->owned_by->notificationsUsersTypeArray('doc.' . $doc->category->type . '.approval');
+                ray('initial list');
+                ray($userlist);
 
                 // For CC specific docs include doc.cc.approval users to ToDoo as well
                 if ($doc->for_company_id == '3')
                     $userlist = array_merge($userlist, $doc->owned_by->notificationsUsersTypeArray('doc.cc.approval'));
+                ray('cc list');
+                ray($doc->owned_by->notificationsUsersTypeArray('doc.cc.approval'));
+
+                ray('merge list');
+                ray($userlist);
                 $doc->createApprovalToDo($userlist);
             }
         }
