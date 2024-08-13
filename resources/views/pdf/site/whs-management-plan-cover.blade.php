@@ -151,52 +151,52 @@
         </table>
         <table class="table" style="padding: 0px; margin: 0px; border: 1px solid #111">
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111; background-color: #DDD;"><b>REVISION DATE</b></td>
+                <td class="pad5" width="17%" style="border: 1px solid #111; background-color: #DDD;"><b>REVISION DATE</b></td>
                 <td class="pad5" width="20%" style="border: 1px solid #111; background-color: #DDD;"><b>AUTHOR</b></td>
                 <td class="pad5" style="border: 1px solid #111; background-color: #DDD;"><b>DETAILS</b></td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">16/06/2018</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">16/06/2018</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111:">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">New template</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">29/09/2019</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">29/09/2019</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Code of Practice updates</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">17/03/2020</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">17/03/2020</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Include Covid-19 Risk Management Principles</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">30/06/2021</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">30/06/2021</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Covid-19 QR Code requirements</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">12/05/2022</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">12/05/2022</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Revision of responsibilities (WHS Officer, Maintenance & Construction)</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">23/08/2022</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">23/08/2022</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Update to site rules</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">01/12/2022</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">01/12/2022</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Removal of Covid-19 Risk references and requirements as repealed under the Public Health Order</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">13/09/2023</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">13/09/2023</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Inclusion of Acid Sulphate Soils management scope</td>
             </tr>
             <tr>
-                <td class="pad5" width="20%" style="border: 1px solid #111">05/12/2023</td>
+                <td class="pad5" width="17%" style="border: 1px solid #111">05/12/2023</td>
                 <td class="pad5" width="20%" style="border: 1px solid #111">Tara Antoniolli</td>
                 <td class="pad5" style="border: 1px solid #111">Reassignment of Managing Director references and responsibilities</td>
             </tr>
