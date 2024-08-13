@@ -72,7 +72,7 @@
     <!-- Cover Page -->
     <div class="roundcorners">
         <p style="padding-top: 50px"></p>
-        <p style="text-align: center"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png"></p>
+        <p style="text-align: center"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="150"></p>
         <p style="margin-top: 100px"></p>
         <p style="text-align: center; font-size: 30px; font-weight: 200">WHS Management Plan</p>
         <p style="padding-top: 100px"></p>
