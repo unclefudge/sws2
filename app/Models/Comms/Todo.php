@@ -353,7 +353,7 @@ class Todo extends Model
     public function emailToDo($email_to = '', $email_cc = '')
     {
         if (\App::environment('prod')) {
-            if (!$email_to || $email_to = 'ASSIGNED') {
+            if (!$email_to || $email_to == 'ASSIGNED') {
                 $email_to = [];
                 foreach ($this->assignedTo() as $user) {
                     if (validEmail($user->email))

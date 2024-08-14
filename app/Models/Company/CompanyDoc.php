@@ -144,14 +144,11 @@ class CompanyDoc extends Model
         if ($user_list) {
             $todo = Todo::create($todo_request);
             $todo->assignUsers($user_list);
-            ray($user_list);
             $todo->emailToDo();
 
             if (\App::environment('prod')) {
-                if ($this->category->type == 'whs')
-                    $todo->emailToDo(['kirstie@capecod.com.au']);
-                else
-                    $todo->emailToDo('kirstie@capecod.com.au');
+                // Send Kirstie a copy of Company Doc Approval ToDoo task as well
+                $todo->emailToDo('kirstie@capecod.com.au');
             }
         }
     }
