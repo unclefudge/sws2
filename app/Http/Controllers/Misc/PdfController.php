@@ -3,24 +3,14 @@
 namespace App\Http\Controllers\Misc;
 
 
-use PDF;
-use Illuminate\Support\Facades\App;
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
 use App\Models\Safety\WmsDoc;
 use App\Models\Site\Site;
-use App\Models\Site\Planner\SitePlanner;
-use App\User;
-use App\Models\Site\Planner\Task;
-use App\Models\Site\Planner\Trade;
-use App\Models\Company\Company;
-use App\Models\Company\CompanyLeave;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
+use PDF;
 
-class PdfController extends Controller {
+class PdfController extends Controller
+{
 
     public function test()
     {
@@ -39,6 +29,7 @@ class PdfController extends Controller {
             unlink($file);
         $pdf->save($file);
         return $pdf->stream();
+        
         //return $pdf->download('invoice.pdf');
         //PDF::loadHTML($html)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0)->save('myfile.pdf')
     }
