@@ -8,7 +8,7 @@
 
 # Practical Completion Completed
 
-A prac completion has been completed for {{ $prac->site->name }}.
+The Prac List Items for {{ $prac->site->name }} have now been completed for you to process your next steps.
 
 |                       |        |
 | ---------------------:|--------|

@@ -219,7 +219,7 @@ class SitePracCompletionController extends Controller
     /**
      * Update Status the specified resource in storage.
      */
-    public function updateReport(Request $request, $id)
+    public function updateReport($id)
     {
         $prac = SitePracCompletion::findOrFail($id);
 
@@ -228,11 +228,11 @@ class SitePracCompletionController extends Controller
             return view('errors/404');
 
         // Only Allow Ajax requests
-        if ($request->ajax()) {
-            $prac_request = $request->all();
+        if (request()->ajax()) {
+            $prac_request = request()->all();
 
             // Determine if report being signed off
-            $signoff = $request->get('signoff');
+            $signoff = request('signoff');
             if ($signoff == 'super') {
                 $prac_request['supervisor_sign_by'] = Auth::user()->id;
                 $prac_request['supervisor_sign_at'] = Carbon::now();
@@ -250,10 +250,6 @@ class SitePracCompletionController extends Controller
                 $prac_request['manager_sign_at'] = Carbon::now();
                 // Close any outstanding ToDos for Area Super / Con Mgr
                 $prac->closeToDo();
-
-                // Update Site Status back to completed
-                //$prac->site->status = 0;
-                //$prac->site->save();
 
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 

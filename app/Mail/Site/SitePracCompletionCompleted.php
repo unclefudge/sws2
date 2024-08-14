@@ -32,6 +32,6 @@ class SitePracCompletionCompleted extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->markdown('emails/site/prac-completion-completed')->subject('SafeWorksite - Prac Completion completed');
+        return $this->markdown('emails/site/prac-completion-completed')->subject($this->prac->site->name . ' - Prac Completion Items have now been Completed');
     }
 }

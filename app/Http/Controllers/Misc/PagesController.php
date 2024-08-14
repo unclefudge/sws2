@@ -146,7 +146,7 @@ class PagesController extends Controller
         $cover = "period_trade_contract_conditions.pdf";
         $cmd_run = $cmd . $outfile . " $cover $master";
 
-        exec($cmd_run, $output, $retval);
+        //exec($cmd_run, $output, $retval);
         echo "Returned with status $retval and output:\n";
         print_r($output);
 
