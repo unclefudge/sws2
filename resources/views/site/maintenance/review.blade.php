@@ -250,6 +250,8 @@
                                                         @endforeach
                                                         <optgroup label="External Users"></optgroup>
                                                         <option value="2023" {{ ('75' == $main->super_id) ? 'selected' : '' }}>Jason Habib (Prolific Projects)</option>
+                                                        <optgroup label="Not in Warranty"></optgroup>
+                                                        <option value="declined">Decline request (not in warranty)</option>
                                                     </select>
                                                     {!! fieldErrorMessage('super_id', $errors) !!}
                                                 </div>

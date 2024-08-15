@@ -275,36 +275,6 @@ class SiteMaintenanceController extends Controller
 
         //dd($main_request);
 
-        // Supervisor Assigned
-        if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
-            $super = User::find(request('super_id'));
-            $main_request['step'] = 0;
-            $main_request['status'] = 1; // Set status to active
-            $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
-            $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
-            Toastr::success("Assigned Request");
-
-            $main->closeToDo();   // Delete Construction Mgr Todoo
-            $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
-
-            // Update Site with new Maintenance Supervisor
-            $main->site->supervisor_id = request('super_id');
-            $main->site->save();
-
-            // Add to Client Visit planner
-            /*
-            $newPlanner = SitePlanner::create(array(
-                'site_id'     => $main->site_id,
-                'from'        => $visit_date->format('Y-m-d') . ' 00:00:00',
-                'to'          => $visit_date->format('Y-m-d') . ' 00:00:00',
-                'days'        => 1,
-                'entity_type' => 'c',
-                'entity_id'   => request('company_id'),
-                'task_id'     => '524' // Client Visit
-            ));*/
-
-        }
-
         // Update Items
         $item1 = $main->items->first();
         if ($item1->name != request("item1")) { // Items updated
@@ -330,11 +300,6 @@ class SiteMaintenanceController extends Controller
 
         }
 
-
-        //dd($main_request);
-        $main->update($main_request);
-        Toastr::success("Updated Request");
-
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
@@ -342,10 +307,51 @@ class SiteMaintenanceController extends Controller
                 $main->saveAttachment($tmp_filename);
         }
 
-        // Email Assigned Supervisor
+        // Supervisor Assigned
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
-            $main->emailAssigned($super);
+            $main_request['step'] = 0;
+            $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
+            $main->closeToDo();   // Delete Construction Mgr Todoo
+
+            if (request('super_id') == 'declined') {
+                // Request declined
+                $main_request['status'] = '-1'; // Set status to declined
+                $action = Action::create(['action' => "Request declines as Not in Warranity", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                Toastr::success("Request declined");
+
+            } else {
+                // Request assigned to Supervisor
+                $super = User::find(request('super_id'));
+                $main_request['status'] = 1; // Set status to active
+                $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                Toastr::success("Assigned Request");
+
+                $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
+                $main->emailAssigned($super);  // Email Assigned Supervisor
+
+                // Update Site with new Maintenance Supervisor
+                //$main->site->supervisor_id = request('super_id');
+                //$main->site->save();
+
+                // Add to Client Visit planner
+                /*
+                $newPlanner = SitePlanner::create(array(
+                    'site_id'     => $main->site_id,
+                    'from'        => $visit_date->format('Y-m-d') . ' 00:00:00',
+                    'to'          => $visit_date->format('Y-m-d') . ' 00:00:00',
+                    'days'        => 1,
+                    'entity_type' => 'c',
+                    'entity_id'   => request('company_id'),
+                    'task_id'     => '524' // Client Visit
+                ));*/
+            }
+
         }
+
+        //dd($main_request);
+        $main->update($main_request);
+        Toastr::success("Updated Request");
+
 
         return (request('status') == 2) ? redirect('site/maintenance/' . $main->id . '/edit') : redirect('site/maintenance/' . $main->id);
     }

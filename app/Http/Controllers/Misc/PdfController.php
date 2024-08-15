@@ -29,7 +29,7 @@ class PdfController extends Controller
             unlink($file);
         $pdf->save($file);
         return $pdf->stream();
-        
+
         //return $pdf->download('invoice.pdf');
         //PDF::loadHTML($html)->setPaper('a4')->setOrientation('landscape')->setOption('margin-bottom', 0)->save('myfile.pdf')
     }
