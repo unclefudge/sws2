@@ -316,7 +316,7 @@ class SiteMaintenanceController extends Controller
             if (request('super_id') == 'declined') {
                 // Request declined
                 $main_request['status'] = '-1'; // Set status to declined
-                $action = Action::create(['action' => "Request declines as Not in Warranity", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                $action = Action::create(['action' => "Request declined as Not in Warranity", 'table' => 'site_maintenance', 'table_id' => $main->id]);
                 Toastr::success("Request declined");
 
             } else {
