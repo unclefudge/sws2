@@ -366,7 +366,8 @@
                                     <div class="col-sm-3 text-right">Report Sent to Client:</div>
                                     <div class="col-sm-9">
                                         <div class="col-md-6">
-                                            @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator'))
+                                            {{-- Alethea --}}
+                                            @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator') || Auth::user()->id == 464 ))
                                                 <div class="form-group {!! fieldHasError('sent2_client', $errors) !!}">
                                                     {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'sent2_client']) !!}
                                                 </div>

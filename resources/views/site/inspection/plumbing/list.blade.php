@@ -60,7 +60,7 @@
         @endif
 
 
-        {{-- Under Review --}}
+        {{-- Pending --}}
         @if (Auth::user()->isCC() && $pending->count())
             <div class="row">
                 <div class="col-md-12">
@@ -73,15 +73,17 @@
                         </div>
 
                         <div>
-                            <table class="table table-striped table-bordered table-hover order-column" id="under_review">
+                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
                                 <thead>
                                 <tr class="mytable-header">
                                     <th width="5%"> #</th>
                                     <th width="10%"> Created</th>
                                     <th> Name</th>
-                                    <th width="10%"></th>
+                                    <th width="10%"> Assigned</th>
+                                    <th> Assigned to</th>
+                                    <th width="5%"></th>
                                 </tr>
-                                </thead>
+                                </thead>{{--}}
                                 @foreach ($pending as $report)
                                     <tr>
                                         <td>
@@ -89,6 +91,8 @@
                                         </td>
                                         <td> {{ $report->created_at->format('d/m/Y') }}</td>
                                         <td> {{ $report->site->name }}</td>
+                                        <td> {{ $report->assigned_at->format('d/m/Y') }}</td>
+                                        <td> {{ $report->assignedTO->name }}</td>
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.inspection', $report))
                                                 <a href="/site/inspection/plumbing/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
@@ -98,7 +102,7 @@
                                             @endif
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endforeach--}}
                             </table>
                         </div>
                     </div>
@@ -265,6 +269,34 @@
             $('select#assigned_to').change(function () {
                 table1.ajax.reload();
             });
+
+            // Pending Review
+            var table2 = $('#table2').DataTable({
+                pageLength: 100,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    'url': '{!! url('site/inspection/plumbing/dt/list') !!}',
+                    'type': 'GET',
+                    'data': function (d) {
+                        d.status = '3';
+                        d.assigned_to = 'all';
+                    }
+                },
+                columns: [
+                    {data: 'view', name: 'view', orderable: false, searchable: false},
+                    {data: 'nicedate', name: 'site_inspection_plumbing.created_at'},
+                    {data: 'sitename', name: 'sites.name'},
+                    {data: 'assigned_date', name: 'site_inspection_plumbing.assigned_at'},
+                    {data: 'assigned_to', name: 'assigned_to', searchable: false},
+                    //{data: 'client_date', name: 'site_inspection_plumbing.client_contacted'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ],
+                order: [
+                    [2, "desc"]
+                ]
+            });
+
 
             // Warning message for deleting report
             $('.delete-report').click(function (e) {

@@ -467,10 +467,16 @@ class SiteInspectionPlumbingController extends Controller
      */
     public function getInspections()
     {
-        if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
-            $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
-        else
-            $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
+        $status = request('status');
+        if ($status == 3) {
+            // Pending
+            $inpect_ids = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->pluck('id')->toArray();
+        } else {
+            if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
+                $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
+            else
+                $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
+        }
 
         $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
         if (request('assigned_to') != 'all')
@@ -487,7 +493,7 @@ class SiteInspectionPlumbingController extends Controller
             DB::raw('sites.name AS sitename'), 'sites.code',
         ])
             ->join('sites', 'site_inspection_plumbing.site_id', '=', 'sites.id')
-            ->where('site_inspection_plumbing.status', '=', request('status'))
+            ->where('site_inspection_plumbing.status', '=', $status)
             ->whereIn('site_inspection_plumbing.assigned_to', $assigned)
             ->whereIn('site_inspection_plumbing.id', $inpect_ids);
 
@@ -508,11 +514,16 @@ class SiteInspectionPlumbingController extends Controller
             })
             ->addColumn('action', function ($inspect) {
                 $r = SiteInspectionPlumbing::find($inspect->id);
+                $string = '';
+                //if ($r->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report)) {
+                //$string .= "" < a href = "/site/inspection/plumbing/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom" ><i class="fa fa-pencil" ></i > Edit</a >
+                //    $string .= '<button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom btn-delete"><i class="fa pencil"> Editr</i></button>';
+                //}
                 if (Auth::user()->allowed2("del.site.inspection", $r)) {
-                    return '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-id="' . $r->id . '" data-name="' . $r->site->name . '"><i class="fa fa-trash"></i></button>';
+                    $string .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete" data-id="' . $r->id . '" data-name="' . $r->site->name . '"><i class="fa fa-trash"></i></button>';
                 }
 
-                return '';
+                return $string;
             })
             ->rawColumns(['view', 'action'])
             ->make(true);
