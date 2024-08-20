@@ -490,14 +490,14 @@ class CronReportController extends Controller
         // Scaffold Handover for Ashbys
         //
         $scaffold_overdue = [];
-        $today = Carbon::now()->format('Y-m-d');
+        $today = Carbon::now();
         $jan2024 = Carbon::createFromFormat('Y-m-d', '2024-01-01');
         $found_tasks = 0;
 
         //
         // Erect Scaffold - taskid: 116
         //
-        $plans = SitePlanner::whereDate('from', '>', $jan2024)->where('task_id', 116)->orderBy('from')->get();
+        $plans = SitePlanner::whereDate('from', '>', $jan2024)->whereDate('from', '<', $today)->where('task_id', 116)->orderBy('from')->get();
         foreach ($plans as $plan) {
             if ($plan->site->status == 1) {
                 $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
