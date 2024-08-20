@@ -218,8 +218,16 @@
             $('.startEst').change(function () {
                 //alert(this.value + ' : ' + this.id);
                 var site_id = this.id.substring(1);
-                var date = this.value.split('/');
-                var date_formated = date[2] + '-' + date[1] + '-' + date[0];
+                var start = this.value
+            ..
+                replace(/\s/g, "");
+                var date_formated = '';
+
+                if ($start) {
+                    var date = this.value.split('/');
+                    date_formated = date[2] + '-' + date[1] + '-' + date[0];
+                }
+
                 //alert(date_formated);
                 $.ajax({
                     url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,

@@ -307,7 +307,11 @@ class SiteController extends Controller
         if (!(Auth::user()->allowed2('edit.site.admin', $site) || Auth::user()->hasAnyPermissionType('preconstruction.planner')))
             return view('errors/404');
 
-        $site->jobstart_estimate = Carbon::createFromFormat('Y-m-d H:i', $date . '00:00')->toDateTimeString();
+        if ($date)
+            $site->jobstart_estimate = Carbon::createFromFormat('Y-m-d H:i', $date . '00:00')->toDateTimeString();
+        else
+            $site->jobstart_estimate = null;
+
         $site->save();
 
         Toastr::success("Updated Start Estimate");
