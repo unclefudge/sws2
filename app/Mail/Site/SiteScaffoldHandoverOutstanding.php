@@ -12,16 +12,17 @@ class SiteScaffoldHandoverOutstanding extends Mailable implements ShouldQueue
 
     use Queueable, SerializesModels;
 
-    public $outstanding;
+    public $outstanding, $company_name;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($outstanding)
+    public function __construct($outstanding, $company_name)
     {
         $this->outstanding = $outstanding;
+        $this->company_name = $company_name;
     }
 
     /**

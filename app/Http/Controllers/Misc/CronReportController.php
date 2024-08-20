@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Site\Planner\SiteAttendance;
+use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteInspectionElectrical;
@@ -44,6 +46,7 @@ class CronReportController extends Controller
             CronReportController::emailMissingCompanyInfo();
             CronReportController::emailActiveAsbestos();
             CronReportController::emailSupervisorAttendance();
+            CronReportController::emailScaffoldOverdue();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -449,9 +452,80 @@ class CronReportController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
+    //
+    // Email Scaffold Overdue
+    //
+    static public function emailScaffoldOverdue()
+    {
+        $log = '';
+        $func_name = "Scaffold Overdue";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+
+        //
+        // Scaffold Handover for Ian Ewin
+        //
+        $scaffold_overdue = [];
+        $todos = Todo::where('status', '1')->where('type', 'scaffold handover')->whereDate('due_at', '<', Carbon::today()->format('Y-m-d'))->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
+        foreach ($todos as $todo) {
+            $scaffold_overdue[$todo->type_id] = ['name' => $todo->name, 'due_at' => $todo->due_at->format('d/m/Y')];
+        }
+
+        // Email outstanding scaffold certificates
+        if ($scaffold_overdue) {
+            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
+            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n";
+            foreach ($scaffold_overdue as $id => $array) {
+                echo "id[$id] " . $array['name'] . "<br>";
+                $log .= "id[$id] " . $array['name'] . "\n";
+            }
+            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au'] : [env('EMAIL_DEV')];
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue, 'Ian Scott Ewin'));
+        }
+
+        //
+        // Scaffold Handover for Ashbys
+        //
+        $scaffold_overdue = [];
+        $today = Carbon::now()->format('Y-m-d');
+        $jan2024 = Carbon::createFromFormat('Y-m-d', '2024-01-01');
+        $found_tasks = 0;
+
+        //
+        // Erect Scaffold - taskid: 116
+        //
+        $plans = SitePlanner::whereDate('from', '>', $jan2024)->where('task_id', 116)->orderBy('from')->get();
+        foreach ($plans as $plan) {
+            if ($plan->site->status == 1) {
+                $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
+            }
+        }
+
+        // Email outstanding scaffold certificates
+        if ($scaffold_overdue) {
+            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au;  for Outstanding Scaffold Handover Certificates:\n</b><br>";
+            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; for Outstanding Scaffold Handover Certificates:\n";
+            foreach ($scaffold_overdue as $id => $array) {
+                echo "id[$id] " . $array['name'] . "<br>";
+                $log .= "id[$id] " . $array['name'] . "\n";
+            }
+            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue, "Ashbys"));
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
     /*
-   * Email Fortnightly Reports
-   */
+    * Email Fortnightly Reports
+    */
     static public function emailFortnightlyReports()
     {
         $log = '';
