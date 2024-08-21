@@ -485,7 +485,7 @@ class SiteInspectionPlumbingController extends Controller
         $inspect_records = SiteInspectionPlumbing::select([
             'site_inspection_plumbing.id', 'site_inspection_plumbing.site_id', 'site_inspection_plumbing.inspected_name', 'site_inspection_plumbing.inspected_by',
             'site_inspection_plumbing.inspected_at', 'site_inspection_plumbing.created_at', 'site_inspection_plumbing.assigned_at', 'site_inspection_plumbing.client_contacted',
-            'site_inspection_plumbing.status', 'sites.company_id',
+            'site_inspection_plumbing.status', 'site_inspection_plumbing.manager_sign_by', 'sites.company_id',
             DB::raw('DATE_FORMAT(site_inspection_plumbing.created_at, "%d/%m/%y") AS nicedate'),
             DB::raw('DATE_FORMAT(site_inspection_plumbing.inspected_at, "%d/%m/%y") AS inspected_date'),
             DB::raw('DATE_FORMAT(site_inspection_plumbing.assigned_at, "%d/%m/%y") AS assigned_date'),
@@ -512,6 +512,14 @@ class SiteInspectionPlumbingController extends Controller
 
                 return ($r->assigned_to) ? $r->assignedTo->name : '-';
             })
+            ->addColumn('signoff', function ($inspect) {
+                $r = SiteInspectionPlumbing::find($inspect->id);
+                if ($r->supervisor_sign_by == null)
+                    return 'Admin required';
+                if ($r->manager_sign_by == null)
+                    return 'Technical required';
+                return '';
+            })
             ->addColumn('action', function ($inspect) {
                 $r = SiteInspectionPlumbing::find($inspect->id);
                 $string = '';
@@ -525,7 +533,7 @@ class SiteInspectionPlumbingController extends Controller
 
                 return $string;
             })
-            ->rawColumns(['view', 'action'])
+            ->rawColumns(['view', 'action', 'manager_sign_by', 'signoff'])
             ->make(true);
 
         return $dt;

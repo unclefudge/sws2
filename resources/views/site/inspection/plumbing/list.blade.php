@@ -60,64 +60,14 @@
         @endif
 
 
-        {{-- Pending --}}
-        @if (Auth::user()->isCC() && $pending->count())
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="portlet light ">
-                        <div class="portlet-title">
-                            <div class="caption font-dark">
-                                <i class="icon-layers"></i>
-                                <span class="caption-subject bold uppercase font-green-haze"> Pending Review</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
-                                <thead>
-                                <tr class="mytable-header">
-                                    <th width="5%"> #</th>
-                                    <th width="10%"> Created</th>
-                                    <th> Name</th>
-                                    <th width="10%"> Assigned</th>
-                                    <th> Assigned to</th>
-                                    <th width="5%"></th>
-                                </tr>
-                                </thead>{{--}}
-                                @foreach ($pending as $report)
-                                    <tr>
-                                        <td>
-                                            <div class="text-center"><a href="/site/inspection/plumbing/{{ $report->id }}"><i class="fa fa-search"></i></a></div>
-                                        </td>
-                                        <td> {{ $report->created_at->format('d/m/Y') }}</td>
-                                        <td> {{ $report->site->name }}</td>
-                                        <td> {{ $report->assigned_at->format('d/m/Y') }}</td>
-                                        <td> {{ $report->assignedTO->name }}</td>
-                                        <td>
-                                            @if(Auth::user()->allowed2('edit.site.inspection', $report))
-                                                <a href="/site/inspection/plumbing/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
-                                            @endif
-                                            @if(Auth::user()->allowed2('del.site.inspection', $report))
-                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $report->id }}" data-name="{{ $report->site->name }}"><i class="fa fa-trash"></i></button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach--}}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Reports --}}
+        {{-- In Progress --}}
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze">Plumbing Inspection Reports</span>
+                            <span class="caption-subject bold uppercase font-green-haze">In Progress</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.site.inspection'))
@@ -163,6 +113,56 @@
                 </div>
             </div>
         </div>
+
+        {{-- Pending Sign Off--}}
+        @if (Auth::user()->isCC() && $pending->count())
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Pending Signoff</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th width="5%"> #</th>
+                                    <th width="10%"> Created</th>
+                                    <th> Name</th>
+                                    <th width="10%"> Assigned</th>
+                                    <th> Signoff</th>
+                                    <th width="5%"></th>
+                                </tr>
+                                </thead>{{--}}
+                                @foreach ($pending as $report)
+                                    <tr>
+                                        <td>
+                                            <div class="text-center"><a href="/site/inspection/plumbing/{{ $report->id }}"><i class="fa fa-search"></i></a></div>
+                                        </td>
+                                        <td> {{ $report->created_at->format('d/m/Y') }}</td>
+                                        <td> {{ $report->site->name }}</td>
+                                        <td> {{ $report->assigned_at->format('d/m/Y') }}</td>
+                                        <td> {{ $report->assignedTO->name }}</td>
+                                        <td>
+                                            @if(Auth::user()->allowed2('edit.site.inspection', $report))
+                                                <a href="/site/inspection/plumbing/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
+                                            @endif
+                                            @if(Auth::user()->allowed2('del.site.inspection', $report))
+                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $report->id }}" data-name="{{ $report->site->name }}"><i class="fa fa-trash"></i></button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach--}}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Not with Client--}}
         @if (Auth::user()->isCC() && $client_not_sent->count())
@@ -288,8 +288,7 @@
                     {data: 'nicedate', name: 'site_inspection_plumbing.created_at'},
                     {data: 'sitename', name: 'sites.name'},
                     {data: 'assigned_date', name: 'site_inspection_plumbing.assigned_at'},
-                    {data: 'assigned_to', name: 'assigned_to', searchable: false},
-                    //{data: 'client_date', name: 'site_inspection_plumbing.client_contacted'},
+                    {data: 'signoff', name: 'signoff', searchable: false},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ],
                 order: [
