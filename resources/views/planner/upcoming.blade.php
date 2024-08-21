@@ -215,18 +215,24 @@
                     },
                 })
             });
-            $('.startEst').change(function () {
+            /*$('.startEst').change(function () {
                 //alert(this.value + ' : ' + this.id);
                 var site_id = this.id.substring(1);
-                var start = this.value
-            ..
-                replace(/\s/g, "");
+                var start = this.value.replace(/\s/g, "");
+                console.log(start);
                 var date_formated = '';
 
-                if ($start) {
+                if (start) {
                     var date = this.value.split('/');
                     date_formated = date[2] + '-' + date[1] + '-' + date[0];
+                } else {
+                    date_formated = 'clear';
+                    $('#j'.site_id).datepicker('setDate', null);
+                    $('#j'.site_id).datepicker('clearDates');
+                    console.log('cleared');
                 }
+                console.log(date_formated);
+
 
                 //alert(date_formated);
                 $.ajax({
@@ -237,6 +243,46 @@
                         console.log('updated supervisor for Site:')
                     },
                 })
+            });*/
+
+            $('.startEst').datepicker({
+                autoclose: true,
+                clearBtn: true,
+                format: 'dd/mm/yyyy',
+            }).on("changeDate clearDate", function (e) {
+                var site_id = this.id.substring(1);
+
+                if (e.type == 'clearDate') {
+                    this.clearBtnClicked = true;
+                    console.log('clear date');
+                    date_formated = 'clear';
+                    console.log("cc:" + date_formated);
+                    $.ajax({
+                        url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log('updated supervisor for Site:')
+                        },
+                    })
+                } else {
+                    if (this.clearBtnClicked) {
+                        this.clearBtnClicked = false;
+                    } else {
+                        console.log('update date');
+                        var date = this.value.split('/');
+                        date_formated = date[2] + '-' + date[1] + '-' + date[0];
+                    }
+                    console.log("aa:" + date_formated);
+                    $.ajax({
+                        url: '/site/' + site_id + '/jobstart_estimate/' + date_formated,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log('updated supervisor for Site:')
+                        },
+                    })
+                }
             });
 
             $('.eworksSelect').change(function () {
