@@ -67,7 +67,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Electrical Inspection Reports</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> In Progress</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->allowed2('add.site.inspection'))
@@ -128,6 +128,19 @@
                         </div>
 
                         <div>
+                            <table class="table table-striped table-bordered table-hover order-column" id="table2">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th width="5%"> #</th>
+                                    <th width="10%"> Created</th>
+                                    <th> Name</th>
+                                    <th width="10%"> Assigned</th>
+                                    <th> Signoff</th>
+                                    <th width="5%"></th>
+                                </tr>
+                                </thead>
+                            </table>
+                            {{--}}
                             <table class="table table-striped table-bordered table-hover order-column" id="under_review">
                                 <thead>
                                 <tr class="mytable-header">
@@ -138,6 +151,7 @@
                                     <th width="10%"></th>
                                 </tr>
                                 </thead>
+
                                 @foreach ($pending as $report)
                                     <tr>
                                         <td>
@@ -156,7 +170,7 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                            </table>
+                            </table>--}}
                         </div>
                     </div>
                 </div>
@@ -222,6 +236,32 @@
 
             $('select#assigned_to').change(function () {
                 table1.ajax.reload();
+            });
+
+            // Pending Signoff
+            var table2 = $('#table2').DataTable({
+                pageLength: 100,
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    'url': '{!! url('site/inspection/plumbing/dt/list') !!}',
+                    'type': 'GET',
+                    'data': function (d) {
+                        d.status = '3';
+                        d.assigned_to = 'all';
+                    }
+                },
+                columns: [
+                    {data: 'view', name: 'view', orderable: false, searchable: false},
+                    {data: 'nicedate', name: 'site_inspection_plumbing.created_at'},
+                    {data: 'sitename', name: 'sites.name'},
+                    {data: 'assigned_date', name: 'site_inspection_plumbing.assigned_at'},
+                    {data: 'signoff', name: 'signoff', searchable: false},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ],
+                order: [
+                    [2, "desc"]
+                ]
             });
 
             // Warning message for deleting report

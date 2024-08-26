@@ -501,9 +501,6 @@ class SiteInspectionPlumbingController extends Controller
             ->addColumn('view', function ($inspect) {
                 return ('<div class="text-center"><a href="/site/inspection/plumbing/' . $inspect->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            //->editColumn('sitename', function ($inspect) {
-            //    return $inspect->site->nameClient;
-            //})
             ->editColumn('nicedate2', function ($inspect) {
                 return ($inspect->nicedate2 == '00/00/00') ? '' : $inspect->nicedate2;
             })

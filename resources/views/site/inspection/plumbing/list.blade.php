@@ -125,7 +125,6 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> Pending Signoff</span>
                             </div>
                         </div>
-
                         <div>
                             <table class="table table-striped table-bordered table-hover order-column" id="table2">
                                 <thead>
@@ -137,26 +136,7 @@
                                     <th> Signoff</th>
                                     <th width="5%"></th>
                                 </tr>
-                                </thead>{{--}}
-                                @foreach ($pending as $report)
-                                    <tr>
-                                        <td>
-                                            <div class="text-center"><a href="/site/inspection/plumbing/{{ $report->id }}"><i class="fa fa-search"></i></a></div>
-                                        </td>
-                                        <td> {{ $report->created_at->format('d/m/Y') }}</td>
-                                        <td> {{ $report->site->name }}</td>
-                                        <td> {{ $report->assigned_at->format('d/m/Y') }}</td>
-                                        <td> {{ $report->assignedTO->name }}</td>
-                                        <td>
-                                            @if(Auth::user()->allowed2('edit.site.inspection', $report))
-                                                <a href="/site/inspection/plumbing/{{ $report->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
-                                            @endif
-                                            @if(Auth::user()->allowed2('del.site.inspection', $report))
-                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $report->id }}" data-name="{{ $report->site->name }}"><i class="fa fa-trash"></i></button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach--}}
+                                </thead>
                             </table>
                         </div>
                     </div>
@@ -270,7 +250,7 @@
                 table1.ajax.reload();
             });
 
-            // Pending Review
+            // Pending Signoff
             var table2 = $('#table2').DataTable({
                 pageLength: 100,
                 processing: true,

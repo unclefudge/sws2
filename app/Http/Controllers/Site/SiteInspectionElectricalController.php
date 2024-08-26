@@ -443,15 +443,20 @@ class SiteInspectionElectricalController extends Controller
      */
     public function getInspections()
     {
-        if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
-            $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
-        else
-            $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
+        $status = request('status');
+        if ($status == 3) {
+            // Pending
+            $inpect_ids = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', null)->pluck('id')->toArray();
+        } else {
+            if (Auth::user()->permissionLevel('view.site.inspection', 3) == 30) // User has 'Planned for' permission to requests
+                $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->where('assigned_to', Auth::user()->company_id)->pluck('id')->toArray();
+            else
+                $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
+        }
 
         $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
         if (request('assigned_to') != 'all')
             $assigned = [request('assigned_to')];
-
 
         $inspect_records = SiteInspectionElectrical::select([
             'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.inspected_name', 'site_inspection_electrical.inspected_by',
@@ -464,8 +469,7 @@ class SiteInspectionElectricalController extends Controller
             DB::raw('sites.name AS sitename'), 'sites.code',
         ])
             ->join('sites', 'site_inspection_electrical.site_id', '=', 'sites.id')
-            ->where('site_inspection_electrical.status', '=', request('status'))
-            //->where('site_inspection_electrical.assigned_to', '<>', null)
+            ->where('site_inspection_electrical.status', '=', $status)
             ->whereIn('site_inspection_electrical.assigned_to', $assigned)
             ->whereIn('site_inspection_electrical.id', $inpect_ids);
 
@@ -473,9 +477,6 @@ class SiteInspectionElectricalController extends Controller
             ->addColumn('view', function ($inspect) {
                 return ('<div class="text-center"><a href="/site/inspection/electrical/' . $inspect->id . '"><i class="fa fa-search"></i></a></div>');
             })
-            //->editColumn('sitename', function ($inspect) {
-            //    return $inspect->site->nameClient;
-            //})
             ->editColumn('nicedate2', function ($inspect) {
                 return ($inspect->nicedate2 == '00/00/00') ? '' : $inspect->nicedate2;
             })
@@ -483,6 +484,14 @@ class SiteInspectionElectricalController extends Controller
                 $r = SiteInspectionElectrical::find($inspect->id);
 
                 return ($r->assigned_to) ? $r->assignedTo->name : '-';
+            })
+            ->addColumn('signoff', function ($inspect) {
+                $r = SiteInspectionElectrical::find($inspect->id);
+                if ($r->supervisor_sign_by == null)
+                    return 'Admin required';
+                if ($r->manager_sign_by == null)
+                    return 'Technical required';
+                return '';
             })
             ->addColumn('action', function ($inspect) {
                 $r = SiteInspectionElectrical::find($inspect->id);

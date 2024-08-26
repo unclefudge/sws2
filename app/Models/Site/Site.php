@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Notify;
+use App\Models\Company\Company;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteCompliance;
