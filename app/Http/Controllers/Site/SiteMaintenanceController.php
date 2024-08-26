@@ -491,9 +491,12 @@ class SiteMaintenanceController extends Controller
                 // Close any outstanding ToDos for Area Super / Con Mgr
                 $main->closeToDo();
 
-                // Update Site Status back to completed
-                $main->site->status = 0;
-                $main->site->save();
+                // Update Site Status back to completed if no other active Maintenance Requests
+                $active = SiteMaintenance::where('status', 1)->where('site_id', $main->site_id)->get();
+                if (count($active) < 2) {
+                    $main->site->status = 0;
+                    $main->site->save();
+                }
 
                 $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 

@@ -1294,8 +1294,10 @@ class SitePlannerController extends Controller
         }
 
         // Determine if linked to maintenance request
+        $maintenance = 0;
         $item = SiteMaintenanceItem::where('planner_id', $plan->id)->first();
-        $maintenance = ($item) ? 1 : 0;
+        if ($item && $item->maintenance->status > 0)
+            $maintenance = 1;
 
         // Get task info
         $array['task_id'] = '';
