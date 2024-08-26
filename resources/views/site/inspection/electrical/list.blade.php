@@ -200,7 +200,6 @@
         });
 
         $(document).ready(function () {
-
             var status = $('#status').val();
 
             var table1 = $('#table1').DataTable({
@@ -244,7 +243,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    'url': '{!! url('site/inspection/plumbing/dt/list') !!}',
+                    'url': '{!! url('site/inspection/electrical/dt/list') !!}',
                     'type': 'GET',
                     'data': function (d) {
                         d.status = '3';
