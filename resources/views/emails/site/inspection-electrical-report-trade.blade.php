@@ -13,7 +13,7 @@ Please find attached the Electrical Inspection Report for {{ $report->site->name
 |                       |        |
 | ---------------------:|--------|
 | **ID**  | {{ $report->id  }} |
-| **TYPE** | Plumbing |
+| **TYPE** | Electrical |
 | **Site Name**  | {{ $report->site->name  }} |
 | **Site Address**  | {{ $report->site->address }}, {{ $report->site->SuburbStatePostcode }} |
 

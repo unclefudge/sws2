@@ -205,15 +205,18 @@
 
         $(document).ready(function () {
             $('.superSelect').change(function () {
-                //alert(this.value + ' : ' + this.id);
-                $.ajax({
-                    url: '/site/' + this.id + '/supervisor/' + this.value,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        console.log('updated supervisor for Site:')
-                    },
-                })
+                var site_id = this.id.substring(1);
+                //alert('SiteID:' + site_id + '  SuperID:' + this.value);
+                if (site_id) {
+                    $.ajax({
+                        url: '/site/' + site_id + '/supervisor/' + this.value,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log('updated supervisor for Site:')
+                        },
+                    })
+                }
             });
             /*$('.startEst').change(function () {
                 //alert(this.value + ' : ' + this.id);
