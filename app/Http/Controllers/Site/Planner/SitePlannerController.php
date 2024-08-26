@@ -1499,7 +1499,7 @@ class SitePlannerController extends Controller
                         $site_supers[$user->id] = $user->fullname;
                 }
                 // Add Maintenance Supervisors
-                $super_ids = SiteMaintenance::where('site_id', $site_record->id)->pluck('super_id')->toArray();
+                $super_ids = SiteMaintenance::where('site_id', $site_record->id)->where('status', 1)->pluck('super_id')->toArray();
                 foreach ($super_ids as $uid) {
                     $super = User::find($uid);
                     if ($super && $super->status)

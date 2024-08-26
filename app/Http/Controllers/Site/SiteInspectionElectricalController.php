@@ -488,9 +488,9 @@ class SiteInspectionElectricalController extends Controller
             ->addColumn('signoff', function ($inspect) {
                 $r = SiteInspectionElectrical::find($inspect->id);
                 if ($r->supervisor_sign_by == null)
-                    return 'Admin required';
+                    return 'Admin review';
                 if ($r->manager_sign_by == null)
-                    return 'Technical required';
+                    return 'Technical review';
                 return '';
             })
             ->addColumn('action', function ($inspect) {
