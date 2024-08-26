@@ -217,7 +217,7 @@ class SiteInspectionElectricalController extends Controller
 
                 // Email assigned notification to Next Point Admin
                 if ($company->id == 108) {  // Next Point
-                    $email_list = (\App::environment('prod')) ? ['admin@nextpointelectrical.com.au'] : [env('EMAIL_DEV')];
+                    $email_list = (\App::environment('prod')) ? ['adam.balzan@electrical.obrien.com.au', 'thornleigh@electrical.obrien.com.au'] : [env('EMAIL_DEV')];
                     if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssignedTrade($report));
                 }
             }
