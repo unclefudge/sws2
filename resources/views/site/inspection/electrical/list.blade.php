@@ -252,9 +252,9 @@
                 },
                 columns: [
                     {data: 'view', name: 'view', orderable: false, searchable: false},
-                    {data: 'nicedate', name: 'site_inspection_plumbing.created_at'},
+                    {data: 'nicedate', name: 'site_inspection_electrical.created_at'},
                     {data: 'sitename', name: 'sites.name'},
-                    {data: 'assigned_date', name: 'site_inspection_plumbing.assigned_at'},
+                    {data: 'assigned_date', name: 'site_inspection_electrical.assigned_at'},
                     {data: 'signoff', name: 'signoff', searchable: false},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ],
