@@ -144,6 +144,8 @@ class CronController extends Controller
         $yesterday = Carbon::now()->subDays(1);
         $lastweek = Carbon::now()->subDays(7);
 
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Adding Non-Attendees to the Non-Logged in list (" . $lastweek->format('d/m/Y') . ' - ' . $yesterday->format('d/m/Y') . ")</h2>";
         $log .= "Adding Non-Attendees to the Non-Logged in list (" . $lastweek->format('d/m/Y') . ' - ' . $yesterday->format('d/m/Y') . ")\n";
         $log .= "-------------------------------------------------------------------------\n\n";
@@ -192,6 +194,8 @@ class CronController extends Controller
     static public function roster()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Adding Users to Roster</h2>";
         $log .= "Adding New Users to Roster\n";
         $log .= "------------------------------------------------------------------------\n\n";

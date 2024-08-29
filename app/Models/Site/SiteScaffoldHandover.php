@@ -80,7 +80,7 @@ class SiteScaffoldHandover extends Model
 
 
         if ($email_to && $email_cc)
-            Mail::to($email_to)->cc([$email_cc])->send(new \App\Mail\Site\SiteScaffoldHandoverCreated($this));
+            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverCreated($this));
         elseif ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverCreated($this));
 
