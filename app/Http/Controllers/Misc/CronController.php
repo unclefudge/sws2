@@ -196,6 +196,7 @@ class CronController extends Controller
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
         $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        
         echo "<h2>Adding Users to Roster</h2>";
         $log .= "Adding New Users to Roster\n";
         $log .= "------------------------------------------------------------------------\n\n";
