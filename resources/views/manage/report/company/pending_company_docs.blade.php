@@ -56,7 +56,7 @@
                                     <td>{{ $doc->company->name}} {!! $task !!}</td>
                                     <td>{{ $doc->name}}</td>
                                     <td>{{ $doc->updated_at->format('d/m/Y')}}</td>
-                                    <td><a href="/company/{{$doc->for_company_id}}/doc/{{$doc->id}}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a></td>
+                                    <td><a href="/company/{{$doc->for_company_id}}/doc/{{$doc->id}}/edit" target="_blank" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a></td>
                                 </tr>
                             @endforeach
                             </tbody>
