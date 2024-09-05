@@ -43,10 +43,11 @@
                             <tbody>
                             @foreach($pending as $doc)
                                     <?php
-                                    $todo = App\Models\Comms\Todo::where('type', 'company doc')->where('type_id', $doc->id)->first();
+                                    $todos = App\Models\Comms\Todo::where('type', 'company doc')->where('type_id', $doc->id)->get();
                                     $task = "";
-                                    if ($todo)
-                                        $task = ($todo->status) ? "<br>ToDo: $todo->id  - " . $todo->assignedToBySBC() : "<br>ToDo: Closed";
+                                    if ($todos)
+                                        foreach ($todos as $todo)
+                                            $task = ($todo->status) ? "<br>ToDo: " . $todo->assignedToBySBC() : "<br>ToDo: Closed";
 
                                     ?>
                                 <tr>
