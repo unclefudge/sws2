@@ -137,7 +137,7 @@ class ReportTasksController extends Controller
 
             //echo "Task[$task->id] [$task->type] [$task->type_id]<br>";
             $info = '';
-            $status_options = (in_array($task->type, ['inspection_electrical', 'inspection_plumbing'])) ? [0, 1, 2, 3] : [0, 1];
+            $status_options = (in_array($task->type, ['inspection_electrical', 'inspection_plumbing', 'company doc'])) ? [0, 1, 2, 3] : [0, 1];
             $rec = $this->todoRecord($task, $status_options);
 
             if (!$rec) continue;

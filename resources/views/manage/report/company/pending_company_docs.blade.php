@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <h4>Pending</h4>
+                        <h4>Pending {{ count($pending) }}</h4>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
@@ -42,11 +42,18 @@
                             </thead>
                             <tbody>
                             @foreach($pending as $doc)
+                                    <?php
+                                    $todo = App\Models\Comms\Todo::where('type', 'company doc')->where('type_id', $doc->id)->first();
+                                    $task = "";
+                                    if ($todo)
+                                        $task = ($todo->status) ? "<br>ToDo: $todo->id  - " . $todo->assignedToBySBC() : "<br>ToDo: Closed";
+
+                                    ?>
                                 <tr>
                                     <td>
                                         <div class="text-center"><a href="{{$doc->attachment_url}}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
                                     </td>
-                                    <td>{{ $doc->company->name}}</td>
+                                    <td>{{ $doc->company->name}} {!! $task !!}</td>
                                     <td>{{ $doc->name}}</td>
                                     <td>{{ $doc->updated_at->format('d/m/Y')}}</td>
                                     <td><a href="/company/{{$doc->for_company_id}}/doc/{{$doc->id}}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a></td>
