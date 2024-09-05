@@ -122,6 +122,8 @@ class CronReportController extends Controller
     static public function emailJobstart()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Jobstart";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -204,6 +206,8 @@ class CronReportController extends Controller
     static public function emailMaintenanceAppointment()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Maintenance Without Appointment";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -246,6 +250,8 @@ class CronReportController extends Controller
     static public function emailMaintenanceUnderReview()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Maintenance Under Review";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -292,6 +298,8 @@ class CronReportController extends Controller
     static public function emailMissingCompanyInfo()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Missing Company Info";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -384,6 +392,8 @@ class CronReportController extends Controller
     static public function emailActiveAsbestos()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Active Asbestos";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -418,6 +428,8 @@ class CronReportController extends Controller
     static public function emailSupervisorAttendance()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Supervisor Attendance";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -458,6 +470,8 @@ class CronReportController extends Controller
     static public function emailScaffoldOverdue()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Scaffold Overdue";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -529,6 +543,8 @@ class CronReportController extends Controller
     static public function emailFortnightlyReports()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Email Fortnightly Reports</h2>";
         $log .= "Email Fortnightly Reports\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -622,6 +638,8 @@ class CronReportController extends Controller
     static public function emailOutstandingQA()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Outstanding QA Checklists";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -679,6 +697,8 @@ class CronReportController extends Controller
     static public function emailUpcomingJobCompilance()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Upcoming Job Compliance";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -751,6 +771,8 @@ class CronReportController extends Controller
     static public function emailMaintenanceSupervisorNoAction()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Maintenance Supervisor No Action";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -933,6 +955,8 @@ class CronReportController extends Controller
     static public function emailOldUsers()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Old Users";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -996,6 +1020,8 @@ class CronReportController extends Controller
     static public function emailEquipmentTransfers()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Equipment Transfers";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1044,6 +1070,8 @@ class CronReportController extends Controller
     static public function emailOnHoldQA()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "On Hold QA Checklists";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1099,6 +1127,8 @@ class CronReportController extends Controller
     static public function emailActiveElectricalPlumbing()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Open Electrical Plumbing Inspection Reports";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1229,6 +1259,8 @@ class CronReportController extends Controller
     static public function emailEquipmentRestock()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Equipment Restock";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1277,6 +1309,8 @@ class CronReportController extends Controller
     static public function emailOutstandingAftercare()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Outstanding After Care";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1323,6 +1357,8 @@ class CronReportController extends Controller
     static public function emailMaintenanceExecutive($email_list = null)
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Site Maintenance Executive Report";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";

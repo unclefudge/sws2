@@ -196,7 +196,7 @@ class CronController extends Controller
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
         $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
-        
+
         echo "<h2>Adding Users to Roster</h2>";
         $log .= "Adding New Users to Roster\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -271,6 +271,8 @@ class CronController extends Controller
     static public function qa()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for New QA to be triggered</h2>";
         $log .= "Checking for New QA to be triggered\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -451,6 +453,8 @@ class CronController extends Controller
     static public function qaOnholdButCompleted()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for On Holds QA but Completed</h2>";
         $log .= "Checking for On Holds QA but Completed\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -483,6 +487,8 @@ class CronController extends Controller
     static public function completeToDoCompanyDoc()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Todo company doc completed but still active</h2>";
         $log .= "Todo company doc completed but still active\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -532,6 +538,8 @@ class CronController extends Controller
     static public function completedToDoQA()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Todo QA doc completed/hold but still active</h2>";
         $log .= "\nTodo QA doc completed/hold but still active\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -577,6 +585,8 @@ class CronController extends Controller
     static public function rogueToDo()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Rogue Todo's</h2>";
         $log .= "\nRogue Todo's\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -641,6 +651,8 @@ class CronController extends Controller
     static public function expiredCompanyDoc()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for Expired Company Documents</h2>";
         $log .= "Checking for Expired Company Documents\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -755,6 +767,8 @@ class CronController extends Controller
     static public function expiredStandardDetailsDoc()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for Expired Standard Details Documents</h2>";
         $log .= "Checking for Expired Standard Details Documents\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -812,6 +826,8 @@ class CronController extends Controller
     static public function expiredSWMS()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for Expired SWMS</h2>";
         $log .= "Checking for Expired SWMS\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -882,6 +898,8 @@ class CronController extends Controller
     static public function archiveToolbox()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Archive Completed Toolbox</h2>";
         $log .= "Archive Completed Toolbox\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -930,6 +948,8 @@ class CronController extends Controller
     static public function brokenQaItem()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Fixing broken QA items</h2>";
         $log .= "\nFixing broken QA items\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -966,6 +986,8 @@ class CronController extends Controller
     static public function emailPlannerKeyTasks()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Key Tasks on Planner";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
@@ -1032,6 +1054,8 @@ class CronController extends Controller
     static public function actionPlannerKeyTasks()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Action Tasks on Planner";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1122,6 +1146,8 @@ class CronController extends Controller
     static public function siteExtensions()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Creating Site Extension for Active Sites";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1249,6 +1275,8 @@ class CronController extends Controller
     static public function superChecklists()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Creating Supervisor Checklists for Active Supervisors";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1316,6 +1344,8 @@ class CronController extends Controller
     static public function uploadCompanyDocReminder()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Upload Company Docs Reminder";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1357,6 +1387,8 @@ class CronController extends Controller
     static public function verifyZohoImport()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Verify Zoho Import";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1405,6 +1437,8 @@ class CronController extends Controller
     static public function overdueToDo()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Checking for Overdue ToDo's</h2>";
         $log .= "Checking for Overdue ToDo's\n";
         $log .= "------------------------------------------------------------------------\n\n";
@@ -1498,6 +1532,8 @@ class CronController extends Controller
     static public function siteExtensionsSupervisorTask()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Creating Site Extension Supervisor Task for Active Sites";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1585,6 +1621,8 @@ class CronController extends Controller
     static public function siteExtensionsSupervisorTaskReminder()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Creating Site Extension Supervisor Task Reminder for Active Sites";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";
@@ -1634,6 +1672,8 @@ class CronController extends Controller
     static public function siteExtensionsSupervisorTaskFinalReminder()
     {
         $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         $func_name = "Sending Site Extension Con Manager Final Reminder";
         echo "<h2>$func_name</h2>";
         $log .= "$func_name\n";

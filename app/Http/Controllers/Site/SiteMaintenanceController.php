@@ -441,6 +441,10 @@ class SiteMaintenanceController extends Controller
             $action = Action::create(['action' => "Request has been Declined", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             $main->closeToDo();
         }
+        if (request('status') && $status_orig != '-2' && request('status') == '-2') {
+            $action = Action::create(['action' => "Request has been marked User Works", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+            $main->closeToDo();
+        }
 
         // Add note if change of Category
         if (request('category_id') && request('category_id') != $main->category_id) {

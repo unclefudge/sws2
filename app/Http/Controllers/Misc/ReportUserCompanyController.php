@@ -554,6 +554,15 @@ class ReportUserCompanyController extends Controller
         return $dt;
     }
 
+    public function pendingCompanyDocs()
+    {
+        $today = Carbon::today();
+
+        $pending = CompanyDoc::where('status', 3)->orderBy('for_company_id')->get();
+        return view('manage/report/company/pending_company_docs', compact('pending'));
+
+    }
+
     /*
      * Company Planner Report
      */

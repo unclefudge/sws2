@@ -118,6 +118,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/company_swms', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMS');
     Route::get('/manage/report/expired_company_docs', '\App\Http\Controllers\Misc\ReportUserCompanyController@expiredCompanyDocs');
     Route::get('/manage/report/expired_company_docs/dt/expired_company_docs', '\App\Http\Controllers\Misc\ReportUserCompanyController@getExpiredCompanyDocs');
+    Route::get('/manage/report/pending_company_docs', '\App\Http\Controllers\Misc\ReportUserCompanyController@pendingCompanyDocs');
     Route::get('/manage/report/company_planned_tasks', '\App\Http\Controllers\Misc\ReportUserCompanyController@companyPlannedTasks');
     // Reports - Equipment
     Route::get('/manage/report/equipment', '\App\Http\Controllers\Misc\ReportEquipmentController@equipment');

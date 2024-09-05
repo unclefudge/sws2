@@ -151,15 +151,16 @@
                                         <div class="col-md-5">
                                             <h4>Client Details
                                                 @if ($main->status > 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                    <button class="btn dark btn-outline btn-sm pull-right"
-                                                            style="margin: -10px 0px 0px 50px; border: 0px"
-                                                            id="edit-client">Edit
-                                                    </button>
+                                                    <button class="btn dark btn-outline btn-sm pull-right" style="margin: -10px 0px 0px 50px; border: 0px" id="edit-client">Edit</button>
                                                 @endif
                                             </h4>
                                         </div>
                                         <div class="col-md-7">
                                             <h2 style="margin: 0px; padding-right: 20px">
+                                                @if($main->status == '-2')
+                                                    <span class="pull-right font-red hidden-sm hidden-xs">OWNER WORKS</span>
+                                                    <span class="text-center font-red visible-sm visible-xs">OWNER WORKS</span>
+                                                @endif
                                                 @if($main->status == '-1')
                                                     <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
                                                     <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
@@ -344,7 +345,7 @@
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline',  '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline', '-2' => 'Owner Works', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             {!! Form::select('status', ['1' => 'Active', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
@@ -411,22 +412,17 @@
 
                                         @if (Auth::user()->allowed2('add.site.maintenance'))
                                             <div class="input-group">
-                                                <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy"
-                                                            :placeholder="choose date"></datepicker>
+                                                <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
                                             @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
-                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent"
-                                                       value="N/A">
+                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
                                             @else
-                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent"
-                                                       value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
                                             @endif
                                         @else
                                             {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
-                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na"
-                                                                          v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark
-                                                as N/A</a></div>
+                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
                                     </div>
                                 @endif
                             </div>

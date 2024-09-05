@@ -80,6 +80,9 @@
                                 <td><a href="/manage/report/expired_company_docs">Expired Company Documents</a></td>
                             </tr>
                             <tr>
+                                <td><a href="/manage/report/pending_company_docs">Pending Company Documents</a></td>
+                            </tr>
+                            <tr>
                                 <td><a href="/manage/report/company_planned_tasks">Company Planned Tasks</a></td>
                             </tr>
                             {{-- Site --}}
