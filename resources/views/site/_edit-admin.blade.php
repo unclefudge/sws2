@@ -153,7 +153,7 @@
                 <div class="form-group {!! fieldHasError('holidays_added', $errors) !!}">
                     {!! Form::label('holidays_added', 'Holidays Added:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
-                        {!! Form::select('holidays_added', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! Form::select('holidays_added', ['' => 'Selecti option', 'No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('holidays_added', $errors) !!}
                     </div>
                 </div>
@@ -164,7 +164,7 @@
                 <div class="form-group {!! fieldHasError('osd', $errors) !!}">
                     {!! Form::label('osd', 'OSD:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
-                        {!! Form::select('osd', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! Form::select('osd', ['' => 'Select option', 'No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('osd', $errors) !!}
                     </div>
                 </div>
@@ -175,8 +175,19 @@
                 <div class="form-group {!! fieldHasError('sw', $errors) !!}">
                     {!! Form::label('sw', 'SW:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     <div class="col-md-6">
-                        {!! Form::select('sw', ['No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! Form::select('sw', ['' => 'Select option', 'No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('sw', $errors) !!}
+                    </div>
+                </div>
+            </div>
+            <hr class="field-hr">
+            {{-- GAL--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('gal', $errors) !!}">
+                    {!! Form::label('gal', 'GAL:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        {!! Form::select('gal', ['' => 'Select option', 'No' => 'No', 'Yes' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
+                        {!! fieldErrorMessage('gal', $errors) !!}
                     </div>
                 </div>
             </div>

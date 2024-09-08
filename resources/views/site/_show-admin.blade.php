@@ -70,6 +70,11 @@
         </div>
         <hr class="field-hr">
         <div class="row">
+            <div class="col-md-6">GAL:</div>
+            <div class="col-xs-6">{!! ($site->gal) ? $site->gal : '-' !!}</div>
+        </div>
+        <hr class="field-hr">
+        <div class="row">
             <div class="col-md-6">Consultant:</div>
             <div class="col-xs-6">{!! $site->consultant_name !!}</div>
         </div>

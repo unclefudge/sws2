@@ -426,6 +426,7 @@ class SiteUpcomingComplianceController extends Controller
                     'cf_est_stage' => $site->cf_est_stage,
                     'cf_adm' => $site->cf_adm,
                     'cf_adm_stage' => $site->cf_adm_stage,
+                    'gal' => $site->gal,
                 ];
             }
         }
@@ -515,6 +516,7 @@ class SiteUpcomingComplianceController extends Controller
                     'cf_est_stage' => $site->cf_est_stage,
                     'cf_adm' => $site->cf_adm,
                     'cf_adm_stage' => $site->cf_adm_stage,
+                    'gal' => $site->gal,
                 ];
             }
         }
