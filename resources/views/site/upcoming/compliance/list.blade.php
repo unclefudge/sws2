@@ -83,6 +83,7 @@
                                 <th>FC Structural</th>
                                 <th>CF-EST</th>
                                 <th>CF-ADM</th>
+                                <th>GAL</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -123,6 +124,7 @@
                                         <div id="cfadm-{{$row['id']}}">{!! $row['cf_adm'] !!}</div>
                                         <input type="hidden" id="cfadm-{{$row['id']}}-s" value="{!! $row['cf_adm_stage'] !!}">
                                     </td>
+                                    <td>{!! $row['estimator_fc'] !!}</td>
                                 </tr>
                             @endforeach
                             </tbody>

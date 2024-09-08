@@ -157,10 +157,6 @@
                                         </div>
                                         <div class="col-md-7">
                                             <h2 style="margin: 0px; padding-right: 20px">
-                                                @if($main->status == '-2')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">OWNER WORKS</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">OWNER WORKS</span>
-                                                @endif
                                                 @if($main->status == '-1')
                                                     <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
                                                     <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
@@ -345,7 +341,7 @@
                                     <div class="form-group">
                                         {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
                                         @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline', '-2' => 'Owner Works', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
+                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
                                             {!! Form::select('status', ['1' => 'Active', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
                                         @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
