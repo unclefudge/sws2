@@ -650,6 +650,9 @@
                     <td>
                         <div v-if="item.done_by">
                             @{{ item.done_at | formatDate }}<br>@{{ item.done_by_name }}
+                            <div v-if="item.status == 2">
+                                <br><span class="font-red">OWNER WORKS</span>
+                            </div>
                         </div>
                         <div v-else>-</div>
                     </td>
@@ -729,7 +732,6 @@
                     <div class="col-md-3">Status</div>
                     <div class="col-md-9">
                         <div v-if="xx.editItemModal" class="input-group">
-                            {{--}}<select-picker :name.sync="xx.item.status" :options.sync="xx.sel_checked" :function="doNothing"></select-picker>--}}
                             <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
                                 <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
                                         selected="@{{option.value == item.status}}">@{{ option.text }}

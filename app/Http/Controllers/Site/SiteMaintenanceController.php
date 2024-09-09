@@ -646,6 +646,14 @@ class SiteMaintenanceController extends Controller
                     $item_request['sign_at'] = Carbon::now()->toDateTimeString();
                     $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
                 }
+                // Item Owner Works
+                if ($item_request['status'] == 2 && $item->status != 2) {
+                    $item_request['done_by'] = Auth::user()->id;
+                    $item_request['done_at'] = Carbon::now()->toDateTimeString();
+                    $item_request['sign_by'] = Auth::user()->id;
+                    $item_request['sign_at'] = Carbon::now()->toDateTimeString();
+                    $action = Action::create(['action' => "Maintenance Item has been completed", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                }
                 //dd($item_request);
             }
         }
@@ -938,6 +946,7 @@ class SiteMaintenanceController extends Controller
         $actions = [];
         $actions[] = ['value' => '0', 'text' => 'Incomplete'];
         $actions[] = ['value' => '1', 'text' => 'Completed'];
+        $actions[] = ['value' => '2', 'text' => 'Owner Works'];
         //$actions[] = ['value' => '-1', 'text' => 'Mark N/A'];
         $actions2[] = ['value' => '', 'text' => 'Select Action'];
         $actions2[] = ['value' => '0', 'text' => 'Incomplete'];
