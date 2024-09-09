@@ -150,7 +150,7 @@
                                     <div class="col-md-1 hidden-sm hidden-xs">&nbsp;</div>
                                     <div class="col-md-11">{!! nl2br($report->recommend) !!}</div>
                                 </div>
-                                @if ($report->required_cost)
+                                @if ($report->recommend_cost)
                                     <br>
                                     <hr style="margin: 0px">
                                     <div class="row" style="text-align: right;">
