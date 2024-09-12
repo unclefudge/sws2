@@ -47,7 +47,7 @@
                                     $task = "";
                                     if ($todos) {
                                         foreach ($todos as $todo)
-                                            $task .= ($todo->status) ? "<br>ToDo : " . $todo->assignedToBySBC() : "<br>ToDo: Closed by " . $todo->doneBY->name . " :" . $todo->id;
+                                            $task .= ($todo->status) ? "<br>ToDo : " . $todo->assignedToBySBC() : "<br>ToDo: Closed by " . $todo->doneBY->name; // . " :" . $todo->id;
                                     }
                                     ?>
                                 <tr>
