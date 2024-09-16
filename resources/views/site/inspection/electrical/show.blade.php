@@ -47,6 +47,14 @@
                                             <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
                                             <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
                                         @endif
+                                        @if($report->status == '3')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">PENDING</span>
+                                            <span class="text-center font-red visible-sm visible-xs">PENDING</span>
+                                        @endif
+                                        @if($report->status == '4')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                            <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                        @endif
                                     </h2>
                                 </div>
                             </div>
@@ -218,6 +226,26 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Admin update with Client or Not --}}
+                            @if ($report->manager_sign_by)
+                                <div class="row">
+                                    <div class="col-sm-3 text-right">Report Sent to Client:</div>
+                                    <div class="col-sm-9">
+                                        <div class="col-md-6">
+                                            {{-- Alethea --}}
+                                            @if($report->status == 3 && Auth::user()->allowed2('edit.site.inspection', $report) && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator') || Auth::user()->id == 464 ))
+                                                <div class="form-group {!! fieldHasError('sent2_client', $errors) !!}">
+                                                    {!! Form::select('sent2_client', ['n' => 'No', 'y' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'sent2_client']) !!}
+                                                </div>
+                                            @endif
+                                            @if($report->status == 0)
+                                                Yes
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         @if(Auth::user()->allowed2('edit.site.inspection', $report))

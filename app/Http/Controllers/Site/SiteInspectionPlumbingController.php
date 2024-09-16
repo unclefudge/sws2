@@ -297,7 +297,7 @@ class SiteInspectionPlumbingController extends Controller
             $report->save();
         }
 
-        // Manager Signoff
+        // Tech Mgr Signoff
         if (request('manager_sign_by')) {
             if (request('manager_sign_by') == 'y') {
                 $report->manager_sign_by = Auth::User()->id;
@@ -321,7 +321,6 @@ class SiteInspectionPlumbingController extends Controller
                     unlink($file);
                 $pdf->save($file);
 
-
                 // Project Manager + Alethea
                 $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
                 if (\App::environment('prod') && $report->site->projectManager && validEmail($report->site->projectManager->email))
@@ -335,12 +334,11 @@ class SiteInspectionPlumbingController extends Controller
                     $email_list = [$company->primary_contact()->email];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReportTrade($report, $file));
 
-
                 Toastr::success("Report Signed Off");
 
                 //dd($email_list);
             } else {
-                $action = Action::create(['action' => "Report rejected by Construction Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report rejected by Technical Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
                 $report->inspected_name = null;
                 $report->inspected_lic = null;
                 $report->status = 1;
