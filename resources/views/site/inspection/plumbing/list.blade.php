@@ -145,7 +145,7 @@
         @endif
 
         {{-- Not with Client--}}
-        @if (Auth::user()->isCC() && $client_not_sent->count())
+        @if (Auth::user()->isCC())
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">
