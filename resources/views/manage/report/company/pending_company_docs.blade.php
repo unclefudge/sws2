@@ -46,8 +46,9 @@
                                     $todos = App\Models\Comms\Todo::where('type', 'company doc')->where('type_id', $doc->id)->get();
                                     $task = "";
                                     if ($todos) {
-                                        foreach ($todos as $todo)
-                                            $task .= ($todo->status) ? "<br>ToDo : " . $todo->assignedToBySBC() : "<br>ToDo: Closed by " . $todo->doneBY->name . "(" . $$todo->done_at->format('d/m/Y') . ")"; // . " :" . $todo->id;
+                                        foreach ($todos as $todo) {
+                                            $task .= ($todo->status) ? "<br>ToDo : " . $todo->assignedToBySBC() : "<br>ToDo: Closed by " . $todo->doneBY->name . "(" . $todo->done_at->format('d/m/Y') . ")"; // . " :" . $todo->id;
+                                        }
                                     }
                                     ?>
                                 <tr>
