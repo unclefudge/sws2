@@ -558,7 +558,7 @@ class ReportUserCompanyController extends Controller
     {
         $today = Carbon::today();
 
-        $pending = CompanyDoc::where('status', 3)->orderBy('for_company_id')->get();
+        $pending = CompanyDoc::where('status', 3)->where('company_id', 3)->orderBy('for_company_id')->get();
         return view('manage/report/company/pending_company_docs', compact('pending'));
 
     }
