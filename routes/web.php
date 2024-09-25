@@ -583,6 +583,21 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('safety/doc/dt/toolbox_templates', '\App\Http\Controllers\Safety\ToolboxTalkController@getToolboxTemplates');
     Route::resource('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController');
 
+
+    // Toolbox Talks3
+    Route::get('safety/doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@index');
+    Route::get('safety/doc/toolbox3/{id}/accept', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@accept');
+    Route::get('safety/doc/toolbox3/{id}/create', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@createFromTemplate');
+    Route::get('safety/doc/toolbox3/{id}/reject', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@reject');
+    Route::get('safety/doc/toolbox3/{id}/signoff', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@signoff');
+    Route::get('safety/doc/toolbox3/{id}/archive', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@archive');
+    Route::get('safety/doc/toolbox3/{id}/destroy', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@destroy');
+    Route::get('safety/doc/toolbox3/{id}/pdf', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@createPDF');
+    Route::post('safety/doc/toolbox3/{id}/upload', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@uploadMedia');
+    Route::get('safety/doc/dt/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@getToolbox');
+    Route::get('safety/doc/dt/toolbox3_templates', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@getToolboxTemplates');
+    Route::resource('safety/doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller');
+
     // Safety Docs - WMS
     Route::get('safety/doc/wms', '\App\Http\Controllers\Safety\WmsController@index');
     Route::get('safety/doc/wms/expired', '\App\Http\Controllers\Safety\WmsController@expired');

@@ -1,9 +1,14 @@
 @extends('layout')
 
+@section('pagetitle')
+    <div class="page-title">
+        <h1><i class="fa fa-life-ring"></i> Toolbox Talks</h1>
+    </div>
+@stop
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><a href="/safety/doc/toolbox2">Toolbox Talks</a><i class="fa fa-circle"></i></li>
+        <li><a href="/safety/doc/toolbox3">Toolbox Talks</a><i class="fa fa-circle"></i></li>
         <li><span>Edit Talk</span></li>
     </ul>
 @stop
@@ -44,10 +49,18 @@
                             <span class="caption-subject font-green-haze bold uppercase">Edit Talk</span>
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
+                        <div class="actions">
+                            <a class="btn blue btn-sm" href="#modal_upload" data-original-title="Add" data-toggle="modal">
+                                <i class="fa fa-upload"></i> Upload Image
+                            </a>
+
+                            <a href="" class="btn btn-circle btn-icon-only btn-default collapse"> </a>
+                            <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default fullscreen"> </a>
+                        </div>
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalkController@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
+                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
 
                         @include('form-error')
 
@@ -88,27 +101,44 @@
                             </div>
                             <hr style="margin: 2px 0 15px 0">
 
-                            <div class="col-md-6">
+                            @if ($talk->uploadedFilesURL())
+                                <div class="row">
+                                    <div class="col-md-12 note note-warning">
+                                        <h3>List of uploaded files</h3>
+                                        <p>To use any of the following files in your Toolbox Talk you'll need to:</p>
+                                        <ol>
+                                            <li>Copy to link to Clipboard by highlighting file and using CTL + C to copy</li>
+                                            <li>Click insert media button <i class="fa fa-picture-o"></i></li>
+                                            <li>Paste to URL field using CTL + V to paste</li>
+                                        </ol>
 
-                            </div>
-
-
+                                        <br>
+                                        @foreach($talk->uploadedFilesURL() as $file)
+                                            <b>{{ $file }}</b><br>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                             <div class="row">
-                                <div class="col-xs-12">
+                                <div class="col-md-12">
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
-                                    <div name="sn_overview" id="sn_overview">{!! $talk->overview !!}</div>
+                                    <div><textarea name="ck_overview" id="ck_overview" rows="20" cols="80">{{ $talk->overview }}</textarea></div>
+                                    <br>
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE HAZARDS?</h5></div>
-                                    <div name="sn_hazards" id="sn_hazards">{!! $talk->hazards !!}</div>
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5></div>
-                                    <div name="sn_controls" id="sn_controls">{!! $talk->controls !!}</div>
+                                    <div><textarea name="ck_hazards" id="ck_hazards" rows="20" cols="80">{{ $talk->hazards }}</textarea></div>
+                                    <br>
+                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5>
+                                    </div>
+                                    <div><textarea name="ck_controls" id="ck_controls" rows="20" cols="80">{{ $talk->controls }}</textarea></div>
+                                    <br>
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
-                                    <div name="sn_further" id="sn_further">{!! $talk->further !!}</div>
+                                    <textarea name="ck_further" id="ck_further" rows="20" cols="80">{{ $talk->further }}</textarea>
                                 </div>
                             </div>
                             <br>
 
                             <div class="form-actions right">
-                                <a href="/safety/doc/toolbox2" class="btn default"> Back</a>
+                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
                                 <button type="submit" class="btn dark"> Save Draft</button>
                                 @if(!$talk->master)
                                     <a data-original-title="Assign Users" data-toggle="modal" href="#modal_final">
@@ -145,18 +175,51 @@
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+
+    <!-- Upload Photo Modal -->
+    <div id="modal_upload" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content form">
+                {!! Form::model($talk, ['method' => 'POST', 'action' => ['Safety\ToolboxTalk3Controller@uploadMedia', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'upload_form']) !!}
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title text-center"><b>Upload Photo</b></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                    <label class="control-label">Select File</label>
+                                    <input id="singlefile" name="singlefile" type="file" accept="image/*" class="file-loading">
+                                    {!! fieldErrorMessage('singlefile', $errors) !!}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn green" data-dismiss="modal" id="upload_media">Upload</button>
+                </div>
+                {!! Form::close() !!}
+            </div>
+        </div>
+    </div>
+@stop
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-summernote/summernote.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.ckeditor.com/4.7.0/standard-all/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/bootstrap-summernote/summernote.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
-
+    <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
 @section('page-level-scripts')
@@ -167,26 +230,37 @@
             header: $('meta[name="_token"]').attr('content')
         })
 
-        var ComponentsEditors = function () {
-            var handleEditors = function () {
-                $('#sn_overview').summernote({height: 150});
-                $('#sn_hazards').summernote({height: 300});
-                $('#sn_controls').summernote({height: 300});
-                $('#sn_further').summernote({height: 100});
-            }
-            return {
-                //main function to initiate the module
-                init: function () {
-                    handleEditors();
-                }
-            };
-
-        }();
-
-        jQuery(document).ready(function () {
-            ComponentsEditors.init();
-
+        CKEDITOR.replace('ck_overview', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
         });
+
+        CKEDITOR.replace('ck_hazards', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
+
+        CKEDITOR.replace('ck_controls', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+        });
+
+        CKEDITOR.replace('ck_further', {
+            customConfig: '/js/libs/ckeditor/customConfig.js',
+            height: 200, // Make the editing area bigger than default.
+            /*toolbar: [
+             { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+             { name: 'styles', items: [ 'Styles', 'Format' ] },
+             { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
+             { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
+             { name: 'links', items: [ 'Link', 'Unlink' ] },
+             { name: 'insert', items: [ 'Image', 'EmbedSemantic', 'Table' ] },
+             { name: 'tools', items: [ 'Maximize' ] },
+             { name: 'editing', items: [ 'Scayt' ] },
+             { name: 'document', items: [ 'Source' ] }
+             ],
+             customConfig: '',
+             extraPlugins: 'autoembed,embedsemantic,image2,',//uploadimage,uploadfile',
+             removePlugins: 'image', // Remove the default image plugin because image2, which offers captions for images*/
+        });
+
 
         $('#name-show').on('click', function () {
             $('#name-show').hide();
@@ -208,24 +282,62 @@
             submit_form();
         });
 
-        function submit_form() {
-            $('#overview').val($('#sn_overview').code());
-            $('#hazards').val($('#sn_hazards').code());
-            $('#controls').val($('#sn_controls').code());
-            $('#further').val($('#sn_further').code());
+        $('#upload_media').on('click', function () {
+            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
+            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
+            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
+            $('#further').val(CKEDITOR.instances.ck_further.getData());
             $.ajax({
                 type: "POST",
-                url: '/safety/doc/toolbox2/' + $('#talk_id').val(),
+                url: '/safety/doc/toolbox3/' + $('#talk_id').val(),
                 data: $("#talk_form").serialize(),
                 dataType: 'json',
                 success: function (data) {
-                    window.location = "/safety/doc/toolbox2/" + $('#talk_id').val() + '/edit';
+                    document.getElementById('upload_form').submit();
                 },
                 error: function (data) {
-                    alert('Failed to save Toolbox talk');
+                    alert('Failed to upload media talk id:' + $('#talk_id').val());
+                }
+            })
+        });
+
+        function submit_form() {
+            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
+            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
+            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
+            $('#further').val(CKEDITOR.instances.ck_further.getData());
+            $.ajax({
+                type: "POST",
+                url: '/safety/doc/toolbox3/' + $('#talk_id').val(),
+                data: $("#talk_form").serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    window.location = "/safety/doc/toolbox3/" + $('#talk_id').val() + '/edit';
+                },
+                error: function (data) {
+                    ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
+                    swal({
+                        title: 'Failed to save Toolbox',
+                        text: "<b>We apologise but we were unable to save your Toolbox Talk (id:" + $('#talk_id').val() + ")<br><br>Please try again but if the problem persists let us know.</b>",
+                        html: true
+                    });
                 }
             })
         }
+
+        /* Bootstrap Fileinput */
+        $("#singlefile").fileinput({
+            showUpload: false,
+            previewFileType: "image",
+            //allowedFileExtensions: ['gif', 'jpg', 'png'],
+            browseClass: "btn blue",
+            browseLabel: "Browse",
+            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+            //removeClass: "btn btn-danger",
+            removeLabel: "",
+            removeIcon: "<i class=\"fa fa-trash\"></i> ",
+            uploadClass: "btn btn-info",
+        });
     </script>
 @stop
 
