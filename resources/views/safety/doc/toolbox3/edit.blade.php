@@ -46,7 +46,7 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Edit Talk</span>
+                            <span class="caption-subject font-green-haze bold ">EDIT TALK (v3)</span>
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
                         <div class="actions">
@@ -69,10 +69,11 @@
                         <input type="hidden" name="toolbox_type" value="none">
                         <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
                         <input type="hidden" name="status" id="status" value="2">
-                        <input type="hidden" name="overview" id='overview' value="{{ $talk->overview }}">
+                        <input type="hidden" name="draft" id="draft" value="save">
+                        {{--}}<input type="hidden" name="overview" id='overview' value="{{ $talk->overview }}">
                         <input type="hidden" name="hazards" id='hazards' value="{{ $talk->hazards }}">
                         <input type="hidden" name="controls" id='controls' value="{{ $talk->controls }}">
-                        <input type="hidden" name="further" id='further' value="{{ $talk->further }}">
+                        <input type="hidden" name="further" id='further' value="{{ $talk->further }}">--}}
 
                         <div class="form-body">
                             <div class="row">
@@ -122,17 +123,16 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">OVERVIEW</h5></div>
-                                    <div><textarea name="ck_overview" id="ck_overview" rows="20" cols="80">{{ $talk->overview }}</textarea></div>
+                                    <div><textarea name="overview" id="overview"></textarea></div>
                                     <br>
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE HAZARDS?</h5></div>
-                                    <div><textarea name="ck_hazards" id="ck_hazards" rows="20" cols="80">{{ $talk->hazards }}</textarea></div>
+                                    <div><textarea name="hazards" id="hazards"></textarea></div>
                                     <br>
-                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5>
-                                    </div>
-                                    <div><textarea name="ck_controls" id="ck_controls" rows="20" cols="80">{{ $talk->controls }}</textarea></div>
+                                    <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">WHAT ARE THE CONTROLS / WHAT ACTIONS ARE REQUIRED?</h5></div>
+                                    <div><textarea name="controls" id="controls"></textarea></div>
                                     <br>
                                     <div style="background: #f0f6fa; padding: 2px 0px 2px 20px;"><h5 style="margin: 5px; font-weight: bold">FURTHER INFORMATION</h5></div>
-                                    <textarea name="ck_further" id="ck_further" rows="20" cols="80">{{ $talk->further }}</textarea>
+                                    <div><textarea name="further" id="further"></textarea></div>
                                 </div>
                             </div>
                             <br>
@@ -211,82 +211,90 @@
 
 @section('page-level-plugins-head')
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <script src="https://cdn.ckeditor.com/4.7.0/standard-all/ckeditor.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.1.1/ckeditor5.css"/>
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/43.1.1/ckeditor5.umd.js"></script>
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script>
+        const {
+            Bold, ClassicEditor, Essentials, Font, Heading, HorizontalLine,
+            ImageBlock, ImageInline, ImageInsertViaUrl, ImageResize, ImageStyle,
+            Indent, IndentBlock, Italic, Link, List, MediaEmbed, Paragraph, SourceEditing,
+            Table, TableCaption, TableCellProperties, TableColumnResize, TableProperties, TableToolbar,
+            Underline,
+        } = CKEDITOR;
+
+        const default_toolbar = ['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'underline', '|', 'fontColor', 'fontBackgroundColor', '|',
+            'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'horizontalLine', 'link', 'insertImage', 'mediaEmbed', 'insertTable', 'sourceEditing'];
+        const default_plugins = [Essentials, Bold, Italic, Font, Paragraph, Heading, HorizontalLine, List, Link, Underline, Indent, IndentBlock, SourceEditing,
+            Table, TableCaption, TableCellProperties, TableColumnResize, TableProperties, TableToolbar, MediaEmbed,
+            ImageBlock, ImageInline, ImageInsertViaUrl, ImageResize, ImageStyle];
+
+
+        ClassicEditor.create(document.querySelector('#overview'), {
+            plugins: default_plugins,
+            toolbar: default_toolbar,
+            initialData: @json($talk->overview)
+        }).catch(error => {
+            console.error(error)
+        });
+
+        ClassicEditor.create(document.querySelector('#hazards'), {
+            plugins: default_plugins,
+            toolbar: default_toolbar,
+            initialData: @json($talk->hazards)
+        }).catch(error => {
+            console.error(error)
+        });
+
+        ClassicEditor.create(document.querySelector('#controls'), {
+            plugins: default_plugins,
+            toolbar: default_toolbar,
+            initialData: @json($talk->controls)
+        }).catch(error => {
+            console.error(error)
+        });
+
+        ClassicEditor.create(document.querySelector('#further'), {
+            plugins: default_plugins,
+            toolbar: default_toolbar,
+            initialData: @json($talk->further)
+        }).catch(error => {
+            console.error(error)
+        });
+    </script>
+    <script>
         $.ajaxSetup({
             header: $('meta[name="_token"]').attr('content')
         })
-
-        CKEDITOR.replace('ck_overview', {
-            customConfig: '/js/libs/ckeditor/customConfig.js',
-        });
-
-        CKEDITOR.replace('ck_hazards', {
-            customConfig: '/js/libs/ckeditor/customConfig.js',
-        });
-
-        CKEDITOR.replace('ck_controls', {
-            customConfig: '/js/libs/ckeditor/customConfig.js',
-        });
-
-        CKEDITOR.replace('ck_further', {
-            customConfig: '/js/libs/ckeditor/customConfig.js',
-            height: 200, // Make the editing area bigger than default.
-            /*toolbar: [
-             { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
-             { name: 'styles', items: [ 'Styles', 'Format' ] },
-             { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
-             { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
-             { name: 'links', items: [ 'Link', 'Unlink' ] },
-             { name: 'insert', items: [ 'Image', 'EmbedSemantic', 'Table' ] },
-             { name: 'tools', items: [ 'Maximize' ] },
-             { name: 'editing', items: [ 'Scayt' ] },
-             { name: 'document', items: [ 'Source' ] }
-             ],
-             customConfig: '',
-             extraPlugins: 'autoembed,embedsemantic,image2,',//uploadimage,uploadfile',
-             removePlugins: 'image', // Remove the default image plugin because image2, which offers captions for images*/
-        });
-
 
         $('#name-show').on('click', function () {
             $('#name-show').hide();
             $('#name-edit').show();
         });
 
-        $('#talk_form').on('submit', function (e) {
-            e.preventDefault(e);
-            submit_form();
-        });
-
         $('#active').on('click', function () {
             $('#status').val(1);
-            submit_form();
+            document.getElementById('talk_form').submit();
+            //submit_form();
         });
 
         $('#continue').on('click', function () {
             $('#status').val(1);
-            submit_form();
+            document.getElementById('talk_form').submit();
+            //submit_form();
         });
 
         $('#upload_media').on('click', function () {
-            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
-            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
-            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
-            $('#further').val(CKEDITOR.instances.ck_further.getData());
             $.ajax({
                 type: "POST",
                 url: '/safety/doc/toolbox3/' + $('#talk_id').val(),
@@ -300,30 +308,6 @@
                 }
             })
         });
-
-        function submit_form() {
-            $('#overview').val(CKEDITOR.instances.ck_overview.getData());
-            $('#hazards').val(CKEDITOR.instances.ck_hazards.getData());
-            $('#controls').val(CKEDITOR.instances.ck_controls.getData());
-            $('#further').val(CKEDITOR.instances.ck_further.getData());
-            $.ajax({
-                type: "POST",
-                url: '/safety/doc/toolbox3/' + $('#talk_id').val(),
-                data: $("#talk_form").serialize(),
-                dataType: 'json',
-                success: function (data) {
-                    window.location = "/safety/doc/toolbox3/" + $('#talk_id').val() + '/edit';
-                },
-                error: function (data) {
-                    ///alert('Failed to save Toolbox talk id:' + $('#talk_id').val());
-                    swal({
-                        title: 'Failed to save Toolbox',
-                        text: "<b>We apologise but we were unable to save your Toolbox Talk (id:" + $('#talk_id').val() + ")<br><br>Please try again but if the problem persists let us know.</b>",
-                        html: true
-                    });
-                }
-            })
-        }
 
         /* Bootstrap Fileinput */
         $("#singlefile").fileinput({

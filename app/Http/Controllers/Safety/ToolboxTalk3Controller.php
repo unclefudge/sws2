@@ -108,16 +108,16 @@ class ToolboxTalk3Controller extends Controller
         if (!Auth::user()->allowed2('add.toolbox'))
             return view('errors/404');
 
-        $tool_request = $request->all();
-        dd($tool_request);
+        $tool_request = request()->all();
+        //dd($tool_request);
 
-        if ($request->get('toolbox_type') == 'scratch') {
+        if (request('toolbox_type') == 'scratch') {
             $tool_request['master_id'] = null;
             $tool_request['version'] = '1.0';
-        } elseif ($request->get('toolbox_type') == 'previous')
-            $tool_request['master_id'] = $request->get('previous_id');
+        } elseif (request('toolbox_type') == 'previous')
+            $tool_request['master_id'] = request('previous_id');
         else
-            $tool_request['master_id'] = $request->get('master_id');
+            $tool_request['master_id'] = request('master_id');
 
         $tool_request['company_id'] = ($request->has('parent_switch')) ? Auth::user()->company->reportsTo()->id : Auth::user()->company_id;
         $tool_request['for_company_id'] = Auth::user()->company_id;
@@ -127,7 +127,7 @@ class ToolboxTalk3Controller extends Controller
         $newTalk = ToolboxTalk::create($tool_request);
 
         // Copy Steps / Hazards / Controls from Master Template
-        if ($request->get('toolbox_type') != 'scratch')
+        if (request('toolbox_type') != 'scratch')
             $this->copyTemplate($tool_request['master_id'], $newTalk->id);
 
         Toastr::success("Created new talk");
@@ -150,7 +150,7 @@ class ToolboxTalk3Controller extends Controller
 
         // Draft / Pending mode
         if (in_array($talk->status, [2, 3]))
-            return view('safety/doc/toolbox/edit', compact('talk'));
+            return view('safety/doc/toolbox3/edit', compact('talk'));
 
         return redirect('/safety/doc/toolbox3/' . $talk->id);
     }
@@ -161,14 +161,15 @@ class ToolboxTalk3Controller extends Controller
     public function update(ToolboxRequest $request, $id)
     {
         $talk = ToolboxTalk::findOrFail($id);
+        $tool_request = request()->all();
+        //dd($tool_request);
 
         //
         // Editing when in Draft Mode - Ajax
         //
-        if (request()->ajax()) {
+        if (request('draft') == 'save') {
             // Editing Talk Name / Info
-            $tool_request = request()->all();
-            //dd($tool_request);
+
 
             // Calculate if any differences in previous version of talk
             $diff_overview = Diff2::toTable(Diff2::compare($talk->overview, request('overview') . "\n"));
@@ -217,7 +218,7 @@ class ToolboxTalk3Controller extends Controller
                     if ($mod_controls) $diffs .= "CONTROLS<br>$diff_controls<br>";
                     if ($mod_further) $diffs .= "FURTHER INFOMATION<br>$diff_further<br>";
                     // Mail notification talk owner
-                    $talk->emailModifiedTemplate($diffs);
+                    //$talk->emailModifiedTemplate($diffs);
                     //if ($talk->owned_by->notificationsUsersType('doc.whs.approval'))
                     //    Mail::to($talk->owned_by->notificationsUsersType('doc.whs.approval'))->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($talk, $diffs));
                 }
@@ -231,7 +232,8 @@ class ToolboxTalk3Controller extends Controller
             } else
                 Toastr::warning("Nothing was changed");
 
-            return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
+            //return response()->json(['success' => true, 'message' => 'Your AJAX processed correctly']);
+            return redirect("safety/doc/toolbox3/$talk->id/edit");
         } else {
             //
             // Edit Active Toolbox with Users / Status

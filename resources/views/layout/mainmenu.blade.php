@@ -193,7 +193,7 @@
                                                         @if (Auth::user()->hasAnyPermissionType('toolbox'))
                                                             <li><a href="/safety/doc/toolbox2" class="nav-link "> Toolbox Talks</a></li>
                                                         @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('toolbox') && in_array(Auth::user()->id, [3]))
+                                                        @if (Auth::user()->hasAnyPermissionType('toolbox') && in_array(Auth::user()->id, [3, 108]))
                                                             <li><a href="/safety/doc/toolbox3" class="nav-link "> Toolbox Talks3</a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('sds'))

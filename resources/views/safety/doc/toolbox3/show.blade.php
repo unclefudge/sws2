@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><a href="/safety/doc/toolbox2">Toolbox Talks</a><i class="fa fa-circle"></i></li>
+        <li><a href="/safety/doc/toolbox3">Toolbox Talks</a><i class="fa fa-circle"></i></li>
         <li><span>View Talk</span></li>
     </ul>
 @stop
@@ -98,11 +98,11 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-text-o "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Toolbox Talk</span>
+                            <span class="caption-subject font-green-haze bold ">TOOLBOX TALK (v3)</span>
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
                         <div class="actions">
-                            <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/toolbox2/{{ $talk->id }}/pdf" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> &nbsp; PDF</a>
+                            <a class="btn btn-circle green btn-outline btn-sm" href="/safety/doc/toolbox3/{{ $talk->id }}/pdf" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> &nbsp; PDF</a>
                             @if (Auth::user()->allowed2('edit.toolbox', $talk))
                                 <div class="btn-group">
                                     <a class="btn btn-circle green btn-outline btn-sm" href="javascript:;" data-toggle="dropdown" data-over="dropdown"><i class="fa fa-cog"></i> Actions</a>
@@ -110,8 +110,8 @@
                                         {{-- Talk Pending --}}
                                         @if ($talk->status == 3 && (Auth::user()->allowed2('del.toolbox', $talk) || Auth::user()->allowed2('sig.toolbox', $talk)))
                                             @if(Auth::user()->allowed2('sig.toolbox', $talk))
-                                                <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
-                                                <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/reject"><i class="fa fa-ban"></i> Reject</a></li>
+                                                <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
+                                                <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/reject"><i class="fa fa-ban"></i> Reject</a></li>
                                                 <li class="divider"></li>
                                             @endif
                                             @if(Auth::user()->allowed2('del.toolbox', $talk))
@@ -119,7 +119,8 @@
                                             @endif
                                         @endif
 
-                                        @if ($talk->status != 3) {{-- Not Pending --}}
+                                        @if ($talk->status != 3)
+                                            {{-- Not Pending --}}
                                             @if(!$talk->master && $talk->status == 1)
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Edit Users</a></li>
                                                 <li class="divider"></li>
@@ -127,7 +128,7 @@
                                             @if($talk->status == 1 && Auth::user()->allowed2('del.toolbox', $talk))
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a></li>
                                             @elseif($talk->status == 0 && Auth::user()->isCompany($talk->owned_by) && Auth::user()->allowed2('del.toolbox', $talk))
-                                                <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/archive"><i class="fa fa-archive"></i> Unarchive</a></li>
+                                                <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/archive"><i class="fa fa-archive"></i> Unarchive</a></li>
                                             @endif
                                         @endif
                                     </ul>
@@ -136,7 +137,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalkController@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
+                        {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                         @include('form-error')
                         <input type="hidden" name="talk_id" id='talk_id' value="{{ $talk->id }}">
                         <div class="form-body">
@@ -186,19 +187,19 @@
 
                             <br>
                             <div class="form-actions right">
-                                <a href="/safety/doc/toolbox2" class="btn default"> Back</a>
+                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
                                 @if($talk->master && $talk->status == '1' && Auth::user()->hasPermission2('add.toolbox'))
-                                    <a href="/safety/doc/toolbox2/{{ $talk->id}}/create" class="btn green">Create Toolbox Talk using this Template</a>
+                                    <a href="/safety/doc/toolbox3/{{ $talk->id}}/create" class="btn green">Create Toolbox Talk using this Template</a>
                                 @endif
                                 @if($talk->status == '1' && Auth::user()->allowed2('del.toolbox', $talk))
                                     <a class="btn dark" data-original-title="Archive" data-toggle="modal" href="#modal_archive"><i class="fa fa-archive"></i> Archive</a>
                                 @endif
                                 @if($talk->status == '3' && Auth::user()->allowed2('sig.toolbox', $talk))
-                                    <a href="/safety/doc/toolbox2/{{ $talk->id }}/signoff" class="btn green"> Sign Off</a>
-                                    <a href="/safety/doc/toolbox2/{{ $talk->id }}/reject" class="btn red"> Reject</a>
+                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/signoff" class="btn green"> Sign Off</a>
+                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/reject" class="btn red"> Reject</a>
                                 @endif
                                 @if($talk->userRequiredToRead(Auth::user()))
-                                    <a href="/safety/doc/toolbox2/{{ $talk->id }}/accept" class="btn green"> Accept as Read</a>
+                                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/accept" class="btn green"> Accept as Read</a>
                                 @endif
                             </div>
                         </div>
@@ -218,7 +219,7 @@
                     <h4 class="modal-title">{{ $talk->name }}</h4>
                 </div>
                 <div class="modal-body">
-                    {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalkController@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
+                    {!! Form::model($talk, ['method' => 'PATCH', 'action' => ['Safety\ToolboxTalk3Controller@update', $talk->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
                     <input type="hidden" name="name" value="{{ $talk->name }}">
                     <input type="hidden" name="toolbox_type" value="none">
                     <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
@@ -305,7 +306,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <a href="/safety/doc/toolbox2/{{ $talk->id }}/archive" class="btn green">Continue</a>
+                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/archive" class="btn green">Continue</a>
                 </div>
             </div>
         </div>
@@ -325,8 +326,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <a href="/safety/doc/toolbox2/{{ $talk->id }}/archive" class="btn green">Continue</a>
-                    <!-- <li><a href="/safety/doc/toolbox2/{{ $talk->id }}/destroy"><i class="fa fa-trash"></i> Delete</a></li> -->
+                    <a href="/safety/doc/toolbox3/{{ $talk->id }}/archive" class="btn green">Continue</a>
+                    <!-- <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/destroy"><i class="fa fa-trash"></i> Delete</a></li> -->
                 </div>
             </div>
         </div>
@@ -412,7 +413,7 @@
                     allowOutsideClick: true,
                     html: true,
                 }, function () {
-                    window.location = "/safety/doc/toolbox2/" + id + '/destroy';
+                    window.location = "/safety/doc/toolbox3/" + id + '/destroy';
                 });
             });
         });
