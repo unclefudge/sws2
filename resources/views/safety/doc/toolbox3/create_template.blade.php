@@ -3,7 +3,7 @@
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        <li><a href="/safety/doc/toolbox2">Toolbox Talks</a><i class="fa fa-circle"></i></li>
+        <li><a href="/safety/doc/toolbox3">Toolbox Talks</a><i class="fa fa-circle"></i></li>
         <li><span>Create Talk</span></li>
     </ul>
 @stop
@@ -41,13 +41,13 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Create New Talk From Template</span>
+                            <span class="caption-subject font-green-haze bold">CREATE TALK FROM TEMPLATE (v3)</span>
                             <span class="caption-helper">{{ $talk->name }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model('toolboxtalk', ['action' => 'Safety\ToolboxTalkController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                        {!! Form::model('toolboxtalk', ['action' => 'Safety\ToolboxTalk3Controller@store', 'class' => 'horizontal-form', 'files' => true]) !!}
 
                         @include('form-error')
 
@@ -87,7 +87,7 @@
                             <br>
 
                             <div class="form-actions right">
-                                <a href="/safety/doc/toolbox2" class="btn default"> Back</a>
+                                <a href="/safety/doc/toolbox3" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Begin</button>
                             </div>
                         </div>
