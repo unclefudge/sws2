@@ -43,6 +43,7 @@ class CronReportController extends Controller
             CronReportController::emailJobstart();
             CronReportController::emailMaintenanceAppointment();
             CronReportController::emailMaintenanceUnderReview();
+            //CronReportController::emailMaintenanceOnHold();
             CronReportController::emailMissingCompanyInfo();
             CronReportController::emailActiveAsbestos();
             CronReportController::emailSupervisorAttendance();
@@ -248,6 +249,53 @@ class CronReportController extends Controller
     * Email Maintenance Under Review
     */
     static public function emailMaintenanceUnderReview()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Maintenance Under Review";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+        $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
+        $today = Carbon::now();
+
+        echo "Requests Under Review: " . $mains->count() . "<br>";
+        $log .= "Requests Under Review: " . $mains->count() . "\n";
+
+        if ($mains->count()) {
+            // Create PDF
+            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
+            if (file_exists($file))
+                unlink($file);
+
+            //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
+            //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
+            $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
+            $pdf->save($file);
+
+            CronController::debugEmail('EL', $email_list);
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
+
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * Email Maintenance On Hold
+    */
+    static public function emailMaintenanceOnHold()
     {
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";

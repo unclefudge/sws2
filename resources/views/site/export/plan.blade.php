@@ -56,7 +56,7 @@
                         <div class="row">
                             <div class="col-md-3"><h4>Export Planner by Site (Client)</h4></div>
                             <div class="col-md-6">
-                                {!! Form::select('site_id_client', Auth::user()->authSitesSelect('view.site', '1', 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id_client[]', 'id' => 'site_id_client', 'multiple' ]) !!}
+                                {!! Form::select('site_id_client', Auth::user()->authSitesSelect('view.site', [1,2], 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id_client[]', 'id' => 'site_id_client', 'multiple' ]) !!}
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn green" name="export_site_client" value="true"> View PDF</button>
@@ -67,7 +67,7 @@
                             <div class="row">
                                 <div class="col-md-3"><h4>Export Planner by Site</h4></div>
                                 <div class="col-md-6">
-                                    {!! Form::select('site_id', Auth::user()->authSitesSelect('view.site.export', '1', 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id[]', 'id' => 'site_id', 'multiple' ]) !!}
+                                    {!! Form::select('site_id', Auth::user()->authSitesSelect('view.site.export', [1,2], 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id[]', 'id' => 'site_id', 'multiple' ]) !!}
                                 </div>
                                 <div class="col-md-2">
                                     <button type="submit" class="btn green" name="export_site" value="true"> View PDF</button>
