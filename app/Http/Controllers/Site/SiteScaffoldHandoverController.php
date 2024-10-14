@@ -200,6 +200,22 @@ class SiteScaffoldHandoverController extends Controller
         return redirect('site/scaffold/handover');
     }
 
+    public function destroy($id)
+    {
+        $report = SiteScaffoldHandover::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.scaffold.handover', $report))
+            return json_encode("failed");
+
+        // Delete attached file
+        //if (file_exists(public_path('/filebank/construction/doc/standards/' . $report->attachment)))
+        //    unlink(public_path('/filebank/construction/doc/standards/' . $report->attachment));
+        $report->delete();
+
+        return json_encode('success');
+    }
+
 
     /**
      * Generate PDF report
@@ -300,6 +316,14 @@ class SiteScaffoldHandoverController extends Controller
             ->addColumn('due_at', function ($report) {
                 $created_at = Carbon::createFromFormat('Y-m-d', $report->created_at->format('Y-m-d'));
                 return nextWorkDate($created_at, '+', 1)->format('d/m/Y');
+            })
+            ->addColumn('action', function ($report) {
+                $record = SiteScaffoldHandover::find($report->id);
+                $actions = '';
+                if (Auth::user()->allowed2('del.site.scaffold.handover', $record))
+                    $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/scaffold/handover/' . $record->id . '" data-name="' . $record->site->name . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
             })
             ->rawColumns(['view', 'action'])
             ->make(true);

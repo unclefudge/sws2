@@ -47,6 +47,7 @@
                                 <th style="width:10%"> Due Date</th>
                                 <th> Scaffolder</th>
                                 <th style="width:10%"> Handover Date</th>
+                                <th style="width:5%"> Action</th>
                             </tr>
                             </thead>
                         </table>
@@ -73,7 +74,9 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script type="text/javascript">
-
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
         var status = $('#status').val();
 
         var table1 = $('#table1').DataTable({
@@ -93,6 +96,7 @@
                 {data: 'due_at', name: 'due_at', orderable: false, searchable: false},
                 {data: 'inspector_name', name: 'site_scaffold_handover.inspector_name'},
                 {data: 'handoverdate', name: 'site_scaffold_handover.handover_date'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [
                 [3, "desc"]
@@ -101,6 +105,35 @@
 
         $('select#status').change(function () {
             table1.ajax.reload();
+        });
+
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this report!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted document');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
+            });
         });
     </script>
 @stop
