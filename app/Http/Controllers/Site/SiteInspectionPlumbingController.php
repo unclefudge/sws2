@@ -274,14 +274,14 @@ class SiteInspectionPlumbingController extends Controller
                 $report->supervisor_sign_by = Auth::User()->id;
                 $report->supervisor_sign_at = Carbon::now();
                 $report->status = 3; // Pending signoff
-                $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report signed off by Admin Officer ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Create ToDoo for Tech Mgr
                 $report->closeToDo();
                 if (!$report->manager_sign_by)
                     $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
             } else {
-                $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
+                $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
                 $report->inspected_name = null;
                 $report->inspected_lic = null;
                 $report->status = 1;
