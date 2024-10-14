@@ -505,9 +505,7 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
-                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_1"> Risk
-                                            Assessments </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_1"> Risk Assessments </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_1" class="panel-collapse collapse">
@@ -599,9 +597,7 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
-                                        <a class="accordion-toggle accordion-toggle-styled collapsed"
-                                           data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3">
-                                            Plans </a>
+                                        <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3">Plans </a>
                                     </h4>
                                 </div>
                                 <div id="collapse_3_3" class="panel-collapse collapse">
@@ -644,13 +640,13 @@
                                 </div>
                             </div>
                         @endif
+                        {{-- Associated Documents --}}
                         <h5>Associated Documents</h5>
                         <div class="panel panel-default">
+                            {{-- Safe Work Method --}}
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse"
-                                       data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method
-                                        Statements </a>
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method Statements </a>
                                 </h4>
                             </div>
                             <div id="collapse_3_4" class="panel-collapse collapse">
@@ -688,6 +684,45 @@
                                                     </li>
                                                 @endif
 
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            {{-- Construction Standards --}}
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_5"> Construction Standards </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_3_5" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="mt-element-list">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
+                                            <ul class="feeds">
+                                                @foreach(\App\Models\Misc\ConstructionDoc::where('status', 1)->get() as $doc)
+                                                    @if($doc->status == 1)
+                                                        <li>
+                                                            <a href="{{ $doc->attachmentUrl }}" class="task-title">
+                                                                <div class="col1">
+                                                                    <div class="cont">
+                                                                        <div class="cont-col1">
+                                                                            <div class="label label-sm label-default">
+                                                                                <i class="fa fa-file-text-o"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="cont-col2">
+                                                                            <div class="desc"> {{ $doc->name }}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
                                             </ul>
                                         </div>
                                     </div>
