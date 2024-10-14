@@ -153,7 +153,7 @@ class ClientPlannerEmailController extends Controller
         // Actions template
         $actions = '';
         if (request('type') == 'Action') {
-            $actions = "As discussed in our Pre Construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
+            $actions = "As discussed in our Pre construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
             //$actions .= "<table style='padding: 0px; margin: 0px; border: 1px solid black; border-collapse: collapse'>";
             $actions .= "<table style='border: 1px solid black;'>";
             $actions .= "<thead>";
@@ -184,9 +184,9 @@ class ClientPlannerEmailController extends Controller
 
         // Generate body
         //$body = "Hi " . request('intro') . ",\r\n\r\n";
-        //$body .= "Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks:\r\n";
+        //$body .= "Please find attached this week’s construction Planner for your project and below overview of what to expect in the coming weeks:\r\n";
         $body = "Hi " . request('intro') . ",<br><br>";
-        $body .= "Please find attached this week’s Construction Planner for your project and below overview of what to expect in the coming weeks.<br><br>";
+        $body .= "Please find attached this week’s construction Planner for your project and below overview of what to expect in the coming weeks.<br><br>";
 
         //$body .= "$clientplan";
         if ($actions)

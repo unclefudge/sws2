@@ -2004,7 +2004,7 @@ class SitePlannerController extends Controller
         if ($date->lte($today))
             $date = nextWorkDate($today, '+', 1);
 
-        // Pre-construction  entity_name: 'Supervisors', task_code: 'Pre', task_name: 'Pre Construction'
+        // Pre-construction  entity_name: 'Supervisors', task_code: 'Pre', task_name: 'Pre construction'
         SitePlanner::create(['site_id' => $site_id, 'entity_type' => 't', 'entity_id' => 31, 'task_id' => 264, 'from' => $date->toDateTimeString(), 'to' => $date->toDateTimeString(), 'days' => 1]);
 
         //

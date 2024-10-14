@@ -168,7 +168,7 @@ class SiteInspectionElectrical extends Model
      */
     public function createAssignCompanyToDo($user_list)
     {
-        // Create ToDoo for Construction Manager to assign to company
+        // Create ToDoo for construction Manager to assign to company
         $todo_request = [
             'type' => 'inspection_electrical',
             'type_id' => $this->id,
@@ -178,7 +178,7 @@ class SiteInspectionElectrical extends Model
             'company_id' => $this->site->owned_by->id,
         ];
 
-        // Create ToDoo and assign to Construction Manager
+        // Create ToDoo and assign to construction Manager
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
         $todo->emailToDo();
@@ -189,7 +189,7 @@ class SiteInspectionElectrical extends Model
      */
     public function createSignOffToDo($user_list)
     {
-        // Create ToDoo for Construction Manager to review report
+        // Create ToDoo for construction Manager to review report
         $todo_request = [
             'type' => 'inspection_electrical',
             'type_id' => $this->id,
@@ -220,7 +220,7 @@ class SiteInspectionElectrical extends Model
             'company_id' => $this->site->owned_by->id,
         ];
 
-        // Create ToDoo and assign to Construction Manager
+        // Create ToDoo and assign to construction Manager
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
     }

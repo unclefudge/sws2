@@ -509,7 +509,7 @@ class CronController extends Controller
                             $todo->done_at = Carbon::now();
                             $todo->done_by = 1;
                             $todo->save();
-                            Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Company\CompanyDocTodoClosed($doc, $todo));
+                            //Mail::to('fudge@jordan.net.au')->send(new \App\Mail\Company\CompanyDocTodoClosed($doc, $todo));
                         } else {
                             //echo "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC<br>";
                             //$log .= "ToDo [$todo->id] - $todo->name (" . $doc->company->name . ") INACTIVE DOC\n";

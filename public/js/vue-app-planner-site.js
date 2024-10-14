@@ -311,7 +311,7 @@ Vue.component('app-siteplan', {
             // Check for special cases ie 'START' + 'STARTCarp' and prevent duplicate task
             var validTask = true;
 
-            // Don't allow any task to be added prior to 'START' task (except Pre-Construction meeting)
+            // Don't allow any task to be added prior to 'START' task (except Pre-construction meeting)
             // - since adding Pre-construction planner we'll allow task to be added before START task
             /*
              if (this.xx.start_date && moment(this.xx.day_date).isBefore(this.xx.start_date)) {

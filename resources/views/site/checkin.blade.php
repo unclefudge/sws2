@@ -101,7 +101,7 @@
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
                                         <div>I have read, understood and will adhere to the principles required to manage the risk of COVID-19 &nbsp; &nbsp; <a
-                                                    class="btn dark" href="/filebank/doc/COVID-19 Construction Site Risk Management Principles.pdf">view</a></div>
+                                                    class="btn dark" href="/filebank/doc/COVID-19 construction Site Risk Management Principles.pdf">view</a></div>
                                     </div>
                                 </div>-->
                             </div> --}}

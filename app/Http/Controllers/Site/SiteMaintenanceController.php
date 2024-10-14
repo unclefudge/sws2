@@ -311,7 +311,7 @@ class SiteMaintenanceController extends Controller
         if (Auth::user()->allowed2('sig.site.maintenance', $main)) {
             $main_request['step'] = 0;
             $main_request['assigned_super_at'] = Carbon::now()->toDateTimeString(); // Set Assigned Super date
-            $main->closeToDo();   // Delete Construction Mgr Todoo
+            $main->closeToDo();   // Delete construction Mgr Todoo
 
             if (request('super_id') == 'declined') {
                 // Request declined
@@ -414,7 +414,7 @@ class SiteMaintenanceController extends Controller
             $main->emailAssigned($super);
             $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
-            $main->closeToDo();   // Delete Construction Mgr Todoo
+            $main->closeToDo();   // Delete construction Mgr Todoo
 
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
@@ -502,7 +502,7 @@ class SiteMaintenanceController extends Controller
                     $main->site->save();
                 }
 
-                $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                $action = Action::create(['action' => "Request has been signed off by construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
                 $email_list = [env('EMAIL_DEV')];
                 if (\App::environment('prod'))

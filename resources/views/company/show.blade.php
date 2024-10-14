@@ -65,7 +65,7 @@
                     @include('company/_add-leave')
                 @endif
 
-                {{-- Construction --}}
+                {{-- construction --}}
                 @if (Auth::user()->allowed2('view.company.con', $company))
                     @include('company/_show-construction')
                     @include('company/_edit-construction')

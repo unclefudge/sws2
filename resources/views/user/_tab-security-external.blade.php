@@ -127,7 +127,7 @@ $rec = $user;
 </div>
 
 @if ($sub1)
-    {{-- Construction Management --}}
+    {{-- construction Management --}}
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
@@ -567,6 +567,15 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('view.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('edit.company.doc.review', 'all', $rec, $cid, $dis) !!}</td>
                                 <td width="45%" colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td>Construction Standards<br><span class="font-grey-silver">Cape Cod Only</span>
+                                </td>
+                                <td width="15%">{!! permSelect('view.construction.doc', 'all', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.construction.doc', 'all', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('add.construction.doc', 'add', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('del.construction.doc', 'del', $rec, $cid, $dis) !!}</td>
+                                <td width="15%"></td>
                             </tr>
                         </table>
                     @endif

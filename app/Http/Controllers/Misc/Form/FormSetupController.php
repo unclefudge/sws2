@@ -182,7 +182,7 @@ class FormSetupController extends Controller
             'name' => "Summary of proposed works and design scope", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid,
-            'name' => "Construction materials", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
+            'name' => "construction materials", 'type' => "textarea", 'type_special' => null, 'type_version' => null,
             'order' => $pn++, 'default' => null, 'multiple' => null, 'required' => 1]);
 
         //
@@ -1213,9 +1213,9 @@ class FormSetupController extends Controller
 
 
         //
-        // Page 9 - Construction Methodology
+        // Page 9 - construction Methodology
         //
-        $page = FormPage::create(['template_id' => $template->id, 'name' => "Construction Methodology", 'description' => '', 'order' => 9]);
+        $page = FormPage::create(['template_id' => $template->id, 'name' => "construction Methodology", 'description' => '', 'order' => 9]);
         $pid = $page->id;
         $sn = 1;
 
@@ -1381,7 +1381,7 @@ Electrical wires or apparatus that pass through a scaffold must be de-energised 
 
 
         // Creating WHS Inspection Template
-        $template = FormTemplate::create(['parent_id' => null, 'version' => '1.0', 'name' => 'Construction Site WHS Inspection', 'description' => '', 'company_id' => 3]);
+        $template = FormTemplate::create(['parent_id' => null, 'version' => '1.0', 'name' => 'construction Site WHS Inspection', 'description' => '', 'company_id' => 3]);
         $tid = $template->id;
         $pn = 1;
         $sn = 1;
@@ -1432,7 +1432,7 @@ Electrical wires or apparatus that pass through a scaffold must be de-energised 
         $qid = $question->id;
         // Add Options
         $on = 1;
-        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary Construction Fencing', 'value' => 'Temporary Construction Fencing', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
+        $op1 = FormOption::create(['question_id' => $question->id, 'text' => 'Temporary construction Fencing', 'value' => 'Temporary construction Fencing', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         $op2 = FormOption::create(['question_id' => $question->id, 'text' => 'Existing fencing at premises', 'value' => 'Existing fencing at premises', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         $op3 = FormOption::create(['question_id' => $question->id, 'text' => 'Ply/boarding affixed to existing fencing/structure', 'value' => 'Ply/boarding affixed to existing fencing/structure', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
         $op4 = FormOption::create(['question_id' => $question->id, 'text' => 'Ramp Barricade', 'value' => 'Ramp Barricade', 'order' => $on++, 'score' => 0, 'colour' => null, 'group' => null, 'master' => 0, 'status' => 1]);
@@ -1776,8 +1776,8 @@ Electrical wires or apparatus that pass through a scaffold must be de-energised 
         $logic = FormLogic::create(['template_id' => $tid, 'page_id' => $pid, 'question_id' => $qid, 'match_operation' => '=*', 'match_value' => $op4->id, 'trigger' => 'section', 'trigger_id' => $sid2]);
 
 
-        // Logic Section (Safe Work Method Statements for High Risk Construction Work)
-        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Safe Work Method Statements for High Risk Construction Work', 'description' => "Section 1c", 'order' => $sn++]);
+        // Logic Section (Safe Work Method Statements for High Risk construction Work)
+        $section = FormSection::create(['template_id' => $tid, 'page_id' => $pid, 'parent' => $sid, 'name' => 'Safe Work Method Statements for High Risk construction Work', 'description' => "Section 1c", 'order' => $sn++]);
         $sid2 = $section->id;
         // Sub Section 1c
         $question = FormQuestion::create(['template_id' => $tid, 'page_id' => $pid, 'section_id' => $sid2,

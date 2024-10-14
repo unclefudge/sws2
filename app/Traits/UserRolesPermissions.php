@@ -754,6 +754,9 @@ trait UserRolesPermissions
         // SDS add - Only Fudge, Demi, Kirstie, Ross
         if (in_array($permission, ['add.sds', 'edit.sds', 'del.sds']) && in_array($this->id, ['3', '424', '108', '1155'])) return true;
 
+        // Construction Standards add - Only Fudge, Demi, Kirstie, Ross
+        if (in_array($permission, ['add.construction.doc', 'edit.construction.doc', 'del.construction.doc']) && in_array($this->id, ['3', '424', '108', '1155'])) return true;
+
         // Site QA Master templates
         //if ($permissiontype == 'site.qa' && $record && $record->site_id == null && $record->master == 1 && $this->hasPermission2('add.site.qa')) return true;    //in_array($this->id, ['3', '108', '1155'])) return true;
 
@@ -793,7 +796,7 @@ trait UserRolesPermissions
                 return false;
             }
 
-            // Company WHS + Construction
+            // Company WHS + construction
             if ($permissiontype == 'company.con' || $permissiontype == 'compliance.manage') {
                 // Company has no parent or Uses doesn't belong to this company
                 // ie Users can't edit their own company record if they have a parent
@@ -913,8 +916,8 @@ trait UserRolesPermissions
                 return false;
             }
 
-            // Safetytip + Notify + SDS
-            if ($permissiontype == 'safetytip' || $permissiontype == 'notify' || $permissiontype == 'sds') {
+            // Safetytip + Notify + SDS + Construction Doc
+            if ($permissiontype == 'safetytip' || $permissiontype == 'notify' || $permissiontype == 'sds' || $permissiontype == 'construction.doc') {
                 if ($this->hasPermission2($permission)) return true;
 
                 return false;

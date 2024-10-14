@@ -347,7 +347,7 @@ Vue.component('app-weekly', {
             var validTask = true;
             var site = objectFindByKey(this.xx.sites, 'id', this.xx.day_site_id);
 
-            // Don't allow any task to be added prior to 'START' task (except Pre-Construction meeting)
+            // Don't allow any task to be added prior to 'START' task (except Pre-construction meeting)
             if (site.start != '' && moment(this.xx.day_date).isBefore(site.start)) {
                 validTask = false;
                 toastr.error('Unable to add tasks before "Start Job"');
@@ -695,7 +695,7 @@ Vue.component('app-weekly', {
                     var days_between = Math.abs(moment(new_start).diff(moment(old_start), 'days'));
                     //alert('old:' + old_start + ' new:' + new_start + ' days:' + days + ' dir:' + direction + ' diff:'+days_between);
                     if (direction == '-' && moment(moment(old_first).subtract(days_between, 'day')).isSameOrBefore(moment(), 'day')) {
-                        // The new date for the first task 'Pre-Construction' will be before today so manually make it tomorrow
+                        // The new date for the first task 'Pre-construction' will be before today so manually make it tomorrow
                         // and move the START task to the selected new date
                         this.moveJobFromDate(this.xx.assign_site, old_start, direction, days);
 

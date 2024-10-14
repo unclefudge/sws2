@@ -569,6 +569,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('safety/doc/sds/upload', '\App\Http\Controllers\Safety\SdsController@upload');
     Route::resource('safety/doc/sds', '\App\Http\Controllers\Safety\SdsController');
 
+    // Contruction Docs
+    Route::get('construction/doc/dt/standards', '\App\Http\Controllers\Misc\ConstructionDocController@getDocs');
+    Route::any('construction/doc/standards', '\App\Http\Controllers\Misc\ConstructionDocController@index');
+    Route::any('construction/doc/create', '\App\Http\Controllers\Misc\ConstructionDocController@create');
+    Route::any('construction/doc/upload', '\App\Http\Controllers\Misc\ConstructionDocController@upload');
+    Route::resource('construction/doc', '\App\Http\Controllers\Misc\ConstructionDocController');
+
     // Toolbox Talks
     Route::get('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController@index');
     Route::get('safety/doc/toolbox2/{id}/accept', '\App\Http\Controllers\Safety\ToolboxTalkController@accept');

@@ -46,7 +46,7 @@
                     @include('user/_show-security')
                 @endif
 
-                {{-- Construction --}}
+                {{-- construction --}}
                 @if (Auth::user()->allowed2('view.user.construction', $user))
                     @include('user/_show-construction')
                     @include('user/_edit-construction')
@@ -99,106 +99,107 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#roles").select2({placeholder: "Select one or more", width: '100%'});
-        $("#trades").select2({placeholder: "Select one or more", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#roles").select2({placeholder: "Select one or more", width: '100%'});
+            $("#trades").select2({placeholder: "Select one or more", width: '100%'});
 
-        $('#password').click(function (e) {
-            if ($('#user').val() == 1)
-                $('#password_confirmation_div').show();
-            $('#password_update').val(1);
-        });
+            $('#password').click(function (e) {
+                if ($('#user').val() == 1)
+                    $('#password_confirmation_div').show();
+                $('#password_update').val(1);
+            });
 
-        if ($('#apprentice').val() == 1)
-            $('#apprentice-div').show();
-        else
-            $('#apprentice_start').val('');
+            if ($('#apprentice').val() == 1)
+                $('#apprentice-div').show();
+            else
+                $('#apprentice_start').val('');
 
-        $('#apprentice').change(function (e) {
-            $('#apprentice-div').toggle();
-        });
+            $('#apprentice').change(function (e) {
+                $('#apprentice-div').toggle();
+            });
 
-        $('#compliance_type').change(function (e) {
-            overide();
-        });
+            $('#compliance_type').change(function (e) {
+                overide();
+            });
 
-        function overide() {
-            var type = $('#compliance_type').val();
-            if (type != '') {
-                $('#add_compliance_fields').show();
-                $('#save_compliance').show();
-                if (type == 'cdu')
-                    $('#add_compliance_required').hide();
-                else {
-                    $('#add_compliance_required').show();
-                    var cat = type.substring(2, type.length);
-                    if ($('#ot_'+type).val() == '1') {
-                        $('#creq_yes').show();
-                        $('#creq_not').hide();
-                        $('#required').val('0');
-                    } else {
-                        $('#creq_yes').hide();
-                        $('#creq_not').show();
-                        $('#required').val('1');
+            function overide() {
+                var type = $('#compliance_type').val();
+                if (type != '') {
+                    $('#add_compliance_fields').show();
+                    $('#save_compliance').show();
+                    if (type == 'cdu')
+                        $('#add_compliance_required').hide();
+                    else {
+                        $('#add_compliance_required').show();
+                        var cat = type.substring(2, type.length);
+                        if ($('#ot_' + type).val() == '1') {
+                            $('#creq_yes').show();
+                            $('#creq_not').hide();
+                            $('#required').val('0');
+                        } else {
+                            $('#creq_yes').hide();
+                            $('#creq_not').show();
+                            $('#required').val('1');
+                        }
+                        $('#required').trigger('change');
                     }
-                    $('#required').trigger('change');
+                } else {
+                    $('#add_compliance_fields').hide();
+                    $('#save_compliance').hide();
                 }
-            } else {
-                $('#add_compliance_fields').hide();
-                $('#save_compliance').hide();
             }
+        });
+
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
         }
-    });
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'contact' || errors.FORM == 'login' || errors.FORM == 'security' || errors.FORM == 'construction' || errors.FORM == 'compliance') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
+        }
+        if (errors.FORM == 'leave.add') {
+            $('#show_leave').hide();
+            $('#edit_leave').hide();
+            $('#add_leave').show();
+        }
+        if (errors.FORM == 'compliance.add') {
+            $('#show_compliance').hide();
+            $('#edit_compliance').hide();
+            $('#add_compliance').show();
+        }
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'contact' || errors.FORM == 'login' || errors.FORM == 'security' || errors.FORM == 'construction' || errors.FORM == 'compliance') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
-    if (errors.FORM == 'leave.add') {
-        $('#show_leave').hide();
-        $('#edit_leave').hide();
-        $('#add_leave').show();
-    }
-    if (errors.FORM == 'compliance.add') {
-        $('#show_compliance').hide();
-        $('#edit_compliance').hide();
-        $('#add_compliance').show();
-    }
+        console.log(errors)
+        @endif
 
-    console.log(errors)
-    @endif
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-</script>
+    </script>
 @stop

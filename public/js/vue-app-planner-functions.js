@@ -449,7 +449,7 @@ function addStartTaskToPlanner(plan, site_id, date) {
         var preConst_date = nextWorkDate(moment().format('YYYY-MM-DD'), '+', 1);
     var preConst = {
         id: '', site_id: site_id, entity_type: 't', entity_id: 31, entity_name: 'Supervisors', task_id: 264, task_code: 'Pre',
-        task_name: 'Pre Construction', from: preConst_date, to: preConst_date, days: 1
+        task_name: 'Pre construction', from: preConst_date, to: preConst_date, days: 1
     };
 
     // Same Day
@@ -566,7 +566,7 @@ function addStartTaskToPlanner2(plan, site_id, date) {
             var preConst_date = nextWorkDate(moment().format('YYYY-MM-DD'), '+', 1);
         var preConst = {
             id: '', site_id: site_id, entity_type: 't', entity_id: 31, entity_name: 'Supervisors', task_id: 264, task_code: 'Pre',
-            task_name: 'Pre Construction', from: preConst_date, to: preConst_date, days: 1
+            task_name: 'Pre construction', from: preConst_date, to: preConst_date, days: 1
         };
 
         // Same Day

@@ -471,7 +471,7 @@ class FormController extends Controller
                 $nextpage = 1;
 
                 // Perform Complete Form Sumbitted Actions
-                //if ($form->template->parent_id == 3)  // Construction WHS inspection
+                //if ($form->template->parent_id == 3)  // construction WHS inspection
                 //    $this->completedActionsConstructionWHS($form->id);
             }
             $form->save();

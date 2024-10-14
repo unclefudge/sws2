@@ -2,19 +2,19 @@
 
 namespace App\Mail\Company;
 
-use App\Models\Company\CompanyDoc;
 use App\Models\Comms\Todo;
-use Carbon\Carbon;
+use App\Models\Company\CompanyDoc;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CompanyDocTodoClosed extends Mailable implements ShouldQueue {
+class CompanyDocTodoClosed extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
-    public $doc, todo;
+    public $doc, $todo;
 
     /**
      * Create a new message instance.

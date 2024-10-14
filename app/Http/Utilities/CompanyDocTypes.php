@@ -2,15 +2,16 @@
 
 namespace App\Http\Utilities;
 
-use DB;
 use Auth;
+use DB;
 
-class CompanyDocTypes {
+class CompanyDocTypes
+{
 
     protected static $companyDocTypes = [
         'acc' => 'Accounting',
         'adm' => 'Administration',
-        'con' => 'Construction',
+        'con' => 'construction',
         'whs' => 'WHS',
     ];
 

@@ -95,10 +95,10 @@
             </div>
 
             <hr class="field-hr">
-            {{-- Construction Certificate --}}
+            {{-- construction Certificate --}}
             <div class="row">
                 <div class="form-group {!! fieldHasError('construction', $errors) !!}">
-                    {!! Form::label('construction', 'Construction Certificate:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    {!! Form::label('construction', 'construction Certificate:', ['class' => 'col-md-6 control-label font-yellow']) !!}
                     {{--}}<div class="col-md-6">
                         {!! Form::select('construction', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
                         {!! fieldErrorMessage('construction', $errors) !!}

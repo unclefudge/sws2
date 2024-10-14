@@ -213,7 +213,7 @@
             <div v-if="xx.day_plan.length" class="list-group">
                 <li v-for="task in xx.day_plan" class="list-group-item" style="padding: 0px 10px">
                     <h4 class="font-blue">
-                        <!-- Hide Delete [x] for START + Pre Construction Tasks -->
+                        <!-- Hide Delete [x] for START + Pre construction Tasks -->
                         <button v-if="task.task_id != 11 && task.task_id != 264" class="btn btn-xs red pull-right" v-on:click="deleteTask(task)">x</button>
                         <b>@{{ task.task_name }}</b><br>
                         <small :class="{ 'font-yellow-gold': task.entity_type == 't' }">@{{ task.entity_name }}</small>
@@ -342,7 +342,7 @@
                 <li v-for="task in xx.day_plan" class="list-group-item" style="padding: 0px 10px">
                     <div v-if="todayTask(task)">
                         <h4 class="font-blue">
-                            <!-- Hide Delete [x] for START + Pre Construction Tasks -->
+                            <!-- Hide Delete [x] for START + Pre construction Tasks -->
                             <button v-if="task.task_id != 11 && task.task_id != 264" class="btn btn-xs red pull-right" v-on:click="deleteTask(task)">x</button>
                             <b>@{{ task.task_name }}</b><br>
                             <small :class="{ 'font-yellow-gold': task.entity_type == 't' }">@{{ task.entity_name }}</small>

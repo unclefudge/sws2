@@ -241,7 +241,7 @@ class SiteMaintenanceItemController extends Controller
             $action = Action::create(['action' => "$super->name assigned to supervise request ", 'table' => 'site_maintenance', 'table_id' => $main->id]);
             Toastr::success("Assigned Request");
 
-            $main->closeToDo();   // Delete Construction Mgr Todoo
+            $main->closeToDo();   // Delete construction Mgr Todoo
             $main->createSupervisorAssignedToDo([$super->id]); // Create ToDoo for supervisor
 
             // Update Site with new Maintenance Supervisor
@@ -365,7 +365,7 @@ class SiteMaintenanceItemController extends Controller
             $main->emailAssigned($super);
             $action = Action::create(['action' => "Maintenance Supervisor updated to $super->name", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
-            $main->closeToDo();   // Delete Construction Mgr Todoo
+            $main->closeToDo();   // Delete construction Mgr Todoo
 
             // Set Assigned to Super date field if not set
             if (!$main->assigned_super_at)
@@ -446,7 +446,7 @@ class SiteMaintenanceItemController extends Controller
                 $main->site->status = 0;
                 $main->site->save();
 
-                $action = Action::create(['action' => "Request has been signed off by Construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
+                $action = Action::create(['action' => "Request has been signed off by construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
                 $email_list = [env('EMAIL_DEV')];
                 if (\App::environment('prod'))
