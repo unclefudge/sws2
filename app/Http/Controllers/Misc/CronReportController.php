@@ -55,6 +55,9 @@ class CronReportController extends Controller
             CronReportController::emailUpcomingJobCompilance();
             CronReportController::emailMaintenanceSupervisorNoAction();
         }
+        if (Carbon::today()->isWednesday()) {
+            CronReportController::emailMaintenanceOnHold();
+        }
 
         if (Carbon::today()->isThursday()) {
             CronReportController::emailEquipmentTransfers();
@@ -300,36 +303,36 @@ class CronReportController extends Controller
         $log = '';
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
         $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
-        $func_name = "Maintenance Under Review";
+        $func_name = "Maintenance On Hold";
         echo "<h2>Email $func_name</h2>";
         $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
-        $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
-        $emails = implode("; ", $email_list);
-        $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
-        $today = Carbon::now();
 
-        echo "Requests Under Review: " . $mains->count() . "<br>";
-        $log .= "Requests Under Review: " . $mains->count() . "\n";
+        //
+        // On Hold Requests
+        //
+        $email_list = [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+        $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
+
+        echo "Requests On Hold: " . $mains->count() . "<br>";
+        $log .= "Requests On Hold: " . $mains->count() . "\n";
 
         if ($mains->count()) {
-            // Create PDF
-            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
-            //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
-            //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
-            $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
-            $pdf->save($file);
-
-            CronController::debugEmail('EL', $email_list);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceUnderReviewReport($file, $mains));
-
-            echo "Sending email to: $emails<br>";
-            $log .= "Sending email to: $emails";
+            if ($email_list) {
+                $data = ['data' => $mains];
+                CronController::debugEmail('EL', $email_list);
+                Mail::send('emails/site/maintenance-onhold', $data, function ($m) use ($email_list, $data) {
+                    $send_from = 'do-not-reply@safeworksite.com.au';
+                    $m->from($send_from, 'Safe Worksite');
+                    $m->to($email_list);
+                    $m->subject('Maintenance Requests On Hold');
+                });
+                echo "Sending $func_name email to: $emails<br>";
+                $log .= "Sending $func_name email to: $emails";
+            }
         }
 
         echo "<h4>Completed</h4>";
@@ -640,7 +643,7 @@ class CronReportController extends Controller
         $email_list = [env('EMAIL_DEV')];
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
-        $mains = SiteMaintenance::where('status', 3)->orderBy('reported')->get();
+        $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
 
         echo "Requests On Hold: " . $mains->count() . "<br>";
         $log .= "Requests On Hold: " . $mains->count() . "\n";
