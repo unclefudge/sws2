@@ -312,6 +312,7 @@ class CronReportController extends Controller
         //
         // On Hold Requests
         //
+        $cc = Company::find(3);
         $email_list = [env('EMAIL_DEV')];
         $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);

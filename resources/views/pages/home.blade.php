@@ -747,24 +747,22 @@
                                                 $docs = \App\Models\Company\CompanyDoc::where('company_id', 3)->whereIn('category_id', $standardcats)->where('status', '1')->orderBy('category_id')->get();
                                                 ?>
                                                 @foreach($docs as $doc)
-                                                    @if($doc->status == 1)
-                                                        <li>
-                                                            <a href="{{ $doc->attachmentUrl }}" class="task-title">
-                                                                <div class="col1">
-                                                                    <div class="cont">
-                                                                        <div class="cont-col1">
-                                                                            <div class="label label-sm label-default">
-                                                                                <i class="fa fa-file-text-o"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="cont-col2">
-                                                                            <div class="desc"> {{ $doc->name }}</div>
+                                                    <li>
+                                                        <a href="{{ $doc->attachmentUrl }}" class="task-title">
+                                                            <div class="col1">
+                                                                <div class="cont">
+                                                                    <div class="cont-col1">
+                                                                        <div class="label label-sm label-default">
+                                                                            <i class="fa fa-file-text-o"></i>
                                                                         </div>
                                                                     </div>
+                                                                    <div class="cont-col2">
+                                                                        <div class="desc"> {{ $doc->name }}</div>
+                                                                    </div>
                                                                 </div>
-                                                            </a>
-                                                        </li>
-                                                    @endif
+                                                            </div>
+                                                        </a>
+                                                    </li>
                                                 @endforeach
                                             </ul>
                                         </div>
