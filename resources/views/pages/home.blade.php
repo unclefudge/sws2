@@ -642,8 +642,47 @@
                         @endif
                         {{-- Associated Documents --}}
                         <h5>Associated Documents</h5>
+                        {{-- Construction Standards --}}
                         <div class="panel panel-default">
-                            {{-- Safe Work Method --}}
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_5"> Construction Standards </a>
+                                </h4>
+                            </div>
+                            <div id="collapse_3_5" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="mt-element-list">
+                                        <div class="mt-list-container list-simple"
+                                             style="border: none;  margin: 0px; padding: 0px">
+                                            <ul class="feeds">
+                                                @foreach(\App\Models\Misc\ConstructionDoc::where('status', 1)->get() as $doc)
+                                                    @if($doc->status == 1)
+                                                        <li>
+                                                            <a href="{{ $doc->attachmentUrl }}" class="task-title">
+                                                                <div class="col1">
+                                                                    <div class="cont">
+                                                                        <div class="cont-col1">
+                                                                            <div class="label label-sm label-default">
+                                                                                <i class="fa fa-file-text-o"></i>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="cont-col2">
+                                                                            <div class="desc"> {{ $doc->name }}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Safe Work Method --}}
+                        <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4"> Safe Work Method Statements </a>
@@ -690,20 +729,24 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- Standard Details --}}
                         <div class="panel panel-default">
-                            {{-- Construction Standards --}}
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_5"> Construction Standards </a>
+                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_6"> Standard Details </a>
                                 </h4>
                             </div>
-                            <div id="collapse_3_5" class="panel-collapse collapse">
+                            <div id="collapse_3_6" class="panel-collapse collapse">
                                 <div class="panel-body">
                                     <div class="mt-element-list">
                                         <div class="mt-list-container list-simple"
                                              style="border: none;  margin: 0px; padding: 0px">
                                             <ul class="feeds">
-                                                @foreach(\App\Models\Misc\ConstructionDoc::where('status', 1)->get() as $doc)
+                                                <?php
+                                                $standardcats = array_merge([22], \App\Models\Company\CompanyDocCategory::where('parent', '22')->pluck('id')->toArray());
+                                                $docs = \App\Models\Company\CompanyDoc::where('company_id', 3)->whereIn('category_id', $standardcats)->where('status', '1')->orderBy('category_id')->get();
+                                                ?>
+                                                @foreach($docs as $doc)
                                                     @if($doc->status == 1)
                                                         <li>
                                                             <a href="{{ $doc->attachmentUrl }}" class="task-title">
