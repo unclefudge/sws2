@@ -56,7 +56,7 @@ class CronReportController extends Controller
             CronReportController::emailMaintenanceSupervisorNoAction();
         }
         if (Carbon::today()->isWednesday()) {
-            CronReportController::emailMaintenanceOnHold();
+            //CronReportController::emailMaintenanceOnHold();
         }
 
         if (Carbon::today()->isThursday()) {

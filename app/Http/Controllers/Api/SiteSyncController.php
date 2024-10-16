@@ -75,26 +75,35 @@ class SiteSyncController extends Controller
                 //
                 // A few special cases to update for Site Status + Supervisor
                 //
-                if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold']) && $site->status != '-2') {
-                    // For Stages '950 + 160' update Status to 'Cancelled'
-                    $log .= "Status: $site->status => CANCELLED\n";
-                    if ($save_enabled) {
-                        $diffDat['status'] = '-2';
-                        $diffTxt['status'] = "$site->status => CANCELLED";
-                        $site->cancelInspectionReports();
-                    }
-                } elseif ($site->status == '-2') {
-                    // If site was previously 'Cancelled' then set status to 'Upcoming'
-                    $diffDat['status'] = '-1';
-                    $diffTxt['status'] = "CANCELLED => UPCOMING";
-                } elseif ($site->status == '0') {
-                    // If site 'Completed' then ensure Supervisor is same as Zoho
-                    $supervisor_name = request('super_name');
-                    if ($supervisor_name) {
-                        $user = $cc->supervisorMatch($supervisor_name);
-                        if ($user && $site->supervisor_id != $user->id) {
-                            $diffDat['supervisor_id'] = $user->id;
-                            $diffTxt['supervisor_id'] = $site->supervisor->name . " => $user->name";
+                if ($job_stage) {
+                    // Need to ensure we only do the below updates if JOB_STAGE is included in the Sync
+                    // because sometimes the sync is only select fields when doing manual one-off syncs.
+                    // Not providing a JOB_STAGE as a paramenter affects how the belows actions operate.
+                    if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
+                        // For Stages '950 + 160' update Status to 'Cancelled'
+                        if ($site->status != '-2') {
+                            $log .= "Status: $site->status => CANCELLED\n";
+                            if ($save_enabled) {
+                                $diffDat['status'] = '-2';
+                                $diffTxt['status'] = "$site->status => CANCELLED";
+                                $site->cancelInspectionReports();
+                            }
+                        }
+                    } else {
+                        if ($site->status == '-2') {
+                            // If site was previously 'Cancelled' so set status to 'Upcoming'
+                            $diffDat['status'] = '-1';
+                            $diffTxt['status'] = "CANCELLED => UPCOMING";
+                        } elseif ($site->status == '0') {
+                            // If site 'Completed' then ensure Supervisor is same as Zoho
+                            $supervisor_name = request('super_name');
+                            if ($supervisor_name) {
+                                $user = $cc->supervisorMatch($supervisor_name);
+                                if ($user && $site->supervisor_id != $user->id) {
+                                    $diffDat['supervisor_id'] = $user->id;
+                                    $diffTxt['supervisor_id'] = $site->supervisor->name . " => $user->name";
+                                }
+                            }
                         }
                     }
                 }
