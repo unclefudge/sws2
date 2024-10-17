@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
+use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
@@ -138,17 +139,13 @@ class PagesController extends Controller
     public function quick()
     {
 
-        $output = null;
-        $retval = null;
-        $cmd = 'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=';
-        $outfile = 'whs_out.pdf';
-        $master = 'WHS_Management_Plan_Master.pdf';
-        $cover = "period_trade_contract_conditions.pdf";
-        $cmd_run = $cmd . $outfile . " $cover $master";
-
-        //exec($cmd_run, $output, $retval);
-        echo "Returned with status $retval and output:\n";
-        print_r($output);
+        echo "Update Zoho site log<br>";
+        $sites = ZohoSiteLog::all();
+        foreach ($sites as $log) {
+            $log->site_code = $log->site->code;
+            $log->save();
+            echo "up " . $log->site->name . "<br>";
+        }
 
         /*
         echo "Update Site Eworks + Pworks<br>";

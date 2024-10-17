@@ -192,6 +192,7 @@ class SiteSyncController extends Controller
                     // Save log
                     $logged = ZohoSiteLog::create([
                         'site_id' => $site->id,
+                        'site_code' => $site->code,
                         'user_id' => $uid,
                         'user_name' => request('username'),
                         'action' => $action,
