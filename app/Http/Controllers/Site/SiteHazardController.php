@@ -123,6 +123,7 @@ class SiteHazardController extends Controller
         if (!Auth::user()->allowed2('edit.site.hazard', $hazard))
             return view('errors/404');
 
+        $orig_site = $hazard->site_id;
         $hazard->update($request->all());
 
         // Handle attachments
@@ -140,6 +141,13 @@ class SiteHazardController extends Controller
             $action = Action::create(['action' => 'Hazard has been closed', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             //$hazard->emailAction($action, 'important');
         }
+
+        //  Hazard site updated
+        if ($hazard->site_id != $orig_site) {
+            $action = Action::create(['action' => 'Site of Hazard was updated', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
+            $hazard->emailHazard($action);
+        }
+
 
         return view('site/hazard/show', compact('hazard'));
     }

@@ -32,8 +32,22 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-7">
-                                    <h2 style="margin-top: 0px">{{ $hazard->site->name }}</h2>
-                                    {{ $hazard->site->fulladdress }}
+                                    <div id="sitename-show">
+                                        <h2 style="margin-top: 0px">{{ $hazard->site->name }}
+                                            @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                                <i id="edit-site" class="fa fa-pencil" style="margin-left: 20px; cursor: pointer"></i>
+                                            @endif
+                                        </h2>
+                                        {{ $hazard->site->fulladdress }}
+                                    </div>
+                                    <div id="sitename-edit" style="display:none">
+                                        <b>Re-assign to site</b><br>
+                                        <div class="form-group {!! fieldHasError('rating', $errors) !!}">
+                                            <select id="site_id" name="site_id" class="form-control bs-select" style="width:100%">
+                                                {!! Auth::user()->authSitesSelect2Options('view.site.list', $hazard->site_id) !!}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-md-5">
                                     @if ($hazard->status == 0)
@@ -274,11 +288,13 @@
 @section('page-level-plugins-head')
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     {{--}}<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
+    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
+    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
@@ -287,6 +303,7 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/js/libs/moment.min.js" type="text/javascript"></script>
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
 
@@ -294,6 +311,35 @@
     <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
     <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
     <script src="/js/vue-modal-component.js"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            //$("#site_id").select2({
+            //    placeholder: "Select Site",
+            //});
+            $("#edit-site").click(function () {
+                $("#sitename-show").hide();
+                $("#sitename-edit").show();
+            });
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                var site_id = $("#site_id").select2("val");
+                if (site_id != '') {
+                    $.ajax({
+                        url: '/site/data/details/' + site_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            $("#address").val(data.address + ', ' + data.suburb);
+                            $("#code").val(data.code);
+                        },
+                    })
+                }
+            });
+        });
+
+    </script>
     <script>
         Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
 
