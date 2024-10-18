@@ -148,8 +148,6 @@ class SiteHazardController extends Controller
             $action = Action::create(['action' => 'Site of Hazard was updated', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->emailHazard($action);
         }
-        $action = Action::create(['action' => 'Site of Hazard was updated', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
-        $hazard->emailHazard($action);
 
 
         return view('site/hazard/show', compact('hazard'));
