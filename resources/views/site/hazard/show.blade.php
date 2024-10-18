@@ -34,7 +34,7 @@
                                 <div class="col-md-7">
                                     <div id="sitename-show">
                                         <h2 style="margin-top: 0px">{{ $hazard->site->name }}
-                                            @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                            @if ($hazard->status && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
                                                 <i id="edit-site" class="fa fa-pencil" style="margin-left: 20px; cursor: pointer"></i>
                                             @endif
                                         </h2>

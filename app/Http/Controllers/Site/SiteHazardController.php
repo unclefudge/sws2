@@ -125,6 +125,7 @@ class SiteHazardController extends Controller
 
         $orig_site = $hazard->site_id;
         $hazard->update($request->all());
+        dd(request()->all());
 
         // Handle attachments
         $attachments = request("filepond");
