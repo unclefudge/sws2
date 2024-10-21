@@ -12,6 +12,7 @@ use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestos;
+use App\Models\Site\SiteDoc;
 use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
@@ -566,7 +567,10 @@ class CronReportController extends Controller
         $plans = SitePlanner::whereDate('from', '>', $jan2024)->whereDate('from', '<', $today)->where('task_id', 116)->orderBy('from')->get();
         foreach ($plans as $plan) {
             if ($plan->site->status == 1) {
-                $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
+                // Check for Site Risk doc with word 'Scaffolding Handover Certificate'
+                $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'Scaffolding Handover Certificate')->first();
+                if (!$certificate)
+                    $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
             }
         }
 
