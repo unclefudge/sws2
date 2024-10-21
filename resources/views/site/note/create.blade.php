@@ -189,6 +189,57 @@
                                 </div>
                             </div>
 
+                            {{-- Prac Completion Fields --}}
+                            <div id="prac_completion_fields" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('prac_notified', $errors) !!}">
+                                            <label for="prac_notified" class="control-label"> Prac Notified
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date you will be delivering letters. Please make sure you have given 7 working days notice."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('prac_notified', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
+                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                            </div>
+                                            {!! fieldErrorMessage('prac_notified', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('prac_meeting_date', $errors) !!}">
+                                            <label for="prac_notified" class="control-label"> Prac Meeting Date
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('prac_meeting_date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
+                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                            </div>
+                                            {!! fieldErrorMessage('prac_meeting_date', $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('prac_meeting_time', $errors) !!}">
+                                            <label for="prac_notified" class="control-label"> Prac Meeting Time
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            <div class="input-group">
+                                                {{--}}<input type="text" class="form-control timepicker timepicker-no-seconds" value="09:00 AM">--}}
+                                                {!! Form::text('prac_meeting_time', '09:00 AM', ['class' => 'form-control timepicker', 'value' => "09:00 AM"]) !!}
+                                                <span class="input-group-btn">
+                                                    <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
+                                                </span>
+                                            </div>
+                                            {!! fieldErrorMessage('prac_meeting_time', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Response Required --}}
                             <div id="response_req_field" style="display: none">
                                 <div class="row">
@@ -242,15 +293,20 @@
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $(document).ready(function () {
@@ -277,21 +333,29 @@
                 $("#variation_cost_fields").hide();
                 $("#costing_fields").hide();
                 $("#response_req_field").hide();
+                $("#prac_completion_fields").hide();
                 $("#savenote").show();
                 $("#notes_label").html('Note');
 
-                if (cat_id == '16' || cat_id == '19' || cat_id == '20') { // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation
+                // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation
+                if (cat_id == '16' || cat_id == '19' || cat_id == '20') {
                     $("#variation_fields").show();
                 }
 
-                if (cat_id == '16' || cat_id == '19') { // Approved Site Variation, For Issue to Client Site Variations
+                // Approved Site Variation, For Issue to Client Site Variations
+                if (cat_id == '16' || cat_id == '19') {
                     $("#variation_cost_fields").show();
-                    //$("#notes_label").html('Variation Breakup/Work Order Details');
                 }
 
+                // Costing Request
                 if (cat_id == '15') {
                     $("#costing_fields").show();
                     $("#notes_label").html('Description');
+                }
+
+                // Prac Completion Request
+                if (cat_id == '89') {
+                    $("#prac_completion_fields").show();
                 }
 
                 var response_req_cats = ['12', '13', '14']
@@ -313,6 +377,11 @@
             }
             return true;
         }
+
+        $('.date-picker').datepicker({
+            autoclose: true,
+            format: 'dd/mm/yyyy',
+        });
     </script>
 @stop
 

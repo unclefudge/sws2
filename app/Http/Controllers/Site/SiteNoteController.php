@@ -9,6 +9,7 @@ use App\Models\Misc\Category;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
 use App\Models\Site\SiteNoteCost;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -141,12 +142,19 @@ class SiteNoteController extends Controller
             'variation_net.required' => 'The net cost field is required.',
             'variation_cost.required' => 'The gross cost field is required.',
             'variation_days.required' => 'The days field is required.',
+            'prac_notified.required' => 'The prac notified field is required.',
+            'prac_meeting_date.required' => 'The prac meeting date field is required.',
+            'prac_meeting_time.required' => 'The prac meeting time field is required.',
             'cc-1.required' => 'The cost centre item 1 required'
         ];
 
         // Costing Request
         if (request('category_id') == 15)
             $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
+
+        // Prac Completion Request
+        if (request('category_id') == 89)
+            $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required', 'notes' => 'required'];
 
         // Variations
         elseif (in_array(request('category_id'), [16, 19])) { // Approved / For Issue to Client
@@ -174,6 +182,11 @@ class SiteNoteController extends Controller
         if (request('variation_extra_credit'))
             $note_request['costing_extra_credit'] = request('variation_extra_credit');
 
+        $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
+        $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
+
+        //dd($note_request);
+
         // Create Site Note
         $note = SiteNote::create($note_request);
 
@@ -192,16 +205,11 @@ class SiteNoteController extends Controller
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i") && request("cinfo-$i")) {
                     $item = SiteNoteCost::create(['note_id' => $note->id, 'cost_id' => request("cc-$i"), 'details' => request("cinfo-$i")]);
-                    //$cost = Category::find(request("cc-$i"));
-                    //$notes .= "$cost->name: " . request("cinfo-$i") . "\n";
                 }
             }
-            // Prepend CostCentres to notes
-            //$note->notes = "$notes\n$note->notes";
-            //$note->save();
         }
-
         //dd(request()->all());
+
         // Email note
         $note->emailNote();
 
@@ -210,12 +218,6 @@ class SiteNoteController extends Controller
             return redirect("site/$note->site_id/notes");
         else
             return redirect("site/$note->site_id");
-
-        //if (preg_match("/\/site\/\d/", $previous_url['path']))
-        //    return redirect("site/$note->site_id");
-        //else
-        //    return redirect("site/$note->site_id/notes");
-
     }
 
     /**

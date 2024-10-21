@@ -31,6 +31,11 @@
                                     {{ $note->variation_info }}<br>
                                     Cost: {{ $note->variation_cost }} &nbsp: Days: {{ $note->variation_days }}
                                 @endif
+                                @if ($note->category_id == '89')
+                                    {{--Prac Completion --}}
+                                    <b>Prac Notified:</b> {{ ($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : '' }}<br>
+                                    <b>Prac Meeting:</b> {{ ($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y h:i a') : '' }}<br>
+                                @endif
                                 <br>- {{ $note->createdBy->name  }}<br>
                                 @if ($note->attachments()->count())
                                     @foreach($note->attachments() as $attachment)

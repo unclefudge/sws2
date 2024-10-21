@@ -35,6 +35,12 @@ Total Extension Days: {{ $note->variation_days }}<br>
     {{$cost->category->name}}: {{$cost->details}}<br>
 @endforeach
 @endif
+{{-- 89. Prac Completion --}}
+@if ($note->category_id == '89')
+Prac Notified: {{ ($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : '' }}<br>
+Prac Meeting Date: {{ ($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : '' }}<br>
+Prac Meeting Time: {{ ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '' }}<br>
+@endif
 {{-- Note for all categories except 15. --}}
 @if ($note->category_id != '15')
 Note:<br>

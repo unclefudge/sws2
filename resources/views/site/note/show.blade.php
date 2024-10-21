@@ -144,6 +144,42 @@
                                 @php($notes_label = 'Note')
                             @endif
 
+                            {{--  Prac Completion Fields --}}
+                            @if (in_array($note->category_id, ['89']))
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="prac_notified" class="control-label"> Prac Notified
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date you will be delivering letters. Please make sure you have given 7 working days notice"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            {!! Form::text('prac_notified', ($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="prac_meeting_date" class="control-label"> Prac Meeting Date
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            {!! Form::text('prac_notified', ($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="prac_meeting_time" class="control-label"> Prac Meeting Time
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            {!! Form::text('prac_notified', ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- Response Required --}}
                             @if (in_array($note->category_id, ['12, 13, 14']))
                                 <div class="row">
