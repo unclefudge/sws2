@@ -155,7 +155,8 @@
                     <input type="hidden" name="site_id" id="site_id" value="">
 
                     {{-- Drafting --}}
-                    @if (Auth::user()->hasAnyRole2('dra-draftsperson|dra-drafting-manager|mgt-general-manager|web-admin'))
+                    {{-- Allow access to edit for below roles + users [1268 (Richard Hill) --}}
+                    @if (Auth::user()->hasAnyRole2('dra-draftsperson|dra-drafting-manager|mgt-general-manager|web-admin') || in_array(Auth::user()->id), [1268])
                         {{-- CC --}}
                         <div class="row">
                             <div class="col-md-3">
