@@ -440,7 +440,7 @@
     <template id="prac-template">
         <h4 style="margin-bottom: 15px">Prac Completion Items
             {{-- Show add if user has permission to add items --}}
-            @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac))
+            @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) && !$prac->supervisor_sign_by)
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
             @endif
         </h4>
