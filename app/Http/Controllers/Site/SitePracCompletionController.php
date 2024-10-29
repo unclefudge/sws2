@@ -436,14 +436,28 @@ class SitePracCompletionController extends Controller
 
     public function destroy($id)
     {
-        $report = SitePracCompletion::findOrFail($id);
+        $prac = SitePracCompletion::findOrFail($id);
 
         // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('del.prac.completion', $report))
+        if (!Auth::user()->allowed2('del.prac.completion', $prac))
             return view('errors/404');
 
-        $report->closeToDo();
-        $report->delete();
+        $prac->closeToDo();
+        $prac->delete();
+    }
+
+    public function clearSignoff($id)
+    {
+        $prac = SitePracCompletion::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.prac.completion', $prac))
+            return view('errors/404');
+
+        $prac->supervisor_sign_by = null;
+        $prac->supervisor_sign_at = null;
+        $prac->save();
+        return redirect('site/prac-completion/' . $prac->id . '/edit');
     }
 
     /**

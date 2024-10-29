@@ -372,12 +372,14 @@
                             <div class="col-sm-3 text-right">Site Supervisor:</div>
                             <div class="col-sm-9">
                                 @if ($prac->supervisor_sign_by)
-                                    {!! \App\User::find($prac->supervisor_sign_by)->full_name !!},
-                                    &nbsp;{{ $prac->supervisor_sign_at->format('d/m/Y') }}
+                                    {!! \App\User::find($prac->supervisor_sign_by)->full_name !!}, &nbsp;{{ $prac->supervisor_sign_at->format('d/m/Y') }}
+                                    {{--}}<button v-if="xx.user_manager == 1 || xx.user_signoff"
+                                            v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Clear Sign Off
+                                    </button>--}}
+                                    <a v-if="xx.user_manager == 1 || xx.user_signoff" style="margin-left: 20px" class="font-red clearSignoff"> <i class="fa fa-times"></i> Clear </a>
                                 @else
                                     <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 1"
-                                            v-on:click.prevent="$root.$broadcast('signOff', 'super')"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
+                                            v-on:click.prevent="$root.$broadcast('signOff', 'super')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                     </button>
                                     <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 0"
                                           class="font-red">Pending</span>
@@ -395,8 +397,7 @@
                                 @else
                                     @if ($prac->supervisor_sign_by)
                                         <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign
-                                            Off
+                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                         </button>
                                         <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_manager == 0 && !xx.user_signoff"
                                               class="font-red">Pending</span>
@@ -651,6 +652,12 @@
                     $('#onhold-div').show();
                 }
             });
+            $('.clearSignoff').on('click', function (e) {
+                e.preventDefault();
+                alert('here');
+                window.location = '/site/prac-completion/' + {{$prac->id}} + '/clearsignoff';
+            });
+
 
             $('.deleteFile').on('click', function (e) {
                 e.preventDefault();

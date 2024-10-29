@@ -425,6 +425,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/prac-completion/{id}/additem', '\App\Http\Controllers\Site\SitePracCompletionController@addItem');
     Route::any('site/prac-completion/{id}/delitem', '\App\Http\Controllers\Site\SitePracCompletionController@delItem');
     Route::any('site/prac-completion/{id}/update', '\App\Http\Controllers\Site\SitePracCompletionController@updateReport');
+    Route::any('site/prac-completion/{id}/clearsignoff', '\App\Http\Controllers\Site\SitePracCompletionController@clearSignoff');
     Route::get('site/prac-completion/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SitePracCompletionController@deleteAttachment');
     Route::any('site/prac-completion/item/{id}', '\App\Http\Controllers\Site\SitePracCompletionController@updateItem');
     Route::get('site/prac-completion/dt/prac', '\App\Http\Controllers\Site\SitePracCompletionController@getPrac');
