@@ -560,6 +560,8 @@ class CronReportController extends Controller
         $today = Carbon::now();
         $jan2024 = Carbon::createFromFormat('Y-m-d', '2024-01-01');
         $found_tasks = 0;
+        // Manually exclude some older tasks
+        $excludePlannerTasks = ['129578', '129993', '135665', '137626'];
 
         //
         // Erect Scaffold - taskid: 116
@@ -569,7 +571,7 @@ class CronReportController extends Controller
             if ($plan->site->status == 1) {
                 // Check for Site Risk doc with word 'Scaffolding Handover Certificate'
                 $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'Scaffolding Handover Certificate')->first();
-                if (!$certificate)
+                if (!$certificate && !in_array($plan->id, $excludePlannerTasks)
                     $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
             }
         }
