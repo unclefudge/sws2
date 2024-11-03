@@ -86,7 +86,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
                                             {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], $existing->costing_extra_credit, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call'], $existing->costing_extra_credit, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
                                             {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
                                         </div>
                                     </div>
@@ -154,7 +154,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
                                             {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
                                             {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
                                         </div>
                                     </div>
