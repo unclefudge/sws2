@@ -96,7 +96,13 @@
                                         @endif
                                     </td>
                                     <td id="sitename-{{$row['id']}}">{!! $row['name'] !!}</td>
-                                    <td>{!! $row['supervisor'] !!}</td>
+                                    <td>
+                                        @if ($row['status'] == 1 || Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                            {!! $row['supervisor'] !!}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{!! $row['company'] !!}</td>
                                     <td style="{{ ($row['deposit_paid'] == '-') ? 'background:#FDD7B1' : '' }}">{!! $row['deposit_paid'] !!}</td>
                                     <td>{!! $row['eng'] !!}</td>
