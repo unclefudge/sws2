@@ -84,16 +84,19 @@
                             {{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
                             @if (in_array($note->category_id, [16, 19, 20]))
                                 <div class="row">
-                                    <div class="col-md-3">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
                                             {!! Form::text('variation_name', $note->variation_name, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-7">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_info', $note->variation_info, ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::label('variation_name', 'Variation Description', ['class' => 'control-label']) !!}
+                                            {{--}}{!! Form::text('variation_info', $note->variation_info, ['class' => 'form-control', 'readonly']) !!}--}}
+                                            {!! Form::textarea('variation_info', $note->variation_info, ['rows' => 5, 'class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
                                 </div>

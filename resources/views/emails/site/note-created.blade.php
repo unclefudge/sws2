@@ -22,7 +22,9 @@ Description:<br>
 {{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
 @if (in_array($note->category_id, [16, 19, 20]))
 Name: {{ $note->variation_name }}<br>
-Description: {{ $note->variation_info }}<br>
+Description:<br>
+{!! nl2br2($note-->variation_info)  !!}
+<br>
 @endif
 {{-- 16. + 19. additional fields --}}
 @if (in_array($note->category_id, [16, 19]))
