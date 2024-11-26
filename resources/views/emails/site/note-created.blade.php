@@ -23,7 +23,7 @@ Description:<br>
 @if (in_array($note->category_id, [16, 19, 20]))
 Name: {{ $note->variation_name }}<br>
 Description:<br>
-{!! nl2br2($note-->variation_info)  !!}
+{!! nl2br2($note->variation_info)  !!}
 <br>
 @endif
 {{-- 16. + 19. additional fields --}}
