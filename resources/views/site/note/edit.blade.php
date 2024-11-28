@@ -62,16 +62,15 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
                                             {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {{--}}{!! Form::text('variation_info', null, ['class' => 'form-control']) !!}--}}
                                             {!! Form::textarea('variation_info', $note->variation_info, ['rows' => '5', 'class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_info', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
-                                            {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
+                                            <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
                                             {!! Form::text('variation_net', $note->variation_cost, ['class' => 'form-control']) !!}
                                             {!! fieldErrorMessage('variation_net', $errors) !!}
                                         </div>
@@ -83,9 +82,9 @@
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
-                                            {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label']) !!}
+                                            <label for="variation_days" class="control-label">Total Extension Days (discussed with Client) Description <span class="font-grey-silver">(Admin use only)</span> </label>
                                             <input type="text" class="form-control" value="{{$note->variation_days}}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
                                             {!! fieldErrorMessage('variation_days', $errors) !!}
                                         </div>
@@ -153,7 +152,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Note', ['class' => 'control-label']) !!}
+                                        {!! Form::label('notes', 'Note (Admin use only)', ['class' => 'control-label']) !!}
                                         {!! Form::textarea('notes', $note->notes, ['rows' => '5', 'class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('notes', $errors) !!}
                                     </div>

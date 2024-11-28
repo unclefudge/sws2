@@ -105,9 +105,9 @@
                             {{-- 16. + 19. additional fields --}}
                             @if (in_array($note->category_id, [16, 19]))
                                 <div class="row">
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <div class="form-group">
-                                            {!! Form::label('variation_net', 'Net Cost', ['class' => 'control-label']) !!}
+                                            <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
                                             {!! Form::text('variation_net',  $note->variation_net, ['class' => 'form-control', 'readonly']) !!}
                                             {!! fieldErrorMessage('variation_net', $errors) !!}
                                         </div>
@@ -126,9 +126,9 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group">
-                                            {!! Form::label('variation_days', 'Total Extension Days (discussed with Client) Description', ['class' => 'control-label', 'readonly']) !!}
+                                            <label for="variation_days" class="control-label">Total Extension Days (discussed with Client) Description <span class="font-grey-silver">(Admin use only)</span> </label>
                                             {!! Form::text('variation_days', $note->variation_days, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
@@ -144,7 +144,7 @@
                                     </div>
                                 @endforeach
                                 <br>
-                                @php($notes_label = 'Note')
+                                @php($notes_label = 'Note (Admin use only)')
                             @endif
 
                             {{--  Prac Completion Fields --}}

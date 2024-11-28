@@ -578,13 +578,13 @@ class CronReportController extends Controller
 
         // Email outstanding scaffold certificates
         if ($scaffold_overdue) {
-            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au;  for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; for Outstanding Scaffold Handover Certificates:\n";
+            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; construct@capecod.com.au; info@ashby.com.au  for Outstanding Scaffold Handover Certificates:\n</b><br>";
+            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; construct@capecod.com.au; info@ashby.com.au for Outstanding Scaffold Handover Certificates:\n";
             foreach ($scaffold_overdue as $id => $array) {
                 echo "id[$id] " . $array['name'] . "<br>";
                 $log .= "id[$id] " . $array['name'] . "\n";
             }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [env('EMAIL_DEV')];
             Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue, "Ashbys"));
         }
 
