@@ -293,6 +293,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/supply/{id}/signoff', '\App\Http\Controllers\Site\SiteProjectSupplyController@signoff');
     Route::resource('site/supply', '\App\Http\Controllers\Site\SiteProjectSupplyController');
 
+    // Site Shutdown
+    Route::get('site/shutdown/dt/list', '\App\Http\Controllers\Site\SiteShutdownController@getReports');
+    Route::get('site/shutdown/initialise', '\App\Http\Controllers\Site\SiteShutdownController@initialise');
+    Route::get('site/shutdown/{id}/signoff', '\App\Http\Controllers\Site\SiteShutdownController@signoff');
+    Route::resource('site/shutdown', '\App\Http\Controllers\Site\SiteShutdownController');
+
     // Upcoming Compliance
     Route::post('site/upcoming/compliance/update_job', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@updateJob');
     Route::get('site/upcoming/compliance/settings', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settings');

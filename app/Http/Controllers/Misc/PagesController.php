@@ -1430,8 +1430,8 @@ class PagesController extends Controller
         //
         // Creating Permission
         //
-        $name = 'Construction Doc';
-        $slug = 'construction.doc';
+        $name = 'Site Shutdown';
+        $slug = 'Site Shutdown';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);
