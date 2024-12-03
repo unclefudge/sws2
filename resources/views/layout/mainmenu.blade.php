@@ -151,12 +151,13 @@
                                                             @if (in_array(Auth::user()->id, [3,108]))
                                                                 <li><a href="/site/shutdown" class="nav-link"> Site Shutdown </a></li>
                                                             @endif
-                                                            @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
-                                                                <li><a href="/site/upcoming/compliance" class="nav-link"> Upcoming Jobs </a></li>
-                                                            @endif
-                                                            @if (Auth::user()->hasAnyPermissionType('site.extension'))
-                                                                <li><a href="/site/extension" class="nav-link"> Contract Extensions</a></li>
-                                                            @endif
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
+                                                            <li><a href="/site/upcoming/compliance" class="nav-link"> Upcoming Jobs </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.extension'))
+                                                            <li><a href="/site/extension" class="nav-link"> Contract Extensions</a></li>
+                                                        @endif
                                                     </ul>
                                                 </div>
                                             @endif
