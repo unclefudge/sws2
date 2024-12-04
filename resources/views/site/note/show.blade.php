@@ -81,8 +81,8 @@
                                 @php($notes_label = 'Description')
                             @endif
 
-                            {{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
-                            @if (in_array($note->category_id, [16, 19, 20]))
+                            {{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations, 93. Wet Calls  --}}
+                            @if (in_array($note->category_id, [16, 19, 20, 93]))
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -103,7 +103,7 @@
                             @endif
 
                             {{-- 16. + 19. additional fields --}}
-                            @if (in_array($note->category_id, [16, 19]))
+                            @if (in_array($note->category_id, [16, 19, 93]))
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -118,12 +118,14 @@
                                             {!! Form::text('variation_cost', $note->variation_cost, ['class' => 'form-control', 'readonly']) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
+                                    @if (in_array($note->category_id, [16, 19]))
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                                {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">

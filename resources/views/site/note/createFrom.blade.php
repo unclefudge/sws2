@@ -85,11 +85,13 @@
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call'], $existing->costing_extra_credit, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
-                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
+                                    <div id="extracredit_div">
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
+                                                {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                                {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
+                                                {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -259,7 +261,8 @@
     <script>
         $(document).ready(function () {
             /* Select2 */
-            $("#site_id").select2({placeholder: "Select Site",});
+            $("#site_id").select2({placeholder: "Select Site", width: '100%'});
+            $("#site_id2").select2({placeholder: "Select Site", width: '100%'});
 
             $("#category_id").change(function (e) {
                 e.preventDefault();
@@ -281,21 +284,35 @@
                 $("#variation_cost_fields").hide();
                 $("#costing_fields").hide();
                 $("#response_req_field").hide();
+                $("#siteall_div").hide();
+                $("#extracredit_div").show();
                 $("#savenote").show();
                 $("#notes_label").html('Note (Admin use only)');
 
-                if (cat_id == '16' || cat_id == '19' || cat_id == '20') { // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation
+                // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation, Wet Calls
+                if (cat_id == '16' || cat_id == '19' || cat_id == '20' || cat_id == '93') {
                     $("#variation_fields").show();
                 }
 
-                if (cat_id == '16' || cat_id == '19') { // Approved Site Variation, For Issue to Client Site Variations
+                // Approved Site Variation, For Issue to Client Site Variations, Wet Calls
+                if (cat_id == '16' || cat_id == '19' || cat_id == '93') {
                     $("#variation_cost_fields").show();
-                    //$("#notes_label").html('Variation Breakup/Work Order Details');
                 }
 
+                // Costing Request
                 if (cat_id == '15') {
                     $("#costing_fields").show();
                     $("#notes_label").html('Description');
+                }
+
+                // Wet Call Request
+                if (cat_id == '93') {
+                    $("#siteall_div").show();
+                    $("#site_div").hide();
+                    $("#extracredit_div").hide();
+                } else {
+                    $("#siteall_div").hide();
+                    $("#site_div").show();
                 }
 
                 var response_req_cats = ['12', '13', '14']

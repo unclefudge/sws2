@@ -32,10 +32,16 @@
                             <div class="row">
                                 {{-- Site --}}
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
+                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!} {!! fieldHasError('site_id2', $errors) !!}">
                                         {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
+                                        <div id="site_div">
+                                            {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
+                                        </div>
+                                        <div id="siteall_div" style="display: none">
+                                            {!! Form::select('site_id2', $site_list_all, $site_id, ['class' => 'form-control select2', 'id' => 'site_id2']) !!}
+                                        </div>
                                         {!! fieldErrorMessage('site_id', $errors) !!}
+                                        {!! fieldErrorMessage('site_id2', $errors) !!}
                                     </div>
                                 </div>
                                 {{-- Category --}}
@@ -85,11 +91,13 @@
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
-                                            {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit', 'Wet Call' => 'Wet Call'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
-                                            {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
+                                    <div id="extracredit_div">
+                                        <div class="col-md-3">
+                                            <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
+                                                {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
+                                                {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
+                                                {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -154,7 +162,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
                                             {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
+                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
                                             {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
                                         </div>
                                     </div>
@@ -313,7 +321,8 @@
     <script>
         $(document).ready(function () {
             /* Select2 */
-            $("#site_id").select2({placeholder: "Select Site",});
+            $("#site_id").select2({placeholder: "Select Site", width: '100%'});
+            $("#site_id2").select2({placeholder: "Select Site", width: '100%'});
 
             $("#category_id").change(function (e) {
                 e.preventDefault();
@@ -336,16 +345,18 @@
                 $("#costing_fields").hide();
                 $("#response_req_field").hide();
                 $("#prac_completion_fields").hide();
+                $("#siteall_div").hide();
+                $("#extracredit_div").show();
                 $("#savenote").show();
                 $("#notes_label").html('Note (Admin use only)');
 
-                // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation
-                if (cat_id == '16' || cat_id == '19' || cat_id == '20') {
+                // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation, Wet Calls
+                if (cat_id == '16' || cat_id == '19' || cat_id == '20' || cat_id == '93') {
                     $("#variation_fields").show();
                 }
 
-                // Approved Site Variation, For Issue to Client Site Variations
-                if (cat_id == '16' || cat_id == '19') {
+                // Approved Site Variation, For Issue to Client Site Variations, Wet Calls
+                if (cat_id == '16' || cat_id == '19' || cat_id == '93') {
                     $("#variation_cost_fields").show();
                 }
 
@@ -360,6 +371,18 @@
                     $("#prac_completion_fields").show();
                 }
 
+                // Wet Call Request
+                if (cat_id == '93') {
+                    $("#siteall_div").show();
+                    $("#site_div").hide();
+                    $("#extracredit_div").hide();
+                } else {
+                    $("#siteall_div").hide();
+                    $("#site_div").show();
+                }
+
+
+                // Allowance, Plan & Details, Compliance
                 var response_req_cats = ['12', '13', '14']
                 if (response_req_cats.includes(cat_id)) {
                     $("#response_req_field").show();

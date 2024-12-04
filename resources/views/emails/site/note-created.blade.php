@@ -19,15 +19,15 @@ Room: {{ $note->costing_room }}<br>
 Location: {{ $note->costing_location }}<br>
 Description:<br>
 @endif
-{{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations  --}}
-@if (in_array($note->category_id, [16, 19, 20]))
+{{-- 16. Approved Variation, 19. For Issue to Client,  20. TBA Site Variations, 93. Wet Calls   --}}
+@if (in_array($note->category_id, [16, 19, 20, 93]))
 Name: {{ $note->variation_name }}<br>
 Description:<br>
 {!! nl2br2($note->variation_info)  !!}
 <br>
 @endif
 {{-- 16. + 19. additional fields --}}
-@if (in_array($note->category_id, [16, 19]))
+@if (in_array($note->category_id, [16, 19, 93]))
 Net Cost:  {{ $note->variation_net }}<br>
 Gross  Cost:  {{ $note->variation_cost }}<br>
 Credit/Extra: {{ $note->costing_extra_credit }}<br>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Misc\Attachment;
 use App\Models\Misc\Category;
+use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
 use App\Models\Site\SiteNoteCost;
@@ -96,8 +97,9 @@ class SiteNoteController extends Controller
         $cost_centres = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
         $site_list = ['' => 'Select site'] + Auth::user()->authSites('view.site.note', [1, 2])->pluck('name', 'id')->toArray();
+        $site_list_all = ['' => 'Select site'] + Site::whereIn('status', [1, 2])->where('company_id', 3)->where('special', null)->pluck('name', 'id')->toArray();
 
-        return view('site/note/create', compact('site_id', 'site_list', 'categories', 'cost_centres'));
+        return view('site/note/create', compact('site_id', 'site_list', 'site_list_all', 'categories', 'cost_centres'));
     }
 
     public function createNoteFrom($id)
@@ -128,8 +130,9 @@ class SiteNoteController extends Controller
         if (!Auth::user()->hasPermission2('add.site.note'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'category_id' => 'required'];
+        $rules = ['category_id' => 'required'];
         $mesg = ['site_id.required' => 'The site field is required.',
+            'site_id2.required' => 'The site field is required.',
             'category_id.required' => 'The category field is required.',
             'notes.required' => 'The notes field is required.',
             'costing_extra_credit.required' => 'The costing credit/extra field is required.',
@@ -148,6 +151,12 @@ class SiteNoteController extends Controller
             'cc-1.required' => 'The cost centre item 1 required'
         ];
 
+        // Wel Call
+        if (request('category_id') == 93)
+            $rules = $rules + ['site_id2' => 'required'];
+        else
+            $rules = $rules + ['site_id' => 'required'];
+
         // Costing Request
         if (request('category_id') == 15)
             $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
@@ -157,10 +166,12 @@ class SiteNoteController extends Controller
             $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required', 'notes' => 'required'];
 
         // Variations
-        elseif (in_array(request('category_id'), [16, 19])) { // Approved / For Issue to Client
+        elseif (in_array(request('category_id'), [16, 19, 93])) { // Approved / For Issue to Client
             $rules = $rules + [
                     'variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required',
-                    'variation_days' => 'required', 'variation_extra_credit' => 'required', 'cc-1' => 'required'];
+                    'variation_days' => 'required', 'cc-1' => 'required'];
+            if (in_array(request('category_id'), [16, 19])) // exclude Wet calls
+                $rules = $rules + ['variation_extra_credit' => 'required'];
             for ($i = 1; $i <= 20; $i++) {
                 if (request("cc-$i")) {
                     $rules = $rules + ["cinfo-$i" => 'required'];
@@ -184,6 +195,10 @@ class SiteNoteController extends Controller
 
         $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
         $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
+
+        // Wet call - update site_id
+        if (request('category_id') == 93)
+            $note_request['site_id'] = request('site_id2');
 
         //dd($note_request);
 
@@ -385,6 +400,7 @@ class SiteNoteController extends Controller
     public function getNotes()
     {
         $site_list = (request('site_id') == 'all') ? Auth::user()->authSites('view.site.note')->pluck('id')->toArray() : [request('site_id')];
+        $note_ids = SiteNote::whereIn('site_id', $site_list)->orWhere('created_by', Auth::user()->id)->pluck('id')->toArray();
 
         $records = SiteNote::select([
             'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.notes', 'site_notes.parent', 'site_notes.updated_at', 'site_notes.created_at', 'site_notes.created_by', // 'sites.name',
@@ -397,7 +413,8 @@ class SiteNoteController extends Controller
             ->join('sites', 'sites.id', '=', 'site_notes.site_id')
             ->join('users', 'users.id', '=', 'site_notes.created_by')
             ->join('categories', 'categories.id', '=', 'site_notes.category_id')
-            ->whereIn('site_notes.site_id', $site_list)
+            //->whereIn('site_notes.site_id', $site_list)
+            ->whereIn('site_notes.id', $note_ids)
             ->where('site_notes.parent', null)
             ->where('site_notes.status', 1);
 
