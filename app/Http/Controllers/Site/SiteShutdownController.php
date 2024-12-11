@@ -210,6 +210,40 @@ class SiteShutdownController extends Controller
         }
     }
 
+    public function reminder()
+    {
+        $shutdowns = SiteShutdown::where('status', 1)->get();
+        $super_list = [];
+        // Create List of Supervisors assigned to which Active Sites
+        foreach ($shutdowns as $shutdown) {
+            $super_id = $shutdown->super_id;
+            if (!isset($super_list[$super_id]))
+                $super_list[$super_id] = [$shutdown->site_id];
+            else
+                $super_list[$super_id][] = $shutdown->site_id;
+        }
+
+        foreach ($super_list as $super_id => $site_array) {
+            $super = User::findOrFail($super_id);
+            $site_list = '';
+            foreach ($site_array as $site_id) {
+                $site = Site::findOrFail($site_id);
+                $site_list .= "- $site->name\n";
+            }
+
+            if ($site_ext->extension->sitesNotCompletedBySupervisor($super_id)->count()) {
+                echo "- $super->fullname<br>";
+                $log .= "- $super->fullname\n";
+
+                // Send email to supervisor
+                $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
+                if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
+            }
+        }
+    }
+
 
     /**
      * Get Project Supply current user is authorised to manage + Process datatables ajax request.

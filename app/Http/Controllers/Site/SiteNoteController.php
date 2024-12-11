@@ -429,17 +429,9 @@ class SiteNoteController extends Controller
                 return $note->category->name;
             })
             ->editColumn('notes', function ($note) {
+                $string = '';
                 if (in_array($note->category_id, [16, 19, 20, 93])) {
                     $string = $note->variation_name;
-                } else {
-                    $string = truncate(nl2br($note->notes));
-
-                    if ($note->attachments()->count()) {
-                        $string .= "<br><b>Attachments:</b><br>";
-                        foreach ($note->attachments() as $attachment) {
-                            $string .= "<a href='$attachment->url' target='_blank'>$attachment->name<br>";
-                        }
-                    }
                 }
                 return $string;
             })
