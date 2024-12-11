@@ -403,7 +403,7 @@ class SiteNoteController extends Controller
         $note_ids = SiteNote::whereIn('site_id', $site_list)->orWhere('created_by', Auth::user()->id)->pluck('id')->toArray();
 
         $records = SiteNote::select([
-            'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.notes', 'site_notes.parent', 'site_notes.updated_at', 'site_notes.created_at', 'site_notes.created_by', // 'sites.name',
+            'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.variation_name', 'site_notes.notes', 'site_notes.parent', 'site_notes.updated_at', 'site_notes.created_at', 'site_notes.created_by', // 'sites.name',
             'users.username', 'users.firstname', 'users.lastname', 'categories.name',
             DB::raw('DATE_FORMAT(site_notes.created_at, "%d/%m/%y") AS date_created'),
             DB::raw('DATE_FORMAT(site_notes.updated_at, "%d/%m/%y") AS date_updated'),
@@ -429,12 +429,16 @@ class SiteNoteController extends Controller
                 return $note->category->name;
             })
             ->editColumn('notes', function ($note) {
-                $string = truncate(nl2br($note->notes));
+                if (in_array($note->category_id, [16, 19, 20, 93])) {
+                    $string = $note->variation_name;
+                } else {
+                    $string = truncate(nl2br($note->notes));
 
-                if ($note->attachments()->count()) {
-                    $string .= "<br><b>Attachments:</b><br>";
-                    foreach ($note->attachments() as $attachment) {
-                        $string .= "<a href='$attachment->url' target='_blank'>$attachment->name<br>";
+                    if ($note->attachments()->count()) {
+                        $string .= "<br><b>Attachments:</b><br>";
+                        foreach ($note->attachments() as $attachment) {
+                            $string .= "<a href='$attachment->url' target='_blank'>$attachment->name<br>";
+                        }
                     }
                 }
                 return $string;

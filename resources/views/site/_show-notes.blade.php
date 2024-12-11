@@ -25,9 +25,9 @@
                         <div class="col-xs-9">
                             <small>
                                 {!! truncate(nl2br($note->notes, 40)) !!}<br>
-                                @if ($note->category_id == '16')
-                                    {{-- Approved Variation --}}
-                                    <b>Approved Variation:</b> {{ $note->variation_name }}<br>
+                                @if (in_array($note->category_id, [16, 19, 20, 93]))
+                                    {{-- Variations --}}
+                                    <b>Variation:</b> {{ $note->variation_name }}<br>
                                     {{ $note->variation_info }}<br>
                                     Cost: {{ $note->variation_cost }} &nbsp: Days: {{ $note->variation_days }}
                                 @endif

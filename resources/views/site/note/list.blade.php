@@ -52,7 +52,7 @@
                                     <th style="width:20%"> Site</th>
                                 @endif
                                 <th style="width:15%"> Category</th>
-                                <th> Note</th>
+                                <th> Variation Name / Note</th>
                                 <th style="width:15%"> Created by</th>
                                 <th style="width:7%"> Created at</th>
                                 @if (Auth::user()->hasPermission2("del.site.note"))
