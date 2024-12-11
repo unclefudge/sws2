@@ -43,7 +43,7 @@
                                 </div>
                             </div>
                             <hr style="padding: 0px; margin: 0px 0px 30px 0px">
-                            {{-- Products --}}
+                            {{-- Items --}}
                             <?php
                             $category = '';
                             $subcategory = '';
@@ -66,16 +66,17 @@
                                 <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
                                     <div class="col-sm-2">
                                         @if ($item->type == 'yn')
-                                            {!! Form::select("resp-$item->order", ['' => 'No', 'Yes' => 'Yes', 'N/A' => 'N/A'], $item->response, ['class' => 'form-control bs-select']) !!}
+                                            {!! Form::select("resp-$item->order", ['' => 'Select', 'Yes' => 'Yes', 'N/A' => 'N/A'], $item->response, ['class' => 'form-control bs-select']) !!}
                                         @else
-                                            {!! Form::select("sel-$item->order", ['No' => 'No', 'Yes' => 'Yes'], ($item->response) ? 'Yes' : 'No', ['class' => 'form-control bs-select', 'disabled', 'id' => "sel-$item->order"]) !!}
+                                            {!! Form::select("sel-$item->order", ['' => 'Select', 'Yes' => 'Yes'], ($item->response) ? 'Yes' : 'Select', ['class' => 'form-control bs-select', 'id' => "sel-$item->order"]) !!}
                                         @endif
                                     </div>
                                     <div class="col-sm-10">
                                         <div>{{ $item->name }}</div>
                                         @if ($item->type != 'yn')
                                             <div style="margin-top: 10px">
-                                                {!! Form::textarea("resp-$item->order", $item->response, ['rows' => '5', 'class' => 'form-control', 'placeholder' => 'Provide details', 'id' => "resp-$item->order"]) !!}
+                                                {!! Form::textarea("resp-$item->order", $item->response, ['rows' => '5', 'class' => 'form-control', 'placeholder' => 'Provide details', 'style' => 'display:none',
+ 'id' => "resp-$item->order"]) !!}
                                             </div>
                                         @endif
                                     </div>
@@ -148,14 +149,27 @@
             });
 
             // text response question
-            $("#resp-2").change(function (e) {
-                e.preventDefault();
-                if ($("#resp-2").val() != '') {
-                    $("#sel-2").val('Yes').change();
-                } else {
-                    $("#sel-2").val('No').change();
-                }
+            if ($("#resp-2").val() != '')
+                $("#resp-2").show();
+            else
+                $("#resp-2").hide();
+
+            $("#sel-2").change(function (e) {
+                if ($("#sel-2").val() == 'Yes')
+                    $("#resp-2").show();
+                else
+                    $("#resp-2").hide();
             });
+
+            /*
+             $("#resp-2").change(function (e) {
+                 e.preventDefault();
+                 if ($("#resp-2").val() != '') {
+                     $("#sel-2").val('Yes').change();
+                 } else {
+                     $("#sel-2").val('No').change();
+                 }
+             });*/
 
         });
     </script>
