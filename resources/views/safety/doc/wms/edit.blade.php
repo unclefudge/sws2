@@ -235,7 +235,8 @@
                                                                         </button>
                                                                         <button v-show="step.name != xx.edit.name" class="btn btn-xs green pull-right" v-on:click="saveStep(step)"
                                                                                 :disabled="! (xx.edit.name)">
-                                                                            Save &nbsp;</button>
+                                                                            Save &nbsp;
+                                                                        </button>
                                                                         <button class="btn btn-xs default pull-right" v-on:click="cancelEdit">Cancel</button>
                                                                         <button class="btn btn-xs default pull-left" v-on:click="orderStep(step, '-')"><i class="fa fa-chevron-up"></i></button>
                                                                         <button class="btn btn-xs default pull-left" v-on:click="orderStep(step, '+')"><i class="fa fa-chevron-down"></i></button>
@@ -339,13 +340,6 @@
                                             <button type="submit" class="btn green" v-on:click="saveActiveDB"> Make Active</button>
                                         @endif
                                         @if (!$doc->master)
-                                            {{--}}
-                                            <a v-on:click="showConfirmSignoff" type="button" class="btn green" data-dismiss="modal" id="continue"
-                                               v-show="xx.company.id == xx.user.company_id && xx.doc.principle_id && xx.doc.principle == xx.company.parent_name">Request Sign Off</a>
-                                            <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green"
-                                               v-show="! xx.docModified && xx.company.id == xx.user.company_id && (!xx.doc.principle_id || xx.doc.principle_id && xx.doc.principle != xx.company.parent_name)">
-                                                Manual Sign Off</a>
-                                                --}}
                                             <a v-on:click="showConfirmSignoff" type="button" class="btn green" data-dismiss="modal" id="continue" v-show="!xx.user.signoff && xx.doc.res_compliance && xx.doc.res_review">Request Sign Off</a>
                                             <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green" v-show="xx.user.signoff == 'manual' && xx.doc.res_compliance && xx.doc.res_review && !xx.docModified">Manual Sign Off</a>
                                             <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green" v-show="xx.user.signoff == 1 && xx.doc.res_compliance && xx.doc.res_review && !xx.docModified">Sign Off</a>
@@ -494,7 +488,7 @@
         </ul>
     </template>
 
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -509,34 +503,35 @@
     <script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/global/plugins/moment.min.js" type="text/javascript"></script>
 
-<!-- Vue -->
-<script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
-<script src="/js/libs/vue-strap.min.js"></script>
-<script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
-<script src="/js/vue-app-wms.js"></script>
-<script>
-    /* File Upload */
-    // We can attach the `fileselect` event to all file inputs on the page
+    <!-- Vue -->
+    <script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
+    <script src="/js/libs/vue-strap.min.js"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
+    <script src="/js/vue-app-wms.js"></script>
+    <script>
+        /* File Upload */
+        // We can attach the `fileselect` event to all file inputs on the page
 
-    $(document).on('change', ':file', function () {
-        var input = $(this), numFiles = input.get(0).files ? input.get(0).files.length : 1, label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-        input.trigger('fileselect', [numFiles, label]);
-    });
+        $(document).on('change', ':file', function () {
+            var input = $(this), numFiles = input.get(0).files ? input.get(0).files.length : 1, label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+        });
 
-    $(':file').on('fileselect', function (event, numFiles, label) {
-        var input = $(this).parents('.input-group').find(':text'), log = numFiles > 1 ? numFiles + ' files selected' : label;
+        $(':file').on('fileselect', function (event, numFiles, label) {
+            var input = $(this).parents('.input-group').find(':text'), log = numFiles > 1 ? numFiles + ' files selected' : label;
 
-        if (input.length) {
-            input.val(log);
-        } else {
-            if (log) alert(log);
-        }
+            if (input.length) {
+                input.val(log);
+            } else {
+                if (log) alert(log);
+            }
 
-    });
-</script>
+        });
+    </script>
 @stop
 

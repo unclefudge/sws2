@@ -9,11 +9,11 @@
         @endif
         <li><span>Company SWMS</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -35,6 +35,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            <?php $twoyearago = $now->subYears(2)->toDateTimeString(); ?>
                             @foreach($companies as $company)
                                 <tr>
                                     <td>
@@ -45,7 +46,12 @@
                                     <td>
                                         @foreach ($company->wmsdocs as $doc)
                                             @if ($doc->status == 1)
-                                                <a href="/safety/doc/wms/{{$doc->id}}">{{ $doc->name }}</a><br>
+                                                    <?php
+                                                    $name = $doc->name;
+                                                    if ($doc->updated_at < $twoyearago)
+                                                        $name .= ' <span class="badge badge-danger badge-roundless">Out of Date</span>'; ?>
+                                                ?>
+                                                <a href="/safety/doc/wms/{{$doc->id}}">{{ $name }}</a><br>
                                             @endif
                                         @endforeach
                                     </td>
@@ -71,5 +77,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop
