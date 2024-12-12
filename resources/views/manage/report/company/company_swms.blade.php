@@ -35,7 +35,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php $twoyearago = $now->subYears(2)->toDateTimeString(); ?>
+                            <?php $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString(); ?>
                             @foreach($companies as $company)
                                 <tr>
                                     <td>
@@ -46,12 +46,11 @@
                                     <td>
                                         @foreach ($company->wmsdocs as $doc)
                                             @if ($doc->status == 1)
-                                                    <?php
-                                                    $name = $doc->name;
-                                                    if ($doc->updated_at < $twoyearago)
-                                                        $name .= ' <span class="badge badge-danger badge-roundless">Out of Date</span>'; ?>
-                                                ?>
-                                                <a href="/safety/doc/wms/{{$doc->id}}">{{ $name }}</a><br>
+                                                    <?php $name = $doc->name; ?>
+                                                @if ($doc->updated_at < $twoyearago)
+                                                        <?php $name .= ' <span class="badge badge-danger badge-roundless">Out of Date</span>'; ?>
+                                                @endif
+                                                <a href="/safety/doc/wms/{{$doc->id}}">{!! $name !!}</a><br>
                                             @endif
                                         @endforeach
                                     </td>
