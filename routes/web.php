@@ -296,6 +296,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Shutdown
     Route::get('site/shutdown/dt/list', '\App\Http\Controllers\Site\SiteShutdownController@getReports');
     Route::get('site/shutdown/initialise', '\App\Http\Controllers\Site\SiteShutdownController@initialise');
+    Route::get('site/shutdown/reminder', '\App\Http\Controllers\Site\SiteShutdownController@reminder');
     Route::get('site/shutdown/{id}/signoff', '\App\Http\Controllers\Site\SiteShutdownController@signoff');
     Route::resource('site/shutdown', '\App\Http\Controllers\Site\SiteShutdownController');
 

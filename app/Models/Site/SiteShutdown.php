@@ -57,7 +57,7 @@ class SiteShutdown extends Model
     /**
      * Create ToDoo for ProjectSupply and assign to given user(s)
      */
-    public function createReviewToDo($user_list)
+    public function createSupervisorToDo($user_list)
     {
         $site = Site::findOrFail($this->site_id);
         $todo_request = [

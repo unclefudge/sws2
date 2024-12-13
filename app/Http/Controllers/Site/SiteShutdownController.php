@@ -8,6 +8,7 @@ use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyProduct;
 use App\Models\Site\SiteShutdown;
 use App\Models\Site\SiteShutdownItem;
+use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -122,10 +123,6 @@ class SiteShutdownController extends Controller
         }
         $shutdown->save();
 
-        // If all items completed send Supervisor ToDoo task
-        //if ($shutdown->items->count() == $shutdown->itemsCompleted()->count())
-        //    $shutdown->createSignOffToDo($shutdown->site->supervisor_id);
-
         Toastr::success("Updated project");
 
         return redirect("/site/shutdown/$shutdown->id/edit");
@@ -154,13 +151,8 @@ class SiteShutdownController extends Controller
             $shutdown->manager_sign_by = Auth::user()->id;
             $shutdown->manager_sign_at = Carbon::now();
             $shutdown->status = 0;
-
-            // Email completion
-            //$email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-            //if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
         }
         $shutdown->save();
-
 
         if ($shutdown->status)
             return redirect("/site/shutdown/$shutdown->id/edit");
@@ -204,6 +196,9 @@ class SiteShutdownController extends Controller
                 $q13 = SiteShutdownItem::create(['name' => 'Have material/containment screens affixed to scaffold/roof rail/elevated work areas to arrest the free fall of objects to area below been removed so as to mitigate against wind/rain loads whilst construction activities are suspended?', 'type' => 'yn', 'shutdown_id' => $shutdown->id, 'category' => $category, 'sub_category' => $subcategory, 'order' => $order++]);
                 $q14 = SiteShutdownItem::create(['name' => 'Are scaffolds/work platforms secured from unauthorised access?', 'type' => 'yn', 'shutdown_id' => $shutdown->id, 'category' => $category, 'sub_category' => $subcategory, 'order' => $order++]);
                 $q15 = SiteShutdownItem::create(['name' => 'Are scaffolds/work platforms adequately tied in and complete to ensure stability?', 'type' => 'yn', 'shutdown_id' => $shutdown->id, 'category' => $category, 'sub_category' => $subcategory, 'order' => $order++]);
+
+                // Create Supervisor ToDoo
+                $shutdown->createSupervisorToDo($site->supervisor_id);
             }
         } else {
             echo "Not authorised";
@@ -212,7 +207,7 @@ class SiteShutdownController extends Controller
 
     public function reminder()
     {
-        $shutdowns = SiteShutdown::where('status', 1)->get();
+        $shutdowns = SiteShutdown::where('status', 1)->whereNull('supervisor_sign_by')->get();
         $super_list = [];
         // Create List of Supervisors assigned to which Active Sites
         foreach ($shutdowns as $shutdown) {
@@ -231,14 +226,14 @@ class SiteShutdownController extends Controller
                 $site_list .= "- $site->name\n";
             }
 
-            if ($site_ext->extension->sitesNotCompletedBySupervisor($super_id)->count()) {
+            $superActiveSites = SiteShutdown::where('status', 1)->where('super_id', $super_id)->whereNull('supervisor_sign_by')->get();
+            if ($superActiveSites->count()) {
                 echo "- $super->fullname<br>";
-                $log .= "- $super->fullname\n";
 
                 // Send email to supervisor
                 $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
                 $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-                if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
+                if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteShutdownReminder($site_list));
             }
         }
     }

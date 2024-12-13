@@ -20,6 +20,7 @@ use App\Models\Site\SiteMaintenanceItem;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteScaffoldHandover;
+use App\Models\Site\SiteShutdown;
 use App\Models\User\UserDoc;
 use App\User;
 use Carbon\Carbon;
@@ -160,6 +161,8 @@ class Todo extends Model
                 return "/site/inspection/plumbing/$this->type_id";
             case 'project supply':
                 return "/site/supply/$this->type_id/edit";
+            case 'site shutdown':
+                return "/site/shutdown/$this->type_id/edit";
             case 'super checklist':
                 return "/supervisor/checklist/$this->type_id/$this->type_id2";
             case 'super checklist signoff':
@@ -212,6 +215,7 @@ class Todo extends Model
         if ($task_type == 'supervisor') return null;
         if ($task_type == 'scaffold handover') return SiteScaffoldHandover::find($type_id);
         if ($task_type == 'project supply') return SiteProjectSupply::find($type_id);
+        if ($task_type == 'site shutdown') return SiteShutdown::find($type_id);
         if (in_array($task_type, ['extension', 'extension signoff'])) return SiteExtension::find($type_id);
         if ($task_type == 'equipment') return EquipmentLocation::find($type_id);
         if ($task_type == 'qa') return SiteQa::find($type_id);
