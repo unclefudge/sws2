@@ -561,7 +561,7 @@ class CronReportController extends Controller
         $jan2024 = Carbon::createFromFormat('Y-m-d', '2024-01-01');
         $found_tasks = 0;
         // Manually exclude some older tasks
-        $excludePlannerTasks = ['129578', '129601', '129993', '135665', '136666', '137626'];
+        $excludePlannerTasks = ['129578', '129601', '129993', '135665', '136666', '137626', '137903', '139403'];
 
         //
         // Erect Scaffold - taskid: 116

@@ -1487,11 +1487,6 @@ class CronController extends Controller
                         $todo->save();
                     }
                 }
-
-                // Scaffold Handover
-                //if ($todo->type == 'scaffold handover') {
-                //    $scaffold_overdue[$todo->type_id] = ['name' => $todo->name, 'due_at' => $todo->due_at->format('d/m/Y')];
-                //}
             }
         }
 
@@ -1506,18 +1501,6 @@ class CronController extends Controller
                 $toolbox->emailOverdue();
             }
         }
-
-        // Email outstanding scaffold certificates
-        /*if ($scaffold_overdue) {
-            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n";
-            foreach ($scaffold_overdue as $id => $array) {
-                echo "id[$id] " . $array['name'] . "<br>";
-                $log .= "id[$id] " . $array['name'] . "\n";
-            }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au'] : [env('EMAIL_DEV')];
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue));
-        }*/
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
