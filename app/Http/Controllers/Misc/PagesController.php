@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
-use App\Models\Misc\ZohoSiteLog;
+use App\Models\Safety\ToolboxTalk;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
@@ -139,12 +139,10 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "Update Zoho site log<br>";
-        $sites = ZohoSiteLog::all();
-        foreach ($sites as $log) {
-            $log->site_code = $log->site->code;
-            $log->save();
-            echo "up " . $log->site->name . "<br>";
+        echo "TBT emsails<br>";
+        $tb = ToolboxTalk::find(619);
+        foreach ($tb->outstandingBy() as $user) {
+            echo $user->email . "<br>";
         }
 
         /*
