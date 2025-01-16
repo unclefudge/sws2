@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -93,7 +93,7 @@
     ?>
     <div class="page22">
         <div class="row" style="padding: 5px">
-            <div class="col-xs-3"> <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
+            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
             <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT REPORT</h3></div>
         </div>
         {{-- Notification Details --}}
@@ -255,9 +255,15 @@
         </div>
         <div class="row">
             <div class="col-xs-2">Notifiable incident?</div>
-            <div class="col-xs-3">@if ($incident->notifiable != null){!! ($incident->notifiable) ? 'Yes' : 'No'!!}@endif</div>
-            <div class="col-xs-2">@if ($incident->notifiable) Notifiable Context @endif </div>
-            <div class="col-xs-4">@if ($incident->notifiable) {!! nl2br($incident->notifiable_reason) !!} @endif </div>
+            <div class="col-xs-3">@if ($incident->notifiable != null)
+                    {!! ($incident->notifiable) ? 'Yes' : 'No'!!}
+                @endif</div>
+            <div class="col-xs-2">@if ($incident->notifiable)
+                    Notifiable Context
+                @endif </div>
+            <div class="col-xs-4">@if ($incident->notifiable)
+                    {!! nl2br($incident->notifiable_reason) !!}
+                @endif </div>
         </div>
 
         {{-- Notifiable --}}
@@ -350,10 +356,10 @@
                     <div class="col-xs-9">{{ $todo->info }}</div>
                 </div>
                 @if ($todo->comments)
-                <div class="row">
-                    <div class="col-xs-2">Comments</div>
-                    <div class="col-xs-9">{{ $todo->comments }}</div>
-                </div>
+                    <div class="row">
+                        <div class="col-xs-2">Comments</div>
+                        <div class="col-xs-9">{{ $todo->comments }}</div>
+                    </div>
                 @endif
                 <div class="row">
                     <div class="col-xs-2">Completed By</div>
@@ -375,9 +381,9 @@
         </div>
         @if ($incident->reviews()->count())
             @foreach ($incident->reviews() as $review)
-                <?php
-                list($crap, $review_role) = explode(' : ', $review->name);
-                ?>
+                    <?php
+                    list($crap, $review_role) = explode(' : ', $review->name);
+                    ?>
                 <div class="row" style="padding: 0px;">
                     <div class="col-xs-2">Name</div>
                     <div class="col-xs-3">{!! ($review->assignedToBySBC()) ? $review->assignedToBySBC() : '' !!}</div>
@@ -405,7 +411,7 @@
 
         {{-- Investigation & Analysis --}}
         <div class="row" style="padding: 5px">
-            <div class="col-xs-3"> <img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
+            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
             <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT INVESTIGATION & ANALYSIS</h3></div>
         </div>
 
@@ -498,7 +504,12 @@
 
         {{-- Actions --}}
         @foreach ($incident->preventActions() as $action)
-            <?php list($crap, $action_name) = explode(' : ', $action->name); ?>
+                <?php
+                //if ($action->name)
+                // list($crap, $action_name) = explode(' : ', $action->name);
+                //else
+                $action_name = $action->name;
+                ?>
             <div class="row">
                 <div class="col-xs-3">Contributing Factor / Root cause</div>
                 <div class="col-xs-7">{{ $action_name }}</div>
