@@ -92,7 +92,7 @@ class CronController extends Controller
 
 
         // Email Nightly Reports
-        //CronReportController::nightly();
+        CronReportController::nightly();
 
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
