@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -209,6 +209,7 @@
             </div>
         </div>
 
+        {{--}}
         @if ($report->sewer_cost)
         <div class="row" style="text-align: right; padding: 0px;">
             <div class="col-xs-12" style="padding: 0px">
@@ -222,7 +223,7 @@
         <div class="row">
             <div class="col-xs-12" style="text-align: center; padding: 0px">PRICE TO BE CONFIRMED AT TIME OF CONSTRUCTION AND DOES NOT INCLUDE BUILDERS MARGIN<br></div>
         </div>
-
+        --}}
 
         {{-- Stormwater --}}
         <div class="row">
@@ -234,6 +235,7 @@
             </div>
         </div>
 
+        {{--}}
         @if ($report->stormwater_cost)
             <div class="row" style="text-align: right; padding: 0px;">
                 <div class="col-xs-12" style="padding: 0px">
@@ -244,6 +246,7 @@
                 </div>
             </div>
         @endif
+        --}}
 
         {{-- Stormwater Detention --}}
         @if ($report->stormwater_detention_type)
