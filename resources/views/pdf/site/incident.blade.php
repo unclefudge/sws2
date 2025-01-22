@@ -259,7 +259,11 @@
         </div>
         <div class="row">
             <div class="col-xs-2">Notifiable incident?</div>
-            <div class="col-xs-9">&nbsp;</div>
+            <div class="col-xs-9">
+                @if ($incident->notifiable != null)
+                    {!! ($incident->notifiable) ? 'Yes' : 'No'!!}
+                @endif
+            </div>
         </div>
         @if ($incident->notifiable)
             <div class="row">
