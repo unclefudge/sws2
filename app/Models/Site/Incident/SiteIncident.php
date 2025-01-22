@@ -192,7 +192,7 @@ class SiteIncident extends Model
      */
     public function isInjury()
     {
-        return (FormResponse::where('question_id', 1)->where('option_id', 2)->first()) ? true : false;
+        return (FormResponse::where('question_id', 1)->where('option_id', 2)->where('table', $this->table)->where('table_id', $this->id)->first()) ? true : false;
     }
 
     /**
@@ -200,7 +200,7 @@ class SiteIncident extends Model
      */
     public function isDamage()
     {
-        return (FormResponse::where('question_id', 1)->where('option_id', 3)->first()) ? true : false;
+        return (FormResponse::where('question_id', 1)->where('option_id', 3)->where('table', $this->table)->where('table_id', $this->id)->first()) ? true : false;
     }
 
     /**

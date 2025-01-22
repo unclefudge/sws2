@@ -478,10 +478,10 @@
         @endif
 
         {{-- Root Causes --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
-        </div>
         @if ($qRootCause->responsesCSV('site_incidents', $incident->id))
+            <div class="row">
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
+            </div>
             @foreach ($qRootCause->optionsArray() as $id => $label)
                 @if ($qRootCause->responseOther('site_incidents', $incident->id, $id))
                     <div class="row">
@@ -490,10 +490,6 @@
                     </div>
                 @endif
             @endforeach
-        @else
-            <div class="row">
-                <div class="col-xs-12">No conditions specified</div>
-            </div>
         @endif
 
         {{-- Actions to Prevent Reoccurence --}}
