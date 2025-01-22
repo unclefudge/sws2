@@ -117,21 +117,21 @@
                 @endif
             </div>
             <div class="col-xs-1">Location</div>
-            <div class="col-xs-6">{{ $incident->location }}</div>
+            <div class="col-xs-5">{{ $incident->location }}</div>
         </div>
         @if ($incident->site)
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Supervisor</div>
-                <div class="col-xs-10">{!! $incident->site_supervisor !!}</div>
+                <div class="col-xs-9">{!! $incident->site_supervisor !!}</div>
             </div>
         @endif
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">What occured</div>
-            <div class="col-xs-10">{!! nl2br($incident->describe) !!}</div>
+            <div class="col-xs-9">{!! nl2br($incident->describe) !!}</div>
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-2">Actions taken</div>
-            <div class="col-xs-10">{!! nl2br($incident->actions_taken) !!}</div>
+            <div class="col-xs-9">{!! nl2br($incident->actions_taken) !!}</div>
         </div>
 
 
@@ -176,59 +176,63 @@
         @endforeach
 
         {{-- Witness Statement --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WITNESS STATEMENTS</h5></div>
-        </div>
-        @foreach ($incident->witness as $witness)
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-2">Full name</div>
-                <div class="col-xs-3">{{ $witness->name }}</div>
-                <div class="col-xs-7"></div>
+        @if (count($incident->witness))
+            <div class="row">
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">WITNESS STATEMENTS</h5></div>
             </div>
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-12">In your own words describe the events leading up to the incident:<br>{!! nl2br($witness->event_before) !!}<br><br></div>
-            </div>
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-12">In your own words describe the events:<br>{!! nl2br($witness->event) !!}<br><br></div>
-            </div>
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-12">In your own words describe what happened after the incident:<br>{!! nl2br($witness->event_after) !!}<br><br></div>
-            </div>
-            @if ($witness->notes)
+            @foreach ($incident->witness as $witness)
                 <div class="row" style="padding: 0px;">
-                    <div class="col-xs-12">Admin Notes:<br>{!! nl2br($witness->notes) !!}<br><br></div>
+                    <div class="col-xs-2">Full name</div>
+                    <div class="col-xs-3">{{ $witness->name }}</div>
+                    <div class="col-xs-7"></div>
                 </div>
-            @endif
-            @if (!$loop->last)
-                <hr style="margin: 0px">
-            @endif
-        @endforeach
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-12">In your own words describe the events leading up to the incident:<br>{!! nl2br($witness->event_before) !!}<br><br></div>
+                </div>
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-12">In your own words describe the events:<br>{!! nl2br($witness->event) !!}<br><br></div>
+                </div>
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-12">In your own words describe what happened after the incident:<br>{!! nl2br($witness->event_after) !!}<br><br></div>
+                </div>
+                @if ($witness->notes)
+                    <div class="row" style="padding: 0px;">
+                        <div class="col-xs-12">Admin Notes:<br>{!! nl2br($witness->notes) !!}<br><br></div>
+                    </div>
+                @endif
+                @if (!$loop->last)
+                    <hr style="margin: 0px">
+                @endif
+            @endforeach
+        @endif
 
         {{-- Conversation --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECORD OF CONVERSATION</h5></div>
-        </div>
-        @foreach ($incident->conversations as $conversation)
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-2">Conversation between</div>
-                <div class="col-xs-3">{{ $conversation->name }}</div>
-                <div class="col-xs-1">Started at</div>
-                <div class="col-xs-5">{{ ($conversation->start) ? $conversation->start->format('d/m/Y H:i') : '' }}</div>
+        @if (count($incident->conversations))
+            <div class="row">
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">RECORD OF CONVERSATION</h5></div>
             </div>
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-2">Witness</div>
-                <div class="col-xs-3">{{ $conversation->witness }}</div>
-                <div class="col-xs-1">Ended at</div>
-                <div class="col-xs-5">{{ ($conversation->end) ? $conversation->end->format('d/m/Y H:i') : '' }}</div>
-            </div>
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-2">Conversation Details</div>
-                <div class="col-xs-9">{!! nl2br($conversation->details) !!}<br><br></div>
-            </div>
-            @if (!$loop->last)
-                <hr style="margin: 0px">
-            @endif
-        @endforeach
+            @foreach ($incident->conversations as $conversation)
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-2">Conversation between</div>
+                    <div class="col-xs-3">{{ $conversation->name }}</div>
+                    <div class="col-xs-1">Started at</div>
+                    <div class="col-xs-5">{{ ($conversation->start) ? $conversation->start->format('d/m/Y H:i') : '' }}</div>
+                </div>
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-2">Witness</div>
+                    <div class="col-xs-3">{{ $conversation->witness }}</div>
+                    <div class="col-xs-1">Ended at</div>
+                    <div class="col-xs-5">{{ ($conversation->end) ? $conversation->end->format('d/m/Y H:i') : '' }}</div>
+                </div>
+                <div class="row" style="padding: 0px;">
+                    <div class="col-xs-2">Conversation Details</div>
+                    <div class="col-xs-9">{!! nl2br($conversation->details) !!}<br><br></div>
+                </div>
+                @if (!$loop->last)
+                    <hr style="margin: 0px">
+                @endif
+            @endforeach
+        @endif
 
 
         {{-- Incident Details --}}
@@ -261,7 +265,7 @@
             <div class="col-xs-2">@if ($incident->notifiable)
                     Notifiable Context
                 @endif </div>
-            <div class="col-xs-4">@if ($incident->notifiable)
+            <div class="col-xs-3">@if ($incident->notifiable)
                     {!! nl2br($incident->notifiable_reason) !!}
                 @endif </div>
         </div>
@@ -275,13 +279,13 @@
                 <div class="col-xs-2">Regulator</div>
                 <div class="col-xs-3">{!! $incident->regulator !!}</div>
                 <div class="col-xs-1">Regulator Ref</div>
-                <div class="col-xs-5">{!! $incident->regulator_ref !!}</div>
+                <div class="col-xs-4">{!! $incident->regulator_ref !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Notified Date</div>
                 <div class="col-xs-3">{!! ($incident->regulator_date) ? $incident->regulator_date->format('d/m/Y') : '' !!}</div>
                 <div class="col-xs-1">Inspector</div>
-                <div class="col-xs-5">{!! $incident->inspector !!}</div>
+                <div class="col-xs-4">{!! $incident->inspector !!}</div>
             </div>
             <div class="row">
                 <div class="col-xs-2">Notes</div>
@@ -323,7 +327,7 @@
                 <div class="col-xs-2">Damage Details</div>
                 <div class="col-xs-3">{{  $incident->damage }}</div>
                 <div class="col-xs-1">Repair Cost</div>
-                <div class="col-xs-6">{!! $incident->damage_cost !!}</div>
+                <div class="col-xs-5">{!! $incident->damage_cost !!}</div>
             </div>
             <div class="row" style="padding: 0px;">
                 <div class="col-xs-2">Repair Details</div>
@@ -388,13 +392,13 @@
                     <div class="col-xs-2">Name</div>
                     <div class="col-xs-3">{!! ($review->assignedToBySBC()) ? $review->assignedToBySBC() : '' !!}</div>
                     <div class="col-xs-1">Role</div>
-                    <div class="col-xs-5">{{ $review_role }}</div>
+                    <div class="col-xs-4">{{ $review_role }}</div>
                 </div>
                 <div class="row" style="padding: 0px;">
                     <div class="col-xs-2">Date Signed</div>
                     <div class="col-xs-3">{!! ($review->done_at) ? $review->done_at->format('d/m/Y') : '' !!}</div>
                     <div class="col-xs-1">{!! ($review->comments) ? 'Comments' : '' !!}</div>
-                    <div class="col-xs-5">{!! ($review->comments) ? $review->comments : '' !!}</div>
+                    <div class="col-xs-4">{!! ($review->comments) ? $review->comments : '' !!}</div>
                 </div>
                 @if (!$loop->last)
                     <hr style="margin: 0px">
@@ -505,10 +509,10 @@
         {{-- Actions --}}
         @foreach ($incident->preventActions() as $action)
                 <?php
-                //if ($action->name)
-                // list($crap, $action_name) = explode(' : ', $action->name);
-                //else
-                $action_name = $action->name;
+                if (str_contains($action->name, 'Site Incident Preventive Task'))
+                    list($crap, $action_name) = explode(' : ', $action->name);
+                else
+                    $action_name = $action->name;
                 ?>
             <div class="row">
                 <div class="col-xs-3">Contributing Factor / Root cause</div>
