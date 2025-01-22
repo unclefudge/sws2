@@ -259,16 +259,16 @@
         </div>
         <div class="row">
             <div class="col-xs-2">Notifiable incident?</div>
-            <div class="col-xs-3">@if ($incident->notifiable != null)
-                    {!! ($incident->notifiable) ? 'Yes' : 'No'!!}
-                @endif</div>
-            <div class="col-xs-2">@if ($incident->notifiable)
-                    Notifiable Context
-                @endif </div>
-            <div class="col-xs-3">@if ($incident->notifiable)
-                    {!! nl2br($incident->notifiable_reason) !!}
-                @endif </div>
+            <div class="col-xs-9">&nbsp;</div>
         </div>
+        @if ($incident->notifiable)
+            <div class="row">
+                <div class="col-xs-2">Notifiable Context</div>
+                <div class="col-xs-9">
+                    {!! nl2br($incident->notifiable_reason) !!}
+                </div>
+            </div>
+        @endif
 
         {{-- Notifiable --}}
         @if ($incident->notifiable)
@@ -523,14 +523,16 @@
                 <div class="col-xs-7">{!! ($action->info) ? $action->info."<br>" : '' !!}{!! ($action->comments) ? "<b>Notes:</b> $action->comments<br>" : '' !!}</div>
             </div>
             <div class="row">
-                <div class="col-xs-6">
+                <div class="col-xs-12">
                     By Whom: &nbsp;
                     @if ($action->doneBy)
                         {{ $action->doneBy->fullname }}
                     @else
                         {!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : 'Unassigned' !!}
-                    @endif</div>
-                <div class="col-xs-6">Completed: &nbsp; {{ ($action->done_at) ? $action->done_at->format('d/m/Y') : 'Incomplete' }}</div>
+                    @endif
+                    <br>
+                    Completed: &nbsp; {{ ($action->done_at) ? $action->done_at->format('d/m/Y') : 'Incomplete' }}
+                </div>
             </div>
             @if (!$loop->last)
                 <hr style="margin: 0px">
