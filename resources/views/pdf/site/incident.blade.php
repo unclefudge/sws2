@@ -401,9 +401,14 @@
                 <div class="row" style="padding: 0px;">
                     <div class="col-xs-2">Date Signed</div>
                     <div class="col-xs-3">{!! ($review->done_at) ? $review->done_at->format('d/m/Y') : '' !!}</div>
-                    <div class="col-xs-1">{!! ($review->comments) ? 'Comments' : '' !!}</div>
-                    <div class="col-xs-4">{!! ($review->comments) ? $review->comments : '' !!}</div>
                 </div>
+                @if ($review->comments)
+                    <div class="row" style="padding: 0px;">
+                        <div class="col-xs-2">Comments</div>
+                        <div class="col-xs-9">{!! $review->comments !!}</div>
+                    </div>
+                @endif
+
                 @if (!$loop->last)
                     <hr style="margin: 0px">
                 @endif
