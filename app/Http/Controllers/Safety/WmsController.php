@@ -619,8 +619,8 @@ class WmsController extends Controller
             $array['order'] = $step->order;
             $array['master'] = $step->master;
             $array['master_id'] = $step->master_id;
-            $array['diff'] = 1;
-            if ($step->master_id) {
+            $array['diff'] = ($wms_doc->status == 3) ? 1 : 0;
+            if ($step->master_id && $wms_doc->status == 3) {
                 $masterstep = WmsStep::find($step->master_id);
                 if ($step->name == $masterstep->name)
                     $array['diff'] = 0;
@@ -637,8 +637,8 @@ class WmsController extends Controller
                 $array['order'] = $hazard->order;
                 $array['master'] = $hazard->master;
                 $array['master_id'] = $hazard->master_id;
-                $array['diff'] = 1;
-                if ($hazard->master_id) {
+                $array['diff'] = ($wms_doc->status == 3) ? 1 : 0;
+                if ($hazard->master_id && $wms_doc->status == 3) {
                     $masterhazard = WmsHazard::find($hazard->master_id);
                     if ($hazard->name == $masterhazard->name)
                         $array['diff'] = 0;
@@ -659,8 +659,8 @@ class WmsController extends Controller
                 $array['res_principle'] = $control->res_principle;
                 $array['res_company'] = $control->res_company;
                 $array['res_worker'] = $control->res_worker;
-                $array['diff'] = 1;
-                if ($control->master_id) {
+                $array['diff'] = ($wms_doc->status == 3) ? 1 : 0;
+                if ($control->master_id && $wms_doc->status == 3) {
                     $mastercontrol = WmsControl::find($control->master_id);
                     if ($control->name == $mastercontrol->name)
                         $array['diff'] = 0;
