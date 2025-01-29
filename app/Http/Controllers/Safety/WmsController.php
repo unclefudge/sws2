@@ -2,33 +2,31 @@
 
 namespace App\Http\Controllers\Safety;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\Models\Company\Company;
-use App\Models\Safety\WmsDoc;
-use App\Models\Safety\WmsStep;
-use App\Models\Safety\WmsHazard;
-use App\Models\Safety\WmsControl;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Requests\Safety\WmsRequest;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Http\Requests\Safety\WmsRequest;
+use App\Models\Comms\Todo;
+use App\Models\Company\Company;
+use App\Models\Safety\WmsControl;
+use App\Models\Safety\WmsDoc;
+use App\Models\Safety\WmsHazard;
+use App\Models\Safety\WmsStep;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class WmsController
  * @package App\Http\Controllers\Safety
  */
-class WmsController extends Controller {
+class WmsController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -206,7 +204,7 @@ class WmsController extends Controller {
         if ($request->hasFile('attachment')) {
             $file = request('attachment');
 
-            $path = "filebank/company/" .  Auth::user()->company_id . '/wms';
+            $path = "filebank/company/" . Auth::user()->company_id . '/wms';
             $name = sanitizeFilename($newDoc->name) . '-v1.0-' . $newDoc->id . '.' . strtolower($file->getClientOriginalExtension());
             $path_name = $path . '/' . $name;
             $file->move($path, $name);
@@ -240,7 +238,7 @@ class WmsController extends Controller {
             if ($doc->principle_signed_id)
                 $doc->status = '1';
             else
-                $doc->status = ($doc->principle_id) ? 3 :  1;
+                $doc->status = ($doc->principle_id) ? 3 : 1;
 
             if ($doc->status == '3') // Pending Sign off
                 $doc->emailSignOff();
@@ -302,7 +300,7 @@ class WmsController extends Controller {
         if (!Auth::user()->allowed2('del.wms', $doc))
             return view('errors/404');
 
-        $doc->status = ($doc->status == 1) ? 0 :  1;
+        $doc->status = ($doc->status == 1) ? 0 : 1;
         $doc->save();
 
         if ($doc->status == 1)
@@ -380,7 +378,7 @@ class WmsController extends Controller {
         // Update Doc info + increment version
         $doc_request = $request->except('attachment');
         list($major, $minor) = explode('.', $doc_request['version']);
-        $minor ++;
+        $minor++;
         $doc_request['version'] = $major . '.' . $minor;
         $doc->update($doc_request);
 
@@ -438,7 +436,7 @@ class WmsController extends Controller {
 
             // Increment minor version
             list($major, $minor) = explode('.', $doc->version);
-            $minor ++;
+            $minor++;
             $doc_data['version'] = $major . '.' . $minor;
 
             // Save Doc data
@@ -456,19 +454,19 @@ class WmsController extends Controller {
             $hazards = json_decode($request->get('hazards'));
             $controls = json_decode($request->get('controls'));
             foreach ($steps as $step) {
-                $newStep = WmsStep::create((array) $step);
+                $newStep = WmsStep::create((array)$step);
                 // Re-create hazards for current step;
                 foreach ($hazards as $hazard)
                     if ($hazard->step_id == $step->id) {
                         $hazard->step_id = $newStep->id;
-                        $newHaz = WmsHazard::create((array) $hazard);
+                        $newHaz = WmsHazard::create((array)$hazard);
                     }
 
                 // Re-create controls for current step;
                 foreach ($controls as $control)
                     if ($control->step_id == $step->id) {
                         $control->step_id = $newStep->id;
-                        $newCon = WmsControl::create((array) $control);
+                        $newCon = WmsControl::create((array)$control);
                     }
             }
 
@@ -496,7 +494,7 @@ class WmsController extends Controller {
         //     unless Child company has subscription then child company permission overides
         $for_company_ids = [];
         //if (!Auth::user()->company->subscription && Auth::user()->permissionLevel('view.wms', Auth::user()->company->reportsTo()->id) == 20)
-            if (Auth::user()->permissionLevel('view.wms', Auth::user()->company->reportsTo()->id) == 20)
+        if (Auth::user()->permissionLevel('view.wms', Auth::user()->company->reportsTo()->id) == 20)
             $for_company_ids[] = Auth::user()->company_id;
 
         $records = DB::table('wms_docs AS d')
@@ -607,6 +605,7 @@ class WmsController extends Controller {
     public function getSteps(Request $request, $id)
     {
         $wms_doc = WmsDoc::findOrFail($id);
+        $master = ($wms_doc->master_id) ? WmsDoc::find($wms_doc->master_id) : null;
         $steps = WmsStep::where('doc_id', $wms_doc->id)->get();
 
         $wms_steps = [];
@@ -620,6 +619,12 @@ class WmsController extends Controller {
             $array['order'] = $step->order;
             $array['master'] = $step->master;
             $array['master_id'] = $step->master_id;
+            $array['diff'] = 1;
+            if ($step->master_id) {
+                $masterstep = WmsStep::find($step->master_id);
+                if ($step->name == $masterstep->name)
+                    $array['diff'] = 0;
+            }
             $wms_steps[] = $array;
 
             // Hazards
@@ -632,6 +637,12 @@ class WmsController extends Controller {
                 $array['order'] = $hazard->order;
                 $array['master'] = $hazard->master;
                 $array['master_id'] = $hazard->master_id;
+                $array['diff'] = 1;
+                if ($hazard->master_id) {
+                    $masterhazard = WmsHazard::find($hazard->master_id);
+                    if ($hazard->name == $masterhazard->name)
+                        $array['diff'] = 0;
+                }
                 $wms_hazards[] = $array;
             };
 
@@ -648,6 +659,12 @@ class WmsController extends Controller {
                 $array['res_principle'] = $control->res_principle;
                 $array['res_company'] = $control->res_company;
                 $array['res_worker'] = $control->res_worker;
+                $array['diff'] = 1;
+                if ($control->master_id) {
+                    $mastercontrol = WmsControl::find($control->master_id);
+                    if ($control->name == $mastercontrol->name)
+                        $array['diff'] = 0;
+                }
                 $wms_controls[] = $array;
             };
 
@@ -674,7 +691,7 @@ class WmsController extends Controller {
         // Increment major version if copying from previous Wms Doc (normal) or if new doc is a Master
         if (!$master->master || $doc->master) {
             list($major, $minor) = explode('.', $master->version);
-            $major ++;
+            $major++;
             $doc->version = $major . '.0';
         } else
             $doc->version = $master->version;
@@ -684,10 +701,10 @@ class WmsController extends Controller {
         $steps = WmsStep::where('doc_id', $master_id)->get();
         foreach ($steps as $step) {
             $newStep = WmsStep::create(array(
-                'doc_id'    => $doc_id,
-                'name'      => $step->name,
-                'order'     => $step->order,
-                'master'    => '0',
+                'doc_id' => $doc_id,
+                'name' => $step->name,
+                'order' => $step->order,
+                'master' => '0',
                 'master_id' => $step->id,
             ));
 
@@ -695,10 +712,10 @@ class WmsController extends Controller {
             $hazards = WmsHazard::where('step_id', $step->id)->get();
             foreach ($hazards as $hazard) {
                 $newHazard = WmsHazard::create(array(
-                    'step_id'   => $newStep->id,
-                    'name'      => $hazard->name,
-                    'order'     => $hazard->order,
-                    'master'    => '0',
+                    'step_id' => $newStep->id,
+                    'name' => $hazard->name,
+                    'order' => $hazard->order,
+                    'master' => '0',
                     'master_id' => $hazard->id,
                 ));
             };
@@ -707,14 +724,14 @@ class WmsController extends Controller {
             $controls = WmsControl::where('step_id', $step->id)->get();
             foreach ($controls as $control) {
                 $newControl = WmsControl::create(array(
-                    'step_id'       => $newStep->id,
-                    'name'          => $control->name,
+                    'step_id' => $newStep->id,
+                    'name' => $control->name,
                     'res_principle' => $control->res_principle,
-                    'res_company'   => $control->res_company,
-                    'res_worker'    => $control->res_worker,
-                    'order'         => $control->order,
-                    'master'        => '0',
-                    'master_id'     => $control->id,
+                    'res_company' => $control->res_company,
+                    'res_worker' => $control->res_worker,
+                    'order' => $control->order,
+                    'master' => '0',
+                    'master_id' => $control->id,
                 ));
             };
         };
@@ -750,10 +767,10 @@ class WmsController extends Controller {
             $todo_wms = Todo::where('type', 'wms_expired')->where('type_id', $exp->id)->where('status', '1')->first();
             if (!$todo_wms) {
                 $todo_request = [
-                    'type'       => 'wms_expired',
-                    'type_id'    => $exp->id,
-                    'name'       => 'SWMS Out of Date - ' . $exp->name,
-                    'info'       => 'This SWMS was last updated ' . $exp->updated_at->format('d/m/Y') . ' and is out of date.',
+                    'type' => 'wms_expired',
+                    'type_id' => $exp->id,
+                    'name' => 'SWMS Out of Date - ' . $exp->name,
+                    'info' => 'This SWMS was last updated ' . $exp->updated_at->format('d/m/Y') . ' and is out of date.',
                     'company_id' => $exp->for_company_id
                 ];
 
@@ -763,11 +780,11 @@ class WmsController extends Controller {
                 $todo = Todo::create($todo_request);
                 $todo->assignUsers($for_company->seniorUsers());
 
-                echo '<br>' . $exp->status . ' ' . $count ++ . ' ' . $exp->updated_at->format('Y-m-d') . " - $exp->name (" . $for_company->name . ") <br>";
+                echo '<br>' . $exp->status . ' ' . $count++ . ' ' . $exp->updated_at->format('Y-m-d') . " - $exp->name (" . $for_company->name . ") <br>";
                 //print_r($user_list);
                 //dd($todo);
             } else {
-                echo '<br>' . $exp->status . ' ' . $count ++ . ' ' . $exp->updated_at->format('Y-m-d') . " - $exp->name EXISTING TODO<br>";
+                echo '<br>' . $exp->status . ' ' . $count++ . ' ' . $exp->updated_at->format('Y-m-d') . " - $exp->name EXISTING TODO<br>";
             }
         }
 

@@ -245,9 +245,14 @@
                                                                 <div v-else>
                                                                     <div class="row" v-on:click="editStep(step)">
                                                                         <div class="col-xs-2 hidden-sm hidden-xs">@{{ step.order }}.</div>
-                                                                        <div class="col-xs-10 hidden-sm hidden-xs">@{{{ step.name | nl2br }}}</div>
+                                                                        <div class="col-xs-10 hidden-sm hidden-xs">
+                                                                            <span v-show="step.diff==0"> @{{{ step.name | nl2br }}}</span>
+                                                                            <span v-show="step.diff==1" style="color:#FF0000"> @{{{ step.name | nl2br }}}</span>
+                                                                        </div>
                                                                         <div class="col-xs-12 visible-sm visible-xs font-white text-center"
-                                                                             style="background: #659be0; padding:5px"><b>Step @{{ step.order }}.</b> &nbsp; @{{{ step.name | nl2br }}}
+                                                                             style="background: #659be0; padding:5px"><b>Step @{{ step.order }}.</b> &nbsp;
+                                                                            <span v-show="step.diff==0"> @{{{ step.name | nl2br }}}</span>
+                                                                            <span v-show="step.diff==1" style="color:#FF0000"> @{{{ step.name | nl2br }}}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -347,7 +352,7 @@
                                     </div>
                                     <br><br>
                                 </div>
-                                <!--<pre>@{{ $data | json }}</pre>
+                                <pre>@{{ $data | json }}</pre>
                                 -->
                             </div>
                         </div>
@@ -423,7 +428,7 @@
         <ul style="margin-left: -15px">
             <li v-for="hazard in xx.hazards | filterStep | orderBy 'order'" class="hoverLi">
                 <div v-show="xx.edit.item == 'h'+hazard.id" style="margin-bottom: 25px;">
-                    <textarea v-model="xx.edit.name" class="form-control" rows="4" style="background:#fff">@{{ hazard.name }}</textarea>
+                    <textarea v-model="xx.edit.name" class="form-control" rows="4" style="background:#fff">@{{ hazard.name }} @{{hazard.diff}}</textarea>
                     <div>
                         <button v-show="hazard.name == xx.edit.name" class="btn btn-xs red pull-right" v-on:click="deleteHazard(hazard)">Delete</button>
                         <button v-show="hazard.name != xx.edit.name" class="btn btn-xs green pull-right" v-on:click="saveHazard(hazard)" :disabled="! (xx.edit.name)"> Save &nbsp;</button>
@@ -433,7 +438,10 @@
                     </div>
                 </div>
                 <div v-else>
-                    <div v-on:click="editHazard(hazard)">@{{{ hazard.name | nl2br }}} &nbsp;</div>
+                    <div v-on:click="editHazard(hazard)">
+                        <span v-show="hazard.diff==0"> @{{{ hazard.name | nl2br }}}</span>
+                        <span v-show="hazard.diff==1" style="color:#FF0000"> @{{{ hazard.name | nl2br }}}</span>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -480,8 +488,10 @@
                 </div>
                 <div v-else>
                     <div v-on:click="editControl(control)">
-                        @{{{ control.name | nl2br }}} &nbsp;<span v-show="control.res_principle || control.res_company || control.res_worker"
-                                                                  class="font-blue"><b>By: @{{ responsibleName(control) }}</b>
+                        <span v-show="control.diff==0"> @{{{ control.name | nl2br }}}</span>
+                        <span v-show="control.diff==1" style="color:#FF0000"> @{{{ control.name | nl2br }}}</span>
+                        &nbsp; &nbsp;<span v-show="control.res_principle || control.res_company || control.res_worker"
+                                           class="font-blue"><b>By: @{{ responsibleName(control) }}</b>
                     </div>
                 </div>
             </li>
