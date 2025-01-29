@@ -16,6 +16,11 @@
         <td>&nbsp;</td>
         <td>{{ $doc_principle }}</td>
     </tr>
+    <tr>
+        <td style="text-align: right">&nbsp;</td>
+        <td>&nbsp;</td>
+        <td><a href="{{ $url }}">View SWMS</a></td>
+    </tr>
 </table>
 <p><br><br>Regards,</p>
 <p>{{ $user_fullname }}</p>
