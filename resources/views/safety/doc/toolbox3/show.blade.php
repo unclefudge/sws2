@@ -123,6 +123,7 @@
                                             {{-- Not Pending --}}
                                             @if(!$talk->master && $talk->status == 1)
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Edit Users</a></li>
+                                                <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/reminder"><i class="fa fa-envelope"></i> Email reminder to outstanding</a></li>
                                                 <li class="divider"></li>
                                             @endif
                                             @if($talk->status == 1 && Auth::user()->allowed2('del.toolbox', $talk))

@@ -417,6 +417,27 @@ class Todo extends Model
             Mail::to($email_to)->send(new \App\Mail\Comms\TodoCompleted($this));
     }
 
+    public function emailToDoReminder($email_to = '')
+    {
+        if (\App::environment('prod')) {
+            if (!$email_to) {
+                $email_to = [];
+                foreach ($this->assignedTo() as $user) {
+                    if (validEmail($user->email))
+                        $email_to[] = $user->email;
+                }
+            }
+        } else if (\App::environment('local', 'dev'))
+            $email_to = [env('EMAIL_ME')];
+
+        $email_user = (\App::environment('prod')) ? Auth::user()->email : '';
+
+        if ($email_to && $email_user)
+            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Comms\TodoReminder($this));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Comms\TodoReminder($this));
+    }
+
 
     /**
      * Get the owner of record   (getter)

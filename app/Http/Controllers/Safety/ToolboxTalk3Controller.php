@@ -456,6 +456,22 @@ class ToolboxTalk3Controller extends Controller
         return redirect("/safety/doc/toolbox3/$id");
     }
 
+    public function reminder($id)
+    {
+        $talk = ToolboxTalk::findOrFail($id);
+        if (!Auth::user()->allowed2('del.toolbox', $talk))
+            return view('errors/404');
+
+        $todo_toolboxs = Todo::where('type', 'toolbox')->where('type_id', $talk->id)->get();
+        foreach ($todo_toolboxs as $todo) {
+            if ($todo->status)
+                $todo->emailToDoReminder();
+        }
+        Toastr::error("Emailed outstanding");
+
+        return redirect("/safety/doc/toolbox3/$id");
+    }
+
     /**
      * Delete the specified resource in storage.
      */
