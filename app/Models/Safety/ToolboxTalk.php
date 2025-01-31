@@ -252,6 +252,19 @@ class ToolboxTalk extends Model
         return $string;
     }
 
+    public function outstandingBySBCDelete()
+    {
+        $string = '';
+        foreach ($this->outstandingBy() as $u) {
+            $url = "/safety/doc/toolbox3/$this->id/deluser/$u->id";
+            $link = "<a href='$url'><i class='fa fa-times font-red' style='cursor:pointer'></i></a>, ";
+            $string .= $u->fullname . $link;
+        }
+        $string = rtrim($string, ', ');
+
+        return $string;
+    }
+
     /**
      * Output foield with iframe
      */

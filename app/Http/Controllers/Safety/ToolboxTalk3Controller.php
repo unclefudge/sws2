@@ -435,6 +435,27 @@ class ToolboxTalk3Controller extends Controller
         return redirect('/safety/doc/toolbox3/' . $talk->id);
     }
 
+    public function deluser($id, $uid)
+    {
+        $talk = ToolboxTalk::findOrFail($id);
+        if (!Auth::user()->allowed2('del.toolbox', $talk))
+            return view('errors/404');
+
+        $todo_toolboxs = Todo::where('type', 'toolbox')->where('type_id', $talk->id)->get();
+        foreach ($todo_toolboxs as $todo) {
+            if ($todo->status) {
+                $todo_user = TodoUser::where('todo_id', $todo->id)->where('user_id', $uid)->first();
+                if ($todo_user) {
+                    $todo_user->delete();
+                    $todo->delete();
+                    $user = User::find($uid);
+                    Toastr::error("Removed $user->fullname");
+                }
+            }
+        }
+        return redirect("/safety/doc/toolbox3/$id");
+    }
+
     /**
      * Delete the specified resource in storage.
      */

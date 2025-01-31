@@ -85,7 +85,7 @@
                                 <p><b>Completed by:</b> {{ $talk->completedBySBC() }}</p>
                             @endif
                             @if ($talk->outstandingBySBC())
-                                <p><b>Outstanding by:</b> {{ $talk->outstandingBySBC() }}</p>
+                                <p><b>Outstanding by:</b> {!! $talk->outstandingBySBCDelete() !!}</p>
                             @endif
                         </div>
                     </div>

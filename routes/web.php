@@ -607,6 +607,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('safety/doc/toolbox3/{id}/signoff', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@signoff');
     Route::get('safety/doc/toolbox3/{id}/archive', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@archive');
     Route::get('safety/doc/toolbox3/{id}/destroy', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@destroy');
+    Route::get('safety/doc/toolbox3/{id}/deluser/{uid}', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@deluser');
     Route::get('safety/doc/toolbox3/{id}/pdf', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@createPDF');
     Route::post('safety/doc/toolbox3/{id}/upload', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@uploadMedia');
     Route::get('safety/doc/dt/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@getToolbox');
