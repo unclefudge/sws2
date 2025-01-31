@@ -257,7 +257,7 @@ class ToolboxTalk extends Model
         $string = '';
         foreach ($this->outstandingBy() as $u) {
             $url = "/safety/doc/toolbox3/$this->id/deluser/$u->id";
-            $link = "<a href='$url'><i class='fa fa-times font-red' style='cursor:pointer'></i></a>, ";
+            $link = "&nbsp;<a href='$url'><i class='fa fa-times font-red' style='cursor:pointer'></i></a>, &nbsp;";
             $string .= $u->fullname . $link;
         }
         $string = rtrim($string, ', ');
