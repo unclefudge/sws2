@@ -163,7 +163,7 @@ class SiteNoteController extends Controller
 
         // Prac Completion Request
         if (request('category_id') == 89)
-            $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required', 'notes' => 'required'];
+            $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required'];
 
         // Variations
         elseif (in_array(request('category_id'), [16, 19, 93])) { // Approved / For Issue to Client
