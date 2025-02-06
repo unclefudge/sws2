@@ -236,42 +236,44 @@
 
 
         {{-- Incident Details --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INCIDENT</h5></div>
-        </div>
-        <div class="row" style="padding: 0px;">
-            <div class="col-xs-2">Risk Potential</div>
-            <div class="col-xs-3">{!! $incident->riskRatingText('risk_potential') !!}</div>
-            <div class="col-xs-1">Risk Actual</div>
-            <div class="col-xs-4">{!! $incident->riskRatingText('risk_actual') !!}</div>
-        </div>
-        <div class="row">
-            <div class="col-xs-2">Incident Summary</div>
-            <div class="col-xs-9">{!! nl2br($incident->exec_summary) !!}<br><br></div>
-        </div>
-        <div class="row">
-            <div class="col-xs-2">Description</div>
-            <div class="col-xs-9">{!! nl2br($incident->exec_describe) !!}<br><br></div>
-        </div>
-        <div class="row">
-            <div class="col-xs-2">Immediate actions</div>
-            <div class="col-xs-9">{!! nl2br($incident->exec_actions) !!}<br><br></div>
-        </div>
-        <div class="row">
-            <div class="col-xs-2">Notifiable incident?</div>
-            <div class="col-xs-9">
-                @if ($incident->notifiable != null)
-                    {!! ($incident->notifiable) ? 'Yes' : 'No'!!}
-                @endif
-            </div>
-        </div>
-        @if ($incident->notifiable)
+        @if ($incident->riskRatingText('risk_potential') != '-' || $incident->riskRatingText('risk_actual') != '-' || $incident->exec_summary || $incident->exec_describe || $incident->exec_actions || $incident->notifiable)
             <div class="row">
-                <div class="col-xs-2">Notifiable Context</div>
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">DETAILS OF INCIDENT</h5></div>
+            </div>
+            <div class="row" style="padding: 0px;">
+                <div class="col-xs-2">Risk Potential</div>
+                <div class="col-xs-3">{!! $incident->riskRatingText('risk_potential') !!}</div>
+                <div class="col-xs-1">Risk Actual</div>
+                <div class="col-xs-4">{!! $incident->riskRatingText('risk_actual') !!}</div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2">Incident Summary</div>
+                <div class="col-xs-9">{!! nl2br($incident->exec_summary) !!}<br><br></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2">Description</div>
+                <div class="col-xs-9">{!! nl2br($incident->exec_describe) !!}<br><br></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2">Immediate actions</div>
+                <div class="col-xs-9">{!! nl2br($incident->exec_actions) !!}<br><br></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2">Notifiable incident?</div>
                 <div class="col-xs-9">
-                    {!! nl2br($incident->notifiable_reason) !!}
+                    @if ($incident->notifiable != null)
+                        {!! ($incident->notifiable) ? 'Yes' : 'No'!!}
+                    @endif
                 </div>
             </div>
+            @if ($incident->notifiable)
+                <div class="row">
+                    <div class="col-xs-2">Notifiable Context</div>
+                    <div class="col-xs-9">
+                        {!! nl2br($incident->notifiable_reason) !!}
+                    </div>
+                </div>
+            @endif
         @endif
 
         {{-- Notifiable --}}
@@ -384,10 +386,11 @@
         @endif
 
         {{-- Reviewed --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REVIEW</h5></div>
-        </div>
+
         @if ($incident->reviews()->count())
+            <div class="row">
+                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">REVIEW</h5></div>
+            </div>
             @foreach ($incident->reviews() as $review)
                     <?php
                     list($crap, $review_role) = explode(' : ', $review->name);
@@ -413,140 +416,136 @@
                     <hr style="margin: 0px">
                 @endif
             @endforeach
-        @else
-            <div class="row" style="padding: 0px;">
-                <div class="col-xs-12">No reviews</div>
-            </div>
         @endif
 
         {{-- PAGE 2 --}}
-        <div class="page"></div>
+        @if ($qConditions->responsesCSV('site_incidents', $incident->id) || $qConFactorDefences->responsesCSV('site_incidents', $incident->id) || $qConFactorITactions->responsesCSV('site_incidents', $incident->id) ||
+        $qConFactorWorkplace->responsesCSV('site_incidents', $incident->id) || $qConFactorHuman->responsesCSV('site_incidents', $incident->id) || $qRootCause->responsesCSV('site_incidents', $incident->id) ||
+        $qPreventive->responsesCSV('site_incidents', $incident->id) || $incident->preventActions()->count())
+            <div class="page"></div>
 
-        {{-- Investigation & Analysis --}}
-        <div class="row" style="padding: 5px">
-            <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
-            <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT INVESTIGATION & ANALYSIS</h3></div>
-        </div>
+            {{-- Investigation & Analysis --}}
+            <div class="row" style="padding: 5px">
+                <div class="col-xs-3"><img src="{!! URL::to('/') !!}/img/logo-capecod3-large.png" height="40"></div>
+                <div class="col-xs-9"><h3 style="margin: 0px">INCIDENT INVESTIGATION & ANALYSIS</h3></div>
+            </div>
 
-        {{-- Incident Conditions --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INCIDENT CONDITIONS</h5></div>
-        </div>
-        @if ($qConditions->responsesCSV('site_incidents', $incident->id))
-            @foreach ($qConditions->optionsArray() as $id => $label)
-                @if ($qConditions->responseOther('site_incidents', $incident->id, $id))
-                    <div class="row">
-                        <div class="col-xs-2">{{ $label }}</div>
-                        <div class="col-xs-9">{!! $qConditions->responseOther('site_incidents', $incident->id, $id) !!}</div>
-                    </div>
-                @endif
-            @endforeach
-        @else
-            <div class="row">
-                <div class="col-xs-12">No conditions specified</div>
-            </div>
-        @endif
-
-        {{-- Contributing Factors --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONTRIBUTING FACTORS</h5></div>
-        </div>
-        @if ($qConFactorDefences->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-2">Absent / Failed Defences</div>
-                <div class="col-xs-9">{!! $qConFactorDefences->responsesBullet2('site_incidents', $incident->id) !!}</div>
-            </div>
-        @endif
-        @if ($qConFactorITactions->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-2">Individual / Team Actions</div>
-                <div class="col-xs-9">{!! $qConFactorITactions->responsesBullet2('site_incidents', $incident->id) !!}</div>
-            </div>
-        @endif
-        @if ($qConFactorWorkplace->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-2">Workplace Conditions</div>
-                <div class="col-xs-9">{!! $qConFactorWorkplace->responsesBullet2('site_incidents', $incident->id) !!}</div>
-            </div>
-        @endif
-        @if ($qConFactorHuman->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-2">Human Factors</div>
-                <div class="col-xs-9">{!! $qConFactorHuman->responsesBullet2('site_incidents', $incident->id) !!}</div>
-            </div>
-        @endif
-        @if (!$qConFactorDefences->responsesCSV('site_incidents', $incident->id) && !$qConFactorITactions->responsesCSV('site_incidents', $incident->id) &&
-         !$qConFactorWorkplace->responsesCSV('site_incidents', $incident->id) &&  !$qConFactorHuman->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-12">No factors specfied</div>
-            </div>
-        @endif
-
-        {{-- Root Causes --}}
-        @if ($qRootCause->responsesCSV('site_incidents', $incident->id))
-            <div class="row">
-                <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
-            </div>
-            @foreach ($qRootCause->optionsArray() as $id => $label)
-                @if ($qRootCause->responseOther('site_incidents', $incident->id, $id))
-                    <div class="row">
-                        <div class="col-xs-2">{{ $label }}</div>
-                        <div class="col-xs-9">{!! $qRootCause->responseOther('site_incidents', $incident->id, $id) !!}</div>
-                    </div>
-                @endif
-            @endforeach
-        @endif
-
-        {{-- Actions to Prevent Reoccurence --}}
-        <div class="row">
-            <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ACTIONS TO PREVENT REOCCURENCE</h5></div>
-        </div>
-        <div class="row">
-            <div class="col-xs-2">Preventive Strategies:</div>
-            @if ($qPreventive->responsesCSV('site_incidents', $incident->id))
-                <div class="col-xs-9">{!! $qPreventive->responsesBullet2('site_incidents', $incident->id) !!}</div>
-            @else
-                <div class="col-xs-9">No actions specified</div>
-            @endif
-        </div>
-        <hr style="margin: 0px">
-
-        {{-- Actions --}}
-        @foreach ($incident->preventActions() as $action)
-                <?php
-                if (str_contains($action->name, 'Site Incident Preventive Task'))
-                    list($crap, $action_name) = explode(' : ', $action->name);
-                else
-                    $action_name = $action->name;
-                ?>
-            <div class="row">
-                <div class="col-xs-3">Contributing Factor / Root cause</div>
-                <div class="col-xs-7">{{ $action_name }}</div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3">Actions Taken / Recommended</div>
-                <div class="col-xs-7">{!! ($action->info) ? $action->info."<br>" : '' !!}{!! ($action->comments) ? "<b>Notes:</b> $action->comments<br>" : '' !!}</div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    By Whom: &nbsp;
-                    @if ($action->doneBy)
-                        {{ $action->doneBy->fullname }}
-                    @else
-                        {!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : 'Unassigned' !!}
-                    @endif
-                    <br>
-                    Completed: &nbsp; {{ ($action->done_at) ? $action->done_at->format('d/m/Y') : 'Incomplete' }}
+            {{-- Incident Conditions --}}
+            @if ($qConditions->responsesCSV('site_incidents', $incident->id))
+                <div class="row">
+                    <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">INCIDENT CONDITIONS</h5></div>
                 </div>
-            </div>
-            @if (!$loop->last)
+                @foreach ($qConditions->optionsArray() as $id => $label)
+                    @if ($qConditions->responseOther('site_incidents', $incident->id, $id))
+                        <div class="row">
+                            <div class="col-xs-2">{{ $label }}</div>
+                            <div class="col-xs-9">{!! $qConditions->responseOther('site_incidents', $incident->id, $id) !!}</div>
+                        </div>
+                    @endif
+                @endforeach
+            @endif
+
+            {{-- Contributing Factors --}}
+            @if ($qConFactorDefences->responsesCSV('site_incidents', $incident->id) || $qConFactorITactions->responsesCSV('site_incidents', $incident->id) ||
+            $qConFactorWorkplace->responsesCSV('site_incidents', $incident->id) || $qConFactorHuman->responsesCSV('site_incidents', $incident->id))
+                <div class="row">
+                    <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">CONTRIBUTING FACTORS</h5></div>
+                </div>
+                @if ($qConFactorDefences->responsesCSV('site_incidents', $incident->id))
+                    <div class="row">
+                        <div class="col-xs-2">Absent / Failed Defences</div>
+                        <div class="col-xs-9">{!! $qConFactorDefences->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                    </div>
+                @endif
+                @if ($qConFactorITactions->responsesCSV('site_incidents', $incident->id))
+                    <div class="row">
+                        <div class="col-xs-2">Individual / Team Actions</div>
+                        <div class="col-xs-9">{!! $qConFactorITactions->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                    </div>
+                @endif
+                @if ($qConFactorWorkplace->responsesCSV('site_incidents', $incident->id))
+                    <div class="row">
+                        <div class="col-xs-2">Workplace Conditions</div>
+                        <div class="col-xs-9">{!! $qConFactorWorkplace->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                    </div>
+                @endif
+                @if ($qConFactorHuman->responsesCSV('site_incidents', $incident->id))
+                    <div class="row">
+                        <div class="col-xs-2">Human Factors</div>
+                        <div class="col-xs-9">{!! $qConFactorHuman->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                    </div>
+                @endif
+            @endif
+
+
+            {{-- Root Causes --}}
+            @if ($qRootCause->responsesCSV('site_incidents', $incident->id))
+                <div class="row">
+                    <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ROOT CAUSE - ORGANISATION FACTORS</h5></div>
+                </div>
+                @foreach ($qRootCause->optionsArray() as $id => $label)
+                    @if ($qRootCause->responseOther('site_incidents', $incident->id, $id))
+                        <div class="row">
+                            <div class="col-xs-2">{{ $label }}</div>
+                            <div class="col-xs-9">{!! $qRootCause->responseOther('site_incidents', $incident->id, $id) !!}</div>
+                        </div>
+                    @endif
+                @endforeach
+            @endif
+
+            {{-- Actions to Prevent Reoccurence --}}
+            @if ($qPreventive->responsesCSV('site_incidents', $incident->id))
+                <div class="row">
+                    <div class="col-xs-12" style="background-color: #F6F6F6; font-weight: bold;"><h5 style="margin: 0px; padding: 5px 2px 5px 2px">ACTIONS TO PREVENT REOCCURENCE</h5></div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-2">Preventive Strategies:</div>
+                    @if ($qPreventive->responsesCSV('site_incidents', $incident->id))
+                        <div class="col-xs-9">{!! $qPreventive->responsesBullet2('site_incidents', $incident->id) !!}</div>
+                    @else
+                        <div class="col-xs-9">No actions specified</div>
+                    @endif
+                </div>
                 <hr style="margin: 0px">
             @endif
 
-            @if (!$loop->last)
-                <hr style="margin: 0px">
-            @endif
-        @endforeach
+            {{-- Actions --}}
+            @foreach ($incident->preventActions() as $action)
+                    <?php
+                    if (str_contains($action->name, 'Site Incident Preventive Task'))
+                        list($crap, $action_name) = explode(' : ', $action->name);
+                    else
+                        $action_name = $action->name;
+                    ?>
+                <div class="row">
+                    <div class="col-xs-3">Contributing Factor / Root cause</div>
+                    <div class="col-xs-7">{{ $action_name }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3">Actions Taken / Recommended</div>
+                    <div class="col-xs-7">{!! ($action->info) ? $action->info."<br>" : '' !!}{!! ($action->comments) ? "<b>Notes:</b> $action->comments<br>" : '' !!}</div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        By Whom: &nbsp;
+                        @if ($action->doneBy)
+                            {{ $action->doneBy->fullname }}
+                        @else
+                            {!! ($action->assignedToBySBC()) ? $action->assignedToBySBC() : 'Unassigned' !!}
+                        @endif
+                        <br>
+                        Completed: &nbsp; {{ ($action->done_at) ? $action->done_at->format('d/m/Y') : 'Incomplete' }}
+                    </div>
+                </div>
+                @if (!$loop->last)
+                    <hr style="margin: 0px">
+                @endif
+
+                @if (!$loop->last)
+                    <hr style="margin: 0px">
+                @endif
+            @endforeach
+        @endif
     </div>
 </div>
 </body>
