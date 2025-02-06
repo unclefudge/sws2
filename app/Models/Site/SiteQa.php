@@ -189,6 +189,16 @@ class SiteQa extends Model
         $this->createToDo($site->supervisor_id);
     }
 
+    public function moveToOwner($user)
+    {
+        $action = Action::create(['action' => 'Moved report to Owner Works', 'table' => $this->table, 'table_id' => $this->id]);
+        $this->status = 5;
+        $this->save();
+
+        // Close current ToDoo for QA
+        $this->closeToDo($user);
+    }
+
     /**
      * Create ToDoo for QA Report and assign to given user(s)
      */

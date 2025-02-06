@@ -45,6 +45,7 @@
                                 <select name="status1" id="status1" class="form-control bs-select">
                                     <option value="1" selected>Active</option>
                                     <option value="4">On Hold</option>
+                                    <option value="5">Owners Works</option>
                                     <option value="0">Completed</option>
                                     <option value="-1">Not Required</option>
                                 </select>

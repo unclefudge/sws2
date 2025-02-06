@@ -98,6 +98,10 @@
                                                 <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
                                                 <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
                                             @endif
+                                            @if($qa->status == '5')
+                                                <span class="pull-right font-red hidden-sm hidden-xs">OWNERS WORKS</span>
+                                                <span class="text-center font-red visible-sm visible-xs">OWNERS WORKS</span>
+                                            @endif
                                         @endif
                                     </h2>
                                 </div>
@@ -201,7 +205,10 @@
                                     <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn blue"
                                             v-on:click.prevent="$root.$broadcast('updateReportStatus', 4)"> Place On Hold
                                     </button>
-                                    <button v-if="xx.qa.status == 4 || xx.qa.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                    <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn dark"
+                                            v-on:click.prevent="$root.$broadcast('updateReportStatus', 5)"> Change to Owners Works
+                                    </button>
+                                    <button v-if="xx.qa.status == 4 || xx.qa.status == 5 || xx.qa.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
                                 @endif
                             </div>
                             <br><br>

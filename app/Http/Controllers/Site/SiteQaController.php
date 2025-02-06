@@ -245,6 +245,10 @@ class SiteQaController extends Controller
             if (request('status') == 4 && $qa->status != 4)
                 $qa->moveToHold(Auth::user());
 
+            // If report was placed Oewners Works then auto add an Action + close ToDoo
+            if (request('status') == 5 && $qa->status != 5)
+                $qa->moveToOwner(Auth::user());
+
             // If report was reactived then auto add an Action + create ToDoo
             if (request('status') == 1 && $qa->status != 1)
                 $qa->moveToActive(Auth::user());
@@ -348,7 +352,7 @@ class SiteQaController extends Controller
                 $site_list = Site::all()->pluck('id')->toArray();
             elseif (request('supervisor') == 'signoff') {
                 $site_list = Auth::user()->authSites('view.site.qa')->pluck('id')->toArray();
-                $qa_list = SiteQa::whereIn('status', [1, 4])->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
+                $qa_list = SiteQa::whereIn('status', [1, 4, 5])->whereNot('supervisor_sign_by', null)->whereIn('site_id', $site_list)->pluck('id')->toArray();
             } else
                 $site_list = Site::where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
         } else
