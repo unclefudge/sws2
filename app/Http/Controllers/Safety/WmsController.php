@@ -39,7 +39,9 @@ class WmsController extends Controller
         if (!Auth::user()->hasAnyPermissionType('wms'))
             return view('errors/404');
 
-        return view('safety/doc/wms/list');
+        $pending = WmsDoc::where('status', 3)->where('company_id', 3)->get();
+
+        return view('safety/doc/wms/list', compact('pending'));
     }
 
     /**
@@ -261,6 +263,28 @@ class WmsController extends Controller
         $doc->save();
 
         return redirect('/safety/doc/wms/' . $doc->id);
+    }
+
+    public function sinoffMassPending()
+    {
+        if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin')) {
+            $pending = WmsDoc::where('status', 3)->where('company_id', 3)->get();
+            foreach ($pending as $doc) {
+                if ($doc->templateModified() == 'No') {
+                    $doc->principle_signed_id = Auth::user()->id;
+                    $doc->principle_signed_at = Carbon::now();
+                    $doc->status = 1;
+                    if ($doc->builder) {
+                        $file = $this->createPdf($doc);
+                        $doc->attachment = $file;
+                    }
+                    $doc->save();
+                }
+            }
+            Toastr::success("Statements signed off");
+        }
+
+        return redirect('/safety/doc/wms/');
     }
 
     /**

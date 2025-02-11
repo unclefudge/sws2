@@ -618,6 +618,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Safety Docs - WMS
     Route::get('safety/doc/wms', '\App\Http\Controllers\Safety\WmsController@index');
     Route::get('safety/doc/wms/expired', '\App\Http\Controllers\Safety\WmsController@expired');
+    Route::get('safety/doc/wms/signoff-pending', '\App\Http\Controllers\Safety\WmsController@sinoffMassPending');
     Route::get('safety/doc/wms/{id}/create', '\App\Http\Controllers\Safety\WmsController@createFromTemplate');
     Route::get('safety/doc/wms/{id}/steps', '\App\Http\Controllers\Safety\WmsController@getSteps');
     Route::any('safety/doc/wms/{id}/update', '\App\Http\Controllers\Safety\WmsController@update');

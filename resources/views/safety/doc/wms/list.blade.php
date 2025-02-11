@@ -9,6 +9,54 @@
 
 @section('content')
     <div class="page-content-inner">
+        <!-- Templates -->
+        @if(Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Pending Work Method Statements</span>
+                            </div>
+                            <div class="actions">
+                                <a class="btn btn-circle blue btn-sm" href="/safety/doc/wms/signoff-pending" data-original-title="Signoff Pending">Sign off ALL without Changes</a>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <table class="table table-striped table-bordered table-hover order-column" id="table3">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th style="width:5%"> #</th>
+                                    <th> Safe Work Method Statement</th>
+                                    <th> Company</th>
+                                    <th> Modified Template</th>
+                                    <th style="width:10%"> Updated</th>
+                                    <th style="width:5%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($pending as $doc)
+                                    <tr>
+                                        <td>
+                                            @if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment)))
+                                                <div class="text-center"><a href="/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>
+                                            @endif
+                                        </td>
+                                        <td>{{ $doc->name }} v.{{$doc->version}}</td>
+                                        <td>{{ $doc->company->name }}</td>
+                                        <td>{!! $doc->templateModified() !!}</td>
+                                        <td>{!! $doc->updated_at->format('d/m/Y') !!}</td>
+                                        <td><a href="/safety/doc/wms/{{$doc->id}}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a></td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -42,12 +90,12 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Safe Work Method Statement</th>
                                 <th> Company</th>
                                 <th> Principal Contractor</th>
-                                <th width="10%"> Updated</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>

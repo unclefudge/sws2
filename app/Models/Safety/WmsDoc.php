@@ -83,6 +83,59 @@ class WmsDoc extends Model
         return $this->belongsTo('App\User', 'user_signed_id');
     }
 
+    public function templateModified()
+    {
+        if ($this->builder) {
+            if ($this->master_id) {
+                $master = WmsDoc::find($this->master_id);
+                foreach ($this->steps as $step) {
+                    if ($step->master_id) {
+                        $masterstep = WmsStep::find($step->master_id);
+                        if ($step->name != $masterstep->name)
+                            return '<span class="font-red">Yes</span>';
+                    }
+
+                    // Hazards
+                    $hazards = WmsHazard::where('step_id', $step->id)->get();
+                    foreach ($hazards as $hazard) {
+                        if ($hazard->master_id) {
+                            $masterhazard = WmsHazard::find($hazard->master_id);
+                            if ($hazard->name != $masterhazard->name)
+                                return '<span class="font-red">Yes</span>';
+                        }
+                    };
+                    if (count($hazards) != WmsHazard::where('step_id', $masterstep->id)->count())
+                        return '<span class="font-red">Yes</span>';
+
+                    // Controls
+                    $controls = WmsControl::where('step_id', $step->id)->get();
+                    foreach ($controls as $control) {
+                        if ($control->master_id) {
+                            $mastercontrol = WmsControl::find($control->master_id);
+                            if ($control->name != $mastercontrol->name)
+                                return '<span class="font-red">Yes</span>';
+                        }
+                    };
+                    if (count($controls) != WmsControl::where('step_id', $masterstep->id)->count())
+                        return '<span class="font-red">Yes</span>';
+                };
+
+                // Not same steps as Master
+                if ($this->steps()->count() != $master->steps()->count())
+                    return '<span class="font-red">Yes</span>';
+
+                // Return true if has no steps (ie blank SWMS)
+                if ($this->steps()->count())
+                    return 'No';
+                else
+                    return ($this->attachment) ? '<span class="font-yellow-gold">Custom</span>' : '<span class="font-red">Blank</span>';
+            }
+            return '<span class="font-red">Custom</span>';
+        }
+        return '<span class="font-yellow-gold">Upload</span>';
+
+    }
+
     /**
      * Create ToDoo for Expired SWMS to be sent to company
      */
@@ -186,6 +239,7 @@ class WmsDoc extends Model
             'doc_name' => $this->name,
             'doc_company' => Company::find($this->for_company_id)->name,
             'doc_principle' => $this->principle,
+            'url' => URL::to('/safety/doc/wms') . '/' . $this->id,
         ];
         $doc = $this;
 
@@ -223,6 +277,7 @@ class WmsDoc extends Model
             'doc_name' => $this->name,
             'doc_company' => Company::find($this->for_company_id)->name,
             'doc_principle' => $this->principle,
+            'url' => URL::to('/safety/doc/wms') . '/' . $this->id,
         ];
         $doc = $this;
         if ($email_to) {
