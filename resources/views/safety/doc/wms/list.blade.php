@@ -20,7 +20,7 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> Pending Work Method Statements</span>
                             </div>
                             <div class="actions">
-                                <a class="btn btn-circle blue btn-sm" href="/safety/doc/wms/signoff-pending" data-original-title="Signoff Pending">Sign off ALL without Changes</a>
+                                <a class="btn btn-circle red btn-sm" href="/safety/doc/wms/signoff-pending" data-original-title="Signoff Pending">Sign off ALL without Changes</a>
                             </div>
                         </div>
                         <div class="portlet-body">
