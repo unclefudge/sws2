@@ -79,7 +79,8 @@
                 $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
                 $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
                 ?>
-            @if ($row['days'] || ($completion_date && $completion_date->lte($today)))
+            {{--}}@if ($row['days'] || ($completion_date && $completion_date->lte($today)))--}}
+            @if ($row['days'])
                 @php($counter++)
                 <tr>
                     <td class="pad5">{!! $row['name'] !!}</td>
