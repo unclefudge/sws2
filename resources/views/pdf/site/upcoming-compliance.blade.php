@@ -64,20 +64,20 @@
     <table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">
         <thead>
         <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
-            <th width="5%" class="pad5">Start Date</th>
-            <th width="15%" class="pad5">Site</th>
-            <th width="5%" class="pad5">Super</th>
-            <th width="5%" class="pad5">Company</th>
-            <th width="5%" class="pad5">Deposit Paid</th>
-            <th width="3%" class="pad5">ENG</th>
-            <th width="5%" class="pad5">HBCF</th>
-            <th width="3%" class="pad5">DC</th>
-            <th width="3%" class="pad5">FC-EST</th>
-            <th width="15%" class="pad5">CC</th>
-            <th width="15%" class="pad5">FC Plans</th>
-            <th width="15%" class="pad5">FC Structural</th>
-            <th width="15%" class="pad5">CF-EST</th>
-            <th width="15%" class="pad5">CF-ADM</th>
+            <th style="width:5%" class="pad5">Start Date</th>
+            <th style="width:15%" class="pad5">Site</th>
+            {{--}}<th style="width:5%" class="pad5">Super</th>--}}
+            <th style="width:5%" class="pad5">Company</th>
+            <th style="width:5%" class="pad5">Deposit Paid</th>
+            <th style="width:3%" class="pad5">ENG</th>
+            <th style="width:5%" class="pad5">HBCF</th>
+            <th style="width:3%" class="pad5">DC</th>
+            <th style="width:3%" class="pad5">FC-EST</th>
+            <th style="width:15%" class="pad5">CC</th>
+            <th style="width:15%" class="pad5">FC Plans</th>
+            <th style="width:15%" class="pad5">FC Structural</th>
+            <th style="width:15%" class="pad5">CF-EST</th>
+            <th style="width:15%" class="pad5">CF-ADM</th>
         </tr>
         </thead>
 
@@ -86,7 +86,7 @@
             <tr>
                 <td class="pad5" style="{{ ($row['date_est']) ? 'background:#FDD7B1' : '' }}">{!! ($row['date']) ? $row['date'] : $row['date_est'] !!}</td>
                 <td class="pad5">{!! $row['name'] !!}</td>
-                <td class="pad5">{!! $row['supervisor'] !!}</td>
+                {{--}}<td class="pad5">{!! $row['supervisor'] !!}</td>--}}
                 <td class="pad5">{!! $row['company'] !!}</td>
                 <td class="pad5" style="{{ ($row['deposit_paid'] == '-') ? 'background:#FDD7B1' : '' }}">{!! $row['deposit_paid'] !!}</td>
                 <td class="pad5">{!! $row['eng'] !!}</td>
