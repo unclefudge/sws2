@@ -12,7 +12,6 @@ class OverrideTypes
         'cd3' => 'Sickness & Accident Insurance',
         'cd6' => 'Electrical Test & Tagging',
         'cd7' => 'Contractor Licence',
-        'cd8' => 'Safe Work Method Statements',
         'ud1' => 'White Card',
     ];
 
