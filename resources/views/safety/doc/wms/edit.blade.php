@@ -347,6 +347,7 @@
                                         @if (!$doc->master)
                                             <a v-on:click="showConfirmSignoff" type="button" class="btn green" data-dismiss="modal" id="continue" v-show="!xx.user.signoff && xx.doc.res_compliance && xx.doc.res_review">Request Sign Off</a>
                                             <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green" v-show="xx.user.signoff == 'manual' && xx.doc.res_compliance && xx.doc.res_review && !xx.docModified">Manual Sign Off</a>
+                                            <a href="/safety/doc/wms/{{ $doc->id }}/archive" class="btn red" v-show="xx.user.signoff == 1 && xx.doc.res_compliance && xx.doc.res_review && !xx.docModified">Archive</a>
                                             <a href="/safety/doc/wms/{{ $doc->id }}/signoff" class="btn green" v-show="xx.user.signoff == 1 && xx.doc.res_compliance && xx.doc.res_review && !xx.docModified">Sign Off</a>
                                         @endif
                                     </div>

@@ -107,7 +107,7 @@ class WmsController extends Controller
         if (!Auth::user()->allowed2('view.wms', $doc))
             return view('errors/404');
 
-        if ($doc->status == '1')
+        if (in_array($doc->status, [0, 1]))
             return view('safety/doc/wms/show', compact('doc'));
 
         if (Auth::user()->allowed2('edit.wms', $doc))
@@ -324,7 +324,7 @@ class WmsController extends Controller
         if (!Auth::user()->allowed2('del.wms', $doc))
             return view('errors/404');
 
-        $doc->status = ($doc->status == 1) ? 0 : 1;
+        $doc->status = (in_array($doc->status, [1, 3])) ? 0 : 1;
         $doc->save();
 
         if ($doc->status == 1)
