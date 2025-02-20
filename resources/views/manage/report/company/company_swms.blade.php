@@ -23,6 +23,11 @@
                             <i class="icon-layers"></i>
                             <span class="caption-subject bold uppercase font-green-haze"> Company SWMS</span>
                         </div>
+                        <div class="actions">
+                            @if(Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/company_swms/settings" data-original-title="Add">Settings</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
@@ -44,15 +49,19 @@
                                     <td>{{ $company->name }} {!! ($company->nickname) ? "<span class='font-grey-cascade'><br>$company->nickname</span>" : '' !!}</td>
                                     <td>{{ $company->tradesSkilledInSBC() }}</td>
                                     <td>
-                                        @foreach ($company->wmsdocs as $doc)
-                                            @if ($doc->status == 1)
-                                                    <?php $name = $doc->name; ?>
-                                                @if ($doc->updated_at < $twoyearago)
-                                                        <?php $name .= ' <span class="badge badge-danger badge-roundless">Out of Date</span>'; ?>
+                                        @if (in_array($company->id, $excluded_companies))
+                                            <span class="font-red">Not required</span>
+                                        @else
+                                            @foreach ($company->wmsdocs as $doc)
+                                                @if ($doc->status == 1)
+                                                        <?php $name = $doc->name; ?>
+                                                    @if ($doc->updated_at < $twoyearago)
+                                                            <?php $name .= ' <span class="badge badge-danger badge-roundless">Out of Date</span>'; ?>
+                                                    @endif
+                                                    <a href="/safety/doc/wms/{{$doc->id}}">{!! $name !!}</a><br>
                                                 @endif
-                                                <a href="/safety/doc/wms/{{$doc->id}}">{!! $name !!}</a><br>
-                                            @endif
-                                        @endforeach
+                                            @endforeach
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

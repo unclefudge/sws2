@@ -9,6 +9,7 @@ use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
+use App\Models\Misc\Option;
 use App\Models\Misc\Permission2;
 use App\User;
 use Carbon\Carbon;
@@ -240,9 +241,34 @@ class ReportUserCompanyController extends Controller
     public function companySWMS()
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
-        $companies = Company::whereIn('id', $allowed_companies)->orderBy('name')->get();
+        $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
+        //dd($excluded_companies);
+        $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->orderBy('name')->get();
 
-        return view('manage/report/company/company_swms', compact('companies'));
+        return view('manage/report/company/company_swms', compact('companies', 'excluded_companies'));
+    }
+
+    public function companySWMSSettings()
+    {
+        $company_list = Company::where('status', 1)->where('name', 'not like', "Cc-%")->pluck('name', 'id')->toArray();
+        $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
+
+        return view('manage/report/company/company_swms_settings', compact('company_list', 'excluded_companies'));
+    }
+
+    public function companySWMSSettingsUpdate()
+    {
+        // Delete any existing options
+        Option::where('type', 'company_swms')->where('status', 1)->delete();
+
+        // Add selected Company Optionsπ
+        foreach (request('excluded_companies') as $cid) {
+            $company = Company::find($cid);
+            Option::create(['type' => 'company_swms', 'value' => $cid, 'name' => $company->name, 'company_id' => 3, 'status' => 1]);
+        }
+
+        return redirect('/manage/report/company_swms/settings');
+
     }
 
     public function companyUsers()
