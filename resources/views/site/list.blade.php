@@ -38,6 +38,7 @@
                                         <option value="0">Completed</option>
                                         <option value="-2">Cancelled</option>
                                         <option value="2">Maintenance</option>
+                                        <option value="all">All</option>
                                     @endif
                                 </select>
                             </div>

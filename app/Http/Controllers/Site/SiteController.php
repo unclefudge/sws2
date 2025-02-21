@@ -415,7 +415,8 @@ class SiteController extends Controller
     {
 
         $request_ids = (request('supervisor') == 'all') ? Auth::user()->company->sites()->pluck('id')->toArray() : Auth::user()->company->sites()->where('supervisor_id', request('supervisor'))->pluck('id')->toArray();
-        $site_records = Auth::user()->company->sites(request('status'))->whereIn('id', $request_ids);
+        $status = (request('status') == 'all') ? [-2, -1, 0, 1, 2] : request('status');
+        $site_records = Auth::user()->company->sites($status)->whereIn('id', $request_ids);
 
         $dt = Datatables::of($site_records)
             ->editColumn('id', function ($site) {
