@@ -263,7 +263,18 @@
                     </div>
                 </div>
             </div>
+            <hr class="field-hr">
         @endif
+        {{-- After Care--}}
+        <div class="row">
+            <div class="form-group {!! fieldHasError('aftercare', $errors) !!}">
+                {!! Form::label('aftercare', 'After Care:', ['class' => 'col-md-6 control-label']) !!}
+                <div class="col-md-6">
+                    {!! Form::select('aftercare', ['' => 'Select option', 'No' => 'No'], null, ['class' => 'form-control bs-select']) !!}
+                    {!! fieldErrorMessage('aftercare', $errors) !!}
+                </div>
+            </div>
+        </div>
         <br>
         <div class="form-actions right">
             <button class="btn default" onclick="cancelForm(event, 'admin')">Cancel</button>

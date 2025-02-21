@@ -397,28 +397,38 @@
                                 {{-- AC Form --}}
                                 @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
                                     <div class="col-md-2 pull-right">
-                                        {!! Form::label('ac_form_required', 'AC Form Required', ['class' => 'control-label']) !!}
-                                        {!! Form::select('ac_form_required', ['0' => 'No', '1' => 'Yes'], 0, ['class' => 'form-control bs-select', 'id' => 'ac_form_required']) !!}
+                                        @if ($main->site->aftercare == "No")
+                                            <span class="font-red"><br>AC Not Requested</span>
+                                            <input type="hidden" name="ac_form_required" value="0">
+                                        @else
+                                            {!! Form::label('ac_form_required', 'AC Form Required', ['class' => 'control-label']) !!}
+                                            {!! Form::select('ac_form_required', ['0' => 'No', '1' => 'Yes'], 0, ['class' => 'form-control bs-select', 'id' => 'ac_form_required']) !!}
+                                        @endif
                                     </div>
                                 @endif
 
                                 @if (!$main->status)
                                     <div class="col-md-2 pull-right">
-                                        {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
-
-                                        @if (Auth::user()->allowed2('add.site.maintenance'))
-                                            <div class="input-group">
-                                                <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                            </div>
-                                            @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
-                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
-                                            @else
-                                                <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
-                                            @endif
+                                        @if ($main->site->aftercare == "No")
+                                            <span class="font-red"><br>AC Not Requested</span>
+                                            <input type="hidden" name="ac_form_required" value="0">
                                         @else
-                                            {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
+
+                                            @if (Auth::user()->allowed2('add.site.maintenance'))
+                                                <div class="input-group">
+                                                    <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                                </div>
+                                                @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
+                                                    <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
+                                                @else
+                                                    <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                                @endif
+                                            @else
+                                                {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                            @endif
+                                            <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
                                         @endif
-                                        <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
                                     </div>
                                 @endif
                             </div>
