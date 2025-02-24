@@ -27,6 +27,10 @@
                         </div>
                     </div>
                     <div class="portlet-body">
+                        {{--}}<div>Documents that expired less than 7 days ago aren't listed (grace period)<br><br></div>--}}
+                        <div style="font-weight: bold">
+                            <span style="width: 110px; display: inline-block">Expired Date</span><span>Missing / Expired Document</span>
+                        </div>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             {{--}}<thead>
                             <tr class="mytable-header">
@@ -37,7 +41,7 @@
                             </tr>
                             </thead>--}}
                             <tbody>
-                            <?php $today = \Carbon\Carbon::today(); $weekago = \Carbon\Carbon::today()->subWeeks(1); ?>
+                            <?php $today = \Carbon\Carbon::today(); $weekago = \Carbon\Carbon::today()->subDays(1); ?>
                             @foreach($companies as $company)
                                     <?php $planner_date = $company->nextDateOnPlanner(); ?>
                                 @if (!preg_match('/cc-/', strtolower($company->name)) && ($company->missingInfo() || $company->isMissingDocs()))
@@ -54,13 +58,14 @@
                                                     <?php $doc = $company->expiredCompanyDoc($type) ?>
                                                 @if ($doc && ($doc == 'N/A' || $doc->expiry->lt($weekago)))
                                                     <span style="width: 100px; display: inline-block"> {!! ($doc != 'N/A' && $doc->expiry) ?  $doc->expiry->longAbsoluteDiffForHumans() : 'never' !!}</span>
-                                                    <span>
+                                                    <span style="width: 300px; display: inline-block">
                                                         @if ($doc != 'N/A')
                                                             <a href="/company/{{ $company->id }}/doc/{{ $doc->id }}/edit">{{ $name }}</a>
                                                         @else
                                                             <a href="/company/{{ $company->id }}/doc">{{ $name }}</a>
                                                         @endif
-                                                    </span><br>
+                                                    </span>
+                                                    <span style="width: 100px; display: inline-block"></span><br>
                                                 @endif
                                             @endforeach
 
