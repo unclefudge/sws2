@@ -65,7 +65,7 @@
                                                             <a href="/company/{{ $company->id }}/doc">{{ $name }}</a>
                                                         @endif
                                                     </span>
-                                                    <span style="width: 100px; display: inline-block"></span><br>
+                                                    <span style="width: 100px; display: inline-block; float:right; text-align: center">{!! ($doc != 'N/A' && $doc->expiry) ?  $doc->expiry->format('d/m/Y') : '-' !!}</span><br>
                                                 @endif
                                             @endforeach
 
