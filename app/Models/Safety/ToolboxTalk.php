@@ -441,7 +441,7 @@ class ToolboxTalk extends Model
      */
     public function emailActiveTemplate()
     {
-        $email_to[] = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
+        $email_to = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
         dd($email_to);
