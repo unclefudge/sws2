@@ -430,7 +430,7 @@ class ToolboxTalk extends Model
      */
     public function emailModifiedTemplate($diffs)
     {
-        $email_to[] = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
+        $email_to = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Safety\ToolboxTalkModifiedTemplate($this, $diffs));
 
@@ -444,7 +444,7 @@ class ToolboxTalk extends Model
         $email_to = (\App::environment('dev', 'prod')) ? $this->owned_by->notificationsUsersEmailType('doc.whs.approval') : env('EMAIL_ME');
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
 
-        dd($email_to);
+        //dd($email_to);
         if ($email_to && $email_user)
             Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Safety\ToolboxTalkActiveTemplate($this));
         elseif ($email_to)
