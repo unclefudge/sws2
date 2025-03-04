@@ -16,6 +16,8 @@ use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
 use Session;
 use Yajra\Datatables\Datatables;
 
@@ -246,6 +248,70 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->orderBy('name')->get();
 
         return view('manage/report/company/company_swms', compact('companies', 'excluded_companies'));
+    }
+
+    public function companySWMSEmailAll()
+    {
+        $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
+        $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
+        $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
+
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+
+        $counter = 0;
+        foreach ($companies as $company) {
+            //$counter++;
+            //if ($counter > 3) dd('done');
+
+            if ($email_to && $email_user)
+                Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify'));
+            elseif ($email_to)
+                Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify'));
+        }
+        Toastr::success("Emails sent");
+        return redirect('manage/report/company/company_swms');
+    }
+
+    public function companySWMSEmailOutOfDate()
+    {
+        $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
+        $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
+        $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
+        $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString();
+
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+
+        $counter = 0;
+        foreach ($companies as $company) {
+
+            //$counter++;
+            //if ($counter > 12) dd('done');
+
+            if (count($company->wmsdocs) == 0) {
+                if ($email_to && $email_user)
+                    Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none'));
+                elseif ($email_to)
+                    Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none'));
+            } else {
+                $outofdate = "";
+                foreach ($company->wmsdocs as $doc) {
+                    if ($doc->status == 1 && $doc->updated_at < $twoyearago)
+                        $outofdate .= "$doc->name<br>";
+                }
+
+                if ($outofdate != "") {
+                    if ($email_to && $email_user)
+                        Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate));
+                    elseif ($email_to)
+                        Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate));
+                }
+            }
+        }
+        Toastr::success("Emails sent");
+
+        return redirect('manage/report/company/company_swms');
     }
 
     public function companySWMSSettings()

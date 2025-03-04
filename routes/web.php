@@ -116,6 +116,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/manage/report/company_privacy', '\App\Http\Controllers\Misc\ReportUserCompanyController@companyPrivacy');
     Route::get('/manage/report/company_privacy_send/{type}', '\App\Http\Controllers\Misc\ReportUserCompanyController@companyPrivacySend');
     Route::get('/manage/report/company_swms', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMS');
+    Route::get('/manage/report/company_swms/email-all', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMSEmailAll');
+    Route::get('/manage/report/company_swms/email-outofdate', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMSEmailOutOfDate');
     Route::get('/manage/report/company_swms/settings', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMSSettings');
     Route::post('/manage/report/company_swms/settings', '\App\Http\Controllers\Misc\ReportUserCompanyController@companySWMSSettingsUpdate');
     Route::get('/manage/report/expired_company_docs', '\App\Http\Controllers\Misc\ReportUserCompanyController@expiredCompanyDocs');

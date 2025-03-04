@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
-use App\Models\Safety\ToolboxTalk;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
@@ -139,10 +138,40 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "TBT emsails<br>";
-        $tb = ToolboxTalk::find(619);
-        foreach ($tb->outstandingBy() as $user) {
-            echo $user->email . "<br>";
+        echo "<h1>On Site Company (Primary Contact)</h1><br>";
+        $companies = $companies = Auth::user()->authCompanies('view.company', 1)->sortBy('id');
+        $count = 0;
+        foreach ($companies as $company) {
+            if (in_array($company->category, [1, 2])) {
+                $count++;
+                echo $company->id . ". &nbsp " . $company->name . "<br>";
+                if ($company->primary_user) {
+                    echo " &nbsp; &nbsp; &nbsp; - " . $company->primary_contact()->fullname . " <br>";
+                }
+            }
+        }
+
+        $userlist = [];
+        $users = User::where('status', 1)->get();
+        foreach ($users as $user) {
+            if ($user->hasRole2('ext-leading-hand')) {
+                $userlist[$user->id] = $user->company->id;
+            }
+        }
+
+        asort($userlist);
+
+        echo "<h1>Leading Hands (sorted by Company)</h1><br>";
+        $current_company = '';
+        $count = 0;
+        foreach ($userlist as $uid => $cid) {
+            $company = Company::find($cid);
+            if ($current_company != $cid) {
+                echo $cid . ". &nbsp " . $company->name . "<br>";
+                $current_company = $cid;
+            }
+            $user = User::find($uid);
+            echo " &nbsp; &nbsp; &nbsp; - " . $user->fullname . " <br>";
         }
 
         /*

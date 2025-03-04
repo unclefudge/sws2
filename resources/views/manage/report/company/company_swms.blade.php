@@ -25,6 +25,8 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                <a class="btn btn-circle red btn-outline btn-sm" href="/manage/report/company_swms/email-all" data-original-title="Add">Email All to Review Current SWMS</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/company_swms/email-outofdate" data-original-title="Add">Email Out of Date & None</a>
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/manage/report/company_swms/settings" data-original-title="Add">Settings</a>
                             @endif
                         </div>
