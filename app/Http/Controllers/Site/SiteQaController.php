@@ -199,6 +199,28 @@ class SiteQaController extends Controller
         return redirect('site/qa/' . $qa->id . '/edit');
     }
 
+    public function resetSignature($id)
+    {
+        $qa = SiteQa::findOrFail($id);
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.qa', $qa))
+            return view('errors/404');
+
+        $qa->status = 1;
+        $qa->supervisor_sign_by = null;
+        $qa->supervisor_sign_at = null;
+        $qa->manager_sign_by = null;
+        $qa->manager_sign_at = null;
+        $qa->save();
+
+        // Create ToDoo for Super
+        $site = Site::findOrFail($qa->site_id);
+        $qa->createToDo($site->supervisor_id);
+
+        $action = Action::create(['action' => 'Reset sign-offs', 'table' => 'site_qa', 'table_id' => $qa->id]);
+
+        return redirect("/site/qa/$qa->id");
+    }
 
     /**
      * Update Status the specified resource in storage.

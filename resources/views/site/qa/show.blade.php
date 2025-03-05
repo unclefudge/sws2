@@ -157,6 +157,9 @@
                                         <div class="col-sm-9">
                                             @if ($qa->supervisor_sign_by)
                                                 {!! \App\User::find($qa->supervisor_sign_by)->full_name !!}, &nbsp;{{ $qa->supervisor_sign_at->format('d/m/Y') }}
+                                                @if ($qa->manager_sign_by == null && Auth::user()->hasPermission2('sig.site.qa'))
+                                                    <a href="/site/qa/{{ $qa->id }}/resetsign"><i class="fa fa-times font-red" style="margin-left: 10px"></i></a>
+                                                @endif
                                             @else
                                                 <button v-if="xx.qa.items_total != 0 && xx.qa.items_done == xx.qa.items_total && xx.user_supervisor" v-on:click.prevent="$root.$broadcast('signOff', 'super')"
                                                         class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
@@ -208,7 +211,10 @@
                                     <button v-if="xx.qa.status == 1 && xx.qa.items_total != 0 && xx.qa.items_done != xx.qa.items_total" class="btn dark"
                                             v-on:click.prevent="$root.$broadcast('updateReportStatus', 5)"> Change to Owners Works
                                     </button>
-                                    <button v-if="xx.qa.status == 4 || xx.qa.status == 5 || xx.qa.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                    <button v-if="xx.qa.status == 4 || xx.qa.status == 5 || xx.qa.status == -1" class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                                    @if ($qa->manager_sign_by && $qa->status == 0)
+                                        <a href="/site/qa/{{$qa->id}}/resetsign" class="btn green"> Make Active</a>
+                                    @endif
                                 @endif
                             </div>
                             <br><br>

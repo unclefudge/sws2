@@ -403,6 +403,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/qa/sigonoff', '\App\Http\Controllers\Site\SiteQaController@listSignoff');
     Route::get('site/qa/{id}/items', '\App\Http\Controllers\Site\SiteQaController@getItems');
     Route::any('site/qa/{id}/update', '\App\Http\Controllers\Site\SiteQaController@updateReport');
+    Route::any('site/qa/{id}/resetsign', '\App\Http\Controllers\Site\SiteQaController@resetSignature');
     Route::any('site/qa/item/{id}', '\App\Http\Controllers\Site\SiteQaController@updateItem');
     Route::get('site/qa/company/{task_id}', '\App\Http\Controllers\Site\SiteQaController@getCompaniesForTask');
     Route::get('site/qa/upcoming/{super_id}', '\App\Http\Controllers\Site\SiteQaController@upcoming');
