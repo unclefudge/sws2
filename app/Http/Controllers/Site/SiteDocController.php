@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Site\SiteDocRequest;
+use App\Models\Site\SiteDoc;
+use Carbon\Carbon;
 use DB;
 use File;
-use Session;
-use App\Models\Site\Site;
-use App\Models\Site\SiteDoc;
-use App\Http\Requests;
-use App\Http\Requests\Site\SiteDocRequest;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SitePlanController
  * @package App\Http\Controllers
  */
-class SiteDocController extends Controller {
+class SiteDocController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -31,7 +29,7 @@ class SiteDocController extends Controller {
      */
     public function index(Request $request)
     {
-        if ( !Auth::user()->hasAnyPermissionType('site.doc'))
+        if (!Auth::user()->hasAnyPermissionType('site.doc'))
             return view('errors/404');
 
         $site_id = $type = '';
@@ -158,10 +156,15 @@ class SiteDocController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
             $file->move($path, $name);
             $doc->attachment = $name;
             $doc->save();
+
+            // Dial Before Dig
+            if (stripos(strtolower(request('name')), 'dial before you dig') !== false) {
+                $doc->closeToDoTask('dial_before_dig');
+            }
         }
         Toastr::success("Created document");
 
@@ -193,7 +196,7 @@ class SiteDocController extends Controller {
                 // Ensure filename is unique by adding counter to similiar filenames
                 $count = 1;
                 while (file_exists(public_path("$path/$name")))
-                    $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                    $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
                 $file->move($path, $name);
 
                 $doc_request = $request->only('type', 'site_id');
@@ -258,7 +261,7 @@ class SiteDocController extends Controller {
             // Ensure filename is unique by adding counter to similiar filenames
             $count = 1;
             while (file_exists(public_path("$path/$name")))
-                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
+                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
 
             $file->move($path, $name);
             $doc->attachment = $name;
@@ -267,6 +270,11 @@ class SiteDocController extends Controller {
             // Delete previous file
             if (file_exists(public_path($orig_attachment)))
                 unlink(public_path($orig_attachment));
+
+            // Dial Before Dig
+            if (stripos(strtolower(request('name')), 'dial before you dig') !== false) {
+                $doc->closeToDoTask('dial_before_dig');
+            }
         }
         Toastr::success("Updated document");
 

@@ -804,6 +804,7 @@ Route::get('cron/email-maintenance-onhold', '\App\Http\Controllers\Misc\CronRepo
 Route::get('cron/email-outstanding-privacy', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingPrivacy');
 Route::get('cron/email-oldusers', '\App\Http\Controllers\Misc\CronReportController@emailOldUsers');
 Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfo');
+Route::get('cron/email-missing-company-info-planner', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfoPlanner');
 Route::get('cron/email-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@emailPlannerKeyTasks');
 Route::get('cron/email-asbestos', '\App\Http\Controllers\Misc\CronReportController@emailActiveAsbestos');
 Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@actionPlannerKeyTasks');

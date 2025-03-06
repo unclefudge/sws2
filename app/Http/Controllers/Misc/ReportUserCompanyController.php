@@ -523,7 +523,18 @@ class ReportUserCompanyController extends Controller
 
     public function missingCompanyInfoPlannerCSV()
     {
-        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
+        $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->get();
+        $cids = [];
+        foreach ($companies as $company) {
+            $planner_date = $company->nextDateOnPlanner();
+            if ($planner_date)
+                $cids[$company->id] = $planner_date->format('ymd');
+        }
+
+        asort($cids);
+        $companies = [];
+        foreach ($cids as $key => $value)
+            $companies[] = Company::find($key);
 
 
         $dir = '/filebank/tmp/report/' . Auth::user()->company_id;

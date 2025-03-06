@@ -23,7 +23,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Missing Company Information on Planner (expired 7 days+)</span>
                         </div>
                         <div class="actions">
-                            {{--}}<a href="/manage/report/missing_company_info_planner_csv" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download CSV</a>--}}
+                            <a href="/manage/report/missing_company_info_planner_csv" class="btn btn-circle btn-outline btn-sm green" target="_blank" id="view_pdf"> Download CSV</a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -32,14 +32,6 @@
                             <span style="width: 110px; display: inline-block">Expired Date</span><span>Missing / Expired Document</span>
                         </div>
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
-                            {{--}}<thead>
-                            <tr class="mytable-header">
-                                <th> Name</th>
-                                <th> Missing Info / Document</th>
-                                <th> Expired / Last Updated</th>
-                                <th> Next on Planner</th>
-                            </tr>
-                            </thead>--}}
                             <tbody>
                             <?php $today = \Carbon\Carbon::today(); $weekago = \Carbon\Carbon::today()->subDays(1); ?>
                             @foreach($companies as $company)
@@ -70,8 +62,6 @@
                                             @endforeach
 
                                         </td>
-                                        {{--}}<td>{!! $company->updated_at->diffForHumans() !!}</td>
-                                        <td>Next Planned: {!! $planner_date->longAbsoluteDiffForHumans() !!}</td>--}}
                                     </tr>
                                     @if (false && $company->isMissingDocs() && !preg_match('/cc-/', strtolower($company->name)))
                                         @foreach($company->missingDocs() as $type => $name)

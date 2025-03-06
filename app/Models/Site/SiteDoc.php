@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Models\Site;
+
+use App\Models\Comms\Todo;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
-class SiteDoc extends Model {
+class SiteDoc extends Model
+{
 
     protected $table = 'site_docs';
     protected $fillable = [
@@ -19,7 +22,8 @@ class SiteDoc extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function company() {
+    public function company()
+    {
         return $this->belongsTo('App\Models\Company\Company', 'company_id');
     }
 
@@ -28,7 +32,8 @@ class SiteDoc extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category() {
+    public function category()
+    {
         return $this->belongsTo('App\Models\ReportCategory', 'category_id');
     }
 
@@ -37,9 +42,22 @@ class SiteDoc extends Model {
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function site() {
+    public function site()
+    {
         return $this->belongsTo('App\Models\Site\Site', 'site_id');
     }
+
+    public function closeToDoTask($type)
+    {
+        $todos = Todo::where('type', $type)->where('type_id', $this->site_id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
+    }
+
 
     /**
      * Get the Attachment URL (setter)
@@ -47,7 +65,7 @@ class SiteDoc extends Model {
     public function getAttachmentUrlAttribute()
     {
         if ($this->attributes['attachment'])
-            return '/filebank/site/'.$this->attributes['site_id']."/docs/".$this->attributes['attachment'];
+            return '/filebank/site/' . $this->attributes['site_id'] . "/docs/" . $this->attributes['attachment'];
         return '';
     }
 
@@ -70,7 +88,7 @@ class SiteDoc extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
@@ -80,10 +98,11 @@ class SiteDoc extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

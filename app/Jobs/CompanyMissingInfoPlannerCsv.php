@@ -3,24 +3,19 @@
 namespace App\Jobs;
 
 use DB;
-use PDF;
-use Log;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Auth;
-use App\User;
-use App\Models\Company\Company;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
+use Log;
 
 class CompanyMissingInfoPlannerCsv implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected  $companies, $output_file;
+    protected $companies, $output_file;
 
     /**
      * Create a new job instance.
@@ -48,14 +43,18 @@ class CompanyMissingInfoPlannerCsv implements ShouldQueue
             //$company = Company::find($c->id);
             $planner_date = $company->nextDateOnPlanner();
             if ($company->missingInfo() && !preg_match('/cc-/', strtolower($company->name)))
-                $csv .= "$company->name, " .$company->missingInfo(). ', ' . $company->updated_at->format('d/m/Y') . "\r\n";
+                $csv .= "$company->name, " . $company->missingInfo() . ', ' . $company->updated_at->format('d/m/Y') . "\r\n";
+
+            // Next on Planner
+            $planner_date = $company->nextDateOnPlanner();
+            $next_on_planner = ($planner_date) ? $planner_date->longAbsoluteDiffForHumans() : '';
 
             if ($company->missingDocs() && !preg_match('/cc-/', strtolower($company->name)))
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
                     $csv .= "$company->name, $name, ";
                     $csv .= ($doc != 'N/A' && $company->expiredCompanyDoc($type)->expiry) ? $company->expiredCompanyDoc($type)->expiry->format('d/m/Y') : 'Never';
-                    $csv .= ", ".$planner_date->longAbsoluteDiffForHumans();
+                    $csv .= ", $next_on_planner";
                     $csv .= "\r\n";
                 }
         }

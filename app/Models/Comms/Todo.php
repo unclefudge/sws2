@@ -161,6 +161,8 @@ class Todo extends Model
                 return "/site/inspection/plumbing/$this->type_id";
             case 'project supply':
                 return "/site/supply/$this->type_id/edit";
+            case 'dial_before_dig':
+                return "/site/doc";
             case 'site shutdown':
                 return "/site/shutdown/$this->type_id/edit";
             case 'super checklist':

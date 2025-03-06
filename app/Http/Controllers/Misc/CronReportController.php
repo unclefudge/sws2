@@ -45,7 +45,8 @@ class CronReportController extends Controller
             CronReportController::emailMaintenanceAppointment();
             CronReportController::emailMaintenanceUnderReview();
             //CronReportController::emailMaintenanceOnHold();
-            CronReportController::emailMissingCompanyInfo();
+            //CronReportController::emailMissingCompanyInfo();
+            CronReportController::emailMissingCompanyInfoPlanner();
             CronReportController::emailActiveAsbestos();
             CronReportController::emailSupervisorAttendance();
             CronReportController::emailScaffoldOverdue();
@@ -429,6 +430,77 @@ class CronReportController extends Controller
 
         CronController::debugEmail('EL', $email_list);
         Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfo($companies, $missing_info, $expired_docs1, $expired_docs2, $expired_docs3));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    static public function emailMissingCompanyInfoPlanner()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Missing Company Info";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
+        // Planned Companies
+        $companies = Company::where('parent_company', 3)->where('status', '1')->get();
+        $cids = [];
+        foreach ($companies as $company) {
+            $planner_date = $company->nextDateOnPlanner();
+            if ($planner_date)
+                $cids[$company->id] = $planner_date->format('ymd');
+        }
+
+        asort($cids);
+        $companies = [];
+        foreach ($cids as $key => $value)
+            $companies[] = Company::find($key);
+
+        $today = \Carbon\Carbon::today();
+        $dayago = \Carbon\Carbon::today()->subDays(1);
+
+        $missing = [];
+        foreach ($companies as $company) {
+            if (!preg_match('/cc-/', strtolower($company->name)) && ($company->missingInfo() || $company->isMissingDocs())) { // exclude fake cc- companies
+                $planner_date = $company->nextDateOnPlanner();
+                $next_planner = ($planner_date) ? $planner_date->longAbsoluteDiffForHumans() : 'N/A';
+                $nickname = ($company->nickname) ? "($company->nickname)" : '';
+                $missing_info = ($company->missingInfo()) ? $company->missingInfo() . "<br>" : '';
+                $missing_docs = [];
+                foreach ($company->missingDocs() as $type => $name) {
+                    $doc = $company->expiredCompanyDoc($type);
+                    if ($doc && ($doc == 'N/A' || $doc->expiry->lt($dayago))) {
+                        $expiry_human = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->longAbsoluteDiffForHumans() : 'never';
+                        $expiry_date = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : '-';
+                        if ($doc != 'N/A')
+                            $link = "<a href='/company/$company->id/doc/$doc->id/edit'>$name</a>";
+                        else
+                            $link = "<a href='/company/$company->id/doc'>$name</a>";
+                    }
+                    $data = ['name' => $name, 'link' => $link, 'expiry_human' => $expiry_human, 'expiry_date' => $expiry_date];
+                    $missing_docs[] = $data;
+                }
+
+                $missing[] = ['company_name' => $company->name, 'company_nickname' => $nickname, 'next_planner' => $next_planner, 'missing_info' => $missing_info, 'docs' => $missing_docs];
+            }
+        }
+
+        //dd($missing);
+
+        CronController::debugEmail('EL', $email_list);
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfoPlanner($missing));
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
 

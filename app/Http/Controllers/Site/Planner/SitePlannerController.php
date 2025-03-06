@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site\Planner;
 
 use App\Http\Controllers\Controller;
+use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyLeave;
 use App\Models\Site\Planner\SiteAttendance;
@@ -2120,6 +2121,21 @@ class SitePlannerController extends Controller
                 if ($site->company->notificationsUsersType('site.jobstart'))
                     Mail::to($site->company->notificationsUsersType('site.jobstart'))->send(new \App\Mail\Site\Jobstart($site, $date, null, $supers));
             }
+
+            // Create Dial Before Dig Task
+            $todo_request = [
+                'type' => 'dial_before_dig',
+                'type_id' => $site->id,
+                'name' => 'Dial Before You Dig - ' . $site->name,
+                'info' => 'Please ensure Dial Before you Dig is completed for ' . $site->name . ' before any construction commences',
+                'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+                'company_id' => 3,
+            ];
+
+            // Create ToDoo and assign to Site Supervisors
+            $todo = Todo::create($todo_request);
+            $todo->assignUsers(3); // Michelle 325
+            $todo->emailToDo();
 
             // Create New Project Supply
             $project = SiteProjectSupply::where('site_id', $site->id)->first();
