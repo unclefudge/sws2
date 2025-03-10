@@ -203,8 +203,9 @@ class SiteInspectionPlumbing extends Model
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
         $todo->emailToDo();
-        if (\App::environment('prod'))
-            $todo->emailToDo('kirstie@capecod.com.au');
+        // removed 11-3-25
+        //if (\App::environment('prod'))
+        //    $todo->emailToDo('kirstie@capecod.com.au');
     }
 
     /**

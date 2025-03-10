@@ -272,7 +272,7 @@ class SiteInspectionElectricalController extends Controller
                 // Create ToDoo for Tech Mgr
                 $report->closeToDo();
                 if (!$report->manager_sign_by)
-                    $report->createSignOffToDo(array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]));
+                    $report->createSignOffToDo(getUserIdsWithRoles('gen-technical-manager'));
             } else {
                 $action = Action::create(['action' => "Report rejected by Admin Officer ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->inspected_name = null;
