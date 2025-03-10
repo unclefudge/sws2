@@ -213,6 +213,10 @@ class SiteQaController extends Controller
         $qa->manager_sign_at = null;
         $qa->save();
 
+
+        // Close any outstanding ToDos for Area Super / Con Mgr
+        $qa->closeToDo(Auth::user());
+        
         // Create ToDoo for Super
         $site = Site::findOrFail($qa->site_id);
         $qa->createToDo($site->supervisor_id);
