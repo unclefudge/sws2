@@ -115,6 +115,20 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <b>Client Primay Contact</b><br>
+                                    {!! $report->site->client1_name ? $report->site->client1_name . "<br>" : '' !!}
+                                    {!! ($report->site->client1_mobile) ? $report->site->client1_mobile . "<br>" : "" !!}
+                                    {!! ($report->site->client1_email) ? "<a href='mailto:". $report->site->client1_email."'> " . $report->site->client1_email ."</a>" : "" !!}
+                                </div>
+                                <div class="col-md-6">
+                                    <b>Secondary Contact</b><br>
+                                    {!! $report->site->client2_name ? $report->site->client2_name . "<br>" : '' !!}
+                                    {!! ($report->site->client2_mobile) ? $report->site->client2_mobile . "<br>" : "" !!}
+                                    {!! ($report->site->client2_email) ? "<a href='mailto:". $report->site->client2_email."'> " . $report->site->client2_email ."</a>" : "" !!}
+                                </div>
+                            </div>
 
                             <h4 class="font-green-haze">Admin Notes</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
