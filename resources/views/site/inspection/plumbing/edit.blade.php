@@ -117,7 +117,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <b>Client Primay Contact</b><br>
+                                    <b>Client Primary Contact</b><br>
                                     {!! $report->site->client1_name ? $report->site->client1_name . "<br>" : '' !!}
                                     {!! ($report->site->client1_mobile) ? $report->site->client1_mobile . "<br>" : "" !!}
                                     {!! ($report->site->client1_email) ? "<a href='mailto:". $report->site->client1_email."'> " . $report->site->client1_email ."</a>" : "" !!}
