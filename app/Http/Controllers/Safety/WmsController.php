@@ -188,8 +188,9 @@ class WmsController extends Controller
             $replace_wms->status = '0';
             $replace_wms->save();
             $replace_wms->closeToDo();
-            if (!Auth::user()->isCompany($replace_wms->owned_by))
-                $replace_wms->emailArchived();
+            // turned off 24/3/25
+            //if (!Auth::user()->isCompany($replace_wms->owned_by))
+            //    $replace_wms->emailArchived();
         }
 
         //dd($wms_request);
@@ -330,8 +331,9 @@ class WmsController extends Controller
         if ($doc->status == 1)
             Toastr::success("Statement restored");
         else {
-            if (!Auth::user()->isCompany($doc->owned_by))
-                $doc->emailArchived();
+            // turned off 24/3/25
+            //if (!Auth::user()->isCompany($doc->owned_by))
+            //    $doc->emailArchived();
             Toastr::success("Statement archived");
         }
 
