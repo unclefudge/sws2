@@ -608,27 +608,52 @@ class CronReportController extends Controller
         // Scaffold Handover for Ian Ewin
         //
         $scaffold_overdue = [];
+        $supers_overdue = [];
         $todos = Todo::where('status', '1')->where('type', 'scaffold handover')->whereDate('due_at', '<', Carbon::today()->format('Y-m-d'))->where('due_at', '<>', '0000-00-00 00:00:00')->orderBy('due_at')->get();
         foreach ($todos as $todo) {
+            // Add outstading scaff to mnain list
             $scaffold_overdue[$todo->type_id] = ['name' => $todo->name, 'due_at' => $todo->due_at->format('d/m/Y')];
+            // Add outstanding scaff to super list
+            list($crap, $rest) = explode('Scaffold Handover Certificate for ', $todo->name);
+            list($jobnum, $crap) = explode('-', $rest);
+            $site = Site::where('code', $jobnum)->first();
+            if ($site) {
+                if (isset($site->supervisor_id, $supers_overdue))
+                    $supers_overdue[$site->supervisor_id][] = $todo->type_id;
+                else
+                    $supers_overdue[$site->supervisor_id] = [$todo->type_id];
+            }
         }
 
         // Email outstanding scaffold certificates
         if ($scaffold_overdue) {
-            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; ianscottewin@gmail.com; aaron@capecod.com.au for Outstanding Scaffold Handover Certificates:\n";
-            foreach ($scaffold_overdue as $id => $array) {
-                echo "id[$id] " . $array['name'] . "<br>";
-                $log .= "id[$id] " . $array['name'] . "\n";
+            // Loop through each Supervisor for send out email to them
+            foreach ($supers_overdue as $super_id => $overdue_ids) {
+                $super = User::find($super_id);
+                $super_email = ($super->email && validEmail($super->email)) ? $super->email : '';
+                $scaffold_overdue_super = [];
+                // Create list of overdue Scaffs for specfic Super
+                foreach ($overdue_ids as $scaff_id) {
+                    $scaffold_overdue_super[$scaff_id] = $scaffold_overdue[$scaff_id];
+                }
+                // send out email
+                echo "<br><b>Sending Reminder Email to $super_email and cc:kirstie@capecod.com.au; ross@capecod.com.au; ianscottewin@gmail.com; damian@capecod.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
+                $log .= "\nSending Reminder Email to $super_email and cc:kirstie@capecod.com.au; ross@capecod.com.au; ianscottewin@gmail.com; damian@capecod.com.au for Outstanding Scaffold Handover Certificates:\n";
+                foreach ($scaffold_overdue_super as $id => $array) {
+                    echo "id[$id] " . $array['name'] . "<br>";
+                    $log .= "id[$id] " . $array['name'] . "\n";
+                }
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_to = (\App::environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super->firstname));
             }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ianscottewin@gmail.com', 'aaron@capecod.com.au'] : [env('EMAIL_DEV')];
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue, 'Ian Scott Ewin'));
         }
 
         //
         // Scaffold Handover for Ashbys
         //
         $scaffold_overdue = [];
+        $supers_overdue = [];
         $today = Carbon::now();
         $jan2024 = Carbon::createFromFormat('Y-m-d', '2024-01-01');
         $found_tasks = 0;
@@ -643,21 +668,40 @@ class CronReportController extends Controller
             if ($plan->site->status == 1) {
                 // Check for Site Risk doc with word 'Scaffolding Handover Certificate'
                 $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'like', '%Scaffolding Handover Certificate%')->first();
-                if (!$certificate && !in_array($plan->id, $excludePlannerTasks))
+                if (!$certificate && !in_array($plan->id, $excludePlannerTasks)) {
+                    // Add outstanding scaff to main list
                     $scaffold_overdue[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y')];
+                    // Add outstanding scaff to super list
+                    if (isset($plan->site->supervisor_id, $supers_overdue))
+                        $supers_overdue[$plan->site->supervisor_id][] = $plan->id;
+                    else
+                        $supers_overdue[$plan->site->supervisor_id] = [$plan->id];
+                }
             }
         }
 
         // Email outstanding scaffold certificates
         if ($scaffold_overdue) {
-            echo "<br><b>Sending Reminder Email to kirstie@capecod.com.au; construct@capecod.com.au; info@ashby.com.au  for Outstanding Scaffold Handover Certificates:\n</b><br>";
-            $log .= "\nSending Reminder Email to kirstie@capecod.com.au; construct@capecod.com.au; info@ashby.com.au for Outstanding Scaffold Handover Certificates:\n";
-            foreach ($scaffold_overdue as $id => $array) {
-                echo "id[$id] " . $array['name'] . "<br>";
-                $log .= "id[$id] " . $array['name'] . "\n";
+            // Loop through each Supervisor for send out email to them
+            foreach ($supers_overdue as $super_id => $overdue_ids) {
+                $super = User::find($super_id);
+                $super_email = ($super->email && validEmail($super->email)) ? $super->email : '';
+                $scaffold_overdue_super = [];
+                // Create list of overdue Scaffs for specfic Super
+                foreach ($overdue_ids as $scaff_id) {
+                    $scaffold_overdue_super[$scaff_id] = $scaffold_overdue[$scaff_id];
+                }
+                // send out email
+                echo "<br><b>Sending Reminder Email to $super_email and cc:kirstie@capecod.com.au; ross@capecod.com.au; damian@capecod.com.au; construct@capecod.com.au; info@ashby.com.au for Outstanding Scaffold Handover Certificates:\n</b><br>";
+                $log .= "\nSending Reminder Email to $super_email and cc:kirstie@capecod.com.au; ross@capecod.com.au; damian@capecod.com.au; construct@capecod.com.au; info@ashby.com.au for Outstanding Scaffold Handover Certificates:\n";
+                foreach ($scaffold_overdue_super as $id => $array) {
+                    echo "id[$id] " . $array['name'] . "<br>";
+                    $log .= "id[$id] " . $array['name'] . "\n";
+                }
+                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'damian@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [env('EMAIL_DEV')];
+                $email_to = (\App::environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ashbys', $super->firstname));
             }
-            $email_to = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au', 'fudge@jordan.net.au'] : [env('EMAIL_DEV')];
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue, "Ashbys"));
         }
 
         echo "<h4>Completed</h4>";
