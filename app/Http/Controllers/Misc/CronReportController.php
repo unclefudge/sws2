@@ -562,7 +562,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au"] : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au", "damian@capecod.com.au"] : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $date_to = Carbon::now()->subDays(1);
         $date_from = Carbon::now()->subDays(7);
