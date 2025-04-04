@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -52,52 +52,59 @@
     <div class="page22">
         <?php $row_count = 0; ?>
         <?php $page_count = 1; ?>
-        @foreach ($supers as $super)
+        @foreach ($supers as $sid => $super_name)
             @foreach ($qas as $qa)
                 @if ($row_count == 0)
                     {{-- New Page - Show header --}}
-                    <div class="row">
-                        <div class="col-xs-9"><h3 style="margin: 0px">Outstanding QA Checklists ({{ $qas->count() }})</h3></div>
-                        <div class="col-xs-3"><h6>Report generated {{ $today->format('d/m/Y') }}</h6></div>
-                    </div>
+                    <table style="width:100%;">
+                        <tr>
+                            <td><h2 style="margin: 0px">{{ $report_type }} QA Checklists - {{ $supervisor }}</h2></td>
+                            <td style="width:150"><h6>Report generated {{ $today->format('d/m/Y') }}</h6></td>
+                        </tr>
+                    </table>
                     <hr style="margin: 5px 0px">
-                    <div class="row">
-                        <div class="col-xs-2">Site</div>
-                        <div class="col-xs-4">Name</div>
-                        <div class="col-xs-2">Supervisor</div>
-                        <div class="col-xs-1">Uppdated</div>
-                        <div class="col-xs-2">Completed</div>
-                    </div>
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="width:200"><b>Site</b></td>
+                            <td><b>Name</b></td>
+                            {{--}}<td style="width:100"><b>Supervisor</b></td>--}}
+                            <td style="width:70"><b>Updated</b></td>
+                            <td style="width:120"><b>Completed</b></td>
+                        </tr>
+                    </table>
                     <hr style="margin: 5px 0px">
-                        <?php $row_count++; ?>
+                        <?php $row_count++ ?>
                 @endif
 
-                @if ($qa->site->supervisorName == $super)
-                    <?php
-                    $row_count ++;
-                    $total = $qa->items()->count();
-                    $completed = $qa->itemsCompleted()->count();
-                    $pending = '';
-                    if ($total == $completed && $total != 0) {
-                        if (!$qa->supervisor_sign_by)
-                            $pending = ' - Pending Supervisor';
-                        elseif (!$qa->manager_sign_by)
-                            $pending = ' - Pending Manager';
-                    }
-                    ?>
-
-                    <div class="row">
-                        <div class="col-xs-2">{{ $qa->site->name }}</div>
-                        <div class="col-xs-4">{{ $qa->name }}</div>
-                        <div class="col-xs-2">{{ $qa->site->supervisorName }}</div>
-                        <div class="col-xs-1">{{ $qa->updated_at->format('d/m/Y') }}</div>
-                        <div class="col-xs-2">{{ $completed }} / {{ $total }} {!! $pending !!}</div>
-                    </div>
+                @if ($qa->site->supervisorName == $supervisor && $supervisor == $super_name)
+                        <?php
+                        $row_count++;
+                        $total = $qa->items()->count();
+                        $completed = $qa->itemsCompleted()->count();
+                        $pending = '';
+                        if ($total == $completed && $total != 0) {
+                            if (!$qa->supervisor_sign_by)
+                                $pending = ' - Pending Supervisor';
+                            elseif (!$qa->manager_sign_by)
+                                $pending = ' - Pending Manager';
+                        }
+                        ?>
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="width:200">{{ $qa->site->name }}</td>
+                            <td>{{ $qa->name }}</td>
+                            {{--}}<td style="width:100">{{ $qa->site->supervisorName }}</td>--}}
+                            <td style="width:70">{{ $qa->updated_at->format('d/m/Y') }}</td>
+                            <td style="width:120"><{{ $completed }}/
+                            {{ $total }} {!! $pending !!}</td>
+                        </tr>
+                    </table>
                 @endif
 
-                @if ($row_count > 28) {{-- New Page if no of lines exceed max --}}
-                <div class="page"></div>
-                <?php $row_count = 0; $page_count ++ ?>
+                @if ($row_count > 28)
+                    {{-- New Page if no of lines exceed max --}}
+                    <div class="page"></div>
+                        <?php $row_count = 0; $page_count++ ?>
                 @endif
             @endforeach
         @endforeach

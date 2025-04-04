@@ -50,10 +50,11 @@ class CronReportController extends Controller
             CronReportController::emailActiveAsbestos();
             CronReportController::emailSupervisorAttendance();
             CronReportController::emailScaffoldOverdue();
+            CronReportController::emailOutstandingOnHoldQA();
+            CronReportController::emailEquipmentTransfers();
         }
 
         if (Carbon::today()->isTuesday()) {
-            CronReportController::emailOutstandingQA();
             CronReportController::emailUpcomingJobCompilance();
             CronReportController::emailMaintenanceSupervisorNoAction();
         }
@@ -62,7 +63,6 @@ class CronReportController extends Controller
         }
 
         if (Carbon::today()->isThursday()) {
-            CronReportController::emailEquipmentTransfers();
             CronReportController::emailOnHoldQA();
             CronReportController::emailActiveElectricalPlumbing();
         }
@@ -117,6 +117,7 @@ class CronReportController extends Controller
      * CronReportController::emailMaintenanceAppointment();
      * CronReportController::emailMaintenanceUnderReview();
      * CronReportController::emailMissingCompanyInfo();
+     * CronReportController::emailOutstandingOnHoldQA();
      *
      * Fortnightly
      * CronReportController::emailFortnightlyReports();
@@ -712,6 +713,112 @@ class CronReportController extends Controller
     }
 
     /*
+    * Email Outstanding QA + Onhold checklists
+    */
+    static public function emailOutstandingOnHoldQA()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Outstanding QA & OnHold Checklists";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
+
+        $today = Carbon::now();
+        $weekago = Carbon::now()->subWeek();
+        $file_list = [];
+        //
+        // Outstanding Qas
+        //
+        $outQas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
+        echo "Outstanding QAs: " . $outQas->count() . "<br>";
+        $log .= "Outstanding QAs: " . $outQas->count() . "\n";
+
+        if ($outQas->count()) {
+            // Supervisors list
+            $outSupers = [];
+            foreach ($outQas as $qa) {
+                $outSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
+            }
+            asort($outSupers);
+
+            $report_type = "Outstanding";
+            // For each Super create their own pdf
+            foreach ($outSupers as $super_id => $supervisor) {
+                // Create PDF
+                $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
+                $file = public_path("filebank/tmp/qa-outstanding-$super_name.pdf");
+                $file_list[] = $file;
+                if (file_exists($file))
+                    unlink($file);
+                //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'supervisor', 'today'));
+                //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'supervisor', 'today'))->setPaper('a4', 'landscape')->stream();
+
+                $qas = $outQas;
+                $supers = $outSupers;
+                $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('report_type', 'qas', 'supers', 'supervisor', 'today'));
+                $pdf->setPaper('A4', 'landscape');
+                $pdf->save($file);
+            }
+        }
+
+
+        //
+        // On Hold Qas
+        //
+        $holdQas = SiteQa::where('status', 4)->where('master', 0)->orderBy('updated_at')->get();
+        echo "On Hold QAs: " . $holdQas->count() . "<br>";
+        $log .= "On Hold QAs: " . $holdQas->count() . "\n";
+
+        if ($holdQas->count()) {
+            // Supervisors list
+            $holdSupers = [];
+            foreach ($holdQas as $qa) {
+                $holdSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
+            }
+            asort($holdSupers);
+
+            $report_type = "On Hold";
+            // For each Super create their own pdf
+            foreach ($holdSupers as $super_id => $supervisor) {
+                // Create PDF
+                $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
+                $file = public_path("filebank/tmp/qa-onhold-$super_name.pdf");
+                $file_list[] = $file;
+                if (file_exists($file))
+                    unlink($file);
+
+                $qas = $holdQas;
+                $supers = $holdSupers;
+                $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('report_type', 'qas', 'supers', 'supervisor', 'today'));
+                $pdf->setPaper('A4', 'landscape');
+                $pdf->save($file);
+            }
+        }
+
+
+        if ($outQas->count() || $holdQas->count()) {
+            // Send email with multiple attachments
+            CronController::debugEmail('EL', $email_list);
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file_list, $outQas, $outSupers, $holdQas, $holdSupers));
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
     * Email Fortnightly Reports
     */
     static public function emailFortnightlyReports()
@@ -797,73 +904,12 @@ class CronReportController extends Controller
     /****************************************************
      * Tuesday Reports
      *
-     * CronReportController::emailOutstandingQA();
      * CronReportController::emailUpcomingJobCompilance();
      * CronReportController::emailMaintenanceSupervisorNoAction();
      *
      * First Tuesday of the Month
      * CronReportController::emailOldUsers();
      ***************************************************/
-
-
-    /*
-    * Email Outstanding QA checklists
-    */
-    static public function emailOutstandingQA()
-    {
-        $log = '';
-        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
-        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
-        $func_name = "Outstanding QA Checklists";
-        echo "<h2>Email $func_name</h2>";
-        $log .= "Email $func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
-        $emails = implode("; ", $email_list);
-
-
-        $today = Carbon::now();
-        $weekago = Carbon::now()->subWeek();
-        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
-
-        echo "Outstanding QAs: " . $qas->count() . "<br>";
-        $log .= "Outstanding QAs: " . $qas->count() . "\n";
-
-        if ($qas->count()) {
-            // Supervisors list
-            $supers = [];
-            foreach ($qas as $qa) {
-                if (!in_array($qa->site->supervisorName, $supers))
-                    $supers[] .= $qa->site->supervisorName;
-            }
-            sort($supers);
-
-            // Create PDF
-            $file = public_path('filebank/tmp/qa-outstanding-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
-            //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-            //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
-
-            $pdf = PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'today'));
-            $pdf->setPaper('A4', 'landscape');
-            $pdf->save($file);
-
-            CronController::debugEmail('EL', $email_list);
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file, $qas));
-            echo "Sending email to: $emails<br>";
-            $log .= "Sending email to: $emails\n";
-        }
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
-    }
 
     /*
     * Email UpcomingJobCompliance
