@@ -1002,16 +1002,23 @@ class CronController extends Controller
         $date = Carbon::now()->format('Y-m-d');
         $keytasks = [
             4 => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
-            7 => 'is now ready to inspect and review the Frame and Roof']; // Frame & Roof FF (FR/FF)
+            7 => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
+            265 => 'is now ready to review Prac Completion', // Prac Completion (Prac)
+            437 => 'is now ready to inspect and review Scaffold Down']; // Scaffold Down (SD) Roofer
 
+        // Special tasks emails
+        $special_tasks = [265, 437]; // Prac Complete, Scaffold Down
+        $special_email_list = ["michelle@capecod.com.au", "damian@capecod.com.au"];
+        $special_email_list_cc = ["kirstie@capecod.com.au", "ross@capecod.com.au", 'fudge@jordan.net.au'];
+        $special_emails = implode("; ", $special_email_list + $special_email_list_cc);
         $email_sent = 0;
         foreach ($keytasks as $task_id => $subject) {
             $tasks = SitePlanner::whereDate('from', '=', $date)->where('task_id', $task_id)->orderBy('site_id')->get();
 
             // Log email being sent only once
             if ($tasks->count() && !$email_sent) {
-                echo "Sending email to $emails<br>";
-                $log .= "Sending email to $emails\n";
+                echo "Sending email to $emails or $special_emails<br>";
+                $log .= "Sending email to $emails or $special_emails\n";
                 $email_sent = 1;
             }
 
@@ -1021,8 +1028,11 @@ class CronController extends Controller
                     echo "&nbsp; * $mesg<br>";
                     $log .= " * $mesg\n";
                     CronController::debugEmail('EL', $email_list);
-                    if ($email_list)
+                    if ($email_list && !in_array($task_id, $special_tasks))
                         Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+                    // Special tasks
+                    if ($special_email_list && in_array($task_id, $special_tasks))
+                        Mail::to($special_email_list)->cc($special_email_list_cc)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
                 }
             }
         }
