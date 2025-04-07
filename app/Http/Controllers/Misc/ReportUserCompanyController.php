@@ -280,32 +280,36 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
         $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString();
 
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+        $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [env('EMAIL_DEV')];
+        if (Auth::check()) {
+            if (validEmail(Auth::user()->email))
+                $email_cc[] = Auth::user()->email;
+            $signature = Auth::user()->fullname . "<br>" . Auth::user()->jobtitle;
+        } else
+            $signature = "SafeWork Site";
+
+        // Person running the report
+
 
         $counter = 0;
         foreach ($companies as $company) {
-
-            //$counter++;
-            //if ($counter > 12) dd('done');
+            $counter++;
+            if ($counter > 12) dd('done');
 
             if (count($company->wmsdocs) == 0) {
-                if ($email_to && $email_user)
-                    Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none'));
-                elseif ($email_to)
-                    Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none'));
+                if ($email_to)
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none', $signature));
             } else {
-                $outofdate = "";
+                // Out of date SWMS
+                $outofdate = [];
                 foreach ($company->wmsdocs as $doc) {
                     if ($doc->status == 1 && $doc->updated_at < $twoyearago)
-                        $outofdate .= "$doc->name<br>";
+                        $outofdate[] = "$doc->name";
                 }
 
-                if ($outofdate != "") {
-                    if ($email_to && $email_user)
-                        Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate));
-                    elseif ($email_to)
-                        Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate));
+                if ($outofdate && $email_to) {
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate, $signature));
                 }
             }
         }

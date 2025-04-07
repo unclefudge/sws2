@@ -4,23 +4,29 @@
 
 <b>{{ $company->name }}</b>
 
-Safe Work Method Statements are required to work on Cape Cod building sites.
-
 @if ($outofdate == 'verify')
-Please verify your SWMS are up to date and current.
+Please verify your Safe Work Method Statements are up to date on the SafeWork Site.
 @elseif ($outofdate == 'none')
-You currently haven't completed any and are required to do so.
+Please note you currently have no Safe Work Method Statements on the SafeWork Site.
 @else
-The following SWMS are Out of Date and need to be updated:
+Please note the following documents are now expired on the SafeWork Site:
 
-{!! nl2br($outofdate) !!}
+@foreach ($outofdate as $doc)
+- {{ $doc }}
+@endforeach
 @endif
+
+All Companies need to upload their own documents into the system, from a compliance side this is not something Cape Cod can do for you, please refer to the attached guide for you to self-manage this as part of your Company obligations.
+
+Please have these items uploaded by the {!! today()->addDays(7)->format('d/m/Y') !!}
+
+If you have any questions and need help please feel free to contact me.
 
 @component('mail::button', ['url' => config('app.url').'/safety/doc/wms/'])
 View SWMS
 @endcomponent
 
 
-Regards,
-{{ config('app.name') }}
+Regards,<br>
+{!! $signature !!}
 @endcomponent

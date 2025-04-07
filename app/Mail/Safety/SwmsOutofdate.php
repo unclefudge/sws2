@@ -13,18 +13,18 @@ class SwmsOutofdate extends Mailable implements ShouldQueue
 
     use Queueable, SerializesModels;
 
-    public $company, $outofdate;
+    public $company, $outofdate, $signature;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Company $company, $outofdate)
+    public function __construct(Company $company, $outofdate, $signature)
     {
         $this->company = $company;
         $this->outofdate = $outofdate;
-
+        $this->signature = $signature;
     }
 
     /**
