@@ -294,8 +294,8 @@ class ReportUserCompanyController extends Controller
 
         $counter = 0;
         foreach ($companies as $company) {
-            $counter++;
-            if ($counter > 12) dd('done');
+            //$counter++;
+            //if ($counter > 12) dd('done');
 
             if (count($company->wmsdocs) == 0) {
                 if ($email_to)
