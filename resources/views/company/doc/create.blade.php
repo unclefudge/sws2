@@ -262,166 +262,169 @@
     <!--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>-->
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-        /* Select2 */
-        $("#lic_type").select2({placeholder: "Select one or more", width: '100%'});
-        $("#lic_type1").select2({placeholder: "Select one or more", width: '100%'});
-        $("#lic_type2").select2({placeholder: "Select one or more", width: '100%'});
+            /* Select2 */
+            $("#lic_type").select2({placeholder: "Select one or more", width: '100%'});
+            $("#lic_type1").select2({placeholder: "Select one or more", width: '100%'});
+            $("#lic_type2").select2({placeholder: "Select one or more", width: '100%'});
 
-        function display_fields() {
-            var cat = $("#category_id").val();
+            function display_fields() {
+                var cat = $("#category_id").val();
 
-            $('#name').val('');
-            $('#fields_policy').hide();
-            $('#fields_insurer').hide();
-            $('#fields_category').hide();
-            $('#fields_subcategory').hide();
-            $('#fields_lic_no').hide();
-            $('#fields_lic_class').hide();
-            $('#fields_supervisor').hide();
-            $('#fields_supervisor_id').hide();
-            $('#fields_supervisor_id2').hide();
-            $('#fields_supervisor_id3').hide();
-            $('#fields_asb_class').hide();
-            $('#fields_expiry').hide();
-            $('#fields_tag_type').hide();
-            $('#fields_tag_date').hide();
-            $('#fields_notes').hide();
-            $('#singlefile-div').hide();
-            $('#singleimage-div').hide();
-            $('#upload').hide();
+                $('#name').val('');
+                $('#fields_policy').hide();
+                $('#fields_insurer').hide();
+                $('#fields_category').hide();
+                $('#fields_subcategory').hide();
+                $('#fields_lic_no').hide();
+                $('#fields_lic_class').hide();
+                $('#fields_supervisor').hide();
+                $('#fields_supervisor_id').hide();
+                $('#fields_supervisor_id2').hide();
+                $('#fields_supervisor_id3').hide();
+                $('#fields_asb_class').hide();
+                $('#fields_expiry').hide();
+                $('#fields_tag_type').hide();
+                $('#fields_tag_date').hide();
+                $('#fields_notes').hide();
+                $('#singlefile-div').hide();
+                $('#singleimage-div').hide();
+                $('#upload').hide();
 
-
-            if (cat != '') {
-                if (cat == 6 || cat == 7 || cat == 9 || cat == 10) { // 6 Test Tag,  7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+                if (cat != '') {
+                    // All uploads can now be images 7/4/25
                     $('#singleimage-div').show();
                     $('#filetype').val('image');
-                } else {
-                    $('#singlefile-div').show();
-                    $('#filetype').val('pdf');
+                    /*if (cat == 6 || cat == 7 || cat == 9 || cat == 10) { // 6 Test Tag,  7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+                        $('#singleimage-div').show();
+                        $('#filetype').val('image');
+                    } else {
+                        $('#singlefile-div').show();
+                        $('#filetype').val('pdf');
+                    }*/
+                    //$("#singlefile").fileinput('allowedFileExtensions', ["pdf"]);*/
+                    $('#fields_expiry').show();
+                    $('#fields_notes').show();
+                    $('#upload').show();
                 }
-                //$("#singlefile").fileinput('allowedFileExtensions', ["pdf"]);*/
-                $('#fields_expiry').show();
-                $('#fields_notes').show();
-                $('#upload').show();
+
+                if (cat < 9) {
+                    $('#name').val($("#category_id option:selected").text());
+                    $('#fields_name').hide();
+                } else // Other Licence + everything else
+                    $('#fields_name').show();
+
+                if (cat == 1 || cat == 2 || cat == 3) {  // PL, WC & SA
+                    $('#fields_policy').show();
+                    $('#fields_insurer').show();
+                }
+                if (cat == 2 || cat == 3) // WC & SA
+                    $('#fields_category').show();
+
+                if (cat == 6) { // Test & Tag
+                    $('#fields_tag_type').show();
+                    $('#fields_tag_date').show();
+                    $('#fields_expiry').hide();
+                } else {
+                    $('#fields_tag_date').hide();
+                    $('#fields_expiry').show();
+                }
+                if (cat == 7) { // CL
+                    $('#fields_lic_no').show();
+                    $('#fields_lic_class').show();
+                    $('#fields_supervisors').show();
+
+                    if ($("#supervisor_no").val() == 1)
+                        $('#fields_supervisor_id').show();
+                    if ($("#supervisor_no").val() > 1)
+                        $('#fields_supervisor_id2').show();
+                    if ($("#supervisor_no").val() > 2)
+                        $('#fields_supervisor_id3').show();
+
+                    var lic_types = {};
+                    $("#lic_type option:selected").each(function () {
+                        var val = $(this).val();
+                        if (val !== '')
+                            lic_types[val] = $(this).text();
+                    });
+
+                    $("#lic_type1").empty();
+                    $("#lic_type2").empty();
+                    $("#lic_type3").empty();
+                    $.each(lic_types, function (index, value) {
+                        $("#lic_type1").append('<option value="' + index + '">' + value + '</option>');
+                        $("#lic_type2").append('<option value="' + index + '">' + value + '</option>');
+                        $("#lic_type3").append('<option value="' + index + '">' + value + '</option>');
+                    });
+                }
+
+                if (cat == 8)  // Asbestos
+                    $('#fields_asb_class').show();
+
+                if (cat == 22) {  // Standard Details
+                    $('#fields_subcategory').show();
+                    $('#expiry_label').html('Renewal');
+                } else {
+                    $('#expiry_label').html('Expiry');
+                }
             }
 
-            if (cat < 9) {
-                $('#name').val($("#category_id option:selected").text());
-                $('#fields_name').hide();
-            } else // Other Licence + everything else
-                $('#fields_name').show();
-
-            if (cat == 1 || cat == 2 || cat == 3) {  // PL, WC & SA
-                $('#fields_policy').show();
-                $('#fields_insurer').show();
-            }
-            if (cat == 2 || cat == 3) // WC & SA
-                $('#fields_category').show();
-
-            if (cat == 6) { // Test & Tag
-                $('#fields_tag_type').show();
-                $('#fields_tag_date').show();
-                $('#fields_expiry').hide();
-            } else {
-                $('#fields_tag_date').hide();
-                $('#fields_expiry').show();
-            }
-            if (cat == 7) { // CL
-                $('#fields_lic_no').show();
-                $('#fields_lic_class').show();
-                $('#fields_supervisors').show();
-
-                if ($("#supervisor_no").val() == 1)
-                    $('#fields_supervisor_id').show();
-                if ($("#supervisor_no").val() > 1)
-                    $('#fields_supervisor_id2').show();
-                if ($("#supervisor_no").val() > 2)
-                    $('#fields_supervisor_id3').show();
-
-                var lic_types = {};
-                $("#lic_type option:selected").each(function () {
-                    var val = $(this).val();
-                    if (val !== '')
-                        lic_types[val] = $(this).text();
-                });
-
-                $("#lic_type1").empty();
-                $("#lic_type2").empty();
-                $("#lic_type3").empty();
-                $.each(lic_types, function (index, value) {
-                    $("#lic_type1").append('<option value="' + index + '">' + value + '</option>');
-                    $("#lic_type2").append('<option value="' + index + '">' + value + '</option>');
-                    $("#lic_type3").append('<option value="' + index + '">' + value + '</option>');
-                });
-            }
-
-            if (cat == 8)  // Asbestos
-                $('#fields_asb_class').show();
-
-            if (cat == 22) {  // Standard Details
-                $('#fields_subcategory').show();
-                $('#expiry_label').html('Renewal');
-            } else {
-                $('#expiry_label').html('Expiry');
-            }
-        }
-
-        display_fields();
-        // On Change determine if Category fields are valid for multi file upload
-        $("#category_id").change(function () {
             display_fields();
+            // On Change determine if Category fields are valid for multi file upload
+            $("#category_id").change(function () {
+                display_fields();
+            });
+
+            $("#lic_type").change(function () {
+                display_fields();
+            });
+
+            $("#supervisor_no").change(function () {
+                display_fields();
+            });
+
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+            /* Bootstrap Fileinput */
+            $("#singleimage").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
         });
 
-        $("#lic_type").change(function () {
-            display_fields();
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
         });
 
-        $("#supervisor_no").change(function () {
-            display_fields();
-        });
-
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-
-        /* Bootstrap Fileinput */
-        $("#singleimage").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf", "jpg", "png", "gif"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
-        });
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-</script>
+    </script>
 @stop

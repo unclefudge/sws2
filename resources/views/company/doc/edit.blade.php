@@ -553,14 +553,16 @@
 
             $("#change_file").click(function () {
                 $('#attachment-div').hide();
-                //$('#singlefile-div').show();
-                if ($("#category_id").val() == 6 || $("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 6 Test Tag, 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
-                    $('#singleimage-div').show();
-                    $('#filetype').val('image');
-                } else {
-                    $('#singlefile-div').show();
-                    $('#filetype').val('pdf');
-                }
+                // All uploads can now be images 7/4/25
+                $('#singleimage-div').show();
+                $('#filetype').val('image');
+                /*if ($("#category_id").val() == 6 || $("#category_id").val() == 7 || $("#category_id").val() == 9 || $("#category_id").val() == 10) { // 6 Test Tag, 7 Contractors Lic, 9 Other Lic, 10 Builders Lic
+                     $('#singleimage-div').show();
+                     $('#filetype').val('image');
+                 } else {
+                     $('#singlefile-div').show();
+                     $('#filetype').val('pdf');
+                 }*/
                 $('#but_upload').show();
                 $('#but_save').hide();
             });
@@ -568,16 +570,16 @@
             $("#accept_archive").click(function (e) {
                 e.preventDefault();
                 $('#archive').val({{ ($company->activeCompanyDoc($doc->category_id)) ? $company->activeCompanyDoc($doc->category_id)->id : null }});
-            $("#doc_form").submit();
+                $("#doc_form").submit();
+            });
+
         });
 
-    });
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
 
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-
-</script>
+    </script>
 @stop
