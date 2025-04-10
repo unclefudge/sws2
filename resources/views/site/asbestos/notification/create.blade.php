@@ -144,7 +144,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('date_from', $errors) !!}">
                                         {!! Form::label('date_from', 'Proposed dates of asbestos removal work', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy" data-date-start-date="0d">
+                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
                                             {!! Form::text('date_from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
                                             <span class="input-group-addon"> to </span>
                                             {!! Form::text('date_to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
