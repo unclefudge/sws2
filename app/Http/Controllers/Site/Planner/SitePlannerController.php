@@ -2134,7 +2134,7 @@ class SitePlannerController extends Controller
 
             // Create ToDoo and assign to Site Supervisors
             $todo = Todo::create($todo_request);
-            $todo->assignUsers(3); // Michelle 325
+            $todo->assignUsers(325); // Michelle 325
             $todo->emailToDo();
 
             // Create New Project Supply
