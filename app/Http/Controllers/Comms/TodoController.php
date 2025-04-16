@@ -214,7 +214,7 @@ class TodoController extends Controller
                 $main = SiteMaintenance::find($todo->type_id);
                 $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_maintenance', 'table_id' => $todo->type_id]);
                 $main->touch(); // update timestamp
-                $todo->emailToDo('ASSIGNED', ['veronica@capecod.com.au']);
+                $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au']);
 
                 return redirect("/site/maintenance/$todo->type_id");
             }

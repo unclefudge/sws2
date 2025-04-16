@@ -71,7 +71,7 @@ class SiteMaintenanceItem extends Model
 
         $todo = Todo::create($todo_request);
         $todo->assignUsers($user_list);
-        $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au', 'veronica@capecod.com.au']);
+        $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au']);
     }
 
 
