@@ -1176,8 +1176,10 @@ class CronController extends Controller
             // Show only site which Job Start has before today
             if ($start_job && $start_job->from->lte($mon)) {
                 $prac_completion = SitePlanner::where('site_id', $site->id)->where('task_id', 265)->first();
-                if ($prac_completion && $prac_completion->from->lte($week2ago))
-                    continue;
+
+                // Removed 17-4-25 (Fudge)
+                //if ($prac_completion && $prac_completion->from->lte($week2ago))
+                //    continue;
                 $site_data = [
                     'id' => $site->id,
                     'name' => $site->name,
