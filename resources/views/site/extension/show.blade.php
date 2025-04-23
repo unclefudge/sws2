@@ -69,7 +69,7 @@
                                     $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
                                     $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
 
-                                    $site = \App\Models\Site\Site::where('name', $row['name'])->first();
+                                    //$site = \App\Models\Site\Site::where('name', $row['name'])->first();
                                     $completion_bg = '';
                                     if ($completion_date && $complete_date_sub2month->lte($today))
                                         $completion_bg = "background:#FDD7B1";
@@ -78,11 +78,7 @@
                                     ?>
                                 @if (($supervisor_id == 0 || $supervisor_id == $row['super_id']))
                                     <tr>
-                                        <td id="sitename-{{$row['id']}}">{{ $row['name'] }}
-                                            @if ($site->completion_signed)
-                                                <br><span style="color:#FF0000">Prac Signed {!! $site->completion_signed->format('d/m/Y') !!}</span> {{$row['id']}}
-                                            @endif
-                                        </td>
+                                        <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>
                                         <td style="{{ $completion_bg }}">
                                             <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ $row['completion_date'] }}</span>
