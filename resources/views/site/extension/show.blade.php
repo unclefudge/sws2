@@ -80,7 +80,7 @@
                                     <tr>
                                         <td id="sitename-{{$row['id']}}">{{ $row['name'] }}
                                             @if ($site->completion_signed)
-                                                <br><span style="color:#FF0000">Prac Signed {!! $site->completion_signed->format('d/m/Y') !!}</span>
+                                                <br><span style="color:#FF0000">Prac Signed {!! $site->completion_signed->format('d/m/Y') !!}</span> {{$row['id']}}
                                             @endif
                                         </td>
                                         <td>{{ $row['super_initials'] }}</td>
