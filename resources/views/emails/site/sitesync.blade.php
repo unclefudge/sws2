@@ -13,6 +13,12 @@
 | **ID**  | {{ $site->id  }} |
 | **Site Name**  | {{ $site->name  }} |
 
+**Zoho Data**
+{!! var_dump($zoho) !!}
+
+
+**Difference
+{!! var_dump($diff) !!}
 @component('mail::button', ['url' => config('app.url').'/site/'.$site->id])
 View Site
 @endcomponent
