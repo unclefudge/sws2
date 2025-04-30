@@ -130,6 +130,7 @@ class SiteSyncController extends Controller
                 //
                 $old = [];
                 $new = [];
+                $debuglog = [];
                 foreach ($all_fields as $field) {
                     $zRaw = request($field);    // Zoho original paramater
                     $zDat = $zRaw;              // Zoho data in valid SWS format
@@ -163,7 +164,9 @@ class SiteSyncController extends Controller
                             $new[$field] = $zTxt;
                             $diffDat[$field] = $zDat;
                             $diffTxt[$field] = "$sTxt => $zTxt";
-                        }
+                            $debuglog[$field] = "* $sTxt => $zTxt";
+                        } else
+                            [$field] = "$sTxt == $zTxt";
                     }
                 }
 
@@ -181,7 +184,7 @@ class SiteSyncController extends Controller
 
                 $debug_email = true;
                 if ($debug_email) {
-                    Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $diffTxt));
+                    Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $debuglog));
                     //app('log')->debug("========= Zoho Import Debug ==========");
                     //app('log')->debug("Zoho Data");
                     //app('log')->debug($site_request);
