@@ -162,7 +162,7 @@ class SiteSyncController extends Controller
                         if ($sTxt != $zTxt) {
                             $old[$field] = $sTxt;
                             $new[$field] = $zTxt;
-                            $diffDat[$field] = $zDat;
+                            $diffDat[$field] = ($zDat) ? $zDat : null;
                             $diffTxt[$field] = "$sTxt => $zTxt";
                             $debuglog["*" . $field] = "$sTxt => $zTxt";
                         } else
