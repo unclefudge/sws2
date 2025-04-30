@@ -166,7 +166,7 @@ class SiteSyncController extends Controller
                             $diffTxt[$field] = "$sTxt => $zTxt";
                             $debuglog[$field] = "* $sTxt => $zTxt";
                         } else
-                            $debuglog[$field] = "$sTxt == $zTxt";
+                            $debuglog[$field] = "$sTxt";
                     }
                 }
 
@@ -182,7 +182,7 @@ class SiteSyncController extends Controller
                 // Debug Email
                 //
 
-                $debug_email = true;
+                $debug_email = false;
                 if ($debug_email) {
                     Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $debuglog));
                     //app('log')->debug("========= Zoho Import Debug ==========");
