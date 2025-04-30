@@ -14,13 +14,13 @@ Site: {{ $site->name  }}
 **Zoho Data**
 
 @foreach ($zoho as $key => $value)
-{{$key}}: {{$value}}
+{{$key}}: {{$value}}<br>
 @endforeach
 
 **Difference**
 
 @foreach ($diff as $key => $value)
-{{$key}}: {{$value}}
+{{$key}}: {{$value}}<br>
 @endforeach
 
 
