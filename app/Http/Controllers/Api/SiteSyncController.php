@@ -175,6 +175,16 @@ class SiteSyncController extends Controller
                 $fields_csv = rtrim($fields_csv, ',');
 
                 //
+                // Debug Email
+                //
+
+                $debug_email = true;
+                if ($debug_email) {
+                    Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $diffTxt));
+                }
+
+
+                //
                 // Update Site Record
                 //
                 if (count($diffDat) && $save_enabled) {
