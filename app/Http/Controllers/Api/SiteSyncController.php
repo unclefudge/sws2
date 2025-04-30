@@ -150,7 +150,7 @@ class SiteSyncController extends Controller
                             // Date fields - Convert to Y-m-d
                             $zDat = Carbon::parse($zRaw);
                             $sTxt = ($site->{$field}) ? $site->{$field}->format('Y-m-d') : '{empty}';
-                        } elseif (in_array($field, $yesno_fields)) {
+                        } elseif ($zRaw && in_array($field, $yesno_fields)) {
                             // Yes/No fields - Convert to binary 1/0
                             $zTxt = ucfirst(strtolower($zRaw));
                             $zDat = ($zTxt == 'Yes') ? 1 : 0;
@@ -182,7 +182,7 @@ class SiteSyncController extends Controller
                 // Debug Email
                 //
 
-                $debug_email = true;
+                $debug_email = false;
                 if ($debug_email) {
                     Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $debuglog));
                     //app('log')->debug("========= Zoho Import Debug ==========");
