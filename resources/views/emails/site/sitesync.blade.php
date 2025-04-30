@@ -8,7 +8,7 @@
 
 # Zoho Site Sync
 
-ID: {{ $site->id  }}
+ID: {{ $site->id  }}<br>
 Site: {{ $site->name  }}
 
 **Zoho Data**
