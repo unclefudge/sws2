@@ -1180,7 +1180,7 @@ class CronController extends Controller
                 // Removed 17-4-25 (Fudge)
                 //if ($prac_completion && $prac_completion->from->lte($week2ago))
                 //    continue;
-                if ($site->completion_signed)
+                if ($site->completion_signed || $site->client_occupation)
                     continue;
                 $site_data = [
                     'id' => $site->id,
