@@ -8,8 +8,8 @@
 
 # Zoho Site Sync
 
-ID: {{ $site->id  }
-Site:{{ $site->name  }}
+ID: {{ $site->id  }}
+Site: {{ $site->name  }}
 
 **Zoho Data**
 {!! var_dump($zoho) !!}
