@@ -118,7 +118,7 @@ class SiteSyncController extends Controller
                     'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                 $datefields = [
                     'council_approval', 'contract_sent', 'contract_signed', 'deposit_paid', 'completion_signed',
-                    'construction_rcvd', 'hbcf_start', 'forecast_completion'];
+                    'construction_rcvd', 'hbcf_start', 'forecast_completion', 'client_occupation'];
                 $yesno_fields = ['engineering'];
                 $exclude_update = ['completion_signed'];
                 $all_fields = array_merge($textfields, $datefields, $yesno_fields);

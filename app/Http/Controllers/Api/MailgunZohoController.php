@@ -15,6 +15,13 @@ use Mail;
 class MailgunZohoController extends Controller
 {
 
+    /*----------------------------------------------
+     *
+     * This API has been replace with SiteSyncController
+     * as using mail from Zoho became unreliable
+     *
+     * ---------------------------------------------
+     */
     public $debug = true;
     public $countSites = 0;
     public $siteDiffs = [];
