@@ -11,6 +11,7 @@ use App\Models\Site\Site;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Mail;
 
 class SiteSyncController extends Controller
 {
@@ -180,7 +181,7 @@ class SiteSyncController extends Controller
 
                 $debug_email = true;
                 if ($debug_email) {
-                    //Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $diffTxt));
+                    Mail::to(['fudge@jordan.net.au'])->send(new \App\Mail\Site\SiteSync($site, $site_request, $diffTxt));
                     app('log')->debug("========= Zoho Import Debug ==========");
                     app('log')->debug("Zoho Data");
                     app('log')->debug($site_request);
