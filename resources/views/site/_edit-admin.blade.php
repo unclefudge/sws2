@@ -263,6 +263,24 @@
                     </div>
                 </div>
             </div>
+
+            <hr class="field-hr">
+            {{-- Client Occupation--}}
+            <div class="row">
+                <div class="form-group {!! fieldHasError('client_occupation', $errors) !!}">
+                    {!! Form::label('client_occupation', 'Client Occupation:', ['class' => 'col-md-6 control-label font-yellow']) !!}
+                    <div class="col-md-6">
+                        <div class="input-group date date-picker">
+                            {!! Form::text('client_occupation', ($site->client_occupation) ? $site->client_occupation->format('d/m/Y') : '', ['class' => 'form-control form-control-inline',
+                            'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
+                            <span class="input-group-btn">
+                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+                        </span>
+                            {!! fieldErrorMessage('client_occupation', $errors) !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
             <hr class="field-hr">
         @endif
         {{-- After Care--}}
