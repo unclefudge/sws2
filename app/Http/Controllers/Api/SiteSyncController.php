@@ -112,7 +112,6 @@ class SiteSyncController extends Controller
                 //
                 // Fields types
                 //
-                //
                 $textfields = [
                     'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'osd', 'sw', 'gal', 'holidays_added',
                     'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
