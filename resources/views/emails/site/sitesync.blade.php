@@ -12,11 +12,13 @@ ID: {{ $site->id  }}
 Site: {{ $site->name  }}
 
 **Zoho Data**
+
 @foreach ($zoho as $key => $value)
 {{$key}}: {{$value}}
 @endforeach
 
 **Difference**
+
 @foreach ($diff as $key => $value)
 {{$key}}: {{$value}}
 @endforeach
