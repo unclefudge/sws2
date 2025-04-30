@@ -13,11 +13,6 @@
 | **ID**  | {{ $site->id  }} |
 | **Site Name**  | {{ $site->name  }} |
 
-
-
-
-
-
 @component('mail::button', ['url' => config('app.url').'/site/'.$site->id])
 View Site
 @endcomponent
