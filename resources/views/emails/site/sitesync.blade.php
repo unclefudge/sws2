@@ -14,11 +14,7 @@
 | **Site Name**  | {{ $site->name  }} |
 
 
-**Zoho Data**
-{!! var_dump($zoho) !!}
 
-**Difference**
-{!! var_dump($diff) !!}
 
 
 
