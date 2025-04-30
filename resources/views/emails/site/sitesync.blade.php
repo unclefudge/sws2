@@ -12,10 +12,15 @@ ID: {{ $site->id  }}
 Site: {{ $site->name  }}
 
 **Zoho Data**
-{!! var_dump($zoho) !!}
+@foreach ($zoho as $key => $value)
+    {{$key}}: {{$value}}
+@endforeach
 
-**Difference
-{!! var_dump($diff) !!}
+**Difference**
+@foreach ($diff as $key => $value)
+    {{$key}}: {{$value}}
+@endforeach
+
 
 @component('mail::button', ['url' => config('app.url').'/site/'.$site->id])
 View Site
