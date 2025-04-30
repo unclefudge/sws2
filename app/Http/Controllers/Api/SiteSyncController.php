@@ -137,7 +137,7 @@ class SiteSyncController extends Controller
                     $zTxt = ($zRaw) ? $zRaw : '{empty}';    // Zoho text used for comparisons
                     $sRaw = $site->{$field};                // SWS original data
 
-                    if (request()->has(field)) {
+                    if (request()->has($field)) {
                         if ($field == 'project_mgr') {
                             // Project Manager - Convert name into userid
                             $user = $cc->projectManagersMatch(request('project_mgr_name'));
