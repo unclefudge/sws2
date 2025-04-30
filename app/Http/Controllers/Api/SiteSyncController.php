@@ -164,7 +164,7 @@ class SiteSyncController extends Controller
                             $new[$field] = $zTxt;
                             $diffDat[$field] = $zDat;
                             $diffTxt[$field] = "$sTxt => $zTxt";
-                            $debuglog[$field] = "* $sTxt => $zTxt";
+                            $debuglog["*" . $field] = "$sTxt => $zTxt";
                         } else
                             $debuglog[$field] = "$sTxt";
                     }
