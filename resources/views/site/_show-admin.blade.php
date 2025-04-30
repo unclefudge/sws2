@@ -101,7 +101,7 @@
         <hr class="field-hr">
         <div class="row">
             <div class="col-md-6">Client Occupation:</div>
-            <div class="col-xs-6">{!! ($site->client_oocupation) ? $site->client_oocupation->format('d/m/Y') : '-' !!}</div>
+            <div class="col-xs-6">{!! ($site->client_occupation) ? $site->client_occupation->format('d/m/Y') : '-' !!}</div>
         </div>
         <hr class="field-hr">
         <div class="row">
