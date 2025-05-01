@@ -1589,11 +1589,58 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.trades') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
-        $to = Carbon::now();
-        $from = Carbon::now()->subDays(90);
+        $from = new Carbon('first day of last month');
+        $to = new Carbon('last day of last month');
+        
+        $dir = '/filebank/tmp/report/3';
+        // Create directory if required
+        if (!is_dir(public_path($dir)))
+            mkdir(public_path($dir), 0777, true);
+
+        $attendance_files = [];
+        $non_attendance = [];
+        // Active On-Site Companies
+        $activeCompanies = Company::where('status', 1)->where('parent_company', 3)->whereNot('name', 'like', 'Cc-%')->whereIn('category', [1, 2])->orderBy('name')->get();
+        foreach ($activeCompanies as $company) {
+            echo "$company->name<br>";
+            $user_ids = $company->staff->pluck('id')->toArray();
+            $attendance = SiteAttendance::whereIn('user_id', $user_ids)->whereDate('date', '>=', $from->format('Y-m-d'))->whereDate('date', '<=', $to->format('Y-m-d'))->orderBy('date')->get();
+
+            if ($attendance->count()) {
+                // Create a separate report for each company with attendance
+                $data = [];
+                foreach ($attendance as $attend) {
+                    $date = $attend->date->format('D M d, Y');
+                    $user = $attend->user;
+                    if (isset($data[$date]))
+                        $data[$date][$attend->site->name][$user->id] = $user->full_name;
+                    else
+                        $data[$date][$attend->site->name][$user->id] = $user->full_name;
+
+                }
+
+                $output_file = public_path($dir . '/' . sanitizeFilename($company->name) . ' Monthly Attendance.pdf');
+                touch($output_file);
+                $attendance_files[] = $output_file;
+                $pdf = PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->save($output_file);
+            } else {
+                // List those with non-attenance
+                $non_attendance[] = $company->name;
+            }
+        }
+
+        Mail::to($email_list)->send(new \App\Mail\Site\SiteTradesAttendance($attendance_files, $non_attendance));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
     }
 
 

@@ -789,6 +789,7 @@ Route::get('cron/email-jobstart', '\App\Http\Controllers\Misc\CronReportControll
 Route::get('cron/email-upcomingjob', '\App\Http\Controllers\Misc\CronReportController@emailUpcomingJobCompilance');
 Route::get('cron/email-fortnight', '\App\Http\Controllers\Misc\CronReportController@emailFortnightlyReports');
 Route::get('cron/email-supervisor-attendance', '\App\Http\Controllers\Misc\CronReportController@emailSupervisorAttendance');
+Route::get('cron/email-trades-attendance', '\App\Http\Controllers\Misc\CronReportController@emailTradesAttendance');
 Route::get('cron/email-scaffold', '\App\Http\Controllers\Misc\CronReportController@emailScaffoldOverdue');
 Route::get('cron/email-equipment-transfers', '\App\Http\Controllers\Misc\CronReportController@emailEquipmentTransfers');
 Route::get('cron/email-equipment-restock', '\App\Http\Controllers\Misc\CronReportController@emailEquipmentRestock');

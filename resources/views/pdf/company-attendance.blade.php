@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -44,46 +44,63 @@
             margin-bottom: -999px;
             padding-bottom: 999px;
         }
+
+        td.pad5, th.pad5 {
+            padding: 5px !important;
+            line-height: 1em !important;
+        }
     </style>
 </head>
 
 <body>
 <div class="container">
     <div class="page22">
-        <div class="row">
-            <div class="col-xs-8">
-                <h3 style="margin: 0px">{{ $company->name }}
-                </h3>{{ $company->address }}, {{  $company->suburb_state_postcode }}</div>
-            <div class="col-xs-4">
-                @if ($from)
-                    <h6>
-                        <b>Dates:</b> {{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}
-                    </h6>
-                @endif
-            </div>
-        </div>
+        <table class="table table-striped table-bordered table-hover order-column" id="table1" style="width:100%; padding: 0px; margin: 0px">
+            <tr>
+                <td class="pad5">
+                    <h2 style="margin: 0px">{{ $company->name }}</h2>
+                    {{ $company->address }}, {{  $company->suburb_state_postcode }}
+                </td>
+                <td style="width:20%; text-align: right"><h4><b>Dates:</b> {{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}</h4></td>
+            </tr>
+        </table>
         <hr style="margin: 5px 0px">
         <br>
-        <div class="row" style="border: 1px solid lightgrey; background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
-            <div class="col-xs-1">Date</div>
-            <div class="col-xs-3">Site</div>
-            <div class="col-xs-8">Attendance</div>
-        </div>
-        @foreach($data as $day => $site)
-            @foreach($site as $site_name => $data)
-                <div class="row" @if ($loop->last)style="border-bottom: 1px solid lightgrey;" @endif>
-                    <div class="col-xs-1">@if ($loop->first) {{ $day }} @endif</div>
-                    <div class="col-xs-3">{{ $site_name }}</div>
-                    <div class="col-xs-8">
-                        <?php $c = count($data); $x = 1;  ?>
-                        @foreach ($data as $user_id => $name)
-                            {{ $name }}@if ($x < $c), @endif
-                            <?php $x ++ ?>
-                        @endforeach
-                        <br>
-                    </div>
-                </div>
-            @endforeach
+        <table class="table table-bordered table-hover order-column" id="table1" style="width:100%; padding: 0px; margin: 0px">
+            <thead>
+            <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
+                <th style="width:10%" class="pad5">Date</th>
+                <th style="width:25%" class="pad5">Site</th>
+                <th class="pad5">Attendance</th>
+            </tr>
+            </thead>
+            @foreach($data as $day => $site)
+                @foreach($site as $site_name => $data)
+                    <tr>
+                        {{-- Date --}}
+                        <td>
+                            @if ($loop->first)
+                                {{ $day }}
+                            @endif
+                        </td>
+                        {{-- Site --}}
+                        <td>{{ $site_name }}</td>
+                        {{-- Attendance --}}
+                        <td>
+                                <?php $c = count($data); $x = 1; ?>
+                            @foreach ($data as $user_id => $name)
+                                {{ $name }}{!! ($x < $c) ? ', ' : '' !!}
+                                    <?php $x++ ?>
+                            @endforeach
+                            <br>
+                        </td>
+                    </tr>
+                    @if ($loop->last)
+                        <tr>
+                            <td colspan="3" style=" border-bottom: 1px solid lightgrey;"></td>
+                        </tr>
+        @endif
+        @endforeach
         @endforeach
     </div>
 </div>
