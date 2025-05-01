@@ -89,6 +89,10 @@ class CronReportController extends Controller
             CronReportController::emailOutstandingAftercare();
         }
 
+        // Monthly Reports
+        if (Carbon::today()->format('d') == '01') {
+            CronReportController::emailTradesAttendance();
+        }
         // Quarterly Reports 1th of month
         $quarterly_months = ['03', '06', '09', '12'];
         if (Carbon::today()->format('d') == '01' && in_array(Carbon::today()->format('m'), $quarterly_months)) {
@@ -1563,6 +1567,33 @@ class CronReportController extends Controller
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    }
+
+    //
+    // Monthly
+    //
+    // emailTradesAttendance
+    //
+
+    /*
+    *  Email Trades Attebndance Report
+    */
+    static public function emailTradesAttendance()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Trades Attendance Report";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
+        $to = Carbon::now();
+        $from = Carbon::now()->subDays(90);
     }
 
 
