@@ -138,6 +138,13 @@
                                 <tr>
                                     <td><a href="/manage/report/maintenance_executive">Executive Summary</a></td>
                                 </tr>
+                                {{-- Prac Completion --}}
+                                <tr style="background-color: #f0f6fa">
+                                    <th> Practical Completion</th>
+                                </tr>
+                                <tr>
+                                    <td><a href="/manage/report/prac_completion_no_action">No Action 14 days</a></td>
+                                </tr>
 
                                 {{-- Inspection Reports --}}
                                 <tr style="background-color: #f0f6fa">

@@ -11,6 +11,7 @@ use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\SiteMaintenanceItem;
+use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SiteQa;
 use App\User;
 use Carbon\Carbon;
@@ -585,6 +586,30 @@ class ReportController extends Controller
 
         return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'categories', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
 
+    }
+
+
+    /****************************************************
+     * Practical Completion
+     ***************************************************/
+
+    public function pracCompletionNoAction()
+    {
+        $today = Carbon::now();
+        $pracs = SitePracCompletion::where('status', 1)->orderBy('created_at')->get();
+
+        // Supervisors list
+        $supers = [];
+        foreach ($pracs as $prac) {
+            if ($prac->super_id) {
+                if (!isset($supers[$prac->super_id]))
+                    $supers[$prac->super_id] = $prac->supervisor->fullname;
+            } else
+                $supers[0] = 'Unassigned';
+        }
+        asort($supers);
+
+        return PDF::loadView('pdf/site/prac-completion-noaction', compact('pracs', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
     }
 
     /****************************************************

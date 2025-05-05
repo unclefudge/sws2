@@ -60,9 +60,9 @@
             </div>
             <hr style="margin: 5px 0px">
             <h4>{{$super_name}}</h4>
-            <h6>No Appointment</h6>
+            <h5>No Appointment</h5>
             {{-- Add table header for 1st record found --}}
-            <table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">
+            <table class="table table-striped table-bordered table-hover order-column" id="table1" style="width:100%; padding: 0px; margin: 0px">
                 <thead>
                 <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
                     <th width="5%" class="pad5">#</th>
@@ -79,7 +79,7 @@
                 @foreach ($mains as $main)
                     @if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0'))
                         @if (!$main->client_appointment)
-                                <?php $row_count ++; $super_count ++; ?>
+                                <?php $row_count++; $super_count++; ?>
                             <tr>
                                 <td class="pad5">M{{ $main->code }}</td>
                                 <td class="pad5">{{ $main->created_at->format('d/m/Y') }}</td>
@@ -102,8 +102,8 @@
                 </tbody>
             </table>
 
-            <h6>No Actions in last 14 days</h6>
-            <table class="table table-striped table-bordered table-hover order-column" id="table1" style="padding: 0px; margin: 0px">
+            <h5>No Actions in last 14 days</h5>
+            <table class="table table-striped table-bordered table-hover order-column" id="table1" style="width:100%; padding: 0px; margin: 0px">
                 <thead>
                 <tr style="background-color: #F6F6F6; font-weight: bold; overflow: hidden;">
                     <th width="5%" class="pad5">#</th>
@@ -121,13 +121,13 @@
                 @foreach ($mains as $main)
                     @if ($main->super_id == $super_id || ($main->super_id == null && $super_id == '0'))
                             <?php
-                                // Exclude requests that have a task planned 1 week prior or after today
+                            // Exclude requests that have a task planned 1 week prior or after today
                             $recentTask = ($main->site->jobRecentTask && $main->site->jobRecentTask->gt(\Carbon\Carbon::now()->subDays(7))) ? $main->site->jobRecentTask->format('d/m/Y') : null;
                             $nextTask = ($main->site->jobNextTask && $main->site->jobNextTask->lt(\Carbon\Carbon::now()->addDays(7))) ? $main->site->jobNextTask->format('d/m/Y') : null;
                             $futureTasks = ($main->site->futureTasks()->count()) ? true : false;
                             ?>
                         @if ($main->lastUpdated()->lt(\Carbon\Carbon::now()->subDays(14)) && !($recentTask || $nextTask || $futureTasks))
-                                <?php $row_count ++; $super_count ++; ?>
+                                <?php $row_count++; $super_count++; ?>
                             <tr>
                                 <td class="pad5">M{{ $main->code }}</td>
                                 <td class="pad5">{{ $main->created_at->format('d/m/Y') }}</td>
