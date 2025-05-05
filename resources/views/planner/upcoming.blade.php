@@ -68,9 +68,9 @@
                                 <tr>
                                     <td>
                                         @if (Auth::user()->hasPermission2('edit.preconstruction.planner'))
-                                            <a onclick="go2preconstruction({{ $site_id }})">{{ $site->name }}</a>
+                                            <a onclick="go2preconstruction({{ $site_id }})">{{ $site->name }}</a> {{$site->id}}
                                         @else
-                                            {{ $site->name }}
+                                            {{ $site->name }} {{$site->id}}
                                         @endif
                                     </td>
                                     <td>

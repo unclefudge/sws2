@@ -802,6 +802,7 @@ Route::get('cron/email-maintenance-appointment', '\App\Http\Controllers\Misc\Cro
 Route::get('cron/email-maintenance-under-review', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceUnderReview');
 Route::get('cron/email-maintenance-supervisor-noaction', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceSupervisorNoAction');
 Route::get('cron/email-maintenance-onhold', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceOnHold');
+Route::get('cron/email-prac-completion-supervisor-noaction', '\App\Http\Controllers\Misc\CronReportController@emailPracCompletionSupervisorNoAction');
 Route::get('cron/email-outstanding-privacy', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingPrivacy');
 Route::get('cron/email-oldusers', '\App\Http\Controllers\Misc\CronReportController@emailOldUsers');
 Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfo');

@@ -17,6 +17,7 @@ use App\Models\Site\SiteInspectionElectrical;
 use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
+use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteUpcomingSettings;
@@ -57,6 +58,7 @@ class CronReportController extends Controller
         if (Carbon::today()->isTuesday()) {
             CronReportController::emailUpcomingJobCompilance();
             CronReportController::emailMaintenanceSupervisorNoAction();
+            CronReportController::emailPracCompletionSupervisorNoAction();
         }
         if (Carbon::today()->isWednesday()) {
             //CronReportController::emailMaintenanceOnHold();
@@ -911,6 +913,7 @@ class CronReportController extends Controller
      *
      * CronReportController::emailUpcomingJobCompilance();
      * CronReportController::emailMaintenanceSupervisorNoAction();
+     * CronReportController::emailPracCompletionSupervisorNoAction();
      *
      * First Tuesday of the Month
      * CronReportController::emailOldUsers();
@@ -1132,13 +1135,13 @@ class CronReportController extends Controller
             //
             if ($found_request) {
                 $email_to = [env('EMAIL_DEV')];
-                $email_cc = '';
+                $email_cc = [];
                 if (\App::environment('prod')) {
                     if ($super && validEmail($super->email)) {
                         $email_to = [$super->email];
-                        $email_cc = ['kirstie@capecod.com.au'];
+                        $email_cc = $email_list; //['kirstie@capecod.com.au'];
                     } else
-                        $email_to = ['kirstie@capecod.com.au'];
+                        $email_to = $email_list; //['kirstie@capecod.com.au'];
                 }
                 CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
                 if ($email_to && $email_cc)
@@ -1166,6 +1169,115 @@ class CronReportController extends Controller
         //$pdf->save($file);
 
         //Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceSupervisorNoActionReport($file, $mains));
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    * EmailPracCompletion Supervisor No Action
+    */
+    static public function emailPracCompletionSupervisorNoAction()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Pratical Completion No Action";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+        $pracs = SitePracCompletion::where('status', 1)->orderBy('created_at')->get();
+        $today = Carbon::now();
+
+        // Supervisors list
+        $supers = [];
+        foreach ($pracs as $prac) {
+            if ($prac->super_id) {
+                if (!isset($supers[$prac->super_id]))
+                    $supers[$prac->super_id] = $prac->supervisor->fullname;
+            } else
+                $supers[0] = 'Unassigned';
+        }
+        asort($supers);
+
+        foreach ($supers as $super_id => $super_name) {
+            $body = '';
+            $found_request = false;
+            $super = ($super_id) ? User::find($super_id) : null;
+
+            $body .= "$super_name<br><br>";
+
+            //
+            // No Action 14 Days
+            //
+            $body .= "<table style='width:100%; border: 1px solid; border-collapse: collapse'>";
+            $body .= "<thead>";
+            $body .= "<tr style='background-color: #F6F6F6; font-weight: bold; border: 1px solid; padding: 3px'>";
+            $body .= "<th style='width:80px; border: 1px solid'>Created</th>";
+            $body .= "<th style='width:250px; border: 1px solid'>Site</th>";
+            $body .= "<th style='width:500px; border: 1px solid'>Assigned Company</th>";
+            $body .= "<th style='width:80px;border: 1px solid'>Updated</th>";
+            $body .= "</tr>";
+            $body .= "</thead>";
+            $body .= "<tbody>";
+            $super_count = 0;
+
+            foreach ($pracs as $prac) {
+                if ($prac->super_id == $super_id || ($prac->super_id == null && $super_id == '0')) {
+                    // Only include Pracs not Updated or No new Notes within 14days
+                    $days14 = Carbon::now()->subDays(14);
+                    if ($prac->lastUpdated()->lt($days14)) {
+                        $super_count++;
+                        $found_request = true;
+
+                        $body .= "<tr>";
+                        $body .= "<td style='border: 1px solid'>" . $prac->created_at->format('d/m/Y') . "</td>";
+                        $body .= "<td style='border: 1px solid'>" . $prac->site->name . "</td>";
+                        $body .= "<td style='border: 1px solid'>" . $prac->assignedToNames() . "</td>";
+                        $body .= "<td style='border: 1px solid;'>" . $prac->lastUpdated()->format('d/m/Y') . "</td>";
+                        $body .= "</tr>";
+                    }
+                }
+            }
+            if ($super_count == 0)
+                $body .= "<tr><td colspan = '7'> No Practical Completions found matching required criteria </td></tr>";
+
+            $body .= "</tbody></table>";
+
+            echo "No Actions 14 days: $super_count<br>";
+            $log .= "No Actions 14 days: $super_count\n";
+
+            //
+            // Send email to Supervisors
+            //
+            if ($found_request) {
+                $email_to = [env('EMAIL_DEV')];
+                $email_cc = [];
+                if (\App::environment('prod')) {
+                    if ($super && validEmail($super->email)) {
+                        $email_to = [$super->email];
+                        $email_cc = ['kirstie@capecod.com.au', "ross@capecod.com.au", "damian@capecod.com.au"];
+                    } else
+                        $email_to = ['kirstie@capecod.com.au', "ross@capecod.com.au", "damian@capecod.com.au"];
+                }
+
+                if ($email_to && $email_cc)
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SitePracCompletionSupervisorNoActionReport($body));
+                elseif ($email_to)
+                    Mail::to($email_to)->send(new \App\Mail\Site\SitePracCompletionSupervisorNoActionReport($body));
+
+                $emails = implode("; ", array_merge($email_to, $email_cc));
+                echo "Sending email to: $emails<br>";
+                $log .= "Sending email to: $emails";
+            }
+        }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -1594,7 +1706,7 @@ class CronReportController extends Controller
 
         $from = new Carbon('first day of last month');
         $to = new Carbon('last day of last month');
-        
+
         $dir = '/filebank/tmp/report/3';
         // Create directory if required
         if (!is_dir(public_path($dir)))
