@@ -31,7 +31,7 @@
                     </div>
                     <div class="portlet-body">
                         <h3>Week of {{ $extension->date->format('d/m/Y') }}
-                            @if (in_array(Auth::user()->id, [3, 108, 325, 1359]))
+                            @if (in_array(Auth::user()->id, [3, 108, 325, 1359]) || Auth::user()->permissionLevel('view.site.extension', 3) == 99)
                                 {{-- Fudge, Kirstie, Michelle, Courtney --}}
                                 <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
                             @endif

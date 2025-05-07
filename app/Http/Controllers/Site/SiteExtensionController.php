@@ -40,7 +40,7 @@ class SiteExtensionController extends Controller
 
         // Set Supervisor ID for known supervisors to limit sites to their own
         $super_id = 0;
-        if (Auth::user()->isSupervisor() && Auth::user()->company_id == 3)
+        if (Auth::user()->isSupervisor() && Auth::user()->company_id == 3 && Auth::user()->permissionLevel('view.site.extension', 3) != 99)
             $super_id = Auth::user()->id;
 
         $extension = SiteExtension::where('status', 1)->latest()->first();
