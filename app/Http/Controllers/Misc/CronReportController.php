@@ -1707,7 +1707,7 @@ class CronReportController extends Controller
         $from = new Carbon('first day of last month');
         $to = new Carbon('last day of last month');
 
-        $dir = '/filebank/tmp/report/3';
+        $dir = '/filebank/tmp/report';
         // Create directory if required
         if (!is_dir(public_path($dir)))
             mkdir(public_path($dir), 0777, true);
