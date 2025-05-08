@@ -76,14 +76,15 @@ class EquipmentStocktakeController extends Controller
             $location = EquipmentLocation::find($id);
 
         // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('edit.equipment.stocktake', $location) && in_array($tab, ['general', 'materials', 'scaffold', 'history'])))
+        if (!(Auth::user()->allowed2('edit.equipment.stocktake', $location) && in_array($tab, ['general', 'materials', 'scaffold', 'bulkhardware', 'history'])))
             return view('errors/404');
 
         // Determine Equipment IDs for each category
-        $cat1_ids = Equipment::where('category_id', 1)->pluck('id')->toArray();
-        $cat2_ids = Equipment::where('category_id', 2)->pluck('id')->toArray();
+        $cat1_ids = Equipment::where('category_id', 1)->pluck('id')->toArray(); // General
+        $cat2_ids = Equipment::where('category_id', 2)->pluck('id')->toArray(); // Scaffold
         $cats = EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
-        $cat3_ids = Equipment::whereIn('category_id', $cats)->pluck('id')->toArray();
+        $cat3_ids = Equipment::whereIn('category_id', $cats)->pluck('id')->toArray(); // Materials
+        $cat19_ids = Equipment::where('category_id', 19)->pluck('id')->toArray();   // Bulk Hardware
 
         $category = 0;
         $equip_ids = [];
@@ -99,13 +100,17 @@ class EquipmentStocktakeController extends Controller
             $category = 3;
             $equip_ids = $cat3_ids;
         }
+        if ($tab == 'bulkhardware') {
+            $category = 19;
+            $equip_ids = $cat19_ids;
+        }
 
         $sites = $this->getSites();
         $others = $this->getOthers();
 
 
         $items = [];
-        $items_count = [1 => 0, 2 => 0, 3 => 0];
+        $items_count = [1 => 0, 2 => 0, 3 => 0, 19 => 0];
         if ($location) {
             // Get items then filter out 'deleted'
             $all_items = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $equip_ids)->get();
@@ -117,6 +122,7 @@ class EquipmentStocktakeController extends Controller
             $items_count[1] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat1_ids)->get()->count();
             $items_count[2] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat2_ids)->get()->count();
             $items_count[3] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat3_ids)->get()->count();
+            $items_count[19] = EquipmentLocationItem::where('location_id', $location->id)->whereIn('equipment_id', $cat19_ids)->get()->count();
         }
 
         if ($items) {

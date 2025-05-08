@@ -77,6 +77,11 @@
                                             @else
                                                 <li><a href="/equipment/stocktake/{{ $location->id }}/edit/scaffold"> Scaffold ({{  $items_count[2] }})</a></li>
                                             @endif
+                                            @if ($category == 19)
+                                                <li class="active"><a href="#"> Bulk Hardware ({{  $items_count[2] }})</a></li>
+                                            @else
+                                                <li><a href="/equipment/stocktake/{{ $location->id }}/edit/bulkhardware"> Bulk Hardware ({{  $items_count[19] }})</a></li>
+                                            @endif
                                         </ul>
                                     </div>
                                     <br>
@@ -166,16 +171,19 @@
                                                     $gen_cats = [1];
                                                     $sca_cats = [2];
                                                     $mat_cats = \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 3)->pluck('id')->toArray();
+                                                    $bul_cats = [19];
                                                     if ($items) {
                                                         //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
                                                         $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
                                                         $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
                                                         $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
+                                                        $equipment_bul = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $bul_cats)->whereNotIn('id', $items->pluck('equipment_id')->toArray())->get();
                                                     } else {
                                                         //$equipment_list = \App\Models\Misc\Equipment\Equipment::where('status', 1)->get();
                                                         $equipment_gen = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $gen_cats)->get();
                                                         $equipment_sca = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $sca_cats)->get();
                                                         $equipment_mat = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $mat_cats)->get();
+                                                        $equipment_bul = \App\Models\Misc\Equipment\Equipment::where('status', 1)->whereIn('category_id', $bul_cats)->get();
                                                     }
 
                                                     ?>
@@ -200,6 +208,12 @@
                                                                     @if ($equipment_sca->count())
                                                                         <optgroup label="Scaffold"></optgroup>
                                                                         @foreach ($equipment_sca as $item)
+                                                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                    @if ($equipment_bul->count())
+                                                                        <optgroup label="Bulk Hardware"></optgroup>
+                                                                        @foreach ($equipment_bul as $item)
                                                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                                         @endforeach
                                                                     @endif
