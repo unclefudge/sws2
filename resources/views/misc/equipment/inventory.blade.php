@@ -6,11 +6,11 @@
         <li><a href="/equipment">Equipment Allocation</a><i class="fa fa-circle"></i></li>
         <li><span>Inventory</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -31,7 +31,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             {{-- {!! Form::select('category_id', \App\Models\Misc\Equipment\EquipmentCategory::where('parent', 0)->orderBy('name')->pluck('name', 'id')->toArray(), 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!} --}}
-                            {!! Form::select('category_id', ['1' => 'General', '3' => 'Materials', '19' => 'Materials (Bulk Hardware)', '2' => 'Scaffold'], 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
+                            {!! Form::select('category_id', ['1' => 'General', '3' => 'Materials', '19' => 'Bulk Hardware', '2' => 'Scaffold'], 1, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
                         </div>
 
                     </div>
@@ -74,98 +74,100 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
 
-    var status = $('#status').val();
+        var status = $('#status').val();
 
-    var table_list = $('#table_list').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('equipment/dt/inventory') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.category_id = $('#category_id').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'catname', name: 'equipment_categories.name'}, // 1
-            {data: 'name', name: 'name'},     // 2
-            {data: 'length', name: 'length'}, // 3
-            {data: 'total', name: 'total'},   // 4
-            {data: 'min_stock', name: 'min_stock'},   // 5
-            {data: 'purchased_last', name: 'purchased_last', searchable: false},   // 6
-            {data: 'lost', name: 'lost'},     // 7
-            {data: 'purchased', name: 'purchased'},  // 8
-            {data: 'disposed', name: 'disposed'}, // 9
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"], [2, "asc"]
-        ]
-    });
+        var table_list = $('#table_list').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('equipment/dt/inventory') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.category_id = $('#category_id').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'catname', name: 'equipment_categories.name'}, // 1
+                {data: 'name', name: 'name'},     // 2
+                {data: 'length', name: 'length'}, // 3
+                {data: 'total', name: 'total'},   // 4
+                {data: 'min_stock', name: 'min_stock'},   // 5
+                {data: 'purchased_last', name: 'purchased_last', searchable: false},   // 6
+                {data: 'lost', name: 'lost'},     // 7
+                {data: 'purchased', name: 'purchased'},  // 8
+                {data: 'disposed', name: 'disposed'}, // 9
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"], [2, "asc"]
+            ]
+        });
 
-    updateCols();
-
-    function updateCols() {
-        if ($("#category_id").val() == 3) { // Materials
-            table_list.column(1).visible(true);  // Category
-            table_list.column(3).visible(true);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(false);  // Min Req
-            table_list.column(6).visible(false);  // Last Ordered
-            table_list.column(7).visible(false);  // Missing
-            table_list.column(8).visible(false);  // Purchased
-            table_list.column(9).visible(false);  // Disposed
-        } else if ($("#category_id").val() == 19) { // Bulk Hardware
-            table_list.column(1).visible(false);  // Category
-            table_list.column(3).visible(true);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(true);  // Min Req
-            table_list.column(6).visible(true);  // Last Ordered
-            table_list.column(7).visible(false);  // Missing
-            table_list.column(8).visible(false);  // Purchased
-            table_list.column(9).visible(false);  // Disposed
-        } else {
-            table_list.column(1).visible(false);  // Category
-            table_list.column(3).visible(false);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(false);  // Min Req
-            table_list.column(6).visible(false);  // Last Ordered
-            table_list.column(7).visible(true);  // Missing
-            table_list.column(8).visible(true);  // Purchased
-            table_list.column(9).visible(true);  // Disposed
-        }
-        table_list.ajax.reload();
-    }
-
-    function updateCols2() {
-        if ($("#category_id").val() == 3) {
-            table_list.column(3).visible(true);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(false);  // Missing
-            table_list.column(6).visible(false);  // Purchased
-            table_list.column(7).visible(false);  // Disposed
-        } else if ($("#category_id").val() == 35) {
-            table_list.column(3).visible(true);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(false);  // Missing
-            table_list.column(6).visible(false);  // Purchased
-            table_list.column(7).visible(false);  // Disposed
-        } else {
-            table_list.column(3).visible(false);  // Length
-            table_list.column(4).visible(true);  // Available
-            table_list.column(5).visible(true);  // Missing
-            table_list.column(6).visible(true);  // Purchased
-            table_list.column(7).visible(true);  // Disposed
-        }
-        table_list.ajax.reload();
-    }
-    $('select#category_id').change(function () {
         updateCols();
-    });
-</script>
+
+        function updateCols() {
+            if ($("#category_id").val() == 3) { // Materials
+                table_list.column(1).visible(true);  // Category
+                table_list.column(3).visible(true);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(false);  // Min Req
+                table_list.column(6).visible(false);  // Last Ordered
+                table_list.column(7).visible(false);  // Missing
+                table_list.column(8).visible(false);  // Purchased
+                table_list.column(9).visible(false);  // Disposed
+            } else if ($("#category_id").val() == 19) { // Bulk Hardware
+                table_list.column(1).visible(false);  // Category
+                table_list.column(3).visible(true);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(true);  // Min Req
+                table_list.column(6).visible(true);  // Last Ordered
+                table_list.column(7).visible(false);  // Missing
+                table_list.column(8).visible(false);  // Purchased
+                table_list.column(9).visible(false);  // Disposed
+            } else {
+                table_list.column(1).visible(false);  // Category
+                table_list.column(3).visible(false);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(false);  // Min Req
+                table_list.column(6).visible(false);  // Last Ordered
+                table_list.column(7).visible(true);  // Missing
+                table_list.column(8).visible(true);  // Purchased
+                table_list.column(9).visible(true);  // Disposed
+            }
+            table_list.ajax.reload();
+        }
+
+        function updateCols2() {
+            if ($("#category_id").val() == 3) {
+                table_list.column(3).visible(true);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(false);  // Missing
+                table_list.column(6).visible(false);  // Purchased
+                table_list.column(7).visible(false);  // Disposed
+            } else if ($("#category_id").val() == 35) {
+                table_list.column(3).visible(true);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(false);  // Missing
+                table_list.column(6).visible(false);  // Purchased
+                table_list.column(7).visible(false);  // Disposed
+            } else {
+                table_list.column(3).visible(false);  // Length
+                table_list.column(4).visible(true);  // Available
+                table_list.column(5).visible(true);  // Missing
+                table_list.column(6).visible(true);  // Purchased
+                table_list.column(7).visible(true);  // Disposed
+            }
+            table_list.ajax.reload();
+        }
+
+        $('select#category_id').change(function () {
+            updateCols();
+        });
+    </script>
 @stop
