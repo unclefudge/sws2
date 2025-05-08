@@ -68,11 +68,14 @@ class ReportController extends Controller
                 if (filesize(public_path("$dir/$file")) > 0)
                     $processed = true;
 
-                $date = Carbon::createFromFormat('YmdHis', substr($file, -18, 4) . substr($file, -14, 2) . substr($file, -12, 2) . substr($file, -10, 2) . substr($file, -8, 2) . substr($file, -6, 2));
                 $deleted = false;
-                if ($date->lt(Carbon::today()->subDays(10))) {
-                    unlink(public_path("$dir/$file"));
-                    $deleted = true;
+                $date_string = substr($file, -18, 4) . substr($file, -14, 2) . substr($file, -12, 2) . substr($file, -10, 2) . substr($file, -8, 2) . substr($file, -6, 2);
+                if (is_numeric($date_string) && strlen($date_string) == 14) {
+                    $date = Carbon::createFromFormat('YmdHis', $date_string);
+                    if ($date->lt(Carbon::today()->subDays(10))) {
+                        unlink(public_path("$dir/$file"));
+                        $deleted = true;
+                    }
                 }
 
                 if (!$deleted)
