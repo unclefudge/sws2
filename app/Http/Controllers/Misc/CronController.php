@@ -1003,11 +1003,20 @@ class CronController extends Controller
         $keytasks = [
             4 => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
             7 => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
-            265 => 'is now ready to review Prac Completion', // Prac Completion (Prac)
-            437 => 'is now ready to inspect and review Scaffold Down']; // Scaffold Down (SD) Roofer
+            117 => 'is now ready to inspect and review Scaffold Down', // Dismantle Scaffold (D) Scaffold
+            265 => 'has now reached Practical Completion' // Prac Completion (Prac)
+        ];
+
+        $keytasksBody = [
+            265 => 'Please follow up the Supervisor to complete the required Project Completion Docs for this project now'
+        ];
+
+        // lock up
+        //Subject: Site Name-has now reached Lock up stage
+        //Body Text: Please follow up the Supervisor to complete the details available for the Project Completion Docs for this project now
 
         // Special tasks emails
-        $special_tasks = [265, 437]; // Prac Complete, Scaffold Down
+        $special_tasks = [117, 265]; // Dismantle Scaffold, Prac Complete
         $special_email_list = ["michelle@capecod.com.au", "damian@capecod.com.au"];
         $special_email_list_cc = ["kirstie@capecod.com.au", "ross@capecod.com.au", 'fudge@jordan.net.au'];
         $special_emails = implode("; ", $special_email_list + $special_email_list_cc);
@@ -1024,15 +1033,19 @@ class CronController extends Controller
 
             foreach ($tasks as $task) {
                 if ($task->site->status == 1) {
-                    $mesg = 'Site ' . $task->site->name . ' ' . $subject;
+                    // Email body
+                    if (array_key_exists($task_id, $keytasksBody))
+                        $mesg = $task->site->name . ' ' . $keytasksBody[$task_id];
+                    else
+                        $mesg = $task->site->name . ' ' . $subject;
                     echo "&nbsp; * $mesg<br>";
                     $log .= " * $mesg\n";
                     CronController::debugEmail('EL', $email_list);
                     if ($email_list && !in_array($task_id, $special_tasks))
-                        Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+                        Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $subject, $mesg));
                     // Special tasks
                     if ($special_email_list && in_array($task_id, $special_tasks))
-                        Mail::to($special_email_list)->cc($special_email_list_cc)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $mesg));
+                        Mail::to($special_email_list)->cc($special_email_list_cc)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $subject, $mesg));
                 }
             }
         }

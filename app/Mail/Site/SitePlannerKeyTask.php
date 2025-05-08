@@ -4,24 +4,26 @@ namespace App\Mail\Site;
 
 use App\Models\Site\Planner\SitePlanner;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SitePlannerKeyTask extends Mailable implements ShouldQueue {
+class SitePlannerKeyTask extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
-    public $task, $mesg;
+    public $task, $subject, $mesg;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SitePlanner $task, $mesg)
+    public function __construct(SitePlanner $task, $subject, $mesg)
     {
         $this->task = $task;
+        $this->subject = $subject;
         $this->mesg = $mesg;
     }
 
@@ -32,6 +34,6 @@ class SitePlannerKeyTask extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        return $this->markdown('emails/site/planner-key-task')->subject($this->mesg);
+        return $this->markdown('emails/site/planner-key-task')->subject($this->subject);
     }
 }
