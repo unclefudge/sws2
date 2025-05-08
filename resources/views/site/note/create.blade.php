@@ -250,6 +250,35 @@
                                 </div>
                             </div>
 
+                            {{-- Early Occupation Fields --}}
+                            <div id="occupation_fields" style="display: none">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('occupation_date', $errors) !!}">
+                                            <label for="occupation_date" class="control-label"> Date of Occupancy
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date client took occupancy"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            <div class="input-group date date-picker">
+                                                {!! Form::text('occupation_date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
+                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
+                                            </div>
+                                            {!! fieldErrorMessage('occupation_date', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group {!! fieldHasError('occupation_area', $errors) !!}">
+                                            {!! Form::label('occupation_area', 'Areas Client has taken Occupation of', ['class' => 'control-label']) !!}
+                                            {!! Form::textarea('occupation_area', null, ['rows' => '5', 'class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('occupation_area', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {{-- Response Required --}}
                             <div id="response_req_field" style="display: none">
                                 <div class="row">
@@ -278,7 +307,7 @@
                             {{-- Attachments --}}
                             <div class="row">
                                 <div class="col-md-6">
-                                    <h5>Upload Attachments</h5>
+                                    <h5 id="uploads_label">Upload Attachments</h5>
                                     <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                                 </div>
                             </div>
@@ -345,10 +374,12 @@
                 $("#costing_fields").hide();
                 $("#response_req_field").hide();
                 $("#prac_completion_fields").hide();
+                $("#occupation_fields").hide();
                 $("#siteall_div").hide();
                 $("#extracredit_div").show();
                 $("#savenote").show();
                 $("#notes_label").html('Note (Admin use only)');
+                $("#uploads_label").html('Upload Attachments');
 
                 // Approved Site Variation, For Issue to Client Site Variations, TBA Site Variation, Wet Calls
                 if (cat_id == '16' || cat_id == '19' || cat_id == '20' || cat_id == '93') {
@@ -381,6 +412,12 @@
                     $("#site_div").show();
                 }
 
+
+                // Early Occupation
+                if (cat_id == '94') {
+                    $("#occupation_fields").show();
+                    $("#uploads_label").html('Upload Pre Occupation Photos (timestamped images are required)');
+                }
 
                 // Allowance, Plan & Details, Compliance
                 var response_req_cats = ['12', '13', '14']

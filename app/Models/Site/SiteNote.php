@@ -15,8 +15,9 @@ class SiteNote extends Model
 
     protected $table = 'site_notes';
     protected $fillable = ['site_id', 'category_id', 'price', 'variation_name', 'variation_info', 'variation_net', 'variation_cost', 'variation_days', 'response_req',
-        'costing_location', 'costing_room', 'costing_item', 'costing_extra_credit', 'costing_priority', 'prac_notified', 'prac_meeting', 'parent', 'status', 'notes', 'created_by', 'updated_by'];
-    protected $casts = ['prac_notified' => 'datetime', 'prac_meeting' => 'datetime'];
+        'costing_location', 'costing_room', 'costing_item', 'costing_extra_credit', 'costing_priority', 'prac_notified', 'prac_meeting',
+        'occupation_date', 'occupation_area', 'parent', 'status', 'notes', 'created_by', 'updated_by'];
+    protected $casts = ['prac_notified' => 'datetime', 'prac_meeting' => 'datetime', 'occupation_date' => 'datetime'];
 
 
     /**

@@ -165,6 +165,10 @@ class SiteNoteController extends Controller
         if (request('category_id') == 89)
             $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required'];
 
+        // Early Occupation
+        if (request('category_id') == 94)
+            $rules = $rules + ['occupation_date' => 'required', 'occupation_area' => 'required'];
+
         // Variations
         elseif (in_array(request('category_id'), [16, 19, 93])) { // Approved / For Issue to Client
             $rules = $rules + [
@@ -195,6 +199,7 @@ class SiteNoteController extends Controller
 
         $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
         $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
+        $note_request['occupation_date'] = (request('occupation_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('occupation_date') . '00:00')->toDateTimeString() : null;
 
         // Wet call - update site_id
         if (request('category_id') == 93)

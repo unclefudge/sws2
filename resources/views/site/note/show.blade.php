@@ -185,6 +185,29 @@
                                 </div>
                             @endif
 
+                            {{-- Early Occupation Fields --}}
+                            @if (in_array($note->category_id, ['94']))
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group {!! fieldHasError('occupation_date', $errors) !!}">
+                                            <label for="occupation_date" class="control-label"> Date of Occupancy
+                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                   data-content="Date client took occupancy"> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                </a>
+                                            </label>
+                                            {!! Form::text('occupation_date', ($note->occupation_date) ? $note->occupation_date->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        {!! Form::label('occupation_area', 'Areas Client has taken Occupation of', ['class' => 'control-label']) !!}
+                                        {!! Form::textarea('occupation_area', $note->occupation_area, ['class' => 'form-control', 'readonly']) !!}
+                                        <br><br>
+                                    </div>
+                                </div>
+                            @endif
+
                             {{-- Response Required --}}
                             @if (in_array($note->category_id, ['12, 13, 14']))
                                 <div class="row">
