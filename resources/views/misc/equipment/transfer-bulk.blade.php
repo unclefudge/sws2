@@ -38,13 +38,17 @@
                                                         <option value='store'>Store</option>
                                                         <option value='site'>Site</option>
                                                         @if ($supers)
-                                                            <option value='super'>Supervisor</option>@endif
+                                                            <option value='super'>Supervisor</option>
+                                                        @endif
                                                         @if ($users)
-                                                            <option value='user'>Onsite User</option>@endif
+                                                            <option value='user'>Onsite User</option>
+                                                        @endif
                                                         @if ($others)
-                                                            <option value='other'>Other location</option>@endif
+                                                            <option value='other'>Other location</option>
+                                                        @endif
                                                         @if ($misc)
-                                                            <option value='misc'>Miscellaneous</option>@endif
+                                                            <option value='misc'>Miscellaneous</option>
+                                                        @endif
                                                     </select>
                                                     {!! fieldErrorMessage('from_type', $errors) !!}
                                                 </div>
@@ -148,7 +152,7 @@
                                             {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
                                             <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
                                                 <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="due_at" name="due_at">
-                                            <span class="input-group-btn">
+                                                <span class="input-group-btn">
                                                 <button class="btn default" type="button">
                                                     <i class="fa fa-calendar"></i>
                                                 </button>
@@ -237,11 +241,11 @@
                                                         </thead>
                                                         <tbody>
                                                         @if (count($items))
-                                                            <?php
-                                                            $sorted = $items->sortBy(function ($item) {
-                                                                return $item->item_category_name . '-' . $item->item_name;
-                                                            });
-                                                            ?>
+                                                                <?php
+                                                                $sorted = $items->sortBy(function ($item) {
+                                                                    return $item->item_category_name . '-' . $item->item_name;
+                                                                });
+                                                                ?>
                                                             @foreach($sorted as $loc)
                                                                 @if ($loc->equipment->parent_category == 3)
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
@@ -273,7 +277,7 @@
                                     </div>
 
                                     {{-- Scaffold Equipment --}}
-                                    <div class="panel-group accordion scrollable" id="accordion3">
+                                    <div class="panel-group accordion scrollable" id="accordion3" style="margin-bottom: 5px">
                                         <div class="panel panel-default">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">
@@ -294,6 +298,55 @@
                                                         @if (count($items))
                                                             @foreach($items->sortBy('item_name') as $loc)
                                                                 @if ($loc->equipment->category_id == 2)
+                                                                    <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
+                                                                        <td>{{ $loc->qty }}</td>
+                                                                        <td>{{ $loc->item_name }}</td>
+                                                                        <td>
+                                                                            <div class="itemactual-" id="itemactual-{{ $loc->id }}">
+                                                                                <select id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" class="form-control bs-select" width="100%">
+                                                                                    @for ($i = 0; $i <= $loc->qty; $i++)
+                                                                                        <option value="{{ $i }}" {{ (old("$loc->id-qty") == $i) ? 'selected' : '' }}>{{ $i }}</option>
+                                                                                    @endfor
+                                                                                </select>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="2">No items found at current location.</td>
+                                                            </tr>
+                                                        @endif
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Bulk Hardware --}}
+                                    <div class="panel-group accordion scrollable" id="accordion3">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4" aria-expanded="true"> Bulk Hardware </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse_3_4" class="panel-collapse collapse" aria-expanded="true" style="">
+                                                <div class="panel-body">
+                                                    <table class="table table-striped table-bordered table-hover order-column" id="table-19">
+                                                        <thead>
+                                                        <tr class="mytable-header">
+                                                            <th width="5%"> Qty</th>
+                                                            <th> Item Name</th>
+                                                            <th width="10%"> Transfer</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        @if (count($items))
+                                                            @foreach($items->sortBy('item_name') as $loc)
+                                                                @if ($loc->equipment->category_id == 19)
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
                                                                         <td>{{ $loc->qty }}</td>
                                                                         <td>{{ $loc->item_name }}</td>
@@ -355,144 +408,145 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-        $("#user").select2({placeholder: "Select User", width: '100%'});
-        $("#location_id").select2({placeholder: "Select Location"});
-        $("#location_id2").select2({placeholder: "Select Site"});
-        $("#assign").select2({placeholder: "Select User", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+            $("#user").select2({placeholder: "Select User", width: '100%'});
+            $("#location_id").select2({placeholder: "Select Location"});
+            $("#location_id2").select2({placeholder: "Select Site"});
+            $("#assign").select2({placeholder: "Select User", width: '100%'});
 
-        var siteArray = <?php echo json_encode($sites); ?>;
-        var superArray = <?php echo json_encode($supers); ?>;
-        var userArray = <?php echo json_encode($users); ?>;
-        var otherArray = <?php echo json_encode($others); ?>;
-        var miscArray = <?php echo json_encode($misc); ?>;
+            var siteArray = <?php echo json_encode($sites); ?>;
+            var superArray = <?php echo json_encode($supers); ?>;
+            var userArray = <?php echo json_encode($users); ?>;
+            var otherArray = <?php echo json_encode($others); ?>;
+            var miscArray = <?php echo json_encode($misc); ?>;
 
-        // Edit location
-        $("#edit-trans").click(function () {
-            $("#transfrom-select").show();
-            $("#transfrom").hide();
-            $("#transto").hide();
-            $("#assign-div").hide();
-            $("#equipment_list").hide();
-        });
+            // Edit location
+            $("#edit-trans").click(function () {
+                $("#transfrom-select").show();
+                $("#transfrom").hide();
+                $("#transto").hide();
+                $("#assign-div").hide();
+                $("#equipment_list").hide();
+            });
 
-        // Location
-        $("#location_id").change(function () {
-            $("#table_list").hide();
-            $("#btn-add-item").hide();
-            $("#spinner").show();
-            window.location.href = "/equipment/" + $("#location_id").val() + "/transfer-bulk";
-        });
-
-        $("#from_type").change(function () {
-            $('#location-div').hide();
-
-            $("#location_id").empty();
-            var appendData = ""; //<option value=''>--Select--</option>";
-
-            // Store
-            if ($("#from_type").val() == 'store') {
+            // Location
+            $("#location_id").change(function () {
                 $("#table_list").hide();
                 $("#btn-add-item").hide();
                 $("#spinner").show();
-                window.location.href = "/equipment/1/transfer-bulk";
-                //$('#location_id').val(25);
-                //$('#location_id').trigger('change');
-                //$("#location_id").append("<option value ='25'>SEVEN HILL - 36/8 Abbott Road (CAPE COD STORE)</option>");
-            }
+                window.location.href = "/equipment/" + $("#location_id").val() + "/transfer-bulk";
+            });
 
-            // Site
-            if ($("#from_type").val() == 'site') {
-                $('#location-div').show();
-                $("#location_id").append("<option value =''>Select site</option>");
-                for (const [loc, name] of Object.entries(siteArray))
-                    appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
-                $("#location_id").append(appendData);
-                $("#location_label").html('Site');
-            }
+            $("#from_type").change(function () {
+                $('#location-div').hide();
 
-            // Supervisor
-            if ($("#from_type").val() == 'super') {
-                $('#location-div').show();
-                $("#location_id").append("<option value =''>Select supervisor</option>");
-                for (const [loc, name] of Object.entries(superArray))
-                    appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
-                $("#location_id").append(appendData);
-                $("#location_label").html('Supervisor');
-            }
+                $("#location_id").empty();
+                var appendData = ""; //<option value=''>--Select--</option>";
 
-            if ($("#from_type").val() == 'user') {
-                $('#location-div').show();
-                $("#location_id").append("<option value =''>Select user</option>");
-                for (const [loc, name] of Object.entries(userArray))
-                    appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
-                $("#location_id").append(appendData);
-                $("#location_label").html('User');
-            }
+                // Store
+                if ($("#from_type").val() == 'store') {
+                    $("#table_list").hide();
+                    $("#btn-add-item").hide();
+                    $("#spinner").show();
+                    window.location.href = "/equipment/1/transfer-bulk";
+                    //$('#location_id').val(25);
+                    //$('#location_id').trigger('change');
+                    //$("#location_id").append("<option value ='25'>SEVEN HILL - 36/8 Abbott Road (CAPE COD STORE)</option>");
+                }
 
-            if ($("#from_type").val() == 'other') {
-                $('#location-div').show();
-                $("#location_id").append("<option value =''>Select location</option>");
-                for (const [loc, name] of Object.entries(otherArray))
-                    appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
-                $("#location_id").append(appendData);
-                $("#location_label").html('Other');
-            }
+                // Site
+                if ($("#from_type").val() == 'site') {
+                    $('#location-div').show();
+                    $("#location_id").append("<option value =''>Select site</option>");
+                    for (const [loc, name] of Object.entries(siteArray))
+                        appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
+                    $("#location_id").append(appendData);
+                    $("#location_label").html('Site');
+                }
 
-            if ($("#from_type").val() == 'misc') {
-                $('#location-div').show();
-                $("#location_id").append("<option value =''>Select location</option>");
-                for (const [loc, name] of Object.entries(miscArray))
-                    appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
-                $("#location_id").append(appendData);
-                $("#location_label").html('Miscellaneous');
-            }
+                // Supervisor
+                if ($("#from_type").val() == 'super') {
+                    $('#location-div').show();
+                    $("#location_id").append("<option value =''>Select supervisor</option>");
+                    for (const [loc, name] of Object.entries(superArray))
+                        appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
+                    $("#location_id").append(appendData);
+                    $("#location_label").html('Supervisor');
+                }
+
+                if ($("#from_type").val() == 'user') {
+                    $('#location-div').show();
+                    $("#location_id").append("<option value =''>Select user</option>");
+                    for (const [loc, name] of Object.entries(userArray))
+                        appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
+                    $("#location_id").append(appendData);
+                    $("#location_label").html('User');
+                }
+
+                if ($("#from_type").val() == 'other') {
+                    $('#location-div').show();
+                    $("#location_id").append("<option value =''>Select location</option>");
+                    for (const [loc, name] of Object.entries(otherArray))
+                        appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
+                    $("#location_id").append(appendData);
+                    $("#location_label").html('Other');
+                }
+
+                if ($("#from_type").val() == 'misc') {
+                    $('#location-div').show();
+                    $("#location_id").append("<option value =''>Select location</option>");
+                    for (const [loc, name] of Object.entries(miscArray))
+                        appendData += "<option value ='" + `${name}` + "'>" + `${loc}` + "</option>";
+                    $("#location_id").append(appendData);
+                    $("#location_label").html('Miscellaneous');
+                }
+            });
+
+            $("#type").change(function () {
+                $('#site-div').hide();
+                $('#super-div').hide();
+                $('#user-div').hide();
+                $('#other-div').hide();
+                $('#dispose-div').hide();
+                $('#assign-div').hide();
+
+                if ($("#type").val() == 'store') {
+                    $('#site_id').val(25);
+                    $('#site_id').trigger('change');
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'site') {
+                    $('#site-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'super') {
+                    $('#super-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'user') {
+                    $('#user-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'other') {
+                    $('#other-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'dispose')
+                    $('#dispose-div').show();
+            });
+
         });
-
-        $("#type").change(function () {
-            $('#site-div').hide();
-            $('#super-div').hide();
-            $('#user-div').hide();
-            $('#other-div').hide();
-            $('#dispose-div').hide();
-            $('#assign-div').hide();
-
-            if ($("#type").val() == 'store') {
-                $('#site_id').val(25);
-                $('#site_id').trigger('change');
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'site') {
-                $('#site-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'super') {
-                $('#super-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'user') {
-                $('#user-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'other') {
-                $('#other-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'dispose')
-                $('#dispose-div').show();
-        });
-
-    });
-</script>
+    </script>
 @stop
