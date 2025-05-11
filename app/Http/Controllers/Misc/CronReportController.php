@@ -639,7 +639,7 @@ class CronReportController extends Controller
             foreach ($supers_overdue as $super_id => $overdue_ids) {
                 $super = User::find($super_id);
                 $super_email = ($super && $super->email && validEmail($super->email)) ? $super->email : '';
-                $super_firstname = ($super) ? $super->firstname : '';
+                $super_firstname = ($super) ? $super->firstname : 'No Allocated Supervisor';
                 $scaffold_overdue_super = [];
                 // Create list of overdue Scaffs for specfic Super
                 foreach ($overdue_ids as $scaff_id) {
