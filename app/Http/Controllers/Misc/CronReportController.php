@@ -638,7 +638,8 @@ class CronReportController extends Controller
             // Loop through each Supervisor for send out email to them
             foreach ($supers_overdue as $super_id => $overdue_ids) {
                 $super = User::find($super_id);
-                $super_email = ($super->email && validEmail($super->email)) ? $super->email : '';
+                $super_email = ($super && $super->email && validEmail($super->email)) ? $super->email : '';
+                $super_firstname = ($super) ? $super->firstname : '';
                 $scaffold_overdue_super = [];
                 // Create list of overdue Scaffs for specfic Super
                 foreach ($overdue_ids as $scaff_id) {
@@ -653,7 +654,7 @@ class CronReportController extends Controller
                 }
                 $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
                 $email_to = (\App::environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
-                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super->firstname));
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super_firstname));
             }
         }
 
