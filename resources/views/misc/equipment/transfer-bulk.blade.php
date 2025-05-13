@@ -166,6 +166,54 @@
                             @if ($location)
                                 <h4 class="font-green-haze">Transfer Items</h4>
                                 <div id="equipment_list">
+                                    {{-- Bulk Hardware --}}
+                                    <div class="panel-group accordion scrollable" id="accordion3" style="margin-bottom: 5px">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4" aria-expanded="true"> Bulk Hardware </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse_3_4" class="panel-collapse collapse" aria-expanded="true" style="">
+                                                <div class="panel-body">
+                                                    <table class="table table-striped table-bordered table-hover order-column" id="table-19">
+                                                        <thead>
+                                                        <tr class="mytable-header">
+                                                            <th width="5%"> Qty</th>
+                                                            <th> Item Name</th>
+                                                            <th width="10%"> Transfer</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        @if (count($items))
+                                                            @foreach($items->sortBy('item_name') as $loc)
+                                                                @if ($loc->equipment->category_id == 19)
+                                                                    <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
+                                                                        <td>{{ $loc->qty }}</td>
+                                                                        <td>{{ $loc->item_name }}</td>
+                                                                        <td>
+                                                                            <div class="itemactual-" id="itemactual-{{ $loc->id }}">
+                                                                                <select id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" class="form-control bs-select" width="100%">
+                                                                                    @for ($i = 0; $i <= $loc->qty; $i++)
+                                                                                        <option value="{{ $i }}" {{ (old("$loc->id-qty") == $i) ? 'selected' : '' }}>{{ $i }}</option>
+                                                                                    @endfor
+                                                                                </select>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            @endforeach
+                                                        @else
+                                                            <tr>
+                                                                <td colspan="2">No items found at current location.</td>
+                                                            </tr>
+                                                        @endif
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {{-- General Equipment --}}
                                     <div class="panel-group accordion scrollable" id="accordion3" style="margin-bottom: 5px">
                                         <div class="panel panel-default">
@@ -277,7 +325,7 @@
                                     </div>
 
                                     {{-- Scaffold Equipment --}}
-                                    <div class="panel-group accordion scrollable" id="accordion3" style="margin-bottom: 5px">
+                                    <div class="panel-group accordion scrollable" id="accordion3">
                                         <div class="panel panel-default">
                                             <div class="panel-heading">
                                                 <h4 class="panel-title">
@@ -298,55 +346,6 @@
                                                         @if (count($items))
                                                             @foreach($items->sortBy('item_name') as $loc)
                                                                 @if ($loc->equipment->category_id == 2)
-                                                                    <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
-                                                                        <td>{{ $loc->qty }}</td>
-                                                                        <td>{{ $loc->item_name }}</td>
-                                                                        <td>
-                                                                            <div class="itemactual-" id="itemactual-{{ $loc->id }}">
-                                                                                <select id="{{ $loc->id }}-qty" name="{{ $loc->id }}-qty" class="form-control bs-select" width="100%">
-                                                                                    @for ($i = 0; $i <= $loc->qty; $i++)
-                                                                                        <option value="{{ $i }}" {{ (old("$loc->id-qty") == $i) ? 'selected' : '' }}>{{ $i }}</option>
-                                                                                    @endfor
-                                                                                </select>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            <tr>
-                                                                <td colspan="2">No items found at current location.</td>
-                                                            </tr>
-                                                        @endif
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- Bulk Hardware --}}
-                                    <div class="panel-group accordion scrollable" id="accordion3">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">
-                                                    <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_4" aria-expanded="true"> Bulk Hardware </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapse_3_4" class="panel-collapse collapse" aria-expanded="true" style="">
-                                                <div class="panel-body">
-                                                    <table class="table table-striped table-bordered table-hover order-column" id="table-19">
-                                                        <thead>
-                                                        <tr class="mytable-header">
-                                                            <th width="5%"> Qty</th>
-                                                            <th> Item Name</th>
-                                                            <th width="10%"> Transfer</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        @if (count($items))
-                                                            @foreach($items->sortBy('item_name') as $loc)
-                                                                @if ($loc->equipment->category_id == 19)
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
                                                                         <td>{{ $loc->qty }}</td>
                                                                         <td>{{ $loc->item_name }}</td>

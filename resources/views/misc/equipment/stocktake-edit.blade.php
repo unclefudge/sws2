@@ -62,6 +62,11 @@
                                 <div id="equipment_list">
                                     <div class="tabbable-line">
                                         <ul class="nav nav-tabs ">
+                                            @if ($category == 19)
+                                                <li class="active"><a href="#"> Bulk Hardware ({{  $items_count[2] }})</a></li>
+                                            @else
+                                                <li><a href="/equipment/stocktake/{{ $location->id }}/edit/bulkhardware"> Bulk Hardware ({{  $items_count[19] }})</a></li>
+                                            @endif
                                             @if ($category == 1)
                                                 <li class="active"><a href="#"> General ({{  $items_count[1] }})</a></li>
                                             @else
@@ -76,11 +81,6 @@
                                                 <li class="active"><a href="#"> Scaffold ({{  $items_count[2] }})</a></li>
                                             @else
                                                 <li><a href="/equipment/stocktake/{{ $location->id }}/edit/scaffold"> Scaffold ({{  $items_count[2] }})</a></li>
-                                            @endif
-                                            @if ($category == 19)
-                                                <li class="active"><a href="#"> Bulk Hardware ({{  $items_count[2] }})</a></li>
-                                            @else
-                                                <li><a href="/equipment/stocktake/{{ $location->id }}/edit/bulkhardware"> Bulk Hardware ({{  $items_count[19] }})</a></li>
                                             @endif
                                         </ul>
                                     </div>
@@ -193,6 +193,12 @@
                                                             <div class="form-group {!! fieldHasError("$x-extra_id", $errors) !!}">
                                                                 <select id="{{ $x }}-extra_id" name="{{ $x }}-extra_id" class="form-control select2 sel_add_item" width="100%">
                                                                     <option value="">Add additional item</option>
+                                                                    @if ($equipment_bul->count())
+                                                                        <optgroup label="Bulk Hardware"></optgroup>
+                                                                        @foreach ($equipment_bul as $item)
+                                                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                                                        @endforeach
+                                                                    @endif
                                                                     @if ($equipment_gen->count())
                                                                         <optgroup label="General"></optgroup>
                                                                         @foreach ($equipment_gen as $item)
@@ -208,12 +214,6 @@
                                                                     @if ($equipment_sca->count())
                                                                         <optgroup label="Scaffold"></optgroup>
                                                                         @foreach ($equipment_sca as $item)
-                                                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                                                        @endforeach
-                                                                    @endif
-                                                                    @if ($equipment_bul->count())
-                                                                        <optgroup label="Bulk Hardware"></optgroup>
-                                                                        @foreach ($equipment_bul as $item)
                                                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
                                                                         @endforeach
                                                                     @endif
