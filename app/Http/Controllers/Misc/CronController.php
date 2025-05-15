@@ -1003,11 +1003,12 @@ class CronController extends Controller
         $keytasks = [
             4 => 'is now ready to inspect and review Packers and Floor Joist', // Lay Floor (LF)
             7 => 'is now ready to inspect and review the Frame and Roof', // Frame & Roof FF (FR/FF)
-            117 => 'is now ready to inspect and review Scaffold Down', // Dismantle Scaffold (D) Scaffold
+            117 => 'has now reached Lock up stage', // Dismantle Scaffold (D) Scaffold
             265 => 'has now reached Practical Completion' // Prac Completion (Prac)
         ];
 
         $keytasksBody = [
+            117 => 'Please follow up the Supervisor to complete the details available for the Project Completion Docs for this project now',
             265 => 'Please follow up the Supervisor to complete the required Project Completion Docs for this project now'
         ];
 
