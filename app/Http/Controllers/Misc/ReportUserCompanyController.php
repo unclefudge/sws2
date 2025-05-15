@@ -258,6 +258,12 @@ class ReportUserCompanyController extends Controller
 
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+        if (Auth::check()) {
+            if (validEmail(Auth::user()->email))
+                $email_cc[] = Auth::user()->email;
+            $signature = Auth::user()->fullname . "<br>" . Auth::user()->jobtitle;
+        } else
+            $signature = "SafeWork Site";
 
         $counter = 0;
         foreach ($companies as $company) {
@@ -265,9 +271,9 @@ class ReportUserCompanyController extends Controller
             //if ($counter > 3) dd('done');
 
             if ($email_to && $email_user)
-                Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify'));
+                Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
             elseif ($email_to)
-                Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify'));
+                Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
         }
         Toastr::success("Emails sent");
         return redirect('manage/report/company/company_swms');
