@@ -276,7 +276,7 @@ class ReportUserCompanyController extends Controller
                 Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
         }
         Toastr::success("Emails sent");
-        return redirect('manage/report/company/company_swms');
+        return redirect('manage/report/company_swms');
     }
 
     public function companySWMSEmailOutOfDate()
@@ -321,7 +321,7 @@ class ReportUserCompanyController extends Controller
         }
         Toastr::success("Emails sent");
 
-        return redirect('manage/report/company/company_swms');
+        return redirect('manage/report/company_swms');
     }
 
     public function companySWMSSettings()
