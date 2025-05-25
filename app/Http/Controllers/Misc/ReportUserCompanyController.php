@@ -256,8 +256,8 @@ class ReportUserCompanyController extends Controller
         $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
 
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+        $email_cc = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
                 $email_cc[] = Auth::user()->email;
@@ -270,8 +270,8 @@ class ReportUserCompanyController extends Controller
             //$counter++;
             //if ($counter > 3) dd('done');
 
-            if ($email_to && $email_user)
-                Mail::to($email_to)->cc($email_user)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
+            if ($email_to && $email_cc)
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
             elseif ($email_to)
                 Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
         }
