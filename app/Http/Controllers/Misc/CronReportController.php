@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
+use App\Models\Company\CompanyDoc;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Site\Planner\SiteAttendance;
@@ -505,9 +506,10 @@ class CronReportController extends Controller
         }
 
         //dd($missing);
+        $pending = CompanyDoc::where('status', 3)->where('company_id', 3)->orderBy('for_company_id')->get();
 
         CronController::debugEmail('EL', $email_list);
-        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfoPlanner($missing));
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfoPlanner($missing, $pending));
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
 
