@@ -59,7 +59,7 @@
                                         <a href="#tab_15_1" data-toggle="tab" aria-expanded="true"> Pending </a>
                                     </li>
                                     <li class="">
-                                        <a href="#tab_15_2" data-toggle="tab" aria-expanded="false"> Completed </a>
+                                        <a href="#tab_15_2" data-toggle="tab" aria-expanded="false"> Completed (last 12 months)</a>
                                     </li>
                                 </ul>
                                 <div class="tab-content">
