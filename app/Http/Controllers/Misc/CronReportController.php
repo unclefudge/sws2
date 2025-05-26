@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Mail\Company;
+namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Misc\CronController;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
