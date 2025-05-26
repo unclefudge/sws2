@@ -48,16 +48,16 @@ class SiteScaffoldHandoverController extends Controller
         //
         // Erect Scaffold - taskid: 116
         //
-        $plans = SitePlanner::whereDate('from', '>', $oneyear)->whereDate('from', '<', $today)->where('task_id', 116)->orderBy('from')->get();
+        $plans = SitePlanner::whereDate('from', '>', $oneyear)->whereDate('from', '<', $today)->where('task_id', 116)->orderByDesc('site_id')->get();
         foreach ($plans as $plan) {
             if ($plan->site->status == 1) {
                 // Check for Site Risk doc with word 'Scaffolding Handover Certificate'
                 $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'like', '%Scaffolding Handover Certificate%')->first();
-                if (!$certificate && !in_array($plan->id, $excludePlannerTasks)) {
+                if (!$certificate && !in_array($plan->site->name, $ashby) && !in_array($plan->id, $excludePlannerTasks)) {
                     // Add outstanding scaff to main list
-                    $ashby[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'outstanding'];
-                } elseif ($certificate && !in_array($plan->id, $excludePlannerTasks)) {
-                    $ashby[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'completed'];
+                    $ashby[$plan->site->name] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'outstanding'];
+                } elseif ($certificate && !in_array($plan->site->name, $ashby) && !in_array($plan->id, $excludePlannerTasks)) {
+                    $ashby[$plan->site->name] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'completed'];
                 }
             }
         }
