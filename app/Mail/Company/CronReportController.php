@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Misc;
+namespace App\Mail\Company;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CronController;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
@@ -49,6 +50,7 @@ class CronReportController extends Controller
             //CronReportController::emailMaintenanceOnHold();
             //CronReportController::emailMissingCompanyInfo();
             CronReportController::emailMissingCompanyInfoPlanner();
+            CronReportController::emailCompanyDocsPending();
             CronReportController::emailActiveAsbestos();
             CronReportController::emailSupervisorAttendance();
             CronReportController::emailScaffoldOverdue();
@@ -124,6 +126,7 @@ class CronReportController extends Controller
      * CronReportController::emailMaintenanceAppointment();
      * CronReportController::emailMaintenanceUnderReview();
      * CronReportController::emailMissingCompanyInfo();
+     * CronReportController::emailCompanyDocsPending();
      * CronReportController::emailOutstandingOnHoldQA();
      *
      * Fortnightly
@@ -506,10 +509,36 @@ class CronReportController extends Controller
         }
 
         //dd($missing);
+        CronController::debugEmail('EL', $email_list);
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfoPlanner($missing));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    static public function emailCompanyDocsPending()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Company Docs Pending";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.doc.pending') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
         $pending = CompanyDoc::where('status', 3)->where('company_id', 3)->orderBy('for_company_id')->get();
 
         CronController::debugEmail('EL', $email_list);
-        Mail::to($email_list)->send(new \App\Mail\Company\CompanyMissingInfoPlanner($missing, $pending));
+        Mail::to($email_list)->send(new \App\Mail\Company\CompanyDocsPending($pending));
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
 

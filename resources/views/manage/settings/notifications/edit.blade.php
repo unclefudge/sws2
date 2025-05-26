@@ -92,6 +92,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.transfers')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.restock')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.missing.info')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.doc.pending')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'user.oldusers')->first()->notificationSelect() !!}
                         @endif
 

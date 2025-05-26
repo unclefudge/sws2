@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Mail\Company\CronReportController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
