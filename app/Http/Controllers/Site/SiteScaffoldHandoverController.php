@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
+use App\Models\Site\SiteDoc;
 use App\Models\Site\SiteScaffoldHandover;
 use Carbon\Carbon;
 use DB;
@@ -33,7 +35,34 @@ class SiteScaffoldHandoverController extends Controller
         if (!Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
             return view('errors/404');
 
-        return view('site/scaffold/list');
+        //
+        // Scaffold Handover for Ashbys
+        //
+        $ashby = [];
+        $today = Carbon::now();
+        $oneyear = Carbon::now()->subYear();
+        $found_tasks = 0;
+        // Manually exclude some older tasks
+        $excludePlannerTasks = ['129578', '129601', '129993', '135665', '136666', '137626', '137903', '139403'];
+
+        //
+        // Erect Scaffold - taskid: 116
+        //
+        $plans = SitePlanner::whereDate('from', '>', $oneyear)->whereDate('from', '<', $today)->where('task_id', 116)->orderBy('from')->get();
+        foreach ($plans as $plan) {
+            if ($plan->site->status == 1) {
+                // Check for Site Risk doc with word 'Scaffolding Handover Certificate'
+                $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'like', '%Scaffolding Handover Certificate%')->first();
+                if (!$certificate && !in_array($plan->id, $excludePlannerTasks)) {
+                    // Add outstanding scaff to main list
+                    $ashby[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'outstanding'];
+                } elseif ($certificate && !in_array($plan->id, $excludePlannerTasks)) {
+                    $ashby[$plan->id] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'completed'];
+                }
+            }
+        }
+
+        return view('site/scaffold/list', compact('ashby'));
     }
 
     /**

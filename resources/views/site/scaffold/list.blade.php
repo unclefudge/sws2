@@ -41,8 +41,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th style="width:" 5%
-                                "> #</th>
+                                <th style="width: 5%"> #</th>
                                 <th> Site</th>
                                 <th style="width:10%"> Due Date</th>
                                 <th> Scaffolder</th>
@@ -51,6 +50,60 @@
                             </tr>
                             </thead>
                         </table>
+                        @if (Auth::user()->isCC())
+                            <br>
+                            <h4 class="font-green-haze">Ashby's Certificates</h4>
+                            <div class="tabbable-line">
+                                <ul class="nav nav-tabs ">
+                                    <li class="active">
+                                        <a href="#tab_15_1" data-toggle="tab" aria-expanded="true"> Pending </a>
+                                    </li>
+                                    <li class="">
+                                        <a href="#tab_15_2" data-toggle="tab" aria-expanded="false"> Completed </a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    {{-- Pending --}}
+                                    <div class="tab-pane active" id="tab_15_1">
+                                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                            <thead>
+                                            <tr class="mytable-header">
+                                                <th> Site</th>
+                                                <th style="width:10%"> Due Date</th>
+                                            </tr>
+                                            </thead>
+                                            @foreach ($ashby as $scaff)
+                                                @if ($scaff['status'] == 'outstanding')
+                                                    <tr>
+                                                        <td>{!! $scaff['name'] !!}</td>
+                                                        <td>{!! $scaff['due_at'] !!}</td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                    {{-- Completed --}}
+                                    <div class="tab-pane" id="tab_15_2">
+                                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                            <thead>
+                                            <tr class="mytable-header">
+                                                <th> Site</th>
+                                                <th style="width:10%"> Due Date</th>
+                                            </tr>
+                                            </thead>
+                                            @foreach ($ashby as $scaff)
+                                                @if ($scaff['status'] == 'completed')
+                                                    <tr>
+                                                        <td>{!! $scaff['name'] !!}</td>
+                                                        <td>{!! $scaff['due_at'] !!}</td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
