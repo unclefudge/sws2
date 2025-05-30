@@ -1042,6 +1042,8 @@ class CronController extends Controller
                     echo "&nbsp; * $mesg<br>";
                     $log .= " * $mesg\n";
                     CronController::debugEmail('EL', $email_list);
+
+                    $subject = $task->site->name . " $subject";
                     if ($email_list && !in_array($task_id, $special_tasks))
                         Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $subject, $mesg));
                     // Special tasks

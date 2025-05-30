@@ -257,7 +257,7 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
 
         $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
-        $email_cc = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+        $email_cc = (Auth::check() && validEmail(Auth::user()->email)) ? [Auth::user()->email] : [];
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
                 $email_cc[] = Auth::user()->email;
