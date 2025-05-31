@@ -539,6 +539,14 @@ function nextWorkDate($date, $direction, $days, $format = null)
     return $date;
 }
 
+function publicHoliday($date)
+{
+    // date format yyyy-mm-dd
+    $pub = \App\Models\Site\Planner\PublicHoliday::whereDate('date', $date)->first();
+
+    return ($pub) ? $pub->name : '';
+}
+
 /*
  * This function takes two strings and formats them in a "diff" format that is familiar to most developers.
  * This function can bu used to compare lines of files, or properties of objects. But the root is this function:

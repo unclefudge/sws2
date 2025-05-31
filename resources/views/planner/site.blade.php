@@ -490,36 +490,56 @@
                     <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="color: #999">Week @{{ calcWeekNumber(x) }}</div>
                     <div v-else class="col-xs-2">Week @{{ calcWeekNumber(x) }}</div>
                     <!-- Monday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="padding-left: 25px; color: #999">
+                    <div v-show="pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="padding-left: 25px; color: #999">
                         Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}
+                    </div>
+                    <div v-if="publicHoliday(weekDate(xx.first_mon, x*7+0)) != '' && !pastDate(weekDate(xx.first_mon, x*7+0))" class="col-xs-2" style="padding-left: 25px; color: #FF0000">
+                        Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}<br>
+                        @{{ publicHoliday(weekDate(xx.first_mon, x*7+0)) }}
                     </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+0))"> Mon @{{ weekDateHeader(xx.first_mon, x*7+0) }}
                     </div>
                     <!-- Tuesday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+1))" class="col-xs-2" style="padding-left: 25px; color: #999">
+                    <div v-show="pastDate(weekDate(xx.first_mon, x*7+1))" class="col-xs-2" style="padding-left: 25px; color: #999">
                         Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}
+                    </div>
+                    <div v-if="publicHoliday(weekDate(xx.first_mon, x*7+1)) != '' && !pastDate(weekDate(xx.first_mon, x*7+1))" class="col-xs-2" style="padding-left: 25px; color: #FF0000">
+                        Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}<br>
+                        @{{ publicHoliday(weekDate(xx.first_mon, x*7+1)) }}
                     </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+1))"> Tue @{{ weekDateHeader(xx.first_mon, x*7+1) }}
                     </div>
                     <!-- Wednesday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+2))" class="col-xs-2" style="padding-left: 25px; color: #999">
+                    <div v-show="pastDate(weekDate(xx.first_mon, x*7+2))" class="col-xs-2" style="padding-left: 25px; color: #999">
                         Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}
+                    </div>
+                    <div v-if="publicHoliday(weekDate(xx.first_mon, x*7+2)) != '' && !pastDate(weekDate(xx.first_mon, x*7+2))" class="col-xs-2" style="padding-left: 25px; color: #FF0000">
+                        Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}<br>
+                        @{{ publicHoliday(weekDate(xx.first_mon, x*7+2)) }}
                     </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+2))"> Wed @{{ weekDateHeader(xx.first_mon, x*7+2) }}
                     </div>
                     <!-- Thursday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+3))" class="col-xs-2" style="padding-left: 25px; color: #999">
+                    <div v-show="pastDate(weekDate(xx.first_mon, x*7+3))" class="col-xs-2" style="padding-left: 25px; color: #999">
                         Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}
+                    </div>
+                    <div v-if="publicHoliday(weekDate(xx.first_mon, x*7+3)) != '' && !pastDate(weekDate(xx.first_mon, x*7+3))" class="col-xs-2" style="padding-left: 25px; color: #FF0000">
+                        Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}<br>
+                        @{{ publicHoliday(weekDate(xx.first_mon, x*7+3)) }}
                     </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+3))"> Thu @{{ weekDateHeader(xx.first_mon, x*7+3) }}
                     </div>
                     <!-- Friday -->
-                    <div v-if="pastDate(weekDate(xx.first_mon, x*7+4))" class="col-xs-2" style="padding-left: 25px; color: #999">
+                    <div v-show="pastDate(weekDate(xx.first_mon, x*7+4))" class="col-xs-2" style="padding-left: 25px; color: #999">
                         Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}
+                    </div>
+                    <div v-if="publicHoliday(weekDate(xx.first_mon, x*7+4)) != '' && !pastDate(weekDate(xx.first_mon, x*7+4))" class="col-xs-2" style="padding-left: 25px; color: #FF0000">
+                        Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}<br>
+                        @{{ publicHoliday(weekDate(xx.first_mon, x*7+4)) }}
                     </div>
                     <div v-else class="col-xs-2 hoverHead" style="padding-left: 25px"
                          v-on:click="openSidebarHeader(weekDate(xx.first_mon, x*7+4))"> Fri @{{ weekDateHeader(xx.first_mon, x*7+4) }}

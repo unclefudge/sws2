@@ -3,7 +3,7 @@ var xx = {
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
     mon_now: '', mon_this: '', mon_prev: '', mon_next: '', today: moment().format('YYYY-MM-DD'), jobstart: moment().format('DD/MM/YYYY'), week_selected: '',
     showSidebar: false, showSidebarUpcoming: false, showSidebarAddstart: false, showSidebarMovestart: false, showSidebarAllocate: false, showNewTask: false, showAssign: false, showClearModal: false,
-    enableActions: false, load_plan: false, trade_name: '',
+    enableActions: false, load_plan: false, trade_name: '', holidays: '',
     day_date: '', day_etype: '', day_eid: '', day_eid2: '', day_ename: '', day_site_id: '',
     day_task_id: '', day_task_code: '', day_task_name: '', day_move_days: 1, day_upcoming: '',
     assign_site: '', assign_trade: '', assign_type: '', assign_cid: '', assign_cname: '', assign_tasks: '', assign_super: '',
@@ -121,6 +121,14 @@ Vue.component('app-weekly', {
         weekDate: function (date, days) {
             return moment(date).add(days, 'days').format('YYYY-MM-DD');
         },
+        publicHoliday: function (date, days) {
+            // determine if given date is public holiday
+            caldate = moment(date).add(days, 'days').format('YYYY-MM-DD');
+            if (this.xx.holidays.hasOwnProperty(caldate))
+                return this.xx.holidays[caldate];
+
+            return '';
+        },
         pastDate: function (date) {
             // determine if given date is or before today
             return (date.match(/^\d{4}-\d{2}-\d{2}$/)) ? moment(date).isSameOrBefore(moment(), 'day') : false;
@@ -168,6 +176,7 @@ Vue.component('app-weekly', {
                     //this.xx.entity_all_onsite = data[4];
                     this.xx.sel_super = data[5];
                     this.xx.permission = data[6];
+                    this.xx.holidays = data[7];
                     // remove 'All Sites' from sel_super
                     var obj_all = objectFindByKey(this.xx.sel_super, 'value', 'all');
                     this.xx.sel_super.$remove(obj_all);

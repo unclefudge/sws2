@@ -67,6 +67,7 @@ class PublicHolidayController extends Controller
         // Create PublicHoliday
         $holiday_request = request()->all();
         $holiday_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
+        $holiday_request['type'] = 'public';
 
 
         //dd($holiday_request);

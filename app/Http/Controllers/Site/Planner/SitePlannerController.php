@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyLeave;
+use App\Models\Site\Planner\PublicHoliday;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteRoster;
@@ -795,6 +796,11 @@ class SitePlannerController extends Controller
         if ($plan_type == 'trade' && Auth::user()->hasPermission2('edit.trade.planner'))
             $permission = 'edit';
 
+        // Get Public Holidays
+        $holidays = [];
+        foreach (PublicHoliday::where('status', 1)->get() as $hol)
+            $holidays[$hol->date->format('Y-m-d')] = $hol->name;
+
         $json = [];
         $json[] = $fullplan;
         $json[] = $non_rostered;
@@ -803,6 +809,7 @@ class SitePlannerController extends Controller
         $json[] = $company_onsite;
         $json[] = $sel_super;
         $json[] = $permission;
+        $json[] = $holidays;
 
         return $json;
     }
@@ -867,12 +874,18 @@ class SitePlannerController extends Controller
         if (Auth::user()->allowed2('edit.site.planner', Site::find($site_id)))
             $permission = 'edit';
 
+        // Get Public Holidays
+        $holidays = [];
+        foreach (PublicHoliday::where('status', 1)->get() as $hol)
+            $holidays[$hol->date->format('Y-m-d')] = $hol->name;
+
         $json = [];
         $json[] = $vars;
         $json[] = $fullplan;
         $json[] = $conflicts;
         $json[] = $company_leave;
         $json[] = $permission;
+        $json[] = $holidays;
 
         return $json;
     }

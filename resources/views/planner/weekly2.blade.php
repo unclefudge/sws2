@@ -43,9 +43,12 @@
                                     <div class="col-md-3">
                                         <!--<select v-model="xx.params.supervisor_id" class="form-control bs-select">
                                             @foreach ($supervisors as $id => $name)
-                                                <option value="{{ $id }}"
-                                                        @if(($id == 'all' && $supervisor_id == '') || $id == $supervisor_id) selected @endif>{{ $name }}</option>
-                                            @endforeach
+                                            <option value="{{ $id }}"
+                                                        @if(($id == 'all' && $supervisor_id == '') || $id == $supervisor_id)
+                                                selected
+                                            @endif>{{ $name }}</option>
+
+                                        @endforeach
                                         </select>-->
                                         {!! Form::select('supervisor_id', $supervisors,
                                             Auth::user()->id, ['class' => 'form-control bs-select', 'id' => 'supervisor_id',]) !!}
@@ -65,11 +68,11 @@
                             <div v-show="xx.sites.length">
                                 <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                                     <div class="col-xs-2">Site</div>
-                                    <div class="col-xs-2">Mon @{{ weekDateHeader(xx.mon_now, 0) }}</div>
-                                    <div class="col-xs-2">Tue @{{ weekDateHeader(xx.mon_now, 1) }}</div>
-                                    <div class="col-xs-2">Wed @{{ weekDateHeader(xx.mon_now, 2) }}</div>
-                                    <div class="col-xs-2">Thu @{{ weekDateHeader(xx.mon_now, 3) }}</div>
-                                    <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
+                                    <div class="col-xs-2">Mon @{{ weekDateHeader(xx.mon_now, 0) }}<span v-if="publicHoliday(xx.mon_now, 0)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 0) }}</span></div>
+                                    <div class="col-xs-2">Tue @{{ weekDateHeader(xx.mon_now, 1) }}<span v-if="publicHoliday(xx.mon_now, 1)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 1) }}</span></div>
+                                    <div class="col-xs-2">Wed @{{ weekDateHeader(xx.mon_now, 2) }}<span v-if="publicHoliday(xx.mon_now, 2)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 2) }}</span></div>
+                                    <div class="col-xs-2">Thu @{{ weekDateHeader(xx.mon_now, 3) }}<span v-if="publicHoliday(xx.mon_now, 3)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 3) }}</span></div>
+                                    <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}<span v-if="publicHoliday(xx.mon_now, 4)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 4) }}</span></div>
                                 </div>
                                 <template v-for="site in xx.sites">
                                     <app-site :site_id="site.id" :site_name="site.name" :site_code="site.code"></app-site>
@@ -171,9 +174,10 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
-<script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
-<script src="/js/vue-app-planner-functions.js"></script>
-<script src="/js/vue-app-planner-weekly.js"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js " type="text/javascript"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js " type="text/javascript"></script>
+    <script src="/js/vue-app-planner-functions.js"></script>
+    <script src="/js/vue-app-planner-weekly.js"></script>
 @stop

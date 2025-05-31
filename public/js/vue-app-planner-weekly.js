@@ -6,7 +6,7 @@ $('#supervisor_id').change(function () {
 var xx = {
     dev: dev, permission: '', user_company_id: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'), week_selected: '',
+    search: '', show_contact: '', load_plan: false, today: moment().format('YYYY-MM-DD'), week_selected: '', holidays: '',
     mon_now: '', mon_this: '', mon_prev: '', mon_next: '',
     sel_super: [], maxjobs: [], leave: [], sites: [],
     plan: [], non_rostered: [], entity_all_onsite: [],
@@ -54,6 +54,7 @@ Vue.component('app-weekly', {
                     this.xx.entity_all_onsite = data[4];
                     this.xx.sel_super = data[5];
                     this.xx.permission = data[6];
+                    this.xx.holidays = data[7];
                     this.xx.load_plan = false;
                     this.$broadcast('refreshSitePlanEvent');
                 }.bind(this));
@@ -310,6 +311,14 @@ var myApp = new Vue({
         weekDate: function (date, days) {
             return moment(date).add(days, 'days').format('YYYY-MM-DD');
         },
+        publicHoliday: function (date, days) {
+            // determine if given date is public holiday
+            caldate = moment(date).add(days, 'days').format('YYYY-MM-DD');
+            if (this.xx.holidays.hasOwnProperty(caldate))
+                return this.xx.holidays[caldate];
+            
+            return '';
+        },
         getSites: function () {
             $.getJSON('/planner/data/sites', function (sites) {
                 this.xx.sites = sites;
@@ -328,6 +337,7 @@ var myApp = new Vue({
                     this.xx.entity_all_onsite = data[4];
                     this.xx.sel_super = data[5];
                     this.xx.permission = data[6];
+                    this.xx.holidays = data[7];
                     this.xx.load_plan = false;
                     this.$broadcast('refreshSitePlanEvent');
                 }.bind(this));

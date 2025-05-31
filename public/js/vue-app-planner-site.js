@@ -1,7 +1,7 @@
 var xx = {
     dev: dev, permission: '',
     params: {date: '', supervisor_id: '', site_id: '', site_start: 'week', trade_id: '', _token: $('meta[name=token]').attr('value')},
-    status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '',
+    status: '', first_date: '', start_date: '', start_carp: '', final_date: '', carp_prac: '', holidays: '',
     council_approval: '', contract_sent: '', contract_signed: '', deposit_paid: '',
     first_mon: '', start_mon: '', final_mon: '', this_mon: moment().day(1).format('YYYY-MM-DD'), today: moment().format('YYYY-MM-DD'),
     total_weeks: '', first_week: 1, current_week: 1,
@@ -115,6 +115,12 @@ Vue.component('app-siteplan', {
             // determine if given date is same or before today
             return (moment(date).isSameOrBefore(moment(), 'day') || this.xx.permission == 'view');
         },
+        publicHoliday: function (date) {
+            // determine if given date is public holiday
+            if (date in this.xx.holidays)
+                return this.xx.holidays[date];
+            return '';
+        },
         todayDate: function (date) {
             // determine if given date is today
             return moment(date).isSame(moment(), 'day');
@@ -141,6 +147,7 @@ Vue.component('app-siteplan', {
                     this.xx.maxjobs = plan[2];
                     this.xx.leave = plan[3];
                     this.xx.permission = plan[4];
+                    this.xx.holidays = plan[5];
                     if (plan[1].length > 0) {
                         // Determine + set key dates on planner ie. first, last, start etc
                         this.xx.first_date = plan[0]['first_date'];

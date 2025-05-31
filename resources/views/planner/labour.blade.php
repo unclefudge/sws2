@@ -192,12 +192,12 @@
                             <div v-show="xx.companies.length">
                                 <h4 v-if="countUpcoming(xx.params.trade_id)">@{{ xx.trade_name }} Planner</h4>
                                 <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
-                                    <div class="col-xs-2 ">Site</div>
-                                    <div class="col-xs-2 ">Mon @{{ weekDateHeader(xx.mon_now, 0) }}</div>
-                                    <div class="col-xs-2 ">Tue @{{ weekDateHeader(xx.mon_now, 1) }}</div>
-                                    <div class="col-xs-2 ">Wed @{{ weekDateHeader(xx.mon_now, 2) }}</div>
-                                    <div class="col-xs-2 ">Thu @{{ weekDateHeader(xx.mon_now, 3) }}</div>
-                                    <div class="col-xs-2 ">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</div>
+                                    <div class="col-xs-2">Company</div>
+                                    <div class="col-xs-2">Mon @{{ weekDateHeader(xx.mon_now, 0) }}<span v-if="publicHoliday(xx.mon_now, 0)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 0) }}</span></div>
+                                    <div class="col-xs-2">Tue @{{ weekDateHeader(xx.mon_now, 1) }}<span v-if="publicHoliday(xx.mon_now, 1)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 1) }}</span></div>
+                                    <div class="col-xs-2">Wed @{{ weekDateHeader(xx.mon_now, 2) }}<span v-if="publicHoliday(xx.mon_now, 2)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 2) }}</span></div>
+                                    <div class="col-xs-2">Thu @{{ weekDateHeader(xx.mon_now, 3) }}<span v-if="publicHoliday(xx.mon_now, 3)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 3) }}</span></div>
+                                    <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}<span v-if="publicHoliday(xx.mon_now, 4)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 4) }}</span></div>
                                 </div>
                                 <template v-for="company in xx.companies">
                                     <app-company :etype="company.type" :eid="company.id" :ename="company.name"></app-company>
