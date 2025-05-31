@@ -63,6 +63,7 @@ class CronController extends Controller
         CronController::siteExtensions();
         //CronController::superChecklists();  disabled 24/06/2024
         CronController::uploadCompanyDocReminder();
+        CronController::createAsbestosNotification();
         //CronController::verifyZohoImport();
 
         // Weekdays only
@@ -1266,12 +1267,12 @@ class CronController extends Controller
                 for ($i = 0; $i < 5; $i++) {
                     echo "check " . $testdate->format('d/m/Y') . "<br>";
                     if (publicHoliday($testdate->format('Y-m-d'))) {
-                        $ext_site->notes = $ext_site->notes . "Public Holiday [" . $testdate->format('d/m/Y') . "]\r\n";
+                        $ext_site->notes = $ext_site->notes . "Public Holiday (" . $testdate->format('d/m/Y') . ")\r\n";
                         $ext_site->days = $ext_site->days + 1;
                         $ext_site->reasons = 3;  // Public holiday
                         $ext_site->save();
-                        echo "Adding Public Holiday [" . $testdate->format('d/m/Y') . " for " . $site['name'] . "<br>";
-                        $log .= "Adding Public Holiday [" . $testdate->format('d/m/Y') . " for " . $site['name'] . "\n";
+                        echo "Adding Public Holiday (" . $testdate->format('d/m/Y') . ") for " . $site['name'] . "<br>";
+                        $log .= "Adding Public Holiday (" . $testdate->format('d/m/Y') . ") for " . $site['name'] . "\n";
                     }
                     $testdate = $testdate->addDay();
                 }
@@ -1380,6 +1381,14 @@ class CronController extends Controller
 
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+     * Create Asbestos Notification
+     */
+    static public function createAsbestosNotification()
+    {
+
     }
 
     /*
