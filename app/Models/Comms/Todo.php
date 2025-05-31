@@ -175,6 +175,8 @@ class Todo extends Model
                 return "/site/extension";
             case 'extension signoff':
                 return "/site/extension";
+            case 'asbestos notify':
+                return "/site/asbestos/notification/$this->type_id/edit";
             case 'incident review':
                 return "/site/incident/$this->type_id";
             case 'incident witness':

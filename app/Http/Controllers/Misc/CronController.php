@@ -19,6 +19,7 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
+use App\Models\Site\SiteAsbestos;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteNote;
@@ -1389,6 +1390,48 @@ class CronController extends Controller
     static public function createAsbestosNotification()
     {
 
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Create Asbestos Notifications";
+        echo "<h2>$func_name</h2>";
+        $log .= "$func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+        $cc = Company::find(3);
+
+        $date = Carbon::now()->format('Y-m-d');
+        $found_tasks = 0;
+
+        //
+        // Asbestos Removal - taskid: 213
+        //
+        $task_ids = [213];
+        $tasks = SitePlanner::whereDate('from', '>', $date)->whereIn('task_id', $task_ids)->orderBy('site_id')->get();
+        foreach ($tasks as $task) {
+            if ($task->site->status == 1) {
+                echo "Checking site " . $task->site->name . " (taskid:$task->id)<br>";
+                $asb = SiteAsbestos::where('plan_id', $task->id)->first();
+                if (!$asb) {
+                    // Create Site Asbestos
+                    $site = Site::find($task->site_id);
+                    $super = User::find($site->supervisor_id);
+                    $newAsb = SiteAsbestos::create([
+                        'site_id' => $site->id,
+                        'supervisor_id' => $super->id, 'super_phone' => $super->phone,
+                        'client_name' => $site->client1_name, 'client_phone' => $site->client1_mobile,
+                        'plan_id' => $task->id, 'date_from' => $task->from, 'date_to' => $task->to,
+                    ]);
+                    if ($newAsb) {
+                        $action = Action::create(['action' => 'Created Notification', 'table' => 'site_asbestos', 'table_id' => $newAsb->id]);
+                        $newAsb->touch(); // update timestamp
+                        $newAsb->createAssignSupervisorToDo($site->supervisor_id);
+                        //$newAsb->emailNotification(); // Email notification
+                        echo "Created notofication for " . $task->site->name . " (taskid:$task->id)<br>";
+                    }
+                }
+
+            }
+        }
     }
 
     /*

@@ -227,6 +227,7 @@ class SiteAsbestosController extends Controller
 
         //dd($asb_request);
         $asb->update($asb_request);
+        $asb->closeToDo();
         Action::create(['action' => 'Notification fields updated', 'table' => 'site_asbestos', 'table_id' => $asb->id]);
         Toastr::success("Saved changes");
 
@@ -281,6 +282,7 @@ class SiteAsbestosController extends Controller
 
         //dd($asb_request);
         $asb->update($asb_request);
+        $asb->closeToDo();
         Toastr::success("Saved changes");
 
         return redirect("site/asbestos/notification/$asb->id");
@@ -340,8 +342,8 @@ class SiteAsbestosController extends Controller
                 return ($s->supervisorName);
             })
             ->addColumn('action', function ($doc) {
-                //if ($doc->status && Auth::user()->allowed2('edit.site.asbestos', $doc))
-                //    return '<a href="/site/asbestos/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                if ($doc->status && Auth::user()->allowed2('edit.site.asbestos', $doc))
+                    return '<a href="/site/asbestos/notification/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
 
                 //return '<a href="/site/asbestos/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
             })

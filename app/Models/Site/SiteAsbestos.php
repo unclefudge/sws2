@@ -2,21 +2,20 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
+use App\Models\Comms\Todo;
 use App\Models\Misc\Action;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
+use URL;
 
 class SiteAsbestos extends Model
 {
 
     protected $table = 'site_asbestos';
     protected $fillable = [
-        'site_id', 'amount', 'friable', 'type', 'location', 'date_from', 'date_to', 'hours_from', 'hours_to', 'workers',
+        'site_id', 'amount', 'friable', 'type', 'location', 'date_from', 'date_to', 'hours_from', 'hours_to', 'workers', 'plan_id',
         'client_name', 'client_phone', 'super_id', 'super_phone', 'workplace', 'coalmine', 'hygiene', 'hygiene_report',
         'assessor_name', 'assessor_phone', 'assessor_cert', 'assessor_lic', 'assessor_dept', 'assessor_state', 'safework', 'safework_ref',
         'equip_overalls', 'equip_mask', 'equip_gloves', 'equip_half_face', 'equip_full_face', 'equip_other',
@@ -140,6 +139,34 @@ class SiteAsbestos extends Model
             $action = Action::create(['action' => $mesg, 'table' => $this->table, 'table_id' => $this->id]);
             $this->emailAction($action, 'important');
         }
+    }
+
+    public function closeToDo($type = 'asbestos notify')
+    {
+        $todos = Todo::where('type', $type)->where('type_id', $this->id)->where('status', '1')->get();
+        foreach ($todos as $todo) {
+            $todo->status = 0;
+            $todo->done_at = Carbon::now();
+            $todo->done_by = Auth::user()->id;
+            $todo->save();
+        }
+    }
+
+    public function createAssignSupervisorToDo($user_list)
+    {
+        // Create ToDoo for assignment to Supervisor
+        $todo_request = [
+            'type' => 'asbestos notify',
+            'type_id' => $this->id,
+            'name' => 'Asbestos Notification - ' . $this->site->name,
+            'info' => 'Please complete the Asbestos Notification for ' . $this->site->name,
+            'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
+            'company_id' => $this->site->owned_by->id,
+        ];
+
+        $todo = Todo::create($todo_request);
+        $todo->assignUsers($user_list);
+        $todo->emailToDo();
     }
 
     /**
