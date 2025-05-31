@@ -287,7 +287,16 @@
                                                     @endif
                                                 </ul>
                                             </div>
-                                            <div class="col-md-2 hidden-sm hidden-xs"></div>
+                                            <div class="col-md-2">
+                                                @if (Auth::user()->hasAnyPermissionType('settings'))
+                                                    <ul class="mega-menu-submenu">
+                                                        @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                                                            <li><h3 class="h3-submenu">Settings</h3></li>
+                                                            <li><a href="/planner/publicholidays" class="nav-link"> Public holidays </a></li>
+                                                        @endif
+                                                    </ul>
+                                                @endif
+                                            </div>
                                             <div class="col-md-3 hidden-sm hidden-xs"><img src="/img/think-safety.png"></div>
                                         </div>
                                         <div class="row hidden-sm hidden-xs"

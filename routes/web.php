@@ -689,6 +689,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('settings/role/child', '\App\Http\Controllers\Misc\RoleController@child');
     Route::resource('settings/role', '\App\Http\Controllers\Misc\RoleController');
 
+    // Public Holidays
+    Route::get('planner/publicholidays/dt/dates', '\App\Http\Controllers\Site\Planner\PublicHolidayController@getDates');
+    Route::resource('planner/publicholidays', '\App\Http\Controllers\Site\Planner\PublicHolidayController');
 
     // Planners
     Route::any('planner/weekly', '\App\Http\Controllers\Site\Planner\SitePlannerController@showWeekly');
