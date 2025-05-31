@@ -1261,6 +1261,20 @@ class CronController extends Controller
                         }
                     }
                 }
+                // Public Holidays for the week
+                $testdate = $ext->date;
+                for ($i = 0; $i < 5; $i++) {
+                    echo "check " . $testdate->format('d/m/Y') . "<br>";
+                    if (publicHoliday($testdate->format('Y-m-d'))) {
+                        $ext_site->notes = $ext_site->notes . "Public Holiday [" . $testdate->format('d/m/Y') . "]\r\n";
+                        $ext_site->days = $ext_site->days + 1;
+                        $ext_site->reasons = 3;  // Public holiday
+                        $ext_site->save();
+                        echo "Adding Public Holiday [" . $testdate->format('d/m/Y') . " for " . $site['name'] . "<br>";
+                        $log .= "Adding Public Holiday [" . $testdate->format('d/m/Y') . " for " . $site['name'] . "\n";
+                    }
+                    $testdate = $testdate->addDay();
+                }
             } elseif ($ext_site->completion_date != $site['completion_date']) {
                 $ext_site->completion_date = $site['completion_date'];
                 $ext_site->save();
