@@ -782,13 +782,17 @@ class CronReportController extends Controller
             // Supervisors list
             $outSupers = [];
             foreach ($outQas as $qa) {
-                $outSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
+                if (isset($outSupers[$qa->site->supervisorName]))
+                    $outSupers[$qa->site->supervisorName] = $outSupers[$qa->site->supervisorName] + 1;
+                else
+                    $outSupers[$qa->site->supervisorName] = 1;
+                //$outSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
             }
-            asort($outSupers);
+            ksort($outSupers);
 
             $report_type = "Outstanding";
             // For each Super create their own pdf
-            foreach ($outSupers as $super_id => $supervisor) {
+            foreach ($outSupers as $supervisor => $count) {
                 // Create PDF
                 $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
                 $file = public_path("filebank/tmp/qa-outstanding-$super_name.pdf");
@@ -818,13 +822,17 @@ class CronReportController extends Controller
             // Supervisors list
             $holdSupers = [];
             foreach ($holdQas as $qa) {
-                $holdSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
+                //$holdSupers[$qa->site->supervisor_id] = $qa->site->supervisorName;
+                if (isset($holdSupers[$qa->site->supervisorName]))
+                    $holdSupers[$qa->site->supervisorName] = $holdSupers[$qa->site->supervisorName] + 1;
+                else
+                    $holdSupers[$qa->site->supervisorName] = 1;
             }
-            asort($holdSupers);
+            ksort($holdSupers);
 
             $report_type = "On Hold";
             // For each Super create their own pdf
-            foreach ($holdSupers as $super_id => $supervisor) {
+            foreach ($holdSupers as $supervisor => $count) {
                 // Create PDF
                 $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
                 $file = public_path("filebank/tmp/qa-onhold-$super_name.pdf");

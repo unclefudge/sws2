@@ -5,13 +5,13 @@
 Please find the attached reports for:
 
 {{ $outQas->count() }} Outstanding QA's for the following Supervisors.
-@foreach ($outSupers as $super_id => $super_name)
-- {{ $super_name }}
+@foreach ($outSupers as $super_name => $count)
+- {{ $super_name }} ({{ $count }})
 @endforeach
 
 {{ $holdQas->count() }} On Hold QA's for the following Supervisors.
-@foreach ($holdSupers as $super_id => $super_name)
-- {{ $super_name }}
+@foreach ($holdSupers as $super_name => $count)
+- {{ $super_name }} ({{ $count }} )
 @endforeach
 
 <br><br>
