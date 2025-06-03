@@ -23,9 +23,6 @@
                                 <span class="caption-subject bold uppercase font-green-haze"> In Progress</span>
                             </div>
                             <div class="actions">
-                                @if(Auth::user()->hasPermission2('add.site.asbestos'))
-                                    <a class="btn btn-circle green btn-outline btn-sm" href="/site/asbestos/register/create" data-original-title="Add">Add</a>
-                                @endif
                             </div>
                         </div>
                         <div class="portlet-body">
@@ -66,7 +63,7 @@
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Asbestos Register</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> Ready for Construction</span>
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasPermission2('add.site.asbestos'))
