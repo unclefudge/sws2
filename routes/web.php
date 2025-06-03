@@ -487,6 +487,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/scaffold/handover/dt/list', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@getCertificates');
     Route::any('site/scaffold/handover/upload', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@uploadAttachment');
     Route::get('site/scaffold/handover/create/{site_id}', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@create');
+    Route::any('site/scaffold/handover/deltask/{task_id}', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@delTask');
     Route::any('site/scaffold/handover/{id}/docs', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@documents');
     Route::get('site/scaffold/handover/{id}/report', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@reportPDF');
     Route::post('site/scaffold/handover/{id}/report', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@emailPDF');

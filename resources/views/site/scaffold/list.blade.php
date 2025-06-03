@@ -69,14 +69,18 @@
                                             <thead>
                                             <tr class="mytable-header">
                                                 <th> Site</th>
-                                                <th style="width:10%"> Due Date</th>
+                                                <th style="width:10%"> Task Date</th>
+                                                <th style="width:5%"> Action</th>
                                             </tr>
                                             </thead>
                                             @foreach ($ashby as $scaff)
                                                 @if ($scaff['status'] == 'outstanding')
                                                     <tr>
                                                         <td>{!! $scaff['name'] !!}</td>
-                                                        <td>{!! $scaff['due_at'] !!}</td>
+                                                        <td>{!! $scaff['task_date'] !!}</td>
+                                                        <td>
+                                                            <button class="btn dark btn-xs sbold uppercase margin-bottom btn-deleteAsh " data-taskid="{{$scaff['plan_id']}}" data-name="{{$scaff['name']}} - {{$scaff['task_date']}}"><i class="fa fa-trash"></i></button>
+                                                        </td>
                                                     </tr>
                                                 @endif
                                             @endforeach
@@ -88,14 +92,14 @@
                                             <thead>
                                             <tr class="mytable-header">
                                                 <th> Site</th>
-                                                <th style="width:10%"> Due Date</th>
+                                                <th style="width:10%"> Task Date</th>
                                             </tr>
                                             </thead>
                                             @foreach ($ashby as $scaff)
                                                 @if ($scaff['status'] == 'completed')
                                                     <tr>
                                                         <td>{!! $scaff['name'] !!}</td>
-                                                        <td>{!! $scaff['due_at'] !!}</td>
+                                                        <td>{!! $scaff['task_date'] !!}</td>
                                                     </tr>
                                                 @endif
                                             @endforeach
@@ -160,6 +164,7 @@
             table1.ajax.reload();
         });
 
+        // Delete from datatable
         table1.on('click', '.btn-delete[data-remote]', function (e) {
             e.preventDefault();
             var url = $(this).data('remote');
@@ -186,6 +191,28 @@
                 }).always(function (data) {
                     $('#table1').DataTable().draw(false);
                 });
+            });
+        });
+
+        // Delete from Ashbys
+        $('.btn-deleteAsh').click(function (e) {
+            e.preventDefault();
+            var taskid = $(this).data('taskid');
+            var name = $(this).data('name');
+            var url = "/site/scaffold/handover/deltask/" + taskid;
+            //alert(taskid);
+
+            swal({
+                title: "Are you sure?",
+                text: "This will perminately delete the Scaffold task on the planner!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                window.location.href = "/site/scaffold/handover/deltask/" + taskid;
             });
         });
     </script>

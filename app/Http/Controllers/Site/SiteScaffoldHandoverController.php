@@ -55,13 +55,13 @@ class SiteScaffoldHandoverController extends Controller
                 $certificate = SiteDoc::where('site_id', $plan->site_id)->where('name', 'like', '%Scaffolding Handover Certificate%')->first();
                 if (!$certificate && !in_array($plan->id, $excludePlannerTasks)) {
                     // Add outstanding scaff to main list
-                    $ashby[$plan->site->name] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'outstanding'];
+                    $ashby[$plan->from->format('Ymd') . $plan->id] = ['name' => $plan->site->name, 'plan_id' => $plan->id, 'task_date' => $plan->from->format('d/m/Y'), 'status' => 'outstanding'];
                 } elseif ($certificate && !in_array($plan->id, $excludePlannerTasks)) {
-                    $ashby[$plan->site->name] = ['name' => $plan->site->name, 'due_at' => $plan->from->format('d/m/Y'), 'status' => 'completed'];
+                    $ashby[$plan->from->format('Ymd') . $plan->id] = ['name' => $plan->site->name, 'plan_id' => $plan->id, 'task_date' => $plan->from->format('d/m/Y'), 'status' => 'completed'];
                 }
             }
         }
-        krsort($ashby);
+        ksort($ashby);
 
         return view('site/scaffold/list', compact('ashby'));
     }
@@ -244,6 +244,23 @@ class SiteScaffoldHandoverController extends Controller
         $report->delete();
 
         return json_encode('success');
+    }
+
+    public function delTask($id)
+    {
+        $plan = SitePlanner::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.scaffold.handover',))
+            return view('errors/404');
+
+        // Delete attached file
+        //if (file_exists(public_path('/filebank/construction/doc/standards/' . $report->attachment)))
+        //    unlink(public_path('/filebank/construction/doc/standards/' . $report->attachment));
+        $plan->delete();
+        Toastr::error("Scaffold task deleted");
+
+        return redirect('site/scaffold/handover');
     }
 
 
