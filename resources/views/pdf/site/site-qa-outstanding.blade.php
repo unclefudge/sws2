@@ -52,7 +52,7 @@
     <div class="page22">
         <?php $row_count = 0; ?>
         <?php $page_count = 1; ?>
-        @foreach ($supers as $sid => $super_name)
+        @foreach ($supers as $super_name => $qa_count)
             @foreach ($qas as $qa)
                 @if ($row_count == 0)
                     {{-- New Page - Show header --}}
