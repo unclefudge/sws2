@@ -301,6 +301,14 @@ class SiteAsbestosRegisterController extends Controller
      */
     public function getReports()
     {
+        // Asbestos Registor in Progress
+        $progress_ids = [];
+        $asb10 = SiteAsbestosRegister::where('version', "1.0")->get();
+        foreach ($asb10 as $report) {
+            if (!count($report->items))
+                $progress_ids[] = $report->id;
+        }
+
         $site_list = Auth::user()->authSites('view.site.asbestos')->pluck('id')->toArray();
         if (request('status') == 0)
             $status = [0];
@@ -312,6 +320,7 @@ class SiteAsbestosRegisterController extends Controller
             ->select(['a.id', 'a.site_id', 'a.attachment', 'a.status', 'a.updated_at',
                 's.name as sitename', 's.code'])
             ->join('sites AS s', 'a.site_id', '=', 's.id')
+            ->whereNotIn('a.id', $progress_ids)
             ->whereIn('a.site_id', $site_list)
             ->whereIn('s.status', $status);
 

@@ -1103,7 +1103,7 @@ class CronController extends Controller
 
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {
-                $scaff = SiteScaffoldHandover::where('site_id', $task->site->id)->first();
+                $scaff = SiteScaffoldHandover::where('site_id', $task->site->id)->where('status', 1)->first();
                 if (!$scaff) {
                     // Create Scaffold Certificate
                     $scaff = SiteScaffoldHandover::create(['site_id' => $task->site->id]);
