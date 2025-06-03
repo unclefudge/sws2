@@ -171,6 +171,7 @@ class SiteAsbestosController extends Controller
     public function update(SiteAsbestosRequest $request, $id)
     {
         $asb = SiteAsbestos::findOrFail($id);
+        $asb_orig = SiteAsbestos::findOrFail($id);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.asbestos', $asb))
@@ -230,6 +231,10 @@ class SiteAsbestosController extends Controller
         $asb->closeToDo();
         Action::create(['action' => 'Notification fields updated', 'table' => 'site_asbestos', 'table_id' => $asb->id]);
         Toastr::success("Saved changes");
+
+        // Email notification if changes in Amount
+        if ($asb_orig->amount != $asb->amount)
+            $newAsb->emailNotification(); // Email notification
 
         return redirect("site/asbestos/notification/$asb->id");
     }
