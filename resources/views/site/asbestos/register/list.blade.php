@@ -31,7 +31,7 @@
                                 <tr class="mytable-header">
                                     <th style="width:5%"> #</th>
                                     <th> Site</th>
-                                    <th style="width:10%"> Updated</th>
+                                    <th style="width:10%"> Created</th>
                                     <th style="width:5%"></th>
                                 </tr>
                                 </thead>
