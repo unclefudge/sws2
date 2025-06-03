@@ -138,42 +138,20 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>On Site Company (Primary Contact)</h1><br>";
-        $companies = $companies = Auth::user()->authCompanies('view.company', 1)->sortBy('id');
-        $count = 0;
-        foreach ($companies as $company) {
-            if (in_array($company->category, [1, 2])) {
-                $count++;
-                echo $company->id . ". &nbsp " . $company->name . "<br>";
-                if ($company->primary_user) {
-                    echo " &nbsp; &nbsp; &nbsp; - " . $company->primary_contact()->fullname . " <br>";
+        echo "<h1>Missing Asbestos Register</h1><br>";
+        $codes = [8233, 8272, 8249, 8254, 8259, 8264, 8265, 8266, 8267, 8268, 8269, 8270, 8271, 8273, 8274, 8275, 8276, 8277, 8278, 8279, 8280, 8282, 8283, 8284];
+        foreach ($codes as $code) {
+            $site = Site::where('code', $code)->first();
+            if ($site) {
+                $asb = SiteAsbestosRegister::where('site_id', $site->id)->first();
+                if (!$asb) {
+                    echo "create $site->name<br>";
+                    $asb = SiteAsbestosRegister::create(['site_id' => $site->id, 'version' => '1.0']);
+                } else {
+                    echo "existing $site->name<br>";
                 }
             }
         }
-
-        $userlist = [];
-        $users = User::where('status', 1)->get();
-        foreach ($users as $user) {
-            if ($user->hasRole2('ext-leading-hand')) {
-                $userlist[$user->id] = $user->company->id;
-            }
-        }
-
-        asort($userlist);
-
-        echo "<h1>Leading Hands (sorted by Company)</h1><br>";
-        $current_company = '';
-        $count = 0;
-        foreach ($userlist as $uid => $cid) {
-            $company = Company::find($cid);
-            if ($current_company != $cid) {
-                echo $cid . ". &nbsp " . $company->name . "<br>";
-                $current_company = $cid;
-            }
-            $user = User::find($uid);
-            echo " &nbsp; &nbsp; &nbsp; - " . $user->fullname . " <br>";
-        }
-
         /*
         echo "Update Site Eworks + Pworks<br>";
         $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
