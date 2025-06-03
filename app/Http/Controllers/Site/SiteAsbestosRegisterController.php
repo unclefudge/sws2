@@ -2,35 +2,27 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Input;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteAsbestosRegisterItem;
-use App\Models\Misc\Action;
-use App\Models\Company\Company;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Input;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteAsbestosRegisterController
  * @package App\Http\Controllers\Site
  */
-class SiteAsbestosRegisterController extends Controller {
+class SiteAsbestosRegisterController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -43,7 +35,14 @@ class SiteAsbestosRegisterController extends Controller {
         if (!Auth::user()->hasAnyPermissionType('site.asbestos'))
             return view('errors/404');
 
-        return view('site/asbestos/register/list');
+        $progress = [];
+        $asb10 = SiteAsbestosRegister::where('version', "1.0")->get();
+        foreach ($asb10 as $report) {
+            if (!count($report->items))
+                $progress[] = $report;
+        }
+
+        return view('site/asbestos/register/list', compact('progress'));
     }
 
     /**
@@ -148,7 +147,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (!Auth::user()->allowed2('add.site.asbestos'))
             return view('errors/404');
 
-        $rules = (request('no-asbestos')) ? ['site_id' => 'required'] :  ['site_id' => 'required', 'date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
+        $rules = (request('no-asbestos')) ? ['site_id' => 'required'] : ['site_id' => 'required', 'date' => 'required', 'friable' => 'required', 'type' => 'required', 'location' => 'required', 'condition' => 'required', 'assessment' => 'required'];
         $mesg = ['site_id.required' => 'The site field is required.', 'amount.required' => 'The quantity field is required.', 'friable.required' => 'The asbestos class field is required.'];
         request()->validate($rules, $mesg); // Validate
 
@@ -161,7 +160,7 @@ class SiteAsbestosRegisterController extends Controller {
         if ($asb) {
             // Increment major version
             list($major, $minor) = explode('.', $asb->version);
-            $major ++;
+            $major++;
             $asb->version = $major . '.0';
         } else
             $asb = SiteAsbestosRegister::create(['site_id' => request('site_id'), 'version' => '1.0']);
@@ -215,7 +214,7 @@ class SiteAsbestosRegisterController extends Controller {
 
         // Increment minor version
         list($major, $minor) = explode('.', $asb->version);
-        $minor ++;
+        $minor++;
         $asb->version = $major . '.' . $minor;
 
         // Create PDF
@@ -243,7 +242,7 @@ class SiteAsbestosRegisterController extends Controller {
 
         // Increment major version
         list($major, $minor) = explode('.', $asb->version);
-        $major ++;
+        $major++;
         $asb->version = $major . '.0';
         $asb->save();
 
@@ -264,6 +263,7 @@ class SiteAsbestosRegisterController extends Controller {
             unlink(public_path('/filebank/site/' . $asb->site_id . '/docs/' . $asb->attachment));
 
 
+        //dd('here');
         $asb->delete();
         Toastr::error("Asbestos register deleted");
 
@@ -305,7 +305,7 @@ class SiteAsbestosRegisterController extends Controller {
         if (request('status') == 0)
             $status = [0];
         elseif (request('status') == '-1')
-            $status = [- 1];
+            $status = [-1];
         else
             $status = [1, 2];
         $records = DB::table('site_asbestos_register AS a')

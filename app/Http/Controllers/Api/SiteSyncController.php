@@ -8,6 +8,7 @@ use App\Models\Company\Company;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
+use App\Models\Site\SiteAsbestosRegister;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -59,9 +60,16 @@ class SiteSyncController extends Controller
                 if ($save_enabled) {
                     // Assigned 'TO BE ALLOCATED' as Supervisor;
                     $site = Site::create(['name' => request('name'), 'code' => request('code'), 'state' => 'NSW', 'supervisor_id' => '136', 'status' => "-1", 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
+
+                    // Create Equipment Location
                     $location = EquipmentLocation::where('site_id', $site->id)->first();
                     if (!$location)
                         $location = EquipmentLocation::create(['site_id' => $site->id, 'status' => "1", 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
+
+                    $asb = SiteAsbestosRegister::where('site_id', $site->id)->first();
+                    if (!$asb)
+                        $asb = SiteAsbestosRegister::create(['site_id' => $site->id, 'version' => '1.0']);
+
                 }
             }
 
