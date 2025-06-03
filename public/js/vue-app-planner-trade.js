@@ -358,8 +358,14 @@ Vue.component('app-weekly', {
 
             // Don't allow any task to be added prior to 'START' task (except Pre-construction meeting)
             if (site.start != '' && moment(this.xx.day_date).isBefore(site.start)) {
-                validTask = false;
-                toastr.error('Unable to add tasks before "Start Job"');
+                // Tree Prep (229), Site Prep (31, 228, 645-655, 658-660)
+                allowedTasks = ['229', '31', '228', '645', '646', '647', '648', '649', '650', '651', '652', '653', '654', '655', '658', '659', '660'];
+                if (allowedTasks.includes(newtask.task_id)) {
+                    console.log('allowed task before Start Job');
+                } else {
+                    validTask = false;
+                    toastr.error('Unable to add tasks before "Start Job" id:' + newtask.task_id);
+                }
             } else if (newtask.task_code === 'START') {
                 toastr.error("This task can only be added by the Trade Planner Actions button");
                 validTask = false;
