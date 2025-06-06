@@ -95,8 +95,8 @@ class MailgunSiteNoteController extends Controller
 
         $files = collect(json_decode(request()->input('attachments'), true));
 
-        if ($this->debug) app('log')->debug("========= SiteNote Import Details ==========");
-        if ($this->debug) app('log')->debug(request()->all());
+        //if ($this->debug) app('log')->debug("========= SiteNote Import Details ==========");
+        //if ($this->debug) app('log')->debug(request()->all());
         if ($files->count()) {
             foreach ($files as $file) {
                 // Save the file
@@ -106,8 +106,8 @@ class MailgunSiteNoteController extends Controller
                 if ($file['content-type'] == 'application/pkcs7-signature')
                     continue;
 
-                // ignore files with extension .p7s (digitally signed MIME email verification)
-                if ($file['size'] == 0)
+                // ignore empty files or embedded images (eg image003.jpg)
+                if ($file['size'] == 0 || preg_match('/^image\d+/', $file['name']))
                     continue;
 
                 $saved_file = public_path($dir . '/' . $file['name']);

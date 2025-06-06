@@ -138,20 +138,17 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>Missing Asbestos Register</h1><br>";
-        $codes = [8233, 8272, 8249, 8254, 8259, 8264, 8265, 8266, 8267, 8268, 8269, 8270, 8271, 8273, 8274, 8275, 8276, 8277, 8278, 8279, 8280, 8282, 8283, 8284];
-        foreach ($codes as $code) {
-            $site = Site::where('code', $code)->first();
-            if ($site) {
-                $asb = SiteAsbestosRegister::where('site_id', $site->id)->first();
-                if (!$asb) {
-                    echo "create $site->name<br>";
-                    $asb = SiteAsbestosRegister::create(['site_id' => $site->id, 'version' => '1.0']);
-                } else {
-                    echo "existing $site->name<br>";
-                }
-            }
+        echo "<h1>testing str match</h1><br>";
+        $strings = ['image004.png', 'image6.jpg', 'image30.png', 'valid1.png', 'valid2.jpg', 'image.jpg'];
+        foreach ($strings as $string) {
+            echo $string;
+            if (preg_match('/^image\d+/', $string))
+                echo " Yes<br>";
+            else
+                echo " No<br>";
         }
+
+
         /*
         echo "Update Site Eworks + Pworks<br>";
         $sites = Site::where('company_id', '3')->whereNot('status', 0)->get();
