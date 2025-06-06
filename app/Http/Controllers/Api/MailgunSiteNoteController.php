@@ -87,7 +87,7 @@ class MailgunSiteNoteController extends Controller
 
 
         // Get the attachments
-        $dir = '/filebank/tmp/sitenote';
+        /*$dir = '/filebank/tmp/sitenote';
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 
         $files = collect(json_decode(request()->input('attachments'), true));
@@ -105,7 +105,7 @@ class MailgunSiteNoteController extends Controller
 
                 //$result = $this->parseFile($saved_file);
             }
-        }
+        }*/
 
         // Email New Note
         //$note->emailNote();
