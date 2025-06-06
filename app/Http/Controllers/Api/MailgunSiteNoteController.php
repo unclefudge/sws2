@@ -100,7 +100,11 @@ class MailgunSiteNoteController extends Controller
                 if ($this->debug) app('log')->debug($file);
 
                 // ignore files with extension .p7s (digitally signed MIME email verification)
-                if (pathinfo($file['name'], PATHINFO_EXTENSION) == 'p7s')
+                if ($file['content-type'] == 'application/pkcs7-signature')
+                    continue;
+
+                // ignore files with extension .p7s (digitally signed MIME email verification)
+                if ($file['size'] == 0)
                     continue;
 
                 $saved_file = public_path($dir . '/' . $file['name']);
