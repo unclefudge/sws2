@@ -94,6 +94,9 @@ class MailgunSiteNoteController extends Controller
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 
         $files = collect(json_decode(request()->input('attachments'), true));
+
+        if ($this->debug) app('log')->debug("========= SiteNote Import Details ==========");
+        if ($this->debug) app('log')->debug(request()->all());
         if ($files->count()) {
             foreach ($files as $file) {
                 // Save the file
