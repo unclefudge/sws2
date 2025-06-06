@@ -7,8 +7,10 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use Carbon\Carbon;
 use File;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Mail;
+
 
 class MailgunSiteNoteController extends Controller
 {
