@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use Carbon\Carbon;
@@ -102,7 +103,7 @@ class MailgunSiteNoteController extends Controller
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
                 if ($this->debug) app('log')->debug("Saving file: $saved_file");
-
+                
                 // Add attachment to original note
                 $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
                 $attachment->saveAttachment($saved_file);
