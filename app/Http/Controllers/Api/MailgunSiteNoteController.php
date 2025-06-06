@@ -98,6 +98,11 @@ class MailgunSiteNoteController extends Controller
             foreach ($files as $file) {
                 // Save the file
                 if ($this->debug) app('log')->debug($file);
+
+                // ignore files with extension .p7s (digitally signed MIME email verification)
+                if (pathinfo($tmp_filename, PATHINFO_EXTENSION) == 'p7s')
+                    continue;
+                
                 $saved_file = public_path($dir . '/' . $file['name']);
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
