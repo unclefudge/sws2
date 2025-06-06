@@ -103,10 +103,10 @@ class MailgunSiteNoteController extends Controller
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
                 if ($this->debug) app('log')->debug("Saving file: $saved_file");
-                
+
                 // Add attachment to original note
                 $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
-                $attachment->saveAttachment($saved_file);
+                $attachment->moveAttachment($saved_file);
 
                 //$result = $this->parseFile($saved_file);
             }

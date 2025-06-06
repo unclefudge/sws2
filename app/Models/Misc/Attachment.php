@@ -89,6 +89,36 @@ class Attachment extends Model
         }
     }
 
+    public function moveAttachment($tmp_filename, $filename_prefix = '', $name = '')
+    {
+        if (file_exists($tmp_filename)) {
+            // Move given file to new actual directory
+            $dir = $this->directory;
+            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+
+            //$pathparts = pathinfo($tmp_filename);
+            $newFile = ($filename_prefix) ? $filename_prefix . pathinfo($tmp_filename, PATHINFO_BASENAME) : pathinfo($tmp_filename, PATHINFO_BASENAME);
+
+            // Ensure filename is unique by adding counter to similar filenames
+            $count = 1;
+            while (file_exists(public_path("$dir/$newFile"))) {
+                $ext = pathinfo($newFile, PATHINFO_EXTENSION);
+                $filename = pathinfo($newFile, PATHINFO_FILENAME);
+                $newFile = $filename . $count++ . ".$ext";
+            }
+            rename($tmp_filename, public_path("$dir/$newFile"));
+
+            // Determine file extension and set type
+            $ext = pathinfo($tmp_filename, PATHINFO_EXTENSION);
+
+            // Update record
+            $this->name = ($name) ? $name : pathinfo($newFile, PATHINFO_BASENAME);
+            $this->type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
+            $this->attachment = $newFile;
+            $this->save();
+        }
+    }
+
 
     /**
      * A Attachment belongs to a user
