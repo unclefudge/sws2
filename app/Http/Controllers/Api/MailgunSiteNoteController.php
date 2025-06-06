@@ -87,14 +87,15 @@ class MailgunSiteNoteController extends Controller
 
 
         // Get the attachments
-        /*$dir = '/filebank/tmp/sitenote';
+        $dir = '/filebank/tmp/sitenote';
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 
         $files = collect(json_decode(request()->input('attachments'), true));
         if ($files->count()) {
             foreach ($files as $file) {
                 // Save the file
-                $saved_file = public_path($dir . '/' . $file);
+                if ($this->debug) app('log')->debug($file);
+                $saved_file = public_path($dir . '/' . $file['name']);
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
@@ -105,7 +106,7 @@ class MailgunSiteNoteController extends Controller
 
                 //$result = $this->parseFile($saved_file);
             }
-        }*/
+        }
 
         // Email New Note
         //$note->emailNote();
