@@ -78,8 +78,9 @@ class SiteNoteController extends Controller
 
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+        $edit = 'false';
 
-        return view('site/note/show', compact('note', 'site_list', 'categories'));
+        return view('site/note/show', compact('note', 'site_list', 'categories', 'edit'));
     }
 
     /**
@@ -252,12 +253,14 @@ class SiteNoteController extends Controller
             return view('errors/404');
 
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
-        $site_list = Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+        $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
+        $edit = 'true';
 
         if ($note->status == 1)
-            return view('/site/note/edit', compact('note', 'categories', 'site_list'));
+            return view('site/note/show', compact('note', 'site_list', 'categories', 'edit'));
         else
             return redirect("/site/note/$note->id");
+
     }
 
     /**
@@ -269,34 +272,19 @@ class SiteNoteController extends Controller
     {
         $note = SiteNote::findOrFail($id);
 
+        //dd(request()->all());
+
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.note', $note))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'category_id' => 'required', 'notes' => 'required'];
-
-        if (request('category_id') == 15) {
-            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required'];
-        }
-        if (request('category_id') == 16) {
-            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'variation_cost' => 'required', 'variation_days' => 'required'];
-        }
-        $mesg = ['site_id.required' => 'The site field is required.',
-            'category_id.required' => 'The category field is required.',
-            'notes.required' => 'The notes field is required.',
-            'costing_extra_credit.required' => 'The costing credit/extra field is required.',
-            'costing_item.required' => 'The costing new item/in lieu field is required.',
-            'costing_room.required' => 'The costing room field is required.',
-            'costing_location.required' => 'The costing location days field is required.',
-            'variation_name.required' => 'The variation name field is required.',
-            'variation_info.required' => 'The variation description field is required.',
-            'variation_cost.required' => 'The variation cost field is required.',
-            'variation_days.required' => 'The variation days field is required.'
-        ];
+        $rules = ['site_id' => 'required'];
+        $mesg = ['site_id.required' => 'The site field is required.',];
         request()->validate($rules, $mesg); // Validate
 
+        //dd(request()->all());
         // Update Site Note
-        $note->update(request()->all());
+        //$note->update(request()->all());
 
 
         // Handle attachments
@@ -308,7 +296,7 @@ class SiteNoteController extends Controller
             }
         }
 
-        return redirect("site/$note->site_id/notes");
+        return redirect("site/note/$note->id");
 
     }
 
@@ -328,6 +316,20 @@ class SiteNoteController extends Controller
         $note->delete();
 
         return json_encode('success');
+    }
+
+    public function delAttachment($id, $attach_id)
+    {
+        $note = SiteNote::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2("edit.site.note", $note))
+            return json_encode("failed");
+
+        $attachment = Attachment::find($attach_id);
+        $attachment->delete();
+
+        return redirect("site/note/$note->id/edit");
     }
 
 

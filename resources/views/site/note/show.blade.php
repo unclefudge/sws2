@@ -24,20 +24,22 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
+                        {!! Form::model($note, ['method' => 'PATCH', 'action' => ['Site\SiteNoteController@update', $note->id], 'class' => 'horizontal-form']) !!}
                         <div class="form-body">
                             <div class="row">
                                 {{-- Site --}}
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_id', $note->site->name, ['class' => 'form-control', 'readonly', 'id' => 'site_id']) !!}
+                                        {!! Form::label('site_name', 'Site', ['class' => 'control-label']) !!}
+                                        {!! Form::text('site_name', $note->site->name, ['class' => 'form-control', 'readonly', 'id' => 'site_name']) !!}
+                                        <input type="hidden" name="site_id" value="{{ $note->site_id }}">
                                     </div>
                                 </div>
                                 {{-- Category --}}
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::text('category_id', ($note->category_id) ? $note->category->name : 'none', ['class' => 'form-control', 'readonly', 'id' => 'category_id']) !!}
+                                        {!! Form::label('category_name', 'Category', ['class' => 'control-label']) !!}
+                                        {!! Form::text('category_name', ($note->category_id) ? $note->category->name : 'none', ['class' => 'form-control', 'readonly', 'id' => 'category_name']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -230,16 +232,28 @@
                         </div>
 
                         {{-- Attachments --}}
-                        <h5><b>Attachments:</b></h5>
+                        <h5><b>Attachments:</b> <small><a href="/site/note/{{$note->id}}/edit">EDIT</a></small></h5>
                         @if ($note->attachments()->count())
                             <hr style="margin: 10px 0px; padding: 0px;">
                             {{-- Image attachments --}}
                             <div class="row" style="margin: 0">
                                 @foreach ($note->attachments() as $attachment)
                                     @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                        {{--}} <div style="width: 60px; float: left; padding-right: 5px">
+                                             <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
+                                                 <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                             @if (Auth::user()->hasPermission2("del.site.note") || true)
+                                                 <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
+                                             @endif
+                                         </div>--}}
+
                                         <div style="width: 60px; float: left; padding-right: 5px">
+                                            @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
+                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                            @endif
                                             <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
                                                 <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            <br>
                                         </div>
                                     @endif
                                 @endforeach
@@ -249,6 +263,9 @@
                                 @foreach ($note->attachments() as $attachment)
                                     @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
                                         <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
+                                        @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
+                                            <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                        @endif
                                         <br>
                                     @endif
                                 @endforeach
@@ -258,6 +275,20 @@
                             None
                         @endif
 
+                        @if ($edit == 'true')
+                            <div class="row" id="upload_attachment_div">
+                                <div class="col-md-6">
+                                    <h5 id="uploads_label">Upload Attachments</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                </div>
+                                <div class="col-md-6">
+                                    <br><br>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
+                                </div>
+                            </div>
+                        @endif
+
+                        {!! Form::close() !!}
 
                         {{-- Reply --}}
                         @if ($note->extraNotes->count())
@@ -277,10 +308,9 @@
                             </table>
                         @endif
 
-
                         <br><br>
                         <div class="form-actions right">
-                            <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
+                            <a href="/site/note" class="btn default"> Back</a>
                             @if (in_array($note->category_id, [19,20]))
                                 <a href="/site/{{$note->id}}/notes/convert" class="btn green"> Copy & Create To Approved Site Variation </a>
                             @endif
@@ -312,6 +342,26 @@
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $(document).ready(function () {
+            // Delete from Ashbys
+            $('.deleteFile').click(function (e) {
+                e.preventDefault();
+                var attach_id = $(this).data('attachid');
+                var name = $(this).data('name');
+                //alert(taskid);
+
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this attachment!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location.href = "/site/note/{{$note->id}}/delattachment/" + attach_id;
+                });
+            });
         });
     </script>
 @stop
