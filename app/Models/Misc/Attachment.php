@@ -52,7 +52,7 @@ class Attachment extends Model
     {
         $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
         if ($tempFile) {
-            // Move temp file to support ticket directory
+            // Move temp file to new actual directory
             $dir = $this->directory;
             if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
 

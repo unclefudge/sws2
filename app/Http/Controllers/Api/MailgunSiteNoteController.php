@@ -85,7 +85,7 @@ class MailgunSiteNoteController extends Controller
         $note->touch();
         $newNote = SiteNote::create(['site_id' => $site->id, 'category_id' => $note->category_id, 'notes' => "[Note Reply From: $sender]\n$emailBody", 'parent' => $note->id, 'created_by' => 1, 'updated_by' => 1]);
 
-        /*
+
         // Get the attachments
         $dir = '/filebank/tmp/sitenote';
         if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
@@ -94,7 +94,7 @@ class MailgunSiteNoteController extends Controller
         if ($files->count()) {
             foreach ($files as $file) {
                 // Save the file
-                $saved_file = public_path($dir . '/' .$file);
+                $saved_file = public_path($dir . '/' . $file);
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
@@ -105,7 +105,7 @@ class MailgunSiteNoteController extends Controller
 
                 //$result = $this->parseFile($saved_file);
             }
-        }*/
+        }
 
         // Email New Note
         //$note->emailNote();
