@@ -1265,6 +1265,7 @@ class CronController extends Controller
                 }
                 // Public Holidays for the week
                 $testdate = $ext->date;
+                $site = Site::find($site['id']);
                 if ($site->holidays_added != 'Yes') {
                     for ($i = 0; $i < 5; $i++) {
                         echo "check " . $testdate->format('d/m/Y') . "<br>";
