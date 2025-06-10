@@ -1921,6 +1921,20 @@ class SitePlannerController extends Controller
         return $array;
     }
 
+    public function getPublicholidays()
+    {
+        $today = Carbon::now();
+        // Get Public Holidays
+        $holidays = [];
+        foreach (PublicHoliday::where('status', 1)->get() as $hol)
+            $holidays[$hol->date->format('Y-m-d')] = $hol->name;
+
+        $json = [];
+        $json[] = $holidays;
+
+        return $holidays;
+    }
+
     /**
      * Get List of Site Without Job Starts options for 'select' dropdown in Vuejs format
      */

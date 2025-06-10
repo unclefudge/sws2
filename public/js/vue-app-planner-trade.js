@@ -1002,6 +1002,14 @@ Vue.component('app-dayplan', {
                 return true;
             return false;
         },
+        publicHoliday: function (date, days) {
+            // determine if given date is public holiday
+            caldate = moment(date).add(days, 'days').format('YYYY-MM-DD');
+            if (this.xx.holidays.hasOwnProperty(caldate))
+                return this.xx.holidays[caldate];
+
+            return '';
+        },
         pastDateTrade: function (date) {
             // determine if given date is or before today
             if (moment(date).isSameOrBefore(moment(), 'day') || this.xx.permission == 'view')

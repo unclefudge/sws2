@@ -730,6 +730,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('planner/data/trade/joballocate', '\App\Http\Controllers\Site\Planner\SitePlannerController@getSitesWithoutSuper');
     Route::any('planner/data/trade/email-jobstart', '\App\Http\Controllers\Site\Planner\SitePlannerController@emailJobstart');
     Route::any('planner/data/upcoming', '\App\Http\Controllers\Site\Planner\SitePlannerController@getUpcoming');
+    Route::any('planner/data/publicholidays', '\App\Http\Controllers\Site\Planner\SitePlannerController@getPublicholidays');
     Route::resource('planner', '\App\Http\Controllers\Site\Planner\SitePlannerController');
 
     // Support Tickets

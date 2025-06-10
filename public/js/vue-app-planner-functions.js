@@ -126,6 +126,8 @@ function rosterOnDate(roster, date, etype, eid) {
 // either before (-) or after (+) given date
 function nextWorkDate(date, direction, days) {
     var newDate = moment(date);
+
+    //console.log(this.xx.holidays);
     for (var i = 0; i < days; i++) {
         if (direction === '+') {
             newDate = moment(newDate).add(1, 'days');
@@ -133,16 +135,61 @@ function nextWorkDate(date, direction, days) {
                 newDate = moment(newDate).add(2, 'days');
             if (newDate.day() === 0) // Skip Sun
                 newDate = moment(newDate).add(1, 'days');
+            if (newDate.format('YYYY-MM-DD') in this.xx.holidays) {
+                console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
+                newDate = moment(newDate).add(1, 'days');
+            }
         } else {
             newDate = moment(newDate).subtract(1, 'days');
+            if (newDate.format('YYYY-MM-DD') in this.xx.holidays) {
+                console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
+                newDate = moment(newDate).subtract(1, 'days');
+            }
             if (newDate.day() === 6) // skip Sat
                 newDate = moment(newDate).subtract(1, 'days');
             if (newDate.day() === 0) // skip Sun
                 newDate = moment(newDate).subtract(2, 'days');
         }
     }
-
     return newDate.format('YYYY-MM-DD');
+}
+
+function nextWorkDate2(date, direction, days) {
+    var newDate = moment(date);
+    getPublicHolidays().then(function (result) {
+        publichols = [];
+        if (result) {
+            publicholidays = result;
+            //console.log('got hols');
+            //console.log(publicholidays);
+        }
+        console.log('Date:' + newDate.format('YYYY-MM-DD') + ' Dir:' + direction + ' Days:' + days);
+        for (var i = 0; i < days; i++) {
+            if (direction === '+') {
+                newDate = moment(newDate).add(1, 'days');
+                if (newDate.day() === 6) // Skip Sat
+                    newDate = moment(newDate).add(2, 'days');
+                if (newDate.day() === 0) // Skip Sun
+                    newDate = moment(newDate).add(1, 'days');
+                if (newDate.format('YYYY-MM-DD') in publicholidays) {
+                    console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
+                    newDate = moment(newDate).add(1, 'days');
+                }
+            } else {
+                newDate = moment(newDate).subtract(1, 'days');
+                if (newDate.format('YYYY-MM-DD') in publicholidays) {
+                    console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
+                    newDate = moment(newDate).subtract(1, 'days');
+                }
+                if (newDate.day() === 6) // skip Sat
+                    newDate = moment(newDate).subtract(1, 'days');
+                if (newDate.day() === 0) // skip Sun
+                    newDate = moment(newDate).subtract(2, 'days');
+            }
+        }
+        console.log('NewDate: ' + newDate.format('YYYY-MM-DD'));
+        return newDate.format('YYYY-MM-DD');
+    }.bind(this));
 }
 
 // Determine number of 'work' days ie mon-fri
@@ -209,26 +256,39 @@ function connectedTasks(plan, site_id, etype, eid, date) {
 // return a 'promise'
 function updateTaskToDate(task) {
     return new Promise(function (resolve, reject) {
-        var originalDate = task.to;
-        var currentDate = moment(new Date(task.from));
-        for (var i = 1; i < task.days; i++) {
-            currentDate.add(1, 'days');
-            if (currentDate.day() === 6)
-                currentDate.add(2, 'days');
-        }
-        task.to = currentDate.format('YYYY-MM-DD');
 
-        // Update task in DB and once done fulfil the 'promise'
-        updateTaskDB(task).then(function (result) {
+        getPublicHolidays().then(function (result) {
+            publichols = [];
             if (result) {
-                // Update global start or start_carp dates if required
-                if (task.task_code === 'START') this.xx.start_date = task.from;
-                if (task.task_code === 'STARTCarp') this.xx.start_carp = task.from;
-                if (task.task_id == '5') this.xx.carp_prac = task.from;
-                console.log('updated task TO:' + task.task_name + ' T:' + originalDate + ' -> ' + task.to);
-                resolve(task);
-            } else
-                reject(false);
+                publicholidays = result
+                //console.log('got hols');
+                //console.log(publicholidays);
+            }
+            var originalDate = task.to;
+            var currentDate = moment(new Date(task.from));
+            for (var i = 1; i < task.days; i++) {
+                currentDate.add(1, 'days');
+                if (currentDate.day() === 6)
+                    currentDate.add(2, 'days');
+                if (currentDate.format('YYYY-MM-DD') in publicholidays) {
+                    console.log('Pub hol: ' + currentDate.format('YYYY-MM-DD'));
+                    currentDate.add(1, 'days');
+                }
+            }
+            task.to = currentDate.format('YYYY-MM-DD');
+
+            // Update task in DB and once done fulfil the 'promise'
+            updateTaskDB(task).then(function (result) {
+                if (result) {
+                    // Update global start or start_carp dates if required
+                    if (task.task_code === 'START') this.xx.start_date = task.from;
+                    if (task.task_code === 'STARTCarp') this.xx.start_carp = task.from;
+                    if (task.task_id == '5') this.xx.carp_prac = task.from;
+                    console.log('updated task TO:' + task.task_name + ' T:' + originalDate + ' -> ' + task.to);
+                    resolve(task);
+                } else
+                    reject(false);
+            }.bind(this));
         }.bind(this));
     });
 }
@@ -892,6 +952,26 @@ function importSite(plan, site_id) {
             },
             error: function (result) {
                 alert("failed deleting task " + task.task_name + '. Please refresh the page to resync planner');
+                reject(false);
+            }
+        });
+    });
+}
+
+// Get Public holidays and return a 'promise'
+function getPublicHolidays() {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            url: '/planner/data/publicholidays',
+            type: 'GET',
+            success: function (result) {
+                //console.log('DB got public hols');
+                //console.log(result);
+                resolve(result);
+            },
+            error: function (result) {
+                alert("Failed getting public holidays. Please refresh the page to resync planner");
+                console.log('DB get public hols FAILED');
                 reject(false);
             }
         });

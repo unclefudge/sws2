@@ -496,9 +496,9 @@ Vue.component('app-siteplan', {
 
                 // if 'START' task then move whole job + attempt to also move tasks before it.
                 // ie. move any tasks that are on planner after today along with START as long as they don't move to today
-                var dayBefore = nextWorkDate(task.from, '-', '1')
-                var dayAfterToday1 = nextWorkDate(this.xx.today, '+', '1')
-                var dayAfterToday2 = nextWorkDate(this.xx.today, '+', '2')
+                var dayBefore = nextWorkDate(task.from, '-', '1');
+                var dayAfterToday1 = nextWorkDate(this.xx.today, '+', '1');
+                var dayAfterToday2 = nextWorkDate(this.xx.today, '+', '2');
                 if (direction === '-' && moment(dayBefore).isSameOrBefore(moment(), 'day'))
                     toastr.error('Unable to move tasks to or before today!!');
                 else if (direction === '-')
@@ -865,6 +865,12 @@ Vue.component('app-dayplan', {
             if (moment(date).isSameOrBefore(moment(), 'day') || this.xx.permission == 'view')
                 return true;
             return false;
+        },
+        publicHoliday: function (date) {
+            // determine if given date is public holiday
+            if (date in this.xx.holidays)
+                return this.xx.holidays[date];
+            return '';
         },
         taskNameClass: function (task) {
             // Set class of task name for displaying on planner

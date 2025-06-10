@@ -260,11 +260,26 @@
                                 <h4 v-if="countUpcoming(xx.params.trade_id)">@{{ xx.trade_name }} Planner @{{xx.search}}</h4>
                                 <div class="row" style="background-color: #f0f6fa; font-weight: bold; min-height: 40px; display: flex; align-items: center;">
                                     <div class="col-xs-2">Company</div>
-                                    <div class="col-xs-2">Mon @{{ weekDateHeader(xx.mon_now, 0) }}<span v-if="publicHoliday(xx.mon_now, 0)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 0) }}</span></div>
-                                    <div class="col-xs-2">Tue @{{ weekDateHeader(xx.mon_now, 1) }}<span v-if="publicHoliday(xx.mon_now, 1)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 1) }}</span></div>
-                                    <div class="col-xs-2">Wed @{{ weekDateHeader(xx.mon_now, 2) }}<span v-if="publicHoliday(xx.mon_now, 2)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 2) }}</span></div>
-                                    <div class="col-xs-2">Thu @{{ weekDateHeader(xx.mon_now, 3) }}<span v-if="publicHoliday(xx.mon_now, 3)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 3) }}</span></div>
-                                    <div class="col-xs-2">Fri @{{ weekDateHeader(xx.mon_now, 4) }}<span v-if="publicHoliday(xx.mon_now, 4)" class="font-red"></br>@{{ publicHoliday(xx.mon_now, 4) }}</span></div>
+                                    <div class="col-xs-2">
+                                        <span v-if="publicHoliday(xx.mon_now, 0)" class="font-red">Mon @{{ weekDateHeader(xx.mon_now, 0) }}</br>@{{ publicHoliday(xx.mon_now, 0) }}</span>
+                                        <span v-else>Mon @{{ weekDateHeader(xx.mon_now, 0) }}</span>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <span v-if="publicHoliday(xx.mon_now, 1)" class="font-red">Tue @{{ weekDateHeader(xx.mon_now, 1) }}</br>@{{ publicHoliday(xx.mon_now, 1) }}</span>
+                                        <span v-else>Tue @{{ weekDateHeader(xx.mon_now, 1) }}</span>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <span v-if="publicHoliday(xx.mon_now, 2)" class="font-red">Wed @{{ weekDateHeader(xx.mon_now, 2) }}</br>@{{ publicHoliday(xx.mon_now, 2) }}</span>
+                                        <span v-else>Wed @{{ weekDateHeader(xx.mon_now, 2) }}</span>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <span v-if="publicHoliday(xx.mon_now, 3)" class="font-red">Thu @{{ weekDateHeader(xx.mon_now, 3) }}</br>@{{ publicHoliday(xx.mon_now, 3) }}</span>
+                                        <span v-else>Thu @{{ weekDateHeader(xx.mon_now, 3) }}</span>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <span v-if="publicHoliday(xx.mon_now, 4)" class="font-red">Fri @{{ weekDateHeader(xx.mon_now, 4) }}</br>@{{ publicHoliday(xx.mon_now, 4) }}</span>
+                                        <span v-else>Fri @{{ weekDateHeader(xx.mon_now, 4) }}</span>
+                                    </div>
                                 </div>
                                 <template v-for="company in xx.companies">
                                     <app-company :etype="company.type" :eid="company.id" :ename="company.name" :ecompliant="company.compliant"></app-company>
@@ -719,7 +734,7 @@
             <small class="label label-sm label-warning" style="font-size: 11px;">ON LEAVE &nbsp;<br></small>
         </div>
         <!-- Past Events - disable sidebar and dim entry -->
-        <div v-show="pastDateTrade(date) == true" style="padding: 10px; opacity: 0.4">
+        <div v-if="pastDateTrade(date) == true" style="padding: 10px; opacity: 0.4">
             <div v-if="entity_sites.length">
                 <template v-for="entity in entity_sites">
                     <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
@@ -729,18 +744,20 @@
                 </template>
             </div>
         </div>
-        <!-- Current Events -->
-        <div v-else class="hoverDiv" v-on:click="openSidebar(date)">
-            <div v-if="entity_sites.length">
-                <template v-for="entity in entity_sites">
-                    <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
-                        <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
-                        <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
-                    </div>
-                </template>
+        <div v-else>
+            <!-- Current Events -->
+            <div v-if="publicHoliday(date)" class="font-red"></div>
+            <div v-else class="hoverDiv" v-on:click="openSidebar(date)">
+                <div v-if="entity_sites.length">
+                    <template v-for="entity in entity_sites">
+                        <div v-show="showSite(entity)" class="@{{ entityClass(entity) }}">
+                            <small>@{{ entity.site_name | max15chars }} (@{{{ entity.tasks }}})</small>
+                            <div v-if="entity.maintenance" class="label label-info"><small>Maintenance Request</small></div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
-
         <!--<pre v-if="xx.dev">@{{ date }}<br>@{{ etype }}.@{{ eid }}<br>@{{ onleave }}<br>@{{ day_sites | json }}<br>@{{ entity_plan | json }}</pre>
         -->
     </template>
