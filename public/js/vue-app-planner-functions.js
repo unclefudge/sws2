@@ -123,7 +123,7 @@ function rosterOnDate(roster, date, etype, eid) {
 }
 
 // Determine next 'work' day ie mon-fri (x) days from given date
-// either before (-) or after (+) given date
+// either before (-) or after (+) given date (excluding public holiays)
 function nextWorkDate(date, direction, days) {
     var newDate = moment(date);
 
@@ -154,45 +154,7 @@ function nextWorkDate(date, direction, days) {
     return newDate.format('YYYY-MM-DD');
 }
 
-function nextWorkDate2(date, direction, days) {
-    var newDate = moment(date);
-    getPublicHolidays().then(function (result) {
-        publichols = [];
-        if (result) {
-            publicholidays = result;
-            //console.log('got hols');
-            //console.log(publicholidays);
-        }
-        console.log('Date:' + newDate.format('YYYY-MM-DD') + ' Dir:' + direction + ' Days:' + days);
-        for (var i = 0; i < days; i++) {
-            if (direction === '+') {
-                newDate = moment(newDate).add(1, 'days');
-                if (newDate.day() === 6) // Skip Sat
-                    newDate = moment(newDate).add(2, 'days');
-                if (newDate.day() === 0) // Skip Sun
-                    newDate = moment(newDate).add(1, 'days');
-                if (newDate.format('YYYY-MM-DD') in publicholidays) {
-                    console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
-                    newDate = moment(newDate).add(1, 'days');
-                }
-            } else {
-                newDate = moment(newDate).subtract(1, 'days');
-                if (newDate.format('YYYY-MM-DD') in publicholidays) {
-                    console.log('Pub hol: ' + newDate.format('YYYY-MM-DD'));
-                    newDate = moment(newDate).subtract(1, 'days');
-                }
-                if (newDate.day() === 6) // skip Sat
-                    newDate = moment(newDate).subtract(1, 'days');
-                if (newDate.day() === 0) // skip Sun
-                    newDate = moment(newDate).subtract(2, 'days');
-            }
-        }
-        console.log('NewDate: ' + newDate.format('YYYY-MM-DD'));
-        return newDate.format('YYYY-MM-DD');
-    }.bind(this));
-}
-
-// Determine number of 'work' days ie mon-fri
+// Determine number of 'work' days ie mon-fri (excluding public holidays)
 // between 2 dates (inclusive of from, to dates)
 function workDaysBetween(from, to) {
     if (moment(from).isBefore(to)) {
@@ -206,7 +168,9 @@ function workDaysBetween(from, to) {
     var counter = 0;
 
     while (startDate.format('YYYY-MM-DD') != endDate.format('YYYY-MM-DD')) {
-        if (startDate.day() > 0 && startDate.day() < 6) {
+        if (startDate.format('YYYY-MM-DD') in this.xx.holidays) {
+            startDate.add(1, 'days');
+        } else if (startDate.day() > 0 && startDate.day() < 6) {
             counter++;
             startDate.add(1, 'days');
         } else if (startDate.day() === 6) { // Skip Sat
