@@ -1,0 +1,771 @@
+ ${Jobs.Job Name}-Follow up Early Occupation Photos 	Jobs	Trigger Date plus 5 business day(s)	High	Not Started	Michelle Metselaar	
+user
+11/06/2025
+  ${Costings.Job No. Ref}-Site Measure Allocation 	Costings	Trigger Date plus 0 business day(s)	High	Not Started	Kirstie Silk	
+user
+30/05/2025
+  ${Jobs.Job Name}-Plan Order Additional Steps 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+30/05/2025
+  ${Jobs.Job Name}-Apply for HBCF 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+29/05/2025
+  ${Jobs.Job Name}-Complete Pre Construction Project Review 	Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Damian Cook	
+user
+28/05/2025
+  ${Jobs.Job Name}-Process Pre Construction Project Review 	Tasks	Trigger Date plus 5 business day(s)	High	Not Started	Kirstie Silk	
+user
+26/05/2025
+  ${Jobs.Job Name}-Send Pre Construction Project Review email 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+26/05/2025
+  ${Jobs.Job Name}-Register Site Measure 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+26/05/2025
+  ${Jobs.Job Name}-Request Stair Quote 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+26/05/2025
+  ${Costings.Costing Name}-Receipting a Plan Order 	Costings	Trigger Date plus 0 business day(s)	High	Not Started	Kirstie Silk	
+user
+26/05/2025
+  ${Jobs.Job Name}-ADM Review PO 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+23/05/2025
+  ${Jobs.Job Name}-Plan Order Steps 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+21/05/2025
+  ${Lookup:Job Name.Job Name}-Preparing the PC&FJ folder 	CX Prep Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+16/05/2025
+  ${Lookup:Job Name.Job Name}- Preparing Contract Specifications 	CX Prep Tasks	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+13/05/2025
+  ${Variations.Job Number}-${Variations.Variation No.}-${Variations.Variation Name}-Approve Variation Cost 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Damian Cook	
+user
+09/05/2025
+  Send enquiry email to ${Leads.Last Name} of ${Leads.Suburb} 	Leads	Trigger Date plus 1 day(s)	High	Not Started	Kirstie Silk	
+user
+05/05/2025
+  ${Jobs.Job Name}-PC Cost Recovery 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-BQ Cost Recovery 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-BQ Cost recovery 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-PC Cost Recovery 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-DR Cost Recovery 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-SP Cost Recovery 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Joanna Iskander	
+user
+02/05/2025
+  ${Jobs.Job Name}-Allowance Journal 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Ross Thomson	
+user
+02/05/2025
+  Prepare actual vs estimate for ${Jobs.Job Name} 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name}-Create Job card from Const to Accounts - FA Board 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Lookup:Job Name.Job Name}-Process Dropout 	JobRecs	Trigger Date plus 5 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name}-DR Accruals Recovery 	Jobs	Trigger Date plus 14 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  Sales Dpt ${JobRecs.Sales Dpt Code} - Prepare Client Letter GM 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name} Review Acct Rec 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name}-HBCF Completion Advice notification 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  Process dropout for ${JobRecs.Sales Dpt Code} 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  Sales Dpt ${JobRecs.Sales Dpt Code} - Send Client letter 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  Prepare Account reconciliation ${JobRecs.Sales Dpt Code} 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name}-Accounts Authorisation for Client Survey 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  Sales Dpt ${JobRecs.Sales Dpt Code} - Final Processing 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name} Prepare Acct Rec 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name} Sales Dpt Send Client Letter 	Tasks	Date Allocated plus 1 business day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Lookup:Job Name.Job Name}-Review Note: ${JobNotes.JobNote Name} ETM 	JobNotes	Trigger Date plus 0 business day(s)	High	Not Started	Kirstie Silk	
+user
+30/04/2025
+  ${Jobs.Job Name}-Check/Update Claim ID 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} ACC 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+30/04/2025
+  ${Jobs.Job Name}-BCD received – process Commission 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Ross Thomson	
+user
+29/04/2025
+  ${Jobs.Job Name}-Process PO commission 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Ross Thomson	
+user
+29/04/2025
+  Re-allocate ${Leads.Enquiry No.} - ${Leads.First Name} ${Leads.Last Name} 	Leads	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+29/04/2025
+  ${Lookup:Job Name.Job Name}-Issuing External Activities 	CX Prep Tasks	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+24/04/2025
+  ${Jobs.Job Name}-Process Contract Prep steps 	Jobs	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+24/04/2025
+  Allocate ${Leads.Enquiry No.} - ${Leads.First Name} ${Leads.Last Name} of ${Leads.Suburb} 	Leads	Trigger Date plus 0 day(s)	High	Not Started	Keith Bow	
+user
+23/04/2025
+  ${Jobs.Job Name}-Marketing Review PO 	Tasks	Trigger Date plus 1 day(s)	Normal	Not Started	Kirstie Silk	
+user
+17/04/2025
+  ${Jobs.Job Name}-Select Movie File Photos 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Kirstie Silk	
+user
+17/04/2025
+  ${Jobs.Job Name}-Create Movie File 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Kirstie Silk	
+user
+17/04/2025
+  ${Jobs.Job Name}-Process Neighbour Appreciation Letters 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Kirstie Silk	
+user
+17/04/2025
+  ${Jobs.Job Name}-Process Testimonial 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+17/04/2025
+  ${Jobs.Job Name}-Send QAF receipt to client 	Jobs	Trigger Date plus 1 business day(s)	High	Not Started	Joanna Iskander	
+user
+17/04/2025
+  ${Costings.Costing Name}-Archive Costing 	Costings	Trigger Date plus 2 business day(s)	High	Not Started	Kirstie Silk	
+user
+15/04/2025
+  ${Jobs.Job Name} - Update Databuild "On Hold" 	Jobs	Trigger Date plus 7 day(s)	Normal	Not Started	Joanna Iskander	
+user
+11/04/2025
+  ${Lookup:Job Name.Job Name}-Process Variation in DB 	Variations	Trigger Date plus 7 day(s)	High	Not Started	Joanna Iskander	
+user
+11/04/2025
+  ${Jobs.Job Name}-Arrange Window & F&T Quotes 	Jobs	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+31/03/2025
+  ${Jobs.Job Name}-Mark-Up Scaffold Details 	Jobs	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+31/03/2025
+  ${Jobs.Job Name}-Arrange pre-contract Inspections and send Reports 	Jobs	Trigger Date plus 3 day(s)	Normal	Not Started	Alethea Lebedevas	
+user
+31/03/2025
+  ${Jobs.Job Name}-Process the Drop-Out Dead Filing 	Jobs	Trigger Date plus 3 business day(s)	High	Not Started	Kirstie Silk	
+user
+25/03/2025
+  ${Jobs.Job Name}-Process the Construction Complete Dead Filing 	Jobs	Trigger Date plus 3 business day(s)	High	Not Started	Kirstie Silk	
+user
+25/03/2025
+  ${Jobs.Job Name}-Finalise Completion Pack 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Michelle Metselaar	
+user
+12/03/2025
+  ${Jobs.Job Name} - Update Databuild "Acct Closed" 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Joanna Iskander	
+user
+06/03/2025
+  ${Jobs.Job Name}-Check QA Fee Received 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name} - Update Databuild "Sales Dropout" 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Joanna Iskander	
+user
+21/02/2025
+  Update Databuild for ${Jobs.Job Name} 	Jobs	Trigger Date plus 2 day(s)	High	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name}-New job set up in Databuild 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name} - Update Databuild "Construction" 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name} - Update Databuild "Prac Initiated" 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name} - Update Databuild "Final Account" 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Jobs.Job Name}-Collate Neighbour Appreciation Letters 	Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Veronica Petrusma	
+user
+21/02/2025
+  ${Jobs.Job Name}-Process BCD Claim in DB 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Joanna Iskander	
+user
+21/02/2025
+  ${Lookup:Job Name.Job Name}-Complete Variation Doc Control Zoho and Databuild steps 	Variations	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+21/02/2025
+  ${Jobs.Job Name}-Prepare Final Account Stages 1-2 	Jobs	Trigger Date plus 7 day(s)	High	Not Started	Joanna Iskander	
+user
+19/02/2025
+  ${Jobs.Job Name}-Request DD refund 	Jobs	Trigger Date plus 5 day(s)	Normal	Not Started	Joanna Iskander	
+user
+19/02/2025
+  ${Jobs.Job Name}-Sign Neighbour Appreciation Letters 	Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Kirstie Silk	
+user
+18/02/2025
+  ${Jobs.Job Name}-Move the Job Envelope to the Construction shelf 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+13/02/2025
+  ${Jobs.Job Name}-Collate Client Prelim Plans 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+13/02/2025
+  ${Jobs.Job Name}-Review Final Survey 	Jobs	Trigger Date plus 1 business day(s)	High	Not Started	Nadia Lay	
+user
+10/02/2025
+  ${Variations.Job Number}-Arrange CCTV Quote 	Variations	Trigger Date plus 1 business day(s)	High	Not Started	Michelle Metselaar	
+user
+04/11/2024
+  ${Jobs.Job Name}-FC Client Docs Follow up & Send Client Email 	Jobs	Trigger Date plus 20 business day(s)	High	Not Started	Michelle Metselaar	
+user
+31/10/2024
+  ${Jobs.Job Name}-Send Digital Prac Papers Client Email 	Jobs	Trigger Date plus 0 business day(s)	High	Not Started	Michelle Metselaar	
+user
+31/10/2024
+  ${Jobs.Job Name}-Check Construction Start 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Kirstie Silk	
+user
+22/10/2024
+  ${Jobs.Job Name}-Check Engineers SW Design 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started		
+user
+09/10/2024
+  ${Jobs.Job Name}-Check Inhouse SW Design 	Jobs	Trigger Date plus 5 business day(s)	High	Not Started		
+user
+09/10/2024
+  ${Sketch Plans.SP Name}-Issue AMDs to DC SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+13/09/2024
+  ${Sketch Plans.SP Name}-ADM Process AMDs SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+13/09/2024
+  ${Sketch Plans.SP Name}-Register AMDs SP 	Sketch Plans	Trigger Date plus 0 day(s)	High	Not Started	Nadia Lay	
+user
+13/09/2024
+  ${Sketch Plans.SP Name}-Issue to DC SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+13/09/2024
+  ${Sketch Plans.SP Name}-Process SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+13/09/2024
+  ${IT Requests.IT Request Id}${IT Requests.Request Title}-Review Request Note 	IT Requests	Trigger Date plus 0 business day(s)	High	Not Started	Kirstie Silk	
+user
+10/09/2024
+  ${Sketch Plans.SP Name}-Register SP 	Sketch Plans	Trigger Date plus 0 day(s)	High	Not Started		
+user
+06/09/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} WHS 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} TECH 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Keith Bow	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} GMgr 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} DRA 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Nadia Lay	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} DPC 	JobNotes	Trigger Date plus 0 business day(s)	High	Not Started		
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note:${JobNotes.JobNote Name} DIR 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Ross Thomson	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name} Review Note: ${JobNotes.JobNote Name} CON 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name}Review Note: ${JobNotes.JobNote Name} ADM 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+19/08/2024
+  ${Lookup:Job Name.Job Name}-Review Note: ${JobNotes.JobNote Name} EST 	JobNotes	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+19/08/2024
+  ${Jobs.Job Name}-Send Client Selections Email 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started	Nadia Lay	
+user
+07/08/2024
+  ${Jobs.Job Name}-Confirm OSD Compliance Costs Quotes 	Jobs	Trigger Date plus 3 business day(s)	High	Not Started	Nadia Lay	
+user
+05/08/2024
+  ${Jobs.Job Name}-Organise OSD Quote 	Jobs	Trigger Date plus 2 business day(s)	High	Not Started	Michelle Metselaar	
+user
+05/08/2024
+  ${Jobs.Job Name}-Confirm SW Compliance Costs Quotes 	Jobs	Trigger Date plus 3 business day(s)	High	Not Started	Nadia Lay	
+user
+05/08/2024
+  ${Jobs.Job Name}-Organise SW Quote 	Jobs	Trigger Date plus 2 business day(s)	High	Not Started	Michelle Metselaar	
+user
+05/08/2024
+  ${Jobs.Job Name}-Send OSD Variation to Client 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+31/07/2024
+  ${Jobs.Job Name}-Send SW Client Vari 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+31/07/2024
+  ${Jobs.Job Name}-Confirm SW Compliance Costs Quotes 	Tasks	Trigger Date plus 3 business day(s)	High	Not Started	Nadia Lay	
+user
+31/07/2024
+  ${Jobs.Job Name}-Confirm OSD Compliance Costs Quotes 	Tasks	Trigger Date plus 3 business day(s)	High	Not Started	Nadia Lay	
+user
+31/07/2024
+  ${Jobs.Job Name}-Organise OSD Quote 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Michelle Metselaar	
+user
+31/07/2024
+  ${Jobs.Job Name}-Organise SW Quote 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Michelle Metselaar	
+user
+31/07/2024
+  ${Jobs.Job Name}-Check Engineers OSD Design 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started		
+user
+31/07/2024
+  ${Jobs.Job Name}-Council Approved OSD Design Received 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started		
+user
+31/07/2024
+  ${Jobs.Job Name}-Council Approved SW Design Received 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started		
+user
+31/07/2024
+  ${Jobs.Job Name}-Review Council Conditions 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started		
+user
+31/07/2024
+  ${Jobs.Job Name}-Allocate Review Council Conditions 	Jobs	Trigger Date plus 1 business day(s)	High	Not Started		
+user
+31/07/2024
+  ${Jobs.Job Name} -Check Prac signed 	Jobs	Prac Meet Date plus 3 business day(s)	Normal	Not Started	Kirstie Silk	
+user
+26/07/2024
+  ${Jobs.Job Name}-SW/OSD Req-Process Plumbing Reports ASAP 	Jobs	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+23/07/2024
+  ${Jobs.Job Name}-Process Plumbing Reports 	Jobs	Trigger Date plus 7 day(s)	High	Not Started	Alethea Lebedevas	
+user
+23/07/2024
+  ${Jobs.Job Name}-Process Electrical Reports 	Jobs	Trigger Date plus 2 day(s)	High	Not Started	Alethea Lebedevas	
+user
+23/07/2024
+  ${Jobs.Job Name}-Mark-Up Scaffold Details (CDC Project) 	Jobs	Trigger Date plus 10 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+17/06/2024
+  ${Jobs.Job Name}-Follow up and Pay DA Application Invoice 	Jobs	Trigger Date plus 8 day(s)	High	Not Started	Scott Morrell	
+user
+11/06/2024
+  ${Jobs.Job Name}-Check Window Requirements Sheet for orderable Windows. 	Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+05/06/2024
+  ${Jobs.Job Name} Check acct rec is ready 	Tasks	Trigger Date plus 3 business day(s)	High	Not Started	Veronica Petrusma	
+user
+03/06/2024
+  ${Jobs.Job Name}-Construction Start 	Jobs	Sched CS Date plus 1 day(s)	High	Not Started	Michelle Metselaar	
+user
+03/06/2024
+  ${Jobs.Job Name}-Check supervisor email file off 	Jobs	Trigger Date plus 10 day(s)	High	Not Started	Michelle Metselaar	
+user
+03/06/2024
+  ${Jobs.Job Name}-Follow up and Pay DA Application Invoice 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Scott Morrell	
+user
+03/06/2024
+  DEVTEST1 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Kirstie Silk	
+user
+03/06/2024
+  Sysdev change ${SysDev.SysDev Name} - ${SysDev.Priority Assigned} 	SysDev	Trigger Date plus 5 day(s)	High	Not Started	Kirstie Silk	
+user
+03/06/2024
+  ${Variations.Variation Name}${Jobs.Job Number}-IT TEST 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+03/06/2024
+  Invalid IT Request check 2 	IT Requests	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+03/06/2024
+  Invalid IT Request check 1 	IT Requests	Trigger Date plus 2 day(s)	High	Not Started	Kirstie Silk	
+user
+03/06/2024
+  ${Lookup:Job Name.Job Name}-Prepare CC Pack 	CX Prep Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Nadia Lay	
+user
+20/05/2024
+  ${Jobs.Job Name}-Receipt DA Neighbour Notification 	Jobs	Notification Ends plus 1 day(s)	High	Not Started	Scott Morrell	
+user
+10/05/2024
+  ${Jobs.Job Name}-Follow up Neighbour Notification Period 	Tasks	Trigger Date plus 5 day(s)	High	Not Started	Scott Morrell	
+user
+10/05/2024
+  ${Jobs.Job Name}-Send Air Conditioning Quote 	Jobs	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+08/04/2024
+  ${Jobs.Job Name}-Review Movie File & finalise checklist 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Michelle Metselaar	
+user
+18/03/2024
+  ${Jobs.Job Name}-Prelim Plans Additional Processes 	Jobs	Trigger Date plus 2 day(s)	High	Not Started	Veronica Petrusma	
+user
+05/03/2024
+  ${Jobs.Job Name}-Prepare Client Prelim Plans 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+05/03/2024
+  Pay Lodgement Fees for ${Jobs.Job Name} 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Kirstie Silk	
+user
+28/02/2024
+  ${Jobs.Job Name}-Request Movie File 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Michelle Metselaar	
+user
+05/02/2024
+  ${Jobs.Job Name}-Process CDC Neighbour Letters 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  ${Jobs.Job Name}-DA File Planning Portal set up 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  ${Variations.Job Name}-Review Timeframe and Send Client update 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  ${Jobs.Job Name}-Check DA Lodgement Acknowledgment 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  ${Jobs.Job Name}-Client Documents Follow up 	Jobs	Trigger Date plus 14 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  New Outlook Contact Card & Mailing Labels ${Jobs.Job Name} 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+23/01/2024
+  ${Jobs.Job Name}-Process FOC Portal Application 	Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Michelle Metselaar	
+user
+18/01/2024
+  ${Jobs.Job Name}-Movie File Photo Selection Review 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Michelle Metselaar	
+user
+17/01/2024
+  ${Jobs.Job Name}-Allocate BOQ Construction Stage 	Jobs	Trigger Date plus 0 business day(s)	High	Not Started	Human Pixel	
+user
+15/12/2023
+  ${Jobs.Job Name}-Cost Critical Comments 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started		
+user
+12/12/2023
+  ${Jobs.Job Name}-BOQ Construction Stage 	Tasks	Trigger Date plus 4 business day(s)	High	Not Started		
+user
+12/12/2023
+  ${Jobs.Job Name}-Process Critical Comments 	Jobs	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+11/12/2023
+  ${Jobs.Job Name}-Allocate BOQ Construction Stage 	Jobs	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+11/12/2023
+  ${Jobs.Job Name} Authorise Acct Rec 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Kirstie Silk	
+user
+07/12/2023
+  PC Handover Project Review - JK - ${Jobs.Job Name} 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Jim Kapodistrias	
+user
+09/11/2023
+  PC Handover Project Review - JC - ${Jobs.Job Name} 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Juliana Choufani	
+user
+09/11/2023
+  PC Handover Project Review - NL - ${Jobs.Job Name} 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/11/2023
+  PC Handover Project Review - SM - ${Jobs.Job Name} 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Scott Morrell	
+user
+09/11/2023
+  PC Handover Project Review - CS - ${Jobs.Job Name} 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Clinton Strickland	
+user
+09/11/2023
+  ${Jobs.Job Name}-Finalise Final Occupation Certificate 	Jobs	Trigger Date plus 5 business day(s)	High	Not Started	Michelle Metselaar	
+user
+17/10/2023
+  ${Lookup:Job Name.Job Name}-Request Contract Prep Info 	CX Prep Tasks	Trigger Date plus 0 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+06/10/2023
+  ${Jobs.Job Name} Sales Dpt Final Processing 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Kirstie Silk	
+user
+02/10/2023
+  Sales Dpt ${JobRecs.Sales Dpt Code} - Prepare Client Letter KB 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Keith Bow	
+user
+02/10/2023
+  Sales Dpt ${JobRecs.Sales Dpt Code} - Prepare Client Letter KS 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Kirstie Silk	
+user
+02/10/2023
+  ${Jobs.Job Name}-Set up Prelim Orders 	Tasks	Trigger Date plus 2 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+25/09/2023
+  ${Jobs.Job Name}-BOQ-Plan Order Stage 	Tasks	Trigger Date plus 1 business day(s)	High	Not Started	Alethea Lebedevas	
+user
+25/09/2023
+  ${Jobs.Job Name}-Update Quotes 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+11/09/2023
+  ${Sketch Plans.SP Name}-3D Plan Check Request 	Sketch Plans	Trigger Date plus 0 business day(s)	High	Not Started	Nadia Lay	
+user
+01/09/2023
+  ${Jobs.Job Name}-Upload Scaffold Details 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Michelle Metselaar	
+user
+07/08/2023
+  ${Tasks.Extra Data 1}-PP TEST Do Plan Check & FJL 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Zoho Systems	
+user
+25/07/2023
+  ${Jobs.Job Name} Review Sales Dpt Comm 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Ross Thomson	
+user
+25/07/2023
+  -PP TEST Do Plan Check and FJL 	Tasks	Trigger Date plus 0 day(s)	High	Not Started		
+user
+24/07/2023
+  ${Jobs.Job Name}-Process Construction Forms 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Michelle Metselaar	
+user
+21/07/2023
+  ${Jobs.Job Name}-Issue FC Plans 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+21/07/2023
+  ${Jobs.Job Name}-Request CC 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+21/07/2023
+  ${Lookup:Job Name.Job Name}-Setup for Engineering (inhouse) 	CX Prep Tasks	Trigger Date plus 7 day(s)	High	Not Started	Zoho Systems	
+user
+20/07/2023
+  ${Jobs.Job Name}-Process Final Photos 	Jobs	Trigger Date plus 15 day(s)	High	Not Started	Michelle Metselaar	
+user
+19/07/2023
+  ${Jobs.Job Name}-Issue Structural Adequacy to Client 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+17/07/2023
+  ${Jobs.Job Name}-Finalise Project Documentation 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Michelle Metselaar	
+user
+23/06/2023
+  ${Jobs.Job Name}-Arrange Frame & Truss Orders 	Jobs	Trigger Date plus 14 day(s)	High	Not Started	Michelle Metselaar	
+user
+23/06/2023
+  ${Jobs.Job Name}-Arrange Steel Orders 	Jobs	Trigger Date plus 14 day(s)	High	Not Started	Michelle Metselaar	
+user
+23/06/2023
+  ${Jobs.Job Name}-Arrange Window Orders 	Jobs	Trigger Date plus 14 day(s)	High	Not Started	Michelle Metselaar	
+user
+23/06/2023
+  ${Jobs.Job Name}-Confirm Sales Dropout 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Zoho Systems	
+user
+22/06/2023
+  ${Costings.Costing Name}-Review Prelim Compliance Check 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Sketch Plans.SP Name}-DRA Review AMDs SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Sketch Plans.SP Name}-DRA Review SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Jobs.Job Name}-Site Measure Allocation LFR 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Costings.Costing Name}-Allocate Prelim Compliance Check 	Costings	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Sketch Plans.SP Name}-Allocate SP DP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Jobs.Job Name}-Allocate PC 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Jobs.Job Name}-Site Measure Allocation 	Tasks	Trigger Date plus 0 day(s)	High	Not Started	Nadia Lay	
+user
+09/06/2023
+  ${Jobs.Job Name}-TEST Do Plan Check and FJL 	Tasks	Trigger Date plus 7 day(s)	High	Not Started	Zoho Systems	
+user
+06/06/2023
+  ${Variations.Job Number}-${Variations.Variation No.}-${Variations.Variation Name}-Finalise Variation in Databuild 	Tasks	Trigger Date plus 1 day(s)	High	Not Started		
+user
+09/05/2023
+  ${Costings.Costing Name}-Do Prelim Compliance Check 	Costings	Trigger Date plus 3 day(s)	High	Not Started		
+user
+21/04/2023
+  ${Lookup:Job Name.Job Name}-${Variations.Variation No.}-${Variations.Variation Name}-Cost Variation 	Variations	Trigger Date plus 5 day(s)	High	Not Started		
+user
+20/04/2023
+  ${Lookup:Job Name.Job Name}-Review and Allocate Price Increase 	Variations	Trigger Date plus 1 day(s)	High	Not Started	Alethea Lebedevas	
+user
+28/02/2023
+  ${Lookup:Job Name.Job Name}-Review and Allocate Variation 	Variations	Trigger Date plus 1 day(s)	High	Not Started	Alethea Lebedevas	
+user
+28/02/2023
+  ${Jobs.Job Name}-Check DA Lodgement Due 	Jobs	Client Docs Rcvd plus 28 day(s)	High	Not Started	Kirstie Silk	
+user
+13/02/2023
+  ${Variations.Job Number}-${Variations.Variation No.}-${Variations.Variation Name}-Variation Costing Completed 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Michelle Metselaar	
+user
+08/02/2023
+  ${Lookup:Job Name.Job Name}-${Variations.Variation No.}-${Variations.Variation Name}-Estimate Cost PV 	Variations	Trigger Date plus 5 day(s)	High	Not Started	Zoho Systems	
+user
+08/02/2023
+  ${Jobs.Job Name}-Client Services Client Survey Check 	Jobs	Trigger Date plus 40 day(s)	High	Not Started	Kirstie Silk	
+user
+06/02/2023
+  ${Jobs.Job Name} - send DC Commission Report 	Jobs	Trigger Date plus 0 day(s)	Normal	Not Started	Ross Thomson	
+user
+30/01/2023
+  ${Jobs.Job Name}-Organise Engineers Stormwater Design 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+11/11/2022
+  Dropout - Review Letter ${JobRecs.Sales Dpt Code} 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Ross Thomson	
+user
+03/11/2022
+  ${Lookup:Job Name.Job Name} - Process FJ Engineering request 	CX Prep Tasks	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+20/10/2022
+  ${Jobs.Job Name}-Register PO 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+20/10/2022
+  ${Jobs.Job Name} - Receipt Site Measure 	Jobs	SM Booked Date plus 2 day(s)	High	Not Started	Veronica Petrusma	
+user
+19/10/2022
+  ${Jobs.Job Name}-DRA Admin PO 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+19/10/2022
+  LP Test Task 	IT Tests	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+20/09/2022
+  ${Jobs.Job Name}-Review DC changes and Authorise Client Plans 	Jobs	Sched PP Send plus 0 day(s)	High	Not Started		
+user
+12/09/2022
+  ${Jobs.Job Name}-Review DP Plans and Send to DC 	Jobs	Sched PP Send DC plus 0 day(s)	High	Not Started		
+user
+12/09/2022
+  ${Costings.Costing Name}-Allocate Estimator 	Costings	Trigger Date plus 1 day(s)	High	Not Started	Alethea Lebedevas	
+user
+09/08/2022
+  ${Lookup:Job Name.Job Name}-${Variations.Variation Name} -(${Variations.Costing Priority})-Arrange variation cost 	Variations	Trigger Date plus 2 day(s)	High	Not Started	Alethea Lebedevas	
+user
+21/07/2022
+  ${Lookup:Job Name.Job Name} -${CX Prep Tasks.Supply Category} -Send Engineering Details to ADM 	CX Prep Tasks	Trigger Date plus 2 day(s)	High	Not Started		
+user
+19/07/2022
+  ${Lookup:Job Name.Job Name}-Review Electrical Report 	Variations	Trigger Date plus 10 day(s)	High	Not Started	Alethea Lebedevas	
+user
+14/07/2022
+  ${Lookup:Job Name.Job Name}-Review Council Conditions 	Variations	Trigger Date plus 10 day(s)	High	Not Started	Alethea Lebedevas	
+user
+14/07/2022
+  ${Lookup:Job Name.Job Name}-PV Compliance Check 	Variations	Trigger Date plus 1 day(s)	High	Not Started		
+user
+23/06/2022
+  ${Jobs.Job Name}-PC Allocate Survey 	Jobs	Trigger Date plus 0 day(s)	High	Not Started		
+user
+17/06/2022
+  ${Jobs.Job Name}-PC Review Structural Adequacy 	Jobs	Trigger Date plus 0 day(s)	High	Not Started		
+user
+17/06/2022
+  ${Jobs.Job Name}-Technical Review PO 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Keith Bow	
+user
+10/06/2022
+  ${Sketch Plans.SP Name}-Technical Review SP 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Keith Bow	
+user
+10/06/2022
+  ${Jobs.Job Name}-Issue Tiger Tail Quote 	Tasks	Trigger Date plus 21 day(s)	High	Not Started	Alethea Lebedevas	
+user
+08/06/2022
+  ${Jobs.Job Name}-Arrange Tiger Tails Quote 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+08/06/2022
+  ${Jobs.Job Name}-Arrange Tiger Tails Quote 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Kirstie Silk	
+user
+27/05/2022
+  ${Jobs.Job Name}-Arrange Tiger Tails Quote 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Alethea Lebedevas	
+user
+26/05/2022
+  ${Lookup:Job Name.Job Name} - Prepare PO for FJ Engineer 	CX Prep Tasks	Trigger Date plus 1 day(s)	High	Not Started	Alethea Lebedevas	
+user
+30/03/2022
+  ${Jobs.Job Name}-Sales Dropout with Acct Rec 	Jobs	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+04/03/2022
+  ${Jobs.Job Name} -Held Job with Acct Rec 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+04/03/2022
+  ${Jobs.Job Name}-Held Job Setup 	Jobs	Trigger Date plus 0 day(s)	High	Not Started	Veronica Petrusma	
+user
+04/03/2022
+  ${Jobs.Job Name}-Acct Rec Setup 	Jobs	Trigger Date plus 3 day(s)	High	Not Started	Veronica Petrusma	
+user
+04/03/2022
+  ${Jobs.Job Name}-Sketch Plans Cost Recovery Databuild 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Zoho Systems	
+user
+09/11/2021
+  ${Jobs.Job Name}-DR Cost Recovery Databuild 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Zoho Systems	
+user
+05/11/2021
+  ${Jobs.Job Name}-PC Cost Recovery Databuild 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Zoho Systems	
+user
+05/11/2021
+  ${Jobs.Job Name}-BQ Cost Recovery Databuild 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Zoho Systems	
+user
+05/11/2021
+  ${Jobs.Job Name}-Site Msr Recovery Databuild 	Tasks	Trigger Date plus 2 day(s)	High	Not Started	Zoho Systems	
+user
+25/10/2021
+  Designer Thanks letter for ${Jobs.Job Name} 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Kirstie Silk	
+user
+20/10/2021
+  ${Jobs.Job Name}-Authorise Movie File 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Kirstie Silk	
+user
+17/08/2021
+  ${Jobs.Job Number}-${Jobs.Job Name}-Prac Notified Tasks 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Michelle Metselaar	
+user
+20/07/2021
+  ${Jobs.Job Name}-Contract received Admin tasks to be completed 	Jobs	Trigger Date plus 5 day(s)	High	Not Started	Michelle Metselaar	
+user
+20/07/2021
+  ${Lookup:Job Name.Job Name}-Process costed variation 	Variations	Trigger Date plus 3 day(s)	High	Not Started	Michelle Metselaar	
+user
+20/07/2021
+  ${Lookup:Job Name.Job Name}-Update ESR for ${CX Prep Tasks.Supply Category} 	CX Prep Tasks	Trigger Date plus 2 day(s)	High	Not Started	Alethea Lebedevas	
+user
+20/07/2021
+  ${Sketch Plans.SP Name}-DP Prepare SP 	Sketch Plans	Trigger Date plus 5 day(s)	High	Not Started		
+user
+20/07/2021
+  ${Jobs.Job Name}-Options Entry 	Tasks	Trigger Date plus 3 day(s)	High	Not Started	Alethea Lebedevas	
+user
+20/07/2021
+  ${Jobs.Job Name}-Accept Plan Order 	Tasks	Trigger Date plus 1 day(s)	High	Not Started	Ross Thomson	
+user
+20/07/2021
+  ${Sketch Plans.SP Name}-DP Process AMDs SP 	Tasks	Trigger Date plus 2 day(s)	High	Not Started		
+user
+20/07/2021
+  License Renewal 	Assets	Expiry Date minus 14 day(s)	High	Not Started		
+user
+13/04/2021
+  Client Services Authorisation for ${Jobs.Job Name} for Client Survey 	Jobs	Trigger Date plus 40 day(s)	High	Not Started	Kirstie Silk	
+user
+30/03/2021
+  Request Account reconcilation ${JobRecs.Sales Dpt Code} 	JobRecs	Trigger Date plus 3 day(s)	High	Not Started	Veronica Petrusma	
+user
+26/08/2020
+  Contract Deposit Received - ${Jobs.Job Number}-${Jobs.Job Name} 	Jobs	Trigger Date plus 5 day(s)	Normal	Not Started	Michelle Metselaar	
+user
+07/05/2020
+  Approve Change 	IT Requests	APRule Trigger Date plus 1 day(s)	High	Not Started		
+user
+24/04/2020
+  Approval of new plan order ${IT Tests.Job Name} 	IT Tests	Trigger Date plus 1 day(s)	High	Not Started	CCA system Test User	
+user
+22/04/2020
+  Review New Plan Order (Sales) 	IT Tests	Trigger Date plus 1 day(s)	High	Not Started	CCA system Test User	
+user
+22/04/2020
+  Review New Plan Order (Admin) 	IT Tests	Trigger Date plus 1 day(s)	High	Not Started	CCA system Test User	
+user
+22/04/2020
+  Approval of ${IT Tests.Job Name} required 	IT Tests	APRule Trigger Date plus 1 day(s)	High	Not Started		
+user
+21/04/2020
+  ${Jobs.Job Name} check for any un-raised variations 	Jobs	Trigger Date plus 10 day(s)	High	Not Started		
+user
+13/03/2020
+  Dropout - collate details ${JobRecs.JobRec Id} 	JobRecs	Trigger Date plus 1 day(s)	High	Not Started	Veronica Petrusma	
+user
+30/10/2019

@@ -834,6 +834,7 @@ Route::get('manage/import-questions', '\App\Http\Controllers\Misc\PagesImportCon
 Route::get('manage/import-time-extensions', '\App\Http\Controllers\Misc\PagesController@importTimeExtensions');
 Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesImportController@initSuperChecklist');
 Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesImportController@newSuperChecklist');
+Route::get('manage/convert-tasks', '\App\Http\Controllers\Misc\PagesImportController@convertTasks');
 // CCC Routes
 Route::get('manage/import-ccc-program', '\App\Http\Controllers\Misc\CccController@importCCCprogram');
 Route::get('manage/import-ccc-youth', '\App\Http\Controllers\Misc\CccController@importCCCyouth');
