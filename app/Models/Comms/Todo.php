@@ -155,6 +155,8 @@ class Todo extends Model
                     return '/site/maintenance/' . $item->maintenance->id;
             case 'prac_completion':
                 return "/site/prac-completion/$this->type_id";
+            case 'foc':
+                return "/site/foc/$this->type_id";
             case 'inspection_electrical':
                 return "/site/inspection/electrical/$this->type_id";
             case 'inspection_plumbing':

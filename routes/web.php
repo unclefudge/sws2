@@ -448,6 +448,21 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/prac-completion/{id}/review', '\App\Http\Controllers\Site\SitePracCompletionController@review');
     Route::resource('site/prac-completion', '\App\Http\Controllers\Site\SitePracCompletionController');
 
+    // Site FOC
+    Route::get('site/foc/{id}/items', '\App\Http\Controllers\Site\SiteFocController@getItems');
+    Route::any('site/foc/{id}/additem', '\App\Http\Controllers\Site\SiteFocController@addItem');
+    Route::any('site/foc/{id}/delitem', '\App\Http\Controllers\Site\SiteFocController@delItem');
+    Route::any('site/foc/{id}/update', '\App\Http\Controllers\Site\SiteFocController@updateReport');
+    Route::any('site/foc/{id}/clearsignoff', '\App\Http\Controllers\Site\SiteFocController@clearSignoff');
+    Route::get('site/foc/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteFocController@deleteAttachment');
+    Route::any('site/foc/item/{id}', '\App\Http\Controllers\Site\SiteFocController@updateItem');
+    Route::get('site/foc/dt/foc', '\App\Http\Controllers\Site\SiteFocController@getFoc');
+    Route::any('site/foc/upload', '\App\Http\Controllers\Site\SiteFocController@uploadAttachment');
+    Route::get('site/foc/data/foc/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getFoc');
+    Route::get('site/foc/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getSiteSupervisor');
+    Route::any('site/foc/{id}/review', '\App\Http\Controllers\Site\SiteFocController@review');
+    Route::resource('site/foc', '\App\Http\Controllers\Site\SiteFocController');
+
 
     // Site Asbestos Register
     Route::get('site/asbestos/register/dt/list', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@getReports');
@@ -835,6 +850,7 @@ Route::get('manage/import-time-extensions', '\App\Http\Controllers\Misc\PagesCon
 Route::get('manage/initchecklist', '\App\Http\Controllers\Misc\PagesImportController@initSuperChecklist');
 Route::get('manage/newchecklist', '\App\Http\Controllers\Misc\PagesImportController@newSuperChecklist');
 Route::get('manage/convert-tasks', '\App\Http\Controllers\Misc\PagesImportController@convertTasks');
+Route::get('manage/convert-emails', '\App\Http\Controllers\Misc\PagesImportController@convertEmails');
 // CCC Routes
 Route::get('manage/import-ccc-program', '\App\Http\Controllers\Misc\CccController@importCCCprogram');
 Route::get('manage/import-ccc-youth', '\App\Http\Controllers\Misc\CccController@importCCCyouth');

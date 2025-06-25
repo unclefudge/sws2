@@ -122,6 +122,9 @@
                                                         @if (Auth::user()->hasAnyPermissionType('prac.completion'))
                                                             <li><a href="/site/prac-completion" class="nav-link"> Prac Completion </a></li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.foc'))
+                                                            <li><a href="/site/foc" class="nav-link"> FOC Requirements </a></li>
+                                                        @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.maintenance'))
                                                             <li><a href="/site/maintenance" class="nav-link"> Maintenance Requests </a></li>
                                                         @endif

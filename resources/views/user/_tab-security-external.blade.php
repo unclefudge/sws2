@@ -405,6 +405,12 @@ $rec = $user;
                                 <td width="45%" colspan="3">&nbsp;</td>
                             </tr>
                             <tr>
+                                <td>FOC Requirements</td>
+                                <td width="15%">{!! permSelect('view.site.foc', 'super.plan', $rec, $cid) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.foc', 'super', $rec, $cid) !!}</td>
+                                <td width="45%" colspan="3">&nbsp;</td>
+                            </tr>
+                            <tr>
                                 <td>Quality Assurance Reports</td>
                                 <td width="15%">{!! permSelect('view.site.qa', 'super', $rec, $cid) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.qa', 'super', $rec, $cid) !!}</td>

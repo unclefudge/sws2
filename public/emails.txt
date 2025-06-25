@@ -1,0 +1,414 @@
+ Oak Design Allocation 	1	Leads	Oak Design Allocation	
+user
+06/06/2025
+  Notify Quotation Acceptance Fee PO received 	6	Jobs	Notify QAF PO received	
+user
+02/06/2025
+  Client Email Notification-Loose Fill 	1	Costings	Plan Order Client Intro Email-Loose Fill	
+user
+30/05/2025
+  Client Plan Order Confirmation 	1	Costings	Plan Order Client Intro Email-No Loose Fill	
+user
+30/05/2025
+  IT Request Closed 	4	IT Requests	IT Support Request CLOSED	
+user
+29/05/2025
+  Databuild New Project 	1	Jobs	Databuild New Project	
+user
+29/05/2025
+  WBO Identified 	1	Jobs	WBO identified	
+user
+16/05/2025
+  CXPT Received 	1	CX Prep Tasks	CXPT PC FJ BQ received	
+user
+12/05/2025
+  Permission to Take Early Occupation 	1	Jobs	Permission to Take Early Occupation	
+user
+09/05/2025
+  CXPT PC and FJ Request 	1	CX Prep Tasks	CXPT PC and FJ Request	
+user
+24/04/2025
+  Testing Change Field Name 	1	Jobs	Testing Change Field Name	
+user
+11/03/2025
+  ODS Quote Received 	4	Tasks	OSD Quote has now been recieved	
+user
+07/03/2025
+  SW Quote has been Recieved 	4	Tasks	SW Quote has now been recieved	
+user
+07/03/2025
+  Final Survey has been reviewed 	1	Tasks	Final Surevy has been reviewed	
+user
+10/02/2025
+  IT Request re-opened 	6	IT Requests	IT Support Request REOPENED	
+user
+28/10/2024
+  IT Request Assigned 	3	IT Requests	IT Support Request ASSIGNED	
+user
+28/10/2024
+  CXPT FJE Request 	1	CX Prep Tasks	CXPT FJE Request	
+user
+21/10/2024
+  Notify Support - HSM 	4	IT Requests	IT Support Request HSM	
+user
+20/10/2024
+  Notify Support - Fudge 	3	IT Requests	IT Support Request FUDGE	
+user
+20/10/2024
+  Notify Support - Internal 	3	IT Requests	IT Support Request CAPE COD	
+user
+20/10/2024
+  IT Request Lodged 	3	IT Requests	IT Support Request LODGED	
+user
+20/10/2024
+  Send Client RQ Received Email 	1	Costings	Send Client RFQ Recieved Email	
+user
+08/10/2024
+  Preparing the PC/FJ folder complete 	1	Tasks	Preparing the PC/FJ folder complete notification	
+user
+30/09/2024
+  IT Request Confirmation NEW 	5	IT Requests	IT Request Confirmation NEW	
+user
+09/09/2024
+  Review Note: EST 	2	JobNotes	Review Note: EST	
+user
+19/08/2024
+  Compliance Check Review Complete 	2	Tasks	Compliance Check Review Complete	
+user
+07/08/2024
+  IT Request - External Email 	4	IT Requests	IT Support Request HSM OLD	
+user
+31/07/2024
+  IT Request Closed - Ops KS 	4	IT Requests	IT Request Closed	
+user
+03/06/2024
+  IT Request Closed - Ops 	5	IT Requests	IT Request Closed	
+user
+03/06/2024
+  IT Request Closed - Non Ops 	5	IT Requests	IT Request Closed	
+user
+03/06/2024
+  IT Request Internal - NEW 	3	IT Requests	IT Support Request INTERNAL	
+user
+03/06/2024
+  IT Request Confirmation - Non Ops 	5	IT Requests	IT Request Confirmation NEW	
+user
+03/06/2024
+  Notify DC of Prac Completion 	2	Jobs	Prac Complete notification	
+user
+21/05/2024
+  DEL Alert IT - PO Variations updated 	1	Variations	PO Variations updated in Job	
+user
+25/01/2024
+  JobNote DPC 	1	JobNotes	JobNote DPC	
+user
+15/12/2023
+  Finalise Dropout File Off 2023-12 	1	Tasks	Finalise Dropout File Off 2023-12	
+user
+07/12/2023
+  DEL 2024-12 Project to dropout - Notify others 	1	JobRecs	DEL 2024-06 Job to dropout - notify others	
+user
+07/12/2023
+  Project to dropout - Notify others 2023-12 	1	Jobs	Job to dropout - notify others 2023-12	
+user
+07/12/2023
+  DEL 2024-06 Project to dropout - Notify Admin 	1	JobRecs	DEL 2024-06 Job to dropout - notify Admin	
+user
+07/12/2023
+  Project to dropout - Notify Admin 2023-12 	1	Jobs	Job to dropout - notify Admin 2023-12	
+user
+07/12/2023
+  DEL 2024-06 Project on hold - Notify others 	2	JobRecs	DEL 2024-06 Job on hold - notify others	
+user
+07/12/2023
+  DEL 2024-06 Project on hold - Notify Admin 	1	JobRecs	DEL 2024-06 Job on hold - notify Admin	
+user
+07/12/2023
+  Project on hold - Notify others 2023-12 	1	Jobs	Job on hold - notify others 2023-12	
+user
+07/12/2023
+  Project on hold - Notify Admin 2023-12 	1	Jobs	Job on hold - notify Admin 2023-12	
+user
+07/12/2023
+  Notify QAF Stage 3 payment received 	4	Jobs	Notify QAF Stage 3 payment received	
+user
+06/12/2023
+  Notify QAF Stage 2 payment received 	4	Jobs	Notify QAF Stage 2 payment received	
+user
+06/12/2023
+  Notify HBCF Certificate received 	5	Jobs	Notify HBCF Certificate received	
+user
+13/11/2023
+  Contract Update 	1	Jobs	Prompt for Contracts	
+user
+22/09/2023
+  Updated Task Owner: Do Plan Check and FJL 	1	Tasks	Updated Task Owner: Job Name-Do Plan Check and FJL	
+user
+25/07/2023
+  Alert Drafting User - Setup for Engineering inhouse Task 	1	CX Prep Tasks	Alert Draftsperson - Do Setup for Engineering Task	
+user
+18/07/2023
+  Alert Est User - Finalise Variation in Databuild Task 	1	Tasks	Finalise Variation in Databuild Alert	
+user
+09/05/2023
+  Alert Draftsperson - Do Prelim Compliance Check Task 	1	Costings	Alert Draftsperson - Do Prelim Compliance Check Task	
+user
+21/04/2023
+  Alert Est User - Cost Variation Task 	1	Variations	Cost Variation Alert	
+user
+13/04/2023
+  Notify QAF2 ready for Contract Prep 	2	Jobs	Notify QAF2 ready for Contract Prep	
+user
+31/03/2023
+  LPTEST 	1	Tasks	IT TEST	
+user
+24/03/2023
+  Request for Contract Prep Info 	1	CX Prep Tasks	Request for Contract Prep Info	
+user
+20/03/2023
+  Request for Contract Prep Info 	1	CX Prep Tasks	Request for Contract Prep Info	
+user
+16/03/2023
+  QAF Rcvd-Ready to Draw PP 	2	Jobs	QAF Rcvd-Ready to Draw PP	
+user
+24/01/2023
+  IT Request Confirmation - Ops KS 	5	IT Requests	IT Request Confirmation NEW	
+user
+19/12/2022
+  IT Request Confirmation - Ops 	5	IT Requests	IT Request Confirmation NEW	
+user
+19/12/2022
+  Notify QAF3 reqd DA Prep 	3	Jobs	Notify QAF3 reqd DA Prep	
+user
+11/11/2022
+  Notify QAF3 reqd DA Approved 	5	Jobs	Notify QAF3 reqd DA Approved	
+user
+11/11/2022
+  Notify QAF2 reqd DA Approved 	5	Jobs	Notify QAF2 reqd DA Approved	
+user
+11/11/2022
+  PP Accounts - Contract commission due 	1	Jobs	Commission at Contract - draft PP	
+user
+11/11/2022
+  QAF Not Received 	1	Jobs	QAF Not Received	
+user
+01/11/2022
+  Notify QAF2 reqd DA Prep 	3	Jobs	Notify QAF2 reqd DA Prep	
+user
+18/10/2022
+  Ready to Draw PP - QAF override 	3	Jobs	Ready to Draw PP	
+user
+18/10/2022
+  DEL LP Alert when Register PO complete 	1	Tasks	DEL LP alert Register PO complete	
+user
+29/09/2022
+  Account Rec Available notification 	2	Tasks	Account Rec Available notification	
+user
+20/09/2022
+  JobNote Estimating 	1	JobNotes	JobNote Estimating	
+user
+16/09/2022
+  JobNote Drafting 	1	JobNotes	JobNote Drafting	
+user
+16/09/2022
+  JobNote Accounts 	1	JobNotes	JobNote Accounts	
+user
+16/09/2022
+  JobNote Admin 	1	JobNotes	JobNote Admin	
+user
+16/09/2022
+  JobNote Construction 	1	JobNotes	JobNote Construction	
+user
+16/09/2022
+  Client info for marketing review 	2	Costings	Client info for marketing review	
+user
+06/07/2022
+  Notify Directors Proposal Won 	3	Costings	Notify Directors Proposal Won	
+user
+16/06/2022
+  Safety and Design Checklist notification 	2	Jobs	Safety and Design Checklist notification	
+user
+26/05/2022
+  Prelim Plans with DC 	1	Jobs	Prelim Plans with DC	
+user
+19/05/2022
+  Hold Drawing of PP 	3	Jobs	Hold drawing of PP	
+user
+17/05/2022
+  CXPT BOQ Request 	1	CX Prep Tasks	CXPT BOQ Request	
+user
+27/04/2022
+  Movie File Authorised notification 	1	Tasks	Movie File Authorised notification	
+user
+06/04/2022
+  Notify LP to delete task 	1	Tasks	LP Delete Task Notify	
+user
+25/03/2022
+  CXPT Plan Check Request 	1	CX Prep Tasks	CXPT Plan Check Request	
+user
+24/03/2022
+  CXPT PC-FJ-BQ Request 	1	CX Prep Tasks	CXPT PC FJ BQ Request	
+user
+21/03/2022
+  CXPT Floor Joist Request 	1	CX Prep Tasks	CXPT Floor Joist Request	
+user
+21/03/2022
+  Account Rec Request notification 	3	Tasks	Account Rec Requested notification_2	
+user
+02/02/2022
+  Send Designer Thanks Email 	1	Jobs	PBO Designer Thanks	
+user
+18/11/2021
+  Staff Recovery Drafting 	1	Jobs	Staff Recovery Drafting	
+user
+25/10/2021
+  Notify Contract Deposit Received 	8	Jobs	Notify CX Deposit received	
+user
+22/10/2021
+  DEV Marketing Template 	1	Contacts	After Care Survey - LP TEST	
+user
+14/10/2021
+  Contact Email Opt Out 	2	Contacts	Contact Email Opt Out	
+user
+08/10/2021
+  Leads Email Opt Out 	2	Leads	Lead Email Opt Out	
+user
+08/10/2021
+  Held Job notification 	1	Jobs	Held Job notification	
+user
+05/10/2021
+  Account Rec Requested notification 	1	Jobs	Account Rec Requested notification	
+user
+15/09/2021
+  Lead Status Amended by DC 	3	Leads	Lead Status Amended by DC Notification	
+user
+14/09/2021
+  Send After Care Survey 	1	Contacts	After Care Survey - Contacts	
+user
+09/09/2021
+  PP comm refresh temp 	1	Commissions	PP Commission refresh test	
+user
+31/08/2021
+  e4DCowner_DS 	2	Leads	E4DCowner_DS	
+user
+19/08/2021
+  Lead-form-DC 	1	Leads	Lead-form-DC	
+user
+28/07/2021
+  Lead-allocated-CSO-instruction 	1	Leads	Lead-allocated-CSO-instruction	
+user
+28/07/2021
+  Lead-notification-DC 	2	Leads	Lead-notification-DC	
+user
+27/07/2021
+  e3EnqToDC 	1	Leads	E3EnqToDC	
+user
+27/07/2021
+  e2DCallocated 	1	Leads	e2DCallocated	
+user
+27/07/2021
+  Costing-new-notification-DC 	2	Costings	Costing-new-notification-DC	
+user
+26/07/2021
+  Costing - Notify DC Stage upd 	4	Costings	Costing - DC Stage update	
+user
+26/07/2021
+  PP test email 	1	Jobs	PP test email	
+user
+20/07/2021
+  Notify DM of Lead Re-allocation 	1	Leads	Notify DM of Lead Re-allocation	
+user
+25/06/2021
+  Notify DM of Lead Allocation 	1	Leads	Notify DM of Lead Allocation	
+user
+16/06/2021
+  Request Project Details for HBCF 	2	Jobs	Request Project Details for HBCF	
+user
+12/03/2021
+  Notify HBCF Received CSO 	1	Jobs	Notify HBCF Certificate received	
+user
+14/12/2020
+  Costing Filed Off notification 	2	Costings	Costing Filed Off Notification	
+user
+19/11/2020
+  Construction Started w/o BCD received 	2	Jobs	Notify Start w/o BCD received	
+user
+05/11/2020
+  Finalise Dropout File Off 	1	JobRecs	DEL 2024-06 Finalise Dropout File Off	
+user
+09/10/2020
+  Notify AL re Stage 300 update 	2	Jobs	Notify AL re Stage 300 update	
+user
+02/09/2020
+  Sysdev testing success notification 	2	SysDev	Sysdev Notify Testing Ok	
+user
+02/09/2020
+  PP check dpt status 	1	JobRecs	PP Sales Dpt test	
+user
+26/08/2020
+  PP stg templ check 	1	Jobs	PP test stg temp notify	
+user
+11/08/2020
+  Notify PP task completed 	1	Tasks	Task Completed PP	
+user
+21/07/2020
+  Advise Sysdev is ready for user testing 	1	SysDev	Sysdev Notify ready for user testing	
+user
+17/07/2020
+  Notify Engineering-OSD report received 	1	Inspections	Pre Contract Inspection Report Received	
+user
+24/06/2020
+  Plan Order Approved 	1	IT Tests	Approved PO Template	
+user
+22/04/2020
+  CExtn required - Notify Admin v2 	1	Time Exts	Contract Extension Client Email	
+user
+02/04/2020
+  Email SV for authorisation 	2	Variations	SV for Client Authorisation v2	
+user
+10/03/2020
+  Email SV for info 	2	Variations	SV for Client FYI v2	
+user
+10/03/2020
+  Prompt for Construction Start 	1	Jobs	Prompt for Construction Start	
+user
+09/03/2020
+  Task Complete 	1	Tasks	Task complete template	
+user
+26/02/2020
+  New Task Created 	1	Tasks	Task complete template	
+user
+24/02/2020
+  Job reactivated - notify others 	2	JobRecs	Job reactivated - notify others	
+user
+07/02/2020
+  Proposal Price Discounted 	2	Costings	Proposal Price Discounted	
+user
+05/02/2020
+  Job reactivated - notify Admin 	1	JobRecs	Job reactivated - notify Admin	
+user
+28/01/2020
+  PP-Email Project Variation 	1	Variations	Project Variation NOT USED	
+user
+02/11/2019
+  Notify COM new plan order 	1	Jobs	Notify COM new plan order	
+user
+17/10/2019
+  Notify Super to file off emails HN 	1	Jobs	Supervisor project email file off	
+user
+25/09/2019
+  PP-Variation-Client 	1	Variations	PP-Variation1	
+user
+06/09/2019
+  Costing - DC Confirmed Price 	2	Costings	Costing - DC Confirmed Price	
+user
+06/09/2019
+  e1ReviewByKB 	1	Leads	e1ReviewByKB	
+user
+13/09/2016
+  newenquiry 	3	Leads	e1ReviewByKB	
+user
+14/06/2016
+  Big Deal Alert 	1	Costings	Big Deal Alert	
+user
+09/06/2016

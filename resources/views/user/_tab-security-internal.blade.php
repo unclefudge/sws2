@@ -574,6 +574,14 @@ $rec = $user;
                                 <td width="15%">{!! permSelect('sig.site.maintenance', 'sig', $rec, $cid, $dis) !!}</td>
                             </tr>
                             <tr>
+                                <td>FOC Requirements<br><span class="font-grey-silver">Cape Cod Only</span></td>
+                                <td width="15%">{!! permSelect('view.site.foc', 'super.plan', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('edit.site.foc', 'super', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('add.site.foc', 'add', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('del.site.foc', 'res', $rec, $cid, $dis) !!}</td>
+                                <td width="15%">{!! permSelect('sig.site.foc', 'sig', $rec, $cid, $dis) !!}</td>
+                            </tr>
+                            <tr>
                                 <td>Quality Assurance Reports<br><span class="font-grey-silver">Cape Cod Only</span></td>
                                 <td width="15%">{!! permSelect('view.site.qa', 'super', $rec, $cid, $dis) !!}</td>
                                 <td width="15%">{!! permSelect('edit.site.qa', 'super', $rec, $cid, $dis) !!}</td>

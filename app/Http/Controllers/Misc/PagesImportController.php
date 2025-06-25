@@ -495,6 +495,38 @@ class PagesImportController extends Controller
         echo "<br><br>Completed<br>-------------<br>";
     }
 
+    public function convertEmails()
+    {
+        echo "Name,No. Of Receipients,All Modules,Email Templates,Modified On<br>";
+        $row = '';
+
+        if (($handle = fopen(public_path("emails.txt"), "r")) !== false) {
+            while (($line = fgets($handle)) !== false) {
+                $line = trim($line);
+                $fields = explode("\t", $line);
+
+                if ($fields[0] == 'user')
+                    continue;
+                elseif (preg_match('/\d+\/\d+\/\d+/', $fields[0])) {
+                    echo $row . $fields[0] . "<br>";
+                    $row = '';
+                } else {
+                    foreach ($fields as $field) {
+                        $field = trim($field);
+                        $row .= "$field,";
+                    }
+                    $fields_count = count($fields);
+                    for ($i = 1; $i < (5 - count($fields)); $i++)
+                        $row .= ",";
+                }
+
+
+            }
+            fclose($handle);
+        }
+        echo "<br><br>Completed<br>-------------<br>";
+    }
+
     public function importMaintenance()
     {
         echo "Importing Maintenance<br>---------------------<br><br>";

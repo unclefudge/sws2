@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -11,6 +12,7 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -138,14 +140,12 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>testing str match</h1><br>";
-        $strings = ['image004.png', 'image6.jpg', 'image30.png', 'valid1.png', 'valid2.jpg', 'image.jpg'];
-        foreach ($strings as $string) {
-            echo $string;
-            if (preg_match('/^image\d+/', $string))
-                echo " Yes<br>";
-            else
-                echo " No<br>";
+        echo "<h1>Populating FOC</h1><br>";
+        $sites = Site::where('status', 1)->where('company_id', 3)->where('special', null)->get();
+        foreach ($sites as $site) {
+            echo $site->name . "<br>";
+            $foc = SiteFoc::create(['site_id' => $site->id, 'super_id' => $site->supervisor_id]);
+            $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
         }
 
 
@@ -1432,8 +1432,8 @@ class PagesController extends Controller
         //
         // Creating Permission
         //
-        $name = 'Site Shutdown';
-        $slug = 'Site Shutdown';
+        $name = 'Site FOC';
+        $slug = 'site.foc';
         echo "Creating Permission for $name ($slug)<br><br>";
         // View
         $p = Permission2::create(['name' => "View $name", 'slug' => "view.$slug"]);

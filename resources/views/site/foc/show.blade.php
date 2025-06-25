@@ -6,7 +6,7 @@
         @if (Auth::user()->hasAnyPermissionType('site'))
             <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
         @endif
-        <li><a href="/site/prac-completion">Practical Completion</a><i class="fa fa-circle"></i></li>
+        <li><a href="/site/foc">FOC Requirements</a><i class="fa fa-circle"></i></li>
         <li><span>View items</span></li>
     </ul>
 @stop
@@ -43,37 +43,37 @@
                     <div class="portlet-title">
                         <div class="caption">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Practical Completion</span>
-                            <span class="caption-helper">ID: {{ $prac->id }}</span>
+                            <span class="caption-subject bold uppercase font-green-haze"> FOC Requirements</span>
+                            <span class="caption-helper">ID: {{ $foc->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            {!! Form::model($prac, ['method' => 'PATCH', 'action' => ['Site\SitePracCompletionController@update', $prac->id], 'class' => 'horizontal-form']) !!}
-                            <input type="hidden" id="site_id" value="{{ $prac->site_id }}">
+                            {!! Form::model($foc, ['method' => 'PATCH', 'action' => ['Site\SiteFocController@update', $foc->id], 'class' => 'horizontal-form']) !!}
+                            <input type="hidden" id="site_id" value="{{ $foc->site_id }}">
 
                             @include('form-error')
 
-                            <input v-model="xx.prac.id" type="hidden" id="prac_id" value="{{ $prac->id }}">
-                            <input v-model="xx.prac.name" type="hidden" id="prac_name" value="{{ $prac->name }}">
-                            <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
-                            <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
-                            <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
+                            <input v-model="xx.foc.id" type="hidden" id="foc_id" value="{{ $foc->id }}">
+                            <input v-model="xx.foc.name" type="hidden" id="foc_name" value="{{ $foc->name }}">
+                            <input v-model="xx.foc.site_id" type="hidden" id="foc_site_id" value="{{ $foc->site_id }}">
+                            <input v-model="xx.foc.status" type="hidden" id="foc_status" value="{{ $foc->status }}">
+                            <input v-model="xx.foc.signed" type="hidden" id="foc_signed" value="{{ $foc->isSigned() }}">
+                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $foc->id }}">
+                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $foc->status }}">
                             <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
                             <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
                             <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.prac.completion', $prac) }}">
+                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.site.foc', $foc) }}">
                             <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
-                                   value="{!! (in_array(Auth::user()->id, $prac->site->areaSupervisors()->pluck('id')->toArray()) || $prac->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.prac.completion')) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.prac.completion') }}">
+                                   value="{!! (in_array(Auth::user()->id, $foc->site->areaSupervisors()->pluck('id')->toArray()) || $foc->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.site.foc')) ? 1 : 0  !!}">
+                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.foc') }}">
                             <input v-model="xx.user_edit" type="hidden" id="user_edit"
-                                   value="{{ (Auth::user()->allowed2('edit.prac.completion', $prac) || $prac->super_id == Auth::user()->id) ? 1 : 0 }}">
+                                   value="{{ (Auth::user()->allowed2('edit.site.foc', $foc) || $foc->super_id == Auth::user()->id) ? 1 : 0 }}">
 
 
                             <!-- Fullscreen devices -->
-                            @if ($prac->status && $prac->items->count() == $prac->itemsCompleted()->count())
+                            @if ($foc->status && $foc->items->count() == $foc->itemsCompleted()->count())
                                 <div class="col-md-12 note note-warning">
                                     <p>All items have been completed and request requires
                                         <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
@@ -84,69 +84,41 @@
 
                             <div class="row">
                                 {{-- Site Details --}}
-                                <div class="col-md-5">
-                                    <div class="row">
-                                        <div class="col-md-12"><h4>Site Details</h4></div>
-                                    </div>
+                                <div class="col-md-6">
+                                    <h4>Site Details</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($prac->site)
-                                        <b>{{ $prac->site->name }}</b><br>
-                                        {{ $prac->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ $prac->site->supervisor->name }}<br>
+                                    @if ($foc->site)
+                                        <b>{{ $foc->site->name }}</b><br>
+                                        {{ $foc->site->full_address }}<br>
+                                        <b>Supervisor:</b> {{ $foc->site->supervisor->name }}<br>
                                     @endif
                                 </div>
-                                <div class="col-md-1"></div>
-
                                 <div class="col-md-6">
                                     {{-- Status --}}
-                                    <div class="row">
-                                        <div class="col-md-5"><h4>Client Details</h4></div>
-                                        <div class="col-md-7">
-                                            <h2 style="margin: 0px; padding-right: 20px">
-                                                @if($prac->status == '-1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
-                                                @endif
-                                                @if($prac->status == '0')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs"><small
-                                                                class="font-red">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</small></span>
-                                                    <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</span>
-                                                @endif
-                                                @if($prac->status == '1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
-                                                @endif
-                                                @if($prac->status == '2')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
-                                                @endif
-                                                @if($prac->status == '4')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
-                                                @endif
-                                            </h2>
-                                        </div>
-                                    </div>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    {{-- Client Details --}}
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            @if ($prac->site->client1_name)
-                                                <b>Primary Contact</b><br>
-                                                {!! $prac->site->client1_name ? $prac->site->client1_name."<br>" : '' !!}
-                                                {!! ($prac->site->client1_mobile) ? $prac->site->client1_mobile."<br>" : '' !!}
-                                                {!! ($prac->site->client1_email) ? $prac->site->client1_email : '' !!}
-                                            @endif
-                                        </div>
-                                        <div class="col-md-6">
-                                            @if ($prac->site->client2_name)
-                                                <b>Secondary Contact</b><br>
-                                                {!! $prac->site->client2_name ? $prac->site->client2_name."<br>" : '' !!}
-                                                {!! ($prac->site->client2_mobile) ? $prac->site->client2_mobile."<br>" : '' !!}
-                                                {!! ($prac->site->client2_email) ? $prac->site->client2_email : '' !!}
-                                            @endif
-                                        </div>
-                                    </div>
+
+                                    <h2 style="margin: 0px; padding-right: 20px">
+                                        @if($foc->status == '-1')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
+                                            <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
+                                        @endif
+                                        @if($foc->status == '0')
+                                            <span class="pull-right font-red hidden-sm hidden-xs"><small
+                                                        class="font-red">COMPLETED {{ $foc->updated_at->format('d/m/Y') }}</small></span>
+                                            <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $foc->updated_at->format('d/m/Y') }}</span>
+                                        @endif
+                                        @if($foc->status == '1')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
+                                            <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
+                                        @endif
+                                        @if($foc->status == '2')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
+                                            <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
+                                        @endif
+                                        @if($foc->status == '4')
+                                            <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                            <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                        @endif
+                                    </h2>
                                 </div>
                             </div>
                             <br>
@@ -157,13 +129,13 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-9">
-                                    @if ($prac->attachments()->count())
+                                    @if ($foc->attachments()->count())
                                         {{-- Image attachments --}}
                                         <div class="row" style="margin: 0">
-                                            @foreach ($prac->attachments() as $attachment)
+                                            @foreach ($foc->attachments() as $attachment)
                                                 @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                        @if(Auth::user()->allowed2('del.prac.completion', $prac))
+                                                        @if(Auth::user()->allowed2('del.site.foc', $foc))
                                                             <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                         @endif
                                                         <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
@@ -174,10 +146,10 @@
                                         </div>
                                         {{-- File attachments  --}}
                                         <div class="row" style="margin: 0">
-                                            @foreach ($prac->attachments() as $attachment)
+                                            @foreach ($foc->attachments() as $attachment)
                                                 @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
                                                     <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                                    @if(Auth::user()->allowed2('del.prac.completion', $prac))
+                                                    @if(Auth::user()->allowed2('del.site.foc', $foc))
                                                         <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                     @endif
                                                     <br>
@@ -197,64 +169,36 @@
 
 
                             {{-- Under Review - asign to super --}}
-                            <h4>Prac Completion Details</h4>
+                            <h4>FOC Details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
-                                {{-- Client Contacted --}}
-                                {{--}}<div class="col-md-2">
-                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
-                                    @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac))
-                                        <div class="input-group" style="width=80%">
-                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
-                                               value="{{  ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_contacted', ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>--}}
-
-                                {{-- Client Appointment --}}
-                                {{--}}<div class="col-md-2">
-                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
-                                    @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac) )
-                                        <div class="input-group">
-                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
-                                               value="{{  ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_appointment', ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>--}}
-
                                 {{-- Assigned Supervisor --}}
                                 <div class="col-md-5">
                                     <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Prac Supervisor', ['class' => 'control-label']) !!}
-                                        @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
+                                        {!! Form::label('super_id', 'FOC Supervisor', ['class' => 'control-label']) !!}
+                                        @if ($foc->status && Auth::user()->allowed2('sig.site.foc', $foc))
                                             {{-- Supervisor --}}
                                             <select id="super_id" name="super_id" class="form-control select2"
                                                     style="width:100%">
                                                 <option value=""></option>
                                                 <optgroup label="Cape Code Supervisors"></optgroup>
                                                 @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                    <option value="{{ $super->id }}" {{ ($super->id == $prac->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
+                                                    <option value="{{ $super->id }}" {{ ($super->id == $foc->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
                                                 @endforeach
                                                 <optgroup label="External Users"></optgroup>
-                                                <option value="2023" {{ ('2023' == $prac->super_id) ? 'selected' : '' }}>
+                                                <option value="2023" {{ ('2023' == $foc->super_id) ? 'selected' : '' }}>
                                                     Jason Habib (Prolific Projects)
                                                 </option>
                                             </select>
                                             {!! fieldErrorMessage('super_id', $errors) !!}
                                         @else
-                                            {!! Form::text('assigned_super_text', ($prac->super_id) ? $prac->supervisor->name : '-', ['class' => 'form-control', 'readonly']) !!}
+                                            {!! Form::text('assigned_super_text', ($foc->super_id) ? $foc->supervisor->name : '-', ['class' => 'form-control', 'readonly']) !!}
                                         @endif
                                         {!! fieldErrorMessage('super_id', $errors) !!}
                                     </div>
                                 </div>
 
-                                @if (Auth::user()->allowed2('edit.prac.completion', $prac))
+                                @if (Auth::user()->allowed2('edit.site.foc', $foc))
                                     <div class="col-md-1 pull-right">
                                         <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
                                     </div>
@@ -264,37 +208,17 @@
                         <br>
 
 
-                        {{-- Prac Items --}}
+                        {{-- FOC Items --}}
                         <div class="row">
                             <div class="col-md-12">
-                                <app-prac></app-prac>
+                                <app-foc></app-foc>
                             </div>
                         </div>
-
-                        {{-- Planner --}}
-                        <h4>Future Planner Tasks</h4>
-                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                        <div class="row">
-                            <div class="col-md-12">
-                                @if ($prac->site->futureTasks()->count())
-                                    @foreach ($prac->site->futureTasks() as $plan)
-                                        <div class="row">
-                                            <div class="col-xs-1">{!! $plan->from->format('d/m/y') !!}</div>
-                                            <div class="col-xs-11">{{$plan->task->name}}</div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    No future tasks on planner
-                                @endif
-                            </div>
-                        </div>
-                        <br>
-
 
                         {{-- Notes --}}
                         <div class="row">
                             <div class="col-md-12">
-                                <app-actions :table_id="{{ $prac->id }}"></app-actions>
+                                <app-actions :table_id="{{ $foc->id }}"></app-actions>
                             </div>
                         </div>
 
@@ -302,14 +226,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h3>Assigned Tasks
-                                    {{-- Show add if user has permission to edit prac --}}
-                                    @if ($prac->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/prac_completion_task/{{ $prac->id}}"
+                                    {{-- Show add if user has permission to edit foc --}}
+                                    @if ($foc->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
+                                        <a href="/todo/create/site_foc_task/{{ $foc->id}}"
                                            class="btn btn-circle green btn-outline btn-sm pull-right"
                                            data-original-title="Add">Add</a>
                                     @endif
                                 </h3>
-                                @if ($prac->todos()->count())
+                                @if ($foc->todos()->count())
                                     <table class="table table-striped table-bordered table-nohover order-column">
                                         <thead>
                                         <tr class="mytable-header">
@@ -321,7 +245,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($prac->todos() as $todo)
+                                        @foreach($foc->todos() as $todo)
                                             <tr>
                                                 <td>
                                                     <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
@@ -364,26 +288,26 @@
                         <hr>
                         <div class="row">
                             <div class="col-md-12">
-                                <h5><b>PRACTICAL COMPLETION ELECTRONIC SIGN-OFF</b></h5>
+                                <h5><b>FOC ELECTRONIC SIGN-OFF</b></h5>
                                 <p>The above items have been checked by the site construction supervisor and conform to the Cape Cod standard set.</p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm-3 text-right">Site Supervisor:</div>
                             <div class="col-sm-9">
-                                @if ($prac->supervisor_sign_by)
-                                    {!! \App\User::find($prac->supervisor_sign_by)->full_name !!}, &nbsp;{{ $prac->supervisor_sign_at->format('d/m/Y') }}
+                                @if ($foc->supervisor_sign_by)
+                                    {!! \App\User::find($foc->supervisor_sign_by)->full_name !!}, &nbsp;{{ $foc->supervisor_sign_at->format('d/m/Y') }}
                                     {{--}}<button v-if="xx.user_manager == 1 || xx.user_signoff"
                                             v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Clear Sign Off
                                     </button>--}}
-                                    <a v-if="xx.user_manager == 1 || xx.user_signoff" style="margin-left: 20px" class="font-red clearSignoff"> <i class="fa fa-times"></i> Clear </a>
+                                    <a v-if="&& xx.foc.status != 0 && (xx.user_manager == 1 || xx.user_signoff)" style="margin-left: 20px" class="font-red clearSignoff"> <i class="fa fa-times"></i> Clear </a>
                                 @else
-                                    <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 1"
+                                    <button v-if="xx.foc.items_total != 0 && xx.foc.items_done == xx.foc.items_total && xx.user_supervisor == 1"
                                             v-on:click.prevent="$root.$broadcast('signOff', 'super')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                     </button>
-                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_supervisor == 0"
+                                    <span v-if="xx.foc.items_total != 0 && xx.foc.items_done == xx.foc.items_total && xx.user_supervisor == 0"
                                           class="font-red">Pending</span>
-                                    <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total"
+                                    <span v-if="xx.foc.items_total != 0 && xx.foc.items_done != xx.foc.items_total"
                                           class="font-grey-silver">Waiting for items to be completed</span>
                                 @endif
                             </div>
@@ -391,19 +315,19 @@
                         <div class="row">
                             <div class="col-sm-3 text-right">Construction Manager:</div>
                             <div class="col-sm-9">
-                                @if ($prac->manager_sign_by)
-                                    {!! \App\User::find($prac->manager_sign_by)->full_name !!},
-                                    &nbsp;{{ $prac->manager_sign_at->format('d/m/Y') }}
+                                @if ($foc->manager_sign_by)
+                                    {!! \App\User::find($foc->manager_sign_by)->full_name !!},
+                                    &nbsp;{{ $foc->manager_sign_at->format('d/m/Y') }}
                                 @else
-                                    @if ($prac->supervisor_sign_by)
-                                        <button v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && (xx.user_manager == 1 || xx.user_signoff)"
+                                    @if ($foc->supervisor_sign_by)
+                                        <button v-if="xx.foc.items_total != 0 && xx.foc.items_done == xx.foc.items_total && (xx.user_manager == 1 || xx.user_signoff)"
                                                 v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                         </button>
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total && xx.user_manager == 0 && !xx.user_signoff"
+                                        <span v-if="xx.foc.items_total != 0 && xx.foc.items_done == xx.foc.items_total && xx.user_manager == 0 && !xx.user_signoff"
                                               class="font-red">Pending</span>
                                     @else
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done == xx.prac.items_total" class="font-red">Waiting for Prac Supervisor Sign Off</span>
-                                        <span v-if="xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="font-grey-silver">Waiting for items to be completed</span>
+                                        <span v-if="xx.foc.items_total != 0 && xx.foc.items_done == xx.foc.items_total" class="font-red">Waiting for FOC Supervisor Sign Off</span>
+                                        <span v-if="xx.foc.items_total != 0 && xx.foc.items_done != xx.foc.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                     @endif
                                 @endif
                             </div>
@@ -411,12 +335,12 @@
 
                         <hr>
                         <div class="pull-right" style="min-height: 50px">
-                            <a href="/site/prac-completion" class="btn default"> Back</a>
-                            @if (!$prac->master && Auth::user()->allowed2('edit.prac.completion', $prac))
-                                <button v-if="xx.prac.status == 1 && xx.prac.items_total != 0 && xx.prac.items_done != xx.prac.items_total" class="btn blue"
+                            <a href="/site/foc" class="btn default"> Back</a>
+                            @if (!$foc->master && Auth::user()->allowed2('edit.site.foc', $foc))
+                                {{--}}<button v-if="xx.foc.status == 1 && xx.foc.items_total != 0 && xx.foc.items_done != xx.foc.items_total" class="btn blue"
                                         v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
-                                </button>
-                                <button v-if="xx.prac.status == 2 || xx.prac.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
+                                </button>--}}
+                                <button v-if="xx.foc.status == 2 || xx.foc.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
                                 </button>
                             @endif
                         </div>
@@ -437,10 +361,10 @@
         </div>
     </div>
 
-    <template id="prac-template">
-        <h4 style="margin-bottom: 15px">Prac Completion Items
+    <template id="foc-template">
+        <h4 style="margin-bottom: 15px">FOC Completion Items
             {{-- Show add if user has permission to add items --}}
-            @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) && !$prac->supervisor_sign_by)
+            @if ($foc->status && Auth::user()->allowed2('edit.site.foc', $foc) && !$foc->supervisor_sign_by)
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
             @endif
         </h4>
@@ -448,39 +372,44 @@
         <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
             <thead>
             <tr class="mytable-header">
-                <th> Prac Item</th>
-                <th style="width:30%"> Assigned Task</th>
+                <th style="width:5%"></th>
+                <th> FOC Item</th>
+                {{--}}<th style="width:30%"> Assigned Task</th>--}}
                 <th style="width:15%"> Completed</th>
-                <th style="width:10%"> Action</th>
+                @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                    <th style="width:3%"></th>
+                @endif
             </tr>
             </thead>
             <tbody>
             <template v-for="item in xx.itemList | orderBy item.order">
                 <tr>
+                    {{-- checkbox --}}
+                    <td class="text-center" style="padding-top: 15px">
+                        <i v-if="item.sign_by" class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
+                        <i v-else class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
+                    </td>
                     {{-- Item --}}
                     <td style="padding-top: 15px;">@{{ item.name }}</td>
-                    {{-- Assigned Task --}}
-                    <td style="padding-top: 15px;">
-                        @{{ item.assigned_to_name }}<br>
-                        <div v-if="item.planner_id && item.planner_task && item.planner_date">
-                            <b>Task:</b> @{{ item.planner_task}} (@{{ item.planner_date }})
-                        </div>
-                    </td>
-                    {{-- Completed --}}
+                    {{-- Sign off --}}
                     <td>
                         <div v-if="item.sign_by">
                             @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
+                            <a v-if="xx.foc.status != 0 && xx.foc.signoff != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
                         </div>
-                        <div v-else>-</div>
+                        <div v-else>
+                            @if (!$foc->isSigned() && Auth::user()->allowed2('edit.site.foc', $foc))
+                                <select v-if="true" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
+                                    <option v-for="option in xx.sel_item" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
+                                </select>
+                            @endif
+                        </div>
                     </td>
-                    <td>
-                        @if (!$prac->supervisor_sign_by)
-                            <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
-                        @endif
-                        @if ($prac->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                    @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                        <td>
                             <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
-                        @endif
-                    </td>
+                        </td>
+                    @endif
                 </tr>
             </template>
             </tbody>
@@ -495,13 +424,13 @@
                 <b>Item</b>
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-12">
-                        <textarea v-model="xx.prac.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of practical completion item" cols="50"></textarea>
+                        <textarea v-model="xx.foc.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of FOC item" cols="50"></textarea>
                     </div>
                 </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.addItemModal = false">Cancel</button>
-                <button v-if="xx.prac.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
+                <button v-if="xx.foc.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
             </div>
         </add-Item>
 
@@ -514,7 +443,7 @@
                 <b>Item</b><br>
                 @{{ xx.item.name_brief }}<br><br>
 
-                <div class="row" style="padding-bottom: 10px">
+                {{--}}<div class="row" style="padding-bottom: 10px">
                     <div class="col-md-3">Assigned To</div>
                     <div class="col-md-9">
                         <select v-model="xx.item.assigned_to" class='form-control' v-on:change="updateTaskOptions(xx.item)">
@@ -543,11 +472,11 @@
                             <datepicker2 :value.sync="xx.item.planner_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker2>
                         </div>
                     </div>
-                </div>
+                </div>--}}
 
                 <div class="row" style="padding-bottom: 10px">
-                    <div class="col-md-3">Status</div>
-                    <div class="col-md-9">
+                    <div class="col-md-2">Status</div>
+                    <div class="col-md-10">
                         <div v-if="xx.editItemModal" class="input-group">
                             <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
                                 <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
@@ -571,7 +500,7 @@
 
     <template id="actions-template">
         <action-modal></action-modal>
-        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
+        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $foc->id }}">
         <input v-model="xx.created_by" type="hidden" id="created_by" value="{{ Auth::user()->id }}">
         <input v-model="xx.created_by_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
 
@@ -654,7 +583,7 @@
             });
             $('.clearSignoff').on('click', function (e) {
                 e.preventDefault();
-                window.location = '/site/prac-completion/' + {{$prac->id}} + '/clearsignoff';
+                window.location = '/site/foc/' + {{$foc->id}} + '/clearsignoff';
             });
 
 
@@ -672,7 +601,7 @@
                     allowOutsideClick: true,
                     html: true,
                 }, function () {
-                    window.location = '/site/prac-completion/' + {{$prac->id}} + '/delfile/' + id;
+                    window.location = '/site/foc/' + {{$foc->id}} + '/delfile/' + id;
                 });
             });
         });
@@ -680,41 +609,42 @@
     <script>
         var xx = {
             dev: dev,
-            prac: {
+            foc: {
                 id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
             spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,
             record: {}, item: {},
             action: '', loaded: false,
-            table_name: 'site_prac_completion', table_id: '', record_status: '', record_resdate: '',
+            table_name: 'site_foc', table_id: '', record_status: '', record_resdate: '',
             created_by: '', created_by_fullname: '',
             done_by: '',
             itemList: [],
-            actionList: [], sel_checked: [], sel_checked2: [], sel_company: [], sel_task: [],
-            client_contacted: '', client_appointment: ''
+            actionList: [], sel_company: [], sel_task: [],
+            sel_item: [{value: '1', text: 'Select Action'}, {value: '0', text: 'Sign Off'}],
+            sel_checked: [], sel_checked2: []
         };
 
         //
-        // Prac Items
+        // FOC Items
         //
-        Vue.component('app-prac', {
-            template: '#prac-template',
+        Vue.component('app-foc', {
+            template: '#foc-template',
 
             created: function () {
-                this.getPrac();
+                this.getFoc();
             },
             data: function () {
                 return {xx: xx};
             },
             events: {
                 'updateReportStatus': function (status) {
-                    this.xx.prac.status = status;
-                    this.updateReportDB(this.xx.prac, true);
+                    this.xx.foc.status = status;
+                    this.updateReportDB(this.xx.foc, true);
                 },
                 'signOff': function (type) {
-                    this.xx.prac.signoff = type;
-                    this.updateReportDB(this.xx.prac, true);
+                    this.xx.foc.signoff = type;
+                    this.updateReportDB(this.xx.foc, true);
                 },
             },
             components: {
@@ -731,11 +661,11 @@
                 },
             },
             methods: {
-                getPrac: function () {
+                getFoc: function () {
                     this.xx.spinner = true;
                     setTimeout(function () {
                         this.xx.load_plan = true;
-                        $.getJSON('/site/prac-completion/' + this.xx.prac.id + '/items', function (data) {
+                        $.getJSON('/site/foc/' + this.xx.foc.id + '/items', function (data) {
                             this.xx.itemList = data[0];
                             this.xx.sel_checked = data[1];
                             this.xx.sel_checked2 = data[2];
@@ -747,13 +677,13 @@
                     }.bind(this), 100);
                 },
                 itemsCompleted: function () {
-                    this.xx.prac.items_total = 0;
-                    this.xx.prac.items_done = 0;
+                    this.xx.foc.items_total = 0;
+                    this.xx.foc.items_done = 0;
                     for (var i = 0; i < this.xx.itemList.length; i++) {
                         if ((this.xx.itemList[i]['sign_by']))
-                            this.xx.prac.items_done++;
+                            this.xx.foc.items_done++;
 
-                        this.xx.prac.items_total++;
+                        this.xx.foc.items_total++;
                     }
                 },
                 itemAdd: function (record) {
@@ -761,17 +691,17 @@
                 },
                 saveItem: function (record) {
                     var record = {};
-                    record.name = this.xx.prac.newitem;
-                    record.order = this.xx.prac.items_total + 1
+                    record.name = this.xx.foc.newitem;
+                    record.order = this.xx.foc.items_total + 1
 
                     //console.log(record);
                     this.xx.addItemModal = false;
 
-                    this.$http.patch('/site/prac-completion/{{$prac->id}}/additem', record)
+                    this.$http.patch('/site/foc/{{$foc->id}}/additem', record)
                         .then(function (response) {
-                            this.getPrac();
+                            this.getFoc();
                             this.itemsCompleted();
-                            this.xx.prac.newitem = '';
+                            this.xx.foc.newitem = '';
                             toastr.success('Added record');
                         }.bind(this))
                         .catch(function (response) {
@@ -789,7 +719,7 @@
                         allowOutsideClick: true,
                         html: true,
                     }, function () {
-                        window.location = '/site/prac-completion/' + record.id + '/delitem';
+                        window.location = '/site/foc/' + record.id + '/delitem';
                     });
                 },
                 itemEdit: function (record) {
@@ -797,6 +727,22 @@
                     this.xx.item.name_brief = this.xx.item.name.substring(0, 150) + '....';
                     this.updateTaskOptions(record);
                     this.xx.editItemModal = true;
+                },
+                itemStatus: function (record) {
+                    console.log(record);
+                    if (record.status == '0') {
+                        record.sign_at = moment().format('YYYY-MM-DD');
+                        record.sign_by = this.xx.user_id;
+                        record.sign_by_name = this.xx.user_fullname;
+                    }
+                    this.updateItemDB(record);
+                },
+                itemStatusReset: function (record) {
+                    record.status = '1';
+                    record.sign_at = '';
+                    record.sign_by = '';
+                    record.sign_by_name = '';
+                    this.updateItemDB(record);
                 },
                 updateTaskOptions: function (item) {
                     if (item.assigned_to) {
@@ -850,9 +796,9 @@
                 },
                 updateItemDB: function (record) {
                     //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.sign_by);
-                    this.$http.patch('/site/prac-completion/item/' + record.id, record)
+                    this.$http.patch('/site/foc/item/' + record.id, record)
                         .then(function (response) {
-                            this.getPrac();
+                            this.getFoc();
                             this.itemsCompleted();
                             toastr.success('Updated record');
                         }.bind(this))
@@ -865,11 +811,11 @@
                         });
                 },
                 updateReportDB: function (record, redirect) {
-                    this.$http.patch('/site/prac-completion/' + record.id + '/update', record)
+                    this.$http.patch('/site/foc/' + record.id + '/update', record)
                         .then(function (response) {
                             this.itemsCompleted();
                             if (redirect)
-                                window.location.href = '/site/prac-completion/' + record.id;
+                                window.location.href = '/site/foc/' + record.id;
                             toastr.success('Updated record');
 
                         }.bind(this)).catch(function (response) {
@@ -958,7 +904,7 @@
                             this.$dispatch('addActionEvent', actiondata);
                         }.bind(this))
                         .catch(function (response) {
-                            alert('failed adding new action');
+                            //alert('failed adding new note');
                         });
 
                     this.close();

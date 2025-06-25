@@ -15,6 +15,7 @@ use App\Models\Site\Planner\SiteCompliance;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAccident;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceItem;
@@ -377,7 +378,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * A list of Prac Completion  this user is allowed to view
+     * A list of Prac Completion this user is allowed to view
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -392,6 +393,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         if ($this->permissionLevel('view.prac.completion', 3) == 30) { // User is 'Planned For' requests
             $ids = SitePracCompletionItem::where('assigned_to', $this->company_id)->pluck('prac_id')->toArray();
             return SitePracCompletion::where('status', '=', $status)->whereIn('id', $ids)->get();
+        }
+
+        return;
+    }
+
+    /**
+     * A list of FOC this user is allowed to view
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function foc($status = '')
+    {
+        if ($this->permissionLevel('view.site.foc', 3) == 99) // User has 'All' permission to requests
+            return SiteFoc::where('status', '=', $status)->get();
+
+        if ($this->permissionLevel('view.site.foc', 3) == 40) // User is 'Supervisor For' requests
+            return SiteFoc::where('status', '=', $status)->where('super_id', $this->id)->get();
+
+        if ($this->permissionLevel('view.site.foc', 3) == 30) { // User is 'Planned For' requests
+            $ids = SiteFoc::where('assigned_to', $this->company_id)->pluck('prac_id')->toArray();
+            return SiteFoc::where('status', '=', $status)->whereIn('id', $ids)->get();
         }
 
         return;
