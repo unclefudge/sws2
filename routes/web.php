@@ -307,9 +307,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Upcoming Compliance
     Route::post('site/upcoming/compliance/update_job', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@updateJob');
-    Route::get('site/upcoming/compliance/settings', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settings');
+    Route::get('site/upcoming/compliance/settings/stages', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsStages');
+    Route::get('site/upcoming/compliance/settings/steel', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsSteel');
+    Route::get('site/upcoming/compliance/settings/sites', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@settingsSites');
     Route::post('site/upcoming/compliance/settings', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@updateSettings');
-    Route::get('site/upcoming/compliance/settings/del/{id}', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@deleteSetting');
+    Route::get('site/upcoming/compliance/settings/del/{id}', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@deleteStage');
     Route::get('site/upcoming/compliance/pdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@showPDF');
     Route::post('site/upcoming/compliance/pdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');
     //Route::get('manage/report/upcoming_compliance/{id}/createpdf', '\App\Http\Controllers\Site\SiteUpcomingComplianceController@createPDF');

@@ -90,7 +90,7 @@
                                     @if ($foc->site)
                                         <b>{{ $foc->site->name }}</b><br>
                                         {{ $foc->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ $foc->site->supervisor->name }}<br>
+                                        <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
                                     @endif
                                 </div>
                                 <div class="col-md-6">

@@ -1045,12 +1045,12 @@ class CronController extends Controller
                     $log .= " * $mesg\n";
                     CronController::debugEmail('EL', $email_list);
 
-                    $subject = $task->site->name . " $subject";
+                    $emailsubject = $task->site->name . " $subject";
                     if ($email_list && !in_array($task_id, $special_tasks))
-                        Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $subject, $mesg));
+                        Mail::to($email_list)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $emailsubject, $mesg));
                     // Special tasks
                     if ($special_email_list && in_array($task_id, $special_tasks))
-                        Mail::to($special_email_list)->cc($special_email_list_cc)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $subject, $mesg));
+                        Mail::to($special_email_list)->cc($special_email_list_cc)->send(new \App\Mail\Site\SitePlannerKeyTask($task, $emailsubject, $mesg));
                 }
             }
         }

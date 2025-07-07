@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Company\Company;
+use App\Models\Misc\Category;
 use App\Models\Site\Site;
 use App\Models\Site\SiteUpcomingSettings;
 use App\User;
@@ -56,13 +58,16 @@ class SiteUpcomingComplianceController extends Controller
             }
             $settings_text[$type] = SiteUpcomingSettings::where('field', $type)->where('status', 1)->pluck('value', 'order')->toArray();
         }
+        $steel_cats = ['' => 'Select option'] + Category::where('type', 'upcoming_jobs_steel')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        //dd($steel_cats);
+
         //var_dump($settings_select);
         //var_dump($settings_colours);
         //dd($settings_text);
         //dd($startdata);
 
 
-        return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours'));
+        return view('site/upcoming/compliance/list', compact('startdata', 'settings', 'settings_select', 'settings_text', 'settings_colours', 'steel_cats'));
     }
 
 
@@ -81,7 +86,7 @@ class SiteUpcomingComplianceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function settings()
+    public function settingsStages()
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
@@ -91,6 +96,7 @@ class SiteUpcomingComplianceController extends Controller
         $fc_plans = DB::table('site_upcoming_settings')->where('field', 'fc_plans')->get();
         $fc_struct = DB::table('site_upcoming_settings')->where('field', 'fc_struct')->get();
         $settings = SiteUpcomingSettings::whereIn('field', ['opt', 'cfest', 'cfadm'])->where('status', 1)->get();
+        $steel_cats = Category::where('type', 'upcoming_jobs_steel')->where('status', 1)->orderBy('order')->get();
 
         $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
         $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
@@ -100,7 +106,29 @@ class SiteUpcomingComplianceController extends Controller
 
         //dd($email_list);
 
-        return view('site/upcoming/compliance/settings', compact('settings', 'email_list', 'special_sites', 'cc', 'fc_plans', 'fc_struct'));
+        return view('site/upcoming/compliance/settings-stages', compact('settings', 'steel_cats', 'email_list', 'special_sites', 'cc', 'fc_plans', 'fc_struct'));
+    }
+
+    public function settingsSteel()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
+            return view('errors/404');
+
+        $cats = Category::where('type', 'upcoming_jobs_steel')->where('status', 1)->orderBy('order')->get();
+        return view('site/upcoming/compliance/settings-steel', compact('cats'));
+    }
+
+    public function settingsSites()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
+            return view('errors/404');
+
+
+        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
+        $special_sites = ($settings_sites) ? explode(',', $settings_sites->value) : [];
+        return view('site/upcoming/compliance/settings-sites', compact('special_sites'));
     }
 
 
@@ -152,7 +180,10 @@ class SiteUpcomingComplianceController extends Controller
                 $site->cf_adm = (request('cf_adm')) ? request('cf_adm') : null;
                 $site->cf_adm_stage = (request('cf_adm_stage')) ? request('cf_adm_stage') : null;
             }
-
+            //Kirsty/Ross/Damien
+            if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin') || in_array(Auth::user()->id, [2252])) {
+                $site->steel = (request('steel')) ? request('steel') : null;
+            }
             $site->save();
         }
 
@@ -173,75 +204,75 @@ class SiteUpcomingComplianceController extends Controller
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
             return view('errors/404');
 
+        $previousPage = pathinfo(url()->previous(), PATHINFO_BASENAME);  //get basename
         //dd(request()->all());
 
-        // Add Extra Field
-        $types = ['opt', 'cfest', 'cfadm'];
-        foreach ($types as $type) {
+        if ($previousPage == "stages") {
+            // Add Extra Field
+            $types = ['opt', 'cfest', 'cfadm'];
+            foreach ($types as $type) {
 
-            // Validate if adding a option
-            if (request("$type-addfield")) {
-                $rules = ["$type-addfield-name" => 'required'];
-                $mesg = ["$type-addfield-name.required" => 'The stage name field is required.'];
-                request()->validate($rules, $mesg); // Validate
-            }
+                // Validate if adding a option
+                if (request("$type-addfield")) {
+                    $rules = ["$type-addfield-name" => 'required'];
+                    $mesg = ["$type-addfield-name.required" => 'The stage name field is required.'];
+                    request()->validate($rules, $mesg); // Validate
+                }
 
-            $settings = SiteUpcomingSettings::where('field', $type)->where('status', 1)->get();
-            // Get field values from request
-            foreach ($settings as $setting) {
-                if (request()->has("$type-$setting->id")) {
-                    if (request("$type-$setting->id")) {
-                        $setting->name = request("$type-$setting->id");
-                        // Default text
-                        if (request("$type-$setting->id-text"))
-                            $setting->value = request("$type-$setting->id-text");
-                        // Colour
-                        if (request("$type-$setting->id-colour"))
-                            $setting->colour = request("$type-$setting->id-colour");
-                        $setting->save();
-                    } else
-                        return back()->withErrors(["$type-$setting->id" => "The stage name field is required."]);
+                $settings = SiteUpcomingSettings::where('field', $type)->where('status', 1)->get();
+                // Get field values from request
+                foreach ($settings as $setting) {
+                    if (request()->has("$type-$setting->id")) {
+                        if (request("$type-$setting->id")) {
+                            $setting->name = request("$type-$setting->id");
+                            // Default text
+                            if (request("$type-$setting->id-text"))
+                                $setting->value = request("$type-$setting->id-text");
+                            // Colour
+                            if (request("$type-$setting->id-colour"))
+                                $setting->colour = request("$type-$setting->id-colour");
+                            $setting->save();
+                        } else
+                            return back()->withErrors(["$type-$setting->id" => "The stage name field is required."]);
+                    }
+                }
+
+                // Add Field
+                if (request("$type-addfield")) {
+                    $add_colour = (request("$type-addfield-colour")) ? request("$type-addfield-colour") : null;
+                    $add_order = count($settings) + 1;
+                    SiteUpcomingSettings::create(['field' => $type, 'name' => request("$type-addfield-name"), 'value' => request("$type-addfield-text"), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
                 }
             }
-
-            // Add Field
-            if (request("$type-addfield")) {
-                $add_colour = (request("$type-addfield-colour")) ? request("$type-addfield-colour") : null;
-                $add_order = count($settings) + 1;
-                SiteUpcomingSettings::create(['field' => $type, 'name' => request("$type-addfield-name"), 'value' => request("$type-addfield-text"), 'colour' => $add_colour, 'order' => $add_order, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-            }
+            Toastr::success("Updated settings");
+            return redirect("/site/upcoming/compliance/settings/stages");
         }
 
-        // Update Special Sites
-        $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
-        if (request('special_sites')) {
-            $special_sites = implode(',', request('special_sites'));
-            if ($settings_sites) {
-                $settings_sites->value = $special_sites;
+        if ($previousPage == "steel") {
+            // Update STEEL options
+            //dd(request());
+            CategoryController::updateCategories('upcoming_jobs_steel', request());
+            Toastr::success("Updated settings");
+            return redirect("/site/upcoming/compliance/settings/steel");
+        }
+
+        if ($previousPage == "sites") {
+            // Update Special Sites
+            $settings_sites = SiteUpcomingSettings::where('field', 'sites')->where('status', 1)->first();
+            if (request('special_sites')) {
+                $special_sites = implode(',', request('special_sites'));
+                if ($settings_sites) {
+                    $settings_sites->value = $special_sites;
+                    $settings_sites->save();
+                } else
+                    $settings_sites = SiteUpcomingSettings::create(['field' => 'sites', 'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
+            } else {
+                $settings_sites->value = '';
                 $settings_sites->save();
-            } else
-                $settings_sites = SiteUpcomingSettings::create(['field' => 'sites', 'value' => $special_sites, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-        } else {
-            $settings_sites->value = '';
-            $settings_sites->save();
+            }
+            Toastr::success("Updated settings");
+            return redirect("/site/upcoming/compliance/settings/sites");
         }
-
-
-        // Update Email List
-        /*
-        if (request('email_list')) {
-            $email_list = implode(',', request('email_list'));
-            $settings_email = SiteUpcomingSettings::where('field', 'email')->where('status', 1)->first();
-            if ($settings_email) {
-                $settings_email->value = $email_list;
-                $settings_email->save();
-            } else
-                $settings_email = SiteUpcomingSettings::create(['field' => 'email', 'value' => $email_list, 'status' => 1, 'company_id' => Auth::user()->company_id]);
-        }*/
-
-        Toastr::success("Updated settings");
-
-        return redirect("/site/upcoming/compliance/settings");
     }
 
     /**
@@ -249,7 +280,7 @@ class SiteUpcomingComplianceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function deleteSetting($id)
+    public function deleteStage($id)
     {
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.upcoming.compliance'))
@@ -274,7 +305,7 @@ class SiteUpcomingComplianceController extends Controller
 
         Toastr::success("Updated settings");
 
-        return redirect("/site/upcoming/compliance/settings");
+        return redirect("/site/upcoming/compliance/settings/stages");
     }
 
     /**
@@ -398,6 +429,7 @@ class SiteUpcomingComplianceController extends Controller
                     $cc = "CC Received " . $site->construction_rcvd->format('d/m/y');
                     $cc_stage = 1;
                 }
+
                 $sites_started[] = $site->id;
                 $startdata[] = [
                     'id' => $site->id,
@@ -427,6 +459,8 @@ class SiteUpcomingComplianceController extends Controller
                     'cf_adm' => $site->cf_adm,
                     'cf_adm_stage' => $site->cf_adm_stage,
                     'gal' => $site->gal,
+                    'steel_id' => $site->steel,
+                    'steel_name' => (Category::find($site->steel)) ? Category::find($site->steel)->name : '',
                 ];
             }
         }
@@ -517,6 +551,8 @@ class SiteUpcomingComplianceController extends Controller
                     'cf_adm' => $site->cf_adm,
                     'cf_adm_stage' => $site->cf_adm_stage,
                     'gal' => $site->gal,
+                    'steel_id' => $site->steel,
+                    'steel_name' => (Category::find($site->steel)) ? Category::find($site->steel)->name : '',
                 ];
             }
         }

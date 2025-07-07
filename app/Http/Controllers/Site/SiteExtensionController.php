@@ -264,7 +264,7 @@ class SiteExtensionController extends Controller
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
-
+        
         CategoryController::updateCategories('site_extension', $request);
 
         Toastr::success("Updated categories");

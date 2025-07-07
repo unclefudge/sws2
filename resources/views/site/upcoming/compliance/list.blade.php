@@ -60,7 +60,7 @@
                             <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/pdf" data-original-title="PDF">PDF</a>
 
                             @if(Auth::user()->hasPermission2('del.site.upcoming.compliance'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/settings" data-original-title="Setting">Settings</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/upcoming/compliance/settings/stages" data-original-title="Setting">Settings</a>
                             @endif
                         </div>
                     </div>
@@ -68,22 +68,23 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="8%">Start Date</th>
-                                <th width="20%">Site</th>
-                                <th width="5%">Super</th>
-                                <th width="5%">Company</th>
-                                <th width="7%">Deposit Paid</th>
-                                <th width="5%">ENG</th>
-                                <th width="7%">HBCF</th>
-                                <th width="5%">DC</th>
-                                <th width="5%">PC</th>
-                                <th width="5%">FC-EST</th>
+                                <th style="width:8%">Start Date</th>
+                                <th style="width:20%">Site</th>
+                                <th style="width:5%">Super</th>
+                                <th style="width:5%">Company</th>
+                                <th style="width:7%">Deposit Paid</th>
+                                <th style="width:5%">ENG</th>
+                                <th style="width:7%">HBCF</th>
+                                <th style="width:5%">DC</th>
+                                <th style="width:5%">PC</th>
+                                <th style="width:5%">FC-EST</th>
                                 <th>CC</th>
                                 <th>FC Plans</th>
                                 <th>FC Structural</th>
                                 <th>CF-EST</th>
                                 <th>CF-ADM</th>
                                 <th>GAL</th>
+                                <th>STEEL</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -131,6 +132,10 @@
                                         <input type="hidden" id="cfadm-{{$row['id']}}-s" value="{!! $row['cf_adm_stage'] !!}">
                                     </td>
                                     <td>{!! $row['gal'] !!}</td>
+                                    <td class="hoverDiv editField" id="steel-{{$row['id']}}-td">
+                                        <div id="steel-{{$row['id']}}">{!! $row['steel_name'] !!}</div>
+                                        <input type="hidden" id="steel-{{$row['id']}}-s" value="{!! $row['steel_id'] !!}">
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -246,6 +251,18 @@
                             </div>
                         </div>
                     @endif
+                    {{-- Kirsty/Ross/Damien --}}
+                    @if (Auth::user()->hasAnyRole2('mgt-general-manager|web-admin') || in_array(Auth::user()->id, [2252]))
+                        {{-- CF-ADM --}}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {!! Form::label('steel', 'Steel', ['class' => 'control-label']) !!}
+                                    {!! Form::select('steel', $steel_cats, null, ['class' => 'form-control bs-select', 'id' => 'steel', 'width' => '100%']) !!}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
@@ -289,6 +306,8 @@
                 // CF-ADM
                 $("#cf_adm").val($("#cfadm-" + site_id).text());
                 $("#cf_adm_stage").val($("#cfadm-" + site_id + "-s").val()).change();
+                // STEEL
+                $("#steel").val($("#steel-" + site_id + "-s").val()).change();
 
                 $("#modal_edit").modal('show');
             });

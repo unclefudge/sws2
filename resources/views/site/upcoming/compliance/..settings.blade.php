@@ -31,6 +31,17 @@
                         @include('form-error')
 
                         <div class="form-body">
+                            <ul class="nav nav-tabs ">
+                                <li class="active">
+                                    <a> Stage Options </a>
+                                </li>
+                                <li class="">
+                                    <a href="/site/upcoming/compliance/settings/steel"> STEEL Options </a>
+                                </li>
+                                <li class="">
+                                    <a href="/site/upcoming/compliance/settings/sites"> Additional Sites </a>
+                                </li>
+                            </ul>
                             <?php
                             //$colours = ['col2-blue-3B67BD', 'col2-green-0A9A5B', 'col2-yellow-FFEC00', 'col2-orange-F77402', 'col2-red-ED0F17', 'col2-purple-A32AA2']
                             //$fields = ['cc' => "CC", 'fc_plans' => "FC Plans", 'fc_struct' => 'FC Structural'];
@@ -111,6 +122,67 @@
                                 <br>
                             @endforeach
 
+                            {{-- STEEL Options --}}
+                            <h3>STEEL Options <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="steel-add_btn">Add option</button></small></span></h3>
+                            <hr class="field-hr">
+                            @foreach ($steel_cats as $cat)
+                                <div class="row">
+                                    <div class="col-xs-1">
+                                        <a href="/category/order/up/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
+                                        <a href="/category/order/down/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <div class="form-group {!! fieldHasError("cat-$cat->id", $errors) !!}">
+                                            {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
+                                            {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
+                                    </div>
+                                </div>
+                                @if (!$loop->last)
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                @endif
+                            @endforeach
+                            {{-- Additiona STEEL field --}}
+                            <div style="{{ ($errors->has("steel-addfield-name")) ? '' : 'display: none' }}" id="steel-add-items">
+                                <input type="hidden" name="steel-addfield" id="steel-addfield" value="{{ ($errors->has("steel-addfield-name")) ? 1 : 0 }}">
+                                <div class="row">
+                                    <div class="col-xs-1">&nbsp;</div>
+                                    <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($steel_cats) +1 }}. &nbsp; </span></div>
+                                    <div class="col-xs-4">
+                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
+                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <br>
+
+                            {{-- Additional category --}}
+                            {{--}}
+                            <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
+                                <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
+                                <div class="row">
+                                    <div class="col-xs-1">&nbsp;</div>
+                                    <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($steel_cats) +1 }}. &nbsp; </span></div>
+                                    <div class="col-xs-4">
+                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
+                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
+                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>--}}
+
+
+                            {{-- Additional Sites --}}
                             <h3>Additional Sites (manually)</h3>
                             <hr class="field-hr">
                             <div class="row">

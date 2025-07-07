@@ -31,7 +31,7 @@ class Site extends Model
         'contract_sent', 'contract_signed', 'deposit_paid', 'council_approval', 'engineering_cert', 'engineering', 'construction_rcvd', 'hbcf_start',
         'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'extension_notes', 'completion_signed', 'completed', 'forecast_completion', 'jobstart_estimate',
         'cc', 'cc_stage', 'fc_plans', 'fc_plans_stage', 'fc_struct', 'fc_struct_stage', 'cf_est', 'cf_est_stage', 'cf_adm', 'cf_adm_stage',
-        'holidays_added', 'osd', 'sw', 'gal', 'eworks', 'pworks', 'aftercare', 'client_occupation',
+        'holidays_added', 'osd', 'sw', 'gal', 'eworks', 'pworks', 'aftercare', 'client_occupation', 'steel',
         'status', 'company_id', 'created_by', 'updated_by'];
     protected $casts = ['completed' => 'datetime', 'jobstart_estimate' => 'datetime', 'contract_sent' => 'datetime', 'contract_signed' => 'datetime', 'deposit_paid' => 'datetime', 'council_approval' => 'datetime',
         'completion_signed' => 'datetime', 'engineering_cert' => 'datetime', 'construction_rcvd' => 'datetime', 'hbcf_start' => 'datetime', 'forecast_completion' => 'datetime', 'client_occupation' => 'datetime'];
