@@ -113,6 +113,58 @@ class SiteQaController extends Controller
         return view('site/qa/edit', compact('qa'));
     }
 
+    public function reportOrder()
+    {
+        if (!Auth::user()->allowed2('add.site.qa.templates'))
+            return view('errors/404');
+
+        $templates = SiteQa::where('status', 1)->where('master', 1)->orderBy('order')->get();
+        $i = 1;
+        foreach ($templates as $template) {
+            if ($template->order == null) {
+                $template->order = $i;
+                $template->save();
+            }
+            $i++;
+        }
+
+        return view('site/qa/templates/order', compact('templates'));
+    }
+
+    public function reportOrderUpdate($direction, $id)
+    {
+        if (!Auth::user()->allowed2('add.site.qa.templates'))
+            return view('errors/404');
+
+        $template = SiteQa::findOrFail($id);
+
+        if ($direction == 'up' && $template->order != 1) {
+            $newPos = $template->order - 1;
+            $template2 = SiteQa::where('status', 1)->where('order', $newPos)->first();
+            if ($template2) {
+                $template2->order = $template->order;
+                $template2->save();
+                $template->order = $newPos;
+                $template->save();
+            }
+        }
+
+        $last = SiteQa::where('status', 1)->orderByDesc('order')->first();
+        if ($last && $direction == 'down' && $template->order != $last->order) {
+            $newPos = $template->order + 1;
+            $template2 = SiteQa::where('status', 1)->where('order', $newPos)->first();
+            if ($template2) {
+                $template2->order = $template->order;
+                $template2->save();
+                $template->order = $newPos;
+                $template->save();
+            }
+        }
+        Toastr::success("Updated order");
+
+        return redirect(url()->previous());
+    }
+
     /**
      * Store a newly created resource in storage.
      *

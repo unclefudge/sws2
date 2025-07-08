@@ -24,6 +24,7 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasPermission2('add.site.qa.templates'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/templates/order" data-original-title="Order">Report Order</a>
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/category" data-original-title="Add">Categories</a>
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/qa/create" data-original-title="Add">Add</a>
                             @endif
@@ -69,33 +70,34 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    // Templates
-    var status2 = $('#status2').val();
-    var table2 = $('#table2').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/qa/dt/qa_templates') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status2').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-            {data: 'updated_at', name: 'updated_at'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "desc"]
-        ]
-    });
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        // Templates
+        var status2 = $('#status2').val();
+        var table2 = $('#table2').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/qa/dt/qa_templates') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status2').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+                {data: 'updated_at', name: 'updated_at'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "desc"]
+            ]
+        });
 
-    $('select#status2').change(function () {
-        table2.ajax.reload();
-    });
-</script>
+        $('select#status2').change(function () {
+            table2.ajax.reload();
+        });
+    </script>
 @stop
