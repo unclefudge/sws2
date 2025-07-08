@@ -256,7 +256,6 @@ class ReportUserCompanyController extends Controller
         $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
 
-        $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
         $email_cc = (Auth::check() && validEmail(Auth::user()->email)) ? [Auth::user()->email] : [];
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
@@ -269,6 +268,7 @@ class ReportUserCompanyController extends Controller
         foreach ($companies as $company) {
             //$counter++;
             //if ($counter > 3) dd('done');
+            $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
 
             if ($email_to && $email_cc)
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
@@ -286,7 +286,6 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
         $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString();
 
-        $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
         $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [env('EMAIL_DEV')];
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
@@ -302,6 +301,8 @@ class ReportUserCompanyController extends Controller
         foreach ($companies as $company) {
             //$counter++;
             //if ($counter > 12) dd('done');
+
+            $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
 
             if (count($company->wmsdocs) == 0) {
                 if ($email_to)
