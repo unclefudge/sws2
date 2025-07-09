@@ -300,7 +300,7 @@ class ReportUserCompanyController extends Controller
         // Person running the report
         $email_sent = 0;
         foreach ($companies as $company) {
-            if ($email_sent > 12) continue;
+            //if ($email_sent > 12) continue;
             $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
 
             if (count($company->wmsdocs) == 0) {
