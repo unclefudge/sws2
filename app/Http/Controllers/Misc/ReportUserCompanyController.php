@@ -296,8 +296,7 @@ class ReportUserCompanyController extends Controller
             $signature = Auth::user()->fullname . "<br>" . Auth::user()->jobtitle;
         } else
             $signature = "SafeWork Site";
-
-        // Person running the report
+        
         $email_sent = 0;
         foreach ($companies as $company) {
             //if ($email_sent > 12) continue;
