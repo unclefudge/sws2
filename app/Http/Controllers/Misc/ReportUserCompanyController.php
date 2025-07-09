@@ -244,10 +244,10 @@ class ReportUserCompanyController extends Controller
     {
         $allowed_companies = Auth::user()->company->companies(1)->pluck('id')->toArray();
         $excluded_companies = Option::where('type', 'company_swms')->where('status', 1)->pluck('value')->toArray();
-        //dd($excluded_companies);
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->orderBy('name')->get();
+        $email_sent = 0;
 
-        return view('manage/report/company/company_swms', compact('companies', 'excluded_companies'));
+        return view('manage/report/company/company_swms', compact('companies', 'excluded_companies', 'email_sent'));
     }
 
     public function companySWMSEmailAll()
@@ -264,19 +264,22 @@ class ReportUserCompanyController extends Controller
         } else
             $signature = "SafeWork Site";
 
-        $counter = 0;
+        $email_sent = 0;
         foreach ($companies as $company) {
-            //$counter++;
-            //if ($counter > 3) dd('done');
+            //if ($email_sent > 3) continue;
             $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
-
-            if ($email_to && $email_cc)
-                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
-            elseif ($email_to)
-                Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
+            if ($email_to) {
+                $email_sent++;
+                if ($email_cc)
+                    Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
+                else
+                    Mail::to($email_to)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'verify', $signature));
+            }
         }
         Toastr::success("Emails sent");
-        return redirect('manage/report/company_swms');
+        $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->orderBy('name')->get();
+
+        return view('manage/report/company/company_swms', compact('companies', 'excluded_companies', 'email_sent'));
     }
 
     public function companySWMSEmailOutOfDate()
@@ -295,18 +298,16 @@ class ReportUserCompanyController extends Controller
             $signature = "SafeWork Site";
 
         // Person running the report
-
-
-        $counter = 0;
+        $email_sent = 0;
         foreach ($companies as $company) {
-            //$counter++;
-            //if ($counter > 12) dd('done');
-
+            if ($email_sent > 12) continue;
             $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
 
             if (count($company->wmsdocs) == 0) {
-                if ($email_to)
+                if ($email_to) {
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, 'none', $signature));
+                    $email_sent++;
+                }
             } else {
                 // Out of date SWMS
                 $outofdate = [];
@@ -317,12 +318,14 @@ class ReportUserCompanyController extends Controller
 
                 if ($outofdate && $email_to) {
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Safety\SwmsOutofdate($company, $outofdate, $signature));
+                    $email_sent++;
                 }
             }
         }
         Toastr::success("Emails sent");
+        $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->orderBy('name')->get();
 
-        return redirect('manage/report/company_swms');
+        return view('manage/report/company/company_swms', compact('companies', 'excluded_companies', 'email_sent'));
     }
 
     public function companySWMSSettings()

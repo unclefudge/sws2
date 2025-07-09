@@ -32,6 +32,11 @@
                         </div>
                     </div>
                     <div class="portlet-body">
+                        @if ($email_sent > 0)
+                            <div class="col-md-12 note note-warning">
+                                <p>{{ $email_sent }} emails have been sent</p>
+                            </div>
+                        @endif
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
