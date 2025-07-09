@@ -131,6 +131,30 @@ class SiteQaController extends Controller
         return view('site/qa/templates/order', compact('templates'));
     }
 
+    public function reportOrderUpdate2()
+    {
+        if (!Auth::user()->allowed2('add.site.qa.templates'))
+            return view('errors/404');
+
+        //dd(request()->all());
+        if (request('positions')) {
+            //dd(request('positions'));
+            foreach (request('positions') as $row) {
+                $id = $row[0];
+                $order = $row[1];
+                $qa = SiteQa::find($id);
+                if ($qa) {
+                    $qa->order = $order;
+                    $qa->save();
+                }
+            }
+        }
+
+        //Toastr::success("Updated order");
+        return json_encode('success');
+        //return response()->json($action);
+    }
+
     public function reportOrderUpdate($direction, $id)
     {
         if (!Auth::user()->allowed2('add.site.qa.templates'))

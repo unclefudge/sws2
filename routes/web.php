@@ -405,6 +405,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Site Quality Assurance
     Route::get('site/qa/sigonoff', '\App\Http\Controllers\Site\SiteQaController@listSignoff');
     Route::get('site/qa/templates/order', '\App\Http\Controllers\Site\SiteQaController@reportOrder');
+    Route::any('site/qa/templates/order/update', '\App\Http\Controllers\Site\SiteQaController@reportOrderUpdate2');
     Route::get('site/qa/templates/order/{dir}/{id}', '\App\Http\Controllers\Site\SiteQaController@reportOrderUpdate');
     Route::get('site/qa/{id}/items', '\App\Http\Controllers\Site\SiteQaController@getItems');
     Route::any('site/qa/{id}/update', '\App\Http\Controllers\Site\SiteQaController@updateReport');
