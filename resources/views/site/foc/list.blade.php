@@ -69,6 +69,10 @@
                             <span class="caption-subject bold uppercase font-green-haze"> FOC Requirements</span>
                         </div>
                         <div class="actions">
+                            @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/foc/settings"
+                                   data-original-title="Settings">Settings</a>
+                            @endif
                             @if(Auth::user()->allowed2('add.site.maintenance'))
                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/foc/create" data-original-title="Add">Add</a>
                             @endif

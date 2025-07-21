@@ -369,51 +369,57 @@
             @endif
         </h4>
         <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-        <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
-            <thead>
-            <tr class="mytable-header">
-                <th style="width:5%"></th>
-                <th> FOC Item</th>
-                {{--}}<th style="width:30%"> Assigned Task</th>--}}
-                <th style="width:15%"> Completed</th>
-                @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                    <th style="width:3%"></th>
-                @endif
-            </tr>
-            </thead>
-            <tbody>
-            <template v-for="item in xx.itemList | orderBy item.order">
-                <tr>
-                    {{-- checkbox --}}
-                    <td class="text-center" style="padding-top: 15px">
-                        <i v-if="item.sign_by" class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
-                        <i v-else class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
-                    </td>
-                    {{-- Item --}}
-                    <td style="padding-top: 15px;">@{{ item.name }}</td>
-                    {{-- Sign off --}}
-                    <td>
-                        <div v-if="item.sign_by">
-                            @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
-                            <a v-if="xx.foc.status != 0 && xx.foc.signoff != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
-                        </div>
-                        <div v-else>
-                            @if (!$foc->isSigned() && Auth::user()->allowed2('edit.site.foc', $foc))
-                                <select v-if="true" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
-                                    <option v-for="option in xx.sel_item" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
-                                </select>
+        <template v-for="cat in xx.sel_itemcat">
+            {{-- Show items for each category (excluding empty category '' --}}
+            <div v-show="cat.value != ''">
+                <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
+                    <thead>
+                    <tr class="mytable-header">
+                        <th style="width:5%"></th>
+                        <th> @{{ cat.text }}</th>
+                        {{--}}<th style="width:30%"> Assigned Task</th>--}}
+                        <th style="width:15%"> Completed</th>
+                        @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                            <th style="width:3%"></th>
+                        @endif
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <template v-for="item in xx.itemList | orderBy item.order">
+                        <tr v-show="item.category_id == cat.value">
+                            {{-- checkbox --}}
+                            <td class="text-center" style="padding-top: 15px">
+                                <i v-if="item.sign_by" class="fa fa-check-square-o font-green" style="font-size: 20px; padding-top: 5px"></i>
+                                <i v-else class="fa fa-square-o font-red" style="font-size: 20px; padding-top: 5px"></i>
+                            </td>
+                            {{-- Item --}}
+                            <td style="padding-top: 15px;">@{{ item.name }}</td>
+                            {{-- Sign off --}}
+                            <td>
+                                <div v-if="item.sign_by">
+                                    @{{ item.sign_at | formatDate }}<br>@{{ item.sign_by_name }}
+                                    <a v-if="xx.foc.status != 0 && xx.foc.signoff != 1" v-on:click="itemStatusReset(item)"><i class="fa fa-times font-red"></i></a>
+                                </div>
+                                <div v-else>
+                                    @if (!$foc->isSigned() && Auth::user()->allowed2('edit.site.foc', $foc))
+                                        <select v-if="true" v-model="item.status" class='form-control' v-on:change="itemStatus(item)">
+                                            <option v-for="option in xx.sel_item" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
+                                        </select>
+                                    @endif
+                                </div>
+                            </td>
+                            @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                <td>
+                                    <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
+                                </td>
                             @endif
-                        </div>
-                    </td>
-                    @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                        <td>
-                            <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
-                        </td>
-                    @endif
-                </tr>
-            </template>
-            </tbody>
-        </table>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
 
         {{--  Add Item Modal --}}
         <add-Item :show.sync="xx.addItemModal" effect="fade" class="modal fade bs-modal-lg topmodal" header="Edit Item">
@@ -421,16 +427,24 @@
                 <h4 class="modal-title text-center"><b>Add Item</b></h4>
             </div>
             <div slot="modal-body" class="modal-body">
-                <b>Item</b>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-6">
+                        <label for="newcat" class="control-label">Category</label>
+                        <select v-model="xx.foc.newcat" class='form-control'>
+                            <option v-for="option in xx.sel_itemcat" value="@{{ option.value }}" selected="@{{option.value == xx.foc.newcat}}">@{{ option.text }}</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-12">
+                        <label for="newitem" class="control-label">Item Description</label>
                         <textarea v-model="xx.foc.newitem" name="newitem" rows="3" class="form-control" placeholder="Specific details of FOC item" cols="50"></textarea>
                     </div>
                 </div>
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.addItemModal = false">Cancel</button>
-                <button v-if="xx.foc.newitem != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
+                <button v-if="xx.foc.newitem != '' && xx.foc.newcat != ''" type="button" class="btn green" v-on:click="saveItem()">&nbsp; Save &nbsp;</button>
             </div>
         </add-Item>
 
@@ -607,10 +621,11 @@
         });
     </script>
     <script>
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
         var xx = {
             dev: dev,
             foc: {
-                id: '', name: '', site_id: '', status: '', warranty: '', assigned_to: '', newitem: '',
+                id: '', name: '', site_id: '', status: '', category_id: '', assigned_to: '', newitem: '', newcat: '',
                 planner_id: '', planner_task_id: '', planner_task_date: '', signed: '', items_total: 0, items_done: 0
             },
             spinner: false, showSignOff: false, addItemModal: false, editItemModal: false, showAction: false,
@@ -619,9 +634,10 @@
             table_name: 'site_foc', table_id: '', record_status: '', record_resdate: '',
             created_by: '', created_by_fullname: '',
             done_by: '',
-            itemList: [],
+            itemList: [], catList: [],
             actionList: [], sel_company: [], sel_task: [],
             sel_item: [{value: '1', text: 'Select Action'}, {value: '0', text: 'Sign Off'}],
+            sel_itemcat: [],
             sel_checked: [], sel_checked2: []
         };
 
@@ -667,7 +683,7 @@
                         this.xx.load_plan = true;
                         $.getJSON('/site/foc/' + this.xx.foc.id + '/items', function (data) {
                             this.xx.itemList = data[0];
-                            this.xx.sel_checked = data[1];
+                            this.xx.sel_itemcat = data[1];
                             this.xx.sel_checked2 = data[2];
                             this.xx.sel_company = data[3];
                             this.xx.sel_task = data[4];
@@ -692,6 +708,7 @@
                 saveItem: function (record) {
                     var record = {};
                     record.name = this.xx.foc.newitem;
+                    record.category_id = this.xx.foc.newcat;
                     record.order = this.xx.foc.items_total + 1
 
                     //console.log(record);
@@ -702,9 +719,11 @@
                             this.getFoc();
                             this.itemsCompleted();
                             this.xx.foc.newitem = '';
-                            toastr.success('Added record');
+                            this.xx.foc.newcat = '';
+                            toastr.success('Added item');
                         }.bind(this))
                         .catch(function (response) {
+                            console.log(response);
                             alert('failed to add item');
                         });
                 },

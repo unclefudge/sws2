@@ -462,6 +462,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/foc/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteFocController@deleteAttachment');
     Route::any('site/foc/item/{id}', '\App\Http\Controllers\Site\SiteFocController@updateItem');
     Route::get('site/foc/dt/foc', '\App\Http\Controllers\Site\SiteFocController@getFoc');
+    Route::get('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@settings');
+    Route::post('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@updateSettings');
     Route::any('site/foc/upload', '\App\Http\Controllers\Site\SiteFocController@uploadAttachment');
     Route::get('site/foc/data/foc/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getFoc');
     Route::get('site/foc/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getSiteSupervisor');

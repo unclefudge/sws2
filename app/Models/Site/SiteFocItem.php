@@ -14,13 +14,18 @@ class SiteFocItem extends Model
 
     protected $table = 'site_foc_items';
     protected $fillable = [
-        'foc_id', 'name', 'assigned_to', 'planner_id', 'order', 'status',
+        'foc_id', 'name', 'category_id', 'assigned_to', 'planner_id', 'order', 'status',
         'sign_by', 'sign_at', 'created_by', 'updated_by', 'created_at', 'updated_at'];
     protected $casts = ['sign_at' => 'datetime'];
 
     public function foc()
     {
         return $this->belongsTo('App\Models\Site\SiteFoc', 'foc_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo('App\Models\Misc\Category');
     }
 
     public function planner()
@@ -58,10 +63,10 @@ class SiteFocItem extends Model
         $todo_request = [
             'type' => 'foc_item',
             'type_id' => $this->id,
-            'name' => 'FOC Item Added - ' . $this->prac->site->name,
+            'name' => 'FOC Item Added - ' . $this->foc->site->name,
             'info' => 'Please review practical completion item and assign to company',
             'due_at' => nextWorkDate(Carbon::today(), '+', 2)->toDateTimeString(),
-            'company_id' => $this->prac->site->owned_by->id,
+            'company_id' => $this->foc->site->owned_by->id,
         ];
 
         $todo = Todo::create($todo_request);

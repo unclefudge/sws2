@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
+use App\Models\Misc\Category;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteFoc;
@@ -292,7 +294,7 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         //dd(request()->all());
-        $item = SiteFocItem::create(['foc_id' => $foc->id, 'name' => request('name'), 'order' => request('order'), 'status' => 1]);
+        $item = SiteFocItem::create(['foc_id' => $foc->id, 'name' => request('name'), 'category_id' => request('category_id'), 'order' => request('order'), 'status' => 1]);
 
         // Assign ToDoo to Supervisor for item
         if ($foc->super_id)
@@ -300,8 +302,6 @@ class SiteFocController extends Controller
 
         // Update modified timestamp
         $foc->touch();
-
-        Toastr::success("Added item");
 
         return $item;
     }
@@ -459,6 +459,31 @@ class SiteFocController extends Controller
         return redirect('site/foc/' . $foc->id . '/edit');
     }
 
+    public function settings()
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        $cats = Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->get();
+
+        return view('site/foc/settings-categories', compact('cats'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
+        //dd(request()->all());
+        CategoryController::updateCategories('foc_item', $request);
+
+        Toastr::success("Updated categories");
+
+        return redirect(url()->previous());
+    }
+
     /**
      * Get Site Supervisor.
      */
@@ -559,6 +584,7 @@ class SiteFocController extends Controller
             }
             $array = [];
             $array['id'] = $item->id;
+            $array['category_id'] = (string)$item->category_id;
             $array['assigned_to'] = (string)$item->assigned_to;
             $array['assigned_to_name'] = ($item->assigned_to) ? $item->assigned->name : 'Unassigned';
             $array['planner_id'] = (string)$item->planner_id;
@@ -595,12 +621,17 @@ class SiteFocController extends Controller
 
 
         $actions = [];
-        $actions[] = ['value' => '1', 'text' => 'Incomplete'];
-        $actions[] = ['value' => '0', 'text' => 'Completed'];
+        //$actions[] = ['value' => '1', 'text' => 'Incomplete'];
+        //$actions[] = ['value' => '0', 'text' => 'Completed'];
         //$actions[] = ['value' => '-1', 'text' => 'Mark N/A'];
+        $actions[] = ['value' => '', 'text' => 'Select category'];
+        $cats = Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->get();
+        foreach ($cats as $cat)
+            $actions[] = ['value' => $cat->id, 'text' => $cat->name];
         $actions2[] = ['value' => '', 'text' => 'Select Action'];
         $actions2[] = ['value' => '0', 'text' => 'Incomplete'];
         $actions2[] = ['value' => '1', 'text' => 'Sign Off'];
+
 
         // Companies
         $company_list = Auth::user()->company->reportsTo()->companies('1')->sortBy('name')->pluck('name', 'id')->toArray();

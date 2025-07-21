@@ -137,9 +137,9 @@ class SiteQaController extends Controller
             return view('errors/404');
 
         //dd(request()->all());
-        if (request('positions')) {
+        if (request('order')) {
             //dd(request('positions'));
-            foreach (request('positions') as $row) {
+            foreach (request('order') as $row) {
                 $id = $row[0];
                 $order = $row[1];
                 $qa = SiteQa::find($id);

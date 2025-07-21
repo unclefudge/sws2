@@ -136,11 +136,11 @@
                 };
 
             function saveNewPositions() {
-                // Create array of all rows that had updated positions
-                var positions = [];
+                // Create array of arrays [index => newposition] for all rows that had updated positions
+                var newPositions = [];
                 $('.updatedrow').each(function () {
-                    // an array of arrays [index => newposition]
-                    positions.push([$(this).attr('data-index'), $(this).attr('data-position')]);
+                    //
+                    newPositions.push([$(this).attr('data-index'), $(this).attr('data-position')]);
                     $(this).removeClass('updatedrow');
                 });
                 //console.log(positions);
@@ -149,7 +149,7 @@
                     url: '/site/qa/templates/order/update',
                     type: 'POST',
                     dataType: 'json',
-                    data: {positions: positions},
+                    data: {order: newPositions},
                     success: function (data) {
                         console.log('updated order');
                     },
