@@ -364,7 +364,7 @@
     <template id="foc-template">
         <h4 style="margin-bottom: 15px">FOC Completion Items
             {{-- Show add if user has permission to add items --}}
-            @if ($foc->status && Auth::user()->allowed2('edit.site.foc', $foc) && !$foc->supervisor_sign_by)
+            @if ($foc->status && !$foc->supervisor_sign_by && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager') || in_array(Auth::user()->id,['325', '2252'])))
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
             @endif
         </h4>
