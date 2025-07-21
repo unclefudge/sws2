@@ -42,7 +42,7 @@
                                         </td>
                                         <td> {{ $foc->created_at->format('d/m/Y') }}</td>
                                         <td> {{ $foc->site->name }}</td>
-                                        <td> {{ $foc->site->supervisor->name }}</td>
+                                        <td> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : "N/A"}}</td>
                                         <td>
                                             @if(Auth::user()->allowed2('edit.site.foc', $foc))
                                                 <a href="/site/foc/{{ $foc->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>

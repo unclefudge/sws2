@@ -134,7 +134,7 @@ class SiteFocController extends Controller
         // Add Request Items
         for ($i = 1; $i < 25; $i++) {
             if (request("item$i")) {
-                SiteFocItem::create(['foc_id' => $foc->id, 'name' => request("item$i"), 'order' => $i, 'status' => 1]);
+                SiteFocItem::create(['foc_id' => $foc->id, 'name' => request("item$i"), 'category_id' => request("cat$i"), 'order' => $i, 'status' => 1]);
             }
         }
 
