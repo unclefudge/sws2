@@ -59,10 +59,16 @@
                                 @for ($i = 1; $i <= 5; $i++)
                                     <div class="row">
                                         <div class="col-xs-1 ">Item {{$i}}</div>
-                                        <div class="col-xs-11 ">
+                                        <div class="col-xs-8 ">
                                             <div class="form-group {!! fieldHasError('item1', $errors) !!}">
                                                 {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
                                                 {!! fieldErrorMessage('item1', $errors) !!}
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="form-group {!! fieldHasError("cat$i", $errors) !!}">
+                                                {!! Form::select("cat$i", $cats, null, ['class' => 'form-control bs-select', 'title' => 'Select category', 'name' => "cat$i", 'id' => "cat$i"]) !!}
+                                                {!! fieldErrorMessage("cat$i", $errors) !!}
                                             </div>
                                         </div>
                                     </div>
@@ -89,7 +95,7 @@
                                     @for ($i = 11; $i <= 15; $i++)
                                         <div class="row">
                                             <div class="col-xs-1 ">Item {{$i}}</div>
-                                            <div class="col-xs-11 ">
+                                            <div class="col-xs-8 ">
                                                 <div class="form-group {!! fieldHasError('item1', $errors) !!}">
                                                     {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
                                                     {!! fieldErrorMessage('item1', $errors) !!}

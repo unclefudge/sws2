@@ -93,12 +93,34 @@ class SiteFocController extends Controller
         if (!Auth::user()->allowed2('add.site.foc'))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required', 'item1' => 'required'];
+        $rules = ['site_id' => 'required', 'item1' => 'required',
+            'cat1' => 'required_with:item1',
+            'cat2' => 'required_with:item2',
+            'cat3' => 'required_with:item3',
+            'cat4' => 'required_with:item4',
+            'cat5' => 'required_with:item5',
+            'cat6' => 'required_with:item6',
+            'cat7' => 'required_with:item7',
+            'cat8' => 'required_with:item8',
+            'cat9' => 'required_with:item9',
+            'cat10' => 'required_with:item10',
+            'cat11' => 'required_with:item11',
+            'cat12' => 'required_with:item12',
+            'cat13' => 'required_with:item13',
+            'cat14' => 'required_with:item14',
+            'cat15' => 'required_with:item15',
+            'cat16' => 'required_with:item16',
+            'cat17' => 'required_with:item17',
+            'cat18' => 'required_with:item18',
+            'cat19' => 'required_with:item19',
+            'cat20' => 'required_with:item20'];
         $mesg = [
             'site_id.required' => 'The site field is required.',
             'item1.required' => 'The item field is required.'];
 
+
         request()->validate($rules, $mesg); // Validate
+        //dd(request()->all());
 
         $site_id = request('site_id');
         $foc_request = request()->all();
@@ -144,7 +166,9 @@ class SiteFocController extends Controller
         if (!Auth::user()->allowed2('add.site.foc'))
             return view('errors/404');
 
-        return view('site/foc/create');
+        $cats = Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+
+        return view('site/foc/create', compact('cats'));
     }
 
 
