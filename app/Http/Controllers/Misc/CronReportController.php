@@ -1046,7 +1046,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.prac.completion.super.noaction') : [env('EMAIL_DEV')];
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $today = Carbon::now();
@@ -1190,7 +1190,7 @@ class CronReportController extends Controller
 
                 $emails = implode("; ", array_merge($email_to, $email_cc));
                 echo "Sending email to: $emails<br>";
-                $log .= "Sending email to: $emails";
+                $log .= "Sending email to: $emails\n";
             }
             //}
         }
@@ -1314,7 +1314,7 @@ class CronReportController extends Controller
 
                 $emails = implode("; ", array_merge($email_to, $email_cc));
                 echo "Sending email to: $emails<br>";
-                $log .= "Sending email to: $emails";
+                $log .= "Sending email to: $emails\n";
             }
         }
 
