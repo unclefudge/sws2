@@ -176,6 +176,7 @@ class SiteInspectionElectricalController extends Controller
 
         //dd(request()->all());
         $report_request = request()->all();
+        $current_user = Auth::User()->full_name;
 
         // Format date from datetime picker to mysql format
         if (request('inspected_at')) {
@@ -189,6 +190,7 @@ class SiteInspectionElectricalController extends Controller
             $report->closeToDo();
             $report_request['inspected_by'] = Auth::user()->id;
             $report_request['status'] = 3; // Pending signoff
+            $action = Action::create(['action' => "Report signed off by Trade ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
             // Create ToDoo for Electrical Review
             $report->createSignOffToDo([464]); // Alethea
