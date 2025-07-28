@@ -241,7 +241,7 @@
                                 <div class="form-group {!! fieldHasError('assign_to', $errors) !!}">
                                     {!! Form::label('assign_to', 'Assigment category', ['class' => 'control-label']) !!}
                                     @if (Auth::user()->company->subscription)
-                                        {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role'], null, ['class' => 'form-control bs-select']) !!}
+                                        {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role', 'special' =>'Special'], null, ['class' => 'form-control bs-select']) !!}
                                     @else
                                         {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company'], null, ['class' => 'form-control bs-select']) !!}
                                     @endif
@@ -280,6 +280,14 @@
                                 {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
                                      null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
                                 {!! fieldErrorMessage('role_list', $errors) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-12" id="special_div" style="display: none">
+                            <div class="form-group {!! fieldHasError('special_list', $errors) !!}">
+                                {!! Form::label('special_list', 'Special', ['class' => 'control-label']) !!}
+                                {!! Form::select('special_list', ['supply_fit' => "Supply & Fit Providers", "supply" => "Supply only"],
+                                     null, ['class' => 'form-control select2', 'name' => 'special_list[]', 'multiple' => 'multiple']) !!}
+                                {!! fieldErrorMessage('special_list', $errors) !!}
                             </div>
                         </div>
                     </div>
@@ -358,6 +366,7 @@
             $("#company_list").select2({placeholder: "Select", width: '100%'});
             $("#group_list").select2({placeholder: "Select", width: '100%'});
             $("#role_list").select2({placeholder: "Select", width: '100%'});
+            $("#special_list").select2({placeholder: "Select", width: '100%'});
             $("#site_list").select2({placeholder: "Select", width: '100%'});
 
             $("#test_alert").click(function (e) {
@@ -376,6 +385,7 @@
                 $("#company_div").hide();
                 $("#group_div").hide();
                 $("#role_div").hide();
+                $("#special_div").hide();
                 $("#site_div").hide();
                 $("#type").val('user');
 
@@ -391,6 +401,9 @@
                 // Assign to Role selected
                 if ($("#assign_to").val() == 'role')
                     $("#role_div").show();
+                // Assign to Special selected
+                if ($("#assign_to").val() == 'special')
+                    $("#special_div").show();
                 // Assign to Group selected
                 if ($("#assign_to").val() == 'site') {
                     $("#site_div").show();

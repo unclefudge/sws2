@@ -272,6 +272,24 @@ class ToolboxTalk3Controller extends Controller
                     if (in_array($u->user_id, $company_users))
                         $assign_list[] = $u->user_id;
                 }
+            } elseif (request('assign_to') == 'special') {
+                $special_list = (request('special_list')) ? request('special_list') : [];
+                foreach ($special_list as $special) {
+                    if ($special == 'supply_fit') {
+                        $company_list = Company::where('status', 1)->where('business_entity', 4)->pluck('id')->toArray();
+                        foreach ($company_list as $id) {
+                            $company = Company::findOrFail($id);
+                            $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
+                        }
+                    }
+                    if ($special == 'supply') {
+                        $company_list = Company::where('status', 1)->where('business_entity', 5)->pluck('id')->toArray();
+                        foreach ($company_list as $id) {
+                            $company = Company::findOrFail($id);
+                            $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
+                        }
+                    }
+                }
             }
             //dd($assign_list);
 
