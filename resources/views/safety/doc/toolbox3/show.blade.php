@@ -122,7 +122,7 @@
                                         @if ($talk->status != 3)
                                             {{-- Not Pending --}}
                                             @if(!$talk->master && $talk->status == 1)
-                                                <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Edit Users</a></li>
+                                                <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Add Users</a></li>
                                                 <li><a href="/safety/doc/toolbox3/{{ $talk->id }}/reminder"><i class="fa fa-envelope"></i> Email reminder to outstanding</a></li>
                                                 <li class="divider"></li>
                                             @endif
@@ -225,69 +225,44 @@
                     <input type="hidden" name="toolbox_type" value="none">
                     <input type="hidden" name="for_company_id" value="{{ Auth::user()->company_id }}">
 
-                    <div class="scroller" style="height:300px" data-always-visible="1" data-rail-visible1="1">
+                    <div class="scroller" style="height:350px" data-always-visible="1" data-rail-visible1="1">
                         <!-- Assigned to Users -->
                         <div class="col-md-12">
                             <p><b>Please select the users you'd like to assign the Toolbox talk to</b></p>
                             @if ($talk->assignedTo())
-                                <input type="hidden" name="assign_to" value="user">
+                                <input type="hidden" name="add_users" value="new">
+                            @endif
+                            <div class="col-md-12" id="user_div">
                                 <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
-                                    {!! Form::label('user_list', 'Assigned to users', ['class' => 'control-label']) !!}
+                                    {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
                                     {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL', 1),
-                                         ($talk->assignedTo()) ? $talk->assignedTo()->pluck('id')->toArray() : null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
+                                         null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
                                     {!! fieldErrorMessage('user_list', $errors) !!}
                                 </div>
-                            @else
-                                <div class="form-group {!! fieldHasError('assign_to', $errors) !!}">
-                                    {!! Form::label('assign_to', 'Assigment category', ['class' => 'control-label']) !!}
-                                    @if (Auth::user()->company->subscription)
-                                        {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company', 'role' => 'Role', 'special' =>'Special'], null, ['class' => 'form-control bs-select']) !!}
-                                    @else
-                                        {!! Form::select('assign_to', ['' => 'Select type', 'user' => 'User', 'company' => 'Company'], null, ['class' => 'form-control bs-select']) !!}
-                                    @endif
-                                    {!! fieldErrorMessage('assign_to', $errors) !!}
+                            </div>
+                            <div class="col-md-12" id="company_div">
+                                <div class="form-group {!! fieldHasError('company_list', $errors) !!}">
+                                    {!! Form::label('company_list', 'Company(s)', ['class' => 'control-label']) !!}
+                                    {!! Form::select('company_list', Auth::user()->company->companiesSelect('ALL'),
+                                         null, ['class' => 'form-control select2', 'name' => 'company_list[]', 'multiple' => 'multiple']) !!}
+                                    {!! fieldErrorMessage('company_list', $errors) !!}
                                 </div>
-                            @endif
-                        </div>
-
-                        <div class="col-md-12" id="user_div" style="display: none">
-                            <div class="form-group {!! fieldHasError('user_list', $errors) !!}">
-                                {!! Form::label('user_list', 'User(s)', ['class' => 'control-label']) !!}
-                                {!! Form::select('user_list', Auth::user()->company->usersSelect('ALL', 1),
-                                     null, ['class' => 'form-control select2', 'name' => 'user_list[]', 'multiple' => 'multiple', 'width' => '100%']) !!}
-                                {!! fieldErrorMessage('user_list', $errors) !!}
                             </div>
-                        </div>
-                        <div class="col-md-12" id="company_div" style="display: none">
-                            <div class="form-group {!! fieldHasError('company_list', $errors) !!}">
-                                {!! Form::label('company_list', 'Company(s)', ['class' => 'control-label']) !!}
-                                {!! Form::select('company_list', Auth::user()->company->companiesSelect('ALL'),
-                                     null, ['class' => 'form-control select2', 'name' => 'company_list[]', 'multiple' => 'multiple']) !!}
-                                {!! fieldErrorMessage('company_list', $errors) !!}
+                            <div class="col-md-12" id="role_div">
+                                <div class="form-group {!! fieldHasError('role_list', $errors) !!}">
+                                    {!! Form::label('role_list', 'Roles(s)', ['class' => 'control-label']) !!}
+                                    {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
+                                         null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
+                                    {!! fieldErrorMessage('role_list', $errors) !!}
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-12" id="group_div" style="display: none">
-                            <div class="form-group {!! fieldHasError('group_list', $errors) !!}">
-                                {!! Form::label('group_list', 'Group(s)', ['class' => 'control-label']) !!}
-                                {!! Form::select('group_list', ['primary.contact' => 'Primary Contacts'],
-                                     null, ['class' => 'form-control select2', 'name' => 'group_list[]', 'multiple' => 'multiple']) !!}
-                                {!! fieldErrorMessage('group_list', $errors) !!}
-                            </div>
-                        </div>
-                        <div class="col-md-12" id="role_div" style="display: none">
-                            <div class="form-group {!! fieldHasError('role_list', $errors) !!}">
-                                {!! Form::label('role_list', 'Roles(s)', ['class' => 'control-label']) !!}
-                                {!! Form::select('role_list', App\Models\Misc\Role2::where('company_id', Auth::user()->company_id)->orderBy('name')->pluck('name', 'id')->toArray(),
-                                     null, ['class' => 'form-control select2', 'name' => 'role_list[]', 'multiple' => 'multiple']) !!}
-                                {!! fieldErrorMessage('role_list', $errors) !!}
-                            </div>
-                        </div>
-                        <div class="col-md-12" id="special_div" style="display: none">
-                            <div class="form-group {!! fieldHasError('special_list', $errors) !!}">
-                                {!! Form::label('special_list', 'Special', ['class' => 'control-label']) !!}
-                                {!! Form::select('special_list', ['supply_fit' => "Supply & Fit Providers", "supply" => "Supply only"],
-                                     null, ['class' => 'form-control select2', 'name' => 'special_list[]', 'multiple' => 'multiple']) !!}
-                                {!! fieldErrorMessage('special_list', $errors) !!}
+                            <div class="col-md-12" id="special_div">
+                                <div class="form-group {!! fieldHasError('special_list', $errors) !!}">
+                                    {!! Form::label('special_list', 'Special', ['class' => 'control-label']) !!}
+                                    {!! Form::select('special_list', ['primary_contact' => 'Primary Contacts', 'supply_fit' => "Supply & Fit Providers", "supply" => "Supply only"],
+                                         null, ['class' => 'form-control select2', 'name' => 'special_list[]', 'multiple' => 'multiple']) !!}
+                                    {!! fieldErrorMessage('special_list', $errors) !!}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -364,7 +339,6 @@
             /* Select2 */
             $("#user_list").select2({placeholder: "Select", width: '100%',});
             $("#company_list").select2({placeholder: "Select", width: '100%'});
-            $("#group_list").select2({placeholder: "Select", width: '100%'});
             $("#role_list").select2({placeholder: "Select", width: '100%'});
             $("#special_list").select2({placeholder: "Select", width: '100%'});
             $("#site_list").select2({placeholder: "Select", width: '100%'});
@@ -374,6 +348,7 @@
                 swal($("#name").val(), $("#info").val());
             })
 
+            /*
             // On Change Assign To
             $("#assign_to").change(function () {
                 showAssignedList();
@@ -412,6 +387,8 @@
             }
 
             showAssignedList();
+
+             */
 
 
             $('#delete').on('click', function () {

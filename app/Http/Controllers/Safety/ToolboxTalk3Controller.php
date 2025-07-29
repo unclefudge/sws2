@@ -248,46 +248,52 @@ class ToolboxTalk3Controller extends Controller
             ];
 
             $assign_list = [];
-            if (request('assign_to') == 'user') {
-                $user_list = (request('user_list')) ? request('user_list') : [];
-                foreach ($user_list as $id) {
-                    if ($id == 'all') {
-                        $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
-                        break;
-                    } else
-                        $assign_list[] = $id;
-                }
-            } elseif (request('assign_to') == 'company') {
-                $company_list = (request('company_list')) ? request('company_list') : [];
-                $company_list = (in_array('all', $company_list)) ? Auth::user()->company->companies(1)->pluck('id')->toArray() : $company_list;
-                foreach ($company_list as $id) {
-                    $company = Company::findOrFail($id);
-                    $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
-                }
-            } elseif (request('assign_to') == 'role') {
-                $role_list = (request('role_list')) ? request('role_list') : [];
-                $users = DB::table('role_user')->select('user_id')->whereIn('role_id', $role_list)->distinct('user_id')->orderBy('user_id')->get();
-                $company_users = Auth::user()->company->users(1)->pluck('id')->toArray();
-                foreach ($users as $u) {
-                    if (in_array($u->user_id, $company_users))
-                        $assign_list[] = $u->user_id;
-                }
-            } elseif (request('assign_to') == 'special') {
-                $special_list = (request('special_list')) ? request('special_list') : [];
-                foreach ($special_list as $special) {
-                    if ($special == 'supply_fit') {
-                        $company_list = Company::where('status', 1)->where('business_entity', 4)->pluck('id')->toArray();
-                        foreach ($company_list as $id) {
-                            $company = Company::findOrFail($id);
-                            $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
-                        }
+            // Users
+            $user_list = (request('user_list')) ? request('user_list') : [];
+            foreach ($user_list as $id) {
+                if ($id == 'all') {
+                    $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
+                    break;
+                } else
+                    $assign_list[] = $id;
+            }
+            // Companies
+            $company_list = (request('company_list')) ? request('company_list') : [];
+            $company_list = (in_array('all', $company_list)) ? Auth::user()->company->companies(1)->pluck('id')->toArray() : $company_list;
+            foreach ($company_list as $id) {
+                $company = Company::findOrFail($id);
+                $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
+            }
+            // Roles
+            $role_list = (request('role_list')) ? request('role_list') : [];
+            $users = DB::table('role_user')->select('user_id')->whereIn('role_id', $role_list)->distinct('user_id')->orderBy('user_id')->get();
+            $company_users = Auth::user()->company->users(1)->pluck('id')->toArray();
+            foreach ($users as $u) {
+                if (in_array($u->user_id, $company_users))
+                    $assign_list[] = $u->user_id;
+            }
+            // Specials
+            $special_list = (request('special_list')) ? request('special_list') : [];
+            foreach ($special_list as $special) {
+                if ($special == 'primary_contact') {
+                    $company_list = Company::where('status', 1)->pluck('id')->toArray();
+                    foreach ($company_list as $id) {
+                        $company = Company::findOrFail($id);
+                        $assign_list = array_merge($assign_list, [$company->primary_contact]);
                     }
-                    if ($special == 'supply') {
-                        $company_list = Company::where('status', 1)->where('business_entity', 5)->pluck('id')->toArray();
-                        foreach ($company_list as $id) {
-                            $company = Company::findOrFail($id);
-                            $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
-                        }
+                }
+                if ($special == 'supply_fit') {
+                    $company_list = Company::where('status', 1)->where('business_entity', 4)->pluck('id')->toArray();
+                    foreach ($company_list as $id) {
+                        $company = Company::findOrFail($id);
+                        $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
+                    }
+                }
+                if ($special == 'supply') {
+                    $company_list = Company::where('status', 1)->where('business_entity', 5)->pluck('id')->toArray();
+                    foreach ($company_list as $id) {
+                        $company = Company::findOrFail($id);
+                        $assign_list = array_merge($assign_list, $company->staffStatus(1)->pluck('id')->toArray());
                     }
                 }
             }
@@ -306,7 +312,7 @@ class ToolboxTalk3Controller extends Controller
             }
 
             // Delete user ToDoo task for Toolbox talk if they haven't already completed
-            $del_users = [];
+            /*$del_users = [];
             foreach ($current_users as $user_id) {
                 if (!in_array($user_id, $assign_list)) {
                     $todo_toolboxs = Todo::where('type', 'toolbox')->where('type_id', $talk->id)->get();
@@ -323,7 +329,7 @@ class ToolboxTalk3Controller extends Controller
                         }
                     }
                 }
-            }
+            }*/
             Toastr::success("Assigned users");
 
             // Send Email of Added / Deleted Users
@@ -336,12 +342,13 @@ class ToolboxTalk3Controller extends Controller
             asort($added_users);
 
             $deleted_users = [];
-            foreach ($del_users as $user_id) {
+            /*foreach ($del_users as $user_id) {
                 $user = User::find($user_id);
                 if ($user)
                     $deleted_users[$user->fullname . " (" . $user->company->name . ")"] = $user->company->name;
             }
             asort($deleted_users);
+            */
 
             Mail::to($talk->createdBy)->send(new \App\Mail\Safety\ToolboxTalkUsers($talk, $added_users, $deleted_users));
 
