@@ -179,7 +179,7 @@
         // Warning message for deleting report
         $('.delete-report').click(function (e) {
             e.preventDefault();
-            var url = "/site/prac-completion/" + $(this).data('id');
+            var url = "/site/foc/" + $(this).data('id');
             var name = $(this).data('name');
 
             swal({
