@@ -69,6 +69,11 @@ class SiteAsbestos extends Model
         return $this->hasMany('App\Models\Misc\Action', 'table_id')->where('table', $this->table);
     }
 
+    public function planner()
+    {
+        return $this->belongsTo('App\Models\Site\Planner\SitePlanner', 'plan_id');
+    }
+
     /**
      * Equipment used
      */

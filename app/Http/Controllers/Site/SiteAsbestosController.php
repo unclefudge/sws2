@@ -312,6 +312,19 @@ class SiteAsbestosController extends Controller
         return redirect('site/asbestos/notification/' . $asb->id);
     }
 
+    public function destroy($id)
+    {
+        $asb = SiteAsbestos::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.asbestos', $asb))
+            return json_encode("failed");
+
+        $asb->delete();
+
+        return json_encode('success');
+    }
+
 
     /**
      * Get Asbestos Reports current user is authorised to manage + Process datatables ajax request.
@@ -347,8 +360,14 @@ class SiteAsbestosController extends Controller
                 return ($s->supervisorName);
             })
             ->addColumn('action', function ($doc) {
+                $s = Site::find($doc->site_id);
+                $actions = "";
                 if ($doc->status && Auth::user()->allowed2('edit.site.asbestos', $doc))
-                    return '<a href="/site/asbestos/notification/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                    $actions .= '<a href="/site/asbestos/notification/' . $doc->id . '/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                if ($doc->status && Auth::user()->allowed2('del.site.asbestos', $doc))
+                    $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/asbestos/notification/' . $doc->id . '" data-name="' . $s->name . '"><i class="fa fa-trash"></i></button>';
+
+                return $actions;
 
                 //return '<a href="/site/asbestos/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
             })

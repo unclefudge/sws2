@@ -43,13 +43,13 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Site Name</th>
                                 <th> Proposed Removal Dates</th>
                                 <th> Amount</th>
                                 <th> Supervisor</th>
-                                <th width="10%"> Updated</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -75,6 +75,10 @@
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
+
         var status1 = $('#status1').val();
         var table1 = $('#table1').DataTable({
             pageLength: 100,
@@ -108,6 +112,36 @@
         });
         $('select#supervisor').change(function () {
             table1.ajax.reload();
+        });
+
+        // Warning message for deleting report
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
+
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this record!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted notification');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
+            });
         });
     </script>
 @stop

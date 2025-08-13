@@ -1431,6 +1431,14 @@ class CronController extends Controller
                         //$newAsb->emailNotification(); // Email notification
                         echo "Created notofication for " . $task->site->name . " (taskid:$task->id)<br>";
                     }
+                } else {
+                    // Verify same dates
+                    if ($asb->date_from != $task->from || $asb->date_to != $task->to) {
+                        $asb->from = $task->from;
+                        $asb->to = $task->to;
+                        $asb->save();
+                        $action = Action::create(['action' => 'Updated dates due to Planner task moving', 'table' => 'site_asbestos', 'table_id' => $asb->id]);
+                    }
                 }
 
             }
