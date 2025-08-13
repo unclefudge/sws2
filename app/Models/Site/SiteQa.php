@@ -53,6 +53,11 @@ class SiteQa extends Model
         return $this->hasMany('App\Models\Site\SiteQaItem', 'doc_id');
     }
 
+    public function masterTemplate()
+    {
+        return $this->belongsTo('App\Models\Site\SiteQa', 'master_id');
+    }
+
     /**
      *  A list of 'Completed' Items.
      */
@@ -325,6 +330,14 @@ class SiteQa extends Model
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
             '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+    }
+
+    public function getReportOrderAttribute()
+    {
+        if ($this->master)
+            return $this->order;
+
+        return $this->masterTemplate->order;
     }
 
     /**

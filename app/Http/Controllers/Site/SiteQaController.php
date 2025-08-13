@@ -711,7 +711,7 @@ class SiteQaController extends Controller
             else
                 $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->get();
 
-            foreach ($site_qa as $qa) {
+            foreach ($site_qa->sortBy('reportOrder') as $qa) {
                 $obj_qa = (object)[];
                 $obj_qa->id = $qa->id;
                 $obj_qa->name = $qa->name;
