@@ -455,6 +455,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site FOC
     Route::get('site/foc/{id}/items', '\App\Http\Controllers\Site\SiteFocController@getItems');
+    Route::get('site/foc/{id}/additems', '\App\Http\Controllers\Site\SiteFocController@addItems');
+    Route::any('site/foc/{id}/additems/save', '\App\Http\Controllers\Site\SiteFocController@addItemsSave');
     Route::any('site/foc/{id}/additem', '\App\Http\Controllers\Site\SiteFocController@addItem');
     Route::any('site/foc/{id}/delitem', '\App\Http\Controllers\Site\SiteFocController@delItem');
     Route::any('site/foc/{id}/update', '\App\Http\Controllers\Site\SiteFocController@updateReport');

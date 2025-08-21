@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SiteResource;
 use App\Models\Company\Company;
+use App\Models\Misc\Action;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
+use App\Models\Site\SiteFoc;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -69,6 +71,12 @@ class SiteSyncController extends Controller
                     $asb = SiteAsbestosRegister::where('site_id', $site->id)->first();
                     if (!$asb)
                         $asb = SiteAsbestosRegister::create(['site_id' => $site->id, 'version' => '1.0']);
+
+                    $foc = SiteFoc::where('site_id', $site->id)->first();
+                    if (!$foc) {
+                        $foc = SiteFoc::create(['site_id' => $site->id, 'status' => '2']);
+                        $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
+                    }
 
                 }
             }

@@ -330,6 +330,111 @@ class SiteFocController extends Controller
         return $item;
     }
 
+    public function addItems($id)
+    {
+        $foc = SiteFoc::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.foc', $foc) || Auth::user()->id == $foc->super_id))
+            return view('errors/404');
+
+        $cats = Category::where('type', 'foc_item')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+
+        return view('site/foc/additems', compact('foc', 'cats'));
+    }
+
+    public function addItemsSave($id)
+    {
+        $foc = SiteFoc::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!(Auth::user()->allowed2('edit.site.foc', $foc) || Auth::user()->id == $foc->super_id))
+            return view('errors/404');
+
+        $itemCount = $foc->items->count();
+        //dd(request()->all());
+        $rules = ['item1' => 'required',
+            'cat1' => 'required_with:item1',
+            'cat2' => 'required_with:item2',
+            'cat3' => 'required_with:item3',
+            'cat4' => 'required_with:item4',
+            'cat5' => 'required_with:item5',
+            'cat6' => 'required_with:item6',
+            'cat7' => 'required_with:item7',
+            'cat8' => 'required_with:item8',
+            'cat9' => 'required_with:item9',
+            'cat10' => 'required_with:item10',
+            'cat11' => 'required_with:item11',
+            'cat12' => 'required_with:item12',
+            'cat13' => 'required_with:item13',
+            'cat14' => 'required_with:item14',
+            'cat15' => 'required_with:item15',
+            'cat16' => 'required_with:item16',
+            'cat17' => 'required_with:item17',
+            'cat18' => 'required_with:item18',
+            'cat19' => 'required_with:item19',
+            'cat20' => 'required_with:item20'];
+        $mesg = [
+            'site_id.required' => 'The site field is required.',
+            'item1.required' => 'The item field is required.',
+            'cat1.required_with' => 'The category field is required',
+            'cat2.required_with' => 'The category field is required',
+            'cat3.required_with' => 'The category field is required',
+            'cat4.required_with' => 'The category field is required',
+            'cat5.required_with' => 'The category field is required',
+            'cat6.required_with' => 'The category field is required',
+            'cat7.required_with' => 'The category field is required',
+            'cat8.required_with' => 'The category field is required',
+            'cat9.required_with' => 'The category field is required',
+            'cat10.required_with' => 'The category field is required',
+            'cat11.required_with' => 'The category field is required',
+            'cat12.required_with' => 'The category field is required',
+            'cat13.required_with' => 'The category field is required',
+            'cat14.required_with' => 'The category field is required',
+            'cat15.required_with' => 'The category field is required',
+            'cat16.required_with' => 'The category field is required',
+            'cat17.required_with' => 'The category field is required',
+            'cat18.required_with' => 'The category field is required',
+            'cat19.required_with' => 'The category field is required',
+            'cat20.required_with' => 'The category field is required',
+        ];
+
+
+        request()->validate($rules, $mesg); // Validate
+        //dd(request()->all());
+
+
+        $foc_request = request()->all();
+
+        //dd($foc_request);
+
+        // Create FOC
+        $action = Action::create(['action' => "Multiple items added", 'table' => 'site_foc', 'table_id' => $foc->id]);
+
+        // Add Request Items
+        for ($i = 1; $i < 25; $i++) {
+            if (request("item$i")) {
+                SiteFocItem::create(['foc_id' => $foc->id, 'name' => request("item$i"), 'category_id' => request("cat$i"), 'order' => $i + $itemCount, 'status' => 1]);
+            }
+        }
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "/filebank/site/$foc->site_id/foc"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
+        }
+
+        // Create ToDoo to assign Supervisor
+        $foc->createAssignSupervisorToDo([108]); // Kirstie
+
+        Toastr::success("Created FOC");
+
+        return redirect("/site/foc/$foc->id/edit");
+    }
+
     public function delItem($id)
     {
         $item = SiteFocItem::findOrFail($id);

@@ -364,7 +364,8 @@
     <template id="foc-template">
         <h4 style="margin-bottom: 15px">FOC Completion Items
             {{-- Show add if user has permission to add items --}}
-            @if ($foc->status && !$foc->supervisor_sign_by && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager') || in_array(Auth::user()->id,['325', '2252'])))
+            @if ($foc->status && !$foc->supervisor_sign_by && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator|con-area-supervisor'))
+                <a href="/site/foc/{{$foc->id}}/additems" class="btn btn-circle green btn-outline btn-sm pull-right" style="margin-left: 10px">Add Multiple</a>
                 <button class="btn btn-circle green btn-outline btn-sm pull-right" v-on:click.prevent="itemAdd()">Add</button>
             @endif
         </h4>
@@ -409,7 +410,7 @@
                                     @endif
                                 </div>
                             </td>
-                            @if ($foc->status && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager') || in_array(Auth::user()->id, [325])))
+                            @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-administrator'))
                                 // Michelle
                                 <td style="width:12%">
                                     @if (!$foc->supervisor_sign_by)
