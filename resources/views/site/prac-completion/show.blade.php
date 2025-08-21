@@ -473,7 +473,7 @@
                         </div>
                         <div v-else>-</div>
                     </td>
-                    <td>
+                    <td style="width:12%">
                         @if (!$prac->supervisor_sign_by)
                             <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
                         @endif

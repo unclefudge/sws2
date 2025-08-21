@@ -168,7 +168,7 @@
                             </div>
 
 
-                            {{-- Under Review - asign to super --}}
+                            {{-- Under Review + assign to super --}}
                             <h4>FOC Details</h4>
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
@@ -409,9 +409,15 @@
                                     @endif
                                 </div>
                             </td>
-                            @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                                <td>
-                                    <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
+                            @if ($foc->status && (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager') || in_array(Auth::user()->id, [325])))
+                                // Michelle
+                                <td style="width:12%">
+                                    @if (!$foc->supervisor_sign_by)
+                                        <button class="btn btn-xs btn-outline blue" v-on:click.prevent="itemEdit(item)"><i class="fa fa-pencil"></i> Edit</button>
+                                    @endif
+                                    @if ($foc->status && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                        <button class="btn btn-xs dark" v-on:click.prevent="itemDelete(item)"><i class="fa fa-trash"></i></button>
+                                    @endif
                                 </td>
                             @endif
                         </tr>
@@ -454,8 +460,22 @@
                 <h4 class="modal-title text-center"><b>Edit Item</b></h4>
             </div>
             <div slot="modal-body" class="modal-body">
-                <b>Item</b><br>
-                @{{ xx.item.name_brief }}<br><br>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-2">Item</div>
+                    <div class="col-md-10">
+                        <textarea v-model="xx.item.name" rows="3" class="form-control" name="reason" cols="50" id="name"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding-bottom: 10px">
+                    <div class="col-md-2">Category</div>
+                    <div class="col-md-10">
+                        <select v-model="xx.item.category_id" class='form-control' v-on:change="doNothing">
+                            <option v-for="option in xx.sel_itemcat" value="@{{ option.value }}"
+                                    selected="@{{option.value == item.category_id}}">@{{ option.text }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
 
                 {{--}}<div class="row" style="padding-bottom: 10px">
                     <div class="col-md-3">Assigned To</div>
@@ -486,7 +506,7 @@
                             <datepicker2 :value.sync="xx.item.planner_date" format="dd/MM/yyyy" :placeholder="choose date"></datepicker2>
                         </div>
                     </div>
-                </div>--}}
+                </div>
 
                 <div class="row" style="padding-bottom: 10px">
                     <div class="col-md-2">Status</div>
@@ -499,11 +519,11 @@
                             </select>
                         </div>
                     </div>
-                </div>
+                </div>--}}
             </div>
             <div slot="modal-footer" class="modal-footer">
                 <button type="button" class="btn dark btn-outline" v-on:click="xx.editItemModal = false">Cancel</button>
-                <button v-if="!xx.item.planner_task_id || (xx.item.planner_task_id && xx.item.planner_date)" type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
+                <button v-if="xx.item.name && xx.item.category_id" type="button" class="btn green" v-on:click="updateItem(xx.item)">&nbsp; Save &nbsp;</button>
             </div>
         </edit-Item>
 

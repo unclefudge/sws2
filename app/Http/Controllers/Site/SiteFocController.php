@@ -393,7 +393,7 @@ class SiteFocController extends Controller
         if (!(Auth::user()->allowed2('edit.site.foc', $foc) || Auth::user()->id == $foc->super_id))
             return view('errors/404');
 
-        $item_request = $request->only(['assigned_to', 'status']);
+        $item_request = $request->only(['name', 'category_id', 'assigned_to', 'status']);
         //dd($item_request);
 
         $assigned_to_orig = $item->assigned_to;
