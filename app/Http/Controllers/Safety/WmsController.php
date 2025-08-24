@@ -247,6 +247,8 @@ class WmsController extends Controller
                 $doc->emailSignOff();
         }
 
+        //dd('ggg');
+
         // Signed off by Principle doc
         if (!$doc->principle_signed_id && $doc->principle_id && $doc->company_id == Auth::user()->company_id && Auth::user()->allowed2('sig.wms', $doc)) {
             $doc->principle_signed_id = Auth::user()->id;

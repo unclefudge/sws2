@@ -2,13 +2,13 @@
 
 namespace App\Models\Misc;
 
-use URL;
-use Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
-class Action extends Model {
+class Action extends Model
+{
 
     protected $table = 'actions';
     protected $fillable = ['table', 'table_id', 'todo_id', 'action', 'attachment', 'created_by', 'created_at', 'updated_at', 'updated_by'];
@@ -91,6 +91,17 @@ class Action extends Model {
             // create a event to happen on updating
             static::updating(function ($table) {
                 $table->updated_by = Auth::user()->id;
+            });
+        } else {
+            // create a event to happen on creating
+            static::creating(function ($table) {
+                $table->created_by = 1;
+                $table->updated_by = 1;
+            });
+
+            // create a event to happen on updating
+            static::updating(function ($table) {
+                $table->updated_by = 1;
             });
         }
     }
