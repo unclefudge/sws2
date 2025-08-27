@@ -1425,7 +1425,7 @@ class CronController extends Controller
                         'plan_id' => $task->id, 'date_from' => $task->from, 'date_to' => $task->to,
                     ]);
                     if ($newAsb) {
-                        $action = Action::create(['action' => 'Created Notification', 'table' => 'site_asbestos', 'table_id' => $newAsb->id, 'created_by' => '1', 'updated_by' => 1]);
+                        $action = Action::create(['action' => 'Created Notification', 'table' => 'site_asbestos', 'table_id' => $newAsb->id, 'created_by' => '1', 'updated_by' => '1']);
                         $newAsb->touch(); // update timestamp
                         $newAsb->createAssignSupervisorToDo($site->supervisor_id);
                         //$newAsb->emailNotification(); // Email notification
@@ -1434,10 +1434,10 @@ class CronController extends Controller
                 } else {
                     // Verify same dates
                     if ($asb->date_from != $task->from || $asb->date_to != $task->to) {
-                        $asb->from = $task->from;
-                        $asb->to = $task->to;
+                        $asb->date_from = $task->from;
+                        $asb->date_to = $task->to;
                         $asb->save();
-                        $action = Action::create(['action' => 'Updated dates due to Planner task moving', 'table' => 'site_asbestos', 'table_id' => $asb->id, 'created_by' => '1', 'updated_by' => 1]);
+                        $action = Action::create(['action' => 'Updated dates due to Planner task moving', 'table' => 'site_asbestos', 'table_id' => $asb->id, 'created_by' => '1', 'updated_by' => '1']);
                     }
                 }
 

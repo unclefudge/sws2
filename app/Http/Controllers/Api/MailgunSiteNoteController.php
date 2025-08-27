@@ -16,7 +16,7 @@ use Mail;
 class MailgunSiteNoteController extends Controller
 {
 
-    public $debug = true;
+    public $debug = false;
     public $logfile = '';
 
     public function store(Request $request)
