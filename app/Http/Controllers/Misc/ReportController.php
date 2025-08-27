@@ -152,7 +152,7 @@ class ReportController extends Controller
     {
         $today = Carbon::now();
         $weekago = Carbon::now()->subWeek();
-        $qas = SiteQa::whereDate('updated_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
+        $qas = SiteQa::whereDate('created_at', '<=', $weekago->format('Y-m-d'))->where('status', 1)->where('master', 0)->orderBy('updated_at')->get();
 
         // Supervisors list
         $supers = [];
