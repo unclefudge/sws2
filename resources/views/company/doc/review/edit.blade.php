@@ -250,6 +250,8 @@
                 $('#approve_button').hide();
                 $('#save_button').hide();
                 $('#renew_button').hide();
+                $('#reviewdate_field').hide();
+                $('#assign_draft_field').hide();
 
                 if ($("#stage").val() == '1') {
                     // Approved
@@ -263,9 +265,7 @@
                     if ($("#approve_version").val() == '0') {
                         $('#assign_draft_field').show();
                         $('#reviewdate_field').hide();
-
-                        if ($("#singlefile").val() != '')
-                            $('#save_button').show();
+                        $('#save_button').show();
                     }
                 }
 

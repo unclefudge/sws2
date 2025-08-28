@@ -2,28 +2,25 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocSubcontractorStatement;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
 
 /**
  * Class CompanySubcontractorStatementController
  * @package App\Http\Controllers
  */
-class CompanySubcontractorStatementController extends Controller {
+class CompanySubcontractorStatementController extends Controller
+{
 
     public function index()
     {
@@ -90,13 +87,16 @@ class CompanySubcontractorStatementController extends Controller {
 
         $this->validate(request(), [
             'date_from' => 'required',
-            'contractor_full_name'    => 'required',
-            'contractor_signed_name'  => 'required',
+            'contractor_full_name' => 'required',
+            'contractor_signed_name' => 'required',
             'contractor_signed_title' => 'required',
             'clause_a' => 'required'
         ], $messages);
 
         $company = Company::findOrFail($cid);
+        $wc_date = ($company->activeCompanyDoc('2') && $company->activeCompanyDoc('2')->status == 1) ? $company->activeCompanyDoc('2')->expiry : null;
+        //if (request('clause_a') == 1 && $wc_date == null)
+        //    return back()->withErrors(['clause_a' => "You don't have an active Workers Compensation document on Safe Worksite. You need to upload one before you can sign this statement"]);
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('add.company.doc'))
@@ -117,7 +117,7 @@ class CompanySubcontractorStatementController extends Controller {
             $ss_request['to'] = ($month > 6) ? Carbon::parse("June 30 $next_year")->addYear() : Carbon::parse("June 30 $year")->addYear();
         }
 
-        $ss_request['claim_payment'] = (request('claim_payment')) ?  Carbon::createFromFormat('d/m/Y H:i', request('claim_payment') . '00:00')->toDateTimeString() : null;
+        $ss_request['claim_payment'] = (request('claim_payment')) ? Carbon::createFromFormat('d/m/Y H:i', request('claim_payment') . '00:00')->toDateTimeString() : null;
         $ss_request['principle_id'] = $company->reportsTo()->id;
         $ss_request['principle_name'] = $company->reportsTo()->name;
         $ss_request['principle_abn'] = $company->reportsTo()->abn;
@@ -127,13 +127,13 @@ class CompanySubcontractorStatementController extends Controller {
         $ss_request['contractor_abn'] = $company->abn;
         $ss_request['contractor_signed_id'] = Auth::user()->id;
         $ss_request['contractor_signed_at'] = Carbon::now();
-        $ss_request['wc_date'] = ($company->activeCompanyDoc('2') && $company->activeCompanyDoc('2')->status == 1 ) ? $company->activeCompanyDoc('2')->expiry : null;
+        $ss_request['wc_date'] = $wc_date;
         $ss_request['for_company_id'] = $company->id;
         $ss_request['company_id'] = $company->reportsTo()->id;
         $ss_request['status'] = 3;  // Pending
 
         //dd($ss_request);
-        // Set + create create directory if required
+        // Set + create directory if required
         $path = "filebank/company/$company->id/docs";
         if (!file_exists($path))
             mkdir($path, 0777, true);
@@ -142,7 +142,7 @@ class CompanySubcontractorStatementController extends Controller {
         $filename = sanitizeFilename($company->name) . '-SS-' . Carbon::today()->format('d-m-Y') . '.pdf';
         $count = 1;
         while (file_exists(public_path("$path/$filename")))
-            $filename = sanitizeFilename($company->name) . '-SS-' . Carbon::today()->format('d-m-Y') . '-' . $count ++ . '.pdf';
+            $filename = sanitizeFilename($company->name) . '-SS-' . Carbon::today()->format('d-m-Y') . '-' . $count++ . '.pdf';
 
         $ss_request['attachment'] = $filename;
         //dd($ss_request);
@@ -168,19 +168,18 @@ class CompanySubcontractorStatementController extends Controller {
 
         // Create Site Doc
         $doc = CompanyDoc::create([
-            'category_id'    => 4,
-            'name'           => 'Subcontractors Statement',
-            'attachment'     => $filename,
-            'expiry'         => $ss->to,
-            'status'         => 3,
+            'category_id' => 4,
+            'name' => 'Subcontractors Statement',
+            'attachment' => $filename,
+            'expiry' => $ss->to,
+            'status' => 3,
             'for_company_id' => $ss->for_company_id,
-            'company_id'     => $ss->company_id,
+            'company_id' => $ss->company_id,
         ]);
 
         // Delete any rejected docs
         $deleted1 = CompanyDocSubcontractorStatement::where('for_company_id', $company->id)->where('status', 2)->delete();
         $deleted2 = CompanyDoc::where('category_id', 4)->where('for_company_id', $company->id)->where('status', 2)->delete();
-
 
 
         // Create approval ToDoo
@@ -221,7 +220,7 @@ class CompanySubcontractorStatementController extends Controller {
         // Ensure filename is unique by adding counter to similiar filenames
         $count = 1;
         while (file_exists(public_path("$path/$filename")))
-            $filename = sanitizeFilename($company->name) . '-PTC-' . $ss->date->format('d-m-Y') . '-' . $count ++ . '.pdf';
+            $filename = sanitizeFilename($company->name) . '-PTC-' . $ss->date->format('d-m-Y') . '-' . $count++ . '.pdf';
 
         $ss_request['attachment'] = $filename;
 
@@ -240,15 +239,15 @@ class CompanySubcontractorStatementController extends Controller {
 
         // Create Site Doc
         $doc = CompanyDoc::create([
-            'category_id'    => 5,
-            'name'           => 'Period Trade Contract',
-            'attachment'     => $filename,
-            'expiry'         => $ss->expiry,
-            'status'         => 1,
+            'category_id' => 5,
+            'name' => 'Period Trade Contract',
+            'attachment' => $filename,
+            'expiry' => $ss->expiry,
+            'status' => 1,
             'for_company_id' => $ss->for_company_id,
-            'company_id'     => $ss->company_id,
-            'approved_by'    => $ss->principle_signed_id,
-            'approved_at'    => $ss->principle_signed_at,
+            'company_id' => $ss->company_id,
+            'approved_by' => $ss->principle_signed_id,
+            'approved_at' => $ss->principle_signed_at,
         ]);
 
         Toastr::success("Signed contract");
