@@ -143,9 +143,9 @@ class PagesController extends Controller
         echo "<h1>Populating FOC</h1><br>";
         $sites = Site::where('status', 1)->where('company_id', 3)->where('special', null)->get();
         foreach ($sites as $site) {
-            echo $site->name . "<br>";
             $foc = SiteFoc::where('site_id', $site->id)->first();
             if (!$foc) {
+                echo "creating foc: "$site->name . "<br>";
                 $foc = SiteFoc::create(['site_id' => $site->id, 'super_id' => $site->supervisor_id]);
                 $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
             }
