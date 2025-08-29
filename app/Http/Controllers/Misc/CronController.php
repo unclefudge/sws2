@@ -721,7 +721,7 @@ class CronController extends Controller
                                 // Document still active but due for renewal soon - Email SeniorUsers + Parent Company
                                 if ($doc->category->type == 'acc' || $doc->category->type == 'whs') {
                                     $doc->emailExpired();
-                                    $email_to = implode(';', $this->company->seniorUsersEmail());
+                                    $email_to = implode(';', $company->seniorUsersEmail());
                                     $email_cc = implode("; ", $company->reportsTo()->notificationsUsersEmailType('doc.' . $doc->category->type . '.approval'));
                                     echo "Emailed $email_to and CC: $email_cc<br>";
                                     $log .= "Emailed $email_to and CC: $email_cc\n";
