@@ -576,7 +576,7 @@ class SiteIncidentController extends Controller
 
         //dd($action_request);
         $action = Action::create($action_request);
-        //$incident->emailAction($action);
+        $incident->emailAction($action);
 
         Toastr::success("Added note");
 
