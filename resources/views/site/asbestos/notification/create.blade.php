@@ -226,7 +226,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
                                             {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::select('removalist', ['' => 'Select removalist', '385' => 'Handy 1st Pty Ltd AD2122895', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
+                                            {!! Form::select('removalist', ['' => 'Select removalist', '507' => 'Asbestos Away', '511' => 'SafeStrip 1st Pty Ltd', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
                                             {!! fieldErrorMessage('removalist', $errors) !!}
                                         </div>
                                     </div>
@@ -510,7 +510,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
                                                 {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Ray Ager' => 'Ray Ager', 'Mark Spindler' => 'Mark Spindler'], null, ['class' => 'form-control bs-select', 'id' => 'assessor_name']) !!}
+                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Mark Spindler' => 'Mark Spindler', 'Moayad Khateib' => 'Moayad Khateib', 'Tony Gabriel' => 'Tony Gabriel'], null, ['class' => 'form-control bs-select', 'id' => 'assessor_name']) !!}
                                                 {!! fieldErrorMessage('assessor_name', $errors) !!}
                                             </div>
                                         </div>
@@ -652,8 +652,14 @@
                     $("#non_friable_fields").show();
                     $("#non_friable_fields_part2").show();
                 }
-                if ($("#removalist").val() == '385') {
-                    $("#removalist_name").val('Handy 1st Pty Ltd AD2122895');
+                if ($("#removalist").val() == '507') {
+                    $("#removalist_name").val('Asbestos Away');
+                    $("#assessor_name").val('Tony Gabriel').change();
+                    $("#non_friable_fields_part2").show();
+                }
+                if ($("#removalist").val() == '511') {
+                    $("#removalist_name").val('SafeStrip 1st Pty Ltd');
+                    $("#assessor_name").val('Moayad Khateib').change();
                     $("#non_friable_fields_part2").show();
                 }
                 if ($("#removalist").val() == 'other') {
@@ -706,8 +712,8 @@
             // On Change Removalist
             $("#removalist").change(function () {
                 $("#removalist_name").val('');
-                if ($("#removalist").val() == '385')
-                    $("#assessor_name").val('Ray Ager').change();
+                if ($("#removalist").val() == '511')
+                    $("#assessor_name").val('Moayad Khateib ').change();
                 else
                     $("#assessor_name").val('').change();
                 displayFields();
@@ -750,9 +756,13 @@
                     $("#assessor_phone").val('0417 064 161');
                     $("#assessor_lic").val('');
                     $("#assessor_state").val('NSW');
-                } else if ($("#assessor_name").val() == 'Ray Ager') {
-                    $("#assessor_phone").val('0407 050 694');
-                    $("#assessor_lic").val('AD212895');
+                } else if ($("#assessor_name").val() == 'Moayad Khateib') {
+                    $("#assessor_phone").val('0406 754 194');
+                    $("#assessor_lic").val('');
+                    $("#assessor_state").val('NSW');
+                } else if ($("#assessor_name").val() == 'Tony Gabriel') {
+                    $("#assessor_phone").val('0405 317 807');
+                    $("#assessor_lic").val('');
                     $("#assessor_state").val('NSW');
                 } else {
                     $("#assessor_phone").val('');
