@@ -51,7 +51,6 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.planner.key.tasks')->first()->notificationSelect() !!}
-                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.projectsupply.overdue')->first()->notificationSelect() !!}
                         @endif
 
                         {{-- Document --}}
@@ -90,6 +89,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.attendance.super')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.attendance.trades')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.prac.complation.super.noaction')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.projectsupply.overdue')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.transfers')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'equipment.restock')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'company.missing.info')->first()->notificationSelect() !!}
