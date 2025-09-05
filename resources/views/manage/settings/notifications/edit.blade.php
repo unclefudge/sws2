@@ -51,6 +51,7 @@
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.inspection.onhold')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.jobstart')->first()->notificationSelect() !!}
                             {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.planner.key.tasks')->first()->notificationSelect() !!}
+                            {!! App\Models\Misc\SettingsNotificationCategory::where('slug', 'site.projectsupply.overdue')->first()->notificationSelect() !!}
                         @endif
 
                         {{-- Document --}}
