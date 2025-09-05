@@ -448,9 +448,6 @@ class CronController extends Controller
         if ($bytes_written === false) die("Error writing to file");
     }
 
-    /*
-     * Add new entities to Roster from Planner
-     */
 
     static public function qaOnholdButCompleted()
     {

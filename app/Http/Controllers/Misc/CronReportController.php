@@ -19,6 +19,7 @@ use App\Models\Site\SiteInspectionPlumbing;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
 use App\Models\Site\SitePracCompletion;
+use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteUpcomingSettings;
@@ -55,6 +56,7 @@ class CronReportController extends Controller
             CronReportController::emailScaffoldOverdue();
             CronReportController::emailOutstandingOnHoldQA();
             CronReportController::emailEquipmentTransfers();
+            CronReportController::emailProjectSupplyOverdue();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -853,6 +855,42 @@ class CronReportController extends Controller
             // Send email with multiple attachments
             CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteQaOutstanding($file_list, $outQas, $outSupers, $holdQas, $holdSupers));
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    static public function emailProjectSupplyOverdue()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        echo "<h2>Email Project Supply Overdue</h2>";
+        $log .= "EmailProject Supply Overdued\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.projectsupply.overdue') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
+        $two_weeks_ago = Carbon::now()->subDays(14)->format('Y-m-d');
+        $task_ids = [265]; // Prac Completion (Prac)
+
+        // Active Project Supply not updated in 14 days
+        $proj_siteids = SiteProjectSupply::where('status', 1)->where('updated_at', '<', $two_weeks_ago)->pluck('site_id')->toArray();
+        // Sites with Prac Tasks older than 14 days that also have active Project Supply not updated
+        $plan_siteids = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->whereIn('task_id', $task_ids)->pluck('site_id')->toArray();
+        $projs = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();
+
+        //dd(count($projs));
+        if ($projs) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyOverdue($projs));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
         }
