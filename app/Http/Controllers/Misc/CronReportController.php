@@ -493,7 +493,6 @@ class CronReportController extends Controller
                 $missing_docs = [];
                 foreach ($company->missingDocs() as $type => $name) {
                     $doc = $company->expiredCompanyDoc($type);
-                    $link = "";
                     if ($doc && ($doc == 'N/A' || $doc->expiry->lt($dayago))) {
                         $expiry_human = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->longAbsoluteDiffForHumans() : 'never';
                         $expiry_date = ($doc != 'N/A' && $doc->expiry) ? $doc->expiry->format('d/m/Y') : '-';
@@ -501,9 +500,9 @@ class CronReportController extends Controller
                             $link = "<a href='/company/$company->id/doc/$doc->id/edit'>$name</a>";
                         else
                             $link = "<a href='/company/$company->id/doc'>$name</a>";
+                        $data = ['name' => $name, 'link' => $link, 'expiry_human' => $expiry_human, 'expiry_date' => $expiry_date];
+                        $missing_docs[] = $data;
                     }
-                    $data = ['name' => $name, 'link' => $link, 'expiry_human' => $expiry_human, 'expiry_date' => $expiry_date];
-                    $missing_docs[] = $data;
                 }
 
                 $missing[] = ['company_name' => $company->name, 'company_nickname' => $nickname, 'next_planner' => $next_planner, 'missing_info' => $missing_info, 'docs' => $missing_docs];
