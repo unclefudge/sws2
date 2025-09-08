@@ -504,7 +504,6 @@ class CronReportController extends Controller
                         $missing_docs[] = $data;
                     }
                 }
-
                 $missing[] = ['company_name' => $company->name, 'company_nickname' => $nickname, 'next_planner' => $next_planner, 'missing_info' => $missing_info, 'docs' => $missing_docs];
             }
         }

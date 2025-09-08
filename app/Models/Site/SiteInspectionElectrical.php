@@ -16,7 +16,7 @@ class SiteInspectionElectrical extends Model
     protected $table = 'site_inspection_electrical';
     protected $fillable = [
         'site_id', 'client_name', 'client_address', 'client_contacted', 'info', 'assigned_to', 'assigned_at', 'inspected_by', 'inspected_at', 'inspected_name', 'inspected_lic',
-        'existing', 'required', 'required_cost', 'recommend', 'recommend_cost', 'trade_notes',
+        'existing', 'required', 'required_cost', 'recommend', 'recommend_cost', 'trade_notes', 'ausgrid', 'clientbill',
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at',
         'notes', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at'
     ];

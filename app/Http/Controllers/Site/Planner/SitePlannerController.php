@@ -673,6 +673,7 @@ class SitePlannerController extends Controller
             }
         }
 
+        if (!$date || !preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) $date = Carbon::now()->startOfWeek()->format('Y-m-d');
         $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00');
         $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' 00:00:00')->addDays(7);
 
@@ -1564,7 +1565,7 @@ class SitePlannerController extends Controller
      */
     public function getUpcomingTasks($date)
     {
-        if (!$date) $date = Carbon::now()->startOfWeek()->format('Y-m-d');
+        if (!$date || !preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $date)) $date = Carbon::now()->startOfWeek()->format('Y-m-d');
 
         $trade_list = Auth::user()->company->tradeListPlanner()->pluck('id')->toArray();
         $tasks = Task::whereIn('trade_id', $trade_list)->where('upcoming', '1')->where('status', '1')->orderBy('name')->get();

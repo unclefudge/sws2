@@ -243,7 +243,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             {{-- Inspectors Name + Lic--}}
                             <div class="row note note-warning" id="inspector-div" style="{{ (fieldHasError('inspected_name', $errors) || fieldHasError('inspected_lic', $errors)) ? 'display:show' : 'display:none' }}">
                                 <div class="col-md-4">
@@ -258,6 +257,27 @@
                                         {!! Form::label('inspected_lic', 'Licence No.', ['class' => 'control-label']) !!}
                                         {!! Form::text('inspected_lic', Auth::user()->company->contractorLicence(), ['class' => 'form-control']) !!}
                                         {!! fieldErrorMessage('inspected_lic', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                {{-- Ausgrid --}}
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('ausgrid', $errors) !!}">
+                                        {!! Form::label('ausgrid', 'Will Ausgrid need to be engaged for Pre Construction works', ['class' => 'control-label']) !!}
+                                        {!! Form::select('ausgrid', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->ausgrid, ['class' => 'form-control bs-select', 'id' => 'ausgrid']) !!}
+                                        {!! fieldErrorMessage('ausgrid', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                {{-- Ausgrid --}}
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('clientbill', $errors) !!}">
+                                        {!! Form::label('clientbill', "Do you require a copy of the Client's Electricity Bill", ['class' => 'control-label']) !!}
+                                        {!! Form::select('clientbill', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->clientbill, ['class' => 'form-control bs-select', 'id' => 'clientbill']) !!}
+                                        {!! fieldErrorMessage('clientbill', $errors) !!}
                                     </div>
                                 </div>
                             </div>

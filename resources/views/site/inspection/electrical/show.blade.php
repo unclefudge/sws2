@@ -89,7 +89,11 @@
                                     </div>
                                     <div class="row" style="padding: 5px;">
                                         <div class="col-md-2 hidden-sm hidden-xs">&nbsp;</div>
-                                        <div class="col-md-10">Client contact was made: &nbsp; {{ ($report->client_contacted) ? 'Yes' : 'No' }}</div>
+                                        <div class="col-md-10">
+                                            Client contact was made: &nbsp; {{ ($report->client_contacted) ? 'Yes' : 'No' }}<br>
+                                            Client electricty bill required: {{ $report->clientbill }}<br>
+                                            Ausgrid to be engaged pre-construction: {{ $report->ausgrid }}<br>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
