@@ -320,7 +320,7 @@ class SiteDocController extends Controller
             ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
             ->addColumn('updatedDate', function ($doc) {
                 $record = SiteDoc::find($doc->id);
-                if (record)
+                if ($record)
                     return $record->updated_at->format('d/m/Y');
                 return "";
             })
