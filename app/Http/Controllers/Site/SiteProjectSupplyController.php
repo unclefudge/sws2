@@ -74,7 +74,7 @@ class SiteProjectSupplyController extends Controller
         $products = SiteProjectSupplyProduct::where('status', '1')->whereIn('id', $lockup)->get();
         $products = SiteProjectSupplyProduct::where('status', '1')->where('id', '>', 2)->orderBy('order')->get();
 
-        return view('site/project/supply/create', compact('sitelist', 'products'));
+        return view('site/project/supply/create', compact('sitelist', 'products', 'lockup'));
     }
 
     /**
@@ -142,8 +142,10 @@ class SiteProjectSupplyController extends Controller
             return view('errors/404');
 
         $title = SiteProjectSupplyProduct::find(1);
+        $lockup = [32, 33, 3, 4, 5, 6, 7, 8];
+        $fixout = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
 
-        return view('site/project/supply/edit', compact('project', 'title'));
+        return view('site/project/supply/edit', compact('project', 'title', 'lockup'));
 
     }
 

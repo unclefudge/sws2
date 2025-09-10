@@ -69,26 +69,30 @@
                                 {!! Form::hidden("supplier-$item->id",  $item->supplier, ['class' => 'form-control', 'id' => "supplier-$item->id"]) !!}
                                 {!! Form::hidden("type-$item->id",  $item->type, ['class' => 'form-control', 'id' => "type-$item->id"]) !!}
 
-                                <?php
-                                $supplierOpts = $item->productRef->supplyOptions('supplier');
-                                $typeOpts = $item->productRef->supplyOptions('type');
-                                $type = $supplier = null;
-                                if ($item->type)
-                                    $type = (in_array($item->type, $typeOpts)) ? $item->type : 'other';
-                                if ($item->supplier)
-                                    $supplier = (in_array($item->supplier, $supplierOpts)) ? $item->supplier : 'other';
-                                ?>
+                                    <?php
+                                    $supplierOpts = $item->productRef->supplyOptions('supplier');
+                                    $typeOpts = $item->productRef->supplyOptions('type');
+                                    $type = $supplier = null;
+                                    if ($item->type)
+                                        $type = (in_array($item->type, $typeOpts)) ? $item->type : 'other';
+                                    if ($item->supplier)
+                                        $supplier = (in_array($item->supplier, $supplierOpts)) ? $item->supplier : 'other';
+                                    ?>
                                 <div class="row" id="item-{{ $item->id }}">
                                     <div class="col-md-2">
                                         <div class="hidden-sm hidden-xs">
-                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }} &nbsp; @if ($item->isComplete()) <i class="fa fa-check font-green-haze"></i> @endif
+                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }} &nbsp; @if ($item->isComplete())
+                                                <i class="fa fa-check font-green-haze"></i>
+                                            @endif
                                         </div>
                                         <div class="visible-sm visible-xs">
                                             <br><b>{{ ($item->product_id == 2) ? 'Special Item' : $item->product }}</b>
                                             <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
                                             @if ($item->product_id == 2)
-                                                <div>Product</div> @endif
+                                                <div>Product</div>
+                                            @endif
                                         </div>
+                                        {!! (in_array($item->product_id, $lockup) ? "<span class='font-red'>LOCKUP</span>" : "") !!}
                                         @if ($item->product_id == 2)
                                             <div class="form-group">
                                                 {!! Form::text("product_txt_$item->id", $item->product, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
@@ -106,7 +110,9 @@
                                             </div>
                                         @endif
                                         <div id="div-supplier-txt-{{$item->id}}" @if ($supplier != 'other' && $supplierOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
+                                            @if ($item->product_id == 2)
+                                                <br class="hidden-sm hidden-xs">
+                                            @endif
                                             <div class="form-group">
                                                 {!! Form::text("supplier_txt_$item->id", $item->supplier, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
                                             </div>
@@ -123,7 +129,9 @@
                                             </div>
                                         @endif
                                         <div id="div-type-txt-{{$item->id}}" @if ($type != 'other' && $typeOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
+                                            @if ($item->product_id == 2)
+                                                <br class="hidden-sm hidden-xs">
+                                            @endif
                                             <div class="form-group">
                                                 {!! Form::text("type_txt_$item->id", $item->type, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
                                             </div>
@@ -132,7 +140,9 @@
                                     {{-- Colour --}}
                                     <div class="col-md-2">
                                         <div class="visible-sm visible-xs">Colour</div>
-                                        @if ($item->product_id == 2) <br class="hidden-sm hidden-xs"> @endif
+                                        @if ($item->product_id == 2)
+                                            <br class="hidden-sm hidden-xs">
+                                        @endif
                                         {!! Form::text("colour-$item->id", $item->colour, ['class' => 'form-control']) !!}
                                     </div>
                                     <div class="col-md-2">
@@ -279,129 +289,130 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site",});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site",});
 
-        // Add extra items
-        $("#btn-add-item").click(function (e) {
-            e.preventDefault();
-            $("#add-items").show();
-            $(".add-item").show();
-            $("#btn-add-item").hide();
-        });
+            // Add extra items
+            $("#btn-add-item").click(function (e) {
+                e.preventDefault();
+                $("#add-items").show();
+                $(".add-item").show();
+                $("#btn-add-item").hide();
+            });
 
 
-        $(".signoff").click(function (e) {
-            e.preventDefault();
-            window.location.href = "/site/supply/{{$project->id}}/signoff";
-        });
+            $(".signoff").click(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/supply/{{$project->id}}/signoff";
+            });
 
-        function updateField(field, id, val) {
-            //alert('id:'+id+' val:'+val);
-            if (val == 'other') {
-                $("#" + field + "-" + id).val('');
-                $("#div-" + field + "-txt-" + id).show();
-            } else {
-                $("#" + field + "-" + id).val(val);
-                $("#div-" + field + "-txt-" + id).hide();
-                //alert(val);
-                if (val == 'n/a') {
-                    $("#div-type-s" + id).hide();
+            function updateField(field, id, val) {
+                //alert('id:'+id+' val:'+val);
+                if (val == 'other') {
+                    $("#" + field + "-" + id).val('');
+                    $("#div-" + field + "-txt-" + id).show();
+                } else {
+                    $("#" + field + "-" + id).val(val);
+                    $("#div-" + field + "-txt-" + id).hide();
+                    //alert(val);
+                    if (val == 'n/a') {
+                        $("#div-type-s" + id).hide();
+                    }
                 }
             }
-        }
 
-        //
-        // On Change Dropdown option
-        //
+            //
+            // On Change Dropdown option
+            //
 
-        // Supply option
-        $(".supplyOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('supplier', name.substr(13), $(this).val());
+            // Supply option
+            $(".supplyOption").change(function () {
+                var name = $(this).attr('name');
+                if (name) updateField('supplier', name.substr(13), $(this).val());
+            });
+
+            // Type option
+            $(".typeOption").change(function () {
+                var name = $(this).attr('name');
+                if (name) updateField('type', name.substr(9), $(this).val());
+            });
+
+            // Colour option
+            $(".colourOption").change(function () {
+                var name = $(this).attr('name');
+                if (name) updateField('colour', name.substr(11), $(this).val());
+            });
+
+
+            //
+            // Text field updated
+            //
+
+            // Product text
+            $(".productText").change(function () {
+                var name = $(this).attr('name');
+                if (name) {
+                    var id = name.substr(12);
+                    $("#product-" + id).val($(this).val());
+                }
+            });
+
+            // Supply text
+            $(".supplyText").change(function () {
+                var name = $(this).attr('name');
+                if (name) {
+                    var id = name.substr(13);
+                    $("#supplier-" + id).val($(this).val());
+                }
+            });
+
+            // Type text
+            $(".typeText").change(function () {
+                var name = $(this).attr('name');
+                if (name) {
+                    var id = name.substr(9);
+                    $("#type-" + id).val($(this).val());
+                }
+            });
+
+            // Colour text
+            $(".colourText").change(function () {
+                var name = $(this).attr('name');
+                if (name) {
+                    var id = name.substr(11);
+                    $("#colour-" + id).val($(this).val());
+                }
+            });
+
+            // Delete Item
+            $(".delItem").click(function (e) {
+                e.preventDefault();
+                var id = $(this).attr('id');
+                var name = $(this).attr('name');
+                if (id) {
+                    swal({
+                        title: "Are you sure?",
+                        text: "You will not be able to recover this item!<br><b>" + name.substr(4) + "</b>",
+                        showCancelButton: true,
+                        cancelButtonColor: "#555555",
+                        confirmButtonColor: "#E7505A",
+                        confirmButtonText: "Yes, delete it!",
+                        allowOutsideClick: true,
+                        html: true,
+                    }, function () {
+                        var item_id = id.substr(4);
+                        $("#product-" + item_id).val('DELETE-ITEM');
+                        $("#item-" + item_id).hide();
+                    });
+                }
+
+            });
         });
-
-        // Type option
-        $(".typeOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('type', name.substr(9), $(this).val());
-        });
-
-        // Colour option
-        $(".colourOption").change(function () {
-            var name = $(this).attr('name');
-            if (name) updateField('colour', name.substr(11), $(this).val());
-        });
-
-
-        //
-        // Text field updated
-        //
-
-        // Product text
-        $(".productText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(12);
-                $("#product-" + id).val($(this).val());
-            }
-        });
-
-        // Supply text
-        $(".supplyText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(13);
-                $("#supplier-" + id).val($(this).val());
-            }
-        });
-
-        // Type text
-        $(".typeText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(9);
-                $("#type-" + id).val($(this).val());
-            }
-        });
-
-        // Colour text
-        $(".colourText").change(function () {
-            var name = $(this).attr('name');
-            if (name) {
-                var id = name.substr(11);
-                $("#colour-" + id).val($(this).val());
-            }
-        });
-
-        // Delete Item
-        $(".delItem").click(function (e) {
-            e.preventDefault();
-            var id = $(this).attr('id');
-            var name = $(this).attr('name');
-            if (id) {
-                swal({
-                    title: "Are you sure?",
-                    text: "You will not be able to recover this item!<br><b>" + name.substr(4) + "</b>",
-                    showCancelButton: true,
-                    cancelButtonColor: "#555555",
-                    confirmButtonColor: "#E7505A",
-                    confirmButtonText: "Yes, delete it!",
-                    allowOutsideClick: true,
-                    html: true,
-                }, function () {
-                    var item_id = id.substr(4);
-                    $("#product-" + item_id).val('DELETE-ITEM');
-                    $("#item-" + item_id).hide();
-                });
-            }
-
-        });
-    });
-</script>
+    </script>
 @stop
 

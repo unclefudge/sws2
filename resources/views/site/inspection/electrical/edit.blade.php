@@ -270,14 +270,30 @@
                                         {!! fieldErrorMessage('ausgrid', $errors) !!}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                {{-- Ausgrid --}}
+                                {{-- Client Bill --}}
                                 <div class="col-md-6">
                                     <div class="form-group {!! fieldHasError('clientbill', $errors) !!}">
                                         {!! Form::label('clientbill', "Do you require a copy of the Client's Electricity Bill", ['class' => 'control-label']) !!}
                                         {!! Form::select('clientbill', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->clientbill, ['class' => 'form-control bs-select', 'id' => 'clientbill']) !!}
                                         {!! fieldErrorMessage('clientbill', $errors) !!}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                {{-- Non-Ausgrid --}}
+                                <div class="col-md-6">
+                                    <div class="form-group {!! fieldHasError('nonausgrid', $errors) !!}">
+                                        {!! Form::label('nonausgrid', 'Is there any Pre construction works that doesn’t require Ausgrid?', ['class' => 'control-label']) !!}
+                                        {!! Form::select('nonausgrid', ['' => 'Select option', 'Yes' => 'Yes', 'No' => 'No'], $report->nonausgrid, ['class' => 'form-control bs-select', 'id' => 'nonausgrid']) !!}
+                                        {!! fieldErrorMessage('nonausgrid', $errors) !!}
+                                    </div>
+                                </div>
+                                {{-- Non-Ausgrid Weeks--}}
+                                <div class="col-md-6" id="nonausgrid_weeks-div" style="display: none">
+                                    <div class="form-group {!! fieldHasError('nonausgrid_weeks', $errors) !!}">
+                                        {!! Form::label('nonausgrid_weeks', 'How many weeks in advance does this work need to be done?', ['class' => 'control-label']) !!}
+                                        {!! Form::text('nonausgrid_weeks', $report->nonausgrid_weeks, ['class' => 'form-control']) !!}
+                                        {!! fieldErrorMessage('nonausgrid_weeks', $errors) !!}
                                     </div>
                                 </div>
                             </div>
@@ -471,6 +487,19 @@
                 }
             });
 
+            $("#nonausgrid").change(function () {
+                $('#nonausgrid_weeks-div').hide();
+                update_fields();
+
+            });
+
+            function update_fields() {
+                if ($("#nonausgrid").val() == 'Yes') {
+                    $('#nonausgrid_weeks-div').show();
+                }
+            }
+
+            update_fields();
 
             $('#photos-edit').hide();
             $("#edit-photos").click(function (e) {

@@ -160,12 +160,14 @@ class SiteInspectionElectricalController extends Controller
             'client_address' => 'required',
             'inspected_at' => 'required_if:status,0',
             'inspected_name' => 'required_if:status,0',
-            'inspected_lic' => 'required_if:status,0'];
+            'inspected_lic' => 'required_if:status,0',
+            'nonausgrid_weeks' => 'required_if:nonausgrid,Yes'];
         $mesg = ['client_name.required' => 'The client name field is required.',
             'client_address.required' => 'The client address field is required.',
             'inspected_at.required_if' => 'The date/time of inspection field is required.',
             'inspected_name.required_if' => 'The inspection carried out by field is required.',
-            'inspected_lic.required_if' => 'The licence no. field is required.'];
+            'inspected_lic.required_if' => 'The licence no. field is required.',
+            'nonausgrid_weeks.required_if' => 'The No. of weeks field is required.'];
 
         if (in_array(Auth::user()->id, array_merge(getUserIdsWithRoles('gen-technical-manager'), [108]))) {
             $rules = $rules + ['assigned_to' => 'required'];

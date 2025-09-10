@@ -92,11 +92,36 @@
                                         <div class="col-md-10">
                                             Client contact was made: &nbsp; {{ ($report->client_contacted) ? 'Yes' : 'No' }}<br>
                                             Client electricty bill required: {{ $report->clientbill }}<br>
-                                            Ausgrid to be engaged pre-construction: {{ $report->ausgrid }}<br>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">Ausgrid pre-construction?</div>
+                                        <div class="col-md-6">{{ $report->ausgrid }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row" style="padding: 5px;">
+                                        <div class="col-md-6">Non-Ausgrid pre-construction?</div>
+                                        <div class="col-md-6">{{ $report->nonausgrid }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if ($report->nonausgrid_weeks)
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row" style="padding: 5px;">
+                                            <div class="col-md-6">Weeks in advance for this work:</div>
+                                            <div class="col-md-6">{{ $report->nonausgrid_weeks }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                             <hr>
 
 
