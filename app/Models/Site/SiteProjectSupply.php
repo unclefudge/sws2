@@ -2,13 +2,14 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
+use App\Models\Site\Planner\SitePlanner;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Mail;
+use URL;
 
 
 class SiteProjectSupply extends Model
@@ -100,6 +101,17 @@ class SiteProjectSupply extends Model
         return SiteProjectSupplyProduct::find(1);
     }
 
+    public function lockupCompleted()
+    {
+        $lockup = [32, 33, 3, 4, 5, 6, 7, 8, 9];
+        $items = SiteProjectSupplyItem::where('supply_id', $this->id)->whereIn('product_id', $lockup)->get();
+        foreach ($items as $item) {
+            if (!($item->supplier && $item->type && $item->colour))
+                return false;
+        }
+        return true;
+    }
+
     /**
      * Create ToDoo for ProjectSupply and assign to given user(s)
      */
@@ -187,6 +199,22 @@ class SiteProjectSupply extends Model
         if ($this->attributes['attachment'] && file_exists(public_path('/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'])))
             return '/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'];
 
+        return '';
+    }
+
+    public function getLockupDateAttribute()
+    {
+        $plan = SitePlanner::where('site_id', $this->site_id)->where('task_id', 117)->first();
+        if ($plan)
+            return $plan->from->format('d/m/Y');
+        return '';
+    }
+
+    public function getPracCompleteDateAttribute()
+    {
+        $plan = SitePlanner::where('site_id', $this->site_id)->where('task_id', 265)->first();
+        if ($plan)
+            return $plan->from->format('d/m/Y');
         return '';
     }
 

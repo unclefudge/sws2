@@ -11,7 +11,7 @@
 The following {!! count($projsupply) !!} Project Supply details are 2 weeks overdue.
 
 @foreach ($projsupply as $proj)
-- {{ $proj->site->name }}
+- {{ $proj->site->name }} {!! ($proj->lockupDate && !$proj->pracCompleteDate) ? " - Lockup: $proj->lockupDate" : ""  !!} {!! ($proj->pracCompleteDate) ? " - Prac: $proj->pracCompleteDate" : ""  !!}
 @endforeach
 
 Regards,<br>

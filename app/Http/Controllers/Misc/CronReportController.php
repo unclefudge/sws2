@@ -879,12 +879,24 @@ class CronReportController extends Controller
         $emails = implode("; ", $email_list);
 
         $two_weeks_ago = Carbon::now()->subDays(14)->format('Y-m-d');
-        $task_ids = [265]; // Prac Completion (Prac)
-
+        // 265 - Prac Completion (Prac)
+        // 117 - [Lockup] Dismantle Scaffold (D) Scaffold
         // Active Project Supply not updated in 14 days
         $proj_siteids = SiteProjectSupply::where('status', 1)->where('updated_at', '<', $two_weeks_ago)->pluck('site_id')->toArray();
-        // Sites with Prac Tasks older than 14 days that also have active Project Supply not updated
-        $plan_siteids = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->whereIn('task_id', $task_ids)->pluck('site_id')->toArray();
+
+        // Sites with Prac Complettion Tasks older than 14 days that also have active Project Supply not updated
+        // - for all Project Supply with a Prac Complete task on planner should be completed within 14 days
+        $plan_siteids = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->where('task_id', 265)->pluck('site_id')->toArray();
+        $prac_proj = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();
+        // Sites with Lockup Up older than 14 days that also have active Project Supply not updated
+        // - for all Project Supply with a Lockup task should have 'lockup tasks only' completed in 14 days
+        $plan_siteids2 = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->where('task_id', 117)->pluck('site_id')->toArray();
+        $projs = SiteProjectSupply::whereIn('site_id', $plan_siteids2)->get();
+        foreach ($projs as $proj) {
+            if (!$proj->lockupCompleted())
+                $plan_siteids[] = $proj->site_id;
+        }
+
         $projs = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();
 
         //dd(count($projs));
