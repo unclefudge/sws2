@@ -367,7 +367,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return SiteMaintenance::where('status', '=', $status)->get();
 
         if ($this->permissionLevel('view.site.maintenance', 3) == 40) // User is 'Supervisor For' requests
-            return SiteMaintenance::where('status', '=', $status)->where('super_id', $this->id)->get();
+            if ($status == 0) {
+                $site_ids = SiteMaintenance::where('super_id', $this->id)->pluck('site_id')->toArray();
+                SiteMaintenance::where('status', '=', $status)->whereIn('site_id', $site_ids)->get();
+            }
+        return SiteMaintenance::where('status', '=', $status)->where('super_id', $this->id)->get();
 
         if ($this->permissionLevel('view.site.maintenance', 3) == 30) { // User is 'Planned For' requests
             $ids = SiteMaintenanceItem::where('assigned_to', $this->company_id)->pluck('main_id')->toArray();
