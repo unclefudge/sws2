@@ -31,7 +31,7 @@
                                     <th style="width:5%"> #</th>
                                     <th style="width:10%"> Created</th>
                                     <th> Site</th>
-                                    <th> Site Supervisor</th>
+                                    <th> Current Site Supervisor</th>
                                     <th style="width:10%"></th>
                                 </tr>
                                 </thead>
