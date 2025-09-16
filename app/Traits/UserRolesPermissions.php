@@ -10,6 +10,7 @@ use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteMaintenance;
 use App\Models\User\UserDocCategory;
 use App\User;
 use Auth;
@@ -852,6 +853,11 @@ trait UserRolesPermissions
                 if ($action == 'view' && $this->permissionLevel($permission, 3) == 30 && in_array($this->company_id, $record->assignedTo())) return true; // Request is Assigned to user's company
                 if ($this->permissionLevel($permission, 3) == 99 || $this->permissionLevel($permission, 3) == 1) return true;  // User has 'All' permission to this record
                 if ($this->permissionLevel($permission, 3) == 40 && $record->super_id == $this->id) return true; // User has 'Supervisor For' permission to this record
+                // Super has access to completed Requests if they have been a supervisor of another request same site
+                if ($this->permissionLevel($permission, 3) == 40 && $record->status == 0) {
+                    $site_ids = SiteMaintenance::where('super_id', $this->id)->pluck('site_id')->toArray();
+                    if (in_array($record->site_id, $site_ids)) return true;
+                }
                 return false;
             }
 
