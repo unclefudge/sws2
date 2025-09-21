@@ -8,11 +8,19 @@
 
 # Project Supply Overdue
 
-The following {!! count($projsupply) !!} Project Supply details are 2 weeks overdue.
+The following Project Supply details are 2 weeks overdue.
 
-@foreach ($projsupply as $proj)
+<b>Lockup Stage</b><br>
+@foreach ($lock as $proj)
 - {{ $proj->site->name }} {!! ($proj->lockupDate && !$proj->pracCompleteDate) ? " - Lockup: $proj->lockupDate" : ""  !!} {!! ($proj->pracCompleteDate) ? " - Prac: $proj->pracCompleteDate" : ""  !!}
 @endforeach
+
+
+<b>Prac Completion</b><br>
+@foreach ($prac as $proj)
+- {{ $proj->site->name }} - Prac: {{ $proj->pracCompleteDate }}
+@endforeach
+
 
 Regards,<br>
 {{ config('app.name') }}

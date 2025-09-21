@@ -12,16 +12,17 @@ class SiteProjectSupplyOverdue extends Mailable implements ShouldQueue
 
     use Queueable, SerializesModels;
 
-    public $projsupply;
+    public $lock, $prac;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($projsupply)
+    public function __construct($lock, $prac)
     {
-        $this->projsupply = $projsupply;
+        $this->lock = $lock;
+        $this->prac = $prac;
     }
 
     /**

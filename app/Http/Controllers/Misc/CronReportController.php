@@ -892,16 +892,17 @@ class CronReportController extends Controller
         // - for all Project Supply with a Lockup task should have 'lockup tasks only' completed in 14 days
         $plan_siteids2 = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->where('task_id', 117)->pluck('site_id')->toArray();
         $projs = SiteProjectSupply::whereIn('site_id', $plan_siteids2)->get();
+        $lock_proj = [];
         foreach ($projs as $proj) {
             if (!$proj->lockupCompleted())
-                $plan_siteids[] = $proj->site_id;
+                $lock_proj[] = $proj;
         }
 
-        $projs = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();
+        //$projs = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();
 
         //dd(count($projs));
         if ($projs) {
-            Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyOverdue($projs));
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyOverdue($lock_proj, $prac_proj));
             echo "Sending email to: $emails<br>";
             $log .= "Sending email to: $emails\n";
         }
