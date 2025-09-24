@@ -118,10 +118,10 @@
                                             @for ($i=1; $i <= $form->photos()->count(); $i++)
                                                     <?php
                                                     if ($i > $form->photos()->count()) break;
-                                                    $p1 = App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i)->first();
+                                                    $p1 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i)->first();
                                                     $p1_img = ($p1) ? "<img src='$p1->attachment?v=" . rand() . "' width='100%'>" : '';
                                                     $p1_txt = ($p1) ? $p1->question->name : '';
-                                                    $p2 = App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i + 1)->first();
+                                                    $p2 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i + 1)->first();
                                                     $p2_img = ($p2) ? "<img src='$p2->attachment?v=" . rand() . "' width='100%'>" : '';
                                                     $p2_txt = ($p2) ? $p2->question->name : '';
                                                     ?>
@@ -264,9 +264,6 @@
                 var id = $(this).attr('data-id');
                 var fid = $(this).attr('data-fid');
                 var file = $(this).attr('data-attach');
-                console.log('id:' + id);
-                console.log('did:' + fid);
-                //var clickedImage = document.getElementById(id);
                 rotateImage(id, fid, 'clockwise');
             });
 
@@ -275,7 +272,6 @@
                 var id = $(this).attr('data-id');
                 var fid = $(this).attr('data-fid');
                 var file = $(this).attr('data-attach');
-                //var clickedImage = document.getElementById(id);
                 rotateImage(id, fid, 'counterclockwise');
             });
 
@@ -371,8 +367,7 @@
             // FUNCTION TO ROTATE IMAGE USING CSS
             function rotateImage(id, fid, direction) {
                 var clickedImage = document.getElementById(id);
-                //var clickedImage = document.querySelector('[fid-id]');
-                console.log("rotate " + direction);
+                //console.log("rotate " + direction);
                 rotation = imageCurrentRotation[fid];
                 if (direction == 'clockwise') {
                     // ENSURE ANG RANGE OF 0 TO 359 WITH "%" OPERATOR
