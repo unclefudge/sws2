@@ -640,9 +640,10 @@ class FormController extends Controller
         $file = FormFile::find($file_id);
         if ($file) {
             $filename = $file->attachment;
-            $source = imagecreatefromjpeg('https://safeworksite.com.au' . $filename);     // Load URL
+            $url = 'https://safeworksite.com.au' . $filename;
+            $source = imagecreatefromjpeg($url);     // Load URL
             $rotate = imagerotate($source, $degrees, 0);  // Rotate
-            imagejpeg($rotate, $filename); // Output
+            imagejpeg($rotate, $url); // Output
             // Free the memory
             imagedestroy($source);
             imagedestroy($rotate);
