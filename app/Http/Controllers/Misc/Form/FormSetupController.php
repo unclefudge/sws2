@@ -2132,20 +2132,24 @@ Electrical wires or apparatus that pass through a scaffold must be de-energised 
         echo "P:" . $template->pages->count() . " S:" . $template->sections->count() . " Q:" . $template->questions->count() . "<br>-----------<br><br>";
 
         foreach ($template->pages as $page) {
-            echo "<br>=====================================<br>Page $page->id : $page->name<br>=====================================<br>";
-            foreach ($page->sections as $section) {
-                $section_type = ($section->parent) ? "Sub-Section" : "Section";
-                echo "$section_type $section->order : $section->name (pid:" . $section->page->id . " sid:$section->id  psid:$section->parent)<br>-------------------------------------<br>";
-                foreach ($section->questions as $question) {
-                    echo "Q $question->id - $question->name (s:" . $question->section->id . ") &nbsp; T:$question->type  &nbsp; S:$question->type_special<br>";
-                    if ($question->type == 'select' && count($question->options())) {
-                        foreach ($question->options() as $opt) {
-                            echo " &nbsp; &nbsp; [$opt->id] T:$opt->text V:$opt->value C:$opt->colour<br>";
+            if ($page->status) {
+                echo "<br>=====================================<br>Page $page->id : $page->name<br>=====================================<br>";
+                foreach ($page->sections as $section) {
+                    if ($section->status) {
+                        $section_type = ($section->parent) ? "Sub-Section" : "Section";
+                        echo "$section_type $section->order : $section->name (pid:" . $section->page->id . " sid:$section->id  psid:$section->parent)<br>-------------------------------------<br>";
+                        foreach ($section->questions as $question) {
+                            echo "Q $question->id - $question->name (s:" . $question->section->id . ") &nbsp; T:$question->type  &nbsp; S:$question->type_special<br>";
+                            if ($question->type == 'select' && count($question->options())) {
+                                foreach ($question->options() as $opt) {
+                                    echo " &nbsp; &nbsp; [$opt->id] T:$opt->text V:$opt->value C:$opt->colour<br>";
+                                }
+                                echo "<br>";
+                            }
                         }
                         echo "<br>";
                     }
                 }
-                echo "<br>";
             }
         }
     }

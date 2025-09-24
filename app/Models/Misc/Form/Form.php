@@ -88,6 +88,16 @@ class Form extends Model
         return FormFile::where('form_id', $this->id)->where('status', 1)->orderBy('order')->get();
     }
 
+    public function docs()
+    {
+        return FormFile::where('form_id', $this->id)->where('status', 1)->where('type', "file")->orderBy('order')->get();
+    }
+
+    public function photos()
+    {
+        return FormFile::where('form_id', $this->id)->where('status', 1)->where('type', 'image')->orderBy('order')->get();
+    }
+
 
     /**
      * Page

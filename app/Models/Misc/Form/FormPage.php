@@ -32,24 +32,24 @@ class FormPage extends Model
      */
     public function sections()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id');
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id')->where('status', 1);
     }
 
 
     public function sections2()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id'); //->whereNull('parent');
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'page_id')->where('status', 1); //->whereNull('parent');
     }
 
     public function allSections2()
     {
-        return $this->sections2()->with('allSections2');
+        return $this->sections2()->with('allSections2')->where('status', 1);
     }
 
 
     public function childSections()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'parent');
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'parent')->where('status', 1);
     }
 
     /*
@@ -57,7 +57,7 @@ class FormPage extends Model
      */
     public function allChildSections()
     {
-        return $this->childSections()->with('allChildSections');
+        return $this->childSections()->with('allChildSections')->where('status', 1);
     }
 
     /**
@@ -67,7 +67,7 @@ class FormPage extends Model
      */
     public function questions()
     {
-        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id');
+        return $this->hasManyThrough('App\Models\Misc\Form\FormQuestion', 'App\Models\Misc\Form\FormSection', 'page_id', 'section_id', 'id', 'id')->where('status', 1);
     }
 
     /**

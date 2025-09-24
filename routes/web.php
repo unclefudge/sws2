@@ -542,6 +542,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('form/template/dt/templates', '\App\Http\Controllers\Misc\Form\FormTemplateController@getTemplates');
     Route::post('form/template/data/save', '\App\Http\Controllers\Misc\Form\FormTemplateController@saveTemplate');
     Route::get('form/template/data/template/{template_id}', '\App\Http\Controllers\Misc\Form\FormTemplateController@getTemplate');
+    Route::get('form/media/{file_id}/rotate/{rotate}', '\App\Http\Controllers\Misc\Form\FormController@rotateImage');
     Route::resource('form/template', '\App\Http\Controllers\Misc\Form\FormTemplateController');
 
     // Site Inspection Forms
@@ -549,6 +550,7 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::get('site/inspection/dt/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@getTemplateForms');
     Route::get('site/inspection/list/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@listForms');
     Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@createForm');
+    Route::get('site/inspection/{form_id}/media', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
     Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
     Route::post('site/inspection/upload', '\App\Http\Controllers\Misc\Form\FormController@upload');
     Route::delete('site/inspection/upload', '\App\Http\Controllers\Misc\Form\FormController@deleteUpload');

@@ -97,7 +97,7 @@ span.select2.select2-container.select2-container--bootstrap {
 }
 
 .select2-container--bootstrap.select2-container--disabled .select2-selection, .select2-container--bootstrap.select2-container--disabled .select2-selection--multiple .select2-selection__choice {
-background-color: #eeeeee !important;
+    background-color: #eeeeee !important;
 }
 
 .no-border {
@@ -900,14 +900,14 @@ Diff Compare
 .mygallery-overlay .mygallery-delete {
     position: absolute;
     top: 20px;
-    right: 145px;
+    right: 245px;
     font-size: 60px;
 }
 
 .mygallery-overlay .mygallery-download {
     position: absolute;
     top: 20px;
-    right: 245px;
+    right: 145px;
     font-size: 60px;
 }
 

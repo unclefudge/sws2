@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Models\Misc\Form\Form;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -11,7 +12,6 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -140,21 +140,15 @@ class PagesController extends Controller
     {
 
         echo "<h1>Maintenance</h1><br>";
-        $sites = SiteMaintenance::where('super_id', 432)->pluck('site_id')->toArray();
-        $unq = array_unique($sites);
-        sort($unq);
-        foreach ($unq as $site_id) {
-            $site = Site::where('id', $site_id)->first();
-            echo "$site->name<br>";
+        $form = Form::find(7);
+        $media = [];
+        foreach ($form->files() as $file) {
+            $media[$file->id] = $file->question->order . "." . $file->id;
         }
-
-        echo "--------<br>";
-        $maints = SiteMaintenance::where('super_id', '<>', 432)->whereIn('site_id', $unq)->get();
-        foreach ($maints as $maint) {
-            echo "$maint->id - " . $maint->site->name . "<br>";
-        }
-        echo "--------<br>";
-        $aaron = User::find(432);
+        print_r($media);
+        asort($media);
+        echo "<br>----------<br>";
+        print_r($media);
 
 
         /*

@@ -143,7 +143,7 @@ function deleteGalleryPreview() {
 }
 
 function downloadGalleryPreview() {
-    alert('download');
+    //alert('download');
     var image = document.getElementById("myGalleryImage");
     var host = window.location.protocol + "//" + window.location.host;
     var file_url = image.src.split(host)[1];

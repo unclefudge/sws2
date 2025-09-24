@@ -111,7 +111,7 @@ class FormController extends Controller
     public function showPage($id, $pagenumber)
     {
         $form = Form::findOrFail($id);
-        $page = FormPage::where('template_id', $form->template_id)->where('order', $pagenumber)->first();
+        $page = FormPage::where('template_id', $form->template_id)->where('order', $pagenumber)->where('status', 1)->first();
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
@@ -144,7 +144,7 @@ class FormController extends Controller
         //dd($formlogic);
         //dd($sections);
 
-        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->orderBy('order')->get();
+        $sections = FormSection::where('page_id', $page->id)->whereNull('parent')->where('status', 1)->orderBy('order')->get();
 
 
         //dd($sections);
@@ -152,6 +152,18 @@ class FormController extends Controller
 
         // Get Page data
         return view('/site/inspection/custom/show', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
+    }
+
+    public function showMedia($id)
+    {
+        $form = Form::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
+            return view('errors/404');
+
+        // Get Page data
+        return view('/site/inspection/custom/media_summary', compact('form'));
     }
 
     public function verifyFormCompleted($form)
@@ -450,8 +462,34 @@ class FormController extends Controller
                 }
             }
         }
-
         $form->save();
+
+        //
+        // Re-order all media by Question order, then FileId
+        //
+        $media = [];
+        foreach ($form->photos() as $file) {
+            $media[$file->id] = $file->question->order . "." . $file->id;
+        }
+        asort($media);
+        $order = 1;
+        foreach ($media as $fid => $sort) {
+            $file = FormFile::find($fid);
+            $file->order = $order++;
+            $file->save();
+        }
+        // Files
+        $media = [];
+        foreach ($form->docs() as $file) {
+            $media[$file->id] = $file->question->order . "." . $file->id;
+        }
+        asort($media);
+        $order = 1;
+        foreach ($media as $fid => $sort) {
+            $file = FormFile::find($fid);
+            $file->order = $order++;
+            $file->save();
+        }
 
         // Final Page / Complete Form submitted
         if ($nextpage == 'complete') {
@@ -595,6 +633,21 @@ class FormController extends Controller
         // Required to remove temporary uploaded Filepond file
         //dd(request()->all());
         return 'delete upload';
+    }
+
+    public function rotateImage($file_id, $degrees)
+    {
+        $file = FormFile::find($file_id);
+        if ($file) {
+            $filename = $file->attachment;
+            $source = imagecreatefromjpeg('https://safeworksite.com.au' . $filename);     // Load URL
+            $rotate = imagerotate($source, $degrees, 0);  // Rotate
+            imagejpeg($rotate, $filename); // Output
+            // Free the memory
+            imagedestroy($source);
+            imagedestroy($rotate);
+        }
+        return json_encode('success');
     }
 
     /**

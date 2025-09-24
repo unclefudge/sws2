@@ -30,12 +30,12 @@ class FormSection extends Model
      */
     public function questions()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'section_id');
+        return $this->hasMany('App\Models\Misc\Form\FormQuestion', 'section_id')->where('status', 1);
     }
 
     public function childSections()
     {
-        return $this->hasMany('App\Models\Misc\Form\FormSection', 'parent');
+        return $this->hasMany('App\Models\Misc\Form\FormSection', 'parent')->where('status', 1);
     }
 
 
@@ -44,7 +44,7 @@ class FormSection extends Model
      */
     public function allChildSections()
     {
-        return $this->childSections()->with('allChildSections');
+        return $this->childSections()->with('allChildSections')->where('status', 1);
     }
 
     /**

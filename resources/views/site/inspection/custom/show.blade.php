@@ -39,7 +39,7 @@
                         @if ($showrequired && $failed_questions->count())
                             <div class="alert alert-danger alert-dismissable">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
-                                <i class="fa fa-warning"></i><strong> The follwing questions require a response</strong>
+                                <i class="fa fa-warning"></i><strong> The following questions require a response</strong>
                                 <ul>
                                     @foreach ($failed_questions as $question)
                                         <li style="list-style-type: none;">@if ($form->pages()->count() > 1)
@@ -68,7 +68,8 @@
                                 <div class="col-md-12">
                                     <h3 class="font-green-haze" style="display: inline-block; margin: 0px">{{ $form->pageName($pagenumber) }}</h3>
                                     <span class="pull-right">
-                                       @for ($x = 1; $x <= $form->pages()->count(); $x++)
+                                        <a href="/site/inspection/{{$form->id}}/media" class="btn btn-default" style="margin: 0 5px 5px 0;">Media</a>
+                                        @for ($x = 1; $x <= $form->pages()->count(); $x++)
                                             @if ($x == $pagenumber)
                                                 <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">{{ $x }}</button>
                                             @else
@@ -121,23 +122,23 @@
                                 @if ($form->files()->count())
                                     {{-- Gallery --}}
                                     <div id="media_gallery" style="margin-bottom: 20px">
-                                        @foreach ($form->files() as $file)
-                                            @if ($file->type == 'image')
-                                                <img src="{{$file->attachment}}" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
-                                            @endif
+                                        @foreach ($form->photos()->sortBy('order')  as $file)
+                                            <img src="{{$file->attachment}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                                         @endforeach
                                     </div>
                                     {{-- Files --}}
-                                    <div id="q{{$question->id}}-gallery" style="margin-bottom: 20px">
-                                        @foreach ($form->files() as $file)
-                                            @if ($file->type == 'file')
-                                                <div id="q{{$question->id}}-file-{{$file->id}}">
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-
+                                    @if ($form->docs()->count())
+                                        <div><b style="font-size: 18px">Files</b></div>
+                                        <div id="file_gallery" style="margin-bottom: 20px">
+                                            @foreach ($form->files()->sortBy('order')  as $file)
+                                                @if ($file->type == 'file')
+                                                    <div id="q{{$file->question_id}}-file-{{$file->id}}">
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 @else
                                     No media found
                                 @endif
@@ -181,8 +182,10 @@
 
     <div id="myGalleryFullscreen" class="mygallery-overlay">
         <a id="closeGallery" href="javascript:void(0)" class="mygallery-close" onclick="closeGalleryPreview()"><i class="fa fa-times"></i></a>
-        <a id="deleteGallery" href="javascript:void(0)" class="mygallery-delete" onclick="deleteGalleryPreview()"><i class="fa fa-trash"></i></a>
         <a id="downloadGallery" href="javascript:void(0)" class="mygallery-download" onclick="downloadGalleryPreview()"><i class="fa fa-download"></i></a>
+        @if ($form->status)
+            <a id="deleteGallery" href="javascript:void(0)" class="mygallery-delete" onclick="deleteGalleryPreview()"><i class="fa fa-trash"></i></a>
+        @endif
         <div class="mygallery-overlay-content">
             <img class="img-fluid" id="myGalleryImage" src="">
         </div>
