@@ -133,6 +133,7 @@ function deleteGalleryPreview() {
 
     // hide deleted file from gallery
     var thumbnail = document.getElementById('q' + qid + '-photo-' + file_url);
+    console.log(thumbnail);
     thumbnail.style.display = 'none';
 
     //console.log(host);

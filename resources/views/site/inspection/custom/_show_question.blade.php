@@ -53,7 +53,7 @@ if ($showrequired && $question->required) {
                             {{-- Date --}}
                             @if ($form->status)
                                 <div class="input-group date date-picker">
-                                    <input type="text" name="q{{$question->id}}" id="q{{$question->id}}" class="form-control form-control-inline" style="background:#FFF" data-date-format="dd-mm-yyyy" value="{{ $val }}">
+                                    <input type="text" name="q{{$question->id}}" id="q{{$question->id}}" class="form-control form-control-inline" readonly style="background:#FFF" data-date-format="dd-mm-yyyy" value="{{ $val }}">
                                     <span class="input-group-btn">
                                         <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
                                     </span>

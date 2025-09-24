@@ -68,7 +68,7 @@
                                 <div class="col-md-12">
                                     <h3 class="font-green-haze" style="display: inline-block; margin: 0px">{{ $form->pageName($pagenumber) }}</h3>
                                     <span class="pull-right">
-                                        <a href="/site/inspection/{{$form->id}}/media" class="btn btn-default" style="margin: 0 5px 5px 0;">Media</a>
+                                        <a href="/site/inspection/{{$form->id}}/media/icon" class="btn btn-default" style="margin: 0 5px 5px 0;">Media</a>
                                         @for ($x = 1; $x <= $form->pages()->count(); $x++)
                                             @if ($x == $pagenumber)
                                                 <button class="btn dark" style="margin: 0 5px 5px 0; cursor: default" id="pagebtn-current">{{ $x }}</button>

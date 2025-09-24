@@ -154,16 +154,17 @@ class FormController extends Controller
         return view('/site/inspection/custom/show', compact('form', 'page', 'sections', 'pagenumber', 'formlogic', 's2_ids', 's2_phs', 'showrequired', 'failed_questions'));
     }
 
-    public function showMedia($id)
+    public function showMedia($id, $view)
     {
         $form = Form::findOrFail($id);
+        $view = ($view) ? $view : 'icon';
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('view.site.inspection.whs', $form))
             return view('errors/404');
 
         // Get Page data
-        return view('/site/inspection/custom/media_summary', compact('form'));
+        return view('/site/inspection/custom/media_summary', compact('form', 'view'));
     }
 
     public function verifyFormCompleted($form)
@@ -641,14 +642,29 @@ class FormController extends Controller
         if ($file) {
             $filename = $file->attachment;
             $url = 'https://safeworksite.com.au' . $filename;
-            $source = imagecreatefromjpeg($url);     // Load URL
-            $rotate = imagerotate($source, $degrees, 0);  // Rotate
-            imagejpeg($rotate, $url); // Output
-            // Free the memory
-            imagedestroy($source);
-            imagedestroy($rotate);
+            $url = 'https://sws.test' . $filename;
+            $filename = ltrim($filename, "/");
+
+            if (exif_imagetype($filename)) {
+                Image::make(url($filename))
+                    ->rotate($degrees)
+                    ->save($filename);
+            }
         }
         return json_encode('success');
+    }
+
+    public function deleteFile($file_id)
+    {
+        $form_file = FormFile::find($file_id);
+        if ($form_file) {
+            if (file_exists(public_path($form_file->attachment))) {
+                unlink(public_path($form_file->attachment));
+                $form_file->delete();
+                return json_encode('success');
+            }
+        }
+        return json_encode('failed to delete file');
     }
 
     /**
