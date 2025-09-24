@@ -126,14 +126,14 @@
                                                     $p2_txt = ($p2) ? $p2->question->name : '';
                                                     ?>
                                                 <tr>
-                                                    <td style="width=45%; vertical-align: bottom; background-color: #fafafa">{!! $p1_img !!}</td>
+                                                    <td style="width=45%; vertical-align: bottom; background-color: #fafafa">{!! $p1_img !!} *</td>
                                                     <td style="width=10%">&nbsp;</td>
-                                                    <td style="width=45%; vertical-align: bottom; {{ ($p2_img) ? 'background-color: #fafafa' : '' }}">{!! $p2_img !!}</td>
+                                                    <td style="width=45%; vertical-align: bottom; {{ ($p2_img) ? 'background-color: #fafafa' : '' }}">{!! $p2_img !!} *</td>
                                                 </tr>
                                                 <tr>
-                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; background-color: #222; ">{!! $p1_txt !!}</td>
+                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; background-color: #222; ">{!! $p1_txt !!} K</td>
                                                     <td>&nbsp;</td>
-                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; {{ ($p2_img) ? 'background-color: #222' : '' }}">{!! $p2_txt !!}</td>
+                                                    <td style="color: #fff; padding:5px 10px; vertical-align: top; {{ ($p2_img) ? 'background-color: #222' : '' }}">{!! $p2_txt !!} K</td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="3">&nbsp;</td>
