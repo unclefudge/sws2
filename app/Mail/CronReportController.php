@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Misc;
+namespace App\Mail;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Misc\CronController;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
@@ -57,6 +58,7 @@ class CronReportController extends Controller
             CronReportController::emailOutstandingOnHoldQA();
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailProjectSupplyOverdue();
+            CronReportController::emailPendingElectricalPlumbing();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -871,7 +873,7 @@ class CronReportController extends Controller
         echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
         $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
         echo "<h2>Email Project Supply Overdue</h2>";
-        $log .= "EmailProject Supply Overdued\n";
+        $log .= "Email Project Supply Overdued\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
@@ -913,6 +915,44 @@ class CronReportController extends Controller
         $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
     }
+
+    static public function emailPendingElectricalPlumbing()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        echo "<h2>Email Pending Electrical Plumbing reports</h2>";
+        $log .= "Email Pending Electrical Plumbing reports\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $email_list);
+
+        // Electrical
+        $elPendingAdmin = SiteInspectionElectrical::where('status', 3)->where('supervisor_sign_by', null)->get();
+        $elPendingTech = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', null)->get();
+        $elClientNot = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+        // Plumbing
+        $plPendingAdmin = SiteInspectionPlumbing::where('status', 3)->where('supervisor_sign_by', null)->get();
+        $plPendingTech = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->get();
+        $plClientNot = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+
+
+        //dd(count($projs));
+        if ($email_list) {
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPending($elPendingAdmin, $elPendingTech, $elClientNot, $plPendingAdmin, $plPendingTech, $plClientNot));
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
+        }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
 
     /*
     * Email Fortnightly Reports
