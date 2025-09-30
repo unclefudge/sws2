@@ -319,6 +319,23 @@ class SiteProjectSupplyController extends Controller
 
     }
 
+    public function resetItems($id)
+    {
+        $project = SiteProjectSupply::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.project.supply', $project))
+            return view('errors/404');
+
+        $project->reset();
+
+        if ($project->status)
+            return redirect("/site/supply/$project->id/edit");
+
+        return redirect("/site/supply/$project->id");
+
+    }
+
     /**
      * Update a resource in storage.
      *

@@ -296,6 +296,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/supply/delete/{id}', '\App\Http\Controllers\Site\SiteProjectSupplyController@deleteItem');
     Route::get('site/supply/{id}/createpdf', '\App\Http\Controllers\Site\SiteProjectSupplyController@createPDF');
     Route::get('site/supply/{id}/signoff', '\App\Http\Controllers\Site\SiteProjectSupplyController@signoff');
+    Route::get('site/supply/{id}/reset', '\App\Http\Controllers\Site\SiteProjectSupplyController@resetItems');
     Route::resource('site/supply', '\App\Http\Controllers\Site\SiteProjectSupplyController');
 
     // Site Shutdown

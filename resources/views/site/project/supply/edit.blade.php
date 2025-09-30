@@ -18,11 +18,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Project Supply Infomation</span>
                             <span class="caption-helper"></span>
                         </div>
                         <div class="actions">
+                            <button id="btn-reset" class="btn btn-circle green btn-outline btn-sm">Reset Infomation</button>
                             @if ($project->attachment)
                                 <a class="btn btn-circle green btn-outline btn-sm" href="{{ $project->attachment_url }}" target="_blank" data-original-title="PDF"><i class="fa fa-file-pdf-o"></i> Report </a>
                             @endif
@@ -50,7 +50,7 @@
                             </div>
                             <hr style="padding: 0px; margin: 0px 0px 30px 0px">
 
-                            <h3>Project Supply Information</h3>
+                            <h3>Project Supply Information <span class="pull-right"></span></h3>
                             <hr style="padding: 0px; margin: 0px 0px 30px 0px">
 
                             <div class="row bold hidden-sm hidden-xs">
@@ -410,7 +410,24 @@
                         $("#item-" + item_id).hide();
                     });
                 }
+            });
 
+            // Reset form
+            $("#btn-reset").click(function (e) {
+                e.preventDefault();
+                var name = $(this).attr('name');
+                swal({
+                    title: "Are you sure?",
+                    text: "This action can't be undone and <br>all items will be <b>RESET</b> to initial empty values!",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, reset it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location.href = "/site/supply/{{ $project->id }}/reset";
+                });
             });
         });
     </script>

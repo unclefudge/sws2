@@ -93,6 +93,20 @@ class SiteProjectSupply extends Model
         return true;
     }
 
+    public function reset()
+    {
+        foreach ($this->items as $item)
+            $item->delete();
+
+        $this->initialise();
+        $this->supervisor_sign_at = '';
+        $this->manager_sign_at = '';
+        $this->approved_at = '';
+        $this->save();
+        
+        return true;
+    }
+
     /*
     * List of Product Titles
     */

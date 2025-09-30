@@ -18,7 +18,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Project Supply Infomation</span>
                             <span class="caption-helper">ID: {{ $project->id }}</span>
                         </div>
@@ -65,7 +64,9 @@
                                         <div class="visible-sm visible-xs">
                                             <br><b>{{ $item->product }}</b>
                                             <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
-                                            @if ($item->product_id == 32) Product: {{  $item->product }} @endif
+                                            @if ($item->product_id == 32)
+                                                Product: {{  $item->product }}
+                                            @endif
                                         </div>
                                     </div>
                                     {{-- Supplier --}}
@@ -159,15 +160,16 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        $(".signoff").click(function (e) {
-            e.preventDefault();
-            window.location.href = "/site/supply/{{$project->id}}/signoff";
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $(".signoff").click(function (e) {
+                e.preventDefault();
+                window.location.href = "/site/supply/{{$project->id}}/signoff";
+            });
         });
-    });
-</script>
+    </script>
 @stop
 
