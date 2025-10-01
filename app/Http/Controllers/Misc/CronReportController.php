@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Mail;
+namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Misc\CronController;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
@@ -884,9 +883,10 @@ class CronReportController extends Controller
         // 265 - Prac Completion (Prac)
         // 117 - [Lockup] Dismantle Scaffold (D) Scaffold
         // Active Project Supply not updated in 14 days
-        $proj_siteids = SiteProjectSupply::where('status', 1)->where('updated_at', '<', $two_weeks_ago)->pluck('site_id')->toArray();
+        //$proj_siteids = SiteProjectSupply::where('status', 1)->where('updated_at', '<', $two_weeks_ago)->pluck('site_id')->toArray();
+        $proj_siteids = SiteProjectSupply::where('status', 1)->pluck('site_id')->toArray();
 
-        // Sites with Prac Complettion Tasks older than 14 days that also have active Project Supply not updated
+        // Sites with Prac Complettion Tasks older than 14 days that also have active Project Supply
         // - for all Project Supply with a Prac Complete task on planner should be completed within 14 days
         $plan_siteids = SitePlanner::whereDate('from', '<', $two_weeks_ago)->whereIn('site_id', $proj_siteids)->where('task_id', 265)->pluck('site_id')->toArray();
         $prac_proj = SiteProjectSupply::whereIn('site_id', $plan_siteids)->get();

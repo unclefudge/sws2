@@ -16,7 +16,7 @@ The following Project Supply details are 2 weeks overdue.
 @endforeach
 
 
-<b>Prac Completion</b><br>
+<br><b>Prac Completion</b><br>
 @foreach ($prac as $proj)
 - {{ $proj->site->name }} - Prac: {{ $proj->pracCompleteDate }}
 @endforeach
