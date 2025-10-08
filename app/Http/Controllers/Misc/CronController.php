@@ -1419,7 +1419,7 @@ class CronController extends Controller
         //
         // Asbestos Removal - taskid: 213
         //
-        $task_ids = [213];
+        $task_ids = [19, 213, 723];
         $tasks = SitePlanner::whereDate('from', '>', $date)->whereIn('task_id', $task_ids)->orderBy('site_id')->get();
         foreach ($tasks as $task) {
             if ($task->site->status == 1) {

@@ -229,7 +229,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
                                             {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::select('removalist', ['' => 'Select removalist', '385' => 'Handy 1st Pty Ltd AD2122895', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
+                                            {!! Form::select('removalist', ['' => 'Select removalist', '507' => 'Asbestos Away', '511' => 'SafeStrip 1st Pty Ltd', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
                                             {!! fieldErrorMessage('removalist', $errors) !!}
                                         </div>
                                     </div>
@@ -619,8 +619,14 @@
                     $("#non_friable_fields").show();
                     $("#non_friable_fields_part2").show();
                 }
-                if ($("#removalist").val() == '385') {
-                    $("#removalist_name").val('Handy 1st Pty Ltd AD2122895');
+                if ($("#removalist").val() == '507') {
+                    $("#removalist_name").val('Asbestos Away');
+                    $("#assessor_name").val('Tony Gabriel').change();
+                    $("#non_friable_fields_part2").show();
+                }
+                if ($("#removalist").val() == '511') {
+                    $("#removalist_name").val('SafeStrip 1st Pty Ltd');
+                    $("#assessor_name").val('Moayad Khateib').change();
                     $("#non_friable_fields_part2").show();
                 }
                 if ($("#removalist").val() == 'other') {
