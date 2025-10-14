@@ -5,6 +5,7 @@ namespace App\Models\Comms;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
 use App\Models\Company\CompanyDocReview;
+use App\Models\Misc\Attachment;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Safety\ToolboxTalk;
@@ -68,6 +69,11 @@ class Todo extends Model
     public function users()
     {
         return $this->hasMany('App\Models\Comms\TodoUser', 'todo_id');
+    }
+
+    public function attachments()
+    {
+        return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
     }
 
     /**

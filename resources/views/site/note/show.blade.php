@@ -239,14 +239,6 @@
                             <div class="row" style="margin: 0">
                                 @foreach ($note->attachments() as $attachment)
                                     @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
-                                        {{--}} <div style="width: 60px; float: left; padding-right: 5px">
-                                             <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
-                                                 <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                             @if (Auth::user()->hasPermission2("del.site.note") || true)
-                                                 <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
-                                             @endif
-                                         </div>--}}
-
                                         <div style="width: 60px; float: left; padding-right: 5px">
                                             @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
                                                 <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>

@@ -177,6 +177,14 @@
                                 </div>
                             </div>
 
+                            {{-- Attachments --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 id="uploads_label">Upload Attachments</h5>
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                </div>
+                            </div>
+
 
                             <div class="form-actions right">
                                 @if ($type == 'incident')
@@ -198,7 +206,8 @@
 
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>
+    {{--<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>--}}
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
@@ -209,14 +218,16 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
-    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    {{--}}<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>--}}
     <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $.ajaxSetup({
             headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}

@@ -174,6 +174,8 @@
                             </div>
 
                             {{-- Attachments --}}
+                            <b>Attachments</b>
+                            <hr style="margin: 10px 0px; padding: 0px;">
                             @if($todo->type == 'hazard' || $todo->type == 'accident' || $todo->type == 'incident')
                                 @if ($todo->attachment_url)
                                     <div class="row" id="attachment_div">
@@ -200,6 +202,34 @@
                                     </div>
                                 @endif
                             @endif
+
+                            @if ($todo->attachments()->count())
+                                {{-- Image attachments --}}
+                                <div class="row" style="margin: 0">
+                                    @foreach ($todo->attachments() as $attachment)
+                                        @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                            <div style="width: 60px; float: left; padding-right: 5px">
+                                                <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
+                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                                {{-- File attachments  --}}
+                                <div class="row" style="margin: 0">
+                                    @foreach ($todo->attachments() as $attachment)
+                                        @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                        @endif
+                                    @endforeach
+                                </div>
+                                <br>
+                            @endif
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                </div>
+                            </div>
 
                             {{-- List of Users Task assigned to--}}
                             @if($todo->assignedTo()->count())
@@ -347,23 +377,26 @@
 
 @section('page-level-plugins-head')
     <!--<link href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css"/>-->
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" type="text/css"/>   {{-- Filepond --}}
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+    {{--}}<link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>--}}
     <script type="text/javascript">var html5lightbox_options = {watermark: "", watermarklink: ""};</script>
 @stop
 
 @section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
+    {{--}}<script src="/js/libs/fileinput.min.js"></script>--}}
     <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script> {{-- FilePond --}}
 @stop
 
 @section('page-level-scripts')
     {{-- Metronic + custom Page Scripts --}}
     <!--<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>-->
+    <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
     <script>

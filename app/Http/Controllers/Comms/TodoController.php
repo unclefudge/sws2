@@ -7,6 +7,7 @@ use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
 use App\Models\Misc\Form\Form;
 use App\Models\Misc\Form\FormQuestion;
 use App\Models\Site\Incident\SiteIncident;
@@ -166,6 +167,15 @@ class TodoController extends Controller
                     $todo = Todo::create($todo_request);
                     $todo->assignUsers($user_list);
                 }
+            }
+        }
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "/filebank/todo/$todo->id"]);
+                $attachment->saveAttachment($tmp_filename);
             }
         }
 
@@ -377,6 +387,15 @@ class TodoController extends Controller
             $file->move($path, $name);
             $todo->attachment = $name;
             $todo->save();
+        }
+
+        // Handle attachments
+        $attachments = request("filepond");
+        if ($attachments) {
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "/filebank/todo/$todo->id"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         Toastr::success("Saved ToDo");
