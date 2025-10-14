@@ -498,7 +498,6 @@
                                             <th> Action</th>
                                             <th width="15%">Created by</th>
                                             <th width="15%">Completed by</th>
-                                            <th width="5%"></th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -514,6 +513,28 @@
                                                     @if ($todo->comments)
                                                         <br><b>Comments:</b> {{ $todo->comments }}
                                                     @endif
+                                                    @if ($todo->attachments()->count())
+                                                        <hr style="margin: 10px 0px; padding: 0px;">
+                                                        {{-- Image attachments --}}
+                                                        <div class="row" style="margin: 0">
+                                                            @foreach ($todo->attachments() as $attachment)
+                                                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                        {{-- File attachments  --}}
+                                                        <div class="row" style="margin: 0">
+                                                            @foreach ($todo->attachments() as $attachment)
+                                                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                        <br>
+                                                    @endif
                                                 </td>
                                                 <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}
                                                     <br>{{ $todo->created_at->format('d/m/Y')}}</td>
@@ -527,12 +548,6 @@
                                                     @else
                                                         {!! $done_by  !!}<br>{{ $done_at }}
                                                     @endif</td>
-                                                <td>
-                                                    @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity
-                                                           class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                    @endif
-                                                </td>
                                             </tr>
                                         @endforeach
                                         </tbody>
