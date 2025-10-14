@@ -197,10 +197,6 @@
                                                                 @endif
                                                             @endforeach
                                                         </div>
-                                                        {{-- Old Image attachments --}}
-                                                        @if ($todo->attachment)
-                                                            <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                        @endif
                                                         {{-- File attachments  --}}
                                                         <div class="row" style="margin: 0">
                                                             @foreach ($todo->attachments() as $attachment)
@@ -210,6 +206,10 @@
                                                             @endforeach
                                                         </div>
                                                         <br>
+                                                    @endif
+                                                    {{-- Old Image attachments --}}
+                                                    @if ($todo->attachment)
+                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
                                                     @endif
                                                 </td>
                                                 <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
