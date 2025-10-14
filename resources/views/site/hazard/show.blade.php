@@ -222,8 +222,8 @@
                                                         <span class="font-red">Outstanding</span>
                                                     @else
                                                         {!! $done_by  !!}<br>{{ $done_at }}
-                                                    @endif<
-                                                    /td>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                         </tbody>
