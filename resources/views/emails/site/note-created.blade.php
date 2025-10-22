@@ -43,6 +43,12 @@ Prac Notified: {{ ($note->prac_notified) ? $note->prac_notified->format('d/m/Y')
 Prac Meeting Date: {{ ($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : '' }}<br>
 Prac Meeting Time: {{ ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '' }}<br>
 @endif
+{{-- 94. Early Occupation --}}
+@if ($note->category_id == '94')
+Date of Occupancy: {{ ($note->occupation_date) ? $note->occupation_date->format('d/m/Y') : '' }}<br>
+Areas Client has taken Occupation of:<br>
+{!! nl2br2($note->occupation_area)  !!}
+@endif
 {{-- Note for all categories except 15. --}}
 @if ($note->category_id != '15')
 Note:<br>
@@ -53,7 +59,7 @@ Note:<br>
 
 Created by: {{ $note->createdBy->name }}
 
-@component('mail::button', ['url' => config('app.url').'/site/'.$note->site_id])
+@component('mail::button', ['url' => config('app.url').'/site/note'])
     View Site Notes
 @endcomponent
 

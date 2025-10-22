@@ -3,8 +3,10 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
+use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -126,6 +128,12 @@ class SiteAsbestos extends Model
         }
 
         return rtrim($str, ', ');
+    }
+
+    public function companies()
+    {
+        $cids = DB::table('company_trade')->where('trade_id', '79')->pluck('company_id')->toArray();
+        return Company::find($cids);
     }
 
     /**
