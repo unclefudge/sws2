@@ -1341,6 +1341,19 @@ class Company extends Model
         return ($prompt && count($array) > 1) ? $array = array('' => 'Select Site') + $array : $array;
     }
 
+    public function asbestosRemovalSelect($prompt = '')
+    {
+        $array = [];
+        $cids = DB::table('company_trade')->where('trade_id', '79')->pluck('company_id')->toArray();
+        $companies = Company::find($cids);
+        foreach ($companies as $company) {
+            if ($company->status)
+                $array[$company->id] = $company->name;
+        }
+        asort($array);
+
+        return ($prompt) ? $array = array('' => 'Select company') + $array : $array;
+    }
 
 
     /**

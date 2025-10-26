@@ -136,6 +136,18 @@ class SiteAsbestos extends Model
         return Company::find($cids);
     }
 
+    public function companiesSelect($prompt = '')
+    {
+        $array = [];
+        foreach ($this->companies as $company) {
+            if ($company->status)
+                $array[$company->id] = $company->name;
+        }
+        asort($array);
+
+        return ($prompt) ? $array = array('' => 'Select company') + $array : $array;
+    }
+
     /**
      * Update Status
      *

@@ -226,7 +226,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
                                             {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::select('removalist', ['' => 'Select removalist', '507' => 'Asbestos Away', '511' => 'SafeStrip 1st Pty Ltd', '3' => 'Cape Cod Australia Pty Ltd AD205686', 'other' => 'Other'], null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
+                                            {!! Form::select('removalist', Auth::user()->company->asbestosRemovalSelect(), null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
                                             {!! fieldErrorMessage('removalist', $errors) !!}
                                         </div>
                                     </div>
