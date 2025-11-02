@@ -843,6 +843,7 @@ Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronRe
 Route::get('cron/email-missing-company-info-planner', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfoPlanner');
 Route::get('cron/email-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@emailPlannerKeyTasks');
 Route::get('cron/email-asbestos', '\App\Http\Controllers\Misc\CronReportController@emailActiveAsbestos');
+Route::get('cron/email-upcoming-jobs', '\App\Http\Controllers\Misc\CronTaskController@emailUpcomingJobs');
 Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@actionPlannerKeyTasks');
 Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@siteExtensions');
 Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTask');

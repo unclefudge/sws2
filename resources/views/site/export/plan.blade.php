@@ -84,6 +84,16 @@
                                 </div>
                             </div>
                             <br>
+                            <div class="row">
+                                <div class="col-md-3"><h4>Export Planner by Supervisor</h4></div>
+                                <div class="col-md-6">
+                                    {!! Form::select('company_id', Auth::user()->company->supervisorsSelect(), null, ['class' => 'form-control select2', 'name' => 'supervisor_id[]', 'id' => 'supervisor_id', 'multiple' ]) !!}
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn green" name="export_supervisor" value="true"> View PDF</button>
+                                </div>
+                            </div>
+                            <br>
                         @endif
                         <div class="form-actions right">
                             <a href="{{ URL::previous() }}" class="btn default"> Back</a>
@@ -123,6 +133,7 @@
             $("#site_id").select2({placeholder: "All Sites", width: '100%'});
             $("#site_id_client").select2({placeholder: "All Sites", width: '100%'});
             $("#company_id").select2({placeholder: "All Companies", width: '100%'});
+            $("#supervisor_id").select2({placeholder: "All Supervisors", width: '100%'});
 
         });
 

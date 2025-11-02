@@ -95,12 +95,26 @@ class SitePlannerExportController extends Controller
         /*
          * Export by Site
          */
-        if ($request->has('export_site') || $request->has('export_site_client')) {
-            $site_id = ($request->has('export_site')) ? request('site_id') : request('site_id_client');
+        if ($request->has('export_site') || $request->has('export_site_client') || $request->has('export_supervisor')) {
+            //$site_id = ($request->has('export_site')) ? request('site_id') : request('site_id_client');
+
+            if ($request->has('export_site'))
+                $site_id = request('site_id');
+            else if ($request->has('export_site_client'))
+                $site_id = request('site_id_client');
+            else if ($request->has('export_supervisor'))
+                $site_id = [];
+
+
             if ($site_id)
                 $sites = $site_id;
-            else
-                $sites = Auth::user()->company->reportsTo()->sites('1')->pluck('id')->toArray();
+            else {
+                if ($request->has('export_supervisor')) {
+                    $superIDS = ($request->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors->where('status', 1)->pluck('id')->toArray();
+                    $sites = Auth::user()->company->reportsTo()->sites('1')->wherein('supervisor_id', $superIDS)->pluck('id')->toArray();
+                } else
+                    $sites = Auth::user()->company->reportsTo()->sites('1')->pluck('id')->toArray();
+            }
 
             // Create Site List & Sort Sites by Site Name
             $site_list = [];
@@ -121,7 +135,13 @@ class SitePlannerExportController extends Controller
             asort($site_list);
             if ($site_id)
                 $site_list_csv = (count($sites) > 5) ? 'multiple 5+' : rtrim($site_list_csv, ', ');
-            else
+            else if ($request->has('export_supervisor') && request('supervisor_id')) {
+                $site_list_csv = '';
+                $supers = User::find(request('supervisor_id'));
+                foreach ($supers as $super)
+                    $site_list_csv .= $super->initials . ", ";
+                $site_list_csv = rtrim($site_list_csv, ', ');
+            } else
                 $site_list_csv = 'All';
 
             // For each Site get Tasks om Planner
@@ -131,6 +151,7 @@ class SitePlannerExportController extends Controller
                 $obj_site = (object)[];
                 $obj_site->site_id = $site->id;
                 $obj_site->site_name = $site->name;
+                $obj_site->supervisor = ($site->supervisor_id) ? $site->supervisor->name : '';
                 $obj_site->weeks = [];
 
                 // For each week get Entities on the Planner
@@ -202,7 +223,7 @@ class SitePlannerExportController extends Controller
                     $obj_site->weeks[$w] = [];
                     $i = 1;
                     $offset = 1; // Used to set column 0/1 for client export
-                    if ($request->has('export_site'))
+                    if ($request->has('export_site') || $request->has('export_supervisor'))
                         $obj_site->weeks[$w][0][] = 'COMPANY';
                     else
                         $obj_site->weeks[$w][0][] = 'TRADE';
@@ -215,7 +236,7 @@ class SitePlannerExportController extends Controller
                     $entity_count = 1;
                     if ($entities) {
                         foreach ($entities as $e) {
-                            if ($request->has('export_site'))
+                            if ($request->has('export_site') || $request->has('export_supervisor'))
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_name'];
                             else
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_trade'];
@@ -242,6 +263,10 @@ class SitePlannerExportController extends Controller
                 }
                 $data[] = $obj_site;
             }
+            if ($request->has('export_supervisor'))
+                array_multisort(array_column($data, 'supervisor'), SORT_ASC, $data);
+            else
+                array_multisort(array_column($data, 'site_name'), SORT_ASC, $data);
             //dd($data);
 
             $view = 'pdf.plan-site';
@@ -249,6 +274,10 @@ class SitePlannerExportController extends Controller
             if ($request->has('export_site_client')) {
                 $view = 'pdf/plan-site-client';
                 $client = 'Client ';
+            }
+
+            if ($request->has('export_supervisor')) {
+                $client = 'Supervisor ';
             }
 
 
