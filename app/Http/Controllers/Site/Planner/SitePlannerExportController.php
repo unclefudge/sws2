@@ -276,9 +276,10 @@ class SitePlannerExportController extends Controller
                 }
                 $data[] = $obj_site;
             }
-            if ($request->has('export_supervisor'))
-                array_multisort(array_column($data, 'supervisor'), SORT_ASC, $data);
-            else
+            if ($request->has('export_supervisor')) {
+                array_multisort(array_column($data, 'supervisor'), SORT_ASC, array_column($data, 'prac_complete'), SORT_ASC, $data);
+                //array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
+            } else
                 array_multisort(array_column($data, 'site_name'), SORT_ASC, $data);
             //dd($data);
 
