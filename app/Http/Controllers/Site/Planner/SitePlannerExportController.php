@@ -98,12 +98,16 @@ class SitePlannerExportController extends Controller
         if ($request->has('export_site') || $request->has('export_site_client') || $request->has('export_supervisor')) {
             //$site_id = ($request->has('export_site')) ? request('site_id') : request('site_id_client');
 
-            if ($request->has('export_site'))
+            if ($request->has('export_site')) {
                 $site_id = request('site_id');
-            else if ($request->has('export_site_client'))
+                $reportType = 'site';
+            } else if ($request->has('export_site_client')) {
                 $site_id = request('site_id_client');
-            else if ($request->has('export_supervisor'))
+                $reportType = 'client';
+            } else if ($request->has('export_supervisor')) {
                 $site_id = [];
+                $reportType = 'supervisor';
+            }
 
 
             if ($site_id)
@@ -111,7 +115,14 @@ class SitePlannerExportController extends Controller
             else {
                 if ($request->has('export_supervisor')) {
                     $superIDS = ($request->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors->where('status', 1)->pluck('id')->toArray();
-                    $sites = Auth::user()->company->reportsTo()->sites('1')->wherein('supervisor_id', $superIDS)->pluck('id')->toArray();
+                    $superSites = Auth::user()->company->reportsTo()->sites('1')->wherein('supervisor_id', $superIDS)->pluck('id')->toArray();
+                    $sites = [];
+                    foreach ($superSites as $sid) {
+                        $site = Site::find($sid);
+                        if ($site && $site->JobStart && $site->JobStart->lt(Carbon::today()))
+                            $sites[] = $sid;
+                    }
+
                 } else
                     $sites = Auth::user()->company->reportsTo()->sites('1')->pluck('id')->toArray();
             }
@@ -152,6 +163,7 @@ class SitePlannerExportController extends Controller
                 $obj_site->site_id = $site->id;
                 $obj_site->site_name = $site->name;
                 $obj_site->supervisor = ($site->supervisor_id) ? $site->supervisor->name : '';
+                $obj_site->reportType = $reportType;
                 $obj_site->weeks = [];
 
                 // For each week get Entities on the Planner

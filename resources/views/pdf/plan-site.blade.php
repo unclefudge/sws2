@@ -62,10 +62,13 @@
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
             <div class="col-xs-4">
-                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6>
+                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6><br>
+                @if ($siteplan->reportType == 'supervisor' && $site->PracComplete && $site->PracComplete->lt(Carbon::today()))
+                    <h4>PRAC COMPLETION</h4>
+                @endif
             </div>
         </div>
-    
+
         <hr style="margin: 5px 0px">
         @foreach($siteplan->weeks as $week_num => $week_data )
             <div class="row">
