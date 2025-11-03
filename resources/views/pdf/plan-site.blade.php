@@ -60,12 +60,13 @@
             <?php $site_count++ ?>
         <div class="row">
             <div class="col-xs-8">
-                <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
-            <div class="col-xs-4">
-                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6><br>
+                <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}
                 @if ($siteplan->reportType == 'supervisor' && $siteplan->prac_complete)
-                    <h4>PRAC COMPLETION</h4>
+                    <h4 style="margin: 0px">PRAC COMPLETION</h4>
                 @endif
+            </div>
+            <div class="col-xs-4">
+                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6>
             </div>
         </div>
 
