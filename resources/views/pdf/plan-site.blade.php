@@ -63,7 +63,7 @@
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}</div>
             <div class="col-xs-4">
                 <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6><br>
-                @if ($siteplan->reportType == 'supervisor' && $site->PracComplete && $site->PracComplete->lt(Carbon::today()))
+                @if ($siteplan->reportType == 'supervisor' && $siteplan->prac_complete)
                     <h4>PRAC COMPLETION</h4>
                 @endif
             </div>
