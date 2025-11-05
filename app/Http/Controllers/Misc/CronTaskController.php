@@ -24,7 +24,7 @@ class CronTaskController extends Controller
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
         $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
-        
+
         $hour = Carbon::now()->format('G'); // 24hr
         $minute = Carbon::now()->format('i');
 
@@ -127,12 +127,12 @@ class CronTaskController extends Controller
         $today = Carbon::now();
         if (\App::environment('prod')) {
             if (Carbon::today()->isMonday()) {
-                $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
+                $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au', 'fudge@jordan.net.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au'];
                 $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
             }
             if (Carbon::today()->isThursday()) {
-                $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
+                $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au', 'fudge@jordan.net.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
                 $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
             }
