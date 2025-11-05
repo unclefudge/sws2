@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('app:nightly-update')->daily()->at('00:05');
             $schedule->command('app:nightly-verify')->daily()->at('00:30');
             $schedule->command('app:hourly-update')->hourlyAt(01);  // Every hour at minute 1;
-            $schedule->command('app:hourly-update')->everyMinute();  // Every hour at minute 1;
+            //$schedule->command('app:hourly-update')->everyMinute();
         }
     }
 
