@@ -163,7 +163,7 @@ class SitePlannerExportController extends Controller
                 $obj_site->site_id = $site->id;
                 $obj_site->site_name = $site->name;
                 $obj_site->supervisor = ($site->supervisor_id) ? $site->supervisor->name : '';
-                $obj_site->prac_complete = ($site->PracComplete && $site->PracComplete->lt(Carbon::today())) ? true : false;
+                $obj_site->prac_complete = ($site->PracComplete) ? true : false;
                 $obj_site->reportType = $reportType;
                 $obj_site->weeks = [];
 
