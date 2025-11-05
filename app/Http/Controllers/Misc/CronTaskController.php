@@ -21,6 +21,10 @@ class CronTaskController extends Controller
     static public function hourly()
     {
         echo "<h1> Hourly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
+        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
+        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+        
         $hour = Carbon::now()->format('G'); // 24hr
         $minute = Carbon::now()->format('i');
 

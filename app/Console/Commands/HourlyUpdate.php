@@ -27,6 +27,7 @@ class HourlyUpdate extends Command
      */
     public function handle()
     {
+        ray('hourly');
         //\Log::info('Nightly update of roster + non-compliance');
         \App\Http\Controllers\Misc\CronTaskController::hourly();
         return Command::SUCCESS;

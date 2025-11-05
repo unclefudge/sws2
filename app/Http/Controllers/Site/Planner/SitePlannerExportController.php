@@ -114,7 +114,7 @@ class SitePlannerExportController extends Controller
                 $sites = $site_id;
             else {
                 if ($request->has('export_supervisor')) {
-                    $superIDS = ($request->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors->where('status', 1)->pluck('id')->toArray();
+                    $superIDS = ($request->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors()->where('status', 1)->pluck('id')->toArray();
                     $superSites = Auth::user()->company->reportsTo()->sites('1')->wherein('supervisor_id', $superIDS)->pluck('id')->toArray();
                     $sites = [];
                     foreach ($superSites as $sid) {
