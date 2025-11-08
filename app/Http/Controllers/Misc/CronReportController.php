@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
+use App\Http\Site\Planner\SitePlannerExportRequest;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
@@ -27,6 +28,7 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use File;
+use Illuminate\Http\Request;
 use Mail;
 use PDF;
 
@@ -64,6 +66,7 @@ class CronReportController extends Controller
             CronReportController::emailUpcomingJobCompilance();
             CronReportController::emailMaintenanceSupervisorNoAction();
             CronReportController::emailPracCompletionSupervisorNoAction();
+            CronReportController::emailSupervisorSiteExport();
         }
         if (Carbon::today()->isWednesday()) {
             //CronReportController::emailMaintenanceOnHold();
@@ -1407,6 +1410,62 @@ class CronReportController extends Controller
                 $log .= "Sending email to: $emails\n";
             }
         }
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+
+        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
+        if ($bytes_written === false) die("Error writing to file");
+    }
+
+    /*
+    *  Email SupervisorSiteExport
+    */
+    static public function emailSupervisorSiteExport()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Email Supervisor Site Export";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $cc = Company::find(3);
+        $email_to = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $email_cc = [];
+        $emails = implode("; ", array_merge($email_to, $email_cc));
+
+        $today = Carbon::now();
+        $cc = Company::find(3);
+
+        $superReports = [];
+        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
+            if ($super->name != "TO BE ALLOCATED") {
+                $data = ['date' => $today->subDay()->format('d/m/Y'), 'weeks' => '4', 'outputPDF' => 'pdf', 'export_supervisor' => 'yes', 'supervisor_id' => [$super->id], '_token' => csrf_token()];
+                $internalRequest = Request::create('/site/export/site', 'POST', $data);
+
+                // Handle the internal request
+                $response = app()->handle($internalRequest);
+                $statusCode = $response->getStatusCode();
+                $content = $response->getContent();
+                $superReports[] = $content;
+            }
+        }
+
+        // Pause for 2min to wait for reports to be created (they take time)
+        sleep(60);
+
+        //
+        // Send email
+        //
+        if ($email_to && $email_cc)
+            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteSupervisorSiteExport($superReports));
+        elseif ($email_to)
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteSupervisorSiteExport($superReports));
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

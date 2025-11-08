@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Site\Planner;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Site\Planner\SitePlannerExportRequest;
 use App\Jobs\CompanyAttendancePdf;
 use App\Jobs\SiteAttendancePdf;
 use App\Jobs\SitePlannerCompanyPdf;
@@ -87,24 +86,31 @@ class SitePlannerExportController extends Controller
     /*
      * Create Export Site PDF
      */
-    public function sitePDF(SitePlannerExportRequest $request)
+    static public function sitePDF()
     {
+        $rules = ['date' => 'required', 'weeks' => 'required'];
+        $mesg = [];
+        request()->validate($rules, $mesg); // Validate
+
+        //dd(request()->all());
+
         $date = Carbon::createFromFormat('d/m/Y H:i:s', request('date') . ' 00:00:00')->format('Y-m-d');
-        $weeks = $request->get('weeks');
+        $weeks = request('weeks');
+        $returnFile = (request('outputPDF') == 'pdf') ? true : false;
 
         /*
          * Export by Site
          */
-        if ($request->has('export_site') || $request->has('export_site_client') || $request->has('export_supervisor')) {
-            //$site_id = ($request->has('export_site')) ? request('site_id') : request('site_id_client');
+        if (request()->has('export_site') || request()->has('export_site_client') || request()->has('export_supervisor')) {
+            //$site_id = (request()->has('export_site')) ? request('site_id') : request('site_id_client');
 
-            if ($request->has('export_site')) {
+            if (request()->has('export_site')) {
                 $site_id = request('site_id');
                 $reportType = 'site';
-            } else if ($request->has('export_site_client')) {
+            } else if (request()->has('export_site_client')) {
                 $site_id = request('site_id_client');
                 $reportType = 'client';
-            } else if ($request->has('export_supervisor')) {
+            } else if (request()->has('export_supervisor')) {
                 $site_id = [];
                 $reportType = 'supervisor';
             }
@@ -113,8 +119,8 @@ class SitePlannerExportController extends Controller
             if ($site_id)
                 $sites = $site_id;
             else {
-                if ($request->has('export_supervisor')) {
-                    $superIDS = ($request->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors()->where('status', 1)->pluck('id')->toArray();
+                if (request()->has('export_supervisor')) {
+                    $superIDS = (request()->has('supervisor_id')) ? request('supervisor_id') : Company::find(3)->supervisors()->where('status', 1)->pluck('id')->toArray();
                     $superSites = Auth::user()->company->reportsTo()->sites('1')->wherein('supervisor_id', $superIDS)->pluck('id')->toArray();
                     $sites = [];
                     foreach ($superSites as $sid) {
@@ -146,7 +152,7 @@ class SitePlannerExportController extends Controller
             asort($site_list);
             if ($site_id)
                 $site_list_csv = (count($sites) > 5) ? 'multiple 5+' : rtrim($site_list_csv, ', ');
-            else if ($request->has('export_supervisor') && request('supervisor_id')) {
+            else if (request()->has('export_supervisor') && request('supervisor_id')) {
                 $site_list_csv = '';
                 $supers = User::find(request('supervisor_id'));
                 foreach ($supers as $super)
@@ -236,7 +242,7 @@ class SitePlannerExportController extends Controller
                     $obj_site->weeks[$w] = [];
                     $i = 1;
                     $offset = 1; // Used to set column 0/1 for client export
-                    if ($request->has('export_site') || $request->has('export_supervisor'))
+                    if (request()->has('export_site') || request()->has('export_supervisor'))
                         $obj_site->weeks[$w][0][] = 'COMPANY';
                     else
                         $obj_site->weeks[$w][0][] = 'TRADE';
@@ -249,7 +255,7 @@ class SitePlannerExportController extends Controller
                     $entity_count = 1;
                     if ($entities) {
                         foreach ($entities as $e) {
-                            if ($request->has('export_site') || $request->has('export_supervisor'))
+                            if (request()->has('export_site') || request()->has('export_supervisor'))
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_name'];
                             else
                                 $obj_site->weeks[$w][$entity_count][] = $e['entity_trade'];
@@ -276,7 +282,7 @@ class SitePlannerExportController extends Controller
                 }
                 $data[] = $obj_site;
             }
-            if ($request->has('export_supervisor')) {
+            if (request()->has('export_supervisor')) {
                 array_multisort(array_column($data, 'supervisor'), SORT_ASC, array_column($data, 'prac_complete'), SORT_ASC, $data);
                 //array_multisort($sort['order'], SORT_ASC, $sort['name'], SORT_ASC, $site_details);
             } else
@@ -285,12 +291,12 @@ class SitePlannerExportController extends Controller
 
             $view = 'pdf.plan-site';
             $client = '';
-            if ($request->has('export_site_client')) {
+            if (request()->has('export_site_client')) {
                 $view = 'pdf/plan-site-client';
                 $client = 'Client ';
             }
 
-            if ($request->has('export_supervisor')) {
+            if (request()->has('export_supervisor')) {
                 $client = 'Supervisor ';
             }
 
@@ -308,6 +314,11 @@ class SitePlannerExportController extends Controller
             //return $pdf->stream();
             SitePlannerPdf::dispatch($view, $data, $output_file);
 
+            // Return just the output PDF filename for Batch reporting
+            if ($returnFile) {
+                return $output_file;
+            }
+
             return redirect('/manage/report/recent');
         }
 
@@ -315,7 +326,7 @@ class SitePlannerExportController extends Controller
         /*
          * Export by Company
          */
-        if ($request->has('export_company')) {
+        if (request()->has('export_company')) {
             $company_id = request('company_id');
             if ($company_id)
                 $companies = $company_id;
