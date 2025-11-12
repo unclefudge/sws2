@@ -37,7 +37,7 @@ class CronTaskController extends Controller
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
+            $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks Thursday===\n";
             $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
             // 10am
             if ($hour == '10')
