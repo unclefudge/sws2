@@ -35,17 +35,10 @@ class CronTaskController extends Controller
                 CronTaskController::emailUpcomingJobs();
         }
 
-        // Wednesday
-        if (Carbon::today()->isWednesday()) {
-            $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
-            $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-            // 5pm
-            if ($hour == '17')
-                CronTaskController::emailUpcomingJobs();
-        }
-
         // Thursday
         if (Carbon::today()->isThursday()) {
+            $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
+            $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
             // 10am
             if ($hour == '10')
                 CronTaskController::emailUpcomingJobs();
@@ -146,10 +139,10 @@ class CronTaskController extends Controller
                 $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
             }
         }
-        $email_to = ['fudge@jordan.net.au'];
-        $email_cc = ['fudge@jordan.net.au'];
-        $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
-    
+        //$email_to = ['fudge@jordan.net.au'];
+        //$email_cc = ['fudge@jordan.net.au'];
+        //$email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
+
         //dd($email_to);
 
         if ($email_to) {
