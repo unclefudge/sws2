@@ -67,7 +67,7 @@ class CronTaskController extends Controller
     */
     static public function superChecklistsReminder()
     {
-        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks @ 2pm ===\n";
+        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Super Checklit Reminder ===\n";
         $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
         if ($bytes_written === false) die("Error writing to file");
 
@@ -90,7 +90,7 @@ class CronTaskController extends Controller
     */
     static public function emailUpcomingJobs()
     {
-        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks @ 2pm ===\n";
+        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Upcoming Jobs ===\n";
         //$bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
         //if ($bytes_written === false) die("Error writing to file");
         echo "<h1>Upcoming Jobs</h1>";
@@ -149,7 +149,7 @@ class CronTaskController extends Controller
         $email_to = ['fudge@jordan.net.au'];
         $email_cc = ['fudge@jordan.net.au'];
         $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
-    }
+    
         //dd($email_to);
 
         if ($email_to) {
