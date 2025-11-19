@@ -40,7 +40,7 @@ class CronTaskController extends Controller
             $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks Thursday===\n";
             $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
             Mail::raw('Hello world!', function ($message) {
-                $message->to('fudge@jordan.net.u')->subject('Test Email');
+                $message->to('fudge@jordan.net.au')->subject('Test Email');
             });
             // 10am
             if ($hour == '10')
