@@ -11,7 +11,6 @@ use App\Models\Site\SiteUpcomingSettings;
 use Carbon\Carbon;
 use DB;
 use File;
-use Illuminate\Support\Facades\Auth;
 use Mail;
 use PDF;
 
@@ -115,14 +114,10 @@ class CronTaskController extends Controller
         $pdf->setPaper('A4', 'landscape');
 
 
-        $file = public_path('filebank/tmp/upcoming-' . Auth::user()->id . '.pdf');
+        $file = public_path('filebank/tmp/upcoming-supervisor.pdf');
         if (file_exists($file))
             unlink($file);
         $pdf->save($file);
-
-        $email_to = [env('EMAIL_DEV')];
-        $email_cc = [env('EMAIL_DEV')];
-        $email_subject = 'Jobs Board';
 
         $today = Carbon::now();
         if (\App::environment('prod')) {
@@ -137,12 +132,7 @@ class CronTaskController extends Controller
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
         }
-        //$email_to = ['fudge@jordan.net.au'];
-        //$email_cc = ['fudge@jordan.net.au'];
-        //$email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
-
-        //dd($email_to);
-
+        
         if ($email_to) {
             Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
             echo "emailed<br>";
