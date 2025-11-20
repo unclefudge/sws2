@@ -36,11 +36,8 @@ class CronTaskController extends Controller
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks Thursday===\n";
-            $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-            Mail::raw('Hello world!', function ($message) {
-                $message->to('fudge@jordan.net.au')->subject('Test Email');
-            });
+            //$log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks Thursday===\n";
+            //$bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
             // 10am
             if ($hour == '10')
                 CronTaskController::emailUpcomingJobs();
@@ -132,7 +129,7 @@ class CronTaskController extends Controller
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
         }
-        
+
         if ($email_to) {
             Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
             echo "emailed<br>";
