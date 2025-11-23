@@ -131,7 +131,7 @@
                                     {{-- Planner ID --}}
                                     @if ($asb->plan_id)
                                         <div class="row" style="line-height: 2">
-                                            <div class="col-md-12"><br><span class="font-red">Linked to Planner Task: {!! $asb->planner->from->format('d/m/Y')  !!} </span></div>
+                                            <div class="col-md-12"><br><span class="font-red">Linked to Planner Task: {!! ($asb->planner) ? $asb->planner->from->format('d/m/Y') : '' !!} </span></div>
                                         </div>
                                     @endif
                                 </div>
