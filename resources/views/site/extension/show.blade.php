@@ -52,7 +52,7 @@
                             <tr class="mytable-header">
                                 <th style="width:25%">Site</th>
                                 <th style="width:5%">Supervisor</th>
-                                <th style="width:8%">Forecast Completion</th>
+                                <th style="width:8%">Completion Deadlin</th>
                                 <th style="width:25%">Extend Reasons</th>
                                 <th style="width:5%">Days</th>
                                 <th>Extend Notes</th>
@@ -66,10 +66,14 @@
                             <?php $today = \Carbon\Carbon::now(); $completion_date = null; ?>
                             @foreach ($data as $row)
                                     <?php
-                                    $completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
-                                    $complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
+                                    $site = \App\Models\Site\Site::where('name', $row['name'])->first();
+                                    $completion_date = $site->forecast_completion;
+                                    $complete_date_sub2month = $site->forecast_completion->subMonths(2);
 
-                                    //$site = \App\Models\Site\Site::where('name', $row['name'])->first();
+
+                                    //$completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
+                                    //$complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
+
                                     $completion_bg = '';
                                     if ($completion_date && $complete_date_sub2month->lte($today))
                                         $completion_bg = "background:#FDD7B1";
@@ -81,7 +85,7 @@
                                         <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>
                                         <td style="{{ $completion_bg }}">
-                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ $row['completion_date'] }}</span>
+                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ $completion_date->format('d/m/y') }}</span>
                                         </td>
                                         <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
                                             {{ $row['extend_reasons_text'] }}
