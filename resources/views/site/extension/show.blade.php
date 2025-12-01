@@ -52,7 +52,7 @@
                             <tr class="mytable-header">
                                 <th style="width:25%">Site</th>
                                 <th style="width:5%">Supervisor</th>
-                                <th style="width:8%">Completion Deadlin</th>
+                                <th style="width:8%">Completion Deadline</th>
                                 <th style="width:25%">Extend Reasons</th>
                                 <th style="width:5%">Days</th>
                                 <th>Extend Notes</th>

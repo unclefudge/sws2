@@ -1032,7 +1032,7 @@ class CronController extends Controller
         // Special tasks emails
         $special_tasks = [117, 265]; // Dismantle Scaffold, Prac Complete
         $special_email_list = ["michelle@capecod.com.au", "damian@capecod.com.au"];
-        $special_email_list_cc = ["kirstie@capecod.com.au", "ross@capecod.com.au", 'fudge@jordan.net.au'];
+        $special_email_list_cc = ["kirstie@capecod.com.au", "ross@capecod.com.au"];
         $special_emails = implode("; ", $special_email_list + $special_email_list_cc);
         $email_sent = 0;
         foreach ($keytasks as $task_id => $subject) {
