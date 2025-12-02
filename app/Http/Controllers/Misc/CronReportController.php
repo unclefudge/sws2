@@ -1093,7 +1093,7 @@ class CronReportController extends Controller
         //dd($startdata);
 
         // Create PDF
-        $file = public_path('filebank/tmp/upcoming-jobs-compliance.pdf');
+        $file = public_path('filebank/tmp/Upcoming Jobs.pdf');
         if (file_exists($file))
             unlink($file);
 
