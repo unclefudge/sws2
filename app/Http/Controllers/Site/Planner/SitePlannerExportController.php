@@ -300,7 +300,6 @@ class SitePlannerExportController extends Controller
                 $client = 'Supervisor ';
             }
 
-
             $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
             // Create directory if required
             if (!is_dir(public_path($dir)))
