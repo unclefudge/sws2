@@ -26,6 +26,16 @@ Route::get('/login/site/{site_code}', function ($site_code) {
     */
 });
 
+Route::get('/_debug-image', function () {
+    $stream = Storage::disk('filebank_spaces')
+        ->readStream('site/92/hazard/hazard-1035-FudgeJordan-Older.jpg');
+
+    return response()->stream(function () use ($stream) {
+        fpassthru($stream);
+        fclose($stream);
+    }, 200, ['Content-Type' => 'image/jpeg']);
+});
+
 // Authentication routes...
 Route::get('/login', '\App\Http\Controllers\Auth\SessionController@create')->name('login');
 Route::post('/login', '\App\Http\Controllers\Auth\SessionController@store');
@@ -50,79 +60,6 @@ Route::post('/password/reset', '\App\Http\Controllers\Auth\PasswordResetControll
 
 // Logged in Routes
 Route::group(['middleware' => 'auth'], function () {
-    /*
-    |--------------------------------------------------------------------------
-    | USER DOCS (namespaced)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('user/{uid}')
-        ->as('user.')
-        ->group(function () {
-            Route::get('doc/dt/docs', '\App\Http\Controllers\User\UserDocController@getDocs');
-            Route::get('doc/upload', '\App\Http\Controllers\User\UserDocController@create');
-            Route::post('doc/reject/{id}', '\App\Http\Controllers\User\UserDocController@reject');
-            Route::get('doc/archive/{id}', '\App\Http\Controllers\User\UserDocController@archive');
-            Route::resource('doc', '\App\Http\Controllers\User\UserDocController');
-        });
-
-    /*
-    |--------------------------------------------------------------------------
-    | COMPANY DOCS (namespaced)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('company/{cid}')
-        ->as('company.')
-        ->group(function () {
-            Route::get('doc/dt/docs', '\App\Http\Controllers\Company\CompanyDocController@getDocs');
-            Route::get('doc/upload', '\App\Http\Controllers\Company\CompanyDocController@create');
-            Route::post('doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
-            Route::get('doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
-            Route::get('doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
-            Route::resource('doc', '\App\Http\Controllers\Company\CompanyDocController');
-        });
-
-    /*
-    |--------------------------------------------------------------------------
-    | SITE DOCS (namespaced)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('site')
-        ->as('site.')
-        ->group(function () {
-            Route::get('doc/type/{type}', '\App\Http\Controllers\Site\SiteDocController@listDocs');
-            Route::get('doc/type/dt/{type}', '\App\Http\Controllers\Site\SiteDocController@getDocsType');
-            Route::get('doc/dt/docs', '\App\Http\Controllers\Site\SiteDocController@getDocs');
-            Route::any('doc/create', '\App\Http\Controllers\Site\SiteDocController@create');
-            Route::any('doc/upload', '\App\Http\Controllers\Site\SiteDocController@upload');
-            Route::resource('doc', '\App\Http\Controllers\Site\SiteDocController');
-        });
-
-    /*
-    |--------------------------------------------------------------------------
-    | SAFETY DOCS (namespaced)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('safety')
-        ->as('safety.')
-        ->group(function () {
-            Route::resource('doc/sds', '\App\Http\Controllers\Safety\SdsController');
-            Route::resource('doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController');
-            Route::resource('doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller');
-            Route::resource('doc/wms', '\App\Http\Controllers\Safety\WmsController');
-        });
-
-    /*
-    |--------------------------------------------------------------------------
-    | CONSTRUCTION DOCS (namespaced)
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('construction')
-        ->as('construction.')
-        ->group(function () {
-            Route::resource('doc', '\App\Http\Controllers\Misc\ConstructionDocController');
-        });
-
-
     // Signup routes.. Post Login
     Route::get('/signup/user/{id}', '\App\Http\Controllers\Company\CompanySignUpController@userEdit');         // Step 1
     Route::post('/signup/user/{id}', '\App\Http\Controllers\Company\CompanySignUpController@userUpdate');
@@ -261,7 +198,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user/{uid}/doc/archive/{id}', '\App\Http\Controllers\User\UserDocController@archive');
     //Route::delete('user/{uid}/doc/{id}', '\App\Http\Controllers\User\UserDocController@destroy');
     //Route::get('user/{uid}/doc/cats/{department}', '\App\Http\Controllers\User\UserDocController@getCategories');
-    //Route::resource('user/{uid}/doc', '\App\Http\Controllers\User\UserDocController');
+    Route::resource('user/{uid}/doc', '\App\Http\Controllers\User\UserDocController');
 
     // User Routes
     Route::get('user/dt/users', '\App\Http\Controllers\UserController@getUsers');
@@ -309,7 +246,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('company/doc/export/pdf', '\App\Http\Controllers\Company\CompanyExportController@docsPDF');
     Route::get('company/doc/create/tradecontract/{id}/{version}', '\App\Http\Controllers\Company\CompanyExportController@tradecontractPDF');
     Route::get('company/doc/create/subcontractorstatement/{id}/{version}', '\App\Http\Controllers\Company\CompanyExportController@subcontractorstatementPDF');
-    //Route::resource('company/doc', '\App\Http\Controllers\Company\CompanyDocController');
+    Route::resource('company/doc', '\App\Http\Controllers\Company\CompanyDocController');
 
     // Company Docs
     Route::get('company/{cid}/doc/dt/docs', '\App\Http\Controllers\Company\CompanyDocController@getDocs');
@@ -317,7 +254,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('company/{cid}/doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
     Route::get('company/{cid}/doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
     Route::get('company/{cid}/doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
-    //Route::resource('company/{cid}/doc', '\App\Http\Controllers\Company\CompanyDocController');
+    Route::resource('company/{cid}/doc', '\App\Http\Controllers\Company\CompanyDocController');
 
     // Company Routes
     Route::get('company/dt/companies', '\App\Http\Controllers\Company\CompanyController@getCompanies');
@@ -470,7 +407,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/doc/dt/docs', '\App\Http\Controllers\Site\SiteDocController@getDocs');
     Route::any('site/doc/create', '\App\Http\Controllers\Site\SiteDocController@create');
     Route::any('site/doc/upload', '\App\Http\Controllers\Site\SiteDocController@upload');
-    //Route::resource('site/doc', '\App\Http\Controllers\Site\SiteDocController');
+    Route::resource('site/doc', '\App\Http\Controllers\Site\SiteDocController');
 
     // Site QA Categories
     Route::get('site/categories/qa/dt/qa_cats', '\App\Http\Controllers\Site\SiteQaCategoryController@getQaCategories');
@@ -681,14 +618,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('safety/doc/dt/sds', '\App\Http\Controllers\Safety\SdsController@getSDS');
     Route::any('safety/doc/sds/create', '\App\Http\Controllers\Safety\SdsController@create');
     Route::any('safety/doc/sds/upload', '\App\Http\Controllers\Safety\SdsController@upload');
-    //Route::resource('safety/doc/sds', '\App\Http\Controllers\Safety\SdsController');
+    Route::resource('safety/doc/sds', '\App\Http\Controllers\Safety\SdsController');
 
     // Contruction Docs
     Route::get('construction/doc/dt/standards', '\App\Http\Controllers\Misc\ConstructionDocController@getDocs');
     Route::any('construction/doc/standards', '\App\Http\Controllers\Misc\ConstructionDocController@index');
     Route::any('construction/doc/create', '\App\Http\Controllers\Misc\ConstructionDocController@create');
     Route::any('construction/doc/upload', '\App\Http\Controllers\Misc\ConstructionDocController@upload');
-    //Route::resource('construction/doc', '\App\Http\Controllers\Misc\ConstructionDocController');
+    Route::resource('construction/doc', '\App\Http\Controllers\Misc\ConstructionDocController');
 
     // Toolbox Talks
     Route::get('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController@index');
@@ -702,7 +639,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('safety/doc/toolbox2/{id}/upload', '\App\Http\Controllers\Safety\ToolboxTalkController@uploadMedia');
     Route::get('safety/doc/dt/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController@getToolbox');
     Route::get('safety/doc/dt/toolbox_templates', '\App\Http\Controllers\Safety\ToolboxTalkController@getToolboxTemplates');
-    //Route::resource('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController');
+    Route::resource('safety/doc/toolbox2', '\App\Http\Controllers\Safety\ToolboxTalkController');
 
 
     // Toolbox Talks3
@@ -719,7 +656,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('safety/doc/toolbox3/{id}/upload', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@uploadMedia');
     Route::get('safety/doc/dt/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@getToolbox');
     Route::get('safety/doc/dt/toolbox3_templates', '\App\Http\Controllers\Safety\ToolboxTalk3Controller@getToolboxTemplates');
-    //Route::resource('safety/doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller');
+    Route::resource('safety/doc/toolbox3', '\App\Http\Controllers\Safety\ToolboxTalk3Controller');
 
     // Safety Docs - WMS
     Route::get('safety/doc/wms', '\App\Http\Controllers\Safety\WmsController@index');
@@ -738,7 +675,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('safety/doc/wms/{id}/renew', '\App\Http\Controllers\Safety\WmsController@createRenew');
     Route::get('safety/doc/dt/wms', '\App\Http\Controllers\Safety\WmsController@getWms');
     Route::get('safety/doc/dt/wms_templates', '\App\Http\Controllers\Safety\WmsController@getWmsTemplates');
-    //Route::resource('safety/doc/wms', '\App\Http\Controllers\Safety\WmsController');
+    Route::resource('safety/doc/wms', '\App\Http\Controllers\Safety\WmsController');
 
 
     // Equipment Transfers
