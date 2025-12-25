@@ -3,26 +3,27 @@
 namespace App\Mail\Site;
 
 use App\Models\Site\SiteExtension;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteExtensionsReport extends Mailable implements ShouldQueue {
+class SiteExtensionsReport extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
-    public $report, $file_attachment;
+    public $report;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteExtension $report, $file_attachment)
+    public function __construct(SiteExtension $report)
     {
         $this->report = $report;
-        $this->file_attachment = $file_attachment;
     }
 
     /**
@@ -32,7 +33,11 @@ class SiteExtensionsReport extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        if ($this->file_attachment && file_exists($this->file_attachment))
-            return $this->markdown('emails/site/contract-extension-report')->subject('SafeWorksite - Process Contract Time Extensions Report')->attach($this->file_attachment);
+        $email = $this->markdown('emails/site/contract-extension-report')->subject('SafeWorksite - Process Contract Time Extensions Report');
+
+        // Attach from Spaces
+        FileBank::attachToEmail($email, "company/3/docs/contract-extension/{$this->report->attachment}");
+
+        return $email;
     }
 }

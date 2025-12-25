@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Misc\Form\Form;
+use App\Models\Misc\Attachment;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -139,17 +139,84 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>Maintenance</h1><br>";
-        $form = Form::find(7);
-        $media = [];
-        foreach ($form->files() as $file) {
-            $media[$file->id] = $file->question->order . "." . $file->id;
-        }
-        print_r($media);
-        asort($media);
-        echo "<br>----------<br>";
-        print_r($media);
+        echo "<h1>Migrate attachments</h1><br>";
 
+        $logDir = storage_path('app/log/nightly');
+        $logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
+
+
+        /*
+        echo "<h2>Site Hazards</h2><br>";
+        foreach (SiteHazardFile::all() as $file) {
+            echo "$file->name<br>";
+            $directory = "site/" . $file->hazard->site_id . '/hazard';
+            $attach = Attachment::create(['table' => 'site_hazards', 'table_id' => $file->hazard_id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+        }
+
+        echo "<h2>Site Incidents</h2><br>";
+        foreach (SiteIncidentDoc::all() as $file) {
+            echo "$file->name<br>";
+            $directory = "incident/$file->incident_id";
+            $attach = Attachment::create(['table' => 'site_incidents', 'table_id' => $file->incident_id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+        }
+
+        echo "<h2>Site Plumbing/Electrical</h2><br>";
+        foreach (SiteInspectionDoc::all() as $file) {
+            echo "$file->name<br>";
+            $inspection = $file->inspection();
+            if ($inspection) {
+                $directory = "site/" . $file->inspection()->site_id . "/inspection";
+                $table = ($file->table == 'electrical') ? 'site_inspection_electrical' : 'site_inspection_plumbing';
+                $attach = Attachment::create(['table' => $table, 'table_id' => $file->inspection()->id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+            }
+        }
+
+        echo "<h2>Site Maintenance</h2><br>";
+        foreach (SiteMaintenanceDoc::all() as $file) {
+            echo "$file->name<br>";
+            $main = SiteMaintenance::find($file->main_id);
+            if ($main) {
+                $directory = "site/$main->site_id/maintenance";
+                $attach = Attachment::create(['table' => 'site_maintenance', 'table_id' => $file->main_id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+            }
+        }
+
+        echo "<h2>Support Tickets</h2><br>";
+        foreach (SupportTicketActionFile::all() as $file) {
+            echo "$file->name<br>";
+            $tix = SupportTicketAction::find($file->action_id);
+            if ($tix) {
+                $directory = "support/ticket";
+                $attach = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $file->action_id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+            }
+        }
+
+        echo "<h2>Scaffold</h2><br>";
+        foreach (SiteScaffoldHandoverDoc::all() as $file) {
+            echo "$file->name<br>";
+            $directory = "site/{$file->scaffold_handover->site_id}/scaffold";
+            $attach = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $file->scaffold_id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+        }
+
+
+        echo "<h2>Client Planner</h2><br>";
+        foreach (ClientPlannerEmailDoc::all() as $file) {
+            echo "$file->name<br>";
+            $client = ClientPlannerEmail::find($file->email_id);
+            $directory = "site/{$client->site_id}/emails/client";
+            $attach = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $file->email_id, 'type' => 'file', 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
+        }*/
+
+        echo "<h2>Update Attachments to not include filebank</h2>";
+        foreach (Attachment::all() as $attachment) {
+            if (str_starts_with($attachment->directory, "/filebank/")) {
+                echo "$attachment->directory<br>";
+                $attachment->directory = substr($attachment->directory, 10);
+                $attachment->save();
+            }
+            $attachment->directory = str_replace("<br>", "", $attachment->directory);
+            $attachment->save();
+        }
 
         /*
         echo "Update Site Eworks + Pworks<br>";
@@ -275,13 +342,13 @@ class PagesController extends Controller
 
         $mergedPDF = PDFMerger::init();
 
-        $cover = public_path('/filebank/tmp/report/3/QA 7865-IsikSantos-Bronte (403) 20220623143956.pdf');
-        $master = public_path('WHS Management Plan.pdf');
+        $cover = storage_path('app/tmp/report/3/QA 7865-IsikSantos-Bronte (403) 20220623143956.pdf');
+        $master = storage_path('WHS Management Plan.pdf');
         $mergedPDF->addPDF($cover, 'all');
         $mergedPDF->addPDF($master, 'all');
 
         $mergedPDF->merge();
-        $mergedPDF->save(public_path('/filebank/tmp/merged_result.pdf'));
+        $mergedPDF->save(storage_path('app/tmp/merged_result.pdf'));
 
     */
         /*
@@ -341,7 +408,8 @@ class PagesController extends Controller
                 $ext->createPDF();
 
         */
-        /*$today = Carbon::today();
+        /*
+        $today = Carbon::today();
         $one_year = Carbon::today()->subMonths(10)->format('Y-m-d');
 
         echo "<b>Creating Standard Details for Review $one_year</b></br>";
@@ -460,7 +528,7 @@ class PagesController extends Controller
         $total_size = 0;
         foreach ($sites as $site) {
             //$dir_size = $this->GetDirectorySize();
-            $f = public_path("/filebank/site/".$site->id);
+            $f = storage_path("/app/site/".$site->id);
             $io = popen ( '/usr/bin/du -sk ' . $f, 'r' );
             $size = fgets ( $io, 4096);
             $size = substr ( $size, 0, strpos ( $size, "\t" ) );
@@ -993,105 +1061,114 @@ class PagesController extends Controller
 
     public function archiveOldData()
     {
-        echo "<b>Archive Old Data </b><br></br>";
+        echo "<b>Archive Old Data</b><br><br>";
 
-        $today = Carbon::now();
-        $archive_date = $today->subYears(2);
-        $archive_sites = [];
-        $archive_company = [];
-        $archive_size = 0;
+        $archiveDate = Carbon::now()->subYears(2);
+        $archiveSites = [];
+        $archiveCompanies = [];
+        $archiveUsers = [];
+        $archiveSizeBytes = 0;
 
-        echo "Archive from: " . $archive_date->format('d/m/Y') . "<br><br>";
+        echo "Archive from: " . $archiveDate->format('d/m/Y') . "<br><br>";
 
-        //
-        //  Sites
-        //
+        /*
+         |--------------------------------------------------------------------------
+         | Sites
+         |--------------------------------------------------------------------------
+         */
         $sites = Site::where('status', 0)->where('company_id', 3)->get();
-        echo "Count:" . $sites->count() . "<br><br>";
+        echo "Sites Count: {$sites->count()}<br><br>";
+
         foreach ($sites as $site) {
-            $archive = '';
-            $completed = ($site->completed_at) ? $site->completed_at->format('d/m/Y') : 'NA';
-            $last_planner = SitePlanner::where('site_id', $site->id)->orderByDesc('to')->first();
+            $archive = false;
 
-            if ($last_planner) {
-                $last_date = $last_planner->to->format('d/m/Y');
-                if ($last_planner->to->lt($archive_date))
-                    $archive = '*';
-            } else {
-                $archive = "*";
-                $last_date = "NoPlan";
+            $lastPlanner = SitePlanner::where('site_id', $site->id)->orderByDesc('to')->first();
+
+            if (!$lastPlanner || $lastPlanner->to->lt($archiveDate)) {
+                $archive = true;
             }
-            //echo "$archive [$site->id] " . $site->updated_at->format('d/m/Y') . " - $last_date - $site->name<br>";
-            if ($archive)
-                $archive_sites[] = $site->id;
+
+            if ($archive) {
+                $archiveSites[] = $site->id;
+            }
         }
 
-        echo "<br><br>---------- Archived Sites --------------<br>";
-        echo "Count: " . count($archive_sites) . "<br>";
-        $size_count = 0;
-        foreach ($archive_sites as $site_id) {
-            $f = public_path("filebank/site/$site_id/");
-            $io = popen('/usr/bin/du -sk ' . $f, 'r');
-            $size = fgets($io, 4096);
-            $size = substr($size, 0, strpos($size, "\t"));
-            pclose($io);
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
+        echo "<br>---------- Archived Sites ----------<br>";
+        echo "Count: " . count($archiveSites) . "<br>";
 
-        //
-        //  Companies
-        //
+        $size = 0;
+        foreach ($archiveSites as $siteId) {
+            $bytes = FileBank::folderSize("site/{$siteId}");
+            $size += $bytes;
+        }
+
+        echo "Total size: " . round($size / 1024 / 1024 / 1024, 2) . " GB<br>";
+        echo "-----------------------------------<br>";
+        $archiveSizeBytes += $size;
+
+        /*
+         |--------------------------------------------------------------------------
+         | Companies
+         |--------------------------------------------------------------------------
+         */
         $companies = Company::where('status', 0)->where('parent_company', 3)->get();
-        echo "Count:" . $companies->count() . "<br><br>";
+        echo "<br>Companies Count: {$companies->count()}<br><br>";
+
         foreach ($companies as $company) {
-            if ($company->updated_at->lt($archive_date))
-                $archive_company[] = $company->id;
+            if ($company->updated_at && $company->updated_at->lt($archiveDate)) {
+                $archiveCompanies[] = $company->id;
+            }
         }
 
-        echo "<br><br>---------- Archived Companies --------------<br>";
-        echo "Count: " . count($archive_company) . "<br>";
-        $size_count = 0;
-        foreach ($archive_company as $company_id) {
-            $f = public_path("filebank/company/$company_id/");
-            $io = popen('/usr/bin/du -sk ' . $f, 'r');
-            $size = fgets($io, 4096);
-            $size = substr($size, 0, strpos($size, "\t"));
-            pclose($io);
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
+        echo "<br>---------- Archived Companies ----------<br>";
+        echo "Count: " . count($archiveCompanies) . "<br>";
 
-        //
-        //  Users
-        //
-        $users = User::where('status', 0)->whereIn('company_id', $archive_company)->get();
-        echo "Count:" . $users->count() . "<br><br>";
+        $size = 0;
+        foreach ($archiveCompanies as $companyId) {
+            $bytes = FileBank::folderSize("company/{$companyId}");
+            $size += $bytes;
+        }
+
+        echo "Total size: " . round($size / 1024 / 1024 / 1024, 2) . " GB<br>";
+        echo "--------------------------------------<br>";
+        $archiveSizeBytes += $size;
+
+        /*
+         |--------------------------------------------------------------------------
+         | Users
+         |--------------------------------------------------------------------------
+         */
+        $users = User::where('status', 0)->whereIn('company_id', $archiveCompanies)->get();
+        echo "<br>Users Count: {$users->count()}<br><br>";
+
         foreach ($users as $user) {
-            if ($user->updated_at && $user->updated_at->lt($archive_date))
-                $archive_user[] = $user->id;
+            if ($user->updated_at && $user->updated_at->lt($archiveDate)) {
+                $archiveUsers[] = $user->id;
+            }
         }
 
-        echo "<br><br>---------- Archived Users --------------<br>";
-        echo "Count: " . count($archive_user) . "<br>";
-        $size_count = 0;
-        foreach ($archive_user as $user_id) {
-            $f = public_path("filebank/users/$user_id/");
-            $io = popen('/usr/bin/du -sk ' . $f, 'r');
-            $size = fgets($io, 4096);
-            $size = substr($size, 0, strpos($size, "\t"));
-            pclose($io);
-            //echo 'Directory: ' . $f . ' => Size: ' . $size . "<br>";
-            $size_count = $size_count + (int)$size;
-        }
-        echo "Total size: ${size_count}k,  " . round($size_count / 1000000, 2) . "Gb <br>------------------<br>";
-        $archive_size += $size_count;
+        echo "<br>---------- Archived Users ----------<br>";
+        echo "Count: " . count($archiveUsers) . "<br>";
 
-        echo "<br>------------------<br>Total Archive: " . round($archive_size / 1000000, 2) . "Gb<br>";
+        $size = 0;
+        foreach ($archiveUsers as $userId) {
+            $bytes = FileBank::folderSize("users/{$userId}");
+            $size += $bytes;
+        }
+
+        echo "Total size: " . round($size / 1024 / 1024 / 1024, 2) . " GB<br>";
+        echo "-----------------------------------<br>";
+
+        $archiveSizeBytes += $size;
+
+        /*
+         |--------------------------------------------------------------------------
+         | Final Total
+         |--------------------------------------------------------------------------
+         */
+        echo "<br><strong>Total Archive Size: "
+            . round($archiveSizeBytes / 1024 / 1024 / 1024, 2)
+            . " GB</strong><br>";
     }
 
     public function completedQA()
@@ -1427,7 +1504,6 @@ class PagesController extends Controller
         }
         echo "</table>";
     }
-
 
     public function createPermission()
     {

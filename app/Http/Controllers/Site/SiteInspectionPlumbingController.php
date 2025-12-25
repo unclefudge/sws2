@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
-use App\Models\Site\Site;
-use App\Models\Site\SiteInspectionDoc;
+use App\Models\Misc\Attachment;
 use App\Models\Site\SiteInspectionPlumbing;
 use Carbon\Carbon;
 use DB;
@@ -96,8 +95,10 @@ class SiteInspectionPlumbingController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Create Todoo to assign a company
@@ -228,7 +229,7 @@ class SiteInspectionPlumbingController extends Controller
                 $report->createAssignedToDo([$company->primary_user]);
 
                 // Email assigned notification
-                $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingAssigned($report));
             }
         }
@@ -239,8 +240,10 @@ class SiteInspectionPlumbingController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         Toastr::success("Updated inspection report");
@@ -310,31 +313,25 @@ class SiteInspectionPlumbingController extends Controller
                 $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_plumbing', 'table_id' => $report->id]);
 
                 // Email completed notification
-                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingCompleted($report));
 
                 //
                 // Email completed PDF
                 //
-                $site = Site::findOrFail($report->site_id);
-                $pdf = PDF::loadView('pdf/site/inspection-plumbing', compact('report', 'site'))->setPaper('a4');
-                $file = public_path("filebank/tmp/$site->name - Plumbing Inspection Report.pdf");
-                if (file_exists($file))
-                    unlink($file);
-                $pdf->save($file);
 
                 // Project Manager + Alethea
-                $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-                if (\App::environment('prod') && $report->site->projectManager && validEmail($report->site->projectManager->email))
+                $email_list = app()->environment('prod') ? ['alethea@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                if (app()->environment('prod') && $report->site->projectManager && validEmail($report->site->projectManager->email))
                     $email_list[] .= $report->site->projectManager->email;
-                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReport($report, $file));
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReport($report));
 
                 // Trade who completed report
                 $email_list = [env('EMAIL_DEV')];
                 $company = Company::find($report->assigned_to);
-                if (\App::environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
+                if (app()->environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
                     $email_list = [$company->primary_contact()->email];
-                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReportTrade($report, $file));
+                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReportTrade($report));
 
                 Toastr::success("Report Signed Off");
 
@@ -388,7 +385,7 @@ class SiteInspectionPlumbingController extends Controller
 
             if ($status == 1) {
                 // Email re-opened notification
-                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionPlumbingReopened($report));
             }
         }
@@ -407,6 +404,10 @@ class SiteInspectionPlumbingController extends Controller
         if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
+        // Delete attached files
+        foreach ($report->attachments as $file)
+            $file->delete();
+
         $report->closeToDo();
         $report->delete();
 
@@ -414,7 +415,7 @@ class SiteInspectionPlumbingController extends Controller
 
     }
 
-    public function deleteAttachment($id, $doc_id)
+    public function deleteAttachment($id, $attach_id)
     {
         $report = SiteInspectionPlumbing::findOrFail($id);
 
@@ -422,13 +423,8 @@ class SiteInspectionPlumbingController extends Controller
         if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
-        $doc = SiteInspectionDoc::where('id', $doc_id)->first();
-        if ($doc) {
-            $file = public_path($doc->AttachmentUrl);
-            if (file_exists($file))
-                unlink($file);
-            $doc->delete();
-        }
+        // delete DB entry + file
+        $attachment = Attachment::findOrFail($attach_id)->delete();
 
 
         return redirect('site/inspection/plumbing/' . $report->id . '/edit');
@@ -440,26 +436,8 @@ class SiteInspectionPlumbingController extends Controller
     {
         $report = SiteInspectionPlumbing::findOrFail($id);
 
-        if ($report) {
-            $completed = 1;
-            $data = [];
-            $users = [];
-            $companies = [];
-            $site = Site::findOrFail($report->site_id);
-
-            //dd($data);
-            /*
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            */
-
-            //return view('pdf/site/inspection-plumbing', compact('report', 'site'));
-            return PDF::loadView('pdf/site/inspection-plumbing', compact('report', 'site'))->setPaper('a4')->stream();
-        }
+        if ($report)
+            return PDF::loadView('pdf/site/inspection-plumbing', compact('report'))->setPaper('a4')->stream();
     }
 
     /**

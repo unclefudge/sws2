@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Models\Client;
+
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
-class ClientPlannerEmailDoc extends Model {
+class ClientPlannerEmailDoc extends Model
+{
 
     protected $table = 'client_planner_emails_docs';
     protected $fillable = ['email_id', 'name', 'attachment', 'notes', 'status', 'created_by', 'updated_by'];
@@ -21,15 +22,6 @@ class ClientPlannerEmailDoc extends Model {
         return $this->belongsTo('App\Models\Client\ClientPlannerEmail', 'email_id');
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/site/'.$this->email->site_id."/emails/client/".$this->attributes['attachment'];
-        return '';
-    }
 
     /**
      * Get the owner of record   (getter)
@@ -50,7 +42,7 @@ class ClientPlannerEmailDoc extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
@@ -60,10 +52,11 @@ class ClientPlannerEmailDoc extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

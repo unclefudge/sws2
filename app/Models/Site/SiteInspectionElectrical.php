@@ -3,7 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -67,15 +67,20 @@ class SiteInspectionElectrical extends Model
         return $this->belongsTo('App\Models\Company\Company', 'assigned_to');
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_inspection_electrical');
+    }
+
     /**
      * A SiteInspectionElectrical has many Docs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\hasMany
      */
-    public function docs()
+    /*public function docs()
     {
         return SiteInspectionDoc::where('inspect_id', $this->id)->where('table', 'electrical')->get();
-    }
+    }*/
 
     /**
      * A SiteInspectionElectrical has many Actions
@@ -102,45 +107,6 @@ class SiteInspectionElectrical extends Model
         return $this->belongsTo('App\User', 'inspected_by');
     }
 
-    /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_dir)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_dir)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "filebank/site/" . $this->site_id . '/inspection';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $this->site_id . '-' . $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteInspectionDoc::create(['inspect_id' => $this->id, 'table' => 'electrical', 'type' => $type, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            //array_map('unlink', glob("$tmp_dir/*.*"));
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
 
     /**
      * Create ToDoo for Electrical Report and assign to given user(s)
@@ -247,7 +213,7 @@ class SiteInspectionElectrical extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }

@@ -44,7 +44,7 @@
                         </div>
 
                         @include('form-error')
-                                <!-- name -->
+                        <!-- name -->
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group {!! fieldHasError('name', $errors) !!}">
@@ -114,8 +114,8 @@
                             {!! Form::select('client_id', Auth::user()->company->clientSelect(),
                              $site->client_id, ['class' => 'form-control bs-select']) !!}
                             {!! fieldErrorMessage('client_id', $errors) !!}
-                                    </div>
-                                </div>-->
+                            </div>
+                        </div>-->
                             <div class="col-md-6">
                                 <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
                                     {!! Form::label('client_phone', 'Client Phone No.', ['class' => 'control-label']) !!}
@@ -365,7 +365,7 @@
                         <div class="form-group">
                             <div class="fileinput fileinput-new" data-provides="fileinput">
                                 <div class="fileinput-new thumbnail" style="width: 150px; height: 150px;">
-                                    @if($site->photo && file_exists(public_path($site->photo)))
+                                    @if($site->photo)
                                         <img src="/{{ $site->photo }}" alt=""/>
                                     @else
                                         <img src="/img/no_image.png" alt=""/>

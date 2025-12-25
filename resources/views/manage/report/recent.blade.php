@@ -12,7 +12,6 @@
 
 @section('content')
 
-
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -37,7 +36,7 @@
                             <tbody v-if="xx.reports">
                             <tr v-for="(report, size) in xx.reports ">
                                 <td>
-                                    <div class="text-center"><a href="/filebank/tmp/report/{{ Auth::user()->company_id }}/@{{ report }}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
+                                    <div class="text-center"><a href="{{ storage_path("app/tmp/" . Auth::user()->company_id . "/report") }}/@{{ report }}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
                                 </td>
                                 <td>@{{ report }}</td>
                                 <td>
@@ -46,7 +45,9 @@
                                 </td>
                             </tr>
                             </tbody>
-                            <tr v-if="!xx.reports"><td colspan="3"><br>No reports<br><br></td> </tr>
+                            <tr v-if="!xx.reports">
+                                <td colspan="3"><br>No reports<br><br></td>
+                            </tr>
                         </table>
 
                         <div class="form-actions right">
@@ -68,44 +69,45 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
-<script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
-<script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
-<script>
-    var xx = {
-        dev: dev, permission: '', user_company_id: '',
-        params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-        reports: []
-    };
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
+    <script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
+    <script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
+    <script>
+        var xx = {
+            dev: dev, permission: '', user_company_id: '',
+            params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
+            reports: []
+        };
 
-    new Vue({
-        el: 'body',
-        data: function () {
-            //items: []
-            return {xx: xx};
-        },
-        methods: {
-            loadData: function () {
-                $.get('/manage/report/recent/files', function (response) {
-                    console.log(response);
-                    this.xx.reports = response;
-                }.bind(this));
+        new Vue({
+            el: 'body',
+            data: function () {
+                //items: []
+                return {xx: xx};
             },
-            date: function(file) {
-                var y = file.substr(file.length - 18, 4);
-                var m = file.substr(file.length - 14, 2);
-                var d = file.substr(file.length - 12, 2);
-                return d+'/'+m+'/'+y;
-            }
-        },
-        ready: function () {
-            this.loadData();
-
-            setInterval(function () {
+            methods: {
+                loadData: function () {
+                    $.get('/manage/report/recent/files', function (response) {
+                        console.log(response);
+                        this.xx.reports = response;
+                    }.bind(this));
+                },
+                date: function (file) {
+                    var y = file.substr(file.length - 18, 4);
+                    var m = file.substr(file.length - 14, 2);
+                    var d = file.substr(file.length - 12, 2);
+                    return d + '/' + m + '/' + y;
+                }
+            },
+            ready: function () {
                 this.loadData();
-            }.bind(this), 3000);
-        }
-    });
-</script>
+
+                setInterval(function () {
+                    this.loadData();
+                }.bind(this), 3000);
+            }
+        });
+    </script>
 @stop

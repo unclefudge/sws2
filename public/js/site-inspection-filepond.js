@@ -17,7 +17,6 @@ Array.from(inputElements).forEach(inputElement => {
     const pond = FilePond.create(inputElement, {
         server: {
             headers: {'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content},
-            //process: '/site/inspection/upload',
             process: '/file/upload',
             revert: null, // remove file from Filepond upload list
             restore: null,

@@ -4,25 +4,25 @@ namespace App\Mail\Site;
 
 use App\Models\Site\SiteInspectionElectrical;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use PDF;
 
-class SiteInspectionElectricalReportTrade extends Mailable implements ShouldQueue {
-
+class SiteInspectionElectricalReportTrade extends Mailable implements ShouldQueue
+{
     use Queueable, SerializesModels;
 
-    public $report, $file_attachment;
+    public $report;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteInspectionElectrical $report, $file_attachment)
+    public function __construct(SiteInspectionElectrical $report)
     {
         $this->report = $report;
-        $this->file_attachment = $file_attachment;
     }
 
     /**
@@ -32,12 +32,10 @@ class SiteInspectionElectricalReportTrade extends Mailable implements ShouldQueu
      */
     public function build()
     {
-        $email = $this->markdown('emails/site/inspection-electrical-report-trade')->subject('SafeWorksite - Electrical Inspection Report');
+        $pdf = PDF::loadView('pdf/site/inspection-electrical', ['report' => $this->report])->setPaper('a4');
 
-        // Attachments - Report
-        if ($this->file_attachment && file_exists($this->file_attachment))
-            $email->attach($this->file_attachment);
-
-        return $email;
+        return $this->markdown('emails/site/inspection-electrical-report-trade')
+            ->subject('SafeWorksite - Electrical Inspection Report')
+            ->attachData($pdf->output(), 'Electrical Inspection Report.pdf', ['mime' => 'application/pdf']);
     }
 }

@@ -4,25 +4,26 @@ namespace App\Mail\Site;
 
 use App\Models\Site\SiteInspectionPlumbing;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use PDF;
 
-class SiteInspectionPlumbingReportTrade extends Mailable implements ShouldQueue {
+class SiteInspectionPlumbingReportTrade extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
-    public $report, $file_attachment;
+    public $report;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteInspectionPlumbing $report, $file_attachment)
+    public function __construct(SiteInspectionPlumbing $report)
     {
         $this->report = $report;
-        $this->file_attachment = $file_attachment;
     }
 
     /**
@@ -32,12 +33,10 @@ class SiteInspectionPlumbingReportTrade extends Mailable implements ShouldQueue 
      */
     public function build()
     {
-        $email = $this->markdown('emails/site/inspection-plumbing-report-trade')->subject('SafeWorksite - Plumbing Inspection Report');
+        $pdf = PDF::loadView('pdf/site/inspection-plumbing', ['report' => $this->report])->setPaper('a4');
 
-        // Attachments - Report
-        if ($this->file_attachment && file_exists($this->file_attachment))
-            $email->attach($this->file_attachment);
-
-        return $email;
+        return $this->markdown('emails/site/inspection-plumbing-report-trade')
+            ->subject('SafeWorksite - Plumbing Inspection Report')
+            ->attachData($pdf->output(), 'Plumbing Inspection Report.pdf', ['mime' => 'application/pdf']);
     }
 }

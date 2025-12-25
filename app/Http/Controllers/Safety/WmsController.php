@@ -10,6 +10,7 @@ use App\Models\Safety\WmsControl;
 use App\Models\Safety\WmsDoc;
 use App\Models\Safety\WmsHazard;
 use App\Models\Safety\WmsStep;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -204,18 +205,15 @@ class WmsController extends Controller
 
 
         // Handle attached file
-        if ($request->hasFile('attachment')) {
-            $file = request('attachment');
+        if (request()->hasFile('attachment')) {
+            $file = request()->file('attachment');
+            $basePath = 'company/' . Auth::user()->company_id . '/wms';
+            $forcedFilename = sanitizeFilename($newDoc->name) . '-v1.0-' . $newDoc->id . '.' . strtolower($file->getClientOriginalExtension());
 
-            $path = "filebank/company/" . Auth::user()->company_id . '/wms';
-            $name = sanitizeFilename($newDoc->name) . '-v1.0-' . $newDoc->id . '.' . strtolower($file->getClientOriginalExtension());
-            $path_name = $path . '/' . $name;
-            $file->move($path, $name);
-            $newDoc->attachment = $name;
+            // Store to Spaces (unique-safe, streamed)
+            $newDoc->attachment = FileBank::storeUploadedFile($file, $basePath, $forcedFilename);
             $newDoc->save();
-            //dd($path);
         }
-
         Toastr::success("Created new statement");
 
         return redirect('/safety/doc/wms/' . $newDoc->id . '/edit');
@@ -323,7 +321,7 @@ class WmsController extends Controller
     {
         $doc = WmsDoc::findOrFail($id);
 
-        /// Check authorisation and throw 404 if not
+        // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('del.wms', $doc))
             return view('errors/404');
 
@@ -365,9 +363,7 @@ class WmsController extends Controller
     {
         $doc = WmsDoc::findOrFail($id);
         if ($doc->builder && $doc->status == 1) {
-            //return view('pdf/workmethod', compact('doc'));
             $file = $this->createPdf($doc);
-            //dd($file);
             $doc->attachment = $file;
             Toastr::success("Statement signed off");
             $doc->save();
@@ -411,22 +407,19 @@ class WmsController extends Controller
         $doc->update($doc_request);
 
         // Delete previous file
-        if ($doc->attachment && file_exists(public_path($doc->attachmentUrl)))
-            unlink(public_path($doc->attachmentUrl));
+        FileBank::delete("company/$doc->for_company_id/wms/$doc->attachment");
 
         // Handle attached file
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
+        if (request()->hasFile('attachment')) {
+            $file = request()->file('attachment');
+            $basePath = 'company/' . Auth::user()->company_id . '/wms';
+            $forcedFilename = sanitizeFilename($newDoc->name) . '-v1.0-' . $newDoc->id . '.' . strtolower($file->getClientOriginalExtension());
 
-            $path = "filebank/company/" . $doc->for_company_id . '/wms';
-            $name = sanitizeFilename($request->get('name')) . '-v1.0-' . $doc->id . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
-            dd('y');
+            // Store to Spaces (unique-safe, streamed)
+            $doc->attachment = FileBank::storeUploadedFile($file, $basePath, $forcedFilename);;
         } else
             $doc->attachment = '';
         $doc->save();
-        dd('c');
 
 
         return ['attachment' => $doc->attachment, 'version' => $doc->version];
@@ -539,10 +532,9 @@ class WmsController extends Controller
 
         $dt = Datatables::of($records)
             ->editColumn('id', function ($doc) {
-                if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment)))
-                    return '<div class="text-center"><a href="/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>';
-
-                return '';
+                if (!$doc->attachment) return '';
+                $path = "company/$doc->for_company_id/wms/$doc->attachment";
+                return '<div class="text-center"><a href="' . FileBank::url($path) . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
             })
             ->editColumn('name', function ($doc) {
                 $name = $doc->name . ' v' . $doc->version;
@@ -698,6 +690,12 @@ class WmsController extends Controller
 
         };
 
+        // Append Attachment URl to wms_doc
+        if ($wms_doc->attachment) {
+            $wms_doc->attachment_url = FileBank::url("company/{$wms_doc->for_company_id}/wms/{$wms_doc->attachment}");
+        } else
+            $wms_doc->attachment_url = null;
+
         $json = [];
         $json[] = $wms_doc;
         $json[] = $wms_steps;
@@ -765,23 +763,30 @@ class WmsController extends Controller
         };
     }
 
-    private function createPdf($doc)
+    private function createPdf($doc): string
     {
+        // Build filename (unchanged logic)
+        $filename = sanitizeFilename($doc->name) . '-v' . $doc->version . '-ref-' . $doc->id . '.pdf';
+
+        // Logical FileBank path
+        $basePath = "company/{$doc->for_company_id}/wms";
+        $path = "{$basePath}/{$filename}";
+
+        // Generate PDF
+        $tmpPath = storage_path('app/tmp/' . uniqid('pdf_', true) . '.pdf');
         $pdf = PDF::loadView('pdf.workmethod', compact('doc'));
+        $pdf->save($tmpPath);
 
-        $file = sanitizeFilename($doc->name) . '-v' . $doc->version . '-ref-' . $doc->id . '.pdf';
-        $file_path = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $file);
-        if (file_exists($file_path))
-            unlink($file_path);
+        // Delete existing version (Spaces + fallback safe)
+        FileBank::delete($path);
 
-        // Make Directory if doesn't exist
-        if (!file_exists('filebank/company/' . $doc->for_company_id . '/wms'))
-            if (!mkdir('filebank/company/' . $doc->for_company_id . '/wms', 0755, true))
-                die('Failed to create folders...');
+        // Stream upload to Spaces
+        FileBank::put($path, new \Illuminate\Http\File($tmpPath));
 
-        $pdf->save($file_path);
+        // Cleanup temp file
+        @unlink($tmpPath);
 
-        return $file;
+        return $filename;
     }
 
     public function expired(Request $request)

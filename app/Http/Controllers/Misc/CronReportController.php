@@ -34,15 +34,22 @@ use PDF;
 
 class CronReportController extends Controller
 {
+    public $logFile;
 
     static public function nightly()
     {
+        // -------------------------------------------------
+        // Log file
+        // -------------------------------------------------
+        $logDir = storage_path('app/log/nightly');
+        $this->logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
+        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+
         echo "<h1> Nightly Reports - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
         $log = "\n\n========================================================================\n\n";
         $log .= "Nightly Reports\n";
         $log .= "========================================================================\n\n\n\n";
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND);
 
         // Weekly Reports
         if (Carbon::today()->isMonday()) {
@@ -152,7 +159,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.jobstartexport') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now()->format('Y-m-d');
@@ -189,9 +196,7 @@ class CronReportController extends Controller
         }
 
         // Create PDF
-        $file = public_path('filebank/tmp/jobstart-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
+        $file = storage_path('app/tmp/jobstart-cron.pdf');
         $pdf = PDF::loadView('pdf/plan-jobstart', compact('startdata'));
         $pdf->setPaper('A4', 'landscape');
         $pdf->save($file);
@@ -217,9 +222,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -236,7 +239,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.appointment') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.appointment') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 1)->where('client_appointment', null)->orderBy('reported')->get();
         $data = ['data' => $mains];
@@ -261,9 +264,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -280,7 +281,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.underreview') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 2)->orderBy('reported')->get();
         $today = Carbon::now();
@@ -290,10 +291,7 @@ class CronReportController extends Controller
 
         if ($mains->count()) {
             // Create PDF
-            $file = public_path('filebank/tmp/maintenance-under-review-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
+            $file = storage_path('app/tmp/maintenance-under-review-cron.pdf');
             //return view('pdf/site/maintenance-under-review', compact('mains', 'today'));
             //return PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait')->stream();
             $pdf = PDF::loadView('pdf/site/maintenance-under-review', compact('mains', 'today'))->setPaper('a4', 'portrait');
@@ -308,9 +306,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -332,7 +328,7 @@ class CronReportController extends Controller
         //
         $cc = Company::find(3);
         $email_list = [env('EMAIL_DEV')];
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
 
@@ -356,9 +352,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -376,7 +370,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $missing_info = [];
@@ -451,9 +445,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     static public function emailMissingCompanyInfoPlanner()
@@ -467,7 +459,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.missing.info') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         // Planned Companies
@@ -520,9 +512,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     static public function emailCompanyDocsPending()
@@ -536,7 +526,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('company.doc.pending') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('company.doc.pending') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $pending = CompanyDoc::where('status', 3)->where('company_id', 3)->orderBy('for_company_id')->get();
@@ -548,9 +538,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -567,7 +555,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.asbestos.active') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $abs = SiteAsbestos::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
@@ -584,9 +572,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -603,8 +589,8 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        // $email_list = (\App::environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au", "damian@capecod.com.au"] : [env('EMAIL_DEV')];
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.super') : [env('EMAIL_DEV')];
+        // $email_list = (app()->environment('prod')) ? ["kirstie@capecod.com.au", "ross@capecod.com.au", "damian@capecod.com.au"] : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.super') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $date_to = Carbon::now()->subDays(1);
         $date_from = Carbon::now()->subDays(7);
@@ -615,7 +601,7 @@ class CronReportController extends Controller
             if ($user->id != 136) {  // Ignore To Be Allocated super
                 $attendance = SiteAttendance::where('user_id', $user->id)->whereDate('date', '>=', $date_from)->whereDate('date', '<=', $date_to)->get();
                 //dd($attendance);
-                $email_to = (\App::environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod') && validEmail($user->email)) ? [$user->email] : [env('EMAIL_DEV')];
                 $emailing = $emails . implode("; ", $email_to);
                 Mail::to($email_to)->cc($email_list)->send(new \App\Mail\Site\SiteSupervisorAttendanceReport($attendance, [$user->id => $user->name]));
 
@@ -627,9 +613,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     //
@@ -687,8 +671,8 @@ class CronReportController extends Controller
                     echo "id[$id] " . $array['name'] . "<br>";
                     $log .= "id[$id] " . $array['name'] . "\n";
                 }
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
-                $email_to = (\App::environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'ianscottewin@gmail.com', 'damian@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ian Scott Ewin', $super_firstname));
             }
         }
@@ -742,17 +726,15 @@ class CronReportController extends Controller
                     echo "id[$id] " . $array['name'] . "<br>";
                     $log .= "id[$id] " . $array['name'] . "\n";
                 }
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'damian@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [env('EMAIL_DEV')];
-                $email_to = (\App::environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'damian@capecod.com.au', 'construct@capecod.com.au', 'info@ashby.com.au'] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod') && $super_email) ? [$super_email] : [env('EMAIL_DEV')];
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteScaffoldHandoverOutstanding($scaffold_overdue_super, 'Ashbys', $super->firstname));
             }
         }
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -769,7 +751,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.outstanding') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
 
@@ -800,10 +782,8 @@ class CronReportController extends Controller
             foreach ($outSupers as $supervisor => $count) {
                 // Create PDF
                 $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
-                $file = public_path("filebank/tmp/qa-outstanding-$super_name.pdf");
+                $file = storage_path("app/tmp/qa-outstanding-$super_name.pdf");
                 $file_list[] = $file;
-                if (file_exists($file))
-                    unlink($file);
                 //return view('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'supervisor', 'today'));
                 //return PDF::loadView('pdf/site/site-qa-outstanding', compact('qas', 'supers', 'supervisor', 'today'))->setPaper('a4', 'landscape')->stream();
 
@@ -840,10 +820,8 @@ class CronReportController extends Controller
             foreach ($holdSupers as $supervisor => $count) {
                 // Create PDF
                 $super_name = strtolower(preg_replace('/\s+/', '-', $supervisor));
-                $file = public_path("filebank/tmp/qa-onhold-$super_name.pdf");
+                $file = storage_path("app/tmp/qa-onhold-$super_name.pdf");
                 $file_list[] = $file;
-                if (file_exists($file))
-                    unlink($file);
 
                 $qas = $holdQas;
                 $supers = $holdSupers;
@@ -864,9 +842,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     static public function emailProjectSupplyOverdue()
@@ -879,7 +855,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.projectsupply.overdue') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.projectsupply.overdue') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $two_weeks_ago = Carbon::now()->subDays(14)->format('Y-m-d');
@@ -914,9 +890,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     static public function emailPendingElectricalPlumbing()
@@ -929,7 +903,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         // Electrical
@@ -951,9 +925,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -971,7 +943,7 @@ class CronReportController extends Controller
 
         $cc = Company::find(3);
         $func_name = "Maintenance No Actions";
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
 
@@ -1010,7 +982,7 @@ class CronReportController extends Controller
         //
         $func_name = "Maintenance On Hold";
         $email_list = [env('EMAIL_DEV')];
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 4)->orderBy('reported')->get();
 
@@ -1034,9 +1006,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1065,7 +1035,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.upcoming.compliance') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1093,10 +1063,7 @@ class CronReportController extends Controller
         //dd($startdata);
 
         // Create PDF
-        $file = public_path('filebank/tmp/Upcoming Jobs.pdf');
-        if (file_exists($file))
-            unlink($file);
-
+        $file = storage_path('app/tmp/Upcoming Jobs.pdf');
         //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
         $pdf->setPaper('A4', 'landscape');
@@ -1120,9 +1087,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -1139,7 +1104,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $mains = SiteMaintenance::where('status', 1)->orderBy('reported')->get();
         $today = Carbon::now();
@@ -1268,7 +1233,7 @@ class CronReportController extends Controller
             if ($found_request) {
                 $email_to = [env('EMAIL_DEV')];
                 $email_cc = [];
-                if (\App::environment('prod')) {
+                if (app()->environment('prod')) {
                     if ($super && validEmail($super->email)) {
                         $email_to = [$super->email];
                         $email_cc = $email_list; //['kirstie@capecod.com.au'];
@@ -1291,10 +1256,7 @@ class CronReportController extends Controller
         //dd('here');
 
         // Create PDF
-        //$file = public_path('filebank/tmp/maintenance-supervisor-cron.pdf');
-        //if (file_exists($file))
-        //    unlink($file);
-
+        //$file = storage_path('app/tmp/maintenance-supervisor-cron.pdf');
         //return view('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'));
         //return PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
         //$pdf = PDF::loadView('pdf/site/maintenance-supervisor-noaction', compact('mains', 'supers', 'today'))->setPaper('a4', 'landscape');
@@ -1304,9 +1266,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -1323,7 +1283,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.super.noaction') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
         $pracs = SitePracCompletion::where('status', 1)->orderBy('created_at')->get();
         $today = Carbon::now();
@@ -1392,7 +1352,7 @@ class CronReportController extends Controller
             if ($found_request) {
                 $email_to = [env('EMAIL_DEV')];
                 $email_cc = [];
-                if (\App::environment('prod')) {
+                if (app()->environment('prod')) {
                     if ($super && validEmail($super->email)) {
                         $email_to = [$super->email];
                         $email_cc = ['kirstie@capecod.com.au', "ross@capecod.com.au", "damian@capecod.com.au"];
@@ -1413,9 +1373,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -1432,7 +1390,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_to = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $email_to = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
         $email_cc = [];
         $emails = implode("; ", array_merge($email_to, $email_cc));
 
@@ -1469,9 +1427,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     /*
@@ -1488,7 +1444,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('user.oldusers') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('user.oldusers') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
 
@@ -1525,9 +1481,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1553,7 +1507,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('equipment.transfers') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.transfers') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $to = Carbon::now();
@@ -1564,10 +1518,7 @@ class CronReportController extends Controller
 
         if ($transactions->count()) {
             // Create PDF
-            $file = public_path('filebank/tmp/equipment-transfers-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
+            $file = storage_path('app/tmp/equipment-transfers-cron.pdf');
             //return view('pdf/equipment-transfers', compact('transactions', 'from', 'to'));
             //return PDF::loadView('pdf/equipment-transfers', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
 
@@ -1583,9 +1534,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1603,7 +1552,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.onhold') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.qa.onhold') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now();
@@ -1612,11 +1561,6 @@ class CronReportController extends Controller
         $log .= "On Hold QAs: " . $qas->count() . "\n";
 
         if ($qas->count()) {
-            // Create PDF
-            $file = public_path('filebank/tmp/qa-onhold-cron.pdf');
-            if (file_exists($file))
-                unlink($file);
-
             // Supervisors list
             $supers = [];
             foreach ($qas as $qa) {
@@ -1625,6 +1569,8 @@ class CronReportController extends Controller
             }
             sort($supers);
 
+            // Create PDF
+            $file = storage_path('app/tmp/qa-onhold-cron.pdf');
             //return view('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'));
             //return PDF::loadView('pdf/site/site-qa-onhold', compact('qas', 'supers', 'today'))->setPaper('a4', 'landscape')->stream();
 
@@ -1640,9 +1586,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1660,7 +1604,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.open') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.open') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $today = Carbon::now();
@@ -1683,7 +1627,7 @@ class CronReportController extends Controller
                 $electrical = SiteInspectionElectrical::whereIn('id', $ids)->get();
                 $company = Company::find($cid);
 
-                if (\App::environment('prod') && $company && validEmail($company->email)) {
+                if (app()->environment('prod') && $company && validEmail($company->email)) {
                     Mail::to($company->email)->cc($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical'));
                     echo "Sending email to: $company->email<br>";
                     $log .= "Sending email to: $company->email\n";
@@ -1710,7 +1654,7 @@ class CronReportController extends Controller
                 $plumbing = SiteInspectionPlumbing::whereIn('id', $ids)->get();
                 $company = Company::find($cid);
 
-                if (\App::environment('prod') && $company && validEmail($company->email)) {
+                if (app()->environment('prod') && $company && validEmail($company->email)) {
                     $email_to = [$company->email];
                     if ($company->id == '69' && $company->primary_contact() && validEmail($company->primary_contact()->email)) // Scott Bartley
                         $email_to[] = $company->primary_contact()->email;
@@ -1751,7 +1695,7 @@ class CronReportController extends Controller
         $log .= "Active: " . $plumbing->count() . "\n";
 
 
-        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
         if ($electrical->count() || $plumbing->count()) {
             CronController::debugEmail('EL', $email_list);
             Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionActive($electrical, $plumbing, 'Electrical/Plumbing', $overdue_date));
@@ -1763,9 +1707,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1792,7 +1734,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('equipment.restock') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('equipment.restock') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $equipment = Equipment::where('min_stock', '!=', null)->where('status', 1)->orderBy('name')->get();
@@ -1822,9 +1764,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1842,7 +1782,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.aftercare') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.aftercare') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $mains = SiteMaintenance::where('status', 0)->where('ac_form_sent', null)->orderBy('updated_at')->get();
@@ -1864,9 +1804,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
     //
@@ -1889,16 +1827,16 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.trades') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.attendance.trades') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $from = new Carbon('first day of last month');
         $to = new Carbon('last day of last month');
 
-        $dir = '/filebank/tmp/report';
+        $dir = storage_path('app/tmp/report');
         // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
+        if (!is_dir($dir))
+            mkdir($dir, 0777, true);
 
         $attendance_files = [];
         $non_attendance = [];
@@ -1922,7 +1860,7 @@ class CronReportController extends Controller
 
                 }
 
-                $output_file = public_path($dir . '/' . sanitizeFilename($company->name) . ' Monthly Attendance.pdf');
+                $output_file = "$dir/" . sanitizeFilename($company->name) . ' Monthly Attendance.pdf';
                 touch($output_file);
                 $attendance_files[] = $output_file;
                 $pdf = PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->save($output_file);
@@ -1938,9 +1876,7 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 
 
@@ -1964,7 +1900,7 @@ class CronReportController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
 
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.maintenance.executive') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
         $to = Carbon::now();
@@ -2049,10 +1985,7 @@ class CronReportController extends Controller
         $avg_appoint = ($count) ? round($total_appoint / $count) : 0;
 
         // Create PDF
-        $file = public_path('filebank/tmp/maintenace-executive-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
+        $file = storage_path('app/tmp/maintenace-executive-cron.pdf');
         //return view('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'));
         //return PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers'))->setPaper('a4', 'landscape')->stream();
 
@@ -2067,8 +2000,6 @@ class CronReportController extends Controller
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
-
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND); // Append Log
     }
 }

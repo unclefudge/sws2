@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -132,16 +133,14 @@ class SiteShutdown extends Model
     {
         return $this->site->company;
     }
+    
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'] && file_exists(public_path('/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'];
+        if (!$this->attachment)
+            return '';
 
-        return '';
+        return FileBank::url("site/{$this->site_id}/docs/{$this->attachment}");
     }
 
     /**

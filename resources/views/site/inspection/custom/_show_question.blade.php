@@ -152,7 +152,7 @@ if ($showrequired && $question->required) {
         @if ($question->files($form->id)->count())
             @foreach ($question->files($form->id) as $file)
                 @if ($file->type == 'image')
-                    <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                    <img src="{{$file->url}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                 @endif
             @endforeach
         @endif
@@ -162,7 +162,7 @@ if ($showrequired && $question->required) {
         @foreach ($question->files($form->id) as $file)
             @if ($file->type == 'file')
                 <div id="q{{$question->id}}-file-{{$file->id}}">
-                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a> &nbsp; <a href="#"><i class="fa fa-times font-red deleteFile" data-fid="q{{$question->id}}-file-{{$file->id}}" data-file="{{$question->id}}-{{$file->name}}"></i></a>
+                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a> &nbsp; <a href="#"><i class="fa fa-times font-red deleteFile" data-fid="q{{$question->id}}-file-{{$file->id}}" data-file="{{$question->id}}-{{$file->name}}"></i></a>
                 </div>
             @endif
         @endforeach
@@ -213,12 +213,12 @@ if ($showrequired && $question->required) {
                     @if ($todo->attachment)
                         <br><a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"> Attachment</i></a>
                     @endif
-                    @if ($todo->attachments()->count())
+                    @if ($todo->attachments->count())
                         <hr style="margin: 10px 0px; padding: 0px;">
                         {{-- Image attachments --}}
                         <div class="row" style="margin: 0">
-                            @foreach ($todo->attachments() as $attachment)
-                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                            @foreach ($todo->attachment as $attachment)
+                                @if ($attachment->type == 'image')
                                     <div style="width: 60px; float: left; padding-right: 5px">
                                         <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
                                     </div>
@@ -227,8 +227,8 @@ if ($showrequired && $question->required) {
                         </div>
                         {{-- File attachments  --}}
                         <div class="row" style="margin: 0">
-                            @foreach ($todo->attachments() as $attachment)
-                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                            @foreach ($todo->attachments as $attachment)
+                                @if ($attachment->type == 'file')
                                     <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
                                 @endif
                             @endforeach

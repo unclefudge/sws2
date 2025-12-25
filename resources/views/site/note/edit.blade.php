@@ -161,33 +161,44 @@
 
                             {{-- Attachments --}}
                             <h5><b>Existing Attachments</b></h5>
-                            @if ($note->attachments()->count())
-                                <hr style="margin: 10px 0px; padding: 0px;">
+                            @php
+                                $attachments = $note->attachments;
+                                $images = $attachments->where('type', 'image');
+                                $files  = $attachments->where('type', 'file');
+                            @endphp
+                            @if ($attachments->isNotEmpty())
                                 {{-- Image attachments --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($note->attachments() as $attachment)
-                                        @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                @if ($images->isNotEmpty())
+                                    <div class="row" style="margin: 0">
+                                        @foreach ($images as $attachment)
                                             <div style="width: 60px; float: left; padding-right: 5px">
-                                                <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox " title="{{ $attachment->name }}" data-lity>
-                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
+                                                    <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                                @endif
+                                                <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                </a>
                                             </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                                {{-- File attachments  --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($note->attachments() as $attachment)
-                                        @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                        @endif
-                                    @endforeach
-                                </div>
-                                <br>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- File attachments --}}
+                                @if ($files->isNotEmpty())
+                                    <div class="row" style="margin: 0">
+                                        @foreach ($files as $attachment)
+                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
+                                            @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
+                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                            @endif
+                                            <br>
+                                        @endforeach
+                                    </div>
+                                @endif
                             @else
                                 None
                             @endif
 
-                            {{-- Attachments --}}
                             <div class="row">
                                 <div class="col-md-6">
                                     <h5>Upload Attachments</h5>

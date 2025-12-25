@@ -37,12 +37,12 @@
                         @if ($todo->attachment)
                             <br><a href="{{ $todo->attachmentUrl }}" target="_blank" class="btn btn-xs blue"><i class="fa fa-picture-o"></i> Photo</a>
                         @endif
-                        @if ($todo->attachments()->count())
+                        @if ($todo->attachments->count())
                             <hr style="margin: 10px 0px; padding: 0px;">
                             {{-- Image attachments --}}
                             <div class="row" style="margin: 0">
-                                @foreach ($todo->attachments() as $attachment)
-                                    @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                @foreach ($todo->attachment as $attachment)
+                                    @if ($attachment->type == 'image')
                                         <div style="width: 60px; float: left; padding-right: 5px">
                                             <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
                                         </div>
@@ -51,8 +51,8 @@
                             </div>
                             {{-- File attachments  --}}
                             <div class="row" style="margin: 0">
-                                @foreach ($todo->attachments() as $attachment)
-                                    @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                                @foreach ($todo->attachments as $attachment)
+                                    @if ($attachment->type == 'file')
                                         <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
                                     @endif
                                 @endforeach

@@ -274,8 +274,8 @@
     </script>
     <script>
         $.ajaxSetup({
-            header: $('meta[name="_token"]').attr('content')
-        })
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
+        });
 
         $('#name-show').on('click', function () {
             $('#name-show').hide();
@@ -295,20 +295,24 @@
         });
 
         $('#upload_media').on('click', function () {
-            $.ajax({
-                type: "POST",
-                url: '/safety/doc/toolbox3/' + $('#talk_id').val(),
-                data: $("#talk_form").serialize(),
-                dataType: 'json',
-                success: function (data) {
-                    document.getElementById('upload_form').submit();
-                },
-                error: function (data) {
-                    alert('Failed to upload media talk id:' + $('#talk_id').val());
-                }
-            })
-        });
+            let form = document.getElementById('upload_form');
+            let formData = new FormData(form);
 
+            $.ajax({
+                url: '/safety/doc/toolbox3/' + $('#talk_id').val() + '/upload',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function () {
+                    location.reload();
+                },
+                error: function (xhr) {
+                    alert('Upload failed (' + xhr.status + ')');
+                }
+            });
+        });
+        
         /* Bootstrap Fileinput */
         $("#singlefile").fileinput({
             showUpload: false,

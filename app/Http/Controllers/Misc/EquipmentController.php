@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers\Misc;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\User;
+use Alert;
+use App\Http\Controllers\Controller;
 use App\Models\Misc\Equipment\Equipment;
+use App\Models\Misc\Equipment\EquipmentCategory;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLocationItem;
-use App\Models\Misc\Equipment\EquipmentLost;
 use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Equipment\EquipmentCategory;
-use App\Models\Comms\Todo;
-use App\Models\Site\Site;
-use Intervention\Image\Facades\Image;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Misc\Equipment\EquipmentLost;
+use App\Services\FileBank;
 use Carbon\Carbon;
-use Alert;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
-class EquipmentController extends Controller {
+class EquipmentController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -139,26 +134,9 @@ class EquipmentController extends Controller {
         $equip = Equipment::create($equip_request);
         $qty = request('purchase_qty');
 
-        // Handle attached Photo or Video
         if (request()->hasFile('media')) {
-            $file = request()->file('media');
-            $path = "filebank/equipment/";
-            $name = 'e' . $equip->id . '.' . strtolower($file->getClientOriginalExtension());
-            $path_name = $path . '/' . $name;
-            $file->move($path, $name);
-
-            // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-            if (exif_imagetype($path_name)) {
-                Image::make(url($path_name))
-                    ->resize(1024, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->save($path_name);
-            } else
-                Toastr::error("Bad image");
-
-            $equip->attachment = $name;
+            $basePath = 'equipment';
+            $equip->attachment = FileBank::storeUploadedFile(request()->file('media'), $basePath, "e$equip->id", true, 1024);
             $equip->save();
         }
 
@@ -224,28 +202,13 @@ class EquipmentController extends Controller {
 
         $qty = request('purchase_qty');
 
-        // Handle attached Photo or Video
+        // Handle new attachment + delete old file
         if (request()->hasFile('media')) {
-            $file = request()->file('media');
-            $path = "filebank/equipment/";
-            $name = 'e' . $equip->id . '.' . strtolower($file->getClientOriginalExtension());
-            $path_name = $path . '/' . $name;
-            $file->move($path, $name);
-
-            // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-            if (exif_imagetype($path_name)) {
-                Image::make(url($path_name))
-                    ->resize(1024, null, function ($constraint) {
-                        $constraint->aspectRatio();
-                        $constraint->upsize();
-                    })
-                    ->save($path_name);
-            } else
-                Toastr::error("Bad image");
-
-            $equip->attachment = $name;
+            $basePath = 'equipment';
+            $equip->attachment = FileBank::storeUploadedFile(request()->file('media'), $basePath, $equip->attachment, "e$equip->id", true, 1024);
             $equip->save();
         }
+
 
         // Purchase new items
         if ($qty) {
@@ -440,7 +403,7 @@ class EquipmentController extends Controller {
         $category_id = request('category_id');
         $cat_ids = array_merge([$category_id], EquipmentCategory::where('parent', $category_id)->where('status', 1)->pluck('id')->toArray());
         $equipment = Equipment::select([
-            'equipment.id', 'equipment.category_id', 'equipment.name', 'equipment.length', 'equipment.purchased',  'equipment.min_stock', 'equipment.purchased_last', 'equipment.disposed', 'equipment.status', 'equipment.company_id',
+            'equipment.id', 'equipment.category_id', 'equipment.name', 'equipment.length', 'equipment.purchased', 'equipment.min_stock', 'equipment.purchased_last', 'equipment.disposed', 'equipment.status', 'equipment.company_id',
             'equipment_categories.name AS catname'
         ])
             ->join('equipment_categories', 'equipment_categories.id', '=', 'equipment.category_id')

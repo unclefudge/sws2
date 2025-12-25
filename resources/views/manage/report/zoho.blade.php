@@ -32,13 +32,13 @@
                             </thead>
                             <tbody>
                             @foreach($files as $file)
-                                <?php
-                                $pass = false;
-                                $jobs_complete = strpos(file_get_contents(public_path("/filebank/log/zoho/$file")), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
-                                $contacts_complete = strpos(file_get_contents(public_path("/filebank/log/zoho/$file")), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
-                                if ($jobs_complete && $contacts_complete)
-                                    $pass = true;
-                                ?>
+                                    <?php
+                                    $pass = false;
+                                    $jobs_complete = strpos(file_get_contents(storage_path("app/log/zoho/$file")), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
+                                    $contacts_complete = strpos(file_get_contents(storage_path("app/log/zoho/$file")), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
+                                    if ($jobs_complete && $contacts_complete)
+                                        $pass = true;
+                                    ?>
                                 <tr>
                                     <td>
                                         <div class="text-center">
@@ -49,7 +49,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td><a href="/filebank/log/zoho/{{ $file }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
+                                    <td><a href="{{ storage_path('app/log/zoho/'.$file) }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -71,5 +71,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

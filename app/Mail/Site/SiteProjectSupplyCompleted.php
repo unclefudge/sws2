@@ -3,26 +3,27 @@
 namespace App\Mail\Site;
 
 use App\Models\Site\SiteProjectSupply;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteProjectSupplyCompleted extends Mailable implements ShouldQueue {
+class SiteProjectSupplyCompleted extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
-    public $project, $file_attachment;
+    public $project;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(SiteProjectSupply $project, $file_attachment)
+    public function __construct(SiteProjectSupply $project)
     {
         $this->project = $project;
-        $this->file_attachment = $file_attachment;
     }
 
     /**
@@ -32,9 +33,15 @@ class SiteProjectSupplyCompleted extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        if ($this->file_attachment && file_exists($this->file_attachment))
-            return $this->markdown('emails/site/project-supply-completed')->subject('SafeWorksite - Project Supply Completed')->attach($this->file_attachment);
 
-        return $this->markdown('emails/site/project-supply-completed')->subject('SafeWorksite - Project Supply Completed');
+        $email = $this->markdown('emails/site/project-supply-completed')->subject('SafeWorksite - Project Supply Completed');
+
+        if ($this->project->attachment) {
+            $path = "site/{$this->project->site_id}/docs/{$this->project->attachment}";
+
+            FileBank::attachToEmail($email, $path);
+        }
+
+        return $email;
     }
 }

@@ -693,7 +693,7 @@ class Site extends Model
             }
 
             if ($cancelled) {
-                $email_to = (\App::environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inspection.onhold') : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod')) ? $this->site->company->notificationsUsersEmailType('site.inspection.onhold') : [env('EMAIL_DEV')];
                 Mail::to($email_to)->send(new \App\Mail\Site\SiteInspectionCancelled($this, $cancelled));
 
                 return "Canceled the following reports:<br>" . nl2br($cancelled);
@@ -932,7 +932,7 @@ class Site extends Model
     {
         $email_to = [env('EMAIL_DEV')];
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_list = $this->company->notificationsUsersEmailType('site.status');
             $email_supers = $this->supervisorsEmails();
             $email_to = array_unique(array_merge($email_list, $email_supers), SORT_REGULAR);

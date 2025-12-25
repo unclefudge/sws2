@@ -7,6 +7,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteProjectSupplyItem;
 use App\Models\Site\SiteProjectSupplyProduct;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -305,9 +306,8 @@ class SiteProjectSupplyController extends Controller
             $project->status = 0;
 
             // Email completion
-            $email_list = (\App::environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-            $report_file = ($project->attachment) ? public_path($project->attachmentUrl) : '';
-            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project, $report_file));
+            $email_list = (app()->environment('prod')) ? ['michelle@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteProjectSupplyCompleted($project));
         }
         $project->save();
 
@@ -372,21 +372,16 @@ class SiteProjectSupplyController extends Controller
     {
         $project = SiteProjectSupply::findOrFail($id);
 
-        // Set + create create directory if required
-        $path = "filebank/site/$project->site_id/docs";
-        if (!file_exists($path))
-            mkdir($path, 0777, true);
+        $basePath = "site/$project->site_id/docs";
+        $filename = sanitizeFilename($project->site->name) . '-Project Information Sheet.pdf';
+        $path = "{$basePath}/{$filename}";
 
-        $filename = $project->site->name . "-Project Information Sheet.pdf";
+        // Generate PDF (in memory)
+        $pdf = PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4');
 
-        //
-        // Generate PDF
-        //
-        //return view('pdf/site/supply-info', compact('project'));
-        //return PDF::loadView('pdf/site/supply-info', compact('project'))->setPaper('a4')->stream();
-        $pdf = PDF::loadView('pdf/site/supply-info', compact('project'));
-        $pdf->setPaper('A4');
-        $pdf->save(public_path("$path/$filename"));
+        // Save PDF to Spaces (FileBank)
+        // - DomPDF gives us raw bytes via output()
+        FileBank::putContents($path, $pdf->output());
 
         return $filename;
     }

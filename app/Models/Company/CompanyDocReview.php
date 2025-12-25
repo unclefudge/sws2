@@ -3,6 +3,7 @@
 namespace App\Models\Company;
 
 use App\Models\Comms\Todo;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -192,7 +193,7 @@ class CompanyDocReview extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
@@ -213,7 +214,7 @@ class CompanyDocReview extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to User who uploaded doc & Company senior users
             $email_created = (validEmail($this->createdBy->email)) ? [$this->createdBy->email] : [];
             $email_seniors = []; //$this->company->seniorUsersEmail();
@@ -232,7 +233,7 @@ class CompanyDocReview extends Model
      */
     public function emailRenewal($email_to = '')
     {
-        if (!\App::environment('prod'))
+        if (!app()->environment('prod'))
             $email_to = [env('EMAIL_DEV')];
 
         if ($email_to)
@@ -240,28 +241,23 @@ class CompanyDocReview extends Model
     }
 
 
-    /**
-     * Get the Original Doc URL (setter)
-     */
-    public function getOriginalDocUrlAttribute()
+    public function getOriginalDocUrlAttribute(): string
     {
-        if ($this->attributes['original_doc'])// && file_exists(public_path('/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'])))
-            return '/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'];
+        if (!$this->original_doc)
+            return '';
 
-        return '';
+        return FileBank::url("company/{$this->company_doc->company_id}/docs/{$this->original_doc}");
     }
 
-    /**
-     * Get the Current Doc URL
-     */
-    public function getCurrentDocUrlAttribute()
+    public function getCurrentDocUrlAttribute(): string
     {
-        if ($this->attributes['current_doc'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company_doc->company_id . '/docs/review/' . $this->attributes['current_doc'];
+        if ($this->current_doc)
+            return FileBank::url("company/{$this->company_doc->company_id}/docs/review/{$this->current_doc}");
 
-        if ($this->attributes['original_doc'])// && file_exists(public_path('/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'])))
-            return '/filebank/company/' . $this->company_doc->company_id . '/docs/' . $this->attributes['original_doc'];
+        if ($this->original_doc)
+            return FileBank::url("company/{$this->company_doc->company_id}/docs/{$this->original_doc}");
     }
+
 
     /**
      * Get the Stage Text

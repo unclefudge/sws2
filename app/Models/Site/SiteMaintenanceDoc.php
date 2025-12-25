@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Models\Site;
+
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
-class SiteMaintenanceDoc extends Model {
+class SiteMaintenanceDoc extends Model
+{
 
     protected $table = 'site_maintenance_docs';
     protected $fillable = [
@@ -23,15 +24,6 @@ class SiteMaintenanceDoc extends Model {
         return $this->belongsTo('App\Models\Site\SiteMaintenance', 'main_id');
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/site/'.$this->maintenance->site_id."/maintenance/".$this->attributes['attachment'];
-        return '';
-    }
 
     /**
      * Get the owner of record   (getter)
@@ -52,7 +44,7 @@ class SiteMaintenanceDoc extends Model {
     {
         $user = User::findOrFail($this->updated_by);
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**
@@ -62,10 +54,11 @@ class SiteMaintenanceDoc extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

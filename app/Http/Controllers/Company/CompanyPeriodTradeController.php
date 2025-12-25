@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Company;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocPeriodTrade;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Services\FileBank;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use PDF;
+use Session;
+use Validator;
 
 /**
  * Class CompanyPeriodTradeContractController
  * @package App\Http\Controllers
  */
-class CompanyPeriodTradeController extends Controller {
+class CompanyPeriodTradeController extends Controller
+{
 
     public function index()
     {
@@ -121,13 +119,13 @@ class CompanyPeriodTradeController extends Controller {
 
         // Create Company Doc
         $doc = CompanyDoc::create([
-            'category_id'    => 5,
-            'name'           => 'Period Trade Contract',
-            'expiry'         => $ptc->expiry,
-            'ref_no'         => $ptc->id,
-            'status'         => 3,   // Pending
+            'category_id' => 5,
+            'name' => 'Period Trade Contract',
+            'expiry' => $ptc->expiry,
+            'ref_no' => $ptc->id,
+            'status' => 3,   // Pending
             'for_company_id' => $ptc->for_company_id,
-            'company_id'     => $ptc->company_id,
+            'company_id' => $ptc->company_id,
         ]);
 
         // Create approval ToDoo
@@ -165,31 +163,30 @@ class CompanyPeriodTradeController extends Controller {
         $ptc_request['principle_signed_at'] = Carbon::now();
         $ptc_request['status'] = 1;
 
-        // Set + create create directory if required
-        $path = "filebank/company/$company->id/docs";
-        if (!file_exists($path))
-            mkdir($path, 0777, true);
 
-        // Ensure filename is unique by adding counter to similiar filenames
-        $filename = sanitizeFilename($company->name) . '-PTC-' . $ptc->date->format('d-m-Y') . '.pdf';
-        $count = 1;
-        while (file_exists(public_path("$path/$filename")))
-            $filename = sanitizeFilename($company->name) . '-PTC-' . $ptc->date->format('d-m-Y') . '-' . $count ++ . '.pdf';
+        /* ------------------------------------------------------------
+        | FileBank path + unique filename
+        |------------------------------------------------------------ */
+        $basePath = "company/{$company->id}/docs";
+        $baseFilename = sanitizeFilename($company->name) . '-PTC-' . $ptc->date->format('d-m-Y') . '.pdf';
+        $filename = $baseFilename;
+        $counter = 1;
 
+        while (FileBank::exists("{$basePath}/{$filename}")) {
+            $filename = sanitizeFilename($company->name) . '-PTC-' . $ptc->date->format('d-m-Y') . "-{$counter}.pdf";
+            $counter++;
+        }
         $ptc_request['attachment'] = $filename;
 
-        //dd($ptc_request);
         $ptc->update($ptc_request);
         $ptc->closeToDo();
 
-        //
-        // Generate PDF
-        //
-        //return view('pdf/company-tradecontract', compact('ptc', 'company'));
-        $pdf = PDF::loadView('pdf/company-tradecontract', compact('ptc', 'company'));
-        $pdf->setPaper('a4');
-        $pdf->save(public_path("$path/$filename"));
-        //return $pdf->stream();
+        /* ------------------------------------------------------------
+       | Generate PDF → memory → FileBank
+       |------------------------------------------------------------ */
+        $pdf = PDF::loadView('pdf/company-tradecontract', compact('ptc', 'company'))->setPaper('a4');
+        FileBank::putContents("{$basePath}/{$filename}", $pdf->output());
+
 
         // Update Company Doc
         $doc = CompanyDoc::where('category_id', 5)->where('ref_no', $ptc->id)->where('company_id', $ptc->company_id)->where('for_company_id', $ptc->for_company_id)->first();
@@ -200,7 +197,6 @@ class CompanyPeriodTradeController extends Controller {
             $doc->approved_at = $ptc->principle_signed_at;
             $doc->save();
         }
-
 
         Toastr::success("Signed contract");
 
@@ -243,20 +239,8 @@ class CompanyPeriodTradeController extends Controller {
         if (!Auth::user()->allowed2('view.company', $company))
             return view('errors/404');
 
-        //$data[] = ['company_name' => 'cname', 'status' => 'status',];
-        //return view('pdf/company-tradecontract', compact('data', 'company'));
-        //$pdf = PDF::loadView('pdf/company-tradecontract', compact('data', 'company'));
-        $pdf = PDF::loadView('pdf/company-tradecontract', compact('company'));
-        $pdf->setPaper('a4');
-        //$pdf->setOption('page-width', 200)->setOption('page-height', 287);
-        //$pdf->setOption('margin-bottom', 10);
-        //->setOption('footer-font-size', '7')
-        //->setOption('footer-left', utf8_decode('Document created ' . date('\ d/m/Y\ ')))
-        //->setOption('footer-center', utf8_decode('Page [page] / [topage]'))
-        //->setOption('footer-right', utf8_decode("Initials:     "))
-        //->setOrientation('portrait');
+        $pdf = PDF::loadView('pdf/company-tradecontract', compact('company'))->setPaper('a4');
 
-        //if ($request->has('view_pdf'))
         return $pdf->stream();
     }
 
@@ -266,19 +250,9 @@ class CompanyPeriodTradeController extends Controller {
     public function blankPtcPDF($cid)
     {
         $company = Company::findOrFail($cid);
-        //$data[] = ['company_name' => 'cname', 'status' => 'status',];
-        //return view('pdf/company-tradecontract-blank', compact('company'));
-        $pdf = PDF::loadView('pdf/company-tradecontract-blank', compact('company'));
-        $pdf->setPaper('a4');
-        //$pdf->setOption('page-width', 200)->setOption('page-height', 287);
-        //$pdf->setOption('margin-bottom', 10);
-        //->setOption('footer-font-size', '7')
-        //->setOption('footer-left', utf8_decode('Document created ' . date('\ d/m/Y\ ')))
-        //->setOption('footer-center', utf8_decode('Page [page] / [topage]'))
-        //->setOption('footer-right', utf8_decode("Initials:     "))
-        //->setOrientation('portrait');
 
-        //if ($request->has('view_pdf'))
+        $pdf = PDF::loadView('pdf/company-tradecontract-blank', compact('company'))->setPaper('a4');
+
         return $pdf->stream();
     }
 

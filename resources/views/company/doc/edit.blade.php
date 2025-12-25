@@ -36,7 +36,12 @@
                         {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['Company\CompanyDocController@update',$company->id, $doc->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'doc_form']) !!}
                         @include('form-error')
 
-                        @if (file_exists(public_path($doc->attachment_url)) && filesize(public_path($doc->attachment_url)) == 0)
+                        @php
+                            $path = "company/{$doc->company->id}/docs/$doc->attachment";
+                            $size = $path ? \App\Services\FileBank::fileSize($path) : null;
+                        @endphp
+
+                        @if ($path && $size === 0)
                             <div class="alert alert-danger">
                                 <i class="fa fa-warning"></i> <b>Error(s) have occured</b><br>
                                 <ul>
@@ -59,7 +64,11 @@
                                                 <li>{!! nl2br($doc->reject) !!}</li>
                                             </ul>
 
-                                            <br><b>Please correct the details and click &nbsp;<span class="btn blue btn-outline btn-primary btn-xs">Change File</span>&nbsp; to upload a different file (if required).</b>
+                                            @if (!in_array($doc->category_id, [4,5]))
+                                                <br><b>Please correct the details and click &nbsp;<span class="btn blue btn-outline btn-primary btn-xs">Change File</span>&nbsp; to upload a different file (if required).</b>
+                                            @else
+                                                <br><b>Please correct the details and upload a different file (if required).</b>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -278,7 +287,7 @@
                                                 <a href="{{ $doc->attachment_url }}" target="_blank" id="doc_link"><i class="fa fa-bold fa-3x fa-file-text-o" style="margin-top: 25px;"></i><br>VIEW</a>
                                             @endif
                                         </div>
-                                        @if($doc->for_company_id == Auth::user()->company_id && $doc->category_id != 4 && $doc->category_id != 5)
+                                        @if($doc->for_company_id == Auth::user()->company_id && !in_array($doc->category_id, [4,5]))
                                             {{-- Cant edit SS or PTC--}}
                                             <div class="col-md-3 col-md-offset-9">
                                                 <button type="button" class="btn blue" style="margin-top: 25px;" id="change_file"> Change File</button>

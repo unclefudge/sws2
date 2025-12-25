@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyDocReview;
 use App\Models\Company\CompanyDocReviewFile;
 use App\Models\Misc\Action;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -79,84 +80,105 @@ class CompanyDocReviewController extends Controller
     {
         $doc = CompanyDocReview::findOrFail($id);
 
-        // Check authorisation and throw 404 if not
+        // Check authorisation
         if (!Auth::user()->allowed2("edit.company.doc.review", $doc))
             return view('errors/404');
 
-        $doc_request = request()->all();
-        //dd($doc_request);
+        $assigned_user = null;
 
-        // Updates completed - Renew
+        // -------------------------------------------------
+        // RENEW FLOW
+        // -------------------------------------------------
         if (request('renew')) {
-            if (request('next_review_date')) {
-                $doc->status = 0;
-                $doc->stage = 10;
-                $doc->approved_adm = Carbon::now()->toDateTimeString();
-                $doc->save();
-                $action = Action::create(['action' => 'Standard Details review completed - renewal date set ' . request('next_review_date'), 'table' => 'company_docs_review', 'table_id' => $doc->id]);
 
-                // Update attachment + expiry date on Original Standard Details
-                if ($doc->current_doc) {
-                    // Delete old attached file
-                    $company_dir = '/filebank/company/' . $doc->company_doc->company_id . '/docs';
-                    if ($doc->company_doc->attachment && file_exists(public_path('/filebank/company/' . $doc->company_doc->company_id . '/docs/' . $doc->company_doc->attachment)))
-                        unlink(public_path('/filebank/company/' . $doc->company_doc->company_id . '/docs/' . $doc->company_doc->attachment));
-                    // Copy new file
-                    copy(public_path($doc->current_doc_url), public_path("$company_dir/$doc->current_doc"));
-                    $doc->company_doc->attachment = $doc->current_doc;
-                }
-
-                $doc->company_doc->expiry = Carbon::createFromFormat('d/m/Y H:i', request('next_review_date') . '00:00')->toDateTimeString();
-                $doc->company_doc->save();
-                $assigned_user = null;
-            } else
+            if (!request('next_review_date'))
                 return back()->withErrors(['next_review_date' => "The next review date field is required."]);
-        } else {
-            if (request('assign_user')) {
-                // User assigned to update
-                $doc->stage = 2;
-                $doc->save();
-                $assigned_user = User::findOrFail(request('assign_user'));
-                $action = Action::create(['action' => "Assigned to $assigned_user->fullname to update", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-            } else {
-                // Handle attached file
-                if (request()->hasFile('singlefile')) {
-                    $file = request()->file('singlefile');
-                    $path = "filebank/company/" . $doc->company_doc->company_id . '/docs/review';
-                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-                    // Ensure filename is unique by adding counter to similiar filenames
-                    $count = 1;
-                    while (file_exists(public_path("$path/$name")))
-                        $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-                    $file->move($path, $name);
-                    $doc->current_doc = $name;
-                    $doc->save();
 
-                    $doc_file = CompanyDocReviewFile::create(['review_id' => $doc->id, 'attachment' => $doc->current_doc]);
+            // Close review
+            $doc->status = 0;
+            $doc->stage = 10;
+            $doc->approved_adm = now();
+            $doc->save();
 
-                    // Updates to Current Doc
-                    if ($doc->stage == 2) {
-                        $doc->stage = 1; // Assigned to Drafting Mgr to review changes
-                        $doc->save();
-                        $current_user = Auth::user();
-                        $action = Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id]);
-                        $assigned_user = User::find(465); // Nadia
-                    }
+            Action::create(['action' => 'Standard Details review completed - renewal date set ' . request('next_review_date'), 'table' => 'company_docs_review', 'table_id' => $doc->id,]);
+
+            // -------------------------------------------------
+            // COPY FILE: review → official company docs
+            // -------------------------------------------------
+            if ($doc->current_doc && $doc->company_doc) {
+
+                $companyId = $doc->company_doc->company_id;
+                $sourcePath = "company/{$companyId}/docs/review/{$doc->current_doc}";
+                $destPath = "company/{$companyId}/docs/{$doc->current_doc}";
+
+                // Remove old attachment if exists
+                if ($doc->company_doc->attachment)
+                    FileBank::delete("company/{$companyId}/docs/{$doc->company_doc->attachment}");
+
+                // Copy contents safely (Spaces-safe)
+                if (FileBank::exists($sourcePath)) {
+                    FileBank::putContents($destPath, FileBank::get($sourcePath));
                 }
+
+                // Update CompanyDoc record
+                $doc->company_doc->attachment = $doc->current_doc;
+                $doc->company_doc->expiry = Carbon::createFromFormat('d/m/Y H:i', request('next_review_date') . ' 00:00')->toDateTimeString();
+                $doc->company_doc->save();
+            }
+
+        }
+
+        // -------------------------------------------------
+        // ASSIGN USER
+        // -------------------------------------------------
+        elseif (request('assign_user')) {
+
+            $doc->stage = 2;
+            $doc->save();
+            $assigned_user = User::findOrFail(request('assign_user'));
+            Action::create(['action' => "Assigned to {$assigned_user->fullname} to update", 'table' => 'company_docs_review', 'table_id' => $doc->id,]);
+
+        }
+
+        // -------------------------------------------------
+        // UPLOAD NEW REVIEW FILE
+        // -------------------------------------------------
+        elseif (request()->hasFile('singlefile')) {
+
+            $file = request()->file('singlefile');
+            $basePath = "company/{$doc->company_doc->company_id}/docs/review";
+
+            // Replace existing review file
+            $filename = FileBank::storeUploadedFile($file, $basePath, $doc->current_doc);
+
+            $doc->current_doc = $filename;
+            $doc->save();
+
+            CompanyDocReviewFile::create(['review_id' => $doc->id, 'attachment' => $filename,]);
+
+            // If drafted → send back to Drafting Manager
+            if ($doc->stage == 2) {
+                $doc->stage = 1;
+                $doc->save();
+
+                Action::create(['action' => "Standard Details updated by Draftsperson", 'table' => 'company_docs_review', 'table_id' => $doc->id,]);
+                $assigned_user = User::find(465); // Nadia
             }
         }
 
-
-        // Close any ToDoo and create new one if assigned user
+        // -------------------------------------------------
+        // TODoos
+        // -------------------------------------------------
         $doc->closeToDo();
+
         if ($assigned_user && request('due_at'))
-            $doc->createAssignToDo($assigned_user->id, request('due_at')); // Assigned User with due date
+            $doc->createAssignToDo($assigned_user->id, request('due_at'));
         elseif ($assigned_user)
-            $doc->createAssignToDo($assigned_user->id); // Assigned User
+            $doc->createAssignToDo($assigned_user->id);
 
         Toastr::success("Updated document");
 
-        return redirect("company/doc/standard/review/$doc->id/edit");
+        return redirect("company/doc/standard/review/{$doc->id}/edit");
     }
 
 

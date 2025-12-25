@@ -157,34 +157,40 @@
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-9">
-                                    @if ($prac->attachments()->count())
+                                    @php
+                                        $attachments = $prac->attachments;
+                                        $images = $attachments->where('type', 'image');
+                                        $files  = $attachments->where('type', 'file');
+                                    @endphp
+                                    @if ($attachments->isNotEmpty())
+                                        <hr style="margin: 10px 0px; padding: 0px;">
                                         {{-- Image attachments --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($prac->attachments() as $attachment)
-                                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                        @if ($images->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($images as $attachment)
                                                     <div style="width: 60px; float: left; padding-right: 5px">
                                                         @if(Auth::user()->allowed2('del.prac.completion', $prac))
                                                             <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                         @endif
-                                                        <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
-                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                        </a>
                                                     </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                        {{-- File attachments  --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($prac->attachments() as $attachment)
-                                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        {{-- File attachments --}}
+                                        @if ($files->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($files as $attachment)
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
                                                     @if(Auth::user()->allowed2('del.prac.completion', $prac))
                                                         <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                     @endif
-                                                    <br>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                        <br>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     @else
                                         None
                                     @endif
@@ -322,56 +328,62 @@
                                         </thead>
                                         <tbody>
                                         @foreach($prac->todos() as $todo)
-                                            <tr>
-                                                <td>
-                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                                                </td>
-                                                <td>
-                                                    {{ $todo->info }}<br><br><i>Assigned
-                                                        to: {{ $todo->assignedToBySBC() }}</i>
-                                                    @if ($todo->comments)
-                                                        <br><b>Comments:</b> {{ $todo->comments }}
-                                                    @endif
-                                                    @if ($todo->attachments()->count())
-                                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                                        {{-- Image attachments --}}
+                                            tr>
+                                            <td>
+                                                <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                                            </td>
+                                            <td>
+                                                {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
+                                                @if ($todo->comments)
+                                                    <br><b>Comments:</b> {{ $todo->comments }}
+                                                @endif
+                                                @php
+                                                    $attachments = $todo->attachments;
+                                                    $images = $attachments->where('type', 'image');
+                                                    $files  = $attachments->where('type', 'file');
+                                                @endphp
+                                                @if ($attachments->isNotEmpty())
+                                                    <hr style="margin: 10px 0px; padding: 0px;">
+                                                    {{-- Image attachments --}}
+                                                    @if ($images->isNotEmpty())
                                                         <div class="row" style="margin: 0">
-                                                            @foreach ($todo->attachments() as $attachment)
-                                                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
-                                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                                            @foreach ($images as $attachment)
+                                                                <div style="width: 60px; float: left; padding-right: 5px">
+                                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity>
                                                                         <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                    </div>
-                                                                @endif
+                                                                    </a>
+                                                                </div>
                                                             @endforeach
                                                         </div>
-                                                        {{-- File attachments  --}}
+                                                    @endif
+
+                                                    {{-- File attachments --}}
+                                                    @if ($files->isNotEmpty())
                                                         <div class="row" style="margin: 0">
-                                                            @foreach ($todo->attachments() as $attachment)
-                                                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                                @endif
+                                                            @foreach ($files as $attachment)
+                                                                <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
                                                             @endforeach
                                                         </div>
-                                                        <br>
                                                     @endif
-                                                </td>
-                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}
-                                                    <br>{{ $todo->created_at->format('d/m/Y')}}</td>
-                                                    <?php
-                                                    $done_by = App\User::find($todo->done_by);
-                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                    ?>
-                                                <td>@if ($todo->status && !$todo->done_by)
-                                                        <span class="font-red">Outstanding</span>
-                                                    @else
-                                                        {!! $done_by  !!}<br>{{ $done_at }}
-                                                    @endif</td>
-                                                <td>
-                                                    @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                    @endif
-                                                </td>
+                                                @endif
+                                                <br>
+                                                {{-- Old Image attachments --}}
+                                                @if ($todo->attachment)
+                                                    <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
+                                                @endif
+                                            </td>
+                                            <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
+                                                <?php
+                                                $done_by = App\User::find($todo->done_by);
+                                                $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
+                                                $done_by = ($done_by) ? $done_by->full_name : 'unknown';
+                                                ?>
+                                            <td>@if ($todo->status && !$todo->done_by)
+                                                    <span class="font-red">Outstanding</span>
+                                                @else
+                                                    {!! $done_by  !!}<br>{{ $done_at }}
+                                                @endif
+                                            </td>
                                             </tr>
                                         @endforeach
                                         </tbody>

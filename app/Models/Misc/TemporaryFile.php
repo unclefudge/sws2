@@ -2,16 +2,14 @@
 
 namespace App\Models\Misc;
 
-use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
-class TemporaryFile extends Model {
+class TemporaryFile extends Model
+{
 
     protected $table = 'temporary_files';
-    protected $fillable = [
-        'folder', 'filename', 'company_id', 'created_by'];
+    protected $fillable = ['folder', 'filename', 'company_id', 'created_by'];
 
 
     /**
@@ -21,10 +19,11 @@ class TemporaryFile extends Model {
      *
      * @return void
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        if(Auth::check()) {
+        if (Auth::check()) {
             // create a event to happen on creating
             static::creating(function ($table) {
                 $table->created_by = Auth::user()->id;

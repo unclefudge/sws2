@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers\Safety;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\Models\Safety\SafetyDoc;
-use App\Models\Safety\SafetyDataSheet;
-use App\Models\Safety\SafetyDocCategory;
-use App\Http\Requests;
-use App\Http\Requests\Safety\SdsRequest;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Models\Safety\SafetyDataSheet;
+use App\Models\Safety\SafetyDoc;
+use App\Models\Safety\SafetyDocCategory;
+use App\Services\FileBank;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SdsController
  * @package App\Http\Controllers\Safety
  */
-class SdsController extends Controller {
+class SdsController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -96,8 +94,7 @@ class SdsController extends Controller {
             return json_encode("failed");
 
         // Delete attached file
-        if (file_exists(public_path('/filebank/whs/sds/' . $sds->attachment)))
-            unlink(public_path('/filebank/whs/sds/' . $sds->attachment));
+        FileBank::delete("sds/$sds->attachment");
         $sds->delete();
 
         return json_encode('success');
@@ -116,7 +113,7 @@ class SdsController extends Controller {
 
         $rules = ['name' => 'required', 'categories' => 'required', 'singlefile' => 'required'];
         $mesg = [
-            'name.required'       => 'The name field is required.',
+            'name.required' => 'The name field is required.',
             'categories.required' => 'The category field is required.',
             'singlefile.required' => 'The file field is required.',
         ];
@@ -148,16 +145,8 @@ class SdsController extends Controller {
 
         // Handle attached file
         if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-
-            $path = "filebank/whs/sds";
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $sds->attachment = $name;
+            $basePath = 'whs/sds';
+            $sds->attachment = FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
             $sds->save();
         }
         Toastr::success("Created SDS");
@@ -182,7 +171,7 @@ class SdsController extends Controller {
 
         $rules = ['name' => 'required', 'categories' => 'required'];
         $mesg = [
-            'name.required'       => 'The name field is required.',
+            'name.required' => 'The name field is required.',
             'categories.required' => 'The category field is required.',
         ];
         request()->validate($rules, $mesg); // Validate
@@ -202,24 +191,11 @@ class SdsController extends Controller {
         $sds_request['date'] = (request('date')) ? Carbon::createFromFormat('d/m/Y H:i', request('date') . '00:00')->toDateTimeString() : null;
         $sds->update($sds_request);
 
+
         // Handle attached file
         if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-
-            $path = "filebank/whs/sds";
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            $orig_attachment = "$path/" . $sds->attachment;
-            // Delete previous file
-            if (file_exists(public_path($orig_attachment)))
-                unlink(public_path($orig_attachment));
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $sds->attachment = $name;
+            $basePath = 'whs/sds';
+            $sds->attachment = FileBank::replaceUploadedFile(request()->file('singlefile'), $basePath, $sds->attachment);
             $sds->save();
         }
         Toastr::success("Updated SDS");
@@ -246,7 +222,11 @@ class SdsController extends Controller {
             ->where('d.status', '1');
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/whs/sds/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', function ($doc) {
+                if (!$doc->attachment) return '';
+                $path = "whs/sds/{$doc->attachment}";
+                return '<div class="text-center"><a href="' . FileBank::url($path) . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
+            })
             ->addColumn('categories', function ($sds) {
                 $record = SafetyDataSheet::find($sds->id);
 

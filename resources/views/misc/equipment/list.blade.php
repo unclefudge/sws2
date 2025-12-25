@@ -117,7 +117,7 @@
                                         <i class="fa fa-minus-circle" style="color: #e7505a; display: none" id="opened-{{ $equip->id}}"></i>
                                     </td>
                                     <td>
-                                        @if ($equip->attachment && file_exists(public_path($equip->attachmentUrl)))
+                                        @if ($equip->attachment)
                                             <a href="{{ $equip->attachmentUrl }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
                                                 <img src="{{ $equip->attachmentUrl }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
                                         @endif
@@ -163,7 +163,7 @@
                                         <i class="fa fa-minus-circle" style="color: #e7505a; display: none" id="opened-{{ $equip->id}}"></i>
                                     </td>
                                     <td>
-                                        @if ($equip->attachment && file_exists(public_path($equip->attachmentUrl)))
+                                        @if ($equip->attachment)
                                             <a href="{{ $equip->attachmentUrl }}" class="html5lightbox " title="{{ $equip->name }}" data-lityXXX>
                                                 <img src="{{ $equip->attachmentUrl }}?{{rand(1, 32000)}}" width="90" class="thumbnail img-responsive img-thumbnail"></a>
                                         @endif

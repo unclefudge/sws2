@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Misc\ConstructionDoc;
+use App\Services\FileBank;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use nilsenj\Toastr\Facades\Toastr;
@@ -63,9 +64,10 @@ class ConstructionDocController extends Controller
         if (!Auth::user()->allowed2('del.construction.doc', $doc))
             return json_encode("failed");
 
-        // Delete attached file
-        if (file_exists(public_path('/filebank/construction/doc/standards/' . $doc->attachment)))
-            unlink(public_path('/filebank/construction/doc/standards/' . $doc->attachment));
+        if ($doc->attachment)
+            FileBank::delete("construction/doc/standards/{$doc->attachment}");
+
+        // Delete DB record
         $doc->delete();
 
         return json_encode('success');
@@ -93,24 +95,15 @@ class ConstructionDocController extends Controller
         // Create Doc
         $doc = ConstructionDoc::create($doc_request);
 
-
         // Handle attached file
         if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-
-            $path = "filebank/construction/doc/standards";
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
+            $basePath = 'construction/doc/standards';
+            $doc->attachment = FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
             $doc->save();
         }
         Toastr::success("Created Doc");
 
-        return view('construction/doc/list');
+        return redirect('construction/doc/standards');
     }
 
 
@@ -133,27 +126,10 @@ class ConstructionDocController extends Controller
         $doc_request = request()->all();
         $doc->update($doc_request);
 
-        ray('here');
-        ray(request()->file('singlefile'));
-        // Handle attached file
+        // Handle new attachment + delete old file
         if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-            ray($file);
-
-            $path = "filebank/construction/doc/standards";
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            $orig_attachment = "$path/" . $doc->attachment;
-            // Delete previous file
-            if (file_exists(public_path($orig_attachment)))
-                unlink(public_path($orig_attachment));
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
+            $basePath = 'construction/doc/standards';
+            $doc->attachment = FileBank::replaceUploadedFile(request()->file('singlefile'), $basePath, $doc->attachment);
             $doc->save();
         }
         Toastr::success("Updated Doc");
@@ -167,12 +143,13 @@ class ConstructionDocController extends Controller
      */
     public function getDocs()
     {
-        $records = DB::table('construction_docs as d')
-            ->select(['d.id', 'd.attachment', 'd.name', 'd.status'])
-            ->where('d.status', '1');
-
+        $records = DB::table('construction_docs as d')->select(['d.id', 'd.attachment', 'd.name', 'd.status'])->where('d.status', '1');
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/construction/doc/standards/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', function ($doc) {
+                if (!$doc->attachment) return '';
+                $path = "construction/doc/standards/{$doc->attachment}";
+                return '<div class="text-center"><a href="' . FileBank::url($path) . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
+            })
             ->addColumn('action', function ($doc) {
                 $record = ConstructionDoc::find($doc->id);
                 $actions = '';

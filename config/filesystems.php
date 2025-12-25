@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,6 +27,21 @@ return [
     */
 
     'cloud' => env('FILESYSTEM_CLOUD', 's3'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | FileBank settings
+    |--------------------------------------------------------------------------
+    |
+    | filebank_default_disk: where NEW uploads go (spaces or local)
+    | filebank_fallback_disk: where OLD files may still exist during migration
+    | filebank_temp_prefixes: always keep these on local disk
+    |
+    */
+
+    'filebank_default_disk' => env('FILEBANK_DISK', 'filebank_local'),
+    'filebank_fallback_disk' => env('FILEBANK_FALLBACK_DISK', 'filebank_local'),
+    'filebank_temp_prefixes' => array_filter(explode(',', env('FILEBANK_TEMP_PREFIXES', 'tmp/,log/'))),
 
     /*
     |--------------------------------------------------------------------------
@@ -55,25 +70,33 @@ return [
             'visibility' => 'public',
         ],
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
+        'filebank_local' => [
+            'driver' => 'local',
+            'root' => public_path('filebank'), // IMPORTANT: store outside /public long-term, but for now match your legacy location:
+            'throw' => false,
         ],
 
-        'do' => [
+        'filebank_spaces' => [
             'driver' => 's3',
             'key' => env('DO_SPACES_KEY'),
             'secret' => env('DO_SPACES_SECRET'),
-            'region' => env('DO_SPACES_REGION'),
+            'region' => env('DO_SPACES_REGION', 'syd1'),
             'bucket' => env('DO_SPACES_BUCKET'),
-            'folder' => env('DO_SPACES_FOLDER'),
             'endpoint' => env('DO_SPACES_ENDPOINT'),
-            'cdn_endpoint' => env('DO_SPACES_CDN_ENDPOINT'),
-            'url' => env('DO_URL'),
-            'use_path_style_endpoint' => env('DO_SPACES_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'use_path_style_endpoint' => false,
+            'throw' => false,
+        ],
+
+        'backup_spaces' => [
+            'driver' => 's3',
+            'key' => env('DO_SPACES_KEY'),
+            'secret' => env('DO_SPACES_SECRET'),
+            'region' => env('DO_SPACES_REGION', 'syd1'),
+            'bucket' => env('DO_SPACES_BUCKET'),
+            'endpoint' => env('DO_SPACES_ENDPOINT'),
+            'root' => 'backups', // 👈 all backups live under /backups
+            'visibility' => 'private',
         ],
 
     ],

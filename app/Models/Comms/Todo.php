@@ -11,7 +11,6 @@ use App\Models\Misc\Supervisor\SuperChecklist;
 use App\Models\Safety\ToolboxTalk;
 use App\Models\Safety\WmsDoc;
 use App\Models\Site\Incident\SiteIncident;
-use App\Models\Site\Incident\SiteIncidentWitness;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteInspectionElectrical;
@@ -23,6 +22,7 @@ use App\Models\Site\SiteQa;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Site\SiteShutdown;
 use App\Models\User\UserDoc;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -73,7 +73,7 @@ class Todo extends Model
 
     public function attachments()
     {
-        return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'todo');
     }
 
     /**
@@ -96,9 +96,9 @@ class Todo extends Model
     public function assignedToBySBC()
     {
         $string = '';
-        foreach ($this->assignedTo() as $user) {
+        foreach ($this->assignedTo() as $user)
             $string .= $user->fullname . ', ';
-        }
+
         $string = rtrim($string, ', ');
 
         return $string;
@@ -112,9 +112,9 @@ class Todo extends Model
     public function assignedToCompanyBySBC()
     {
         $string = '';
-        foreach ($this->assignedTo() as $user) {
+        foreach ($this->assignedTo() as $user)
             $string .= $user->fullname . ' (' . $user->company->name . '), ';
-        }
+
         $string = rtrim($string, ', ');
 
         return $string;
@@ -141,111 +141,100 @@ class Todo extends Model
     }
 
 
+    public function record()
+    {
+        return match ($this->type) {
+            'accident' => null,
+            'company doc' => CompanyDoc::find($this->type_id),
+            'company doc review' => CompanyDocReview::find($this->type_id),
+            'equipment' => EquipmentLocation::find($this->type_id),
+            'extension', 'extension signoff' => SiteExtension::find($this->type_id),
+            'hazard' => SiteHazard::find($this->type_id),
+            'incident', 'incident prevent', 'incident review' => SiteIncident::find($this->type_id),
+            'inspection_electrical' => SiteInspectionElectrical::find($this->type_id),
+            'inspection_plumbing' => SiteInspectionPlumbing::find($this->type_id),
+            'maintenance' => SiteMaintenance::find($this->type_id),
+            'maintenance_item' => optional(SiteMaintenanceItem::find($this->type_id))->maintenance,
+            'project supply' => SiteProjectSupply::find($this->type_id),
+            'qa' => SiteQa::find($this->type_id),
+            'scaffold handover' => SiteScaffoldHandover::find($this->type_id),
+            'site shutdown' => SiteShutdown::find($this->type_id),
+            'supervisor' => null,
+            'super checklist', 'super checklist signoff' => SuperChecklist::find($this->type_id),
+            'swms' => WmsDoc::find($this->type_id),
+            'toolbox' => ToolboxTalk::find($this->type_id),
+            'user doc' => UserDoc::find($this->type_id),
+            default => null,
+        };
+        /*
+          'inspection' => 'Site Inspection',
+          'company ptc' => 'Period Trade Contract',
+          'company privacy' => 'Company Privacy Policy',
+        */
+    }
+
     /**
      * A Todoo is often linked to a webpage
      *
      * @return url
      */
-    public function url()
+    public function url(): string
     {
-        switch ($this->type) {
-            case 'toolbox':
-                return "/safety/doc/toolbox2/$this->type_id";
-            case 'qa':
-                return "/site/qa/$this->type_id";
-            case 'maintenance':
-                return "/site/maintenance/$this->type_id";
-            case 'maintenance_item':
-                $item = SiteMaintenanceItem::find($this->type_id);
-                if ($item && $item->maintenance)
-                    return '/site/maintenance/' . $item->maintenance->id;
-            case 'prac_completion':
-                return "/site/prac-completion/$this->type_id";
-            case 'foc':
-                return "/site/foc/$this->type_id";
-            case 'inspection_electrical':
-                return "/site/inspection/electrical/$this->type_id";
-            case 'inspection_plumbing':
-                return "/site/inspection/plumbing/$this->type_id";
-            case 'project supply':
-                return "/site/supply/$this->type_id/edit";
-            case 'dial_before_dig':
-                return "/site/doc";
-            case 'site shutdown':
-                return "/site/shutdown/$this->type_id/edit";
-            case 'super checklist':
-                return "/supervisor/checklist/$this->type_id/$this->type_id2";
-            case 'super checklist signoff':
-                return "/supervisor/checklist/$this->type_id/weekly";
-            case 'scaffold handover':
-                return "/site/scaffold/handover/$this->type_id/edit";
-            case 'extension':
-                return "/site/extension";
-            case 'extension signoff':
-                return "/site/extension";
-            case 'asbestos notify':
-                return "/site/asbestos/notification/$this->type_id/edit";
-            case 'incident review':
-                return "/site/incident/$this->type_id";
-            case 'incident witness':
-                $witness = SiteIncidentWitness::find($this->type_id);
-                if ($witness)
-                    return '/site/incident/' . $witness->incident->id . '/witness/' . $this->type_id;
-            case 'company doc':
-                $doc = CompanyDoc::find($this->type_id);
-                if ($doc)
-                    return ($doc->expiry && $doc->expiry->gt(Carbon::today())) ? '/company/' . $doc->for_company_id . '/doc/' . $doc->id . '/edit' : '/company/' . $doc->for_company_id . '/doc';
-            case 'company doc review':
-                $doc = CompanyDocReview::find($this->type_id);
-                if ($doc)
-                    return "/company/doc/standard/review/$doc->id/edit";
-            case 'company ptc':
-                $ptc = CompanyDocPeriodTrade::find($this->type_id);
-                if ($ptc)
-                    return "/company/$ptc->for_company_id/doc/period-trade-contract/$this->type_id";
-            default:
-                return "/todo/$this->id";
-        }
-
-        return '';
+        return match ($this->type) {
+            'asbestos notify' => "/site/asbestos/notification/{$this->type_id}/edit",
+            'company doc' => $this->companyDocUrl(),
+            'company doc review' => $this->companyDocReviewUrl(),
+            'company ptc' => $this->companyPtcUrl(),
+            'dial_before_dig' => "/site/doc",
+            'extension', 'extension signoff' => "/site/extension",
+            'foc' => "/site/foc/{$this->type_id}",
+            'incident review' => "/site/incident/{$this->type_id}",
+            'incident witness' => $this->incidentWitnessUrl(),
+            'inspection_electrical' => "/site/inspection/electrical/{$this->type_id}",
+            'inspection_plumbing' => "/site/inspection/plumbing/{$this->type_id}",
+            'maintenance' => "/site/maintenance/{$this->type_id}",
+            'maintenance_item' => $this->maintenanceItemUrl(),
+            'prac_completion' => "/site/prac-completion/{$this->type_id}",
+            'project supply' => "/site/supply/{$this->type_id}/edit",
+            'qa' => "/site/qa/{$this->type_id}",
+            'site shutdown' => "/site/shutdown/{$this->type_id}/edit",
+            'super checklist' => "/supervisor/checklist/{$this->type_id}/{$this->type_id2}",
+            'super checklist signoff' => "/supervisor/checklist/{$this->type_id}/weekly",
+            'scaffold handover' => "/site/scaffold/handover/{$this->type_id}/edit",
+            'toolbox' => "/safety/doc/toolbox2/{$this->type_id}",
+            default => "/todo/{$this->id}",
+        };
     }
 
-    public function record()
+    protected function maintenanceItemUrl(): string
     {
-        $status = ['1', '2', '3'];
-        $task_type = $this->type;
-        $type_id = $this->type_id;
-        $type_id2 = $this->type_id2;
-        if (in_array($task_type, ['incident', 'incident prevent', 'incident review'])) return SiteIncident::find($type_id);
-        if ($task_type == 'accident') return null;
-        if ($task_type == 'hazard') return SiteHazard::find($type_id);
-        if ($task_type == 'maintenance') return SiteMaintenance::find($type_id);
-        if ($task_type == 'maintenance_item') return SiteMaintenanceItem::find($type_id)->maintenance;
-        if ($task_type == 'inspection_electrical') return SiteInspectionElectrical::find($type_id);
-        if ($task_type == 'inspection_plumbing') return SiteInspectionPlumbing::find($type_id);
-        if (in_array($task_type, ['super checklist', 'super checkist signoff'])) return SuperChecklist::find($type_id);
-        if ($task_type == 'supervisor') return null;
-        if ($task_type == 'scaffold handover') return SiteScaffoldHandover::find($type_id);
-        if ($task_type == 'project supply') return SiteProjectSupply::find($type_id);
-        if ($task_type == 'site shutdown') return SiteShutdown::find($type_id);
-        if (in_array($task_type, ['extension', 'extension signoff'])) return SiteExtension::find($type_id);
-        if ($task_type == 'equipment') return EquipmentLocation::find($type_id);
-        if ($task_type == 'qa') return SiteQa::find($type_id);
-        if ($task_type == 'toolbox') return ToolboxTalk::find($type_id);
-        if ($task_type == 'swms') return WmsDoc::find($type_id);
-        if ($task_type == 'company doc') return CompanyDoc::find($type_id);
-        if ($task_type == 'company doc review') return CompanyDocReview::find($type_id);
-        if ($task_type == 'user doc') return UserDoc::find($type_id);
+        $item = SiteMaintenanceItem::find($this->type_id);
+        return $item && $item->maintenance ? "/site/maintenance/{$item->maintenance->id}" : "/todo/{$this->id}";
+    }
 
-        return null;
+    protected function incidentWitnessUrl(): string
+    {
+        $witness = SiteIncidentWitness::find($this->type_id);
+        return $witness && $witness->incident ? "/site/incident/{$witness->incident->id}/witness/{$this->type_id}" : "/todo/{$this->id}";
+    }
 
-        /*
-          'inspection' => 'Site Inspection',
-          'company ptc' => 'Period Trade Contract',
-          'company privacy' => 'Company Privacy Policy',
-          'company doc review' => 'Standard Details Review',
-          'user doc' => 'User Documents',]);
-        */
+    protected function companyDocUrl(): string
+    {
+        $doc = CompanyDoc::find($this->type_id);
+        if (!$doc) return "/todo/{$this->id}";
+        return ($doc->expiry && $doc->expiry->gt(now())) ? "/company/{$doc->for_company_id}/doc/{$doc->id}/edit" : "/company/{$doc->for_company_id}/doc";
+    }
+
+    protected function companyDocReviewUrl(): string
+    {
+        $doc = CompanyDocReview::find($this->type_id);
+        return $doc ? "/company/doc/standard/review/{$doc->id}/edit" : "/todo/{$this->id}";
+    }
+
+    protected function companyPtcUrl(): string
+    {
+        $ptc = CompanyDocPeriodTrade::find($this->type_id);
+        return $ptc ? "/company/{$ptc->for_company_id}/doc/period-trade-contract/{$this->type_id}" : "/todo/{$this->id}";
     }
 
     /**
@@ -335,119 +324,121 @@ class Todo extends Model
         $this->save();
     }
 
-    /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachedMedia($file)
-    {
-        /*
-        $site = Site::findOrFail($this->site_id);
-        $path = "filebank/site/" . $site->id . '/issue';
-        $name = 'issue-' . $site->code . '-' . $this->id . '-' . Auth::user()->id . '-' . sha1(time()) . '.' . strtolower($file->getClientOriginalExtension());
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        // resize the image to a width of 1024 and constrain aspect ratio (auto height)
-        if (exif_imagetype($path_name)) {
-            Image::make(url($path_name))
-                ->resize(1024, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                })
-                ->save($path_name);
-        } else
-            Toastr::error("Bad image");
-
-        $this->attachment = $name;
-        $this->save();
-        */
-    }
 
     /**
      * Email ToDoo
      */
-    public function emailToDo($email_to = '', $email_cc = '')
+    public function emailToDo($emailTo = '', $emailCc = '')
     {
-        if (\App::environment('prod')) {
-            if (!$email_to || $email_to == 'ASSIGNED') {
-                $email_to = [];
+        $isProd = app()->environment('prod');
+        $isLocal = app()->environment(['local', 'dev']);
+
+        //--------------------------------------------------------------------------
+        // Resolve TO recipients
+        //--------------------------------------------------------------------------
+        $emailTo = [env('EMAIL_ME')];
+        if ($isProd) {
+            // If not explicitly provided or marked as ASSIGNED, resolve assigned users
+            if (!$emailTo || $emailTo === 'ASSIGNED') {
+                $emailTo = [];
+
                 foreach ($this->assignedTo() as $user) {
                     if (validEmail($user->email))
-                        $email_to[] = $user->email;
+                        $emailTo[] = $user->email;
                 }
             }
-        } else if (\App::environment('local', 'dev'))
-            $email_to = [env('EMAIL_ME')];
+        }
 
+        //--------------------------------------------------------------------------
+        // Resolve CC recipients
+        // --------------------------------------------------------------------------
+        $cc = [];
 
-        $cc = (\App::environment('prod') && Auth::check() && validEmail(Auth::user()->email)) ? [Auth::user()->email] : [];
+        // Default CC: current user in production
+        if ($isProd && Auth::check() && validEmail(Auth::user()->email))
+            $cc[] = Auth::user()->email;
 
-        // Exclude CC for users on certain ToDoo types
-        $excludeCCtypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover', 'maintenance'];
-        if (in_array($this->type, $excludeCCtypes))
+        // Exclude CC for specific ToDo types
+        $excludeCcTypes = ['inspection_plumbing', 'inspection_electrical', 'toolbox', 'extension signoff', 'scaffold handover', 'maintenance',];
+
+        if (in_array($this->type, $excludeCcTypes, true))
             $cc = [];
 
-        // Don't cc email to user if Todoo is a Company Doc Approval
+        // Exclude CC for Company Doc Approval requests
         if (preg_match('/^Company Document Approval Request/', $this->name))
             $cc = [];
 
-        // Include specified CC'ed users in arg
-        if (\App::environment('prod') && $email_cc) {
-            if (is_array($email_cc)) {
-                $cc = array_merge($cc, $email_cc);
-            } else
-                $cc[] = $email_cc;
-        }
+        // Merge explicitly supplied CC addresses (prod only)
+        if ($isProd && $emailCc)
+            $cc = array_merge($cc, is_array($emailCc) ? $emailCc : [$emailCc]);
 
-        if ($email_to && $cc)
-            Mail::to($email_to)->cc($cc)->send(new \App\Mail\Comms\TodoCreated($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Comms\TodoCreated($this));
+        //--------------------------------------------------------------------------
+        // Send email
+        //--------------------------------------------------------------------------
+        if ($emailTo && $cc)
+            Mail::to($emailTo)->cc($cc)->send(new \App\Mail\Comms\TodoCreated($this));
+        elseif ($emailTo)
+            Mail::to($emailTo)->send(new \App\Mail\Comms\TodoCreated($this));
     }
 
     /**
      * Email ToDoo
      */
-    public function emailToDoCompleted($email_to = '')
+    public function emailToDoCompleted($emailTo = null): void
     {
-        if (\App::environment('prod')) {
-            if (!$email_to) {
-                $email_to = [];
-                foreach ($this->assignedTo() as $user) {
-                    if (validEmail($user->email))
-                        $email_to[] = $user->email;
-                }
+        // -----------------------------
+        // Resolve TO recipients
+        // -----------------------------
+        $emailTo = [env('EMAIL_ME')];
+        if (app()->environment('prod')) {
+            if (!$emailTo) {
+                $emailTo = collect($this->assignedTo())->pluck('email')->filter(fn($email) => validEmail($email))->values()->all();
             }
-        } else if (\App::environment('local', 'dev'))
-            $email_to = [env('EMAIL_ME')];
 
-        $email_user = (\App::environment('prod')) ? Auth::user()->email : '';
+        }
+        if (empty($emailTo)) return;
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Comms\TodoCompleted($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Comms\TodoCompleted($this));
+        // -----------------------------
+        // Resolve CC (current user)
+        // -----------------------------
+        $cc = [];
+        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
+            $cc[] = Auth::user()->email;
+
+        // -----------------------------
+        // Send email
+        // -----------------------------
+        $mail = Mail::to($emailTo);
+        if (!empty($cc)) $mail->cc($cc);
+        $mail->send(new \App\Mail\Comms\TodoCompleted($this));
     }
 
-    public function emailToDoReminder($email_to = '')
+    public function emailToDoReminder($emailTo = [])
     {
-        if (\App::environment('prod')) {
-            if (!$email_to) {
-                $email_to = [];
-                foreach ($this->assignedTo() as $user) {
-                    if (validEmail($user->email))
-                        $email_to[] = $user->email;
-                }
-            }
-        } else if (\App::environment('local', 'dev'))
-            $email_to = [env('EMAIL_ME')];
+        // ------------------------------
+        // Determine primary recipients
+        // ------------------------------
+        $emailTo = [env('EMAIL_ME')];
+        if (app()->environment('prod')) {
+            if (empty($emailTo))
+                $emailTo = collect($this->assignedTo())->pluck('email')->filter(fn($email) => validEmail($email))->values()->all();
+        }
+        if (empty($emailTo)) return;
 
-        $email_user = (\App::environment('prod')) ? Auth::user()->email : '';
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Comms\TodoReminder($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Comms\TodoReminder($this));
+        // ------------------------------
+        // Determine CC (prod only)
+        // ------------------------------
+        $cc = [];
+        if (app()->environment('prod') && Auth::check() && validEmail(Auth::user()->email))
+            $cc[] = Auth::user()->email;
+
+        // ------------------------------
+        // Send email
+        // ------------------------------
+        $mail = Mail::to($emailTo);
+        if (!empty($cc)) $mail->cc($cc);
+        $mail->send(new \App\Mail\Comms\TodoReminder($this));
     }
 
 
@@ -464,12 +455,14 @@ class Todo extends Model
     /**
      * Get the Attachment URL (setter)
      */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'] && file_exists(public_path('/filebank/todo/' . $this->attributes['attachment'])))
-            return '/filebank/todo/' . $this->attributes['attachment'];
+        if (empty($this->attributes['attachment']))
+            return '';
 
-        return '';
+        $path = "todo/{$this->attributes['attachment']}";
+
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
     /**

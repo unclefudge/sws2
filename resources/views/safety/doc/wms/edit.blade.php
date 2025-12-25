@@ -295,8 +295,8 @@
                                         <div class="col-md-2">&nbsp;</div>
                                         <div class="col-md-1">
                                             <div style="min-height: 100px">
-                                                <a v-show="xx.doc.attachment" href="/filebank/company/@{{ xx.doc.for_company_id }}/wms/@{{ xx.doc.attachment }}"><i class="fa fa-bold fa-file-pdf-o"
-                                                                                                                                                                    style="font-size: 5em; margin-top:20px"></i></a>
+                                                <a v-show="xx.doc.attachment" :href="xx.doc.attachment_url"><i class="fa fa-bold fa-file-pdf-o"
+                                                                                                               style="font-size: 5em; margin-top:20px"></i></a>
                                                 <i v-else class="fa fa-bold fa-chain-broken" style="font-size: 5em; margin-top:20px"></i>
                                             </div>
                                         </div>

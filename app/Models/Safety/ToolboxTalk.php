@@ -4,10 +4,12 @@ namespace App\Models\Safety;
 
 use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use URL;
 
@@ -78,14 +80,21 @@ class ToolboxTalk extends Model
      *
      * @return string
      */
-    public function uploadedFilesURL()
+    public function uploadedFilesURL(): array
     {
+        $basePath = "whs/toolbox/{$this->id}";
         $files = [];
-        if (file_exists(public_path('/filebank/whs/toolbox/' . $this->id))) {
-            $scan = scandir(public_path('/filebank/whs/toolbox/') . $this->id);
-            foreach ($scan as $file)
-                if (!preg_match('/^\./', $file))
-                    $files[] = URL::to('/') . '/filebank/whs/toolbox/' . $this->id . '/' . $file;
+
+        foreach (FileBank::readDisks() as $disk) {
+            if (!Storage::disk($disk)->exists($basePath))
+                continue;
+
+            foreach (Storage::disk($disk)->files($basePath) as $path)
+                $files[] = FileBank::url($path);
+
+            // Stop after first disk that has files
+            if ($files)
+                break;
         }
 
         return $files;
@@ -329,76 +338,12 @@ class ToolboxTalk extends Model
 
 
     /**
-     * Email talk to someone for Sign Off
-     */
-    /*
-    public function emailSignOff()
-    {
-        $email_to = [];
-        if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
-        else
-            $email_to[] = env('EMAIL_ME');
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        //$email_user = '';
-
-        $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
-            'user_company_name' => Auth::user()->company->name,
-            'talk_name'         => $this->name,
-        ];
-        $talk = $this;
-        Mail::send('emails/toolbox-signoff', $data, function ($m) use ($email_to, $email_user, $talk, $data) {
-            ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, Auth::user()->fullname);
-            $m->to($email_to);
-            if ($email_user)
-                $m->cc($email_user);
-            $m->subject('Toolbox Talk Sign Off Request - ' . $talk->name);
-        });
-    }*/
-
-    /**
-     * Email talk as Rejected
-     */
-    /*
-    public function emailReject()
-    {
-        $email_to = [];
-        if (\App::environment('dev', 'prod'))
-            $email_to[] = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
-        else
-            $email_to[] = env('EMAIL_ME');
-        // Send to User who created
-        if (validEmail($this->createdBy->email))
-            $email_to[] = $this->createdBy->email;
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-
-        $data = [
-            'user_email'        => Auth::user()->email,
-            'user_fullname'     => Auth::user()->fullname,
-            'user_company_name' => Auth::user()->company->name,
-            'talk_name'         => $this->name,
-        ];
-        $talk = $this;
-        Mail::send('emails/toolbox-rejected', $data, function ($m) use ($email_to, $email_user, $talk, $data) {
-            ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-            $m->from($send_from, Auth::user()->fullname);
-            $m->to($email_to);
-            if ($email_user)
-                $m->cc($email_user);
-            $m->subject('Toolbox Talk Sign Off Request Rejected - ' . $talk->name);
-        });
-    }*/
-
-    /**
      * Email Overdue
      */
     public function emailOverdue()
     {
         $email_to = [env('EMAIL_ME')];
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             //$email_to = $this->owned_by->notificationsUsersEmailType('doc.whs.approval');   // WHS Mgr
             $email_to = ['kirstie@capecod.com.au', 'ross@capecod.com.au']; // only to Kirstie/Ross
             // Send to User who created

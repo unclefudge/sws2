@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\SiteHazardRequest;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
 use DB;
@@ -76,8 +77,10 @@ class SiteHazardController extends Controller
             // Handle attachments
             $attachments = request("filepond");
             if ($attachments) {
-                foreach ($attachments as $tmp_filename)
-                    $hazard->saveAttachment($tmp_filename);
+                foreach ($attachments as $tmp_filename) {
+                    $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
+                    $attachment->saveAttachment($tmp_filename);
+                }
             }
 
             // Email hazard
@@ -130,8 +133,10 @@ class SiteHazardController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $hazard->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         if ($hazard->status == '9' && $hazard->status != $old_status) {
@@ -185,9 +190,9 @@ class SiteHazardController extends Controller
         if (!Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
             return json_encode("failed");
 
-        // Delete attached file
-        if ($hazard->attachment && file_exists('filebank/site/' . $hazard->site_id . '/hazard/' . $hazard->attachment))
-            unlink(public_path('/filebank/site/' . $hazard->site_id . '/hazard/' . $hazard->attachment));
+        // Delete attached files
+        foreach ($hazard->attachments as $file)
+            $file->delete();
 
         $hazard->delete();
 
@@ -242,13 +247,6 @@ class SiteHazardController extends Controller
             })
             ->editColumn('nicedate2', function ($issue) {
                 return ($issue->nicedate2 == '00/00/00') ? '' : $issue->nicedate2;
-            })
-            ->editColumn('attachment', function ($issue) {
-                if ($issue->attachment && file_exists('filebank/site/' . $issue->site_id . '/hazard/' . $issue->attachment)) {
-                    return '<a href="/filebank/site/' . $issue->site_id . '/hazard/' . $issue->attachment . '" data-lity class="html5lightboxXXXX btn btn-xs blue"><i class="fa fa-picture-o"></a>';
-                }
-
-                return '';
             })
             ->addColumn('action', function ($issue) {
                 $actions = '';

@@ -2,17 +2,10 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Utilities\FailureTypes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
+use URL;
 
 class SiteHazardFile extends Model
 {
@@ -31,16 +24,6 @@ class SiteHazardFile extends Model
         return $this->belongsTo('App\Models\Site\SiteHazard', 'hazard_id');
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/site/' . $this->hazard->site->id . "/hazard/" . $this->attributes['attachment'];
-
-        return '';
-    }
 
     /**
      * The "booting" method of the model.

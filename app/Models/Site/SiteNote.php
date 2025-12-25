@@ -45,7 +45,7 @@ class SiteNote extends Model
      */
     public function attachments()
     {
-        return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_notes');
     }
 
     public function costs()
@@ -82,7 +82,7 @@ class SiteNote extends Model
         $email_to = [env('EMAIL_DEV')];
 
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = [];
             if ($this->category->notify_users) {
                 $users = explode(',', $this->category->notify_users);

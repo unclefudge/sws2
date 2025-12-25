@@ -111,7 +111,9 @@
                                             <div style="width: 100%; display: table;">
                                                 <span style="display: table-cell; width: 90px;">ABN </span>
                                                 <span style="display: table-cell; width: 200px;">{{ $company->reportsTo()->abn }}</span>
-                                                <span style="display: table-cell;">ACN @if ($company->reportsTo()->id == 3) &nbsp; &nbsp; 000 605 407 @endif</span>
+                                                <span style="display: table-cell;">ACN @if ($company->reportsTo()->id == 3)
+                                                        &nbsp; &nbsp; 000 605 407
+                                                    @endif</span>
                                             </div>
                                             <div style="width: 100%; display: table;">
                                                 <span style="display: table-cell; width: 90px;">PHONE </span>
@@ -177,7 +179,7 @@
                                                 <li>the <b>trade contractor</b> agreeing to quote for <b>trade works</b> requested by the <b>principal contractor</b>, and</li>
                                                 <li>the <b>principal contractor</b> agreeing to pay, on demand by the <b>trade contractor</b>, the invoiced amount relating and compliant to Item 6,</li>
                                             </ol>
-                                            the parties agree that the period trade contract conditions <a href="/filebank/period_trade_contract_conditions.pdf" target="_blank">here</a> are deemed to be incorporated into each <b>trade contract</b> for a period of 12 months from the date of this
+                                            the parties agree that the period trade contract conditions <a href="/period_trade_contract_conditions.pdf" target="_blank">here</a> are deemed to be incorporated into each <b>trade contract</b> for a period of 12 months from the date of this
                                             agreement.
                                         </td>
                                     </tr>
@@ -330,7 +332,9 @@
                                 {{-- Signature --}}
                                 <br><br><br>
                                 <h4 style="margin-bottom: 3px">AGREEMENT</h4>
-                                <br>This document serves as a formal agreement between the <b>Principal Contractor</b> and <b>Trade Contractor</b> as identified at 2 and 3 of the Schedule, hereby referred to as the 'parties,' representing their mutual understanding and acceptance of the terms and conditions outlined herein as the <a href="/filebank/period_trade_contract_conditions.pdf" target="_blank">Period Trade Contract Conditions</a>. By signing below each party acknowledges their full comprehension of the Period Trade Contract contents and willingly enters a legally binding contract.<br><br>
+                                <br>This document serves as a formal agreement between the <b>Principal Contractor</b> and <b>Trade Contractor</b> as identified at 2 and 3 of the Schedule, hereby referred to as the 'parties,' representing their mutual understanding and acceptance of the terms and
+                                conditions outlined herein as the <a href="/period_trade_contract_conditions.pdf" target="_blank">Period Trade Contract Conditions</a>. By signing below each party acknowledges their full comprehension of the Period Trade Contract contents and willingly
+                                enters a legally binding contract.<br><br>
                                 <div class="row">
                                     <div class="form-group">
                                         {!! Form::label('contractor_signed_name', "Trade Contractor's Signature", ['class' => 'col-md-3 control-label']) !!}
@@ -409,19 +413,19 @@
                 var name = $('#signed_name').val();
                 var user = "{!! Auth::user()->fullname !!}";
                 var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
-            var date = moment().format('DD/MM/YYYY, h:mm:ss a');
-            var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
-            $('#contractor_signed_name').val(signed_string);
-            if (name != '') {
-                $('#submit').show();
-                $('#contractor_signed_name_field').show();
-            } else {
-                $('#contractor_signed_name').val('');
-                $('#contractor_signed_name_field').hide();
-                $('#submit').hide();
-            }
+                var date = moment().format('DD/MM/YYYY, h:mm:ss a');
+                var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
+                $('#contractor_signed_name').val(signed_string);
+                if (name != '') {
+                    $('#submit').show();
+                    $('#contractor_signed_name_field').show();
+                } else {
+                    $('#contractor_signed_name').val('');
+                    $('#contractor_signed_name_field').hide();
+                    $('#submit').hide();
+                }
+            });
         });
-    });
 
-</script>
+    </script>
 @stop

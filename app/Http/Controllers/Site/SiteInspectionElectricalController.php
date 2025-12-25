@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
-use App\Models\Site\Site;
-use App\Models\Site\SiteInspectionDoc;
+use App\Models\Misc\Attachment;
 use App\Models\Site\SiteInspectionElectrical;
 use Carbon\Carbon;
 use DB;
@@ -96,8 +95,10 @@ class SiteInspectionElectricalController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_inspection_electrical', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Create Todoo to assign a company
@@ -217,12 +218,12 @@ class SiteInspectionElectricalController extends Controller
                 $report->createAssignedToDo([$company->primary_user]);
 
                 // Email assigned notification
-                $email_list = (\App::environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? ['alethea@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssigned($report));
 
                 // Email assigned notification to Next Point Admin
                 if ($company->id == 108) {  // Next Point
-                    $email_list = (\App::environment('prod')) ? ['adam.balzan@electrical.obrien.com.au', 'thornleigh@electrical.obrien.com.au'] : [env('EMAIL_DEV')];
+                    $email_list = (app()->environment('prod')) ? ['adam.balzan@electrical.obrien.com.au', 'thornleigh@electrical.obrien.com.au'] : [env('EMAIL_DEV')];
                     if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalAssignedTrade($report));
                 }
             }
@@ -234,8 +235,10 @@ class SiteInspectionElectricalController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_inspection_electrical', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         Toastr::success("Updated inspection report");
@@ -305,29 +308,20 @@ class SiteInspectionElectricalController extends Controller
                 $action = Action::create(['action' => "Report signed off by Technical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
 
                 // Email completed notification
-                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = app()->environment('prod') ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalCompleted($report));
 
-                //
                 // Email completed PDF
-                //
-                $site = Site::findOrFail($report->site_id);
-                $pdf = PDF::loadView('pdf/site/inspection-electrical', compact('report', 'site'))->setPaper('a4');
-                $file = public_path("filebank/tmp/$site->name - Electrical Inspection Report.pdf");
-                if (file_exists($file))
-                    unlink($file);
-                $pdf->save($file);
-
                 // Trade who completed report
                 $email_list = [env('EMAIL_DEV')];
                 $company = Company::find($report->assigned_to);
-                if (\App::environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
+                if (app()->environment('prod') && $company && $company->primary_user && validEmail($company->primary_contact()->email))
                     $email_list = [$company->primary_contact()->email];
-                if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReportTrade($report, $file));
+                if ($email_list)
+                    Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReportTrade($report));
 
                 Toastr::success("Report Signed Off");
 
-                //dd($email_list);
             } else {
                 $action = Action::create(['action' => "Report rejected by Techical Manager ($current_user)", 'table' => 'site_inspection_electrical', 'table_id' => $report->id]);
                 $report->supervisor_sign_by = null;
@@ -377,7 +371,7 @@ class SiteInspectionElectricalController extends Controller
 
             if ($status == 1) {
                 // Email re-opened notification
-                $email_list = (\App::environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? $report->site->company->notificationsUsersEmailType('site.inspection.completed') : [env('EMAIL_DEV')];
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteInspectionElectricalReopened($report));
             }
         }
@@ -396,6 +390,10 @@ class SiteInspectionElectricalController extends Controller
         if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
+        // Delete attached files
+        foreach ($report->attachments as $file)
+            $file->delete();
+
         $report->closeToDo();
         $report->delete();
 
@@ -403,7 +401,7 @@ class SiteInspectionElectricalController extends Controller
 
     }
 
-    public function deleteAttachment($id, $doc_id)
+    public function deleteAttachment($id, $attach_id)
     {
         $report = SiteInspectionElectrical::findOrFail($id);
 
@@ -411,14 +409,8 @@ class SiteInspectionElectricalController extends Controller
         if (!Auth::user()->allowed2('del.site.inspection', $report))
             return view('errors/404');
 
-        $doc = SiteInspectionDoc::where('id', $doc_id)->first();
-        if ($doc) {
-            $file = public_path($doc->AttachmentUrl);
-            if (file_exists($file))
-                unlink($file);
-            $doc->delete();
-        }
-
+        // delete DB entry + file
+        $attachment = Attachment::findOrFail($attach_id)->delete();
 
         return redirect('site/inspection/electrical/' . $report->id . '/edit');
 
@@ -434,26 +426,8 @@ class SiteInspectionElectricalController extends Controller
     {
         $report = SiteInspectionElectrical::findOrFail($id);
 
-        if ($report) {
-            $completed = 1;
-            $data = [];
-            $users = [];
-            $companies = [];
-            $site = Site::findOrFail($report->site_id);
-
-            //dd($data);
-            /*
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            */
-
-            //return view('pdf/site/inspection-electrical', compact('report', 'site'));
-            return PDF::loadView('pdf/site/inspection-electrical', compact('report', 'site'))->setPaper('a4')->stream();
-        }
+        if ($report)
+            return PDF::loadView('pdf/site/inspection-electrical', compact('report'))->setPaper('a4')->stream();
     }
 
     /**

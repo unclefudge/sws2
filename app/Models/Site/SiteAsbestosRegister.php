@@ -2,14 +2,11 @@
 
 namespace App\Models\Site;
 
-use URL;
-use Mail;
-use App\Models\Misc\Action;
+use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
+use URL;
 
 class SiteAsbestosRegister extends Model
 {
@@ -52,16 +49,15 @@ class SiteAsbestosRegister extends Model
         return $this->site->company;
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'] && file_exists(public_path('/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/site/' . $this->site_id . '/docs/' . $this->attributes['attachment'];
 
-        return '';
+    public function getAttachmentUrlAttribute(): string
+    {
+        if (!$this->attachment)
+            return '';
+
+        return FileBank::url("site/{$this->site_id}/docs/{$this->attachment}");
     }
+
 
     /**
      * The "booting" method of the model.

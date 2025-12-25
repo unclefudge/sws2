@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\SiteDocRequest;
 use App\Models\Site\SiteDoc;
-use Carbon\Carbon;
+use App\Services\FileBank;
 use DB;
 use File;
 use Illuminate\Http\Request;
@@ -103,22 +103,22 @@ class SiteDocController extends Controller
 
         // Check authorisation and throw 404 if not
         if ($doc->type == 'PLAN' && !Auth::user()->allowed2('del.site.doc', $doc))
-            return json_encode('failed1');
+            return response()->json('failed1');
         else if ($doc->type != 'PLAN' && !Auth::user()->allowed2('del.safety.doc', $doc))
-            return json_encode('failed2');
+            return response()->json('failed2');
 
 
         // Log the delete action
-        if (!file_exists(public_path("/filebank/log"))) {
-            mkdir(public_path("/filebank/log"));
-            File::put(public_path('/filebank/log/sitedocs.txt'), "Site Docs\n---------\n\n");
-        }
-        $log = Carbon::now()->format('d/m/Y G:i:s') . " - " . Auth::user()->username . " DELETED ID:$doc->id Site:$doc->site_id (" . $doc->site->name . ") Name:$doc->name\n";
-        File::append(public_path('filebank/log/sitedocs.txt'), $log);
+        $logDir = storage_path('app/logs');
+        $logFile = $logDir . '/sitedocs.txt';
+        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+
+        $log = now()->format('d/m/Y G:i:s') . " - " . Auth::user()->username . " DELETED ID:$doc->id Site:$doc->site_id ({$doc->site->name}) Name:$doc->name\n";
+        File::append($logFile, $log);
 
         // Delete file
-        if (file_exists(public_path($doc->attachmentUrl)))
-            unlink(public_path($doc->attachmentUrl));
+        if ($doc->attachment)
+            FileBank::delete("construction/doc/standards/{$doc->attachment}");
         $doc->delete();
 
         return json_encode('success');
@@ -139,26 +139,18 @@ class SiteDocController extends Controller
         $type = request('type');
 
         // Redirect on 'back' button
-        if ($request->has('back'))
+        if (request()->has('back'))
             return view('/site/doc/list', compact('site_id', 'type'));
 
-        $doc_request = $request->all();
+        $doc_request = request()->all();
 
         // Create Site Doc
         $doc = SiteDoc::create($doc_request);
 
         // Handle attached file
-        if ($request->hasFile('singlefile')) {
-            $file = $request->file('singlefile');
-
-            $path = "filebank/site/" . $doc->site_id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
+        if (request()->hasFile('singlefile')) {
+            $basePath = "site/$doc->site_id/docs";
+            $doc->attachment = FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
             $doc->save();
 
             // Dial Before Dig
@@ -166,6 +158,7 @@ class SiteDocController extends Controller
                 $doc->closeToDoTask('dial_before_dig');
             }
         }
+
         Toastr::success("Created document");
 
         $previous_url = parse_url(url()->previous());
@@ -184,34 +177,35 @@ class SiteDocController extends Controller
     {
         // Check authorisation and throw 404 if not
         if (!(Auth::user()->allowed2('add.safety.doc') || Auth::user()->allowed2('add.site.doc')))
-            return json_encode("failed");
+            return response()->json('failed', 403);
+
+        if (!request()->hasFile('multifile'))
+            return response()->json('success');
+
 
         // Handle file upload
-        if ($request->hasFile('multifile')) {
-            $files = $request->file('multifile');
-            foreach ($files as $file) {
-                $path = "filebank/site/" . $request->get('site_id') . '/docs';
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+        $siteId = request('site_id');
+        $basePath = "site/{$siteId}/docs";
 
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$path/$name")))
-                    $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-                $file->move($path, $name);
+        foreach (request()->file('multifile') as $file) {
+            // Build base filename: {site_id}-original-name.ext
+            $originalName = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $forcedFilename = "{$originalName}." . strtolower($file->getClientOriginalExtension());
 
-                $doc_request = $request->only('type', 'site_id');
-                $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $doc_request['company_id'] = Auth::user()->company_id;
+            // Store file (Spaces-safe, unique handled internally)
+            $filename = FileBank::storeUploadedFile($file, $basePath, $forcedFilename);
 
-                // Create Site Doc
-                $doc = SiteDoc::create($doc_request);
-                $doc->attachment = $name;
-                $doc->save();
-            }
-
+            // Create SiteDoc record
+            $doc = SiteDoc::create([
+                'type' => request('type'),
+                'site_id' => $siteId,
+                'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'company_id' => Auth::user()->company_id,
+                'attachment' => $filename,
+            ]);
         }
 
-        return json_encode("success");
+        return response()->json('success');
     }
 
     /**
@@ -221,11 +215,11 @@ class SiteDocController extends Controller
      */
     public function update(SiteDocRequest $request, $id)
     {
-        $site_id = $request->get('site_id');
-        $type = $request->get('type');
+        $site_id = request('site_id');
+        $type = request('type');
 
         // Redirect on 'back' button
-        if ($request->has('back'))
+        if (request()->has('back'))
             return view('/site/doc/list', compact('site_id', 'type'));
 
         $doc = SiteDoc::findOrFail($id);
@@ -235,47 +229,35 @@ class SiteDocController extends Controller
             return view('errors/404');
 
         // Get Original report filename path
-        $orig_site = $doc->site_id;
-        $orig_attachment = $doc->attachmentUrl;
+        $origSiteId = $doc->site_id;
+        $origFilename = $doc->attachment;
 
-        //dd($request->all());
-        $doc_request = $request->only('name', 'type', 'site_id', 'notes');
-        $doc->update($doc_request);
+        $doc->update(request()->only('name', 'type', 'site_id', 'notes'));
 
-        // if doc has altered 'site_id' move the file to the new file location
-        if ($doc->site_id != $orig_site) {
-            // Make directory if non-existant
-            if (!file_exists(public_path(pathinfo($doc->attachmentUrl, PATHINFO_DIRNAME))))
-                mkdir(public_path(pathinfo($doc->attachmentUrl, PATHINFO_DIRNAME), 0755));
-            rename(public_path($orig_attachment), public_path($doc->attachmentUrl));
-            $orig_attachment = $doc->attachmentUrl;
+        /*
+         |--------------------------------------------------------------------------
+         | Handle SITE CHANGE (rename = copy + delete)
+         |--------------------------------------------------------------------------
+        */
+        if ($origFilename && $doc->site_id != $origSiteId) {
+            $oldPath = "site/{$origSiteId}/docs/{$origFilename}";
+            $newPath = "site/{$doc->site_id}/docs/{$origFilename}";
+            FileBank::move($oldPath, $newPath);
         }
 
-        // Handle attached file
-        if ($request->hasFile('uploadfile')) {
-            $file = $request->file('uploadfile');
 
-            $path = "filebank/site/" . $doc->site_id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $doc->site_id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-
-            $file->move($path, $name);
-            $doc->attachment = $name;
+        // Handle new attachment + delete old file
+        if (request()->hasFile('uploadfile')) {
+            $basePath = "site/$doc->site_id/docs";
+            $doc->attachment = FileBank::replaceUploadedFile(request()->file('uploadfile'), $basePath, $doc->attachment);
             $doc->save();
 
-            // Delete previous file
-            if (file_exists(public_path($orig_attachment)))
-                unlink(public_path($orig_attachment));
-
             // Dial Before Dig
-            if (stripos(strtolower(request('name')), 'dial before you dig') !== false) {
+            if (stripos(strtolower($doc->name)), 'dial before you dig') !== false) {
                 $doc->closeToDoTask('dial_before_dig');
             }
         }
+
         Toastr::success("Updated document");
 
         return view('site/doc/edit', compact('doc', 'site_id', 'type'));
@@ -286,66 +268,52 @@ class SiteDocController extends Controller
      */
     public function getDocs()
     {
-        //dd(request()->all());
-        $site_id_active = (request('site_id_active') == 'all') ? '' : request('site_id_active');
-        $site_id_completed = (request('site_id_completed') == 'all') ? '' : request('site_id_completed');
-        $site_id_upcoming = (request('site_id_upcoming') == 'all') ? '' : request('site_id_upcoming');
-
-        if (request('status') == 1)
-            $allowedSites = ($site_id_active) ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id')->toArray();
-        elseif (request('status') == '0')
-            $allowedSites = ($site_id_completed) ? [$site_id_completed] : Auth::user()->company->sites(0)->pluck('id')->toArray();
-        else
-            $allowedSites = ($site_id_upcoming) ? [$site_id_upcoming] : Auth::user()->company->sites(-1)->pluck('id')->toArray();
-
-        //dd($allowedSites);
+        $status = request('status');
         $type = request('type');
-        if ($type == 'ALL')
-            $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 'd.updated_at', 's.id as sid', 's.name as site_name'])
-                ->join('sites as s', 'd.site_id', '=', 's.id')
-                ->whereIn('site_id', $allowedSites)
-                ->where('d.status', '1');
-        else
-            $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 'd.updated_at', 's.id as sid', 's.name as site_name'])
-                ->join('sites as s', 'd.site_id', '=', 's.id')
-                ->where('d.type', $type)
-                ->whereIn('site_id', $allowedSites)
-                ->where('d.status', '1');
 
-        //dd($records);
+        $site_id_active = request('site_id_active') === 'all' ? null : request('site_id_active');
+        $site_id_completed = request('site_id_completed') === 'all' ? null : request('site_id_completed');
+        $site_id_upcoming = request('site_id_upcoming') === 'all' ? null : request('site_id_upcoming');
 
-        $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
-            ->addColumn('updatedDate', function ($doc) {
-                $record = SiteDoc::find($doc->id);
-                if ($record)
-                    return $record->updated_at->format('d/m/Y');
-                return "";
+        if ($status == 1) {
+            $allowedSites = $site_id_active ? [$site_id_active] : Auth::user()->company->sites(1)->pluck('id');
+        } elseif ($status == 0) {
+            $allowedSites = $site_id_completed ? [$site_id_completed] : Auth::user()->company->sites(0)->pluck('id');
+        } else {
+            $allowedSites = $site_id_upcoming ? [$site_id_upcoming] : Auth::user()->company->sites(-1)->pluck('id');
+        }
+
+        $records = SiteDoc::with('site')->whereIn('site_id', $allowedSites)->where('status', 1);
+        if ($type !== 'ALL')
+            $records->where('type', $type);
+
+        $user = Auth::user();
+        return DataTables::of($records)
+            ->addColumn('id', function ($doc) {
+                return "<div class='text-center'> <a href='{$doc->attachment_url}' target='_blank'><i class='fa fa-file-text-o'></i></a></div>";
             })
-            ->addColumn('action', function ($doc) {
-                $record = SiteDoc::find($doc->id);
+            ->addColumn('updatedDate', fn($doc) => $doc->updated_at?->format('d/m/Y') ?? '')
+            ->addColumn('action', function ($doc) use ($user) {
                 $actions = '';
 
-                if ($doc->type == 'PLAN') {
-                    if (Auth::user()->allowed2('edit.site.doc', $record))
-                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                    if (Auth::user()->allowed2('del.site.doc', $record))
-                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                if ($doc->type === 'PLAN') {
+                    if ($user->allowed2('edit.site.doc', $doc))
+                        $actions .= "<a href='/site/doc/{$doc->id}' class='btn blue btn-xs'>Edit</a>";
+
+                    if ($user->allowed2('del.site.doc', $doc))
+                        $actions .= "<button class='btn dark btn-xs btn-delete' data-remote='/site/doc/{$doc->id}' data-name='{$doc->name}'><i class='fa fa-trash'></i></button>";
                 } else {
-                    if (Auth::user()->allowed2('edit.safety.doc', $record))
-                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                    if (Auth::user()->allowed2('del.safety.doc', $record))
-                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
+                    if ($user->allowed2('edit.safety.doc', $doc))
+                        $actions .= "<a href='/site/doc/{$doc->id}' class='btn blue btn-xs'>Edit</a>";
+
+                    if ($user->allowed2('del.safety.doc', $doc))
+                        $actions .= "<button class='btn dark btn-xs btn-delete' data-remote='/site/doc/{$doc->id}' data-name='{$doc->name}'><i class='fa fa-trash'></i> </button>";
                 }
 
                 return $actions;
             })
             ->rawColumns(['id', 'action'])
             ->make(true);
-
-        return $dt;
     }
 
 
@@ -372,13 +340,12 @@ class SiteDocController extends Controller
         //dd(request()->all());
         $status = (request('status')) ? request('status') : 1;
         $site_id = ($status == 1) ? request('site_id') : request('site_id2');
-        $records = SiteDoc::select(['id', 'type', 'site_id', 'attachment', 'name',])
-            ->where('type', $type)
-            ->where('site_id', '=', $site_id)
-            ->where('status', 1);
+        $records = SiteDoc::select(['id', 'type', 'site_id', 'attachment', 'name',])->where('type', $type)->where('site_id', '=', $site_id)->where('status', 1);
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', function ($doc) {
+                return "<div class='text-center'> <a href='{$doc->attachment_url}' target='_blank'><i class='fa fa-file-text-o'></i></a></div>";
+            })
             ->rawColumns(['id', 'action'])
             ->make(true);
 

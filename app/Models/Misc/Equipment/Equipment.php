@@ -2,6 +2,7 @@
 
 namespace App\Models\Misc\Equipment;
 
+use App\Services\FileBank;
 use App\User;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -120,16 +121,13 @@ class Equipment extends Model
     {
         return $this->total - $this->purchased + $this->disposed + $this->total_lost;
     }
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])
-            return '/filebank/equipment/' . $this->attributes['attachment'];
+        if (!$this->attachment) return '';
+        $path = "equipment/{$this->attachment}";
 
-        return '';
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
 

@@ -1,13 +1,14 @@
-@if ($main->docs->count())
-        <?php $doc_count = 0; ?>
+@php
+    $files  = $main->attachments->where('type', 'file');
+@endphp
+@if ($files->isNotEmpty())
     <div style="width: 100%; overflow: hidden;">
-        @foreach ($main->docs as $doc)
-            @if ($doc->type == 'file')
-                <i class="fa fa-file-text-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a>
-                @if(Auth::user()->allowed2('del.site.maintenance', $main))
-                    <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $doc->name }}" data-did="{{$doc->id}}"></i>
-                @endif<br>
+        @foreach ($files as $attachment)
+            <i class="fa fa-file-text-o"></i> <a href="{{ $attachment->url }}" target="_blank" title="{{ $attachment->name }}"> {{ $attachment->name }}</a>
+            @if(Auth::user()->allowed2('del.site.maintenance', $main))
+                <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
             @endif
+            <br>
         @endforeach
     </div>
 @else

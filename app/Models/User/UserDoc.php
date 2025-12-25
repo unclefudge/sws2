@@ -2,16 +2,16 @@
 
 namespace App\Models\User;
 
-use DB;
-use URL;
-use Mail;
-use App\User;
 use App\Models\Comms\Todo;
-use App\Models\Company\Company;
+use App\Services\FileBank;
+use App\User;
 use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
+use nilsenj\Toastr\Facades\Toastr;
+use URL;
 
 class UserDoc extends Model
 {
@@ -153,7 +153,7 @@ class UserDoc extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to User who uploaded doc & Company senior users
             $email_created = (validEmail($this->createdBy->email)) ? [$this->createdBy->email] : [];
             $email_seniors = []; //$this->company->seniorUsersEmail();
@@ -174,7 +174,7 @@ class UserDoc extends Model
     {
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to Company Senior Users
             $email_to = $this->company->seniorUsersEmail();
             // Send CC to Parent Company if doc type acc or whs
@@ -194,13 +194,11 @@ class UserDoc extends Model
      */
     public function getAttachmentUrlAttribute()
     {
-        //$url = URL::to('/filebank') . '/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
-        if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/user/' . $this->user_id . '/docs/' . $this->attributes['attachment'];
+        if (!$this->attachment) return '';
+        $path = "user/$this->user_id/docs/$this->attachment";
 
-        return '';
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
-
 
     /**
      * Display records last update_by + date

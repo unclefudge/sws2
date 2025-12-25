@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -58,16 +59,14 @@ class SiteDoc extends Model
         }
     }
 
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])
-            return '/filebank/site/' . $this->attributes['site_id'] . "/docs/" . $this->attributes['attachment'];
-        return '';
+        if (!$this->attachment)
+            return '';
+
+        return FileBank::url("site/{$this->site_id}/docs/{$this->attachment}");
     }
+
 
     /**
      * Get the owner of record   (getter)

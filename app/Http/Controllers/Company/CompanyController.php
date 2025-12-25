@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Company\CompanyRequest;
 use App\Http\Utilities\CompanyTypes;
 use App\Http\Utilities\OverrideTypes;
 use App\Models\Company\Company;
@@ -17,7 +16,6 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
 use Mail;
 use nilsenj\Toastr\Facades\Toastr;
 use Validator;
@@ -89,7 +87,7 @@ class CompanyController extends Controller
         $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         // Mail request to new company
         if ($newCompany->reportsTo()->id == 3) {
-            $user_list = (\App::environment('prod')) ? ['accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
+            $user_list = (app()->environment('prod')) ? ['accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($email_user)
                 $user_list[] = $email_user;
             Mail::to(request('email'))->cc($user_list)->send(new \App\Mail\Company\CompanyWelcomeCC($newCompany, Auth::user()->company, request('person_name')));
@@ -101,7 +99,7 @@ class CompanyController extends Controller
 
         // Mail notification to parent company
         if ($newCompany->parent_company && $newCompany->reportsTo()->notificationsUsersType('company.signup.sent')) {
-            $email_list = (\App::environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [env('EMAIL_DEV')];
+            $email_list = (app()->environment('prod')) ? $newCompany->reportsTo()->notificationsUsersEmailType('company.signup.sent') : [env('EMAIL_DEV')];
             Mail::to($email_list)->send(new \App\Mail\Company\CompanyCreated($newCompany));
         }
 
@@ -462,7 +460,7 @@ class CompanyController extends Controller
 
         // Email Leave
         $cc = Company::find(3);
-        $email_list = (\App::environment('prod')) ? array_merge(['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'], $cc->supervisorsAllEmails()) : [env('EMAIL_DEV')];
+        $email_list = (app()->environment('prod')) ? array_merge(['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'], $cc->supervisorsAllEmails()) : [env('EMAIL_DEV')];
         $company->emailLeave($email_list, 'added new');
 
         return redirect("company/$company->id");
@@ -494,7 +492,7 @@ class CompanyController extends Controller
                     $leave->update($leave_request);
                     // Email Leave
                     $cc = Company::find(3);
-                    $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'] + $cc->supervisorsAllEmails() : [env('EMAIL_DEV')];
+                    $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au', 'construct@capecod.com.au'] + $cc->supervisorsAllEmails() : [env('EMAIL_DEV')];
                     $company->emailLeave($email_list, 'updated existing');
                 }
             }
@@ -684,38 +682,6 @@ class CompanyController extends Controller
         Toastr::success("Added note");
 
         return redirect('company/' . $company->id);
-    }
-
-    /**
-     * Update the photo on user model resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function updateLogo(CompanyRequest $request, $id)
-    {
-        $company = Company::findorFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.company', $company))
-            return view('errors/404');
-
-        $file = $request->file('logo');
-        $path = "filebank/company/" . $company->id;
-        $name = "logo." . strtolower($file->getClientOriginalExtension());
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        Image::make(url($path_name))
-            ->fit(740)
-            ->save($path_name);
-
-        $company->logo_profile = $path_name;
-        $company->save();
-        Toastr::success("Saved changes");
-
-        return redirect('/company/' . $company->id . '/settings/logo');
     }
 
     /**

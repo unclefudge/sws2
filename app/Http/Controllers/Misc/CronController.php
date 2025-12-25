@@ -37,14 +37,26 @@ use Mail;
 
 class CronController extends Controller
 {
+    public $logFile;
 
     static public function nightly()
     {
+        // -------------------------------------------------
+        // Log file
+        // -------------------------------------------------
+        $logDir = storage_path('app/log/nightly');
+        $this->logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
+
+        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+
         echo "<h1> Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
         $log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
-        $bytes_written = File::put(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND);
 
+
+        // -------------------------------------------------
+        // Nightly Jobs
+        // -------------------------------------------------
         CronController::blessing();
         CronController::supporthours();
         CronController::nonattendees();
@@ -99,8 +111,8 @@ class CronController extends Controller
         echo "<h1>ALL DONE - NIGHTLY COMPLETE</h1>";
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
 
@@ -121,7 +133,7 @@ class CronController extends Controller
             $log .= "$user->name (" . $user->company->name . ")\n";
         }
         $log .= "\n\nAmen.";
-        $bytes_written = File::put(public_path('filebank/tmp/blessing.txt'), $log);
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     static public function supporthours()
@@ -188,8 +200,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
 
@@ -262,8 +274,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -444,8 +456,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
 
@@ -475,8 +487,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -527,8 +539,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -578,8 +590,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     static public function rogueToDo()
@@ -621,8 +633,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
 
         /*
             'incident' => "Incident Report",
@@ -771,8 +783,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -819,7 +831,7 @@ class CronController extends Controller
                 }
 
                 $email_to = $company->reportsTo()->notificationsUsersEmailType('doc.standard.renew');
-                if (!\App::environment('prod')) $email_to = [env('EMAIL_DEV')];
+                if (!app()->environment('prod')) $email_to = [env('EMAIL_DEV')];
 
                 if ($email_to) Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocRenewalMulti($docs));
                 echo "Emailed " . implode("; ", $email_to) . "<br>";
@@ -830,8 +842,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -902,8 +914,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -951,8 +963,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -989,8 +1001,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1008,7 +1020,7 @@ class CronController extends Controller
         $log .= "------------------------------------------------------------------------\n\n";
         $cc = Company::find(3);
         $email_list = [env('EMAIL_DEV')];
-        if (\App::environment('prod'))
+        if (app()->environment('prod'))
             $email_list = $cc->notificationsUsersEmailType('site.planner.key.tasks');
         $emails = implode("; ", $email_list);
 
@@ -1074,8 +1086,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
@@ -1178,8 +1190,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
 
@@ -1325,8 +1337,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1394,8 +1406,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1480,8 +1492,8 @@ class CronController extends Controller
 
                 // Send email
                 $primary_email = ($company->primary_user && validEmail($company->primary_contact()->email)) ? $company->primary_contact()->email : '';
-                $email_to = (\App::environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod')) ? [$primary_email] : [env('EMAIL_DEV')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'accounts1@capecod.com.au'] : [env('EMAIL_DEV')];
                 if ($email_to && $email_cc) {
                     CronController::debugEmail('TO', $email_to, 'CC', $email_cc);
                     Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocsReminder($company));
@@ -1495,8 +1507,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1515,7 +1527,7 @@ class CronController extends Controller
 
         $yesterday = Carbon::now()->subDays(1)->format('Ymd');
         $successful = '';
-        $logfile = public_path("filebank/log/zoho/$yesterday.txt");
+        $logfile = storage_path("app/log/zoho/$yesterday.txt");
 
         if (file_exists($logfile)) {
             $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
@@ -1545,8 +1557,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1583,7 +1595,7 @@ class CronController extends Controller
                     //$todo->emailToDo();
                     $qa = SiteQa::find($todo->type_id);
                     $email_to = [env('EMAIL_DEV')];
-                    if (\App::environment('prod') && $qa->site->areaSupervisorsEmails())
+                    if (app()->environment('prod') && $qa->site->areaSupervisorsEmails())
                         $email_to = $qa->site->areaSupervisorsEmails();
                     //Mail::to($email_to)->send(new \App\Mail\Site\SiteQaOverdue($qa));
                 }
@@ -1623,8 +1635,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1716,8 +1728,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskReminder()
@@ -1757,8 +1769,8 @@ class CronController extends Controller
                 $log .= "- $super->fullname\n";
 
                 // Send email to supervisor
-                $email_list = (\App::environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
-                $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+                $email_list = (app()->environment('prod')) ? [$super->email] : [env('EMAIL_DEV')];
+                $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
                 CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
                 if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReminder($extension, $site_list));
             }
@@ -1767,8 +1779,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskFinalReminder()
@@ -1803,8 +1815,8 @@ class CronController extends Controller
             }
 
             // Send email
-            $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-            $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             CronController::debugEmail('EL', $email_list, 'CC', $email_cc);
             if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsFinalReminder($extension, $message));
         } else {
@@ -1815,8 +1827,8 @@ class CronController extends Controller
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
 
-        $bytes_written = File::append(public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        // Append Log
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1825,9 +1837,8 @@ class CronController extends Controller
 
     static public function verifyNightly()
     {
-        $log = public_path('filebank/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         //echo "Log: $log<br>";
-        if (strpos(file_get_contents($log), "ALL DONE - NIGHTLY COMPLETE") !== false) {
+        if (strpos(file_get_contents($this->logFile), "ALL DONE - NIGHTLY COMPLETE") !== false) {
             //echo "successful";
             //Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("was Successful"));
         } else {

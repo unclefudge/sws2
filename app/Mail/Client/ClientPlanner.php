@@ -3,6 +3,7 @@
 namespace App\Mail\Client;
 
 use App\Models\Client\ClientPlannerEmail;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -34,11 +35,10 @@ class ClientPlanner extends Mailable implements ShouldQueue
         $email = $this->markdown('emails/client/planner')->subject($this->client_planner->subject);
 
         // Attachments
-        if ($this->client_planner->docs->count()) {
-            foreach ($this->client_planner->docs as $doc) {
-                if (file_exists(public_path($doc->attachment_url)))
-                    $email->attach(public_path($doc->attachment_url));
-            }
+
+        foreach ($this->client_planner->attachments as $file) {
+            if ($file->directory && $file->attachment)
+                FileBank::attachToEmail($email, "$file->directory/$file->attachment}");
         }
 
         return $email;

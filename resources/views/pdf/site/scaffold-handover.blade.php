@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -88,7 +88,7 @@
         </div>
         <div class="row" style="padding: 0px;">
             <div class="col-xs-1">&nbsp;</div>
-            <div class="col-xs-6">{!! $site->full_address !!}</div>
+            <div class="col-xs-6">{!! $report->site->full_address !!}</div>
             <div class="col-xs-2">Duty Classification</div>
             <div class="col-xs-2">{{ $report->duty }}</div>
         </div>
@@ -119,11 +119,11 @@
         </div>
         <div class="row" style="padding: 0px">
             <div class="col-xs-12">
-                @if ($report->docs->count())
+                @if ($report->attachments->count())
                     <div style="width: 100%; overflow: hidden;">
-                        @foreach ($report->docs as $doc)
-                            @if ($doc->type == 'photo')
-                                <img src="{!! URL::to($doc->AttachmentUrl) !!}" width="160"> &nbsp; &nbsp;
+                        @foreach ($report->attachments as $doc)
+                            @if ($doc->type == 'image')
+                                <img src="{{ $doc->url }}" width="160"> &nbsp; &nbsp;
                             @endif
                         @endforeach
                     </div>
@@ -145,7 +145,7 @@
                 Signed by (Inspector) : &nbsp; &nbsp; {{ $report->inspector_name }}<br>
                 Date: &nbsp; &nbsp; {{ $report->signed }}<br>
             </div>
-            <div class="col-xs-5"><img src="{!! URL::to($report->inspector_licence_url) !!}" width="150"></div>
+            <div class="col-xs-5"><img src="{{ $report->inspector_licence_url }}" width="150"></div>
         </div>
     </div>
     {{-- <div class="page"></div> --}}

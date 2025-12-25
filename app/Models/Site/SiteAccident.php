@@ -2,12 +2,11 @@
 
 namespace App\Models\Site;
 
-use Mail;
-use App\User;
-use App\Models\Misc\Action;
 use App\Models\Comms\Todo;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class SiteAccident extends Model
 {
@@ -71,7 +70,7 @@ class SiteAccident extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;
@@ -92,7 +91,7 @@ class SiteAccident extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;

@@ -5,6 +5,7 @@ namespace App\Models\Company;
 use App\Models\Comms\Todo;
 use App\Models\Misc\ContractorLicence;
 use App\Models\Misc\ContractorLicenceSupervisor;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -146,7 +147,7 @@ class CompanyDoc extends Model
             $todo->assignUsers($user_list);
             $todo->emailToDo();
 
-            if (\App::environment('prod')) {
+            if (app()->environment('prod')) {
                 // Send Kirstie a copy of Company Doc Approval ToDoo task as well
                 $todo->emailToDo('kirstie@capecod.com.au');
             }
@@ -207,7 +208,7 @@ class CompanyDoc extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to User who uploaded doc & Company senior users
             $email_created = (validEmail($this->createdBy->email)) ? [$this->createdBy->email] : [];
             $email_seniors = []; //$this->company->seniorUsersEmail();
@@ -227,7 +228,7 @@ class CompanyDoc extends Model
     {
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to Company Senior Users
             $email_to = $this->company->seniorUsersEmail();
             // Send CC to Parent Company if doc type acc or whs
@@ -253,23 +254,19 @@ class CompanyDoc extends Model
      */
     public function emailRenewal($email_to = '')
     {
-        if (!\App::environment('prod'))
+        if (!app()->environment('prod'))
             $email_to = [env('EMAIL_DEV')];
 
         if (validEmail($email_to))
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocRenewal($this));
     }
 
-
-    /**
-     * Get the Attachment URL (setter)
-     */
     public function getAttachmentUrlAttribute()
     {
-        if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
+        if (!$this->attachment) return '';
+        $path = "company/{$this->company->id}/docs/$this->attachment";
 
-        return '';
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
     /**

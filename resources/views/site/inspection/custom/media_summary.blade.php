@@ -77,9 +77,9 @@
                                 {{-- Icon View --}}
                                 @if ($view == "icon")
                                     <div id="view_icon">
-                                        @foreach ($form->photos()->sortBy('order')  as $file)
+                                        @foreach ($form->photos()->sortBy('order') as $file)
                                                 <?php $rn = rand(); ?>
-                                            <img src="{{$file->attachment}}?v={{$rn}}" class="mygallery" id="q{{$file->question_id}}-photo-{{$file->attachment}}?v={{$rn}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                            <img src="{{$file->url}}" class="mygallery" id="q{{$file->question_id}}-photo-{{$file->attachment}}?v={{$rn}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                                         @endforeach
                                     </div>
                                 @endif
@@ -91,7 +91,7 @@
                                                     <?php $rn = rand(); $did = "q$file->question_id-photo-$file->attachment?v=$rn" ?>
                                                 <tr style="padding: 10px 0px 10px 0px; border-bottom: 1px solid #ccc;">
                                                     <td style="width:130px" class="text-center">
-                                                        <img src="{{$file->attachment}}?v={{$rn}}" class="mygallery listImage" id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" height="70" style="margin:10px 10px 10px 0px"></td>
+                                                        <img src="{{$file->url}}" class="mygallery listImage" id="{{$did}}" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}" height="70" style="margin:10px 10px 10px 0px"></td>
                                                     <td style="padding-top: 10px; vertical-align: top">
                                                         <div id="pname-{{$file->id}}">
                                                             <button type="button" class="btn btn-sm blue pull-right editImage" style="margin-left: 5px" data-fid="{{$file->id}}" data-attach="{{$file->attachment}}">Edit</button>
@@ -119,10 +119,10 @@
                                                     <?php
                                                     if ($i > $form->photos()->count()) break;
                                                     $p1 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i)->first();
-                                                    $p1_img = ($p1) ? "<img src='$p1->attachment?v=" . rand() . "' width='100%'>" : '';
+                                                    $p1_img = ($p1) ? "<img src='$p1->url' width='100%'>" : '';
                                                     $p1_txt = ($p1) ? $p1->question->name : '';
                                                     $p2 = \App\Models\Misc\Form\FormFile::where('form_id', $form->id)->where('order', $i + 1)->first();
-                                                    $p2_img = ($p2) ? "<img src='$p2->attachment?v=" . rand() . "' width='100%'>" : '';
+                                                    $p2_img = ($p2) ? "<img src='$p2->url' width='100%'>" : '';
                                                     $p2_txt = ($p2) ? $p2->question->name : '';
                                                     ?>
                                                 <tr>
@@ -148,7 +148,7 @@
                                     <div id="view_full">
                                         @foreach ($form->photos() as $file)
                                             @if ($file->type == 'image')
-                                                <div><img src="{{$file->attachment}}?v={{rand()}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100%"></div>
+                                                <div><img src="{{$file->url}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100%"></div>
                                                 <div style="background: #222; color: #fff; padding:5px 10px; vertical-align: top; margin-bottom: 20px ">{{ $file->question->name }}</div>
                                             @endif
                                         @endforeach
@@ -161,7 +161,7 @@
                                         @foreach ($form->files() as $file)
                                             @if ($file->type == 'file')
                                                 <div id="q{{$file->question_id}}-file-{{$file->id}}">
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a>
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
                                                 </div>
                                             @endif
                                         @endforeach
@@ -303,28 +303,29 @@
 
 
             $('#deleteGallery').click(function (e) {
-                e.preventDefault(e);
-                // url = /filebank/form/{id}/filename.jpg?v=1234
-                var image = document.getElementById("myGalleryImage");
-                var host = window.location.protocol + "//" + window.location.host;
-                var file_url = image.src.split(host)[1];
-                var form_id = file_url.split('/filebank/inspection/')[1].split('/')[0]; // get only the filename ie strip out '/filebank/form/'
-                var attach = file_url.split('?v=')[0]; // get only the filename ie strip out '/filebank/form/{id}/'
-                var file = file_url.split('/filebank/inspection/')[1].split('/')[1].split('?v=')[0]; // get only the filename ie strip out '/filebank/form/{id}/'
-                var qid = file.split('-')[0];
-                var fid = imageAttachment[attach];
-                //alert(attach);
-                //alert(fid);
+                e.preventDefault();
+
+                const image = document.getElementById('gallery-image');
+                const fileId = image.dataset.fileId;
+                if (!fileId) {
+                    console.error('Missing file id');
+                    return;
+                }
+
                 $.ajax({
-                    url: '/form/media/' + fid + '/delete/',
-                    type: 'GET',
+                    url: '/form/media/' + fileId + '/delete',
+                    type: 'DELETE',
                     dataType: 'json',
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     success: function (data) {
-                        console.log(data);
+                        console.log('Deleted', data);
+                        image.remove();
                     },
+                    error: function (xhr) {
+                        console.error('Delete failed', xhr);
+                    }
                 });
             });
-
 
             // Delete Files
             $('.deleteFile').click(function (e) {

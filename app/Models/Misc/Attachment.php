@@ -2,8 +2,22 @@
 
 namespace App\Models\Misc;
 
+use App\Models\Company\Company;
+use App\Models\Company\CompanyDoc;
+use App\Models\Site\Incident\SiteIncident;
+use App\Models\Site\SiteAsbestos;
+use App\Models\Site\SiteHazard;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
+use App\Models\Site\SiteMaintenance;
+use App\Models\Site\SiteNote;
+use App\Models\Site\SitePracCompletion;
+use App\Models\Site\SiteQa;
+use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use URL;
 
@@ -15,165 +29,183 @@ class Attachment extends Model
         'status', 'notes', 'created_by', 'created_at', 'updated_at', 'updated_by'];
     protected $casts = ['updated_at' => 'datetime'];
 
-    /**
-     * A Attachment belongs to a Parent Record
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    /* ============================================================
+     |  Relationships
+     |============================================================ */
     public function record()
     {
-        if ($this->table == 'site_notes')
-            return $this->belongsTo('App\Models\Site\SiteNotes', 'table_id');
-        if ($this->table == 'site_hazards')
-            return $this->belongsTo('App\Models\Site\SiteHazards', 'table_id');
-        if ($this->table == 'site_qa')
-            return $this->belongsTo('App\Models\Site\SiteQa', 'table_id');
-        if ($this->table == 'site_asbestos')
-            return $this->belongsTo('App\Models\Site\SiteAsbestos', 'table_id');
-        if ($this->table == 'site_maintenance')
-            return $this->belongsTo('App\Models\Site\SiteMaintenance', 'table_id');
-        if ($this->table == 'site_prac_completion')
-            return $this->belongsTo('App\Models\Site\SitePracCompletion', 'table_id');
-        if ($this->table == 'site_inspection_plumbing')
-            return $this->belongsTo('App\Models\Site\SiteInspectionPlumbing', 'table_id');
-        if ($this->table == 'site_inspection_electrical')
-            return $this->belongsTo('App\Models\Site\SiteInspectionElectrical', 'table_id');
-        if ($this->table == 'company_docs_review')
-            return $this->belongsTo('App\Models\Company\CompanyDoc', 'table_id');
-        if ($this->table == 'companys')
-            return $this->belongsTo('App\Models\Company\Company', 'table_id');
-
+        return match ($this->table) {
+            'companys' => $this->belongsTo(Company::class, 'table_id'),
+            'company_docs_review' => $this->belongsTo(CompanyDoc::class, 'table_id'),
+            'site_asbestos' => $this->belongsTo(SiteAsbestos::class, 'table_id'),
+            'site_incidents' => $this->belongsTo(SiteIncident::class, 'table_id'),
+            'site_inspection_plumbing' => $this->belongsTo(SiteInspectionPlumbing::class, 'table_id'),
+            'site_inspection_electrical' => $this->belongsTo(SiteInspectionElectrical::class, 'table_id'),
+            'site_hazards' => $this->belongsTo(SiteHazard::class, 'table_id'),
+            'site_maintenance' => $this->belongsTo(SiteMaintenance::class, 'table_id'),
+            'site_prac_completion' => $this->belongsTo(SitePracCompletion::class, 'table_id'),
+            'site_notes' => $this->belongsTo(SiteNote::class, 'table_id'),
+            'site_qa' => $this->belongsTo(SiteQa::class, 'table_id'),
+            default => null,
+        };
     }
 
-    /**
-     * Save Attachment
-     */
-    public function saveAttachment($tmp_filename, $filename_prefix = '', $name = '')
+    /* ============================================================
+      | FilePond / TemporaryFile uploads (TEMP → FILEBANK)
+      |============================================================ */
+    public function saveAttachment(string $tmpFolder, string $filenamePrefix = '', string $name = ''): void
     {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to new actual directory
-            $dir = $this->directory;
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+        $tempFile = TemporaryFile::where('folder', $tmpFolder)->first();
+        if (!$tempFile) return;
 
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = ($filename_prefix) ? $filename_prefix . $tempFile->filename : $tempFile->filename;
+        $sourcePath = "{$tempFile->folder}/{$tempFile->filename}";
 
-                // Ensure filename is unique by adding counter to similar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-
-                // Update record
-
-                $this->name = ($name) ? $name : pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $this->type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $this->attachment = $newFile;
-                //$this->file = public_path("$dir/$newFile");
-                $this->save();
-            }
-
-            // Delete Temporary file directory + record
+        // Temp file must exist
+        if (!Storage::disk('local')->exists($sourcePath)) {
             $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
+            return;
         }
+
+        // Logical base path (NO leading slash, NO public/)
+        $basePath = trim($this->directory, '/');
+
+        // Determine attachment type
+        $extension = strtolower(pathinfo($tempFile->filename, PATHINFO_EXTENSION));
+        $this->type = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp']) ? 'image' : 'file';
+
+        // Optional filename prefix
+        $forcedFilename = $filenamePrefix ? $filenamePrefix . $tempFile->filename : null;
+
+        // Wrap local temp file as UploadedFile-compatible object
+        $localFile = new File(Storage::disk('local')->path($sourcePath));
+
+        // Store via FileBank (Spaces-safe, unique, streamed)
+        $filename = FileBank::storeUploadedFile($localFile, $basePath, $forcedFilename, $this->type === 'image');
+
+        // Persist DB record
+        $this->name = $name ?: $tempFile->filename;
+        $this->attachment = $filename;
+        $this->save();
+
+        // Cleanup temp storage
+        Storage::disk('local')->deleteDirectory($tempFile->folder);
+        $tempFile->delete();
     }
 
-    public function moveAttachment($tmp_filename, $filename_prefix = '', $name = '')
+
+    /* ============================================================
+     | Delete attachment in Spaces
+     |============================================================ */
+    public function deleteAttachment(): void
     {
-        if (file_exists($tmp_filename)) {
-            // Move given file to new actual directory
-            $dir = $this->directory;
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            //$pathparts = pathinfo($tmp_filename);
-            $newFile = ($filename_prefix) ? $filename_prefix . pathinfo($tmp_filename, PATHINFO_BASENAME) : pathinfo($tmp_filename, PATHINFO_BASENAME);
-
-            // Ensure filename is unique by adding counter to similar filenames
-            $count = 1;
-            while (file_exists(public_path("$dir/$newFile"))) {
-                $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                $newFile = $filename . $count++ . ".$ext";
-            }
-            rename($tmp_filename, public_path("$dir/$newFile"));
-
-            // Determine file extension and set type
-            $ext = pathinfo($tmp_filename, PATHINFO_EXTENSION);
-
-            // Update record
-            $this->name = ($name) ? $name : pathinfo($newFile, PATHINFO_BASENAME);
-            $this->type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-            $this->attachment = $newFile;
-            $this->save();
+        if ($this->directory && $this->attachment) {
+            $path = trim($this->directory, '/') . '/' . $this->attachment;
+            FileBank::delete($path);
         }
+
+        $this->delete();
     }
 
+    /* ============================================================
+    | Mailgun / filesystem uploads
+    |============================================================ */
+    public function moveAttachment(string $localFilePath, string $prefix = '', string $name = ''): void
+    {
+        if (!file_exists($localFilePath))
+            return;
 
-    /**
-     * A Attachment belongs to a user
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
-     */
+        $originalName = basename($localFilePath);
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+        $this->type = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp']) ? 'image' : 'file';
+
+        $filename = $this->uniqueFilename($prefix . $originalName);
+        $path = "{$this->directory}/{$filename}";
+
+        // STREAM → Spaces
+        $stream = fopen($localFilePath, 'rb');
+        Storage::disk('filebank_spaces')->put($path, $stream);
+        fclose($stream);
+
+        unlink($localFilePath);
+
+        $this->name = $name ?: $originalName;
+        $this->attachment = $filename;
+        $this->save();
+    }
+
+    /* ============================================================
+     | Helpers
+     |============================================================ */
+    protected function uniqueFilename(string $filename): string
+    {
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $counter = 1;
+
+        $path = "{$this->directory}/{$filename}";
+
+        while (FileBank::exists($path)) {
+            $filename = "{$name}-{$counter}.{$ext}";
+            $path = "{$this->directory}/{$filename}";
+            $counter++;
+        }
+
+        return $filename;
+    }
+
+    /* ============================================================
+     |  Accessors
+     |============================================================ */
+
+    public function getUrlAttribute(): string
+    {
+        if (!$this->directory || !$this->attachment)
+            return '';
+
+        return FileBank::url(trim($this->directory, '/') . '/' . $this->attachment);
+    }
+
+    /* ============================================================
+     |  Ownership
+     |============================================================ */
+
     public function createdBy()
     {
-        return $this->belongsTo('App\User', 'created_by');
+        return $this->belongsTo(\App\User::class, 'created_by');
     }
 
-
-    /**
-     * Get the owner of record   (getter)
-     *
-     * @return string;
-     */
     public function getOwnedByAttribute()
     {
-        return $this->record->owned_by;
+        return $this->record?->owned_by;
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getUrlAttribute()
-    {
-        if ($this->attributes['directory'] && $this->attributes['attachment'])
-            return $this->attributes['directory'] . '/' . $this->attributes['attachment'];
+    /* ============================================================
+     |  Model Events
+     |============================================================ */
 
-        return '';
-    }
-
-    /**
-     * The "booting" method of the model.
-     *
-     * Overrides parent function
-     *
-     * @return void
-     */
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
 
-        if (Auth::check()) {
-            // create a event to happen on creating
-            static::creating(function ($table) {
-                $table->created_by = Auth::user()->id;
-                $table->updated_by = Auth::user()->id;
-            });
+        static::creating(function ($model) {
+            if (Auth::check()) {
+                $model->created_by = Auth::id();
+                $model->updated_by = Auth::id();
+            }
+        });
 
-            // create a event to happen on updating
-            static::updating(function ($table) {
-                $table->updated_by = Auth::user()->id;
-            });
-        }
+        static::updating(function ($model) {
+            if (Auth::check()) {
+                $model->updated_by = Auth::id();
+            }
+        });
+
+        static::deleting(function ($model) {
+            if ($model->directory && $model->attachment) {
+                $path = trim($model->directory, '/') . '/' . $model->attachment;
+                FileBank::delete($path);
+            }
+        });
     }
 }

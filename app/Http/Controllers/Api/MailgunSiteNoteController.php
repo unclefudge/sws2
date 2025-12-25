@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Misc\Attachment;
 use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
-use Carbon\Carbon;
 use File;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -20,6 +19,102 @@ class MailgunSiteNoteController extends Controller
     public $logfile = '';
 
     public function store(Request $request)
+    {
+        if ($this->debug) {
+            Log::channel('single')->debug('========= SiteNote Import ==========');
+            Log::channel('single')->debug($request->all());
+        }
+
+        // -------------------------------------------------
+        // Validate sender
+        // -------------------------------------------------
+        $validDomains = ['jordan.net.au', 'capecod.com.au'];
+        $sender = $request->input('sender');
+
+        [, $domain] = explode('@', $sender);
+
+        if (!in_array($domain, $validDomains) || str_contains($sender, 'safeworksite.com.au')) {
+            if ($this->debug)
+                Log::error("Invalid sender: {$sender}");
+
+            return response()->json(['status' => 'error'], 406);
+        }
+
+        // -------------------------------------------------
+        // Parse subject [SiteNote#1234-11]
+        // -------------------------------------------------
+        $subject = $request->input('subject');
+
+        if (!str_contains($subject, 'SiteNote[#'))
+            return response()->json(['status' => 'error'], 406);
+
+        [, $rest] = explode('SiteNote[#', $subject, 2);
+        [$siteCase] = explode(']', $rest, 2);
+        [$siteCode, $noteId] = explode('-', $siteCase);
+
+        $site = Site::where('code', $siteCode)->first();
+        $note = SiteNote::find($noteId);
+
+        if (!$site || !$note)
+            return response()->json(['status' => 'error'], 406);
+
+        // -------------------------------------------------
+        // Create new SiteNote reply
+        // -------------------------------------------------
+        $note->touch();
+
+        $newNote = SiteNote::create([
+            'site_id' => $site->id,
+            'category_id' => $note->category_id,
+            'notes' => "[Note Reply From: {$sender}]\n" . $request->input('body-plain'),
+            'parent' => $note->id,
+            'created_by' => 1,
+            'updated_by' => 1,
+        ]);
+
+        // -------------------------------------------------
+        // Prepare storage paths
+        // -------------------------------------------------
+        $tmpDir = 'mailgun/tmp/sitenote';
+        Storage::disk('local')->makeDirectory($tmpDir);
+
+        // -------------------------------------------------
+        // Process attachments
+        // -------------------------------------------------
+        $files = collect(json_decode($request->input('attachments'), true));
+
+        if ($files->count()) {
+            $client = new Client();
+
+            foreach ($files as $file) {
+                if ($file['size'] == 0 || $file['content-type'] === 'application/pkcs7-signature' || preg_match('/^image\d+/', $file['name']))
+                    continue;
+
+                $tmpPath = "{$tmpDir}/{$file['name']}";
+                $response = $client->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')],]);
+
+                Storage::disk('local')->put($tmpPath, $response->getBody()->getContents());
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/{$note->site_id}/note",]);
+                $attachment->moveAttachment($tmpPath);
+            }
+        }
+
+        // -------------------------------------------------
+        // Email notification (unchanged behaviour)
+        // -------------------------------------------------
+        $note->emailNote();
+
+        if ($this->debug) {
+            Log::info('SiteNote import completed', [
+                'site' => $site->code,
+                'note' => $note->id,
+            ]);
+        }
+
+        return response()->json(['status' => 'ok'], 200);
+    }
+
+    /*public function store(Request $request)
     {
         //if ($this->debug) app('log')->debug("========= SiteNote Import ==========");
         //if ($this->debug) app('log')->debug(request()->all());
@@ -90,8 +185,8 @@ class MailgunSiteNoteController extends Controller
 
 
         // Get the attachments
-        $dir = '/filebank/tmp/sitenote';
-        if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+        $dir = '/app/tmp/sitenote';
+        if (!is_dir(storage_path($dir))) mkdir(storage_path($dir), 0777, true);  // Create directory if required
 
         $files = collect(json_decode(request()->input('attachments'), true));
 
@@ -131,5 +226,5 @@ class MailgunSiteNoteController extends Controller
         if ($bytes_written === false) die("Error writing to file");
 
         return response()->json(['status' => 'ok'], 200);
-    }
+    }*/
 }

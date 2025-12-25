@@ -3,12 +3,14 @@
 namespace App\Mail\Company;
 
 use App\Models\Company\CompanyDocPeriodTrade;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CompanyPeriodTradeRejected extends Mailable implements ShouldQueue {
+class CompanyPeriodTradeRejected extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -31,10 +33,12 @@ class CompanyPeriodTradeRejected extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        $file_path = public_path($this->ptc->attachment_url);
-        if ($this->ptc->attachment && file_exists($file_path))
-            return $this->markdown('emails/company/ptc-rejected')->subject('SafeWorksite - Contract Not Approved')->attach($file_path);
+        $email = $this->markdown('emails/company/ptc-rejected')->subject('SafeWorksite - Contract Not Approved');
 
-        return $this->markdown('emails/company/ptc-rejected')->subject('SafeWorksite - Contract Not Approved');
+        // Attachment
+        if ($this->ptc->attachment)
+            FileBank::attachToEmail($email, "company/{$this->ptc->company->id}/docs/{$this->ptc->attachment}");
+
+        return $email;
     }
 }

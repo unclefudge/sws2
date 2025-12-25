@@ -312,7 +312,8 @@
                             <br><br><br>
                             <h4 style="margin-bottom: 3px">AGREEMENT</h4>
                             <br>This document serves as a formal agreement between the <b>Principal Contractor</b> and <b>Trade Contractor</b> as identified at 2 and 3 of the Schedule, hereby referred to as the 'parties,' representing their mutual understanding and acceptance of the terms and
-                            conditions outlined herein as the <a href="/filebank/period_trade_contract_conditions.pdf" target="_blank">Period Trade Contract Conditions</a>. By signing below each party acknowledges their full comprehension of the Period Trade Contract contents and willingly enters a
+                            conditions outlined herein as the <a href="{{ \Illuminate\Support\Facades\Storage::url('period_trade_contract_conditions.pdf') }}"" target="_blank">Period Trade Contract Conditions</a>. By signing below each party acknowledges their full comprehension of the Period Trade
+                            Contract contents and willingly enters a
                             legally binding contract.<br><br>
 
                             <div class="row">

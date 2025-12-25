@@ -136,7 +136,7 @@
                                 @if ($form->files()->count())
                                     {{--}}<div style="margin-bottom: 10px">Media:</div>--}}
                                     @foreach ($form->files() as $file)
-                                        <img src="{{$file->attachment}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                        <img src="{{$file->url}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                                     @endforeach
                                 @else
                                     No media found

@@ -14,6 +14,7 @@ use App\Models\Site\Incident\SiteIncident;
 use App\Models\Site\SiteAccident;
 use App\Models\Site\SiteHazard;
 use App\Models\Site\SiteMaintenance;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -82,152 +83,157 @@ class TodoController extends Controller
      */
     public function store()
     {
-        // Check authorisation and throw 404 if not
+        // -------------------------------------------------
+        // Authorisation
+        // -------------------------------------------------
         if (!Auth::user()->allowed2('add.todo'))
             return view('errors/404');
 
-        $todo_request = request()->all();
-        $todo_request['due_at'] = (request('due_at')) ? Carbon::createFromFormat('d/m/Y H:i', request('due_at') . '00:00')->toDateTimeString() : null;
+        // -------------------------------------------------
+        // Base request data
+        // -------------------------------------------------
+        $todoData = request()->all();
+        $todoData['due_at'] = request('due_at') ? Carbon::createFromFormat('d/m/Y H:i', request('due_at') . '00:00')->toDateTimeString() : null;
 
-        $assign_to = request('assign_to');
-        $assign_list = [];
+        $assignTo = request('assign_to');
+        $assignList = [];
         $todo = null;
 
-        // Users
-        if ($assign_to == 'user') {
-            foreach (request('user_list') as $id) {
-                if ($id == 'all') {
-                    $assign_list = Auth::user()->company->users('1')->pluck('id')->toArray();
+        // -------------------------------------------------
+        // USER assignment
+        // -------------------------------------------------
+        if ($assignTo === 'user') {
+            foreach ((array)request('user_list') as $id) {
+                if ($id === 'all') {
+                    $assignList = Auth::user()->company->users(1)->pluck('id')->toArray();
                     break;
-                } else
-                    $assign_list[] = $id;
+                }
+                $assignList[] = $id;
             }
 
             if (request('assign_multi')) {
-                foreach ($assign_list as $id) {
-                    $todo = Todo::create($todo_request);
-                    $todo->assignUsers($id);
+                foreach ($assignList as $userId) {
+                    $todo = Todo::create($todoData);
+                    $todo->assignUsers($userId);
                 }
             } else {
-                $todo = Todo::create($todo_request);
-                $todo->assignUsers($assign_list);
+                $todo = Todo::create($todoData);
+                $todo->assignUsers($assignList);
             }
         }
 
-        // Companies
-        if ($assign_to == 'company') {
-            foreach (request('company_list') as $id) {
-                if ($id == 'all') {
-                    $assign_list = Auth::user()->company->companies(1)->pluck('id')->toArray();
+        // -------------------------------------------------
+        // COMPANY assignment
+        // -------------------------------------------------
+        if ($assignTo === 'company') {
+            foreach ((array)request('company_list') as $id) {
+                if ($id === 'all') {
+                    $assignList = Auth::user()->company->companies(1)->pluck('id')->toArray();
                     break;
-                } else
-                    $assign_list[] = $id;
+                }
+                $assignList[] = $id;
             }
 
             if (request('assign_multi')) {
-                foreach ($assign_list as $id) {
-                    $company = Company::findOrFail($id);
+                foreach ($assignList as $companyId) {
+                    $company = Company::findOrFail($companyId);
                     foreach ($company->staffStatus(1) as $staff) {
-                        $todo = Todo::create($todo_request);
+                        $todo = Todo::create($todoData);
                         $todo->assignUsers($staff->id);
                     }
                 }
             } else {
-                foreach ($assign_list as $id) {
-                    $company = Company::findOrFail($id);
-                    $todo = Todo::create($todo_request);
+                foreach ($assignList as $companyId) {
+                    $company = Company::findOrFail($companyId);
+                    $todo = Todo::create($todoData);
                     $todo->assignUsers($company->staffStatus(1)->pluck('id')->toArray());
                 }
             }
         }
 
-        // Roles
-        if ($assign_to == 'role') {
-            $assign_list = request('role_list');
-
+        // -------------------------------------------------
+        // ROLE assignment
+        // -------------------------------------------------
+        if ($assignTo === 'role') {
+            $roleIds = (array)request('role_list');
             if (request('assign_multi')) {
-                $user_list = [];
-                $users = DB::table('role_user')->select('user_id')->whereIn('role_id', $assign_list)->distinct('user_id')->orderBy('user_id')->get();
-                foreach ($users as $u) {
-                    if (in_array($u->user_id, Auth::user()->company->users(1)->pluck('id')->toArray()))
-                        $user_list[] = $u->user_id;
+
+                $userIds = DB::table('role_user')->whereIn('role_id', $roleIds)->pluck('user_id')->unique()
+                    ->filter(fn($id) => Auth::user()->company->users(1)->pluck('id')->contains($id))
+                    ->toArray();
+
+                foreach ($userIds as $userId) {
+                    $todo = Todo::create($todoData);
+                    $todo->assignUsers($userId);
                 }
-                foreach ($user_list as $id) {
-                    $todo = Todo::create($todo_request);
-                    $todo->assignUsers($id);
-                }
+
             } else {
-                foreach ($assign_list as $id) {
-                    $user_list = [];
-                    $users = DB::table('role_user')->select('user_id')->where('role_id', $id)->distinct('user_id')->orderBy('user_id')->get();
-                    foreach ($users as $u) {
-                        if (in_array($u->user_id, Auth::user()->company->users(1)->pluck('id')->toArray()))
-                            $user_list[] = $u->user_id;
-                    }
-                    $todo = Todo::create($todo_request);
-                    $todo->assignUsers($user_list);
+                foreach ($roleIds as $roleId) {
+                    $userIds = DB::table('role_user')->where('role_id', $roleId)->pluck('user_id')->unique()
+                        ->filter(fn($id) => Auth::user()->company->users(1)->pluck('id')->contains($id))
+                        ->toArray();
+
+                    $todo = Todo::create($todoData);
+                    $todo->assignUsers($userIds);
                 }
             }
         }
 
-        // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "/filebank/todo/$todo->id"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        //dd(request('filepond'));
+        // -------------------------------------------------
+        // Attachments (FilePond → Spaces)
+        // -------------------------------------------------
+        foreach (request('filepond') as $tmp_filename) {
+            ray('filepond', $tmp_filename);
+            $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "todo/{$todo->id}",]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
-        //dd($todo_request);
+        Toastr::success('Created ToDo');
 
-        Toastr::success("Created ToDo");
+        // -------------------------------------------------
+        // Post-create actions + redirects
+        // -------------------------------------------------
+        if (!$todo)
+            return redirect('/todo');
 
-        if ($todo) {
-            if ($todo->type == 'hazard') {
+        switch ($todo->type) {
+
+            case 'hazard':
                 $hazard = SiteHazard::find($todo->type_id);
-                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_hazards', 'table_id' => $todo->type_id]);
-                $hazard->touch(); // update timestamp
+                Action::create(['action' => "Created task: {$todo->info}", 'table' => 'site_hazards', 'table_id' => $todo->type_id,]);
+                $hazard->touch();
                 $todo->emailToDo();
+                return redirect("/site/hazard/{$todo->type_id}");
 
-                return redirect("/site/hazard/$todo->type_id");
-            }
-            if ($todo->type == 'accident') {
+            case 'accident':
                 $accident = SiteAccident::find($todo->type_id);
-                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_accidents', 'table_id' => $todo->type_id]);
-                $accident->touch(); // update timestamp
+                Action::create(['action' => "Created task: {$todo->info}", 'table' => 'site_accidents', 'table_id' => $todo->type_id,]);
+                $accident->touch();
                 $todo->emailToDo();
+                return redirect("/site/accident/{$todo->type_id}");
 
-                return redirect("/site/accident/$todo->type_id");
-            }
-
-            if ($todo->type == 'incident') {
+            case 'incident':
                 $incident = SiteIncident::find($todo->type_id);
-                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_incidents', 'table_id' => $todo->type_id]);
-                $incident->touch(); // update timestamp
+                Action::create(['action' => "Created task: {$todo->info}", 'table' => 'site_incidents', 'table_id' => $todo->type_id,]);
+                $incident->touch();
                 $todo->emailToDo();
+                return redirect("/site/incident/{$todo->type_id}");
 
-                return redirect("/site/incident/$todo->type_id");
-            }
-
-            if ($todo->type == 'inspection') {
+            case 'inspection':
                 $form = Form::find($todo->type_id);
-                $form->touch(); // update timestamp
+                $form->touch();
                 $todo->emailToDo();
 
-                $FomQuestion = FormQuestion::find($todo->type_id2);
+                $question = FormQuestion::find($todo->type_id2);
+                return redirect("/site/inspection/{$todo->type_id}/{$question->section->page->order}");
 
-                return redirect("/site/inspection/$todo->type_id/" . $FomQuestion->section->page->order);
-            }
-
-            if ($todo->type == 'maintenance_task') {
-                $main = SiteMaintenance::find($todo->type_id);
-                $action = Action::create(['action' => "Created task: $todo->info", 'table' => 'site_maintenance', 'table_id' => $todo->type_id]);
-                $main->touch(); // update timestamp
+            case 'maintenance_task':
+                $maintenance = SiteMaintenance::find($todo->type_id);
+                Action::create(['action' => "Created task: {$todo->info}", 'table' => 'site_maintenance', 'table_id' => $todo->type_id,]);
+                $maintenance->touch();
                 $todo->emailToDo('ASSIGNED', ['kirstie@capecod.com.au']);
-
-                return redirect("/site/maintenance/$todo->type_id");
-            }
+                return redirect("/site/maintenance/{$todo->type_id}");
         }
 
         return redirect('/todo');
@@ -368,24 +374,16 @@ class TodoController extends Controller
         }
 
         if (request('delete_attachment') && $todo->attachment) {
-            if (file_exists(public_path($todo->attachment_url)))
-                unlink(public_path($todo->attachment_url));
+            FileBank::delete("todo/$todo->attachment");
             $todo->attachment = '';
             $todo->save();
         }
 
-        // Handle attached file
-        if ($request->hasFile('singlefile')) {
-            $file = $request->file('singlefile');
-
-            $path = "filebank/todo";
-            $name = $todo->id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $todo->id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $todo->attachment = $name;
+        // Handle single attached file
+        if (request()->hasFile('singlefile')) {
+            $basePath = 'todo';
+            $forcedFilename = $todo->id . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
+            $todo->attachment = FileBank::storeUploadedFile(request()->file('singlefile'), $basePath, $forcedFilename);
             $todo->save();
         }
 
@@ -393,7 +391,7 @@ class TodoController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "/filebank/todo/$todo->id"]);
+                $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "todo/$todo->id"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -421,7 +419,6 @@ class TodoController extends Controller
         if (!Auth::user()->allowed2('edit.todo', $todo))
             return view('errors/404');
 
-        //dd("nukem: $id");
         $todo->delete();
 
         return json_encode('success');

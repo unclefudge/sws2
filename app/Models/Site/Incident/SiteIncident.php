@@ -4,9 +4,9 @@ namespace App\Models\Site\Incident;
 
 
 use App\Models\Comms\Todo;
+use App\Models\Misc\Attachment;
 use App\Models\Misc\FormQustion;
 use App\Models\Misc\FormResponse;
-use App\Models\Misc\TemporaryFile;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -37,15 +37,20 @@ class SiteIncident extends Model
         return $this->belongsTo('App\Models\Site\Site');
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_incidents');
+    }
+
     /**
      * A SiteIncident has many docs
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function docs()
+    /*public function docs()
     {
         return $this->hasMany('App\Models\Site\Incident\SiteIncidentDoc', 'incident_id');
-    }
+    }*/
 
     /**
      * A SiteIncident has many people
@@ -203,44 +208,6 @@ class SiteIncident extends Model
         return (FormResponse::where('question_id', 1)->where('option_id', 3)->where('table', $this->table)->where('table_id', $this->id)->first()) ? true : false;
     }
 
-    /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "filebank/incident/" . $this->id;
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $this->site_id . '-' . $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteIncidentDoc::create(['incident_id' => $this->id, 'type' => $type, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
 
     /**
      * Get the Risk Rating Text
@@ -306,7 +273,7 @@ class SiteIncident extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // If incident happened on a Job site get Site owners details else use parent company details
             if ($this->site_id) {
                 $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
@@ -315,7 +282,7 @@ class SiteIncident extends Model
                     $email_to[] = $this->site->supervisorEmail;
                 // Georgie (458) notify to site 0003-vehicles (809)
                 if ($this->site->id == '809')
-                    $email_to[] = "georgie@capecod.com.au";
+                    $email_to[] = "kirstie@capecod.com.au";
             } else
                 $email_to = Auth::user()->company->reportsTo()->notificationsUsersEmailType('site.accident');
 
@@ -337,7 +304,7 @@ class SiteIncident extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.accident');
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;

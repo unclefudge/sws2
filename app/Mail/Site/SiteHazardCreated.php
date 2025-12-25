@@ -2,14 +2,16 @@
 
 namespace App\Mail\Site;
 
-use App\Models\Site\SiteHazard;
 use App\Models\Misc\Action;
+use App\Models\Site\SiteHazard;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteHazardCreated extends Mailable implements ShouldQueue {
+class SiteHazardCreated extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -34,10 +36,15 @@ class SiteHazardCreated extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        $file_path = public_path($this->hazard->attachment_url);
-        if ($this->hazard->attachment && file_exists($file_path))
-            return $this->markdown('emails/site/hazard-created')->subject('SafeWorksite - Hazard Notification')->attach($file_path);
+        $email = $this->markdown('emails/site/hazard-created')->subject('SafeWorksite - Hazard Notification');
 
-        return $this->markdown('emails/site/hazard-created')->subject('SafeWorksite - Hazard Notification');
+        // Add Attachments
+        foreach ($this->hazard->attachments as $file) {
+            if ($file->directory && $file->attachment) {
+                FileBank::attachToEmail($email, "$file->directory/$file->attachment");
+            }
+        }
+
+        return $email;
     }
 }

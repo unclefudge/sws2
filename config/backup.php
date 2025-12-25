@@ -18,17 +18,7 @@ return [
                  * The list of directories and files that will be included in the backup.
                  */
                 'include' => [
-                    base_path('public/filebank/support'),
-                    base_path('public/filebank/user'),
-                    base_path('public/filebank/company'),
-                    //base_path('public/filebank/site/*/hazard'),
-                    //base_path('public/filebank/site/*/maintenance'),
-                    //base_path('public/filebank/site/*/inspection'),
-                    base_path('public/filebank/site'),
-                    base_path('public/filebank/incident'),
-                    base_path('public/filebank/inspection'),
-                    base_path('public/filebank/form'),
-                    base_path('public/filebank/whs'),
+                    base_path(),
                 ],
 
                 /*
@@ -39,9 +29,14 @@ return [
                 'exclude' => [
                     base_path('vendor'),
                     base_path('node_modules'),
-                    storage_path(),
-                    base_path('source'),
-                    base_path('public/filebank/site/*/docs'),
+
+                    // Never back up FileBank (now lives in Spaces)
+                    public_path('filebank'),
+
+                    // Laravel caches
+                    storage_path('framework/cache'),
+                    storage_path('framework/sessions'),
+                    storage_path('framework/views'),
                 ],
 
                 /*
@@ -75,8 +70,7 @@ return [
              * The disk names on which the backups will be stored.
              */
             'disks' => [
-                'local',
-                //'do',
+                'backup_spaces',
             ],
         ],
     ],
@@ -127,7 +121,7 @@ return [
     'monitor_backups' => [
         [
             'name' => config('app.name'),
-            'disks' => ['local'],
+            'disks' => ['backup_spaces'],
             'newest_backups_should_not_be_older_than_days' => 1,
             'storage_used_may_not_be_higher_than_megabytes' => 5000,
         ],

@@ -2,13 +2,12 @@
 
 namespace App\Models\Site\Planner;
 
-use File;
-use App\User;
 use App\Models\Company\Company;
-
+use App\User;
+use Carbon\Carbon;
+use File;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class SiteRoster extends Model
 {
@@ -94,12 +93,14 @@ class SiteRoster extends Model
         //echo "<h1>Completed</h1>";
         $log .= "\nCompleted";
 
-        $now = Carbon::now()->format('Y-m-d-G-i-s');
-        $bytes_written = File::put(public_path('filebank/log/nightly/' . $now . '.txt'), $log);
-        if ($bytes_written === false)
-            die("Error writing to file");
-        else
-            echo 'Logfile filebank/log/nightly/' . $now . '.txt';
+        $now = Carbon::now()->format('Y-m-d-H-i-s');
+        $path = "logs/nightly/{$now}.txt";
+        $written = Storage::disk('local')->put($path, $log);
+
+        if (!$written)
+            abort(500, 'Error writing to log file');
+
+        echo "Logfile storage/app/{$path}";
 
         echo $log;
     }

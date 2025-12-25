@@ -3,7 +3,7 @@
         <div class="col-md-3 hidden-sm hidden-xs">
             <ul class="list-unstyled profile-nav">
                 <li>
-                    @if($site->photo && file_exists(public_path($site->photo)))
+                    @if($site->photo)
                         <img src="/{{ $site->photo }}" class="img-responsive pic-bordered" alt=""/>
                     @else
                         <img src="/img/site_photo.jpg" class="img-responsive pic-bordered" alt=""/>

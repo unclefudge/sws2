@@ -2,12 +2,12 @@
 
 namespace App\Mail\User;
 
-use App\User;
 use App\Models\User\UserDoc;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserDocRejected extends Mailable implements ShouldQueue
 {
@@ -33,10 +33,11 @@ class UserDocRejected extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        $file_path = public_path($this->doc->attachment_url);
-        if ($this->doc->attachment && file_exists($file_path))
-            return $this->markdown('emails/user/doc-rejected')->subject('SafeWorksite - Document Not Approved')->attach($file_path);
+        $email = $this->markdown('emails/user/doc-rejected')->subject('SafeWorksite - Document Not Approved');
 
-        return $this->markdown('emails/user/doc-rejected')->subject('SafeWorksite - Document Not Approved');
+        if ($this->doc->attachment)
+            FileBank::attachToEmail($email, "user/{$this->doc->user_id}/docs/{$this->doc->attachment}");
+
+        return $email;
     }
 }

@@ -70,9 +70,9 @@ class MailgunZohoController extends Controller
             if ($this->debug) app('log')->debug("========= Zoho Import ==========");
 
             // Zoho Daily log
-            $dir = '/filebank/log/zoho';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-            $this->logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
+            $dir = storage_path('/app/log/zoho');
+            if (!is_dir($dir)) mkdir($dir, 0777, true);  // Create directory if required
+            $this->logfile = $dir . Carbon::now()->format('Ymd') . '.txt';
 
             // Delay Queued Job to Verify Import Success/Fail
             //ZohoImportVerify::dispatch($this->logfile)->delay(Carbon::now()->addMinutes(2));
@@ -85,14 +85,14 @@ class MailgunZohoController extends Controller
             if ($bytes_written === false) die("Error writing to file");
 
             // Get the attachments
-            $dir = '/filebank/tmp/zoho';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+            $dir = storage_path('app/tmp/zoho');
+            if (!is_dir($dir)) mkdir($dir, 0777, true);  // Create directory if required
 
             foreach ($files as $file) {
                 //$mailgun_file = $this->retrieveMailgunFile($file['url']);  // Get file from Mailgun storage
 
                 // Save the file
-                $saved_file = public_path($dir . '/' . substr($file['name'], 0, -4) . '.' . Carbon::now()->format('YmdHis') . '.csv');
+                $saved_file = $dir . '/' . substr($file['name'], 0, -4) . '.' . Carbon::now()->format('YmdHis') . '.csv';
                 $guzzleClient = new Client();
                 $response = $guzzleClient->get($file['url'], ['auth' => ['api', config('services.mailgun.secret')]]);
                 file_put_contents($saved_file, $response->getBody());
@@ -107,7 +107,7 @@ class MailgunZohoController extends Controller
 
     public function verifyImport()
     {
-        $logfile = public_path('filebank/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
+        $logfile = storage_path('app/log/zoho/' . Carbon::now()->format('Ymd') . '.txt');
         if (strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT COMPLETE") !== false)
             Mail::to([env('EMAIL_DEV')])->send(new \App\Mail\Misc\ZohoImportFailed('Zoho Import was SUCESSFUL'));
         else
@@ -120,12 +120,7 @@ class MailgunZohoController extends Controller
     public function parseFile($parsefile = null)
     {
         $file = $parsefile;
-        //$file = public_path('filebank/tmp/zoho/Jobs_for_Fudge.csv');
-        //$file = public_path('filebank/tmp/zoho/Jobs_modified_today 14.csv');
-        //$file = public_path('filebank/tmp/zoho/Jobs_modified_today 24.csv');
-        //$file = public_path('filebank/tmp/zoho/Contacts_for_Fudge.csv');
-        //$file = public_path('filebank/tmp/zoho/zohocontacts.20220302215015.csv');
-        //$file = public_path('filebank/tmp/zoho/zohojobs.20220303145635.csv');
+
         if ($this->debug) app('log')->debug("Parsing file: $file");
 
 

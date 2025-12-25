@@ -8,11 +8,11 @@
         @endif
         <li><span>Maintenance Executive Summary</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -23,7 +23,7 @@
                             <span class="caption-subject bold uppercase font-green-haze"> Maintenance Executive Summary</span>
                         </div>
                         <div class="actions">
-                            <a href="/filebank/tmp/maintenace-executive-cron.pdf" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download PDF</a>
+                            <a href="{{ storage_path('app/tmp/maintenace-executive-cron.pdf') }}" class="btn btn-circle btn-outline btn-sm green" id="view_pdf"> Download PDF</a>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -200,18 +200,18 @@
                             <tbody>
                             <?php $assigned_total = 0; $counter = 0 ?>
                             @foreach($mains as $main)
-                                <?php
-                                /*if ($main->assigned_super_at) {
-                                    $assigned_at = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $main->assigned_super_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
-                                    $assigned = $assigned_at->diffInWeekDays($main->reported);
-                                } elseif ($main->status == 0 || $main->status == 3)
-                                    $assigned = $main->reported->diffInWeekDays($main->updated_at);
-                                elseif ($main->status == 1)
-                                    $assigned = $main->reported->diffInWeekDays($to);
-                                $assigned_total = $assigned_total + $assigned;
-                                $counter ++;
-                                $assign_avg = $assigned_total / $counter;*/
-                                ?>
+                                    <?php
+                                    /*if ($main->assigned_super_at) {
+                                        $assigned_at = \Carbon\Carbon::createFromFormat('d/m/Y H:i', $main->assigned_super_at->format('d/m/Y') . '00:00'); // Need to set assigned_at time to 00:00 so we don't add and extra 'half' day if reported at 9am but assigned at 10am next day
+                                        $assigned = $assigned_at->diffInWeekDays($main->reported);
+                                    } elseif ($main->status == 0 || $main->status == 3)
+                                        $assigned = $main->reported->diffInWeekDays($main->updated_at);
+                                    elseif ($main->status == 1)
+                                        $assigned = $main->reported->diffInWeekDays($to);
+                                    $assigned_total = $assigned_total + $assigned;
+                                    $counter ++;
+                                    $assign_avg = $assigned_total / $counter;*/
+                                    ?>
                                 <tr>
                                     <td>
                                         <div class="text-center"><a href="/site/maintenance/{{ $main->id }}">M{{ $main->code }}</a></div>
@@ -257,15 +257,16 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#categories").select2({
-            placeholder: "Select Category(s)",
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#categories").select2({
+                placeholder: "Select Category(s)",
+            });
         });
-    });
-</script>
+    </script>
 @stop

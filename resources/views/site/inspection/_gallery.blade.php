@@ -1,16 +1,17 @@
-@if ($report->docs()->count())
-    <?php $doc_count = 0; ?>
+@php
+    $images = $report->attachments->where('type', 'image');
+    $doc_count = 0;
+@endphp
+@if ($images->isNotEmpty())
     <div style="width: 100%; overflow: hidden;">
-        @foreach ($report->docs() as $doc)
-            @if ($doc->type == 'image')
-                <div style="width: 60px; float: left; padding-right: 5px">
-                    <a href="{{ $doc->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $doc->name }}" data-lityXXX>
-                        <img src="{{ $doc->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
-                </div>
-                <?php $doc_count ++; ?>
-                @if ($doc_count == 10)
-                    <br>
-                @endif
+        @foreach ($images as $attachment)
+            <div style="width: 60px; float: left; padding-right: 5px">
+                <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox " title="{{ $attachment->name }}" data-lityXXX>
+                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
+            </div>
+                <?php $doc_count++; ?>
+            @if ($doc_count == 10)
+                <br>
             @endif
         @endforeach
     </div>

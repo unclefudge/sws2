@@ -4,7 +4,8 @@ namespace App\Models\Site;
 
 use App\Http\Controllers\CronCrontroller;
 use App\Models\Comms\Todo;
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -33,16 +34,10 @@ class SiteScaffoldHandover extends Model
     }
 
 
-    /**
-     * A Site ScaffoldHandover has many Docs.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function docs()
+    public function attachments()
     {
-        return $this->hasMany('App\Models\Site\SiteScaffoldHandoverDoc', 'scaffold_id');
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_scaffold_handover');
     }
-
 
     /**
      * Email Report
@@ -52,7 +47,7 @@ class SiteScaffoldHandover extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = (validEmail($user->email)) ? $user->email : '';
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
@@ -70,7 +65,7 @@ class SiteScaffoldHandover extends Model
     {
         $email_cc = [];
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = [];
             if (validEmail($this->site->supervisorEmail))
                 $email_to[] = $this->site->supervisorEmail;
@@ -123,45 +118,6 @@ class SiteScaffoldHandover extends Model
     }
 
     /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "filebank/site/" . $this->site_id . '/scaffold';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $this->site_id . '-' . $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteScaffoldHandoverDoc::create(['scaffold_id' => $this->id, 'type' => $type, 'category' => 'setup', 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
-
-    /**
      * Display records last update_by + date
      *
      * @return string
@@ -179,11 +135,12 @@ class SiteScaffoldHandover extends Model
      */
     public function getInspectorLicenceUrlAttribute()
     {
-        if ($this->attributes['inspector_licence'])
-            return '/filebank/site/' . $this->attributes['site_id'] . "/scaffold/" . $this->attributes['inspector_licence'];
+        if (!$this->inspector_licence)
+            return '';
 
-        return '';
+        return FileBank::url("site/$this->site_id/scaffold/$this->inspector_licence");
     }
+
 
     /**
      * The "booting" method of the model.

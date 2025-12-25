@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Support;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Support\SupportTicketRequest;
+use App\Models\Misc\Attachment;
 use App\Models\Site\SiteHazardAction;
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
@@ -58,8 +59,10 @@ class SupportTicketController extends Controller
             // Handle attachments
             $attachments = request("filepond");
             if ($attachments) {
-                foreach ($attachments as $tmp_filename)
-                    $action->saveAttachment($tmp_filename);
+                foreach ($attachments as $tmp_filename) {
+                    $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
+                    $attachment->saveAttachment($tmp_filename);
+                }
             }
 
             // Email ticket
@@ -122,8 +125,10 @@ class SupportTicketController extends Controller
             // Handle attachments
             $attachments = request("filepond");
             if ($attachments) {
-                foreach ($attachments as $tmp_filename)
-                    $action->saveAttachment($tmp_filename);
+                foreach ($attachments as $tmp_filename) {
+                    $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
+                    $attachment->saveAttachment($tmp_filename);
+                }
             }
 
             // Email action

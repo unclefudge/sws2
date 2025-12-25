@@ -56,7 +56,7 @@
                             </div>
 
                             {{-- Purchase --}}
-                            <div class="row"  id="purchase-div">
+                            <div class="row" id="purchase-div">
                                 <div class="col-md-2" id="field-length">
                                     <div class="form-group">
                                         {!! Form::label('length', 'Length', ['class' => 'control-label']) !!}
@@ -79,7 +79,7 @@
                                                 <option value="{{ $i }}">{{ $i }}</option>
                                             @endfor
                                         </select>--}}
-                                        <?php $red_font = ($item->category_id == 19 && $item->total < $item->min_stock ) ? 'font-red' : ''  ?>
+                                        <?php $red_font = ($item->category_id == 19 && $item->total < $item->min_stock) ? 'font-red' : '' ?>
                                         <span class="help-block {{$red_font}}">Currently in stock: {{ $item->total }}</span>
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@
                             <div class="form-group">
                                 <div class="fileinput fileinput-new" data-provides="fileinput">
                                     <div class="fileinput-new thumbnail" style="width: 150px; height: 150px;">
-                                        @if($item->attachment && file_exists(public_path($item->attachmentUrl)))
+                                        @if($item->attachment)
                                             <img src="{{ $item->attachmentUrl }}" alt=""/>
                                         @else
                                             <img src="/img/no_image.png" alt=""/>
@@ -142,57 +142,58 @@
     <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        $('#category_id').change(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            $('#category_id').change(function () {
+                displayFields();
+            });
+
+            $('#subcategory_id').change(function () {
+                displayFields();
+            });
+
             displayFields();
-        });
 
-        $('#subcategory_id').change(function () {
-            displayFields();
-        });
+            function displayFields() {
+                $('#field-subcat').hide()
+                $('#field-length').hide()
+                $('#field-minstock').hide()
 
-        displayFields();
-
-        function displayFields() {
-            $('#field-subcat').hide()
-            $('#field-length').hide()
-            $('#field-minstock').hide()
-
-            if ($('#category_id').val() == 3) {
-                $('#field-subcat').show();
-                $('#field-length').show();
+                if ($('#category_id').val() == 3) {
+                    $('#field-subcat').show();
+                    $('#field-length').show();
+                }
+                if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
+                    $('#field-minstock').show();
+                }
             }
-            if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
-                $('#field-minstock').show();
-            }
-        }
 
-        $("#btn-delete").click(function (e) {
-            e.preventDefault();
-            swal({
-                title: "Are you sure?",
-                text: "This action can't be undone and all records of it will be <b>DELETED</b>!<br><b>" + name + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                window.location.href = "/equipment/{{ $item->id }}/delete";
+            $("#btn-delete").click(function (e) {
+                e.preventDefault();
+                swal({
+                    title: "Are you sure?",
+                    text: "This action can't be undone and all records of it will be <b>DELETED</b>!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location.href = "/equipment/{{ $item->id }}/delete";
+                });
             });
         });
-    });
 
-    function isNumber(evt) {
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if ((charCode > 31 && charCode < 48) || charCode > 57) {
-            return false;
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
-</script>
+    </script>
 @stop

@@ -24,8 +24,12 @@
         </div>
 
         <div class="row">
-            @if (\App::environment('dev')) DEV @endif
-            @if (\App::environment('prod')) .. @endif
+            @if (\App::environment('dev'))
+                DEV
+            @endif
+            @if (app()->environment('prod'))
+                ..
+            @endif
 
         </div>
     </div>

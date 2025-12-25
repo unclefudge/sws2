@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
+use App\Services\FileBank;
 use App\User;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -188,12 +189,12 @@ class CompanySignUpController extends Controller
 
         $company->signup_step = 0;
         $company->status = 1;
-        $email_to = (\App::environment('prod')) ? $company->reportsTo()->notificationsUsersEmailType('company.signup.completed') : [env('EMAIL_DEV')];
+        $email_to = (app()->environment('prod')) ? $company->reportsTo()->notificationsUsersEmailType('company.signup.completed') : [env('EMAIL_DEV')];
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Company\CompanySignup($company));
 
         if ($company->reportsTo()->id == 3) {
-            $email_cc = (\App::environment('prod')) ? ['accounts1@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+            $email_cc = (app()->environment('prod')) ? ['accounts1@capecod.com.au', 'kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
             if ($company->primary_user && validEmail($company->primary_contact()->email))
                 Mail::to($company->primary_contact()->email)->cc($email_cc)->send(new \App\Mail\Company\CompanyUploadDocs($company));
         }
@@ -235,8 +236,8 @@ class CompanySignUpController extends Controller
             foreach ($company->staff as $user) {
                 foreach ($user->userDocs() as $doc) {
                     // Delete any User Docs
-                    if ($doc->attachment && file_exists(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment)))
-                        unlink(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment));
+                    if ($doc->attachment)
+                        FileBank::delete("user/{$doc->user_id}/docs/{$doc->attachment}");
 
                     $doc->closeToDo();
                     $doc->delete();

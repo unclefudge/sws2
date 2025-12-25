@@ -2,6 +2,7 @@
 
 namespace App\Models\Company;
 
+use App\Services\FileBank;
 use App\User;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -82,17 +83,13 @@ class CompanyDocSubcontractorStatement extends Model
         return $this->belongsTo('App\User', 'created_by');
     }
 
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    
+    public function getAttachmentUrlAttribute(): string
     {
-        //$url = URL::to('/filebank') . '/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
-        if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
+        if (!$this->attachment)
+            return '';
 
-        return '';
+        return FileBank::url("company/{$this->company->id}/docs/{$this->attachment}");
     }
 
     /**

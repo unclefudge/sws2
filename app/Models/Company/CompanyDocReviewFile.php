@@ -2,6 +2,7 @@
 
 namespace App\Models\Company;
 
+use App\Services\FileBank;
 use App\User;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -38,16 +39,14 @@ class CompanyDocReviewFile extends Model
     }
 
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->reviewdoc->company_doc->company_id . '/docs/review/' . $this->attributes['attachment'];
+        if (!$this->attachment)
+            return '';
 
-        return '';
+        return FileBank::url("company/{$this->reviewdoc->company_doc->company_id}/docs/review/{$this->attachment}");
     }
+
 
     /**
      * Display records last update_by + date

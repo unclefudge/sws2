@@ -357,9 +357,7 @@ class SiteUpcomingComplianceController extends Controller
             return $pdf->stream();
 
         if (request()->has('email_pdf')) {
-            $file = public_path('filebank/tmp/upcoming-' . Auth::user()->id . '.pdf');
-            if (file_exists($file))
-                unlink($file);
+            $file = storage_path('app/tmp/upcoming-' . Auth::user()->id . '.pdf');
             $pdf->save($file);
 
             if (request('email_list')) {

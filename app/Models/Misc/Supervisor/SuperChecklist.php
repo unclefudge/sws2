@@ -17,7 +17,7 @@ class SuperChecklist extends Model
         'supervisor_sign_by', 'supervisor_sign_at', 'manager_sign_by', 'manager_sign_at', 'approved_by', 'approved_at',
         'attachment', 'notes', 'status', 'created_at', 'updated_at'];
     protected $casts = ['date' => 'datetime', 'supervisor_sign_at' => 'datetime', 'manager_sign_at' => 'datetime', 'approved_at' => 'datetime'];
-    
+
     /*
     * A SuperChecklist belongs to a Supervisor
     *
@@ -213,7 +213,7 @@ class SuperChecklist extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_cc = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = validEmail($this->supervisor->email) ? $this->supervisor->email : '';
             $email_cc = 'kirstie@capecod.com.au';
         }
@@ -230,7 +230,7 @@ class SuperChecklist extends Model
         $email_user = '';
 
         /*
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;

@@ -142,28 +142,38 @@
                                             {!! nl2br(e($action->action)) !!}<br><br>
 
                                             {{-- Attachments --}}
-                                            @if ($action->files->count())
-                                                <h5><b>Attachments</b></h5>
+                                            @php
+                                                $attachments = $action->attachments;
+                                                $images = $attachments->where('type', 'image');
+                                                $files  = $attachments->where('type', 'file');
+                                            @endphp
+
+                                            <h5><b>Attachments</b></h5>
+                                            @if ($attachments->isNotEmpty())
                                                 <hr style="margin: 10px 0px; padding: 0px;">
                                                 {{-- Image attachments --}}
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($action->files as $file)
-                                                        @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                                @if ($images->isNotEmpty())
+                                                    <div class="row" style="margin: 0">
+                                                        @foreach ($images as $attachment)
                                                             <div style="width: 60px; float: left; padding-right: 5px">
-                                                                <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
-                                                                    <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                                <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                </a>
                                                             </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                                {{-- File attachments  --}}
-                                                <div class="row" style="margin: 0">
-                                                    @foreach ($action->files as $file)
-                                                        @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
-                                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+
+                                                {{-- File attachments --}}
+                                                @if ($files->isNotEmpty())
+                                                    <div class="row" style="margin: 0">
+                                                        @foreach ($files as $attachment)
+                                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <div>None</div>
                                             @endif
                                         </div>
                                     </div>

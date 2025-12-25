@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site\Incident;
 use App\Http\Controllers\Controller;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
 use App\Models\Misc\FormQuestion;
 use App\Models\Misc\FormResponse;
 use App\Models\Site\Incident\SiteIncident;
@@ -14,9 +15,11 @@ use App\Models\Site\Incident\SiteIncidentPeople;
 use App\Models\Site\Incident\SiteIncidentReview;
 use App\Models\Site\Incident\SiteIncidentWitness;
 use App\Models\Site\Site;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use nilsenj\Toastr\Facades\Toastr;
 use PDF;
@@ -119,23 +122,6 @@ class SiteIncidentController extends Controller
         return view('site/incident/create');
     }
 
-    /**
-     * Add docs/photos Form
-     */
-    /*
-    public function createDocs($id)
-    {
-        $incident = SiteIncident::findorFail($id);
-
-        // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('edit.site.incident', $incident) || Auth::user()->allowed2('add.site.incident', $incident)))
-            return view('errors/404');
-
-        $incident->step = 3;
-        $incident->save();
-
-        return view('site/incident/create-docs', compact('incident'));
-    }*/
 
     /**
      * Lodge Incident Form
@@ -156,8 +142,10 @@ class SiteIncidentController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $incident->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         //$incident->emailIncident(); // Email incident
@@ -237,8 +225,10 @@ class SiteIncidentController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $incident->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         //
@@ -658,65 +648,80 @@ class SiteIncidentController extends Controller
     {
         $incident = SiteIncident::findOrFail($id);
 
-        if ($incident) {
-            //return view('pdf/site/incident', compact('incident'));
-            return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
-
-            $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream();
-            $file = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');
-            if (file_exists($file))
-                unlink($file);
-            $pdf->save($file);
-
-            return $pdf->stream();
-        }
+        return PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4')->stream("Incident-Report-{$incident->id}.pdf");
     }
 
     public function reportZIP($id)
     {
         $incident = SiteIncident::findOrFail($id);
 
-        if ($incident) {
-            $dir = '/filebank/tmp/incident/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $report_file = public_path($dir . "/Incident Report $incident->id.pdf");
+        // ------------------------------------------------------------------
+        // Temp working directory (storage/app/tmp)
+        // ------------------------------------------------------------------
+        $tmpDir = "tmp/incident/{$incident->id}";
+        Storage::disk('local')->deleteDirectory($tmpDir);
+        Storage::disk('local')->makeDirectory($tmpDir);
 
-            //return view('pdf/site/incident', compact('incident'));
-            $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4');
-            if (file_exists($report_file))
-                unlink($report_file);
-            $pdf->save($report_file);
+        // ------------------------------------------------------------------
+        // Generate PDF
+        // ------------------------------------------------------------------
+        $pdfPath = "{$tmpDir}/Incident Report {$incident->id}.pdf";
+        $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4');
+        Storage::disk('local')->put($pdfPath, $pdf->output());
 
+        // ------------------------------------------------------------------
+        // Create ZIP
+        // ------------------------------------------------------------------
+        $zipPath = Storage::disk('local')->path("{$tmpDir}/Incident Report {$incident->id}.zip");
+        $zip = new ZipArchive();
 
-            // Generate ZIP
-            $zip_file = public_path($dir . "/Incident Report $incident->id.zip");
-            if (file_exists($zip_file))
-                unlink($zip_file);
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== true)
+            abort(500, 'Unable to create ZIP file');
 
-            $zip = new ZipArchive();
-            if ($zip->open($zip_file, ZipArchive::CREATE) === true) {
-                $zip->addFile($report_file, "Incident Report $incident->id.pdf"); // Incident Report
+        // Add PDF
+        $zip->addFile(Storage::disk('local')->path($pdfPath), "Incident Report {$incident->id}.pdf");
 
-                // Photos / Docs
-                foreach ($incident->docs as $doc) {
-                    $file = public_path('/filebank/incident/' . $doc->incident_id . '/' . $doc->attachment);
-                    if (file_exists($file))
-                        $zip->addFile($file, $doc->attachment);
-                }
+        // ------------------------------------------------------------------
+        // Incident documents (FileBank / Spaces)
+        // ------------------------------------------------------------------
+        foreach ($incident->docs as $doc) {
+            if (!$doc->attachment)
+                continue;
 
-                // Assigned Tasks
-                foreach ($incident->todos() as $todo) {
-                    if ($todo->attachment && file_exists(public_path($todo->attachmentUrl)))
-                        $zip->addFile(public_path($todo->attachmentUrl), $todo->attachment);
+            $path = "incident/{$doc->incident_id}/{$doc->attachment}";
 
-                }
-                $zip->close();
+            if (FileBank::exists($path)) {
+                $stream = FileBank::downloadResponse($path)->getFile();
 
-                return redirect($dir . "/Incident Report $incident->id.zip");
+                // Copy into temp so ZipArchive can read it
+                $localCopy = "{$tmpDir}/{$doc->attachment}";
+                Storage::disk('local')->put($localCopy, FileBank::get($path));
+                $zip->addFile(Storage::disk('local')->path($localCopy), $doc->attachment);
             }
         }
+
+        // ------------------------------------------------------------------
+        // ToDoo attachments
+        // ------------------------------------------------------------------
+        foreach ($incident->todos() as $todo) {
+            if (!$todo->attachment)
+                continue;
+
+            $path = "todo/{$todo->id}/{$todo->attachment}";
+
+            if (FileBank::exists($path)) {
+                $localCopy = "{$tmpDir}/{$todo->attachment}";
+                Storage::disk('local')->put($localCopy, FileBank::get($path));
+                $zip->addFile(Storage::disk('local')->path($localCopy), $todo->attachment);
+            }
+        }
+
+        $zip->close();
+
+        // ------------------------------------------------------------------
+        // Return ZIP download
+        // ------------------------------------------------------------------
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     /**
@@ -732,7 +737,7 @@ class SiteIncidentController extends Controller
         if (!Auth::user()->hasAnyRole2("web-admin|mgt-general-manager|whs-manager"))
             return json_encode("failed");
 
-        // Delete ToDoo task
+        // Delete ToDos
         $deleted = ToDo::where('type', 'incident')->where('type_id', $incident->id)->delete();
         $deleted = ToDo::where('type', 'incident review')->where('type_id', $incident->id)->delete();
         $deleted = ToDo::where('type', 'incident prevent')->where('type_id', $incident->id)->delete();
@@ -749,37 +754,13 @@ class SiteIncidentController extends Controller
         $deleted = SiteIncidentConversation::where('incident_id', $incident->id)->delete();
 
         // Delete attached files
-        $dir = "/filebank/incident/$incident->id";
+        FileBank::deleteDirectory("incident/{$incident->id}");
 
-        if (is_dir(public_path($dir))) {
-            $files = scandir(public_path($dir));
-            foreach ($files as $file) {
-                if (($file[0] != '.')) {
-                    unlink(public_path("$dir/$file"));
-                }
-            }
-            rmdir(public_path($dir));
-        }
 
         $incident->delete();
 
         return json_encode('success');
     }
-    /**
-     * Delete the specified resource in storage.
-     */
-    /*public function delete($id)
-    {
-        $result = $this->destroy($id);
-
-        if ($result)
-            Toastr::error("Deleted incident");
-        else
-            Toastr::error("Failed to delete incident");
-
-        return redirect('site/incident');
-    }*/
-
 
     /**
      * Get Incidents current user is authorised to manage + Process datatables ajax request.

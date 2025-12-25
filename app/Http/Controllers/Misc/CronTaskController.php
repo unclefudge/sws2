@@ -16,14 +16,23 @@ use PDF;
 
 class CronTaskController extends Controller
 {
+    public $logFile;
 
     static public function hourly()
     {
         echo "<h1> Hourly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
-        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
-        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
 
+        // -------------------------------------------------
+        // Log file
+        // -------------------------------------------------
+        $logDir = storage_path('app/log');
+        $this->logFile = $logDir . '/hourly.txt';
+        if (!is_dir($logDir)) mkdir($logDir, 0755, true);
+
+        $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
+        file_put_contents($this->logFile, $log, FILE_APPEND);
+
+        // Time helpers
         $hour = Carbon::now()->format('G'); // 24hr
         $minute = Carbon::now()->format('i');
 
@@ -36,8 +45,6 @@ class CronTaskController extends Controller
 
         // Thursday
         if (Carbon::today()->isThursday()) {
-            //$log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks Thursday===\n";
-            //$bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
             // 10am
             if ($hour == '10')
                 CronTaskController::emailUpcomingJobs();
@@ -46,8 +53,8 @@ class CronTaskController extends Controller
         if (Carbon::today()->isWeekday()) {
             // 2pm
             if ($hour == '14') {
-                $text = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
-                //app('log')->debug($text);
+                $log = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
+                //file_put_contents($this->logFile, $log, FILE_APPEND);
                 CronTaskController::superChecklistsReminder();
             }
         }
@@ -60,8 +67,7 @@ class CronTaskController extends Controller
     static public function superChecklistsReminder()
     {
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Super Checklit Reminder ===\n";
-        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND);
 
         $todos = Todo::where('type', 'super checklist')->where('status', '1')->get();
         foreach ($todos as $todo) {
@@ -73,8 +79,7 @@ class CronTaskController extends Controller
             }
         }
 
-        $bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-        if ($bytes_written === false) die("Error writing to file");
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -83,8 +88,7 @@ class CronTaskController extends Controller
     static public function emailUpcomingJobs()
     {
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Upcoming Jobs ===\n";
-        //$bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-        //if ($bytes_written === false) die("Error writing to file");
+        //file_put_contents($this->logFile, $log, FILE_APPEND);
         echo "<h2>Upcoming Jobs</h2>";
 
         $types = ['opt', 'cfest', 'cfadm'];
@@ -104,20 +108,20 @@ class CronTaskController extends Controller
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();
-        //dd($startdata);
 
+        // -------------------------------------------------
+        // Generate PDF
+        // -------------------------------------------------
+        $file = storage_path('app/tmp/upcoming-jobs.pdf');
         //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
-        $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
-        $pdf->setPaper('A4', 'landscape');
-
-
-        $file = public_path('filebank/tmp/upcoming-jobs.pdf');
-        if (file_exists($file))
-            unlink($file);
+        $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'))->setPaper('A4', 'landscape');
         $pdf->save($file);
 
+        // -------------------------------------------------
+        // Email
+        // -------------------------------------------------
         $today = Carbon::now();
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             if (Carbon::today()->isMonday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au'];
@@ -128,15 +132,17 @@ class CronTaskController extends Controller
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
+
+            if ($email_to) {
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
+                echo "emailed<br>";
+            }
         }
 
-        if ($email_to) {
-            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
-            echo "emailed<br>";
-        }
-
-        //$bytes_written = File::append(public_path('filebank/log/hourly.txt'), $log);
-        //if ($bytes_written === false) die("Error writing to file");
+        // -------------------------------------------------
+        // Cleanup
+        // -------------------------------------------------
+        register_shutdown_function(fn() => @unlink($file));
     }
 
 }

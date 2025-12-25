@@ -114,31 +114,40 @@
                                 </div>
                                 <div class="col-md-4">
                                     {{-- Attachments --}}
+                                    @php
+                                        $attachments = $hazard->attachments;
+                                        $images = $attachments->where('type', 'image');
+                                        $files  = $attachments->where('type', 'file');
+                                    @endphp
+
                                     <h5><b>Attachments</b></h5>
-                                    @if ($hazard->files->count())
+                                    @if ($attachments->isNotEmpty())
                                         <hr style="margin: 10px 0px; padding: 0px;">
                                         {{-- Image attachments --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($hazard->files as $file)
-                                                @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                        @if ($images->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($images as $attachment)
                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
-                                                            <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                        </a>
                                                     </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                        {{-- File attachments  --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($hazard->files as $file)
-                                                @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
-                                                @endif
-                                            @endforeach
-                                        </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        {{-- File attachments --}}
+                                        @if ($files->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($files as $attachment)
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     @else
-                                        None
+                                        <div>None</div>
                                     @endif
+
                                     @if ($hazard->status)
                                         <div>
                                             <br><input type="file" class="filepond" name="filepond[]" multiple/><br><br>
@@ -168,10 +177,10 @@
                                     <table class="table table-striped table-bordered table-nohover order-column">
                                         <thead>
                                         <tr class="mytable-header">
-                                            <th width="5%">#</th>
+                                            <th style="width:5%">#</th>
                                             <th> Action</th>
-                                            <th width="15%">Created by</th>
-                                            <th width="15%">Completed by</th>
+                                            <th style="width:15%">Created by</th>
+                                            <th style="width:15%">Completed by</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -185,28 +194,36 @@
                                                     @if ($todo->comments)
                                                         <br><b>Comments:</b> {{ $todo->comments }}
                                                     @endif
-                                                    @if ($todo->attachments()->count())
+                                                    @php
+                                                        $attachments = $todo->attachments;
+                                                        $images = $attachments->where('type', 'image');
+                                                        $files  = $attachments->where('type', 'file');
+                                                    @endphp
+                                                    @if ($attachments->isNotEmpty())
                                                         <hr style="margin: 10px 0px; padding: 0px;">
                                                         {{-- Image attachments --}}
-                                                        <div class="row" style="margin: 0">
-                                                            @foreach ($todo->attachments() as $attachment)
-                                                                @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
+                                                        @if ($images->isNotEmpty())
+                                                            <div class="row" style="margin: 0">
+                                                                @foreach ($images as $attachment)
                                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                        </a>
                                                                     </div>
-                                                                @endif
-                                                            @endforeach
-                                                        </div>
-                                                        {{-- File attachments  --}}
-                                                        <div class="row" style="margin: 0">
-                                                            @foreach ($todo->attachments() as $attachment)
-                                                                @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- File attachments --}}
+                                                        @if ($files->isNotEmpty())
+                                                            <div class="row" style="margin: 0">
+                                                                @foreach ($files as $attachment)
                                                                     <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                                @endif
-                                                            @endforeach
-                                                        </div>
-                                                        <br>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
                                                     @endif
+                                                    <br>
                                                     {{-- Old Image attachments --}}
                                                     @if ($todo->attachment)
                                                         <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>

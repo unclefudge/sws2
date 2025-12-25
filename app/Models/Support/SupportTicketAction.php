@@ -2,7 +2,7 @@
 
 namespace App\Models\Support;
 
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -23,14 +23,9 @@ class SupportTicketAction extends Model
         return $this->belongsTo('App\Models\Support\SupportTicket', 'ticket_id');
     }
 
-    /**
-     * A SupportTicketAction has many SupportTicketActionFiles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function files()
+    public function attachments()
     {
-        return $this->hasMany('App\Models\Support\SupportTicketActionFile', 'action_id');
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'support_ticket_action');
     }
 
     /**
@@ -54,37 +49,6 @@ class SupportTicketAction extends Model
     }
 
     /**
-     * Save attachment to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "/filebank/support/ticket";
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = "ticket-" . $this->ticket_id . '-' . $this->id . '-' . $tempFile->filename;
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SupportTicketActionFile::create(['action_id' => $this->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
-
-    /**
      * Email Action Notification
      */
     public function emailAction()
@@ -103,17 +67,6 @@ class SupportTicketAction extends Model
         }
 
         Mail::to($email_to)->send(new \App\Mail\Misc\SupportTicketUpdated($ticket, $this));
-    }
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/support/ticket/' . $this->attributes['attachment'];
-
-        return '';
     }
 
 

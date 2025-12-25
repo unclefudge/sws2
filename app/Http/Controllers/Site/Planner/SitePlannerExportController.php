@@ -300,17 +300,9 @@ class SitePlannerExportController extends Controller
                 $client = 'Supervisor ';
             }
 
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . "/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
+            // Create PDF
+            $output_file = storage_path("app/tmp/report/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
-
-            //return view($view, compact('data'));
-            //$pdf = PDF::loadView($view, compact('data'));
-            //$pdf->setPaper('a4', 'landscape');//->setOrientation('landscape');
-            //return $pdf->stream();
             SitePlannerPdf::dispatch($view, $data, $output_file);
 
             // Return just the output PDF filename for Batch reporting
@@ -524,11 +516,7 @@ class SitePlannerExportController extends Controller
 
 
             //dd($data);
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . "/Company Site Plan ($company_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path("app/tmp/report/Company Site Plan ($company_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
             SitePlannerCompanyPdf::dispatch($data, $output_file);
 
@@ -541,9 +529,7 @@ class SitePlannerExportController extends Controller
             //->setOption('margin-bottom', 10)
             //->setOrientation('landscape');
 
-            //$file = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');
-            //if (file_exists($file))
-            //    unlink($file);
+            //$file = storage_path('company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');
             //$pdf->save($file);
             return $pdf->stream();
         }
@@ -569,11 +555,6 @@ class SitePlannerExportController extends Controller
         $from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00') : null;
         $to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00') : null;;
 
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-
         //dd($site_id);
         //dd(request()->all());
         //
@@ -598,7 +579,7 @@ class SitePlannerExportController extends Controller
             $data[] = $obj_site;
             //dd($sitedata);
 
-            $output_file = public_path($dir . '/Site Attendance ' . sanitizeFilename($site->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path('app/tmp/report/Site Attendance ' . sanitizeFilename($site->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/site-attendance', compact('site', 'data', 'company', 'from', 'to'));
@@ -622,7 +603,7 @@ class SitePlannerExportController extends Controller
 
             }
 
-            $output_file = public_path($dir . '/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path('app/tmp/report/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/company-attendance', compact('data', 'company', 'from', 'to'));
@@ -818,9 +799,7 @@ class SitePlannerExportController extends Controller
             return $pdf->stream();
 
         if ($request->has('email_pdf')) {
-            $file = public_path('filebank/tmp/jobstart-' . Auth::user()->id . '.pdf');
-            if (file_exists($file))
-                unlink($file);
+            $file = storage_path('app/tmp/jobstart-' . Auth::user()->id . '.pdf');
             $pdf->save($file);
 
             if ($request->get('email_list')) {

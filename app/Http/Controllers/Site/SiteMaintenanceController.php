@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Site;
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteMaintenance;
 use App\Models\Site\SiteMaintenanceCategory;
-use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Site\SiteMaintenanceItem;
 use App\User;
 use Carbon\Carbon;
@@ -186,12 +186,13 @@ class SiteMaintenanceController extends Controller
             }
         }
 
-
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $main->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_maintenance', 'table_id' => $main->id, 'directory' => "site/{$main->site_id}/maintenance"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Create ToDoo to assign Supervisor
@@ -303,8 +304,10 @@ class SiteMaintenanceController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $main->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_maintenance', 'table_id' => $main->id, 'directory' => "site/{$main->site_id}/maintenance"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Supervisor Assigned
@@ -404,8 +407,10 @@ class SiteMaintenanceController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $main->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_maintenance', 'table_id' => $main->id, 'directory' => "site/{$main->site_id}/maintenance"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
         // Email if Super Assigned is updated
@@ -505,7 +510,7 @@ class SiteMaintenanceController extends Controller
                 $action = Action::create(['action' => "Request has been signed off by construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
                 $email_list = [env('EMAIL_DEV')];
-                if (\App::environment('prod'))
+                if (app()->environment('prod'))
                     $email_list = $main->site->company->notificationsUsersEmailType('site.maintenance.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceCompleted($main));
@@ -714,42 +719,8 @@ class SiteMaintenanceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function uploadAttachment(Request $request)
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
-        //    return json_encode("failed");
 
-        // Handle file upload
-        $files = $request->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . $request->get('site_id') . '/maintenance';
-            $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-
-            $doc_request = $request->only('site_id');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['company_id'] = Auth::user()->company_id;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteMaintenanceDoc
-            $doc = SiteMaintenanceDoc::create($doc_request);
-            $doc->main_id = $request->get('main_id');
-            //
-            $doc->attachment = $name;
-            $doc->save();
-        }
-
-
-        return json_encode("success");
-    }
-
-    public function deleteAttachment($id, $doc_id)
+    public function deleteAttachment($id, $attach_id)
     {
         $main = SiteMaintenance::findOrFail($id);
 
@@ -757,14 +728,8 @@ class SiteMaintenanceController extends Controller
         if (!Auth::user()->allowed2('del.site.maintenance', $main))
             return view('errors/404');
 
-        $doc = SiteMaintenanceDoc::where('id', $doc_id)->first();
-        if ($doc) {
-            $file = public_path($doc->AttachmentUrl);
-            if (file_exists($file))
-                unlink($file);
-            $doc->delete();
-        }
-
+        // delete DB entry + file
+        $attachment = Attachment::findOrFail($attach_id)->delete();
 
         return redirect('site/maintenance/' . $main->id . '/edit');
 
@@ -805,7 +770,6 @@ class SiteMaintenanceController extends Controller
 
         //dd($records);
         $dt = Datatables::of($records)
-            //->editColumn('id', '<div class="text-center"><a href="/site/maintenance/{{$id}}"><i class="fa fa-search"></i></a></div>')
             ->editColumn('id', function ($doc) {
                 return "<div class='text-center'><a href='/site/maintenance/$doc->id'>M$doc->code</a></div>";
             })

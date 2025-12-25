@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers\User;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use Session;
-use App\User;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\User\UserDocRequest;
+use App\Models\Company\Company;
 use App\Models\User\UserDoc;
 use App\Models\User\UserDocCategory;
-use App\Models\Company\Company;
-use App\Http\Utilities\UserDocTypes;
-use App\Http\Requests;
-use App\Http\Requests\User\UserDocRequest;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
-use nilsenj\Toastr\Facades\Toastr;
+use App\Services\FileBank;
+use App\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Facades\Auth;
+use nilsenj\Toastr\Facades\Toastr;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class UserDocController
  * @package App\Http\Controllers
  */
-class UserDocController extends Controller {
+class UserDocController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -114,8 +112,8 @@ class UserDocController extends Controller {
             return json_encode("failed");
 
         // Delete attached file
-        if ($doc->attachment && file_exists(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment)))
-            unlink(public_path('/filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment));
+        if ($doc->attachment)
+            FileBank::delete("user/$doc->user_id/docs/$doc->attachment");
 
         $doc->closeToDo();
         $doc->delete();
@@ -169,19 +167,16 @@ class UserDocController extends Controller {
         $doc = UserDoc::create($doc_request);
 
         // Handle attached file
-        if ($request->hasFile('singlefile') || $request->hasFile('singleimage')) {
-            $file = ($request->hasFile('singlefile')) ? $request->file('singlefile') : $request->file('singleimage');
+        if (request()->hasFile('singlefile') || request()->hasFile('singleimage')) {
+            $file = (request()->hasFile('singlefile')) ? request()->file('singlefile') : request()->file('singleimage');
 
-            $path = "filebank/user/" . $user->id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
+            $basePath = "user/$user->id/docs";
+            $originalName = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = strtolower($file->getClientOriginalExtension());
+            $forcedFilename = "{$originalName}.{$extension}";
 
-            //dd($doc_request);
-            $doc->attachment = $name;
+            // Store in Spaces via FileBank (handles uniqueness + streaming)
+            $doc->attachment = FileBank::storeUploadedFile($file, $basePath, $forcedFilename, $file->isValid() && str_starts_with($file->getMimeType(), 'image/'));
             $doc->save();
         }
         Toastr::success("Uploaded document");
@@ -312,21 +307,17 @@ class UserDocController extends Controller {
             }
         }
 
-        // Handle attached file
+        // Handle new attachment
         if (request()->hasFile('singlefile')) {
-            // Delete previous file
-            if ($doc->attachment && file_exists(public_path('filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment)))
-                unlink(public_path('filebank/user/' . $doc->user_id . '/docs/' . $doc->attachment));
+            $file = request()->file('singlefile');
 
-            $file = $request->file('singlefile');
-            $path = "filebank/user/" . $doc->user_id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count ++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
+            $basePath = "user/$user->id/docs";
+            $originalName = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = strtolower($file->getClientOriginalExtension());
+            $forcedFilename = "{$originalName}.{$extension}";
+
+            // Store in Spaces via FileBank (handles uniqueness + streaming)
+            $doc->attachment = FileBank::replaceUploadedFile($file, $basePath, $doc->attachment, $forcedFilename, $file->isValid() && str_starts_with($file->getMimeType(), 'image/'));
             $doc->save();
         }
         Toastr::success("Updated document");
@@ -375,7 +366,7 @@ class UserDocController extends Controller {
             return view('errors/404');
 
         //dd(request()->all());
-        $doc->status  = ($doc->status == 1) ?  0 :  1;
+        $doc->status = ($doc->status == 1) ? 0 : 1;
         $doc->closeToDo();
         $doc->save();
 
@@ -479,7 +470,7 @@ class UserDocController extends Controller {
                 $expiry = ($doc->expiry) ? $doc->expiry->format('d/m/Y') : '';
 
                 if (Auth::user()->allowed2("edit.user.doc", $doc))
-                   $actions .= '<a href="/user/' . $user->id . '/doc/' . $doc->id . '/edit' . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                    $actions .= '<a href="/user/' . $user->id . '/doc/' . $doc->id . '/edit' . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
                 //elseif (Auth::user()->allowed2("view.company.doc", $doc))
                 $actions .= '<a href="/user/' . $user->id . '/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-search"></i> View</a>';
 

@@ -3,6 +3,7 @@
 namespace App\Models\Site;
 
 use App\Models\Comms\Todo;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -82,27 +83,23 @@ class SiteExtension extends Model
         }
 
         // Sort by site name
-        usort($data, function ($a, $b) {
-            return $a['name'] < $b['name'];
-        });
+        usort($data, fn($a, $b) => $a['name'] <=> $b['name']);
 
-        $dir = "/filebank/company/3/docs/contract-extension";
-        // Create directory if required
-        if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
+        $basePath = 'company/3/docs/contract-extension';
+        $filename = 'ContractExtensions ' . $this->date->format('d-m-Y') . '.pdf';
+        $path = "{$basePath}/{$filename}";
 
-        $filename = "ContractExtensions " . $this->date->format('d-m-Y') . '.pdf';
-        $file = public_path("$dir/$filename");
-        if (file_exists($file))
-            unlink($file);
-
-        //SiteExtensionPdf::dispatch('pdf/site/contract-extension', $this, $data, $file);
-
+        // Generate PDF (in memory)
         $extension = $this;
-        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'));
-        $pdf->setPaper('A4', 'landscape');
-        //$pdf->stream();
-        $pdf->save($file);
+        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'))->setPaper('A4', 'landscape');
 
+        // Overwrite if it already exists
+        FileBank::delete($path);
+
+        // Save PDF to Spaces
+        FileBank::putContents($path, $pdf->output());
+
+        // Persist filename only
         $this->attachment = $filename;
         $this->save();
     }
@@ -141,14 +138,11 @@ class SiteExtension extends Model
         }
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])
-            return '/filebank/company/3/docs/contract-extension/' . $this->attributes['attachment'];
+        if (!$this->attachment)
+            return '';
 
-        return '';
+        return FileBank::url("company/3/docs/contract-extension/{$this->attachment}");
     }
 }

@@ -3,12 +3,14 @@
 namespace App\Mail\Site;
 
 use App\Models\Site\SiteInspectionElectrical;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteInspectionElectricalAssignedTrade extends Mailable implements ShouldQueue {
+class SiteInspectionElectricalAssignedTrade extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -33,11 +35,10 @@ class SiteInspectionElectricalAssignedTrade extends Mailable implements ShouldQu
     {
         $email = $this->markdown('emails/site/inspection-electrical-assigned')->subject('SafeWorksite - Electrical Inspection Report Assigned');
 
-        // Attachments - Report
-        if ($this->report->docs()->count()) {
-            foreach ($this->report->docs() as $doc) {
-                if ($doc->type == 'doc' && file_exists(public_path($doc->AttachmentUrl)))
-                    $email->attach(public_path($doc->AttachmentUrl));
+        // Add Attachments
+        foreach ($this->report->attachments as $file) {
+            if ($file->directory && $file->attachment) {
+                FileBank::attachToEmail($email, "$file->directory/$file->attachment");
             }
         }
 

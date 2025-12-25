@@ -176,55 +176,39 @@
                             {{-- Attachments --}}
                             <b>Attachments</b>
                             <hr style="margin: 10px 0px; padding: 0px;">
-                            @if($todo->type == 'hazard' || $todo->type == 'accident' || $todo->type == 'incident')
-                                @if ($todo->attachment_url)
-                                    <div class="row" id="attachment_div">
-                                        <div class="col-md-3">
-                                            <div>
-                                                <a href="{{ $todo->attachment_url }}" class="html5lightbox " title="{{ $todo->name }}" data-lityXXX>
-                                                    <img src="{{ $todo->attachment_url }}" class="thumbnail img-responsive img-thumbnail"></a>
+                            @php
+                                $attachments = $todo->attachments;
+                                $images = $attachments->where('type', 'image');
+                                $files  = $attachments->where('type', 'file');
+                            @endphp
+
+                            @if ($attachments->isNotEmpty())
+                                {{-- Image attachments --}}
+                                @if ($images->isNotEmpty())
+                                    <div class="row" style="margin: 0">
+                                        @foreach ($images as $attachment)
+                                            <div style="width: 60px; float: left; padding-right: 5px">
+                                                <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                </a>
                                             </div>
-                                            @if ($todo->status && $todo->attachment)
-                                                <button class="btn default" id="delete_attachment_btn">Delete image</button><br><br>
-                                            @endif
-                                        </div>
+                                        @endforeach
                                     </div>
                                 @endif
-                                @if ($todo->status)
-                                    <div class="row" id="uploadfile_div" style="@if ($todo->status && $todo->attachment) display:none @endif">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
-                                                <label class="control-label">Select File</label>
-                                                <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                                {!! fieldErrorMessage('singlefile', $errors) !!}
-                                            </div>
-                                        </div>
+
+                                {{-- File attachments --}}
+                                @if ($files->isNotEmpty())
+                                    <div class="row" style="margin: 0">
+                                        @foreach ($files as $attachment)
+                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                        @endforeach
                                     </div>
                                 @endif
+                            @else
+                                <div>None</div>
                             @endif
 
-                            @if ($todo->attachments()->count())
-                                {{-- Image attachments --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($todo->attachments() as $attachment)
-                                        @if ($attachment->type == 'image' && file_exists(public_path($attachment->url)))
-                                            <div style="width: 60px; float: left; padding-right: 5px">
-                                                <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox" title="{{ $attachment->name }}" data-lity>
-                                                    <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                                {{-- File attachments  --}}
-                                <div class="row" style="margin: 0">
-                                    @foreach ($todo->attachments() as $attachment)
-                                        @if ($attachment->type == 'file' && file_exists(public_path($attachment->url)))
-                                            <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                        @endif
-                                    @endforeach
-                                </div>
-                                <br>
-                            @endif
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <input type="file" class="filepond" name="filepond[]" multiple/><br><br>

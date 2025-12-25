@@ -106,7 +106,7 @@ class ActionController extends Controller
             // Email note
             if (request('table') == 'site_maintenance') {
                 if ($record->super_id) {
-                    if (\App::environment('prod'))
+                    if (app()->environment('prod'))
                         $email_to = ['kirstie@capecod.com.au'];
                     Mail::to($email_to)->send(new \App\Mail\Site\SiteMaintenanceNote($record, $action));
                 }

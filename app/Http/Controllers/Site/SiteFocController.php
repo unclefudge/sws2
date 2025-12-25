@@ -142,7 +142,7 @@ class SiteFocController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "/filebank/site/$foc->site_id/foc"]);
+                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -201,7 +201,7 @@ class SiteFocController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "/filebank/site/$foc->site_id/prac"]);
+                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/prac"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -279,7 +279,7 @@ class SiteFocController extends Controller
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_foc', 'table_id' => $foc->id]);
 
                 $email_list = [env('EMAIL_DEV')];
-                //if (\App::environment('prod'))
+                //if (app()->environment('prod'))
                 //    $email_list = $foc->site->company->notificationsUsersEmailType('site.foc.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteFocCompleted($foc));
@@ -422,7 +422,7 @@ class SiteFocController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "/filebank/site/$foc->site_id/foc"]);
+                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -476,11 +476,7 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $doc = Attachment::where('id', $doc_id)->first();
-        if ($doc) {
-            if (file_exists(public_path($doc->url)))
-                unlink(public_path($doc->url));
-            $doc->delete();
-        }
+        $doc->delete();
 
         return redirect('site/foc/' . $foc->id . '/edit');
 

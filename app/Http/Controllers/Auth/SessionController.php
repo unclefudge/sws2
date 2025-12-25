@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use Auth;
+use Carbon\Carbon;
 use DB;
 use File;
-use Auth;
 use Session;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Site\Site;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 
-class SessionController extends Controller {
+class SessionController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -69,7 +66,7 @@ class SessionController extends Controller {
 
             // Log Supervisors
             //if (Auth::user()->isCC() && Auth::user()->isSupervisor())
-            //    File::append(public_path('filebank/log/users/supers_login.txt'), Carbon::now()->format('d/m/Y H:i:s') . ' ' . Auth::user()->fullname . ' (' . Auth::user()->username . ")\n");
+            //    File::append(storage_path('app/log/users/supers_login.txt'), Carbon::now()->format('d/m/Y H:i:s') . ' ' . Auth::user()->fullname . ' (' . Auth::user()->username . ")\n");
 
             // Display Site Specific Alerts
             /*

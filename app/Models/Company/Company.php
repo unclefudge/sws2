@@ -1480,7 +1480,7 @@ class Company extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod'))
+        if (app()->environment('prod'))
             $email_to = ($email_list) ? $email_list : [env('EMAIL_DEV')];
 
         if ($email_to)

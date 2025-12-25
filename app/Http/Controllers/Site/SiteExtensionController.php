@@ -241,10 +241,12 @@ class SiteExtensionController extends Controller
         $extension->closeToDo();
 
         $email_cc = '';
-        $email_list = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-        //$email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
-        if ($email_list && $email_cc) Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
-        elseif ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension, public_path($extension->attachmentUrl)));
+        $email_list = (app()->environment('prod')) ? ['kirstie@capecod.com.au'] : [env('EMAIL_DEV')];
+
+        if ($email_list && $email_cc)
+            Mail::to($email_list)->cc($email_cc)->send(new \App\Mail\Site\SiteExtensionsReport($extension));
+        elseif ($email_list)
+            Mail::to($email_list)->send(new \App\Mail\Site\SiteExtensionsReport($extension));
         Toastr::success("Report Signed Off");
 
         $extension->save();
@@ -264,7 +266,7 @@ class SiteExtensionController extends Controller
         // Check authorisation and throw 404 if not
         if (!Auth::user()->hasPermission2('del.site.extension'))
             return view('errors/404');
-        
+
         CategoryController::updateCategories('site_extension', $request);
 
         Toastr::success("Updated categories");
@@ -300,8 +302,7 @@ class SiteExtensionController extends Controller
         //dd($data);
 
         //return view('pdf/site/contract-extension', compact('data', 'extension'));
-        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'));
-        $pdf->setPaper('A4', 'landscape');
+        $pdf = PDF::loadView('pdf/site/contract-extension', compact('data', 'extension'))->setPaper('A4', 'landscape');
 
         return $pdf->stream();
     }

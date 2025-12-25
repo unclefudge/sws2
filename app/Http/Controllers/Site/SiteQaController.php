@@ -690,157 +690,168 @@ class SiteQaController extends Controller
 
     public function qaPDF($client_planner_data = null)
     {
-
         // Determine if function called by ExportQA or ClientPlannerEmail
         if ($client_planner_data) {
             $client_planner_id = $client_planner_data['email_id'];
             $date_from = $client_planner_data['date_from'];
-        } else
+        } else {
             $client_planner_id = null;
+            $date_from = null;
+        }
 
-        //dd(request()->all());
         $site = Site::find(request('site_id'));
-        if ($site) {
-            $completed = 1;
-            $data = [];
-            $users = [];
-            $companies = [];
+        if (!$site) {
+            return redirect('/manage/report/recent');
+        }
 
-            if ($client_planner_id)
-                $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>', $date_from)->get();
-            else
-                $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->get();
+        $completed = 1;
+        $data = [];
+        $users = [];
+        $companies = [];
 
-            foreach ($site_qa->sortBy('reportOrder') as $qa) {
-                $obj_qa = (object)[];
-                $obj_qa->id = $qa->id;
-                $obj_qa->name = $qa->name;
-                $obj_qa->status = $qa->status;
-                // Signed By Super
-                $obj_qa->super_sign_by = '';
-                if ($qa->supervisor_sign_by) {
-                    if (!isset($users[$qa->supervisor_sign_by]))
-                        $users[$qa->supervisor_sign_by] = User::find($qa->supervisor_sign_by);
-                    $obj_qa->super_sign_by = $users[$qa->supervisor_sign_by]->fullname;
-                } else
-                    $completed = 0;
-                $obj_qa->super_sign_at = ($qa->supervisor_sign_by) ? $qa->supervisor_sign_at->format('d/m/Y') : '';
-                // Signed By Manager
-                $obj_qa->manager_sign_by = '';
-                if ($qa->manager_sign_by) {
-                    if (!isset($users[$qa->manager_sign_by]))
-                        $users[$qa->manager_sign_by] = User::find($qa->manager_sign_by);
-                    $obj_qa->manager_sign_by = $users[$qa->manager_sign_by]->fullname;
-                } else
-                    $completed = 0;
-                $obj_qa->manager_sign_at = ($qa->manager_sign_by) ? $qa->manager_sign_at->format('d/m/Y') : '';
-                $obj_qa->items = [];
-                $obj_qa->actions = [];
+        if ($client_planner_id) {
+            $site_qa = SiteQa::where('site_id', $site->id)
+                ->where('status', '0')
+                ->whereDate('updated_at', '>', $date_from)
+                ->get();
+        } else {
+            $site_qa = SiteQa::where('site_id', $site->id)
+                ->where('status', '<>', '-1')
+                ->get();
+        }
 
-                // Items
-                foreach ($qa->items as $item) {
-                    $obj_qa->items[$item->order]['id'] = $item->id;
-                    $obj_qa->items[$item->order]['name'] = $item->name;
-                    $obj_qa->items[$item->order]['status'] = $item->status;
-                    $obj_qa->items[$item->order]['done_by'] = '';
-                    $obj_qa->items[$item->order]['sign_by'] = '';
-                    $obj_qa->items[$item->order]['sign_at'] = '';
+        foreach ($site_qa->sortBy('reportOrder') as $qa) {
 
-                    // Item Completed + Signed Off
-                    if ($item->status == '1') {
-                        // Get User Signed
-                        if (!isset($users[$item->sign_by]))
-                            $users[$item->sign_by] = User::find($item->sign_by);
-                        $user_signed = $users[$item->sign_by];
-                        // Get Company
+            $obj_qa = (object)[
+                'id' => $qa->id,
+                'name' => $qa->name,
+                'status' => $qa->status,
+                'super_sign_by' => '',
+                'super_sign_at' => '',
+                'manager_sign_by' => '',
+                'manager_sign_at' => '',
+                'items' => [],
+                'actions' => [],
+            ];
+
+            // Supervisor sign-off
+            if ($qa->supervisor_sign_by) {
+                $users[$qa->supervisor_sign_by] ??= User::find($qa->supervisor_sign_by);
+                $obj_qa->super_sign_by = $users[$qa->supervisor_sign_by]->fullname;
+                $obj_qa->super_sign_at = $qa->supervisor_sign_at->format('d/m/Y');
+            } else {
+                $completed = 0;
+            }
+
+            // Manager sign-off
+            if ($qa->manager_sign_by) {
+                $users[$qa->manager_sign_by] ??= User::find($qa->manager_sign_by);
+                $obj_qa->manager_sign_by = $users[$qa->manager_sign_by]->fullname;
+                $obj_qa->manager_sign_at = $qa->manager_sign_at->format('d/m/Y');
+            } else {
+                $completed = 0;
+            }
+
+            // Items
+            foreach ($qa->items as $item) {
+                $obj_qa->items[$item->order] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'status' => $item->status,
+                    'done_by' => '',
+                    'sign_by' => '',
+                    'sign_at' => '',
+                ];
+
+                if ($item->status == '1') {
+                    $users[$item->sign_by] ??= User::find($item->sign_by);
+                    $user_signed = $users[$item->sign_by];
+
+                    if ($item->done_by) {
+                        $companies[$item->done_by] ??= Company::find($item->done_by);
+                        $company = $companies[$item->done_by];
+                    } else {
                         $company = $user_signed->company;
-                        if ($item->done_by) {
-                            if (!isset($companies[$item->done_by]))
-                                $companies[$item->done_by] = Company::find($item->done_by);
-                            $company = $companies[$item->done_by];
-                        }
-                        if ($company->id == 1) // Done by 'Other' company
-                            $obj_qa->items[$item->order]['done_by'] = $item->done_by_other . " (lic. )";
-                        else
-                            $obj_qa->items[$item->order]['done_by'] = $company->name_alias . " (lic. $company->licence_no)";
-
-                        $obj_qa->items[$item->order]['sign_by'] = $user_signed->fullname;
-                        $obj_qa->items[$item->order]['sign_at'] = $item->sign_at->format('d/m/Y');
                     }
-                }
 
-                // Action
-                foreach ($qa->actions as $action) {
-                    if (!preg_match('/^Moved report to/', $action->action)) {
-                        $obj_qa->actions[$action->id]['action'] = $action->action;
-                        if (!isset($users[$action->created_by]))
-                            $users[$action->created_by] = User::find($action->created_by);
-                        $obj_qa->actions[$action->id]['created_by'] = $users[$action->created_by]->fullname;
-                        $obj_qa->actions[$action->id]['created_at'] = $action->created_at->format('d/m/Y');
-                    }
-                }
-                $data[] = $obj_qa;
-                $client_data = [];
-                $client_data[] = $obj_qa;
+                    $obj_qa->items[$item->order]['done_by'] =
+                        ($company->id == 1)
+                            ? $item->done_by_other . " (lic.)"
+                            : "{$company->name_alias} (lic. {$company->licence_no})";
 
-
-                // Client Planner Email have only 1 QA per pdf without cover page
-                if ($client_planner_id) {
-                    $cover_page = false;
-                    $dir = "/filebank/site/$site->id/emails/client";
-
-                    // Clean up QA name to be filename Safe
-                    $strip = array("~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]",
-                        "}", "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;", "&#8211;", "&#8212;",
-                        "â€”", "â€“", ",", "<", ".", ">", "/", "?");
-                    $clean = trim(str_replace($strip, "", strip_tags($qa->name)));
-                    //$clean = preg_replace('/\s+/', "-", $clean);
-                    $qa_name = $clean . " QA Checklist";
-                    $filename = "$site->name $qa_name.pdf";
-                    $doc = ClientPlannerEmailDoc::create(['email_id' => $client_planner_id, 'name' => $qa_name, 'attachment' => $filename]);
-
-                    // Create directory if required
-                    if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
-                    $output_file = public_path("$dir/$filename");
-
-                    SiteQaPdf::dispatch(request('site_id'), $client_data, $output_file, $cover_page); // Queue the job to generate PDF
+                    $obj_qa->items[$item->order]['sign_by'] = $user_signed->fullname;
+                    $obj_qa->items[$item->order]['sign_at'] = $item->sign_at->format('d/m/Y');
                 }
             }
 
-
-            if (!$client_planner_id) {
-                $cover_page = true;
-                $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-                $filename = 'QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf';
-
-                // Create directory if required
-                if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);
-
-                $output_file = public_path("$dir/$filename");
-                if (!$client_planner_id) touch($output_file);
-
-                //return view('pdf/site-qa', compact('site', 'data'));
-                //return PDF::loadView('pdf/site-qa', compact('site', 'data'))->setPaper('a4')->stream();
-                SiteQaPdf::dispatch(request('site_id'), $data, $output_file, $cover_page); // Queue the job to generate PDF
+            // Actions
+            foreach ($qa->actions as $action) {
+                if (!str_starts_with($action->action, 'Moved report to')) {
+                    $users[$action->created_by] ??= User::find($action->created_by);
+                    $obj_qa->actions[$action->id] = [
+                        'action' => $action->action,
+                        'created_by' => $users[$action->created_by]->fullname,
+                        'created_at' => $action->created_at->format('d/m/Y'),
+                    ];
+                }
             }
+
+            $data[] = $obj_qa;
+
+            /**
+             * ==========================
+             * CLIENT PLANNER MODE
+             * ==========================
+             */
+            if ($client_planner_id) {
+
+                $strip = [
+                    "~", "`", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "=", "+", "[", "{", "]", "}",
+                    "\\", "|", ";", ":", "\"", "'", "&#8216;", "&#8217;", "&#8220;", "&#8221;",
+                    "&#8211;", "&#8212;", "â€”", "â€“", ",", "<", ".", ">", "/", "?"
+                ];
+
+                $qa_name = trim(str_replace($strip, "", strip_tags($qa->name))) . " QA Checklist";
+                $filename = "{$site->name} {$qa_name}.pdf";
+
+                ClientPlannerEmailDoc::create([
+                    'email_id' => $client_planner_id,
+                    'name' => $qa_name,
+                    'attachment' => $filename,
+                ]);
+
+                $filebankPath = "site/{$site->id}/emails/client/{$filename}";
+
+                SiteQaPdf::dispatch(
+                    $site->id,
+                    [$obj_qa], // single QA per PDF
+                    $filebankPath,
+                    false
+                );
+            }
+        }
+
+        /**
+         * ==========================
+         * FULL EXPORT (NON-CLIENT)
+         * ==========================
+         */
+        if (!$client_planner_id) {
+            $filename = 'QA ' . sanitizeFilename($site->name)
+                . " ({$site->id}) "
+                . Carbon::now()->format('YmdHis') . '.pdf';
+
+            $filebankPath = "tmp/report/" . Auth::user()->company_id . "/{$filename}";
+
+            SiteQaPdf::dispatch(
+                $site->id,
+                $data,
+                $filebankPath,
+                true
+            );
         }
 
         return redirect('/manage/report/recent');
-
-        if ($request->has('email_pdf')) {
-            /*$file = public_path('filebank/tmp/jobstart-' . Auth::user()->id  . '.pdf');
-            if (file_exists($file))
-                unlink($file);
-            $pdf->save($file);*/
-
-            if ($request->get('email_list')) {
-                $email_list = explode(';', $request->get('email_list'));
-                $email_list = array_map('trim', $email_list); // trim white spaces
-
-
-                return view('planner/export/qa');
-            }
-        }
     }
 
 

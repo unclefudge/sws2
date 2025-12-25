@@ -69,7 +69,7 @@
                                             any of s175B Workers Compensation Act 1987, Schedule 2 Part 5 Payroll Tax Act 2007, and s127 Industrial Relations Act 1996 where the “subcontractor” has employed or engaged workers
                                             or subcontractors during the period of the contract to which the form applies under the relevant Act(s). The signed Statement is to be submitted to the relevant principal
                                             contractor.</p>
-                                        <p style="font-size:14px; font-weight:700">SUBCONTRACTOR’S STATEMENT (Refer to the <a href="/filebank/subcontractor_statement_notes.pdf" target="_blank">Notes</a>, period of Statement retention, and Offences under various Acts.</p>
+                                        <p style="font-size:14px; font-weight:700">SUBCONTRACTOR’S STATEMENT (Refer to the <a href="/subcontractor_statement_notes.pdf" target="_blank">Notes</a>, period of Statement retention, and Offences under various Acts.</p>
                                     </div>
                                 </div>
 
@@ -270,50 +270,51 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $('.date-picker').datepicker({autoclose: true, format: 'dd/mm/yyyy'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $('.date-picker').datepicker({autoclose: true, format: 'dd/mm/yyyy'});
 
-    $(document).ready(function () {
-        // Clear Signature on page load
-        $('#contractor_signed_name').val('');
+        $(document).ready(function () {
+            // Clear Signature on page load
+            $('#contractor_signed_name').val('');
 
-        $('#sign_contractor').on('click', function () {
-            var name = $('#contractor_full_name').val();
-            var user = "{!! Auth::user()->fullname !!}";
-            var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
-            var date = moment().format('DD/MM/YYYY, h:mm:ss a');
-            var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
-            $('#contractor_signed_name').val(signed_string);
+            $('#sign_contractor').on('click', function () {
+                var name = $('#contractor_full_name').val();
+                var user = "{!! Auth::user()->fullname !!}";
+                var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
+                var date = moment().format('DD/MM/YYYY, h:mm:ss a');
+                var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
+                $('#contractor_signed_name').val(signed_string);
 
-            if (name != '') {
-                $('#submit').show();
-                $('#contractor_signed_name_field').show();
-            } else {
-                swal({
-                    title: 'Unable to Sign Contract',
-                    text: '<b>Please enter your full name where requested</b>',
-                    html: true
-                });
-                $('#contractor_signed_name').val('');
-                $('#contractor_full_name').val('');
-                $('#contractor_signed_name_field').hide();
-                $('#submit').hide();
-            }
+                if (name != '') {
+                    $('#submit').show();
+                    $('#contractor_signed_name_field').show();
+                } else {
+                    swal({
+                        title: 'Unable to Sign Contract',
+                        text: '<b>Please enter your full name where requested</b>',
+                        html: true
+                    });
+                    $('#contractor_signed_name').val('');
+                    $('#contractor_full_name').val('');
+                    $('#contractor_signed_name_field').hide();
+                    $('#submit').hide();
+                }
+            });
+
+            $('#date_from').change(function () {
+                $('#date_to').val($('#date_from').val());
+                $('#date_to').change();
+            });
+
+            $('#date_to').change(function () {
+                $('#date_from').val($('#date_to').val());
+                $('#date_from').change();
+            });
+
         });
 
-        $('#date_from').change(function () {
-            $('#date_to').val($('#date_from').val());
-            $('#date_to').change();
-        });
-
-        $('#date_to').change(function () {
-            $('#date_from').val($('#date_to').val());
-            $('#date_from').change();
-        });
-
-    });
-
-</script>
+    </script>
 @stop

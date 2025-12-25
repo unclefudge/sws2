@@ -449,7 +449,7 @@ class SiteMaintenanceItemController extends Controller
                 $action = Action::create(['action' => "Request has been signed off by construction Manager", 'table' => 'site_maintenance', 'table_id' => $main->id]);
 
                 $email_list = [env('EMAIL_DEV')];
-                if (\App::environment('prod'))
+                if (app()->environment('prod'))
                     $email_list = $main->site->company->notificationsUsersEmailType('site.maintenance.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SiteMaintenanceCompleted($main));
@@ -584,46 +584,6 @@ class SiteMaintenanceItemController extends Controller
         $supers = [$site->supervisorName];
 
         return ($site) ? $supers : '';
-    }
-
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function uploadAttachment(Request $request)
-    {
-        // Check authorisation and throw 404 if not
-        //if (!(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main)))
-        //    return json_encode("failed");
-
-        // Handle file upload
-        $files = $request->file('multifile');
-        foreach ($files as $file) {
-            $path = "filebank/site/" . $request->get('site_id') . '/maintenance';
-            $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = $request->get('site_id') . '-' . sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-
-            $doc_request = $request->only('site_id');
-            $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $doc_request['company_id'] = Auth::user()->company_id;
-            $doc_request['type'] = (in_array(strtolower($file->getClientOriginalExtension()), ['jpg', 'jpeg', 'gif', 'png'])) ? 'photo' : 'doc';
-
-            // Create SiteMaintenanceDoc
-            $doc = SiteMaintenanceDoc::create($doc_request);
-            $doc->main_id = $request->get('main_id');
-            //
-            $doc->attachment = $name;
-            $doc->save();
-        }
-
-
-        return json_encode("success");
     }
 
 

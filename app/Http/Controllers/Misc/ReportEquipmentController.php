@@ -2,36 +2,24 @@
 
 namespace App\Http\Controllers\Misc;
 
-use DB;
-use PDF;
-use File;
-use Session;
-use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Site\Planner\SiteAttendance;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
+use App\Http\Controllers\Controller;
+use App\Jobs\EquipmentPdf;
+use App\Jobs\EquipmentTransactionsPdf;
 use App\Models\Company\Company;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLocation;
-use App\Models\Misc\Equipment\EquipmentStocktake;
-use App\Models\Misc\Equipment\EquipmentStocktakeItem;
 use App\Models\Misc\Equipment\EquipmentLog;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
-use App\Models\Comms\TodoUser;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
+use App\Models\Misc\Equipment\EquipmentStocktake;
+use App\Models\Site\Site;
 use Carbon\Carbon;
+use DB;
+use File;
+use PDF;
+use Session;
+use Yajra\Datatables\Datatables;
 
-class ReportEquipmentController extends Controller {
+class ReportEquipmentController extends Controller
+{
 
     /**
      * Create a new controller instance.
@@ -60,16 +48,12 @@ class ReportEquipmentController extends Controller {
     {
         $equipment = Equipment::where('status', 1)->orderBy('name')->get();
 
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/Equipment List " . Carbon::now()->format('YmdHis') . '.pdf');
+        $output_file = storage_path("app/tmp/report/Equipment List " . Carbon::now()->format('YmdHis') . '.pdf');
         touch($output_file);
 
         //return view('pdf/equipment', compact('equipment'));
         //return PDF::loadView('pdf/equipment', compact('equipment'))->setPaper('a4', 'portrait')->stream();
-        \App\Jobs\EquipmentPdf::dispatch($equipment, $output_file);
+        EquipmentPdf::dispatch($equipment, $output_file);
 
         return redirect('/manage/report/recent');
     }
@@ -148,11 +132,8 @@ class ReportEquipmentController extends Controller {
             }
         }
 
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/Equipment List By Site " . Carbon::now()->format('YmdHis') . '.pdf');
+
+        $output_file = storage_path("app/tmp/report/Equipment List By Site " . Carbon::now()->format('YmdHis') . '.pdf');
         touch($output_file);
 
         //return view('pdf/equipment-site', compact('locations'));
@@ -183,11 +164,7 @@ class ReportEquipmentController extends Controller {
         $transactions = EquipmentLog::whereDate('equipment_log.created_at', '>=', $date_from)->whereDate('equipment_log.created_at', '<=', $date_to)->get();
 
         //dd($date_from);
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/Equipment Transactions " . Carbon::now()->format('YmdHis') . '.pdf');
+        $output_file = storage_path("app/tmp/report/Equipment Transactions " . Carbon::now()->format('YmdHis') . '.pdf');
         touch($output_file);
 
         $from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00') : Carbon::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
@@ -195,7 +172,7 @@ class ReportEquipmentController extends Controller {
 
         //return view('pdf/equipment-transactions', compact('transactions', 'from', 'to'));
         //return PDF::loadView('pdf/equipment-transactions', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
-        \App\Jobs\EquipmentTransactionsPdf::dispatch($transactions, $from, $to, $output_file);
+        EquipmentTransactionsPdf::dispatch($transactions, $from, $to, $output_file);
 
         return redirect('/manage/report/recent');
     }
@@ -393,7 +370,7 @@ class ReportEquipmentController extends Controller {
 
         $objects = [];
         foreach ($location_names as $id => $name)
-            $objects[] = (object) array('id' => $id, 'name' => $name);
+            $objects[] = (object)array('id' => $id, 'name' => $name);
 
         //dd($objects);
         //dd($transactions);

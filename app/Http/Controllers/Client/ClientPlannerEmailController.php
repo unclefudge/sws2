@@ -7,11 +7,13 @@ use App\Http\Utilities\ClientPlannerActionItems;
 use App\Models\Client\ClientPlannerEmail;
 use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteQa;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -104,9 +106,9 @@ class ClientPlannerEmailController extends Controller
 
         request()->validate($rules, $mesg); // Validate
 
-        //
-        // Check valid emails
-        //
+        /* ------------------------------------------------------------
+        | Validate emails
+        |------------------------------------------------------------ */
         $email1 = trim(request('email1'));
         $email2 = trim(request('email2'));
         $email3 = explode(';', request('email3'));
@@ -124,51 +126,36 @@ class ClientPlannerEmailController extends Controller
         }
 
 
-        //dd(request()->all());
-        $email_request = request()->all();
+        /* ------------------------------------------------------------
+        | Create Email Record
+        |------------------------------------------------------------ */
         $site = Site::findOrFail(request('site_id'));
+        $email_user = validEmail(Auth::user()->email) ? Auth::user()->email : '';
 
-        // Auto populate additional fields
-        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
-        $sent_to = $email1;
-        if (request('email2')) $sent_to .= "; $email2";
-        if (request('email3')) $sent_to .= "; " . request('email3');
+        $sent_to = implode('; ', array_filter([$email1, $email2, ...$email3]));
+        $sent_bcc = app()->environment('prod') ? 'construct@capecod.com.au' : env('EMAIL_DEV');
 
-        $email_request['sent_to'] = $sent_to;
-        //$email_request['sent_cc'] = "construct@capecod.com.au";
-        $sent_bcc = (\App::environment('prod')) ? 'construct@capecod.com.au' : env('EMAIL_DEV');
-        if (Auth::check() && validEmail(Auth::user()->email))
-            $sent_bcc .= "; " . Auth::user()->email;
-        $email_request['sent_bcc'] = $sent_bcc;
-        $email_request['subject'] = $site->name . ': Weekly Planner';
-        $email_request['status'] = 2;  // Draft
+        if ($email_user)
+            $sent_bcc .= "; {$email_user}";
 
-        // Create Email
-        $email = ClientPlannerEmail::create($email_request);
+        $email = ClientPlannerEmail::create([
+            ...request()->all(),
+            'sent_to' => $sent_to,
+            'sent_bcc' => $sent_bcc,
+            'subject' => "{$site->name}: Weekly Planner",
+            'status' => 2, // Draft
+        ]);
 
-        // Client Planner
-        //$data = $this->clientPlanner($site->id, request('weeks'));
-        //$clientplan = $this->clientPlannerTable($data);
-
+        /* ------------------------------------------------------------
+        | Build Email Body
+        |------------------------------------------------------------ */
         // Actions template
         $actions = '';
         if (request('type') == 'Action') {
             $actions = "As discussed in our Pre construction Meeting, I need you to start thinking about or to finalise for me, the following items:";
-            //$actions .= "<table style='padding: 0px; margin: 0px; border: 1px solid black; border-collapse: collapse'>";
             $actions .= "<table style='border: 1px solid black;'>";
-            $actions .= "<thead>";
-            //$actions .= "<tr style='background-color: #f0f6fa; font-weight: bold;  border: 1px solid black; border-collapse: collapse'>";
-            //$actions .= "<th width='80%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; Action item &nbsp;</th>";
-            //$actions .= "<th width='20%'  style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; Date Required &nbsp;</th>";
-            $actions .= "<tr>";
-            $actions .= "<th>Item</th>";
-            $actions .= "<th>&nbsp; Date Required &nbsp;</th>";
-            $actions .= "</tr></thead>";
-            //print_r(ClientPlannerActionItems::all());
+            $actions .= "<thead><tr><th>Item</th><th>&nbsp; Date Required &nbsp;</th></tr></thead>";
             foreach (request('include') as $item_id) {
-                //$actions .= "<tr style='border: 1px solid black; border-collapse: collapse'>";
-                //$actions .= "<td width='80%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; " . ClientPlannerActionItems::name($item_id) . " &nbsp;</td>";
-                //$actions .= "<td width='20%' style='padding: 5px; border: 1px solid black; border-collapse: collapse'>&nbsp; " . request("itemdate-$item_id") . " &nbsp;</td>";
                 $actions .= "<tr>";
                 $actions .= "<td>&nbsp; " . ClientPlannerActionItems::name($item_id) . " &nbsp;</td>";
                 $actions .= "<td>&nbsp; " . request("itemdate-$item_id") . " &nbsp;</td>";
@@ -179,77 +166,57 @@ class ClientPlannerEmailController extends Controller
             if (request('further_notes'))
                 $actions .= "<br>Further Notes as discussed:<br>" . request('further_notes') . "<br><br>";
 
-            //print_r($actions);
         }
 
         // Generate body
-        //$body = "Hi " . request('intro') . ",\r\n\r\n";
-        //$body .= "Please find attached this week’s construction Planner for your project and below overview of what to expect in the coming weeks:\r\n";
         $body = "Hi " . request('intro') . ",<br><br>";
         $body .= "Please find attached this week’s construction Planner for your project and below overview of what to expect in the coming weeks.<br><br>";
+        $body .= $actions;
 
-        //$body .= "$clientplan";
-        if ($actions)
-            $body .= "$actions";
-        //$body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me\r\n\r\n";
-        //$body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         $body .= "Please note while it is our aim to meet the above dates in the Planner attached, forecasted dates are indicative only. I will endeavour to keep you updated with any changes throughout the week ahead. If you have a questions please as always feel free to call, text or email me.<br><br>";
         $body .= (Carbon::now()->isFriday() || Carbon::now()->isSaturday()) ? "Have a great weekend." : "Have a great afternoon.";
         $body .= "<br><br>" . Auth::user()->fullname;
         if (Auth::user()->jobtitle)
             $body .= "<br>" . strtoupper(Auth::user()->jobtitle);
 
-        //print_r(nl2br($body));
-        //dd($email_request);
-
         // Save body of email
-        $email->body = $body;
-        $email->save();
+        $email->update(['body' => $body]);
 
-        //
-        // Attachments
-        //
-
-        $dir = '/filebank/site/' . $email->site_id . '/emails/client';
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-
-
-        // Handle filepond attachments
+        /* ------------------------------------------------------------
+        | Handle attachments
+        |------------------------------------------------------------ */
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $email->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'directory' => "site/{$email->site_id}/emails/client"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
 
-        // Create planner PDF
+        /* ------------------------------------------------------------
+        | Generate Planner PDF → Spaces
+        |------------------------------------------------------------ */
         $data = $this->clientPlanner($email->site_id, request('weeks'));
-        $filename = "$site->name Weekly Planner.pdf";
-        $output_file = public_path("$dir/$filename");
-        touch($output_file);
-
-        //return view('pdf/plan-site-client', compact('data'));
         $pdf = PDF::loadView('pdf/plan-site-client', compact('data'))->setPaper('A4', 'portrait');
-        $pdf->save($output_file);
-        $doc = ClientPlannerEmailDoc::create(['email_id' => $email->id, 'name' => 'Client Planner', 'attachment' => $filename]);
 
-        //
-        // Check for recent QAs
-        //
-        $last_client_email = ClientPlannerEmail::where('status', 0)->where('site_id', $site->id)->orderBy('updated_at', 'DESC')->first();
-        if ($last_client_email)
-            $date_from = $last_client_email->updated_at->format('Y-m-d');
-        else {
-            $golive_date = Carbon::createFromFormat('Y-m-d', '2022-07-30');
-            $date_from = ($site->created_at->gt($golive_date)) ? $site->created_at->format('Y-m-d') : $golive_date->format('Y-m-d');
-        }
+        $filename = sanitizeFilename($site->name) . ' Weekly Planner.pdf';
+        $basePath = "site/{$email->site_id}/emails/client";
+        $path = "{$basePath}/{$filename}";
+
+        // Store PDF directly to Spaces
+        FileBank::putContents($path, $pdf->output());
+
+        ClientPlannerEmailDoc::create(['email_id' => $email->id, 'name' => 'Client Planner', 'attachment' => $filename]);
 
 
-        $qas = $site->qaReports->where('status', 0);
-        $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>=', $date_from)->first();
-        if ($site_qa)  // Call qaPDF and queue PDF to be created + attach doc to record
-            app('App\Http\Controllers\Site\SiteQaController')->qaPDF(['email_id' => $email->id, 'date_from' => $date_from]);
+        /* ------------------------------------------------------------
+        |  Check for recent QAs
+        |------------------------------------------------------------ */
+        $lastEmail = ClientPlannerEmail::where('status', 0)->where('site_id', $site->id)->latest()->first();
+        $date_from = $lastEmail ? $lastEmail->updated_at->format('Y-m-d') : max($site->created_at->format('Y-m-d'), '2022-07-30');
+
+        if (SiteQa::where('site_id', $site->id)->where('status', 0)->whereDate('updated_at', '>=', $date_from)->exists())
+            app(SiteQaController::class)->qaPDF(['email_id' => $email->id, 'date_from' => $date_from,]);
 
         Toastr::success("Email draft created");
 
@@ -495,21 +462,39 @@ class ClientPlannerEmailController extends Controller
     {
         $email = ClientPlannerEmail::findOrFail($id);
 
-        $attachments = [];
-        $docs = $email->docs;
-        if ($docs) {
-            foreach ($docs as $doc) {
-                if ($doc->attachment && file_exists(public_path($doc->attachment_url))) {
-                    if (filesize(public_path($doc->attachment_url)) > 0)
-                        $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 1];
-                    else
-                        $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 2];
-                } else
-                    $attachments[] = ['id' => $doc->id, 'name' => $doc->name, 'url' => $doc->attachment_url, 'status' => 0];
+        $results = [];
+
+        foreach ($email->attachments as $file) {
+
+            if (!$file->directory || !$file->attachment) {
+                $results[] = [
+                    'id' => $file->id,
+                    'name' => $file->name,
+                    'url' => null,
+                    'status' => 0, // not started
+                ];
+                continue;
+            }
+
+            $path = trim($file->directory, '/') . '/' . $file->attachment;
+            if (FileBank::exists($path)) {
+                $results[] = [
+                    'id' => $file->id,
+                    'name' => $file->name,
+                    'url' => FileBank::url($path),
+                    'status' => 1, // complete
+                ];
+            } else {
+                $results[] = [
+                    'id' => $file->id,
+                    'name' => $file->name,
+                    'url' => null,
+                    'status' => 2, // still processing
+                ];
             }
         }
 
-        return $attachments;
+        return $results;
     }
 
     /**

@@ -119,7 +119,7 @@ class SitePracCompletionController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_prac_completion', 'table_id' => $prac->id, 'directory' => "/filebank/site/$prac->site_id/prac"]);
+                $attachment = Attachment::create(['table' => 'site_prac_completion', 'table_id' => $prac->id, 'directory' => "site/$prac->site_id/prac"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -176,7 +176,7 @@ class SitePracCompletionController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_prac_completion', 'table_id' => $prac->id, 'directory' => "/filebank/site/$prac->site_id/prac"]);
+                $attachment = Attachment::create(['table' => 'site_prac_completion', 'table_id' => $prac->id, 'directory' => "site/$prac->site_id/prac"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -254,7 +254,7 @@ class SitePracCompletionController extends Controller
                 $action = Action::create(['action' => "Report has been signed off by Manager", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
 
                 $email_list = [env('EMAIL_DEV')];
-                if (\App::environment('prod'))
+                if (app()->environment('prod'))
                     $email_list = $prac->site->company->notificationsUsersEmailType('prac.completion.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SitePracCompletionCompleted($prac));
@@ -348,11 +348,8 @@ class SitePracCompletionController extends Controller
             return view('errors/404');
 
         $doc = Attachment::where('id', $doc_id)->first();
-        if ($doc) {
-            if (file_exists(public_path($doc->url)))
-                unlink(public_path($doc->url));
+        if ($doc)
             $doc->delete();
-        }
 
         return redirect('site/prac-completion/' . $prac->id . '/edit');
 

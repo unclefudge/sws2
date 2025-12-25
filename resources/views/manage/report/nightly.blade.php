@@ -32,11 +32,11 @@
                             </thead>
                             <tbody>
                             @foreach($files as $file)
-                                <?php
-                                $pass = false;
-                                if (strpos(file_get_contents(public_path("/filebank/log/nightly/$file")), 'ALL DONE - NIGHTLY COMPLETE') !== false)
-                                    $pass = true;
-                                ?>
+                                    <?php
+                                    $pass = false;
+                                    if (strpos(file_get_contents(storage_path("app/log/nightly/$file")), 'ALL DONE - NIGHTLY COMPLETE') !== false)
+                                        $pass = true;
+                                    ?>
                                 <tr>
                                     <td>
                                         <div class="text-center">
@@ -47,7 +47,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td><a href="/filebank/log/nightly/{{ $file }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
+                                    <td><a href="{{ storage_path("app/log/nightly/$file") }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -69,5 +69,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

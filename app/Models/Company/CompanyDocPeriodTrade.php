@@ -3,6 +3,7 @@
 namespace App\Models\Company;
 
 use App\Models\Comms\Todo;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -111,28 +112,6 @@ class CompanyDocPeriodTrade extends Model
     }
 
     /**
-     * Create ToDoo for Expired PTC Doc to be sent to company
-     */
-    /*
-    public function createExpiredToDo($user_list, $expired)
-    {
-        $mesg = ($expired == true) ? "$this->name Expired " . $this->expiry->format('d/m/Y') : "$this->name due to expire " . $this->expiry->format('d/m/Y');
-        $todo_request = [
-            'type'       => 'company ptc',
-            'type_id'    => $this->id,
-            'name'       => $mesg,
-            'info'       => 'Please uploaded a current version of the document',
-            'due_at'     => Carbon::today()->addDays(7)->toDateTimeString(),
-            'company_id' => $this->company_id,
-        ];
-
-        // Create ToDoo and assign to Site Supervisors
-        $todo = Todo::create($todo_request);
-        $todo->assignUsers($user_list);
-        $todo->emailToDo();
-    }*/
-
-    /**
      * Close any outstanding ToDoo for this Doc
      */
     public function closeToDo($user = '')
@@ -158,7 +137,7 @@ class CompanyDocPeriodTrade extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             // Send to User who uploaded doc & Company senior users
             $email_created = (validEmail($this->createdBy->email)) ? [$this->createdBy->email] : [];
             $email_seniors = []; //$this->company->seniorUsersEmail();
@@ -171,39 +150,13 @@ class CompanyDocPeriodTrade extends Model
             Mail::to($email_to)->send(new \App\Mail\Company\CompanyPeriodTradeRejected($this));
     }
 
-    /**
-     * Email document as Expired
-     */
-    /*
-    public function emailExpired($email_to = '', $expired)
+
+    public function getAttachmentUrlAttribute(): string
     {
-        $email_to = [env('EMAIL_DEV')];
-        $email_user = '';
-        if (\App::environment('prod')) {
-            // Send to Company Senior Users
-            $email_to = $this->company->seniorUsersEmail();
-            // Send CC to Parent Company if doc type acc or whs
-            if ($this->category->type == 'acc' || $this->category->type == 'whs')
-                $email_user = $this->owned_by->notificationsUsersEmailType('doc.' . $this->category->type . '.approval');
-        }
+        if (!$this->attachment)
+            return '';
 
-        if ($email_to && $email_user)
-            Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocExpired($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Company\CompanyDocExpired($this));
-    }*/
-
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        //$url = URL::to('/filebank') . '/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
-        if ($this->attributes['attachment'])// && file_exists(public_path('/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'])))
-            return '/filebank/company/' . $this->company->id . '/docs/' . $this->attributes['attachment'];
-
-        return '';
+        return FileBank::url("company/{$this->company->id}/docs/{$this->attachment}");
     }
 
     /**

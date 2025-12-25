@@ -101,7 +101,7 @@
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
                                         <div>I have read, understood and will adhere to the principles required to manage the risk of COVID-19 &nbsp; &nbsp; <a
-                                                    class="btn dark" href="/filebank/doc/COVID-19 construction Site Risk Management Principles.pdf">view</a></div>
+                                                    class="btn dark" href="{{storage_path('/app/public/doc/COVID-19 construction Site Risk Management Principles.pdf)}}">view</a></div>
                                     </div>
                                 </div>-->
                             </div> --}}
@@ -210,7 +210,7 @@
                                                                             @if ($worksite->docsOfType('RISK')->first())
                                                                                 @foreach($worksite->docsOfType('RISK') as $doc)
                                                                                     <li class="mt-list-item" style="padding: 10px 0px">
-                                                                                        <div class="list-icon-container"><a href="/filebank/site/{{$worksite->id}}/docs/{{ $doc->attachment }}"><i class="fa fa-file-text-o"></i></a></div>
+                                                                                        <div class="list-icon-container"><a href="{{ \App\Services\FileBank::url($doc->attachment)  }}"><i class="fa fa-file-text-o"></i></a></div>
                                                                                         <div class="list-item-content">{{ $doc->name }}</div>
                                                                                     </li>
                                                                                 @endforeach
@@ -241,7 +241,7 @@
                                                                             @if ($worksite->docsOfType('HAZ')->first())
                                                                                 @foreach($worksite->docsOfType('HAZ') as $doc)
                                                                                     <li class="mt-list-item" style="padding: 10px 0px">
-                                                                                        <div class="list-icon-container"><a href="/filebank/site/{{$worksite->id}}/docs/{{ $doc->attachment }}"><i
+                                                                                        <div class="list-icon-container"><a href="{{\App\Services\FileBank::url($doc->attachment) }}"><i
                                                                                                         class="fa fa-file-text-o"></i></a></div>
                                                                                         <div class="list-item-content">{{ $doc->name }}</div>
                                                                                     </li>
@@ -276,7 +276,7 @@
                                                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                                                             <div class="list-icon-container">
                                                                                                 @if($doc->attachment)
-                                                                                                    <a href="/filebank/company/{{ Auth::user()->company_id }}/wms/{{ $doc->attachment }}"><i
+                                                                                                    <a href="{{\App\Services\FileBank::url($doc->attachment)}}"><i
                                                                                                                 class="fa fa-file-text-o"></i></a>
                                                                                                 @endif
                                                                                             </div>

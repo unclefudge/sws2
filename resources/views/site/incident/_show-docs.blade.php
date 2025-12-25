@@ -12,41 +12,45 @@
         </div>
     </div>
     <div class="portlet-body">
-        <?php $doc_count = 0; $have_docs = 0; ?>
-        @if ($incident->docs->count())
+        {{-- Attachments --}}
+        @php
+            $attachments = $incident->attachments;
+            $images = $attachments->where('type', 'image');
+            $files  = $attachments->where('type', 'file');
+            $doc_count = 0;
+        @endphp
+
+        @if ($attachments->isNotEmpty())
             {{-- Photos --}}
-            <div style="width: 100%; overflow: hidden;">
-                @foreach ($incident->docs as $doc)
-                    @if ($doc->type == 'image' && file_exists(public_path($doc->AttachmentUrl)))
+            @if ($images->isNotEmpty())
+                <div style="width: 100%; overflow: hidden;">
+                    @foreach ($images as $attachment)
                         <div style="width: 80px; float: left; padding-right: 5px">
-                            <a href="{{ $doc->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $doc->name }}" data-lityXXX>
-                                <img src="{{ $doc->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                            <a href="{{ $attachment->url }}" target="_blank" class="html5lightbox " title="{{ $attachment->name }}" data-lityXXX>
+                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                         </div>
-                        <?php $doc_count ++; ?>
+                            <?php $doc_count++; ?>
                         @if ($doc_count == 6)
                             <br>
                         @endif
-                    @endif
-                @endforeach
-            </div>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- Docs --}}
-            @foreach ($incident->docs as $doc)
-                @if ($doc->type == 'file')
-                    @if (!$have_docs)
-                        <div class="row">
-                            <div class="col-xs-12"><b>Documents</b></div>
-                        </div>
-                        <hr class="field-hr">
-                        <?php $have_docs = 1; ?>
-                    @endif
+            @if ($files->isNotEmpty())
+                <div class="row">
+                    <div class="col-xs-12"><b>Documents</b></div>
+                </div>
+                <hr class="field-hr">
+                @foreach ($files as $attachment)
                     <div class="row">
-                        <div class="col-xs-6"><i class="fa fa-file-text-o"></i> <a href="{{ $doc->AttachmentUrl }}" target="_blank" title="{{ $doc->name }}"> {{ $doc->name }}</a><br></div>
-                        <div class="col-xs-6">{{ $doc->createdBy->full_name }} ({{ $doc->created_at->format('d/m/Y') }})</div>
+                        <div class="col-xs-6"><i class="fa fa-file-text-o"></i> <a href="{{ $attachment->url }}" target="_blank" title="{{ $attachment->name }}"> {{ $attachment->name }}</a><br></div>
+                        <div class="col-xs-6">{{ $attachment->createdBy->full_name }} ({{ $attachment->created_at->format('d/m/Y') }})</div>
                     </div>
                     <hr class="field-hr">
-                @endif
-            @endforeach
+                @endforeach
+            @endif
         @else
             <div class="row">
                 <div class="col-md-12">No documents</div>

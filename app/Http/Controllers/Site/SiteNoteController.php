@@ -215,7 +215,7 @@ class SiteNoteController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -291,7 +291,7 @@ class SiteNoteController extends Controller
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "/filebank/site/$note->site_id/note"]);
+                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
                 $attachment->saveAttachment($tmp_filename);
             }
         }
@@ -312,6 +312,10 @@ class SiteNoteController extends Controller
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2("del.site.note", $note))
             return json_encode("failed");
+
+        // Delete attached files
+        foreach ($note->attachments as $file)
+            $file->delete();
 
         $note->delete();
 

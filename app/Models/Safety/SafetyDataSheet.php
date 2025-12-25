@@ -2,6 +2,7 @@
 
 namespace App\Models\Safety;
 
+use App\Services\FileBank;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -62,15 +63,12 @@ class SafetyDataSheet extends Model
         return $this->company;
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'] && file_exists(public_path('/filebank/whs/sds/' . $this->attributes['attachment'])))
-            return '/filebank/whs/sds/' . $this->attributes['attachment'];
+        if (!$this->attachment) return '';
+        $path = "/whs/sds/{$this->attachment}";
 
-        return '';
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
     /**

@@ -39,8 +39,8 @@
                                 @foreach ($pending as $doc)
                                     <tr>
                                         <td>
-                                            @if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment)))
-                                                <div class="text-center"><a href="/filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>
+                                            @if ($doc->attachment)
+                                                <div class="text-center"><a href="{{ \App\Services\FileBank::url($doc->attachment) }}"><i class="fa fa-file-text-o"></i></a></div>
                                             @endif
                                         </td>
                                         <td>{{ $doc->name }} v.{{$doc->version}}</td>
@@ -73,7 +73,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <a class="btn btn-circle btn-warning btn-sm" href="/filebank/doc/Creating_SWMS_Guide.pdf" target="_blank" data-original-title="Instruction Guide">Instruction Guide</a>
+                            <a class="btn btn-circle btn-warning btn-sm" href="{{ storage_path("/app/public/Creating_SWMS_Guide.pdf") }}" target="_blank" data-original-title="Instruction Guide">Instruction Guide</a>
                         </div>
                         <div class="col-md-2 pull-right">
                             <div class="form-group">

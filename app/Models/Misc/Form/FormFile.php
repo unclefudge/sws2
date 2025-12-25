@@ -2,6 +2,7 @@
 
 namespace App\Models\Misc\Form;
 
+use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Mail;
@@ -21,6 +22,14 @@ class FormFile extends Model
     public function question()
     {
         return $this->belongsTo('App\Models\Misc\Form\FormQuestion', 'question_id');
+    }
+
+    public function getUrlAttribute(): string
+    {
+        if (!$this->attachment)
+            return '';
+
+        return FileBank::url("inspection/{$this->form_id}/{$this->attachment}");
     }
 
 

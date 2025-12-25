@@ -75,30 +75,39 @@
                             {{-- Attachments --}}
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h4 class="font-green-haze">Photos / Documents</h4>
-                                    <hr class="field-hr">
-                                    @if ($report->docs->count())
+                                    {{-- Attachments --}}
+                                    @php
+                                        $attachments = $report->attachments;
+                                        $images = $attachments->where('type', 'image');
+                                        $files  = $attachments->where('type', 'file');
+                                    @endphp
+
+                                    <h5><b>Attachments</b></h5>
+                                    @if ($attachments->isNotEmpty())
+                                        <hr style="margin: 10px 0px; padding: 0px;">
                                         {{-- Image attachments --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($report->docs as $file)
-                                                @if ($file->type == 'image' && file_exists(substr($file->AttachmentUrl, 1)))
+                                        @if ($images->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($images as $attachment)
                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $file->AttachmentUrl }}" target="_blank" class="html5lightbox " title="{{ $file->attachment }}" data-lity>
-                                                            <img src="{{ $file->AttachmentUrl }}" class="thumbnail img-responsive img-thumbnail"></a>
+                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                        </a>
                                                     </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                        {{-- File attachments  --}}
-                                        <div class="row" style="margin: 0">
-                                            @foreach ($report->docs as $file)
-                                                @if ($file->type == 'file' && file_exists(substr($file->AttachmentUrl, 1)))
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $file->AttachmentUrl }}" target="_blank"> {{ $file->name }}</a><br>
-                                                @endif
-                                            @endforeach
-                                        </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        {{-- File attachments --}}
+                                        @if ($files->isNotEmpty())
+                                            <div class="row" style="margin: 0">
+                                                @foreach ($files as $attachment)
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     @else
-                                        <div>No photos/documents found<br><br></div>
+                                        <div>None</div>
                                     @endif
                                 </div>
                             </div>
@@ -142,12 +151,12 @@
 
                         <div class="form-actions right">
                             <a href="/site/scaffold/handover" class="btn default"> Back</a>
-                           @if(Auth::user()->allowed2('del.site.scaffold.handover', $report))
-                               @if ($report->status)
-                                   @if(Auth::user()->allowed2('edit.site.scaffold.handover', $report))
-                                       <a href="/site/scaffold/handover/{{ $report->id }}/edit" class="btn green"> Edit Scaffold Certificate</a>
-                                   @endif
-                               @endif
+                            @if(Auth::user()->allowed2('del.site.scaffold.handover', $report))
+                                @if ($report->status)
+                                    @if(Auth::user()->allowed2('edit.site.scaffold.handover', $report))
+                                        <a href="/site/scaffold/handover/{{ $report->id }}/edit" class="btn green"> Edit Scaffold Certificate</a>
+                                    @endif
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -184,7 +193,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -194,7 +203,8 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop
 

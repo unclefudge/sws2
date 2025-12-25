@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\SiteRequest;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Site\Site;
-use App\Models\Site\SiteDoc;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
 use nilsenj\Toastr\Facades\Toastr;
 use PDF;
 use Session;
@@ -243,36 +243,6 @@ class SiteController extends Controller
     }
 
     /**
-     * Update the photo on user model resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function updateLogo(SiteRequest $request, $slug)
-    {
-        $site = Site::where(compact('slug'))->firstOrFail();
-
-        // Check authorisation and throw 404 if not
-        if (!Auth::user()->allowed2('edit.site', $site))
-            return view('errors/404');
-
-        $file = $request->file('photo');
-        $path = "filebank/site/" . $site->id;
-        $name = "sitephoto." . strtolower($file->getClientOriginalExtension());
-        $path_name = $path . '/' . $name;
-        $file->move($path, $name);
-
-        Image::make(url($path_name))
-            ->fit(740)
-            ->save($path_name);
-
-        $site->photo = $path_name;
-        $site->save();
-        Toastr::success("Saved changes");
-
-        return redirect('/site/' . $site->slug . '/settings/photo');
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @return \Illuminate\Http\Response
@@ -365,47 +335,58 @@ class SiteController extends Controller
     {
         $site = Site::findOrFail($site_id);
 
-        // Ensure site directory exists
-        if (!file_exists(public_path("/filebank/site/$site_id")))
-            mkdir(public_path("/filebank/site/$site_id"));
-        if (!file_exists(public_path("/filebank/site/$site_id/docs")))
-            mkdir(public_path("/filebank/site/$site_id/docs"));
+        // -------------------------------------------------
+        // Paths
+        // -------------------------------------------------
+        $tmpDir = storage_path('app/tmp/whs');
+        if (!is_dir($tmpDir))
+            mkdir($tmpDir, 0755, true);
 
-        //return view('pdf/site/whs-management-plan-cover', compact('site'));
-        //return PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4')->stream();
-        $pdf = PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4');
-        $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
-        if (file_exists($cover))
-            unlink($cover);
-        $pdf->save($cover);
+        $coverTmp = "{$tmpDir}/WHS_Management_Plan_Cover_{$site_id}.pdf";
+        $outputTmp = "{$tmpDir}/WHS_Management_Plan_{$site_id}.pdf";
 
-        // Merge Cover page with Master document
-        /*$mergedPDF = PDFMerger::init();
-        $master = public_path('WHS Management Plan.pdf');
-        $mergedPDF->addPDF($cover, 'all');
-        $mergedPDF->addPDF($master, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
-
-        $mergedPDF->merge();
-        $mergedPDF->save(public_path("filebank/site/$site_id/docs/WHS Management Plan.pdf"));
-
-        return $mergedPDF->stream();*/
-
-        // Use Exec and GhostScipt to merge Cover PDF with Master
-        $output = null;
-        $retval = null;
-        $cmd = 'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=';
-        //$outfile = 'whs_out.pdf';
-        $outfile = public_path("filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
+        // Master PDF must be LOCAL for Ghostscript
         $master = public_path('WHS_Management_Plan_Master.pdf');
-        //$cover = "period_trade_contract_conditions.pdf";
-        $cover = public_path("filebank/site/$site_id/docs/WHS_Management_Plan_Cover.pdf");
-        $cmd_run = $cmd . $outfile . " $cover $master";
 
-        //echo "CMD: $cmd_run<br>"''
-        exec($cmd_run, $output, $retval);
-        //echo "Returned with status $retval and output:<br>";
-        //print_r($output);
-        return redirect("/filebank/site/$site_id/docs/WHS_Management_Plan.pdf");
+        // Final destination in Spaces
+        $spacesPath = "site/{$site_id}/docs/WHS_Management_Plan.pdf";
+
+        // -------------------------------------------------
+        // Generate cover PDF (local tmp)
+        // -------------------------------------------------
+        PDF::loadView('pdf/site/whs-management-plan-cover', compact('site'))->setPaper('a4')->save($coverTmp);
+
+        // -------------------------------------------------
+        // Merge cover + master using Ghostscript
+        // -------------------------------------------------
+        $cmd = sprintf(
+            'gs -q -sPAPERSIZE=a4 -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=%s %s %s',
+            escapeshellarg($outputTmp),
+            escapeshellarg($coverTmp),
+            escapeshellarg($master)
+        );
+
+        exec($cmd, $output, $retval);
+
+        if ($retval !== 0 || !file_exists($outputTmp))
+            throw new \RuntimeException('Failed to generate WHS Management Plan PDF');
+
+
+        // -------------------------------------------------
+        // Upload final PDF to Spaces
+        // -------------------------------------------------
+        FileBank::put($spacesPath, new File($outputTmp));
+
+        // -------------------------------------------------
+        // Cleanup temp files
+        // -------------------------------------------------
+        @unlink($coverTmp);
+        @unlink($outputTmp);
+
+        // -------------------------------------------------
+        // Redirect to Spaces-served file
+        // -------------------------------------------------
+        return redirect(FileBank::url($spacesPath));
     }
 
     /**
@@ -498,43 +479,25 @@ class SiteController extends Controller
      */
     public function getSiteDocs()
     {
-        //dd($allowedSites);
+        $siteId = request('site_id');
         $type = request('type');
-        if ($type == 'ALL')
-            $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
-                ->join('sites as s', 'd.site_id', '=', 's.id')
-                ->where('site_id', request('site_id'))
-                ->where('d.status', '1');
-        else
-            $records = DB::table('site_docs as d')
-                ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name'])
-                ->join('sites as s', 'd.site_id', '=', 's.id')
-                ->where('d.type', $type)
-                ->where('site_id', request('site_id'))
-                ->where('d.status', '1');
 
-        //dd($records);
+        $records = DB::table('site_docs as d')
+            ->select(['d.id', 'd.type', 'd.site_id', 'd.attachment', 'd.name', 's.id as sid', 's.name as site_name',])
+            ->join('sites as s', 'd.site_id', '=', 's.id')
+            ->where('d.site_id', $siteId)
+            ->where('d.status', 1);
+
+        if ($type !== 'ALL')
+            $records->where('d.type', $type);
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', function ($doc) {
+                $url = FileBank::url("site/{$doc->site_id}/docs/{$doc->attachment}");
+                return '<div class="text-center"><a href="' . $url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
+            })
             ->addColumn('action', function ($doc) {
-                $record = SiteDoc::find($doc->id);
-                $actions = '';
-                /*
-                                if ($doc->type == 'PLAN') {
-                                    if (Auth::user()->allowed2('edit.site.doc', $record))
-                                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                                    if (Auth::user()->allowed2('del.site.doc', $record))
-                                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
-                                } else {
-                                    if (Auth::user()->allowed2('edit.safety.doc', $record))
-                                        $actions .= '<a href="/site/doc/' . $doc->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
-                                    if (Auth::user()->allowed2('del.safety.doc', $record))
-                                        $actions .= '<button class="btn dark btn-xs sbold uppercase margin-bottom btn-delete " data-remote="/site/doc/' . $doc->id . '" data-name="' . $doc->name . '"><i class="fa fa-trash"></i></button>';
-                                }
-                */
-                return $actions;
+                return '';
             })
             ->rawColumns(['id', 'action'])
             ->make(true);

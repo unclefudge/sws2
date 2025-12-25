@@ -67,10 +67,11 @@
                                         <!-- Doc Pending -->
                                         @if ($doc->status == 3 && (Auth::user()->allowed2('del.wms', $doc) || Auth::user()->allowed2('sig.wms', $doc)))
                                             @if ($doc->company_id == Auth::user()->company_id)
-                                                @if (Auth::user()->allowed2('sig.wms', $doc)))
-                                                <li><a href="/safety/doc/wms/{{ $doc->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
-                                                <li><a href="/safety/doc/wms/{{ $doc->id }}/reject"><i class="fa fa-ban"></i> Reject</a></li>
-                                                <li class="divider"></li>
+                                                @if (Auth::user()->allowed2('sig.wms', $doc))
+                                                    )
+                                                    <li><a href="/safety/doc/wms/{{ $doc->id }}/signoff"><i class="fa fa-check"></i> Sign Off</a></li>
+                                                    <li><a href="/safety/doc/wms/{{ $doc->id }}/reject"><i class="fa fa-ban"></i> Reject</a></li>
+                                                    <li class="divider"></li>
                                                 @endif
                                                 <li><a href="/safety/doc/wms/{{ $doc->id }}/destroy"><i class="fa fa-trash"></i> Delete</a></li>
                                             @endif
@@ -87,7 +88,7 @@
 
 
                                         @if ($doc->status != 3)
-                                            @if ($doc->attachment && file_exists(public_path('/filebank/company/'.$doc->for_company_id.'/wms/'.$doc->attachment)))
+                                            @if ($doc->attachment)
                                                 <li><a data-original-title="Email" data-toggle="modal" href="#email"><i class="fa fa-envelope"></i> Email</a></li>
                                             @elseif($doc->builder && !$doc->master)
                                                 <li><a href="/safety/doc/wms/{{ $doc->id }}/pdf"><i class="fa fa-file-text-o"></i> Generate PDF</a></li>
@@ -114,8 +115,12 @@
                             <!-- Fullscreen devices -->
                             <div class="row hidden-sm hidden-xs" style="border-bottom: 1px solid #ccc">
                                 <div class="col-xs-12">
-                                    <h1 style="margin: 0 0 25px 0"><b>@if($doc->company && !$doc->master){{ $doc->company->name }} @else {{ Auth::user()->company->name }} @endif</b>
-                                        @if($doc->attachment && file_exists(public_path($doc->attachmentUrl)))
+                                    <h1 style="margin: 0 0 25px 0"><b>@if($doc->company && !$doc->master)
+                                                {{ $doc->company->name }}
+                                            @else
+                                                {{ Auth::user()->company->name }}
+                                            @endif</b>
+                                        @if($doc->attachment)
                                             <a href="{{ $doc->attachmentUrl }}"><i class="fa fa-bold fa-file-pdf-o pull-right" style="font-size: 1.4em; padding: 20px"></i></a>
                                         @endif
                                         @if($doc->status == '0')
@@ -135,7 +140,9 @@
                                 <div class="col-md-7 "><span class="pull-left" style="padding: 1px 20px 0px 10px">Activity / Task:</span>
                                     <h4 style="margin: 0px"><b>{{ $doc->name }}</b></h4>
                                 </div>
-                                <div class="col-xs-5 text-right" style="margin-top: 5px; padding-right: 20px"> @if ($doc->project) <b>Project / Location:</b> {{ $doc->project }} @endif</div>
+                                <div class="col-xs-5 text-right" style="margin-top: 5px; padding-right: 20px"> @if ($doc->project)
+                                        <b>Project / Location:</b> {{ $doc->project }}
+                                    @endif</div>
                             </div>
 
                             <!-- Mobile devices -->
@@ -145,13 +152,17 @@
                                 @endif
 
                                 <div class="col-xs-12 text-center">
-                                    <h3 style="margin: 0 0 25px 0"><b>@if($doc->company){{ $doc->company->name }} @else Company @endif</b></h3>
+                                    <h3 style="margin: 0 0 25px 0"><b>@if($doc->company)
+                                                {{ $doc->company->name }}
+                                            @else
+                                                Company
+                                            @endif</b></h3>
                                 </div>
                             </div>
                             <div class="row visible-sm visible-xs">
                                 <div class="col-xs-12 text-center">
                                     <h4 style="margin: 0 0 25px 0">
-                                        @if($doc->attachment && file_exists(public_path($doc->attachmentUrl)))
+                                        @if($doc->attachment)
                                             <a href="{{ $doc->attachmentUrl }}" class="text-center"><i class="fa fa-bold fa-file-pdf-o" style="font-size: 1.4em; padding: 20px"></i></a>
                                         @endif
                                         <b>{{ $doc->name }}</b>
@@ -176,9 +187,15 @@
                                             </div>
                                             <div class="panel-body" style="padding: 10px 15px">
                                                 <div class="row">
-                                                    <div class="col-xs-8">Signed by: @if ($doc->signedCompany) {{ $doc->signedCompany->fullname }} @else <span class="font-red">Pending</span> @endif
+                                                    <div class="col-xs-8">Signed by: @if ($doc->signedCompany)
+                                                            {{ $doc->signedCompany->fullname }}
+                                                        @else
+                                                            <span class="font-red">Pending</span>
+                                                        @endif
                                                     </div>
-                                                    <div class="col-xs-4">@if ($doc->signedCompany)Date: {{ $doc->user_signed_at->format('d/m/Y') }} @endif</div>
+                                                    <div class="col-xs-4">@if ($doc->signedCompany)
+                                                            Date: {{ $doc->user_signed_at->format('d/m/Y') }}
+                                                        @endif</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -192,11 +209,16 @@
                                                 <div class="row">
                                                     <div class="col-xs-8">
                                                         Accepted by:
-                                                        @if ($doc->signedPrinciple) {{ $doc->signedPrinciple->fullname }}
-                                                        @elseif ($doc->principle_id) <span class="font-red">Pending</span>
-                                                        @else <span class="font-red">Manual signature required</span>
+                                                        @if ($doc->signedPrinciple)
+                                                            {{ $doc->signedPrinciple->fullname }}
+                                                        @elseif ($doc->principle_id)
+                                                            <span class="font-red">Pending</span>
+                                                        @else
+                                                            <span class="font-red">Manual signature required</span>
                                                         @endif</div>
-                                                    <div class="col-xs-4">@if ($doc->signedPrinciple) Date: {{ $doc->principle_signed_at->format('d/m/Y') }} @endif</div>
+                                                    <div class="col-xs-4">@if ($doc->signedPrinciple)
+                                                            Date: {{ $doc->principle_signed_at->format('d/m/Y') }}
+                                                        @endif</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -364,19 +386,20 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script>
-    var sendEmailButton = document.getElementById("send_email");
-    sendEmailButton.disabled = true
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script>
+        var sendEmailButton = document.getElementById("send_email");
+        sendEmailButton.disabled = true
 
-    $('#email_list').keyup(function () {
-        sendEmailButton.disabled = false;
-    });
+        $('#email_list').keyup(function () {
+            sendEmailButton.disabled = false;
+        });
 
-    $('#send_email').click(function () {
-        $('#send_email').html('<i class="fa fa-spin fa-spinner"> </i>' + ' Sending');
-    });
-</script>
+        $('#send_email').click(function () {
+            $('#send_email').html('<i class="fa fa-spin fa-spinner"> </i>' + ' Sending');
+        });
+    </script>
 @stop
 

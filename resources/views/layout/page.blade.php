@@ -20,7 +20,7 @@
         <div class="page-content"
              @if (\App::environment('dev')) style="background-image: url('/img/bg-development.png'); background-repeat: repeat" @endif
              @if (\App::environment('local')) style="background-image: url('/img/bg-local.png'); background-repeat: repeat" @endif
-             @if (\App::environment('prod')) style="background: #eff3f8" @endif>
+             @if (app()->environment('prod')) style="background: #eff3f8" @endif>
             <div class="container">
                 <!-- BEGIN PAGE BREADCRUMBS -->
                 @yield('breadcrumbs')

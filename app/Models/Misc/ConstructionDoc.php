@@ -2,6 +2,7 @@
 
 namespace App\Models\Misc;
 
+use App\Services\FileBank;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -26,12 +27,12 @@ class ConstructionDoc extends Model
         return $this->belongsTo('App\Models\Misc\Category', 'category_id');
     }
 
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'] && file_exists(public_path('/filebank/construction/doc/standards/' . $this->attributes['attachment'])))
-            return '/filebank/construction/doc/standards/' . $this->attributes['attachment'];
+        if (!$this->attachment) return '';
+        $path = "construction/doc/standards/{$this->attachment}";
 
-        return '';
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
 

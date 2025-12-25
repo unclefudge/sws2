@@ -2,12 +2,9 @@
 
 namespace App\Models\Support;
 
-use Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
-use Carbon\Carbon;
-use nilsenj\Toastr\Facades\Toastr;
+use Mail;
 
 class SupportTicket extends Model
 {
@@ -92,17 +89,6 @@ class SupportTicket extends Model
             return 'in progress';
         return "none";
 
-    }
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/support/ticket/' . $this->attributes['attachment'];
-
-        return '';
     }
 
     /**

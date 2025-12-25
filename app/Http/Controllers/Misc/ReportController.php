@@ -53,19 +53,19 @@ class ReportController extends Controller
 
     public function recentFiles()
     {
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
+        // Storage dir
+        $dir = storage_path('app/tmp/' . Auth::user()->company_id . '/report');
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-        $files = scandir_datesort(public_path($dir));
+        $files = scandir_datesort($dir);
 
         //dd($files);
         $reports = [];
         foreach ($files as $file) {
+            $path = "$dir/$file";
             if (($file[0] != '.')) {
                 $processed = false;
-                if (filesize(public_path("$dir/$file")) > 0)
+                if (filesize($path) > 0)
                     $processed = true;
 
                 $deleted = false;
@@ -73,13 +73,13 @@ class ReportController extends Controller
                 if (is_numeric($date_string) && strlen($date_string) == 14) {
                     $date = Carbon::createFromFormat('YmdHis', $date_string);
                     if ($date->lt(Carbon::today()->subDays(10))) {
-                        unlink(public_path("$dir/$file"));
+                        @unlink($path);
                         $deleted = true;
                     }
                 }
 
                 if (!$deleted)
-                    $reports[$file] = filesize(public_path("$dir/$file"));
+                    $reports[$file] = filesize($path);
             }
         }
 
@@ -576,19 +576,15 @@ class ReportController extends Controller
         $avg_contacted = ($count) ? round($total_contacted / $count) : 0;
         $avg_appoint = ($count) ? round($total_appoint / $count) : 0;
 
-        //dd($mains->groupBy('site_id')->count());
 
-        // Create PDF
-        $file = public_path('filebank/tmp/maintenace-executive-cron.pdf');
-        if (file_exists($file))
-            unlink($file);
-
-        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
-        $pdf->setPaper('A4', 'landscape');
+        // -------------------------------------------------
+        // Generate PDF
+        // -------------------------------------------------
+        $file = storage_path('app/tmp/maintenace-executive-cron.pdf');
+        $pdf = PDF::loadView('pdf/site/maintenance-executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'))->setPaper('A4', 'landscape');
         $pdf->save($file);
 
         return view('manage/report/site/maintenance_executive', compact('mains', 'mains_old', 'mains_created', 'to', 'from', 'categories', 'avg_completed', 'avg_allocated', 'avg_contacted', 'avg_appoint', 'cats', 'supers', 'excluded'));
-
     }
 
 
@@ -740,14 +736,14 @@ class ReportController extends Controller
 
     public function nightly()
     {
-        $files = array_reverse(array_diff(scandir(public_path('/filebank/log/nightly')), array('.', '..')));
+        $files = array_reverse(array_diff(scandir(storage_path('app/log/nightly')), array('.', '..')));
 
         return view('manage/report/nightly', compact('files'));
     }
 
     public function zoho()
     {
-        $files = array_reverse(array_diff(scandir(public_path('/filebank/log/zoho')), array('.', '..')));
+        $files = array_reverse(array_diff(scandir(storage_path('app/log/zoho')), array('.', '..')));
 
         return view('manage/report/zoho', compact('files'));
     }

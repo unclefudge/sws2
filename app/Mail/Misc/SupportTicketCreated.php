@@ -4,12 +4,14 @@ namespace App\Mail\Misc;
 
 use App\Models\Support\SupportTicket;
 use App\Models\Support\SupportTicketAction;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SupportTicketCreated extends Mailable implements ShouldQueue {
+class SupportTicketCreated extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -35,13 +37,14 @@ class SupportTicketCreated extends Mailable implements ShouldQueue {
     public function build()
     {
         $email = $this->markdown('emails/misc/support-ticket-created2')->subject('SafeWorksite - New Support Ticket');
-        // Attachments
-        if ($this->action->files()->count()) {
-            foreach ($this->action->files() as $file) {
-                if (file_exists(substr($file->attachment_url, 1)))
-                    $email->attach(public_path($file->attachment_url));
+
+        // Add Attachments
+        foreach ($this->ticket->attachments as $file) {
+            if ($file->directory && $file->attachment) {
+                FileBank::attachToEmail($email, "$file->directory/$file->attachment");
             }
         }
+
         return $email;
     }
 }

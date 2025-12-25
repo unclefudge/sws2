@@ -148,7 +148,7 @@ class PagesImportController extends Controller
     {
         echo "Importing Companies<br><br>";
         $row = 0;
-        if (($handle = fopen(public_path("company.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/company.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 if ($row == 1) continue;
@@ -238,7 +238,7 @@ class PagesImportController extends Controller
         $cutoff_date = Carbon::createFromFormat('d/m/Y H:i', '21/09/2023 00:00');
         $site_data = [];
         $extension = SiteExtension::find(4);
-        if (($handle = fopen(public_path("TimeExtensions.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/TimeExtensions.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 if ($row == 1) continue;
@@ -296,7 +296,7 @@ class PagesImportController extends Controller
     {
         echo "Importing Materials<br><br>";
         $row = 0;
-        if (($handle = fopen(public_path("materials.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/materials.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 if ($row == 1) continue;
@@ -359,7 +359,7 @@ class PagesImportController extends Controller
     {
         echo "Importing Payroll<br>---------------------<br><br>";
         $row = 0;
-        if (($handle = fopen(public_path("payroll.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/payroll.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 if ($row == 1) continue;
@@ -432,7 +432,7 @@ class PagesImportController extends Controller
     {
         echo "Importing Incident Questions<br>---------------------<br><br>";
         $row = 0;
-        if (($handle = fopen(public_path("resp.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/resp.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 $num = count($data);
@@ -468,7 +468,7 @@ class PagesImportController extends Controller
         echo "Subject,All Modules, Due Date, Priority, Status, Assigned To, Modified On<br>";
         $row = '';
 
-        if (($handle = fopen(public_path("tasks.txt"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/tasks.txt"), "r")) !== false) {
             while (($line = fgets($handle)) !== false) {
                 $line = trim($line);
                 $fields = explode("\t", $line);
@@ -500,7 +500,7 @@ class PagesImportController extends Controller
         echo "Name,No. Of Receipients,All Modules,Email Templates,Modified On<br>";
         $row = '';
 
-        if (($handle = fopen(public_path("emails.txt"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/emails.txt"), "r")) !== false) {
             while (($line = fgets($handle)) !== false) {
                 $line = trim($line);
                 $fields = explode("\t", $line);
@@ -531,7 +531,7 @@ class PagesImportController extends Controller
     {
         echo "Importing Maintenance<br>---------------------<br><br>";
         $row = 0;
-        if (($handle = fopen(public_path("maintenance.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/maintenance.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 //if ($row == 1) continue;
@@ -823,7 +823,7 @@ let them know things are ready breeds confidence", 'type' => 'YNNA', 'order' => 
         ];
         $siteStatus = ['1' => 'Active', '0' => 'Completed', '-1' => 'Upcoming', '2' => 'Maintenance', '-2' => 'Cancelled'];
         $siteStatusColour = ['1' => 'color:#26c281', '0' => 'color:#555', '-1' => '', '2' => 'color:#f7ca18', '-2' => 'color:#d91e18'];
-        if (($handle = fopen(public_path("Jobs_for_Fudge.csv"), "r")) !== false) {
+        if (($handle = fopen(storage_path("app/files/Jobs_for_Fudge.csv"), "r")) !== false) {
             while (($data = fgetcsv($handle, 5000, ",")) !== false) {
                 $row++;
                 if ($row == 1) continue;

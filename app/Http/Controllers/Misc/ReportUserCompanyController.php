@@ -89,12 +89,10 @@ class ReportUserCompanyController extends Controller
             }
         }
 
-        //echo $csv;
-        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_no_whitecard.csv';
-        $bytes_written = File::put(public_path($filename), $csv);
-        if ($bytes_written === false) die("Error writing to file");
+        $filename = storage_path('app/tmp/users_no_whitecard.csv');
+        file_put_contents($filename, $csv);
 
-        return redirect($filename);
+        return response()->download($filename)->deleteFileAfterSend(true);
     }
 
     public function usersLastLogin()
@@ -158,13 +156,10 @@ class ReportUserCompanyController extends Controller
                 $csv .= "\r\n";
             }
         }
+        $filename = storage_path('app/tmp/users_lastlogin.csv');
+        file_put_contents($filename, $csv);
 
-        //echo $csv;
-        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_lastlogin.csv';
-        $bytes_written = File::put(public_path($filename), $csv);
-        if ($bytes_written === false) die("Error writing to file");
-
-        return redirect($filename);
+        return response()->download($filename)->deleteFileAfterSend(true);
     }
 
     public function usersContactInfo()
@@ -189,12 +184,10 @@ class ReportUserCompanyController extends Controller
             $csv .= "\r\n";
         }
 
-        //echo $csv;
-        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/users_contactinfo.csv';
-        $bytes_written = File::put(public_path($filename), $csv);
-        if ($bytes_written === false) die("Error writing to file");
+        $filename = storage_path('app/tmp/users_contactinfo.csv');
+        file_put_contents($filename, $csv);
 
-        return redirect($filename);
+        return response()->download($filename)->deleteFileAfterSend(true);
     }
 
     /******************************
@@ -232,12 +225,10 @@ class ReportUserCompanyController extends Controller
             $csv .= "\r\n";
         }
 
-        //echo $csv;
-        $filename = '/filebank/tmp/' . Auth::user()->company_id . '/company_contactinfo.csv';
-        $bytes_written = File::put(public_path($filename), $csv);
-        if ($bytes_written === false) die("Error writing to file");
+        $filename = storage_path('app/tmp/company_contactinfo.csv');
+        file_put_contents($filename, $csv);
 
-        return redirect($filename);
+        return response()->download($filename)->deleteFileAfterSend(true);
     }
 
     public function companySWMS()
@@ -267,7 +258,7 @@ class ReportUserCompanyController extends Controller
         $email_sent = 0;
         foreach ($companies as $company) {
             //if ($email_sent > 3) continue;
-            $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
             if ($email_to) {
                 $email_sent++;
                 if ($email_cc)
@@ -289,18 +280,18 @@ class ReportUserCompanyController extends Controller
         $companies = Company::whereIn('id', $allowed_companies)->where('name', 'not like', "Cc-%")->whereNotIn('id', $excluded_companies)->orderBy('name')->get();
         $twoyearago = \Carbon\Carbon::now()->subYears(2)->toDateTimeString();
 
-        $email_cc = (\App::environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [env('EMAIL_DEV')];
+        $email_cc = (app()->environment('prod')) ? ['kirstie@capecod.com.au', 'ross@capecod.com.au'] : [env('EMAIL_DEV')];
         if (Auth::check()) {
             if (validEmail(Auth::user()->email))
                 $email_cc[] = Auth::user()->email;
             $signature = Auth::user()->fullname . "<br>" . Auth::user()->jobtitle;
         } else
             $signature = "SafeWork Site";
-        
+
         $email_sent = 0;
         foreach ($companies as $company) {
             //if ($email_sent > 12) continue;
-            $email_to = (\App::environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
+            $email_to = (app()->environment('prod')) ? $company->seniorUsersEmail() : [env('EMAIL_DEV')];
 
             if (count($company->wmsdocs) == 0) {
                 if ($email_to) {
@@ -498,16 +489,9 @@ class ReportUserCompanyController extends Controller
     public function missingCompanyInfoCSV()
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-
-
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
+        $output_file = storage_path("app/tmp/report/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
         touch($output_file);
 
-        //dd('here');
         CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
 
         return redirect('/manage/report/recent');
@@ -549,12 +533,7 @@ class ReportUserCompanyController extends Controller
         foreach ($cids as $key => $value)
             $companies[] = Company::find($key);
 
-
-        $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-        // Create directory if required
-        if (!is_dir(public_path($dir)))
-            mkdir(public_path($dir), 0777, true);
-        $output_file = public_path($dir . "/company_missinginfo_planned " . Carbon::now()->format('YmdHis') . '.csv');
+        $output_file = storage_path("app/tmp/report/company_missinginfo_planned " . Carbon::now()->format('YmdHis') . '.csv');
         touch($output_file);
 
         //dd('here');
@@ -692,8 +671,7 @@ class ReportUserCompanyController extends Controller
     /******************************
      * Security Reports
      *****************************/
-    public
-    function roleusers()
+    public function roleusers()
     {
         $allowed_users = Auth::user()->company->users(1)->pluck('id')->toArray();
         $users = DB::table('role_user')->whereIn('user_id', $allowed_users)->orderBy('role_id')->get();
@@ -701,16 +679,14 @@ class ReportUserCompanyController extends Controller
         return view('manage/report/user/roleusers', compact('users'));
     }
 
-    public
-    function usersExtraPermissions()
+    public function usersExtraPermissions()
     {
         $permissions = DB::table('permission_user')->where('company_id', Auth::user()->company_id)->orderBy('user_id')->get();
 
         return view('manage/report/user/users_extra_permissions', compact('permissions'));
     }
 
-    public
-    function usersWithPermission($type)
+    public function usersWithPermission($type)
     {
         $permission_list = [];
         $ignore_list = ['client', 'client.doc'];

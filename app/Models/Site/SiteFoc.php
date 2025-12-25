@@ -80,7 +80,7 @@ class SiteFoc extends Model
 
     public function attachments()
     {
-        return Attachment::where('table', $this->table)->where('table_id', $this->id)->get();
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_foc');
     }
 
 
@@ -234,7 +234,7 @@ class SiteFoc extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = (validEmail($user->email)) ? $user->email : '';
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
@@ -251,7 +251,7 @@ class SiteFoc extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }

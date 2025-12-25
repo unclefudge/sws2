@@ -46,7 +46,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-1 pull-right hidden-sm hidden-xs">
-                                    <a href="{{ $doc->report_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
+                                    <a href="{{ $doc->attachment_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
                                 </div>
                             </div>
                             <div class="row">
@@ -91,7 +91,7 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
@@ -103,20 +103,21 @@
         </div>
         <!-- END PAGE CONTENT INNER -->
     </div>
-    @stop
+@stop
 
-    @section('page-level-plugins-head')
+@section('page-level-plugins-head')
     <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
-    @stop
+@stop
 
-    @section('page-level-plugins')
+@section('page-level-plugins')
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
     <script src="/js/libs/fileinput.min.js"></script>
-    @stop
+@stop
 
-    @section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
     <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
     <script>
         $(document).ready(function () {
@@ -138,7 +139,7 @@
                 uploadClass: "btn btn-info",
             });
 
-            $("#change_file").click(function (){
+            $("#change_file").click(function () {
                 $('#reportfile-div').hide();
                 $('#uploadfile-div').show();
             });

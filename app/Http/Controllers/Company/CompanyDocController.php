@@ -8,9 +8,9 @@ use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\ContractorLicenceSupervisor;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use nilsenj\Toastr\Facades\Toastr;
 use Session;
@@ -115,8 +115,8 @@ class CompanyDocController extends Controller
             return json_encode("failed");
 
         // Delete attached file
-        if ($doc->attachment && file_exists(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment)))
-            unlink(public_path('/filebank/company/' . $doc->company_id . '/docs/' . $doc->attachment));
+        if ($doc->attachment)
+            FileBank::delete("company/$doc->for_company_id/docs/$doc->attachment");
 
         // Delete any assigned Supervisors for Contractor Licences
         if ($doc->category_id == '7')
@@ -201,22 +201,23 @@ class CompanyDocController extends Controller
 
         // Handle attached file
         $empty_file = 0;
-        if ($request->hasFile('singlefile') || $request->hasFile('singleimage')) {
-            $file = ($request->hasFile('singlefile')) ? $request->file('singlefile') : $request->file('singleimage');
+        if (request()->hasFile('singlefile') || request()->hasFile('singleimage')) {
+            $file = (request()->hasFile('singlefile')) ? request()->file('singlefile') : request()->file('singleimage');
 
-            $path = "filebank/company/" . $company->id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
-            $doc->save();
-
-            if (file_exists(public_path("$path/$name")) && filesize(public_path("$path/$name")) == 0)
+            // Guard: empty upload (before sending to Spaces)
+            if ($file->getSize() === 0)
                 $empty_file = 1;
+
+            $basePath = "company/{$company->id}/docs";
+            $originalName = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = strtolower($file->getClientOriginalExtension());
+            $forcedFilename = "{$originalName}.{$extension}";
+
+            // Store in Spaces via FileBank (handles uniqueness + streaming)
+            $doc->attachment = FileBank::storeUploadedFile($file, $basePath, $forcedFilename, $file->isValid() && str_starts_with($file->getMimeType(), 'image/'));
+            $doc->save();
         }
+
         Toastr::success("Uploaded document");
 
         // Closing any outstanding todoos associated with this doc category ie. expired docs
@@ -238,7 +239,7 @@ class CompanyDocController extends Controller
                 // For CC specific docs include doc.cc.approval users to ToDoo as well
                 if ($doc->for_company_id == '3')
                     $userlist = array_merge($userlist, $doc->owned_by->notificationsUsersTypeArray('doc.cc.approval'));
-               
+
                 $doc->createApprovalToDo($userlist);
             }
         }
@@ -361,19 +362,15 @@ class CompanyDocController extends Controller
 
         // Handle attached file
         if (request()->hasFile('singlefile')) {
-            // Delete previous file
-            if ($doc->attachment && file_exists(public_path('filebank/company/' . $doc->for_company_id . '/docs/' . $doc->attachment)))
-                unlink(public_path('filebank/company/' . $doc->for_company_id . '/docs/' . $doc->attachment));
+            $file = request()->file('singlefile');
 
-            $file = $request->file('singlefile');
-            $path = "filebank/company/" . $doc->for_company_id . '/docs';
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $doc->attachment = $name;
+            $basePath = "company/{$company->id}/docs";
+            $originalName = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $extension = strtolower($file->getClientOriginalExtension());
+            $forcedFilename = "{$originalName}.{$extension}";
+
+            // Store in Spaces via FileBank (handles uniqueness + streaming)
+            $doc->attachment = FileBank::replaceUploadedFile($file, $basePath, $doc->attachment, $forcedFilename, $file->isValid() && str_starts_with($file->getMimeType(), 'image/'));
             $doc->save();
         }
         Toastr::success("Updated document");
@@ -439,55 +436,6 @@ class CompanyDocController extends Controller
 
         return redirect("company/$company->id/doc/$doc->id/edit");
     }
-
-    /**
-     * Upload File + Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function upload($id)
-    {
-        // Check authorisation and throw 404 if not
-        if (!(Auth::user()->allowed2('add.company.doc.gen') || Auth::user()->allowed2('add.company.doc.lic') ||
-            Auth::user()->allowed2('add.company.doc.whs') || Auth::user()->allowed2('add.company.doc.ics'))
-        )
-            return json_encode("failed");
-
-        // Handle file upload
-        if (request()->hasFile('multifile')) {
-            $files = request()->file('multifile');
-            foreach ($files as $file) {
-                $path = "filebank/company/" . Auth::user()->company_id . '/docs';
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$path/$name")))
-                    $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-                $file->move($path, $name);
-
-                $doc_request['category_id'] = $request->get('category_id');
-                $doc_request['name'] = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $doc_request['company_id'] = Auth::user()->company_id;
-                $doc_request['for_company_id'] = Auth::user()->company_id;
-                $doc_request['expiry'] = null;
-
-                // Set Type
-                if ($doc_request['category_id'] > 6 && $doc_request['category_id'] < 10)
-                    $doc_request['type'] = 'lic';
-                elseif ($doc_request['category_id'] > 20)
-                    $doc_request['type'] = 'gen';
-
-                // Create Site Doc
-                $doc = CompanyDoc::create($doc_request);
-                $doc->attachment = $name;
-                $doc->save();
-            }
-        }
-
-        return json_encode("success");
-    }
-
 
     /**
      * Get Categories Users is allowed to access filtered by Department.
@@ -604,116 +552,6 @@ class CompanyDocController extends Controller
     }
 
     /**
-     * Display a listing of risks.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listRisks()
-    {
-        if (!Auth::user()->hasPermission2('view.safety.doc'))
-            return view('errors/404');
-
-        $site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
-
-        return view('site/doc/risk/list', compact('site_id'));
-    }
-
-    /**
-     * Get Risks current user is authorised to manage + Process datatables ajax request.
-     */
-    public function getRisks(Request $request)
-    {
-        $records = SiteDoc::select(['id', 'type', 'site_id', 'attachment', 'name',])
-            ->where('type', 'RISK')
-            ->where('site_id', '=', $request->get('site_id'))
-            ->where('status', '1');
-
-        $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/risk/{{$attachment}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('id', function ($doc) {
-                ($doc->type == 'RISK') ? $type = 'risk' : $type = 'hazard';
-
-                return '<div class="text-center"><a href="/filebank/site/' . $doc->site_id . '/' . $type . '/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>';
-            })
-            ->make(true);
-
-        return $dt;
-    }
-
-    /**
-     * Display a listing of hazards.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listHazards()
-    {
-        if (!Auth::user()->hasPermission2('view.safety.doc'))
-            return view('errors/404');
-
-        $site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
-
-        return view('site/doc/hazard/list', compact('site_id'));
-    }
-
-
-    /**
-     * Get Hazards current user is authorised to manage + Process datatables ajax request.
-     */
-    public function getHazards(Request $request)
-    {
-        $records = SiteDoc::select(['id', 'type', 'site_id', 'attachment', 'name',])
-            ->where('type', 'HAZ')
-            ->where('site_id', '=', $request->get('site_id'))
-            ->where('status', '1');
-
-        $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/risk/{{$attachment}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('id', function ($doc) {
-                ($doc->type == 'RISK') ? $type = 'risk' : $type = 'hazard';
-
-                return '<div class="text-center"><a href="/filebank/site/' . $doc->site_id . '/' . $type . '/' . $doc->attachment . '"><i class="fa fa-file-text-o"></i></a></div>';
-            })
-            ->make(true);
-
-        return $dt;
-    }
-
-    /**
-     * Display a listing of plans.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listPlans()
-    {
-        if (!Auth::user()->hasPermission2('view.site.doc'))
-            return view('errors/404');
-
-        $site_id = (Session::has('siteID')) ? Session::get('siteID') : '';
-
-        return view('site/doc/plan/list', compact('site_id'));
-    }
-
-    /**
-     * Get Plans current user is authorised to view + Process datatables ajax request.
-     */
-    public function getPlans(Request $request)
-    {
-        $records = SiteDoc::select(['id', 'type', 'site_id', 'attachment', 'name',])
-            ->where('type', 'PLAN')
-            ->where('site_id', '=', $request->get('site_id'))
-            ->where('status', '1');
-
-        $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/site/{{$site_id}}/risk/{{$attachment}}"><i class="fa fa-search"></i></a></div>')
-            ->editColumn('id', function ($doc) {
-                return '<div class="text-center"><a href="/filebank/site/' . $doc->site_id . '/plan/' . $doc->attachment . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>';
-            })
-            ->make(true);
-
-        return $dt;
-    }
-
-    /**
      * Show CC Standard Details
      *
      * @return \Illuminate\Http\Response
@@ -733,7 +571,9 @@ class CompanyDocController extends Controller
         $records = CompanyDoc::where('company_id', 3)->whereIn('category_id', $cats)->where('status', '1')->orderBy('category_id');
 
         $dt = Datatables::of($records)
-            ->editColumn('id', '<div class="text-center"><a href="/filebank/company/3/docs/{{$attachment}}"><i class="fa fa-file-text-o"></i></a></div>')
+            ->editColumn('id', function ($doc) {
+                return ($doc->attachment) ? '<div class="text-center"><a href="' . $doc->attachment_url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>' : '';
+            })
             ->editColumn('category_id', function ($doc) {
                 return $doc->category->name;
             })

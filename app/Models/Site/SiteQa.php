@@ -268,7 +268,7 @@ class SiteQa extends Model
     /*
     public function emailOverdue()
     {
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_roles = $this->site->company->notificationsUsersEmailType('site.qa');
             $email_seniors = $this->site->areaSupervisorsEmails();
             $email_to = array_unique(array_merge($email_roles, $email_seniors), SORT_REGULAR);
@@ -307,7 +307,7 @@ class SiteQa extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }

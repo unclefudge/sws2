@@ -123,7 +123,7 @@
                                     {{-- Gallery --}}
                                     <div id="media_gallery" style="margin-bottom: 20px">
                                         @foreach ($form->photos()->sortBy('order')  as $file)
-                                            <img src="{{$file->attachment}}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                                            <img src="{{ $file->url }}" id="q{{$file->question_id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
                                         @endforeach
                                     </div>
                                     {{-- Files --}}
@@ -133,7 +133,7 @@
                                             @foreach ($form->files()->sortBy('order')  as $file)
                                                 @if ($file->type == 'file')
                                                     <div id="q{{$file->question_id}}-file-{{$file->id}}">
-                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->attachment}}" target="_blank">{{ $file->name }}</a>
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{$file->url}}" target="_blank">{{ $file->name }}</a>
                                                     </div>
                                                 @endif
                                             @endforeach

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteAsbestosRegisterItem;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -255,43 +256,39 @@ class SiteAsbestosRegisterController extends Controller
     public function destroy($id)
     {
         $asb = SiteAsbestosRegister::findOrFail($id);
-        if (!(Auth::user()->allowed2('del.site.asbestos', $asb)))
+
+        // Authorisation
+        if (!Auth::user()->allowed2('del.site.asbestos', $asb))
             return view('errors/404');
 
-        // Delete attached file
-        if ($asb->attachment && file_exists(public_path('/filebank/site/' . $asb->site_id . '/docs/' . $asb->attachment)))
-            unlink(public_path('/filebank/site/' . $asb->site_id . '/docs/' . $asb->attachment));
+        // Delete attached file (Spaces + fallback safe)
+        if ($asb->attachment) {
+            $path = "site/{$asb->site_id}/docs/{$asb->attachment}";
+            FileBank::delete($path);
+        }
 
-
-        //dd('here');
         $asb->delete();
         Toastr::error("Asbestos register deleted");
 
         if (request()->ajax())
-            return json_encode('success');
-        else
-            return redirect('/site/asbestos/register');
+            return response()->json('success');
+
+        return redirect('/site/asbestos/register');
     }
 
     public function createPDF($id)
     {
         $asb = SiteAsbestosRegister::findOrFail($id);
 
-        // Set + create create directory if required
-        $path = "filebank/site/$asb->site_id/docs";
-        if (!file_exists($path))
-            mkdir($path, 0777, true);
+        $basePath = "site/{$asb->site_id}/docs";
+        $filename = "Asbestos-Register-{$asb->site->code}.pdf";
+        $path = "{$basePath}/{$filename}";
 
-        $filename = "Asbestos-Register-" . $asb->site->code . ".pdf";
+        // Generate PDF in memory
+        $pdf = PDF::loadView('pdf/site/asbestos-register', compact('asb'))->setPaper('A4', 'landscape');
 
-        //
-        // Generate PDF
-        //
-        //return view('pdf/site/asbestos-register', compact('asb'));
-        //return PDF::loadView('pdf/site/asbestos-register', compact('asb'))->setPaper('a4', 'landscape')->stream();
-        $pdf = PDF::loadView('pdf/site/asbestos-register', compact('asb'));
-        $pdf->setPaper('A4', 'landscape');
-        $pdf->save(public_path("$path/$filename"));
+        // Save PDF to Spaces
+        FileBank::putContents($path, $pdf->output());
 
         return $filename;
     }
@@ -327,9 +324,7 @@ class SiteAsbestosRegisterController extends Controller
         $dt = Datatables::of($records)
             ->editColumn('id', function ($doc) {
                 $asb = SiteAsbestosRegister::find($doc->id);
-
                 return ($asb->attachment_url) ? '<div class="text-center"><a href="' . $asb->attachment_url . '" target="_blank"><i class="fa fa-file-text-o"></i></a></div>' : '';
-                //return '<div class="text-center"><a href="' . $asb->attachment_url . '"><i class="fa fa-search"></i></a></div>';
             })
             ->editColumn('sitename', function ($doc) {
                 $s = Site::find($doc->site_id);

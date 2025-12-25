@@ -17,11 +17,13 @@ use App\Models\Misc\Form\FormTemplate;
 use App\Models\Misc\TemporaryFile;
 use App\Models\Site\Site;
 use App\Models\Site\SiteHazard;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Mail;
 use Session;
@@ -412,37 +414,42 @@ class FormController extends Controller
                 //
                 $question_media = request("q$qid-media");
                 if ($question_media) {
-                    foreach ($question_media as $tmp_filename) {
-                        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-                        if ($tempFile) {
-                            // Move temp file to forms directory
-                            $form_dir = "/filebank/inspection/$form->id";
-                            if (!is_dir(public_path($form_dir))) mkdir(public_path($form_dir), 0777, true);  // Create directory if required
+                    foreach ($question_media as $tmpFolder) {
+                        $tempFile = TemporaryFile::where('folder', $tmpFolder)->first();
+                        if (!$tempFile) continue;
 
-                            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-                            if (file_exists($tempFilePublicPath)) {
-                                $newFile = "$form_dir/" . $question->id . '-' . $tempFile->filename;
-                                rename($tempFilePublicPath, public_path($newFile));
-                                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-
-                                // Determine file extension and set type
-                                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                                $filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-
-                                $form_file = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
-                                $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file)->first();
-                                if (!$response)
-                                    $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $form_file->id, 'option_id' => null, 'date' => null]);
-                                $responses_given[] = $response->id;
-                            }
-
-                            // Delete Temporary file directory + record
+                        // Temp file absolute local path (FilePond temp storage)
+                        $tmpLocalPath = storage_path("app/{$tempFile->folder}/{$tempFile->filename}");
+                        if (!file_exists($tmpLocalPath)) {
                             $tempFile->delete();
-                            $files = scandir($tempFile->folder);
-                            if (count($files) == 0)
-                                rmdir(public_path($tempFile->folder));
+                            continue;
                         }
+
+                        // Determine file type
+                        $ext = strtolower(pathinfo($tempFile->filename, PATHINFO_EXTENSION));
+                        $type = in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp']) ? 'image' : 'file';
+
+                        // Destination path in FileBank (NO leading slash)
+                        $basePath = "inspection/{$form->id}";
+                        $forcedFilename = "{$question->id}-{$tempFile->filename}";
+
+                        // Wrap local temp file
+                        $localFile = new \Illuminate\Http\File($tmpLocalPath);
+
+                        // Store in Spaces via FileBank
+                        $storedFilename = FileBank::storeUploadedFile($localFile, $basePath, $forcedFilename, $type === 'image');
+
+                        // Create FormFile + Form Response record
+                        $formFile = FormFile::create(['form_id' => $form->id, 'question_id' => $question->id, 'type' => $type, 'name' => $tempFile->filename, 'attachment' => $storedFilename,]);
+                        $response = FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $formFile->id)->first();
+                        if (!$response)
+                            $response = FormResponse::create(['form_id' => $form->id, 'question_id' => $qid, 'value' => $formFile->id, 'option_id' => null, 'date' => null,]);
+
+                        $responses_given[] = $response->id;
+
+                        // Cleanup temp folder + DB record
+                        Storage::disk('local')->deleteDirectory($tempFile->folder);
+                        $tempFile->delete();
                     }
                 }
             }
@@ -456,7 +463,7 @@ class FormController extends Controller
                 list($qid, $rest) = explode('-', $filename, 2);
 
                 // Delete FormFile + FormResponses
-                $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "/filebank/inspection/$form->id/$filename")->first();
+                $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "$filename")->first();
                 if ($form_file) {
                     FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file->id)->delete();
                     $form_file->delete();
@@ -582,89 +589,60 @@ class FormController extends Controller
         }
     }
 
-    /**
-     * Upload Filepond file
-     */
-    public function upload()
-    {
-        $folder = '';
-        $company_id = (Auth::check()) ? Auth::user()->company->reportsTo()->id : '3';
-        $path = "filebank/tmp/$company_id/upload";
-
-        $files = request()->allFiles();
-        if ($files) {
-            // FilePond only uploads 1 file at a time (even with multiple) so if array exists then it only has 1 element
-            // - get array key which is the ID of the input ie q1
-            $firstKey = array_key_first($files);
-
-            if (request()->hasFile($firstKey)) {
-                // As input variable is an array (ie. q1[]) loop through array to save each file
-                // - Filepond will only have 1 element in array but array is required to save the uploaded TemporaryFiles to actual Form on (update/save)
-                foreach (request()->file($firstKey) as $file) {
-                    $filename = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-                    $folder = "$path/" . uniqid() . '-' . now()->timestamp; // create unique folder for tmp file
-                    $path_name = $folder . '/' . $filename;
-                    $file->move($folder, $filename);
-
-                    // resize the image so that the largest side fits within the limit; the smaller
-                    // side will be scaled to maintain the original aspect ratio
-                    if (exif_imagetype($path_name)) {
-                        Image::make(url($path_name))
-                            ->resize(1024, 1024, function ($constraint) {
-                                $constraint->aspectRatio();
-                                $constraint->upsize();
-                            })
-                            ->save($path_name);
-                    }
-
-                    // Store temporary file to DB
-                    $tempFile = TemporaryFile::create(['folder' => $folder, 'filename' => $filename, 'company_id' => $company_id]);
-                }
-            }
-        }
-
-        return $folder;
-    }
-
-    /**
-     * Upload Filepond file
-     */
-    public function deleteUpload()
-    {
-        // Required to remove temporary uploaded Filepond file
-        //dd(request()->all());
-        return 'delete upload';
-    }
-
     public function rotateImage($file_id, $degrees)
     {
-        $file = FormFile::find($file_id);
-        if ($file) {
-            $filename = $file->attachment;
-            $url = 'https://safeworksite.com.au' . $filename;
-            $url = 'https://sws.test' . $filename;
-            $filename = ltrim($filename, "/");
+        $file = FormFile::findOrFail($file_id);
 
-            if (exif_imagetype($filename)) {
-                Image::make(url($filename))
-                    ->rotate($degrees)
-                    ->save($filename);
-            }
+        // Build FileBank path
+        $path = "inspection/{$file->form_id}/{$file->attachment}";
+
+        // Make sure file exists
+        if (!FileBank::exists($path))
+            return response()->json(['error' => 'File not found'], 404);
+
+        // Pull file contents from Spaces / fallback disk
+        $contents = FileBank::get($path);
+
+        // Write to temp file
+        $tmpDir = storage_path('app/tmp');
+        if (!is_dir($tmpDir)) mkdir($tmpDir, 0755, true);
+
+        $tmpPath = $tmpDir . '/' . uniqid('rotate_') . '-' . $file->attachment;
+        file_put_contents($tmpPath, $contents);
+
+        // Ensure it's an image
+        if (!@exif_imagetype($tmpPath)) {
+            @unlink($tmpPath);
+            return response()->json(['error' => 'Not an image'], 422);
         }
-        return json_encode('success');
+
+        // Rotate image
+        Image::make($tmpPath)->rotate($degrees)->save($tmpPath);
+
+        // Stream back to FileBank (overwrite existing file)
+        $stream = fopen($tmpPath, 'rb');
+        FileBank::putStream($path, $stream);
+        fclose($stream);
+
+        // Cleanup
+        @unlink($tmpPath);
+
+        return response()->json('success');
     }
 
     public function deleteFile($file_id)
     {
-        $form_file = FormFile::find($file_id);
-        if ($form_file) {
-            if (file_exists(public_path($form_file->attachment))) {
-                unlink(public_path($form_file->attachment));
-                $form_file->delete();
-                return json_encode('success');
-            }
-        }
-        return json_encode('failed to delete file');
+        $formFile = FormFile::find($file_id);
+
+        if (!$formFile)
+            return response()->json('file not found', 404);
+
+        if ($formFile->attachment)
+            FileBank::delete("inspection/{$file->form_id}/{$file->attachment}");
+
+        $formFile->delete();
+
+        return response()->json('success');
     }
 
     /**
@@ -681,11 +659,7 @@ class FormController extends Controller
             return json_encode("failed");
 
         // Delete any Form Attachments + remove directory
-        $dir = public_path("/filebank/inspection/$id");
-        if (is_dir($dir)) {
-            array_map('unlink', glob("$dir/*.*"));
-            rmdir($dir);
-        }
+        FileBank::deleteDirectory("inspection/{$id}");
 
         // Delete associated Form records
         Form::where('id', $id)->delete();

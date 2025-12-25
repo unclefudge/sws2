@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SiteDoc;
 use App\Models\Site\SiteScaffoldHandover;
+use App\Services\FileBank;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -145,11 +147,13 @@ class SiteScaffoldHandoverController extends Controller
         // Create Report
         $report = SiteScaffoldHandover::create($report_request);
 
-        // Handle attachments
+
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
         Toastr::success("Created certificate");
 
@@ -207,24 +211,18 @@ class SiteScaffoldHandoverController extends Controller
         // Handle attachments
         $attachments = request("filepond");
         if ($attachments) {
-            foreach ($attachments as $tmp_filename)
-                $report->saveAttachment($tmp_filename);
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
+                $attachment->saveAttachment($tmp_filename);
+            }
         }
-
         // Handle attached file license
         if (request()->hasFile('singlefile')) {
-            $file = request()->file('singlefile');
-
-            $path = "filebank/site/$report->site_id/scaffold";
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
-            $report->inspector_licence = $name;
+            $basePath = "site/$report->site_id/scaffold";
+            $report->inspector_licence = FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
             $report->save();
         }
+
         Toastr::success("Submitted certificate");
 
         return redirect('site/scaffold/handover');
@@ -239,8 +237,7 @@ class SiteScaffoldHandoverController extends Controller
             return json_encode("failed");
 
         // Delete attached file
-        //if (file_exists(public_path('/filebank/construction/doc/standards/' . $report->attachment)))
-        //    unlink(public_path('/filebank/construction/doc/standards/' . $report->attachment));
+
         $report->delete();
 
         return json_encode('success');
@@ -254,9 +251,7 @@ class SiteScaffoldHandoverController extends Controller
         if (!Auth::user()->hasPermission2('del.site.scaffold.handover',))
             return view('errors/404');
 
-        // Delete attached file
-        //if (file_exists(public_path('/filebank/construction/doc/standards/' . $report->attachment)))
-        //    unlink(public_path('/filebank/construction/doc/standards/' . $report->attachment));
+
         $plan->delete();
         Toastr::error("Scaffold task deleted");
 
@@ -274,19 +269,8 @@ class SiteScaffoldHandoverController extends Controller
         $report = SiteScaffoldHandover::findOrFail($id);
 
         if ($report) {
-            $site = Site::findOrFail($report->site_id);
-
-            /*
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/QA ' . sanitizeFilename($site->name) . ' (' . $site->id . ') ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            */
-
             //return view('pdf/site/scaffold-handover', compact('report', 'site'));
-            return PDF::loadView('pdf/site/scaffold-handover', compact('report', 'site'))->setPaper('a4')->stream();
+            return PDF::loadView('pdf/site/scaffold-handover', compact('report'))->setPaper('a4')->stream();
         }
     }
 
@@ -299,35 +283,38 @@ class SiteScaffoldHandoverController extends Controller
     {
         $report = SiteScaffoldHandover::findOrFail($id);
 
-        if ($report) {
-            $site = Site::findOrFail($report->site_id);
+        // Generate PDF in memory
+        $pdf = PDF::loadView('pdf/site/scaffold-handover', compact('report'))->setPaper('a4');
+        $filename = "ScaffoldHandoverCertificate $report->site_id-" . sanitizeFilename($report->site->name) . '-' . now()->format('YmdHis') . '.pdf';
 
-            $dir = '/filebank/tmp/report/' . Auth::user()->company_id;
-            // Create directory if required
-            if (!is_dir(public_path($dir)))
-                mkdir(public_path($dir), 0777, true);
-            $output_file = public_path($dir . '/ScaffoldHandoverCertificate ' . $site->id . '-' . sanitizeFilename($site->name) . '-' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
+        // Determine recipients
+        $email_to = validEmail(request('email')) ? request('email') : null;
+        $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : null;
 
-            //return view('pdf/site/scaffold-handover', compact('report', 'site'));
-            $pdf = PDF::loadView('pdf/site/scaffold-handover', compact('report', 'site'))->setPaper('a4');
-            $pdf->save($output_file);
+        // Send email
+        if ($email_to || $email_user) {
+            Mail::send([], [], function ($m) use ($report, $pdf, $filename, $email_to, $email_user) {
 
-            // Email certificate
-            $email_to = (validEmail(request('email'))) ? request('email') : '';
-            $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
+                $from = $email_user ?: 'do-not-reply@safeworksite.com.au';
+                $m->from($from, Auth::user()->fullname ?? 'SafeWorksite');
 
-            if ($email_to && $email_user)
-                Mail::to($email_to)->cc([$email_user])->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
-            elseif ($email_to)
-                Mail::to($email_to)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
-            elseif ($email_user)
-                Mail::to($email_user)->send(new \App\Mail\Site\SiteScaffoldHandoverEmail($report, $output_file));
+                if ($email_to && $email_user)
+                    $m->to($email_to)->cc($email_user);
+                elseif ($email_to)
+                    $m->to($email_to);
+                else
+                    $m->to($email_user);
+
+                $m->subject('Scaffold Handover Certificate');
+
+                // Attach PDF from memory
+                $m->attachData($pdf->output(), $filename, ['mime' => 'application/pdf']);
+            });
 
             Toastr::success("Emailed certificate");
         }
 
-        return redirect("site/scaffold/handover/$report->id");
+        return redirect("site/scaffold/handover/{$report->id}");
     }
 
     /**

@@ -23,7 +23,7 @@
                         </div>
                         <div class="actions">
                             @if($project->attachment_url)
-                                <a class="btn btn-circle green btn-outline btn-sm" href="{{  $project->attachment_url }}" data-original-title="PDF">View PDF</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="{{ $project->attachment_url }}" data-original-title="PDF">View PDF</a>
                             @endif
                         </div>
                     </div>

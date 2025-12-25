@@ -93,7 +93,7 @@
 
                 </ul>
             </div>--}}
-                    <!-- END TOP NAVIGATION MENU -->
+            <!-- END TOP NAVIGATION MENU -->
 
         </div>
     </div>
@@ -135,11 +135,11 @@
         <div class="page-content"
              @if (\App::environment('dev')) style="background-image: url('/img/bg-development.png'); background-repeat: repeat" @endif
              @if (\App::environment('local')) style="background-image: url('/img/bg-local.png'); background-repeat: repeat" @endif
-             @if (\App::environment('prod')) style="background: #eff3f8" @endif>
+             @if (app()->environment('prod')) style="background: #eff3f8" @endif>
             <div class="container">
                 <!-- BEGIN PAGE BREADCRUMBS -->
                 @yield('breadcrumbs')
-                        <!-- END PAGE BREADCRUMBS -->
+                <!-- END PAGE BREADCRUMBS -->
 
                 <!-- BEGIN PAGE CONTENT INNER -->
                 <div class="page-content-inner">
@@ -228,7 +228,7 @@
 <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @yield('page-level-plugins')
 
-        <!-- END PAGE LEVEL PLUGINS -->
+<!-- END PAGE LEVEL PLUGINS -->
 
 <!-- BEGIN THEME GLOBAL SCRIPTS -->
 <script src="/assets/global/scripts/app.min.js" type="text/javascript"></script>
@@ -238,7 +238,7 @@
 <script src="/assets/pages/scripts/ui-toastr.min.js" type="text/javascript"></script>
 <script src="/js/libs.js" type="text/javascript"></script>
 @yield('page-level-scripts')
-        <!-- END PAGE LEVEL SCRIPTS -->
+<!-- END PAGE LEVEL SCRIPTS -->
 
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script src="/assets/layouts/layout3/scripts/layout.min.js" type="text/javascript"></script>

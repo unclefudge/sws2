@@ -2123,7 +2123,7 @@ class SitePlannerController extends Controller
         $olddate = (request('olddate')) ? Carbon::createFromFormat('Y-m-d H:i:s', request('olddate') . ' 00:00:00')->format('d/m/Y') : null;
         $supers = $site->supervisorName;
 
-        $email_to = (\App::environment('prod')) ? $site->company->notificationsUsersType('site.jobstart') : [env('EMAIL_DEV')];
+        $email_to = (app()->environment('prod')) ? $site->company->notificationsUsersType('site.jobstart') : [env('EMAIL_DEV')];
         if ($email_to)
             Mail::to($email_to)->send(new \App\Mail\Site\Jobstart($site, $newdate, $olddate, $supers));
 
@@ -2147,7 +2147,7 @@ class SitePlannerController extends Controller
                 $supers = $site->supervisorName;
                 $date = $site->job_start->format('d/m/Y');
 
-                $email_to = (\App::environment('prod')) ? $site->company->notificationsUsersType('site.jobstart') : [env('EMAIL_DEV')];
+                $email_to = (app()->environment('prod')) ? $site->company->notificationsUsersType('site.jobstart') : [env('EMAIL_DEV')];
                 if ($email_to)
                     Mail::to($email_to)->send(new \App\Mail\Site\Jobstart($site, $date, null, $supers));
             }

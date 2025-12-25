@@ -26,6 +26,16 @@ Route::get('/login/site/{site_code}', function ($site_code) {
     */
 });
 
+Route::get('/_debug-image', function () {
+    $stream = Storage::disk('filebank_spaces')
+        ->readStream('site/92/hazard/hazard-1035-FudgeJordan-Older.jpg');
+
+    return response()->stream(function () use ($stream) {
+        fpassthru($stream);
+        fclose($stream);
+    }, 200, ['Content-Type' => 'image/jpeg']);
+});
+
 // Authentication routes...
 Route::get('/login', '\App\Http\Controllers\Auth\SessionController@create')->name('login');
 Route::post('/login', '\App\Http\Controllers\Auth\SessionController@store');
@@ -75,6 +85,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/session/{name}/{val}', '\App\Http\Controllers\Misc\SessionValController@updateVal');
     Route::post('/session/update', '\App\Http\Controllers\Misc\SessionValController@update');
 
+    // Filebank Routes
+    Route::get('/filebank/{path}', \App\Http\Controllers\Misc\FileBankProxyController::class)->where('path', '.*');
 
     // Pages
     //Route::get('/', '\App\Http\Controllers\Misc\PagesController@index');
@@ -261,8 +273,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('company/{id}/add_note', '\App\Http\Controllers\Company\CompanyController@addNote');
     Route::get('company/{id}/user', '\App\Http\Controllers\Company\CompanyController@users');
     //Route::get('company/{id}/edit/trade', '\App\Http\Controllers\Company\CompanyController@editTrade');
-    //Route::post('company/{id}/settings/logo', '\App\Http\Controllers\Company\CompanyController@updateLogo');
-    //Route::post('company/{id}/edit/logo', '\App\Http\Controllers\Company\CompanyController@updateLogo');
     Route::get('company/{id}/demo1', '\App\Http\Controllers\Company\CompanyController@demo1');
     Route::get('company/{id}/demo2', '\App\Http\Controllers\Company\CompanyController@demo2');
     Route::get('company/{id}/demo3', '\App\Http\Controllers\Company\CompanyController@demo3');
@@ -360,7 +370,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Incidents
     Route::get('site/incident/dt/incidents', '\App\Http\Controllers\Site\Incident\SiteIncidentController@getIncidents');
-    Route::any('site/incident/upload', '\App\Http\Controllers\Site\Incident\SiteIncidentController@uploadAttachment');
+    //Route::any('site/incident/upload', '\App\Http\Controllers\Site\Incident\SiteIncidentController@uploadAttachment');
     //Route::get('site/incident/{id}/createdocs', '\App\Http\Controllers\Site\Incident\SiteIncidentController@createDocs');
     Route::any('site/incident/{id}/lodge', '\App\Http\Controllers\Site\Incident\SiteIncidentController@lodge');
     //Route::get('site/incident/{id}/involved', '\App\Http\Controllers\Site\Incident\SiteIncidentController@showInvolved');
@@ -467,7 +477,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/foc/dt/foc', '\App\Http\Controllers\Site\SiteFocController@getFoc');
     Route::get('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@settings');
     Route::post('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@updateSettings');
-    Route::any('site/foc/upload', '\App\Http\Controllers\Site\SiteFocController@uploadAttachment');
+    //Route::any('site/foc/upload', '\App\Http\Controllers\Site\SiteFocController@uploadAttachment');
     Route::get('site/foc/data/foc/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getFoc');
     Route::get('site/foc/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getSiteSupervisor');
     Route::any('site/foc/{id}/review', '\App\Http\Controllers\Site\SiteFocController@review');
@@ -490,7 +500,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Inspection Electrical Register
     Route::get('site/inspection/electrical/dt/list', '\App\Http\Controllers\Site\SiteInspectionElectricalController@getInspections');
-    Route::any('site/inspection/electrical/upload', '\App\Http\Controllers\Site\SiteInspectionElectricalController@uploadAttachment');
+    //Route::any('site/inspection/electrical/upload', '\App\Http\Controllers\Site\SiteInspectionElectricalController@uploadAttachment');
     Route::any('site/inspection/electrical/{id}/docs', '\App\Http\Controllers\Site\SiteInspectionElectricalController@documents');
     Route::get('site/inspection/electrical/{id}/report', '\App\Http\Controllers\Site\SiteInspectionElectricalController@reportPDF');
     Route::get('site/inspection/electrical/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionElectricalController@updateStatus');
@@ -500,7 +510,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Inspection Plumbing Register
     Route::get('site/inspection/plumbing/dt/list', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@getInspections');
-    Route::any('site/inspection/plumbing/upload', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@uploadAttachment');
+    //Route::any('site/inspection/plumbing/upload', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@uploadAttachment');
     Route::any('site/inspection/plumbing/{id}/docs', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@documents');
     Route::get('site/inspection/plumbing/{id}/report', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@reportPDF');
     Route::get('site/inspection/plumbing/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@updateStatus');
@@ -510,7 +520,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Scaffold Handover
     Route::get('site/scaffold/handover/dt/list', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@getCertificates');
-    Route::any('site/scaffold/handover/upload', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@uploadAttachment');
+    //Route::any('site/scaffold/handover/upload', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@uploadAttachment');
     Route::get('site/scaffold/handover/create/{site_id}', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@create');
     Route::any('site/scaffold/handover/deltask/{task_id}', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@delTask');
     Route::any('site/scaffold/handover/{id}/docs', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@documents');
@@ -554,8 +564,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@createForm');
     Route::get('site/inspection/{form_id}/media/{view}', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
     Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
-    Route::post('site/inspection/upload', '\App\Http\Controllers\Misc\Form\FormController@upload');
-    Route::delete('site/inspection/upload', '\App\Http\Controllers\Misc\Form\FormController@deleteUpload');
     Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
 
     // Supervisor Checklist
@@ -796,11 +804,6 @@ Route::group(['middleware' => 'auth'], function () {
     // Mailgun Zoho Import
     //Route::get('zoho/import/{file}', 'Api\MailgunZohoController@parseFile');
 
-    // PDF
-    Route::get('pdf/test', '\App\Http\Controllers\Misc\PdfController@test');
-    Route::get('pdf/workmethod/{id}', '\App\Http\Controllers\Misc\PdfController@workmethod');
-    Route::get('pdf/planner/site/{site_id}/{date}/{weeks}', '\App\Http\Controllers\Misc\PdfController@plannerSite');
-
     // Fudge
     Route::get('userlog', '\App\Http\Controllers\Misc\PagesController@userlog');
     Route::post('userlog', '\App\Http\Controllers\Misc\PagesController@userlogAuth');
@@ -829,6 +832,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cron/email-outstanding-qa', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingOnHoldQA');
     Route::get('cron/email-onhold-qa', '\App\Http\Controllers\Misc\CronReportController@emailOnHoldQA');
     Route::get('cron/email-electrical-plumbing', '\App\Http\Controllers\Misc\CronReportController@emailActiveElectricalPlumbing');
+    Route::get('cron/email-electrical-plumbing-pending', '\App\Http\Controllers\Misc\CronReportController@emailPendingElectricalPlumbing');
     Route::get('cron/email-maintenance-executive', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceExecutive');
     Route::get('cron/email-maintenance-aftercare', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingAftercare');
     Route::get('cron/email-maintenance-appointment', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceAppointment');
@@ -894,7 +898,7 @@ Route::get('php-info', function () {
 });
 
 Route::get('test/email', function () {
-    return view('emails/blank');
+    //return view('emails/blank');
 });
 
 

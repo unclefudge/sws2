@@ -3,7 +3,8 @@
 namespace App\Models\Client;
 
 use App\Http\Controllers\CronCrontroller;
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
+use App\Services\FileBank;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -30,49 +31,9 @@ class ClientPlannerEmail extends Model
     }
 
 
-    /**
-     * A Client Planner Email has many Docs.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function docs()
+    public function attachments()
     {
-        return $this->hasMany('App\Models\Client\ClientPlannerEmailDoc', 'email_id');
-    }
-
-    /**
-     * Save attachment to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = '/filebank/site/' . $this->site_id . '/emails/client';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $new = ClientPlannerEmailDoc::create(['email_id' => $this->id, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'client_planner_emails');
     }
 
 
@@ -86,24 +47,16 @@ class ClientPlannerEmail extends Model
         $email_bcc = '';
         $files = [];
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = explode('; ', $this->sent_to);
             $email_cc = explode('; ', $this->sent_cc);
             //$email_cc = 'support@openhands.com.au';
             $email_bcc = explode('; ', $this->sent_bcc);
         }
 
-        /*
-        if ($email_to && $email_cc && $email_bcc)
-            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
-        elseif ($email_to && $email_cc)
-            Mail::to($email_to)->cc($email_cc)->bcc($email_bcc)->send(new \App\Mail\Client\ClientPlanner($this));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Client\ClientPlanner($this));
-         */
         $data = ['client_planner' => $this,];
         $client_planner = $this;
-        $files = $this->docs;
+        $files = $this->attachments;
 
 
         if ($email_to) {
@@ -116,9 +69,9 @@ class ClientPlannerEmail extends Model
                     $m->cc($email_cc);
                 $m->subject($client_planner->subject);
                 if ($files->count()) {
-                    foreach ($files as $doc) {
-                        if (file_exists(public_path($doc->attachment_url)))
-                            $m->attach(public_path($doc->attachment_url));
+                    foreach ($files as $file) {
+                        if (!$file->attachment) continue;
+                        FileBank::attachToEmail($m, "$file->directory/$file->attachment");
                     }
                 }
             });

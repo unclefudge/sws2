@@ -5,9 +5,12 @@ namespace App\Models\Site;
 use App\Http\Utilities\FailureTypes;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Action;
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
+use App\Services\FileBank;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use URL;
 
@@ -32,14 +35,9 @@ class SiteHazard extends Model
         return $this->belongsTo('App\Models\Site\Site');
     }
 
-    /**
-     * A SiteHazard has many SiteHazardFiles
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function files()
+    public function attachments()
     {
-        return $this->hasMany('App\Models\Site\SiteHazardFile', 'hazard_id');
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_hazards');
     }
 
     /**
@@ -91,72 +89,29 @@ class SiteHazard extends Model
         }
     }
 
-
-    /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
+    public function saveCopyAttachment(string $filePath): void
     {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to hazard directory
-            $dir = "filebank/site/" . $this->site->id . '/hazard';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
+        if (!Storage::disk('local')->exists($filePath))
+            return;
 
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = "hazard-" . $this->id . '-' . $tempFile->filename;
+        $basePath = "site/{$this->site_id}/hazard";
+        $originalName = basename($filePath);
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        $type = in_array($extension, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp']) ? 'image' : 'file';
 
-                // Ensure filename is unique by adding counter to similar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
+        $filename = "hazard-{$this->id}-{$originalName}";
+        $path = "{$basePath}/{$filename}";
+        $counter = 1;
 
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteHazardFile::create(['hazard_id' => $this->id, 'type' => $type, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
+        while (FileBank::exists($path)) {
+            $name = pathinfo($filename, PATHINFO_FILENAME);
+            $filename = "{$name}-{$counter}.{$extension}";
+            $path = "{$basePath}/{$filename}";
+            $counter++;
         }
-    }
 
-    public function saveCopyAttachment($file)
-    {
-        if ($file) {
-            // Copy file to hazard directory
-            $dir = "filebank/site/" . $this->site->id . '/hazard';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            if (file_exists(public_path($file))) {
-                $newFile = "hazard-" . $this->id . '-' . pathinfo($file, PATHINFO_FILENAME);
-
-                // Ensure filename is unique by adding counter to similar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                copy(public_path($file), public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($file, PATHINFO_EXTENSION);
-                $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteHazardFile::create(['hazard_id' => $this->id, 'type' => $type, 'name' => $filename, 'attachment' => $newFile]);
-            }
-        }
+        FileBank::put($path, new File(Storage::disk('local')->path($filePath)));
+        Attachment::create(['table' => 'site_hazards', 'table_id' => $this->id, 'name' => $originalName, 'attachment' => $filename, 'directory' => "site/{$this->site_id}/hazard"]);
     }
 
     /**
@@ -167,9 +122,9 @@ class SiteHazard extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
-           
+
             // Add supervisor email
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;
@@ -195,7 +150,7 @@ class SiteHazard extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->company->notificationsUsersEmailType('site.hazard');
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;
@@ -211,13 +166,14 @@ class SiteHazard extends Model
     /**
      * Get the Attachment URL (setter)
      */
-    public function getAttachmentUrlAttribute()
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])
-            return '/filebank/site/' . $this->attributes['site_id'] . "/hazard/" . $this->attributes['attachment'];
+        if (!$this->attachment)
+            return '';
 
-        return '';
+        return FileBank::url("site/{$this->site_id}/hazard/{$this->attachment}");
     }
+
 
     /**
      * Get the Failure Type (setter)

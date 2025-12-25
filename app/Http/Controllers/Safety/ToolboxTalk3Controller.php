@@ -9,6 +9,7 @@ use App\Models\Comms\Todo;
 use App\Models\Comms\TodoUser;
 use App\Models\Company\Company;
 use App\Models\Safety\ToolboxTalk;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -388,17 +389,11 @@ class ToolboxTalk3Controller extends Controller
         $tool_request = ($request->all());
 
         // Handle attached file
-        if ($request->hasFile('singlefile')) {
-            $file = $request->file('singlefile');
-
-            $path = "filebank/whs/toolbox/" . $talk->id;
-            $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . strtolower($file->getClientOriginalExtension());
-            // Ensure filename is unique by adding counter to similiar filenames
-            $count = 1;
-            while (file_exists(public_path("$path/$name")))
-                $name = sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . $count++ . '.' . strtolower($file->getClientOriginalExtension());
-            $file->move($path, $name);
+        if (request()->hasFile('singlefile')) {
+            $basePath = "whs/toolbox/$talk->id";
+            FileBank::storeUploadedFile(request()->file('singlefile'), $basePath);
         }
+
         Toastr::success("Saved changes");
 
         return redirect('/safety/doc/toolbox3/' . $talk->id . '/edit');
@@ -559,23 +554,19 @@ class ToolboxTalk3Controller extends Controller
     {
         $talk = ToolboxTalk::findOrFail($id);
 
-        // Set + create directory if required
-        $path = "filebank/whs/toolbox/$talk->id";
-        if (!file_exists($path)) mkdir($path, 0777, true);
-        $filename = "$talk->name.pdf";
+        $basePath = "whs/toolbox/{$talk->id}";
+        $filename = sanitizeFilename($talk->name) . '.pdf';
+        $path = "{$basePath}/{$filename}";
 
-        //
-        // Generate PDF
-        //
-        //return view('pdf/toolboxtalk', compact('talk'));
-        return PDF::loadView('pdf/toolboxtalk', compact('talk'))->setPaper('a4')->stream();
-        $pdf = PDF::loadView('pdf/toolboxtalk', compact('talk'));
-        $pdf->setPaper('A4');
-        $pdf->save(public_path("$path/$filename"));
+        // Generate PDF (in memory)
+        $pdf = PDF::loadView('pdf/toolboxtalk', compact('talk'))->setPaper('a4');
 
-        return $filename;
+        // Save PDF to Spaces (FileBank)
+        // - DomPDF gives us raw bytes via output()
+        //FileBank::putContents($path, $pdf->output());
+
+        return $pdf->stream($filename);
     }
-
 
     /**
      * Get Talks current user is authorised to manage + Process datatables ajax request.

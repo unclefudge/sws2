@@ -2,14 +2,11 @@
 
 namespace App\Models\Site\Incident;
 
-use Mail;
-use App\User;
 use App\Models\Misc\FormQustion;
-use App\Models\Misc\FormResponse;
-use App\Models\Misc\Action;
-use App\Models\Comms\Todo;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Mail;
 
 class SiteIncidentDoc extends Model
 {
@@ -29,16 +26,6 @@ class SiteIncidentDoc extends Model
     public function incident()
     {
         return $this->belongsTo('App\Models\Site\Incident\SiteIncident', 'incident_id');
-    }
-
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'])
-            return '/filebank/incident/' . $this->incident_id . '/' . $this->attributes['attachment'];
-        return '';
     }
 
 

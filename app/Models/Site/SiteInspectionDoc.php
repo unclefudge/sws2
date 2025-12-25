@@ -3,13 +3,11 @@
 namespace App\Models\Site;
 
 use App\User;
-use App\Models\Site\SiteInspectionElectrical;
-use App\Models\Site\SiteInspectionPlumbing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
-class SiteInspectionDoc extends Model {
+class SiteInspectionDoc extends Model
+{
 
     protected $table = 'site_inspection_docs';
     protected $fillable = [
@@ -30,16 +28,6 @@ class SiteInspectionDoc extends Model {
             return NULL;
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attributes['attachment'] && $this->inspection())
-            return '/filebank/site/' . $this->inspection()->site_id . "/inspection/" . $this->attributes['attachment'];
-
-        return '';
-    }
 
     /**
      * Get the owner of record   (getter)
@@ -61,7 +49,7 @@ class SiteInspectionDoc extends Model {
         $user = User::findOrFail($this->updated_by);
 
         return '<span style="font-weight: 400">Last modified: </span>' . $this->updated_at->diffForHumans() . ' &nbsp; ' .
-        '<span style="font-weight: 400">By:</span> ' . $user->fullname;
+            '<span style="font-weight: 400">By:</span> ' . $user->fullname;
     }
 
     /**

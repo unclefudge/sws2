@@ -3,12 +3,14 @@
 namespace App\Mail\Company;
 
 use App\Models\Company\CompanyDoc;
+use App\Services\FileBank;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CompanyDocRejected extends Mailable implements ShouldQueue {
+class CompanyDocRejected extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 
@@ -31,10 +33,11 @@ class CompanyDocRejected extends Mailable implements ShouldQueue {
      */
     public function build()
     {
-        $file_path = public_path($this->doc->attachment_url);
-        if ($this->doc->attachment && file_exists($file_path))
-            return $this->markdown('emails/company/doc-rejected')->subject('SafeWorksite - Document Not Approved')->attach($file_path);
+        $email = $this->markdown('emails/company/doc-rejected')->subject('SafeWorksite - Document Not Approved');
 
-        return $this->markdown('emails/company/doc-rejected')->subject('SafeWorksite - Document Not Approved');
+        if ($this->doc->attachment)
+            FileBank::attachToEmail($email, "company/{$this->doc->company->id}/docs/{$this->doc->attachment}");
+
+        return $email;
     }
 }

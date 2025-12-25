@@ -7,7 +7,7 @@ use App\Http\Controllers\CronCrontroller;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
-use App\Models\Misc\TemporaryFile;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
 use App\User;
 use Carbon\Carbon;
@@ -94,15 +94,11 @@ class SiteMaintenance extends Model
         return $this->belongsTo('App\Models\Site\Planner\SitePlanner', 'planner_id');
     }*/
 
-    /**
-     * A Site Maintenance has many Docs.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\hasMany
-     */
-    public function docs()
+    public function attachments()
     {
-        return $this->hasMany('App\Models\Site\SiteMaintenanceDoc', 'main_id');
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'site_maintenance');
     }
+
 
     /**
      * A Site Maintenance has many Items.
@@ -114,14 +110,6 @@ class SiteMaintenance extends Model
         return $this->hasMany('App\Models\Site\SiteMaintenanceItem', 'main_id');
     }
 
-    /**
-     * A Site Maintenance Item.
-     *
-     */
-    /*public function item($order)
-    {
-        return SiteMaintenanceItem::where('main_id', $this->id)->where('order', $order)->first();
-    }*/
 
     /**
      * Determine if a all items are completed
@@ -262,45 +250,6 @@ class SiteMaintenance extends Model
     }
 
     /**
-     * Save attached Media to existing Issue
-     */
-    public function saveAttachment($tmp_filename)
-    {
-        $tempFile = TemporaryFile::where('folder', $tmp_filename)->first();
-        if ($tempFile) {
-            // Move temp file to support ticket directory
-            $dir = "filebank/site/" . $this->site_id . '/maintenance';
-            if (!is_dir(public_path($dir))) mkdir(public_path($dir), 0777, true);  // Create directory if required
-
-            $tempFilePublicPath = public_path($tempFile->folder) . "/" . $tempFile->filename;
-            if (file_exists($tempFilePublicPath)) {
-                $newFile = $this->site_id . '-' . $tempFile->filename;
-
-                // Ensure filename is unique by adding counter to similiar filenames
-                $count = 1;
-                while (file_exists(public_path("$dir/$newFile"))) {
-                    $ext = pathinfo($newFile, PATHINFO_EXTENSION);
-                    $filename = pathinfo($newFile, PATHINFO_FILENAME);
-                    $newFile = $filename . $count++ . ".$ext";
-                }
-                rename($tempFilePublicPath, public_path("$dir/$newFile"));
-
-                // Determine file extension and set type
-                $ext = pathinfo($tempFile->filename, PATHINFO_EXTENSION);
-                $orig_filename = pathinfo($tempFile->filename, PATHINFO_BASENAME);
-                $type = (in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'])) ? 'image' : 'file';
-                $new = SiteMaintenanceDoc::create(['main_id' => $this->id, 'type' => $type, 'name' => $orig_filename, 'attachment' => $newFile]);
-            }
-
-            // Delete Temporary file directory + record
-            $tempFile->delete();
-            $files = scandir($tempFile->folder);
-            if (count($files) == 0)
-                rmdir(public_path($tempFile->folder));
-        }
-    }
-
-    /**
      * Create ToDoo for Maintenance Report and assign to given user(s)
      */
     public function createAssignSupervisorToDo($user_list)
@@ -372,7 +321,7 @@ class SiteMaintenance extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = (validEmail($user->email)) ? $user->email : '';
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
@@ -389,7 +338,7 @@ class SiteMaintenance extends Model
         $email_to = [env('EMAIL_DEV')];
         $email_user = '';
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             $email_to = $this->site->supervisorEmail;
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }

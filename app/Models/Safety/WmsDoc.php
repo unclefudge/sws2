@@ -4,6 +4,7 @@ namespace App\Models\Safety;
 
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -181,9 +182,8 @@ class WmsDoc extends Model
      */
     public function emailStatement($email_list, $email_user = false)
     {
-        $email_list = explode(';', $email_list);
-        $email_list = array_map('trim', $email_list); // trim white spaces
-        $email_user = (\App::environment('dev', 'prod') && $email_user) ? Auth::user()->email : '';
+        $email_list = array_map('trim', explode(';', $email_list));
+        $email_user = (\App::environment('dev', 'prod') && $email_user) ? Auth::user()->email : null;
 
         $data = [
             'user_email' => Auth::user()->email,
@@ -193,31 +193,24 @@ class WmsDoc extends Model
             'doc_company' => Company::find($this->for_company_id)->name,
             'doc_principle' => $this->principle,
         ];
+
         $doc = $this;
+        if (empty(array_filter($email_list)))
+            return;
 
-        if ($email_list) {
-            Mail::send('emails/workmethod', $data, function ($m) use ($email_list, $email_user, $doc, $data) {
-                $user_email = $data['user_email'];
-                ($user_email) ? $send_from = $user_email : $send_from = 'do-not-reply@safeworksite.com.au';
+        Mail::send('emails/workmethod', $data, function ($m) use ($email_list, $email_user, $doc, $data) {
+            $sendFrom = validEmail($data['user_email']) ? $data['user_email'] : 'do-not-reply@safeworksite.com.au';
+            $m->from($sendFrom, Auth::user()->fullname);
+            $m->to($email_list);
 
-                $m->from($send_from, Auth::user()->fullname);
-                $m->to($email_list);
-                if (validEmail($email_user))
-                    $m->cc($email_user);
-                $m->subject('Safe Work Method Statement - ' . $doc->name);
-                $file_path = public_path('filebank/company/' . $doc->for_company_id . '/wms/' . $doc->attachment);
-                if ($doc->attachment && file_exists($file_path))
-                    $m->attach($file_path);
-            });
-        }
+            if (validEmail($email_user))
+                $m->cc($email_user);
 
-        /*
-        if (count(Mail::failures()) > 0) {
-            foreach (Mail::failures as $email_address)
-                Toastr::error("Failed to send to $email_address");
-        } else
-            Toastr::success("Sent email");
-        */
+            $m->subject('Safe Work Method Statement - ' . $doc->name);
+            // Attach PDF from FileBank (Spaces-safe)
+            if ($doc->attachment)
+                FileBank::attachToEmail($m, "company/{$doc->for_company_id}/wms/{$doc->attachment}");
+        });
     }
 
     /**
@@ -243,19 +236,22 @@ class WmsDoc extends Model
         ];
         $doc = $this;
 
-        if ($email_to) {
-            Mail::send('emails/workmethod-signoff', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
-                ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, Auth::user()->fullname);
-                $m->to($email_to);
-                if ($email_user)
-                    $m->cc($email_user);
-                $m->subject('Safe Work Method Statement - ' . $doc->name);
-                $file_path = public_path($doc->attachmentUrl);
-                if ($doc->attachment && file_exists($file_path))
-                    $m->attach($file_path);
-            });
-        }
+        if (!$email_to) return;
+
+        Mail::send('emails/workmethod-signoff', $data, function ($m) use ($email_to, $email_user, $doc) {
+            $send_from = $email_user ?: 'do-not-reply@safeworksite.com.au';
+
+            $m->from($send_from, Auth::user()->fullname);
+            $m->to($email_to);
+
+            if ($email_user)
+                $m->cc($email_user);
+
+            $m->subject('Safe Work Method Statement - ' . $doc->name);
+
+            if ($doc->attachment)
+                FileBank::attachToEmail($m, "company/{$doc->for_company_id}/wms/{$doc->attachment}");
+        });
     }
 
     /**
@@ -280,27 +276,19 @@ class WmsDoc extends Model
             'url' => URL::to('/safety/doc/wms') . '/' . $this->id,
         ];
         $doc = $this;
-        if ($email_to) {
-            Mail::send('emails/workmethod-archived', $data, function ($m) use ($email_to, $email_user, $doc, $data) {
-                ($email_user) ? $send_from = $email_user : $send_from = 'do-not-reply@safeworksite.com.au';
-                $m->from($send_from, Auth::user()->fullname);
-                $m->to($email_to);
-                if ($email_user)
-                    $m->cc($email_user);
-                $m->subject('Safe Work Method Statement - ' . $doc->name);
-                $file_path = public_path($doc->attachmentUrl);
-                if ($doc->attachment && file_exists($file_path))
-                    $m->attach($file_path);
-            });
-        }
+        if (!$email_to) return;
 
-        /*
-        if (count(Mail::failures()) > 0) {
-            foreach (Mail::failures as $email_address)
-                Toastr::error("Failed to send to $email_address");
-        } else
-            Toastr::success("Sent email");
-        */
+        Mail::send('emails/workmethod-archived', $data, function ($m) use ($email_to, $email_user, $doc) {
+            $send_from = $email_user ?: 'do-not-reply@safeworksite.com.au';
+            $m->from($send_from, Auth::user()->fullname);
+            $m->to($email_to);
+            if ($email_user)
+                $m->cc($email_user);
+            $m->subject('Safe Work Method Statement - ' . $doc->name);
+
+            if ($doc->attachment)
+                FileBank::attachToEmail($m, "company/{$doc->for_company_id}/wms/{$doc->attachment}");
+        });
     }
 
     /**
@@ -312,7 +300,7 @@ class WmsDoc extends Model
         $email_to = [env('EMAIL_ME')];
         $email_user = [env('EMAIL_ME')];
 
-        if (\App::environment('prod')) {
+        if (app()->environment('prod')) {
             if (!$email_to) {
                 $email_to = [];
                 $email_to[] = $company->seniorUsersEmail();
@@ -362,14 +350,13 @@ class WmsDoc extends Model
         return;
     }
 
-    /**
-     * Get the Attachment URL (setter)
-     */
-    public function getAttachmentUrlAttribute()
+
+    public function getAttachmentUrlAttribute(): string
     {
-        if ($this->attributes['attachment'])
-            return '/filebank/company/' . $this->attributes['for_company_id'] . "/wms/" . $this->attributes['attachment'];
-        return '';
+        if (!$this->attachment) return '';
+        $path = "company/$this->for_company_id/wms/$this->attachment";
+
+        return FileBank::exists($path) ? FileBank::url($path) : '';
     }
 
 
