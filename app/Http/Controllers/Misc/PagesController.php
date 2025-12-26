@@ -7,15 +7,12 @@ use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
 use App\Models\Misc\Attachment;
 use App\Models\Misc\Permission2;
-use App\Models\Site\Incident\SiteIncidentDoc;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteHazardFile;
-use App\Models\Site\SiteInspectionDoc;
 use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
@@ -152,7 +149,7 @@ class PagesController extends Controller
         $logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
 
 
-        echo "<h2>Site Hazards</h2><br>";
+        /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
             echo "$file->name<br>";
             $directory = "site/" . $file->hazard->site_id . '/hazard';
@@ -175,7 +172,7 @@ class PagesController extends Controller
                 $table = ($file->table == 'electrical') ? 'site_inspection_electrical' : 'site_inspection_plumbing';
                 $attach = Attachment::create(['table' => $table, 'table_id' => $file->inspection()->id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
             }
-        }
+        }*/
 
         echo "<h2>Site Maintenance</h2><br>";
         foreach (SiteMaintenanceDoc::all() as $file) {
