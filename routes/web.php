@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Site\Planner\SiteComplianceController;
+use App\Http\Controllers\Site\SiteMaintenanceController;
+use App\Http\Controllers\Site\SiteQaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -255,10 +259,10 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     // User Docs
-    Route::get('user/{uid}/doc/dt/docs', '\App\Http\Controllers\User\UserDocController@getDocs');
-    Route::get('user/{uid}/doc/upload', '\App\Http\Controllers\User\UserDocController@create');
-    Route::post('user/{uid}/doc/reject/{id}', '\App\Http\Controllers\User\UserDocController@reject');
-    Route::get('user/{uid}/doc/archive/{id}', '\App\Http\Controllers\User\UserDocController@archive');
+    //Route::get('user/{uid}/doc/dt/docs', '\App\Http\Controllers\User\UserDocController@getDocs');
+    //Route::get('user/{uid}/doc/upload', '\App\Http\Controllers\User\UserDocController@create');
+    //Route::post('user/{uid}/doc/reject/{id}', '\App\Http\Controllers\User\UserDocController@reject');
+    //Route::get('user/{uid}/doc/archive/{id}', '\App\Http\Controllers\User\UserDocController@archive');
     //Route::delete('user/{uid}/doc/{id}', '\App\Http\Controllers\User\UserDocController@destroy');
     //Route::get('user/{uid}/doc/cats/{department}', '\App\Http\Controllers\User\UserDocController@getCategories');
     //Route::resource('user/{uid}/doc', '\App\Http\Controllers\User\UserDocController');
@@ -278,7 +282,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('user/{id}/compliance/update', '\App\Http\Controllers\UserController@updateCompliance');
     Route::get('user/{id}/token/create', '\App\Http\Controllers\UserController@createApiToken');
     Route::get('contractor', '\App\Http\Controllers\UserController@contractorList');
-    Route::resource('user', '\App\Http\Controllers\UserController');
+    //Route::resource('user', '\App\Http\Controllers\UserController');
+    Route::as('user.')->resource('user', '\App\Http\Controllers\UserController');
+
 
     // Company Leave Routes
     Route::get('/company/leave/dt/leave', '\App\Http\Controllers\Company\CompanyLeaveController@getCompanyLeave');
@@ -312,11 +318,11 @@ Route::group(['middleware' => 'auth'], function () {
     //Route::resource('company/doc', '\App\Http\Controllers\Company\CompanyDocController');
 
     // Company Docs
-    Route::get('company/{cid}/doc/dt/docs', '\App\Http\Controllers\Company\CompanyDocController@getDocs');
-    Route::get('company/{cid}/doc/upload', '\App\Http\Controllers\Company\CompanyDocController@create');
-    Route::post('company/{cid}/doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
-    Route::get('company/{cid}/doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
-    Route::get('company/{cid}/doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
+    //Route::get('company/{cid}/doc/dt/docs', '\App\Http\Controllers\Company\CompanyDocController@getDocs');
+    //Route::get('company/{cid}/doc/upload', '\App\Http\Controllers\Company\CompanyDocController@create');
+    //Route::post('company/{cid}/doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
+    //Route::get('company/{cid}/doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
+    //Route::get('company/{cid}/doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
     //Route::resource('company/{cid}/doc', '\App\Http\Controllers\Company\CompanyDocController');
 
     // Company Routes
@@ -340,7 +346,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('company/{id}/demo2', '\App\Http\Controllers\Company\CompanyController@demo2');
     Route::get('company/{id}/demo3', '\App\Http\Controllers\Company\CompanyController@demo3');
     Route::get('company/{id}/demo4', '\App\Http\Controllers\Company\CompanyController@demo4');
-    Route::resource('company', '\App\Http\Controllers\Company\CompanyController');
+    //Route::resource('company', '\App\Http\Controllers\Company\CompanyController');
+    Route::as('company.')->resource('company', '\App\Http\Controllers\Company\CompanyController');
 
 
     // Client Planner Email
@@ -354,7 +361,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('client/dt/clients', '\App\Http\Controllers\Client\ClientController@getClients');
     Route::get('client/{slug}/settings', '\App\Http\Controllers\Client\ClientController@showSettings');
     Route::get('client/{slug}/settings/{tab}', '\App\Http\Controllers\Client\ClientController@showSettings');
-    Route::resource('client', '\App\Http\Controllers\Client\ClientController');
+    //Route::resource('client', '\App\Http\Controllers\Client\ClientController');
+    Route::as('client.')->resource('client', '\App\Http\Controllers\Client\ClientController');
+
 
     // File Manager
     Route::get('/manage/file', '\App\Http\Controllers\Misc\FileController@index');
@@ -461,15 +470,18 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     // Site Compliance
-    Route::resource('site/compliance', '\App\Http\Controllers\Site\Planner\SiteComplianceController');
+    //Route::resource('site/compliance', '\App\Http\Controllers\Site\Planner\SiteComplianceController');
+    Route::prefix('site')->as('site.')->group(function () {
+        Route::resource('compliance', SiteComplianceController::class);
+    });
 
     // Site Docs
-    Route::get('site/doc/type/{type}', '\App\Http\Controllers\Site\SiteDocController@listDocs');
+    //Route::get('site/doc/type/{type}', '\App\Http\Controllers\Site\SiteDocController@listDocs');
     Route::any('site/doc/plan/create', '\App\Http\Controllers\Site\SiteDocController@createPlan');
-    Route::get('site/doc/type/dt/{type}', '\App\Http\Controllers\Site\SiteDocController@getDocsType');
-    Route::get('site/doc/dt/docs', '\App\Http\Controllers\Site\SiteDocController@getDocs');
-    Route::any('site/doc/create', '\App\Http\Controllers\Site\SiteDocController@create');
-    Route::any('site/doc/upload', '\App\Http\Controllers\Site\SiteDocController@upload');
+    //Route::get('site/doc/type/dt/{type}', '\App\Http\Controllers\Site\SiteDocController@getDocsType');
+    //Route::get('site/doc/dt/docs', '\App\Http\Controllers\Site\SiteDocController@getDocs');
+    //Route::any('site/doc/create', '\App\Http\Controllers\Site\SiteDocController@create');
+    //Route::any('site/doc/upload', '\App\Http\Controllers\Site\SiteDocController@upload');
     //Route::resource('site/doc', '\App\Http\Controllers\Site\SiteDocController');
 
     // Site QA Categories
@@ -492,7 +504,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/qa/dt/qa_templates', '\App\Http\Controllers\Site\SiteQaController@getQaTemplates');
     //Route::get('site/qa/dt/qa_upcoming', '\App\Http\Controllers\Site\SiteQaController@getQaUpcoming');
     Route::get('site/qa/templates', '\App\Http\Controllers\Site\SiteQaController@templates');
-    Route::resource('site/qa', '\App\Http\Controllers\Site\SiteQaController');
+    //Route::resource('site/qa', '\App\Http\Controllers\Site\SiteQaController');
+    Route::prefix('site')->as('site.')->group(function () {
+        Route::resource('qa', SiteQaController::class);
+    });
 
     // Site Maintenance Categories
     Route::get('site/categories/maintenance/dt/main_cats', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController@getMainCategories');
@@ -510,7 +525,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/maintenance/data/prac_completion/{site_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@getPracCompletion');
     Route::get('site/maintenance/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteMaintenanceController@getSiteSupervisor');
     Route::any('site/maintenance/{id}/review', '\App\Http\Controllers\Site\SiteMaintenanceController@review');
-    Route::resource('site/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController');
+    //Route::resource('site/maintenance', '\App\Http\Controllers\Site\SiteMaintenanceController');
+    Route::prefix('site')->as('site.')->group(function () {
+        Route::resource('maintenance', SiteMaintenanceController::class);
+    });
 
     // Site Prac Completion
     Route::get('site/prac-completion/{id}/items', '\App\Http\Controllers\Site\SitePracCompletionController@getItems');
@@ -525,7 +543,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/prac-completion/data/prac_completion/{site_id}', '\App\Http\Controllers\Site\SitePracCompletionController@getPracCompletion');
     Route::get('site/prac-completion/data/site_super/{site_id}', '\App\Http\Controllers\Site\SitePracCompletionController@getSiteSupervisor');
     Route::any('site/prac-completion/{id}/review', '\App\Http\Controllers\Site\SitePracCompletionController@review');
-    Route::resource('site/prac-completion', '\App\Http\Controllers\Site\SitePracCompletionController');
+    //Route::resource('site/prac-completion', '\App\Http\Controllers\Site\SitePracCompletionController');
+    Route::prefix('site')->as('site.')->group(function () {
+        Route::resource('prac-completion', SitePracCompletionController::class);
+    });
 
     // Site FOC
     Route::get('site/foc/{id}/items', '\App\Http\Controllers\Site\SiteFocController@getItems');
@@ -544,7 +565,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/foc/data/foc/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getFoc');
     Route::get('site/foc/data/site_super/{site_id}', '\App\Http\Controllers\Site\SiteFocController@getSiteSupervisor');
     Route::any('site/foc/{id}/review', '\App\Http\Controllers\Site\SiteFocController@review');
-    Route::resource('site/foc', '\App\Http\Controllers\Site\SiteFocController');
+    //Route::resource('site/foc', '\App\Http\Controllers\Site\SiteFocController');
+    Route::prefix('site')->as('site.')->group(function () {
+        Route::resource('foc', SiteFocController::class);
+    });
 
 
     // Site Asbestos Register
@@ -553,13 +577,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/asbestos/register/delete/{id}', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@deleteItem');
     Route::get('site/asbestos/register/{id}/createpdf', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@createPDF');
     Route::get('site/asbestos/register/{id}/destroy', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@destroy');
-    Route::resource('site/asbestos/register', '\App\Http\Controllers\Site\SiteAsbestosRegisterController');
+    //Route::resource('site/asbestos/register', '\App\Http\Controllers\Site\SiteAsbestosRegisterController');
+    Route::prefix('site/asbestos')->as('site.asbestos.')->group(function () {
+        Route::resource('register', SiteAsbestosRegisterController::class);
+    });
 
     // Site Asbestos Notification
     Route::get('site/asbestos/notification/dt/list', '\App\Http\Controllers\Site\SiteAsbestosController@getReports');
     Route::get('site/asbestos/notification/{id}/status/{status}', '\App\Http\Controllers\Site\SiteAsbestosController@updateStatus');
     Route::any('site/asbestos/notification/{id}/extra', '\App\Http\Controllers\Site\SiteAsbestosController@updateExtra');
-    Route::resource('site/asbestos/notification', '\App\Http\Controllers\Site\SiteAsbestosController');
+    //Route::resource('site/asbestos/notification', '\App\Http\Controllers\Site\SiteAsbestosController');
+    Route::prefix('site/asbestos')->as('site.asbestos.')->group(function () {
+        Route::resource('notification', SiteAsbestosController::class);
+    });
 
     // Site Inspection Electrical Register
     Route::get('site/inspection/electrical/dt/list', '\App\Http\Controllers\Site\SiteInspectionElectricalController@getInspections');
@@ -569,7 +599,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/inspection/electrical/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionElectricalController@updateStatus');
     Route::get('site/inspection/electrical/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteInspectionElectricalController@deleteAttachment');
     Route::post('site/inspection/electrical/{id}/signoff', '\App\Http\Controllers\Site\SiteInspectionElectricalController@signoff');
-    Route::resource('site/inspection/electrical', '\App\Http\Controllers\Site\SiteInspectionElectricalController');
+    //Route::resource('site/inspection/electrical', '\App\Http\Controllers\Site\SiteInspectionElectricalController');
 
     // Site Inspection Plumbing Register
     Route::get('site/inspection/plumbing/dt/list', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@getInspections');
@@ -579,7 +609,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/inspection/plumbing/{id}/status/{status}', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@updateStatus');
     Route::get('site/inspection/plumbing/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@deleteAttachment');
     Route::post('site/inspection/plumbing/{id}/signoff', '\App\Http\Controllers\Site\SiteInspectionPlumbingController@signoff');
-    Route::resource('site/inspection/plumbing', '\App\Http\Controllers\Site\SiteInspectionPlumbingController');
+    //Route::resource('site/inspection/plumbing', '\App\Http\Controllers\Site\SiteInspectionPlumbingController');
+    Route::prefix('site/inspection')->as('site.inspection.')->group(function () {
+        Route::resource('electrical', SiteInspectionElectricalController::class);
+        Route::resource('plumbing', SiteInspectionPlumbingController::class);
+    });
 
     // Site Scaffold Handover
     Route::get('site/scaffold/handover/dt/list', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@getCertificates');
@@ -589,7 +623,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('site/scaffold/handover/{id}/docs', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@documents');
     Route::get('site/scaffold/handover/{id}/report', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@reportPDF');
     Route::post('site/scaffold/handover/{id}/report', '\App\Http\Controllers\Site\SiteScaffoldHandoverController@emailPDF');
-    Route::resource('site/scaffold/handover', '\App\Http\Controllers\Site\SiteScaffoldHandoverController');
+    //Route::resource('site/scaffold/handover', '\App\Http\Controllers\Site\SiteScaffoldHandoverController');
+    Route::prefix('site/scaffold')->as('site.scaffold.')->group(function () {
+        Route::resource('handover', SiteScaffoldHandoverController::class);
+    });
 
     // Report Actions
     Route::get('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportActionController@index');
@@ -597,12 +634,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::patch('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportActionController@update');
 
     Route::get('action/{table}/{table_id}', '\App\Http\Controllers\Misc\ActionController@index');
-    Route::resource('action', '\App\Http\Controllers\Misc\ActionController');
+    //Route::resource('action', '\App\Http\Controllers\Misc\ActionController');
+    Route::as('misc.')->resource('action', '\App\Http\Controllers\Misc\ActionController');
+
 
     // Categories
     Route::get('category/del/{id}', '\App\Http\Controllers\Misc\CategoryController@deleteCat');
     Route::get('category/order/{direction}/{id}', '\App\Http\Controllers\Misc\CategoryController@updateOrder');
-    Route::resource('category', '\App\Http\Controllers\Misc\CategoryController');
+    //Route::resource('category', '\App\Http\Controllers\Misc\CategoryController');
+    Route::as('misc.')->resource('category', CategoryController::class);
 
     // Site Supervisors
     Route::get('site/supervisor/data/supers', '\App\Http\Controllers\Company\CompanySupervisorController@getSupers');
@@ -671,7 +711,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('site/data/details/{id}', '\App\Http\Controllers\Site\SiteController@getSiteDetails');
     Route::get('site/data/super/{id}', '\App\Http\Controllers\Site\SiteController@getSiteSuper');
     //Route::get('site/data/owner/{id}', '\App\Http\Controllers\Site\SiteSyncController@getSiteOwner');
-    Route::resource('site', '\App\Http\Controllers\Site\SiteController');
+    //Route::resource('site', '\App\Http\Controllers\Site\SiteController');
+    Route::as('site.')->resource('site', '\App\Http\Controllers\Site\SiteController');
 
     // Trade + Task Routes
     Route::resource('trade', '\App\Http\Controllers\Site\Planner\TradeController');
@@ -765,7 +806,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('equipment/writeoff', '\App\Http\Controllers\Misc\EquipmentController@writeoff');
     Route::post('equipment/writeoff', '\App\Http\Controllers\Misc\EquipmentController@writeoffItems');
     Route::get('equipment/{id}/delete', '\App\Http\Controllers\Misc\EquipmentController@destroy');
-    Route::resource('equipment', '\App\Http\Controllers\Misc\EquipmentController');
+    //Route::resource('equipment', '\App\Http\Controllers\Misc\EquipmentController');
+    Route::as('equipment.')->resource('equipment', EquipmentController::class);
 
     // Stocktake
     Route::get('equipment/stocktake/dt/stocktake', '\App\Http\Controllers\Misc\EquipmentStocktakeController@getStocktake');
@@ -777,7 +819,8 @@ Route::group(['middleware' => 'auth'], function () {
     // Configuration
     Route::get('settings', '\App\Http\Controllers\Misc\PagesController@settings');
     Route::get('settings/notifications/{id}/status/{status}', '\App\Http\Controllers\Misc\SettingsNotificationController@updateStatus');
-    Route::resource('settings/notifications', '\App\Http\Controllers\Misc\SettingsNotificationController');
+    //Route::resource('settings/notifications', '\App\Http\Controllers\Misc\SettingsNotificationController');
+    Route::as('settings.')->resource('settings/notifications', SettingsNotificationController::class);
 
     // Roles / Permission
     Route::get('settings/role/permissions', '\App\Http\Controllers\Misc\RoleController@getPermissions');
@@ -787,11 +830,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('settings/role/child-default/{id}', '\App\Http\Controllers\Misc\RoleController@childDefault');
     Route::get('settings/role/parent', '\App\Http\Controllers\Misc\RoleController@parent');
     Route::get('settings/role/child', '\App\Http\Controllers\Misc\RoleController@child');
-    Route::resource('settings/role', '\App\Http\Controllers\Misc\RoleController');
+    //Route::resource('settings/role', '\App\Http\Controllers\Misc\RoleController');
+    Route::as('settings.')->resource('settings/role', RoleController::class);
 
     // Public Holidays
     Route::get('planner/publicholidays/dt/dates', '\App\Http\Controllers\Site\Planner\PublicHolidayController@getDates');
-    Route::resource('planner/publicholidays', '\App\Http\Controllers\Site\Planner\PublicHolidayController');
+    //Route::resource('planner/publicholidays', '\App\Http\Controllers\Site\Planner\PublicHolidayController');
+    Route::as('planner.')->resource('planner/publicholidays', '\App\Http\Controllers\Site\Planner\PublicHolidayController');
+
 
     // Planners
     Route::any('planner/weekly', '\App\Http\Controllers\Site\Planner\SitePlannerController@showWeekly');
@@ -830,7 +876,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('planner/data/trade/email-jobstart', '\App\Http\Controllers\Site\Planner\SitePlannerController@emailJobstart');
     Route::any('planner/data/upcoming', '\App\Http\Controllers\Site\Planner\SitePlannerController@getUpcoming');
     Route::any('planner/data/publicholidays', '\App\Http\Controllers\Site\Planner\SitePlannerController@getPublicholidays');
-    Route::resource('planner', '\App\Http\Controllers\Site\Planner\SitePlannerController');
+    //Route::resource('planner', '\App\Http\Controllers\Site\Planner\SitePlannerController');
+    Route::as('planner.')->resource('planner', SitePlannerController::class);
 
     // Support Tickets
     Route::get('support/ticket/dt/tickets', '\App\Http\Controllers\Support\SupportTicketController@getTickets');
@@ -843,7 +890,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('support/ticket/{id}/hours/{hours}', '\App\Http\Controllers\Support\SupportTicketController@updateHours');
     Route::get('support/ticket/{id}/priority/{priority}', '\App\Http\Controllers\Support\SupportTicketController@updatePriority');
     Route::get('support/ticket/{id}/assigned/{assigned}', '\App\Http\Controllers\Support\SupportTicketController@updateAssigned');
-    Route::resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
+    //Route::resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
+    Route::as('support.')->resource('support/ticket', '\App\Http\Controllers\Support\SupportTicketController');
+
 
     // Support Hours
     Route::get('support/hours/update', '\App\Http\Controllers\Support\SupportHourController@updateHours');
