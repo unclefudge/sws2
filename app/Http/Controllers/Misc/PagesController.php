@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Models\Client\ClientPlannerEmail;
-use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
-use App\Models\Misc\Attachment;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -14,15 +11,10 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteMaintenance;
-use App\Models\Site\SiteMaintenanceDoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteScaffoldHandoverDoc;
 use App\Models\Support\SupportTicket;
-use App\Models\Support\SupportTicketAction;
-use App\Models\Support\SupportTicketActionFile;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -175,7 +167,7 @@ class PagesController extends Controller
                 $table = ($file->table == 'electrical') ? 'site_inspection_electrical' : 'site_inspection_plumbing';
                 $attach = Attachment::create(['table' => $table, 'table_id' => $file->inspection()->id, 'type' => $file->type, 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
             }
-        }*/
+        }
 
         echo "<h2>Site Maintenance</h2><br>";
         foreach (SiteMaintenanceDoc::all() as $file) {
@@ -222,7 +214,7 @@ class PagesController extends Controller
             }
             $attachment->directory = str_replace("<br>", "", $attachment->directory);
             $attachment->save();
-        }
+        }*/
 
         /*
         echo "Update Site Eworks + Pworks<br>";

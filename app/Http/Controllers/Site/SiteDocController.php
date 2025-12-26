@@ -253,7 +253,7 @@ class SiteDocController extends Controller
             $doc->save();
 
             // Dial Before Dig
-            if (stripos(strtolower($doc->name)), 'dial before you dig') !== false) {
+            if (stripos(strtolower($doc->name), 'dial before you dig') !== false) {
                 $doc->closeToDoTask('dial_before_dig');
             }
         }
