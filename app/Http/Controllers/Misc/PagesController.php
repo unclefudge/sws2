@@ -145,7 +145,6 @@ class PagesController extends Controller
         $logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
 
 
-        /*
         echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
             echo "$file->name<br>";
@@ -205,7 +204,7 @@ class PagesController extends Controller
             $client = ClientPlannerEmail::find($file->email_id);
             $directory = "site/{$client->site_id}/emails/client";
             $attach = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $file->email_id, 'type' => 'file', 'name' => $file->name, 'attachment' => $file->attachment, 'directory' => $directory, 'status' => 1]);
-        }*/
+        }
 
         echo "<h2>Update Attachments to not include filebank</h2>";
         foreach (Attachment::all() as $attachment) {
