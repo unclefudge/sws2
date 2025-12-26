@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+// Cron routes
+Route::get('cron/nightly', '\App\Http\Controllers\Misc\CronController@nightly');
+Route::get('cron/nightly-verify', '\App\Http\Controllers\Misc\CronController@verifyNightly');
+Route::get('cron/nightly-report', '\App\Http\Controllers\Misc\CronReportController@nightly');
+Route::get('cron/hourly', '\App\Http\Controllers\Misc\CronTaskController@hourly');
+Route::get('cron/blessing', '\App\Http\Controllers\Misc\CronController@blessing');
+Route::get('cron/roster', '\App\Http\Controllers\Misc\CronController@roster');
+Route::get('cron/qa', '\App\Http\Controllers\Misc\CronController@qa');
+Route::get('cron/overdue-todo', '\App\Http\Controllers\Misc\CronController@overdueToDo');
+Route::get('cron/expired-companydoc', '\App\Http\Controllers\Misc\CronController@expiredCompanyDoc');
+Route::get('cron/expired-standarddoc', '\App\Http\Controllers\Misc\CronController@expiredStandardDetailsDoc');
+Route::get('cron/expired-swms', '\App\Http\Controllers\Misc\CronController@expiredSWMS');
+Route::get('cron/archive-toolbox', '\App\Http\Controllers\Misc\CronController@archiveToolbox');
+Route::get('cron/email-jobstart', '\App\Http\Controllers\Misc\CronReportController@emailJobstart');
+Route::get('cron/email-upcomingjob', '\App\Http\Controllers\Misc\CronReportController@emailUpcomingJobCompilance');
+Route::get('cron/email-fortnight', '\App\Http\Controllers\Misc\CronReportController@emailFortnightlyReports');
+Route::get('cron/email-supervisor-attendance', '\App\Http\Controllers\Misc\CronReportController@emailSupervisorAttendance');
+Route::get('cron/email-trades-attendance', '\App\Http\Controllers\Misc\CronReportController@emailTradesAttendance');
+Route::get('cron/email-scaffold', '\App\Http\Controllers\Misc\CronReportController@emailScaffoldOverdue');
+Route::get('cron/email-equipment-transfers', '\App\Http\Controllers\Misc\CronReportController@emailEquipmentTransfers');
+Route::get('cron/email-equipment-restock', '\App\Http\Controllers\Misc\CronReportController@emailEquipmentRestock');
+Route::get('cron/email-outstanding-qa', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingOnHoldQA');
+Route::get('cron/email-onhold-qa', '\App\Http\Controllers\Misc\CronReportController@emailOnHoldQA');
+Route::get('cron/email-electrical-plumbing', '\App\Http\Controllers\Misc\CronReportController@emailActiveElectricalPlumbing');
+Route::get('cron/email-electrical-plumbing-pending', '\App\Http\Controllers\Misc\CronReportController@emailPendingElectricalPlumbing');
+Route::get('cron/email-maintenance-executive', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceExecutive');
+Route::get('cron/email-maintenance-aftercare', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingAftercare');
+Route::get('cron/email-maintenance-appointment', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceAppointment');
+Route::get('cron/email-maintenance-under-review', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceUnderReview');
+Route::get('cron/email-maintenance-supervisor-noaction', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceSupervisorNoAction');
+Route::get('cron/email-maintenance-onhold', '\App\Http\Controllers\Misc\CronReportController@emailMaintenanceOnHold');
+Route::get('cron/email-prac-completion-supervisor-noaction', '\App\Http\Controllers\Misc\CronReportController@emailPracCompletionSupervisorNoAction');
+Route::get('cron/email-outstanding-privacy', '\App\Http\Controllers\Misc\CronReportController@emailOutstandingPrivacy');
+Route::get('cron/email-oldusers', '\App\Http\Controllers\Misc\CronReportController@emailOldUsers');
+Route::get('cron/email-missing-company-info', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfo');
+Route::get('cron/email-missing-company-info-planner', '\App\Http\Controllers\Misc\CronReportController@emailMissingCompanyInfoPlanner');
+Route::get('cron/email-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@emailPlannerKeyTasks');
+Route::get('cron/email-asbestos', '\App\Http\Controllers\Misc\CronReportController@emailActiveAsbestos');
+Route::get('cron/email-supervisor-siteexport', '\App\Http\Controllers\Misc\CronReportController@emailSupervisorSiteExport');
+Route::get('cron/email-upcoming-jobs', '\App\Http\Controllers\Misc\CronTaskController@emailUpcomingJobs');
+Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@actionPlannerKeyTasks');
+Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@siteExtensions');
+Route::get('cron/site-extensions-supervisor-task', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTask');
+Route::get('cron/site-extensions-supervisor-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskReminder');
+Route::get('cron/site-extensions-supervisor-final-reminder', '\App\Http\Controllers\Misc\CronController@siteExtensionsSupervisorTaskFinalReminder');
+Route::get('cron/upload-companydocs', '\App\Http\Controllers\Misc\CronController@uploadCompanyDocReminder');
+Route::get('cron/asbestos-notifications', '\App\Http\Controllers\Misc\CronController@createAsbestosNotification');
+Route::get('cron/super-checklists', '\App\Http\Controllers\Misc\CronController@superChecklists');
+Route::get('cron/rogue-todo', '\App\Http\Controllers\Misc\CronController@rogueToDo');
