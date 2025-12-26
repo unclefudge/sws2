@@ -511,7 +511,13 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Site Maintenance Categories
     Route::get('site/categories/maintenance/dt/main_cats', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController@getMainCategories');
-    Route::resource('site/maintenance/category', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController');
+    //Route::resource('site/maintenance/category', '\App\Http\Controllers\Site\SiteMaintenanceCategoryController');
+    Route::prefix('site/maintenance')->as('site.maintenance.')->group(function () {
+        Route::resource(
+            'category',
+            '\App\Http\Controllers\Site\SiteMaintenanceCategoryController'
+        );
+    });
 
     // Site Maintenance
     Route::get('site/maintenance/{id}/items', '\App\Http\Controllers\Site\SiteMaintenanceController@getItems');
