@@ -301,7 +301,7 @@ class SitePlannerExportController extends Controller
             }
 
             // Create PDF
-            $output_file = storage_path("app/tmp/report/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path("app/tmp/report/" . Auth::user()->company_id . "/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
             SitePlannerPdf::dispatch($view, $data, $output_file);
 
@@ -516,7 +516,7 @@ class SitePlannerExportController extends Controller
 
 
             //dd($data);
-            $output_file = storage_path("app/tmp/report/Company Site Plan ($company_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path("app/tmp/report/" . Auth::user()->company_id . "/Company Site Plan ($company_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
             SitePlannerCompanyPdf::dispatch($data, $output_file);
 
@@ -579,7 +579,7 @@ class SitePlannerExportController extends Controller
             $data[] = $obj_site;
             //dd($sitedata);
 
-            $output_file = storage_path('app/tmp/report/Site Attendance ' . sanitizeFilename($site->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . '/Site Attendance ' . sanitizeFilename($site->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/site-attendance', compact('site', 'data', 'company', 'from', 'to'));
@@ -603,7 +603,7 @@ class SitePlannerExportController extends Controller
 
             }
 
-            $output_file = storage_path('app/tmp/report/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . 'Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/company-attendance', compact('data', 'company', 'from', 'to'));
