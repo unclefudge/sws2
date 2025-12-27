@@ -53,7 +53,7 @@ class ReportController extends Controller
 
     public function recentFiles()
     {
-        $dir = storage_path('app/tmp/' . Auth::user()->company_id . '/report');
+        $dir = storage_path('app/tmp/report/' . Auth::user()->company_id);
 
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
