@@ -165,6 +165,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('test/blankptc/{cid}', 'CompanyPeriodTradeController@blankPtcPDF');
 
     Route::get('test/asbestosreg', '\App\Http\Controllers\Misc\PagesController@asbestosRegister');
+
+    Route::get('/logs/nightly/{file}', function ($file) {
+        $path = storage_path("app/log/nightly/{$file}");
+        abort_unless(file_exists($path), 404);
+        return response()->file($path);
+    });
 });
 
 

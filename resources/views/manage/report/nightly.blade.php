@@ -47,7 +47,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td><a href="{{ storage_path("app/log/nightly/$file") }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
+                                    <td><a href="{{ url('/logs/nightly/'.$file) }} }}" target="_blank">{!! substr($file, 6, 2) !!}/{!! substr($file, 4, 2) !!}/{!! substr($file, 2, 2) !!}</a></td>
                                 </tr>
                             @endforeach
                             </tbody>
