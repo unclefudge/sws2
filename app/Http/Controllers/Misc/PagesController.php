@@ -15,10 +15,12 @@ use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
+use App\Services\FileBank;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Mail;
 use Session;
 
