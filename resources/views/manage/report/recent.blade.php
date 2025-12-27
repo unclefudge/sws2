@@ -32,20 +32,23 @@
                                 <th width="20%"> Date</th>
                             </tr>
                             </thead>
-
-                            <tbody v-if="xx.reports">
-                            <tr v-for="(report, size) in xx.reports ">
-                                <td>
-                                    <div class="text-center"><a href="{{ storage_path("app/tmp/" . Auth::user()->company_id . "/report") }}/@{{ report }}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
+                            
+                            <tbody v-if="Object.keys(xx.reports).length">
+                            <tr v-for="(size, report) in xx.reports">
+                                <td class="text-center">
+                                    <a href="{{ url('/reports/tmp/'.Auth::user()->company_id.'/') }}/@{{ report }}" target="_blank">
+                                        <i class="fa fa-file-text-o"></i>
+                                    </a>
                                 </td>
                                 <td>@{{ report }}</td>
                                 <td>
                                     <span v-if="size">@{{ date(report) }}</span>
-                                    <span v-else="size"><span class="font-red"><i class="fa fa-spin fa-spinner"> </i> Processing</span></span>
+                                    <span v-else>
+                                        <span class="font-red"><i class="fa fa-spin fa-spinner"></i> Processing</span></span>
                                 </td>
                             </tr>
                             </tbody>
-                            <tr v-if="!xx.reports">
+                            <tr v-else>
                                 <td colspan="3"><br>No reports<br><br></td>
                             </tr>
                         </table>
