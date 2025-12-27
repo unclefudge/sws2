@@ -28,19 +28,19 @@ class BackupMover
             }
 
             try {
-                $stream = Storage::disk($this->sourceDisk)->readStream($file);
+                $stream = Storage::disk($sourceDisk)->readStream($file);
 
                 if ($stream === false) {
                     throw new \RuntimeException('Failed to read file stream');
                 }
 
-                $uploaded = Storage::disk($this->targetDisk)->put(
+                $uploaded = Storage::disk($targetDisk)->put(
                     $filename,
                     $stream
                 );
 
                 if ($uploaded) {
-                    Storage::disk($this->sourceDisk)->delete($file);
+                    Storage::disk($sourceDisk)->delete($file);
                     $moved++;
 
                     Log::info('Backup moved to Spaces', [
