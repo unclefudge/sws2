@@ -144,6 +144,7 @@ class PagesController extends Controller
 
         $files = Storage::disk('filebank_local')->allFiles('');
         $result = FileBank::migrateMany($files, true);
+        dd($result);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
