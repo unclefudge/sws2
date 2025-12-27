@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+class BackupMover
+{
+    protected string $sourceDisk = 'local';
+    protected string $targetDisk = 'backup_spaces';
+    protected string $sourceDir = 'SafeWorksite';
+
+    public function move(): int
+    {
+        $files = Storage::disk($this->sourceDisk)->files($this->sourceDir);
+        $moved = 0;
+
+        foreach ($files as $file) {
+
+            $filename = basename($file);
+
+            // Optional safety: skip temp / partial files
+            if (str_ends_with($filename, '.tmp')) {
+                continue;
+            }
+
+            try {
+                $stream = Storage::disk($this->sourceDisk)->readStream($file);
+
+                if ($stream === false) {
+                    throw new \RuntimeException('Failed to read file stream');
+                }
+
+                $uploaded = Storage::disk($this->targetDisk)->put(
+                    $filename,
+                    $stream
+                );
+
+                if ($uploaded) {
+                    Storage::disk($this->sourceDisk)->delete($file);
+                    $moved++;
+
+                    Log::info('Backup moved to Spaces', [
+                        'file' => $filename,
+                    ]);
+                }
+
+            } catch (\Throwable $e) {
+                Log::error('Backup upload failed', [
+                    'file' => $filename,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $moved;
+    }
+}
