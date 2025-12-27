@@ -15,7 +15,7 @@ class BackupMover
         $targetDisk = 'backup_spaces';
         $sourceDir = 'SafeWorksite';
 
-        $files = Storage::disk($this->sourceDisk)->files($this->sourceDir);
+        $files = Storage::disk($sourceDisk)->files($sourceDir);
         $moved = 0;
 
         foreach ($files as $file) {
