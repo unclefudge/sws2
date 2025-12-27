@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\Storage;
 
 class BackupMover
 {
-    protected string $sourceDisk = 'local';
-    protected string $targetDisk = 'backup_spaces';
-    protected string $sourceDir = 'SafeWorksite';
 
-    public function move(): int
+
+    public static function move(): int
     {
+        $sourceDisk = 'local';
+        $targetDisk = 'backup_spaces';
+        $sourceDir = 'SafeWorksite';
+
         $files = Storage::disk($this->sourceDisk)->files($this->sourceDir);
         $moved = 0;
 
