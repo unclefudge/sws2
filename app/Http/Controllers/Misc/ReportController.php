@@ -53,33 +53,54 @@ class ReportController extends Controller
 
     public function recentFiles()
     {
-        // Storage dir
         $dir = storage_path('app/tmp/' . Auth::user()->company_id . '/report');
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
 
         $files = scandir_datesort($dir);
 
-        //dd($files);
+        // 🔑 CRITICAL GUARD
+        if (!is_array($files)) {
+            return [];
+        }
+
         $reports = [];
+
         foreach ($files as $file) {
+            if ($file[0] === '.') {
+                continue;
+            }
+
             $path = "$dir/$file";
-            if (($file[0] != '.')) {
-                $processed = false;
-                if (filesize($path) > 0)
-                    $processed = true;
 
-                $deleted = false;
-                $date_string = substr($file, -18, 4) . substr($file, -14, 2) . substr($file, -12, 2) . substr($file, -10, 2) . substr($file, -8, 2) . substr($file, -6, 2);
-                if (is_numeric($date_string) && strlen($date_string) == 14) {
-                    $date = Carbon::createFromFormat('YmdHis', $date_string);
-                    if ($date->lt(Carbon::today()->subDays(10))) {
-                        @unlink($path);
-                        $deleted = true;
-                    }
+            if (!is_file($path)) {
+                continue;
+            }
+
+            $deleted = false;
+
+            // Extract timestamp from filename
+            $date_string =
+                substr($file, -18, 4) .
+                substr($file, -14, 2) .
+                substr($file, -12, 2) .
+                substr($file, -10, 2) .
+                substr($file, -8, 2) .
+                substr($file, -6, 2);
+
+            if (ctype_digit($date_string) && strlen($date_string) === 14) {
+                $date = Carbon::createFromFormat('YmdHis', $date_string);
+
+                if ($date->lt(Carbon::today()->subDays(10))) {
+                    @unlink($path);
+                    $deleted = true;
                 }
+            }
 
-                if (!$deleted)
-                    $reports[$file] = filesize($path);
+            if (!$deleted) {
+                $reports[$file] = filesize($path);
             }
         }
 
