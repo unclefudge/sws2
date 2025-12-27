@@ -18,7 +18,14 @@ return [
                  * The list of directories and files that will be included in the backup.
                  */
                 'include' => [
-                    base_path(),
+                    base_path('app'),
+                    base_path('bootstrap'),
+                    base_path('config'),
+                    base_path('database'),
+                    base_path('routes'),
+                    base_path('resources'),
+                    base_path('composer.json'),
+                    base_path('composer.lock'),
                 ],
 
                 /*

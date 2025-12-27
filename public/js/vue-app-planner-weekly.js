@@ -250,7 +250,7 @@ Vue.component('app-dayplan', {
         },
         pastDate: function (date) {
             // determine if given date is before today
-            if (moment(date).isBefore(moment(), 'day') || this.xx.permission == 'view')
+            if (moment(date).isBefore(moment(), 'day')) this.xx.permission == 'view')
                 return true;
             return false;
         },
@@ -316,7 +316,7 @@ var myApp = new Vue({
             caldate = moment(date).add(days, 'days').format('YYYY-MM-DD');
             if (this.xx.holidays.hasOwnProperty(caldate))
                 return this.xx.holidays[caldate];
-            
+
             return '';
         },
         getSites: function () {
@@ -328,7 +328,7 @@ var myApp = new Vue({
             this.xx.mon_this = moment().day(1).format('YYYY-MM-DD');
 
             setTimeout(function () {
-                this.xx.load_plan = true;
+                //this.xx.load_plan = true;
                 $.getJSON('/planner/data/weekly/' + this.xx.mon_now + '/' + this.xx.params.supervisor_id, function (data) {
                     this.xx.plan = data[0];
                     this.xx.non_rostered = data[1];
@@ -364,3 +364,8 @@ var myApp = new Vue({
         },
     },
 });
+
+setTimeout(() => {
+    xx.load_plan = false;
+    document.body.style.opacity = '1';
+}, 4000);
