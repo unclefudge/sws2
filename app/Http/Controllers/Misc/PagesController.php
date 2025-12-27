@@ -15,7 +15,6 @@ use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
-use App\Services\BackupMover;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -141,7 +140,8 @@ class PagesController extends Controller
 
         echo "<h1>Migrate backups</h1><br>";
 
-        BackupMover::move();
+        $files = Storage::disk('filebank_local')->allFiles('');
+        $result = FileBank::migrateMany($files, true);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
