@@ -95,7 +95,7 @@ return [
             'region' => env('DO_SPACES_REGION', 'syd1'),
             'bucket' => env('DO_SPACES_BUCKET'),
             'endpoint' => env('DO_SPACES_ENDPOINT'),
-            'root' => 'backups', // 👈 all backups live under /backups
+            'root' => 'backups',
             'visibility' => 'private',
         ],
 

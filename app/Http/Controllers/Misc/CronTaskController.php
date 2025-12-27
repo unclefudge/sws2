@@ -16,8 +16,6 @@ use PDF;
 
 class CronTaskController extends Controller
 {
-    public $logFile;
-
     static public function hourly()
     {
         echo "<h1> Hourly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
@@ -25,12 +23,11 @@ class CronTaskController extends Controller
         // -------------------------------------------------
         // Log file
         // -------------------------------------------------
-        $logDir = storage_path('app/log');
-        $this->logFile = $logDir . '/hourly.txt';
+        $logFile = storage_path('app/log/hourly.txt');
         if (!is_dir($logDir)) mkdir($logDir, 0755, true);
 
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks ===\n";
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
 
         // Time helpers
         $hour = Carbon::now()->format('G'); // 24hr
@@ -54,7 +51,7 @@ class CronTaskController extends Controller
             // 2pm
             if ($hour == '14') {
                 $log = "=== Hourly Tasks @ 2pm " . Carbon::now()->format('d/m/Y G:i') . " ===\n";
-                //file_put_contents($this->logFile, $log, FILE_APPEND);
+                //file_put_contents($logFile, $log, FILE_APPEND);
                 CronTaskController::superChecklistsReminder();
             }
         }
@@ -66,8 +63,9 @@ class CronTaskController extends Controller
     */
     static public function superChecklistsReminder()
     {
+        $logFile = storage_path('app/log/hourly.txt');
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Super Checklit Reminder ===\n";
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
 
         $todos = Todo::where('type', 'super checklist')->where('status', '1')->get();
         foreach ($todos as $todo) {
@@ -79,7 +77,7 @@ class CronTaskController extends Controller
             }
         }
 
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -87,8 +85,9 @@ class CronTaskController extends Controller
     */
     static public function emailUpcomingJobs()
     {
+        $logFile = storage_path('app/log/hourly.txt');
         $log = "=== " . Carbon::now()->format('d/m/Y G:i') . " Hourly Tasks - Upcoming Jobs ===\n";
-        //file_put_contents($this->logFile, $log, FILE_APPEND);
+        //file_put_contents($logFile, $log, FILE_APPEND);
         echo "<h2>Upcoming Jobs</h2>";
 
         $types = ['opt', 'cfest', 'cfadm'];

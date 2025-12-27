@@ -37,21 +37,19 @@ use Mail;
 
 class CronController extends Controller
 {
-    public $logFile;
-
     static public function nightly()
     {
         // -------------------------------------------------
         // Log file
         // -------------------------------------------------
         $logDir = storage_path('app/log/nightly');
-        $this->logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
+        $logFile = "$logDir/" . Carbon::now()->format('Ymd') . '.txt';
 
         if (!is_dir($logDir)) mkdir($logDir, 0755, true);
 
         echo "<h1> Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "</h1>";
         $log = "Nightly Update - " . Carbon::now()->format('d/m/Y g:i a') . "\n-------------------------------------------------------------------------\n\n";
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
 
 
         // -------------------------------------------------
@@ -112,7 +110,7 @@ class CronController extends Controller
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -133,7 +131,8 @@ class CronController extends Controller
             $log .= "$user->name (" . $user->company->name . ")\n";
         }
         $log .= "\n\nAmen.";
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function supporthours()
@@ -201,7 +200,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -275,7 +275,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -457,7 +458,8 @@ class CronController extends Controller
 
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -488,7 +490,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -540,7 +543,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -591,7 +595,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function rogueToDo()
@@ -634,7 +639,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
 
         /*
             'incident' => "Incident Report",
@@ -784,7 +790,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -843,7 +850,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -915,7 +923,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -964,7 +973,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1002,7 +1012,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1087,7 +1098,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
@@ -1191,7 +1203,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -1338,7 +1351,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1407,7 +1421,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1508,7 +1523,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1527,11 +1543,11 @@ class CronController extends Controller
 
         $yesterday = Carbon::now()->subDays(1)->format('Ymd');
         $successful = '';
-        $logfile = storage_path("app/log/zoho/$yesterday.txt");
+        $logFile = storage_path("app/log/zoho/$yesterday.txt");
 
-        if (file_exists($logfile)) {
-            $jobs_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
-            $contacts_complete = strpos(file_get_contents($logfile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
+        if (file_exists($logFile)) {
+            $jobs_complete = strpos(file_get_contents($logFile), "ALL DONE - ZOHO IMPORT JOBS COMPLETE");
+            $contacts_complete = strpos(file_get_contents($logFile), "ALL DONE - ZOHO IMPORT CONTACTS COMPLETE");
 
             if ($jobs_complete && $contacts_complete) {
                 $log .= "Import successful\n";
@@ -1548,7 +1564,7 @@ class CronController extends Controller
                 Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
             }
         } else {
-            $reason = "couldn't find logfile: $logfile";
+            $reason = "couldn't find logFile: $logFile";
             $log .= $reason;
             Mail::to(['support@openhands.com.au'])->send(new \App\Mail\Misc\ZohoImportFailed($reason));
         }
@@ -1558,7 +1574,7 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1636,7 +1652,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1729,7 +1746,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskReminder()
@@ -1780,7 +1798,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskFinalReminder()
@@ -1828,7 +1847,8 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1838,7 +1858,8 @@ class CronController extends Controller
     static public function verifyNightly()
     {
         //echo "Log: $log<br>";
-        if (strpos(file_get_contents($this->logFile), "ALL DONE - NIGHTLY COMPLETE") !== false) {
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        if (strpos(file_get_contents($logFile), "ALL DONE - NIGHTLY COMPLETE") !== false) {
             //echo "successful";
             //Mail::to('support@openhands.com.au')->send(new \App\Mail\Misc\VerifyNightly("was Successful"));
         } else {
