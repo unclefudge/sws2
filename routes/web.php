@@ -175,7 +175,7 @@ Route::group(['middleware' => 'auth'], function () {
         // Prevent path traversal
         abort_if(str_contains($file, '..'), 403);
 
-        $path = storage_path("app/tmp/{$company}/report/{$file}");
+        $path = storage_path("app/tmp/report/{$company}/{$file}");
         abort_unless(file_exists($path), 404);
         return response()->download($path);
     });
