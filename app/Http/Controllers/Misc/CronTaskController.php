@@ -23,6 +23,7 @@ class CronTaskController extends Controller
         // -------------------------------------------------
         // Log file
         // -------------------------------------------------
+        $logDir = storage_path('app/log');
         $logFile = storage_path('app/log/hourly.txt');
         if (!is_dir($logDir)) mkdir($logDir, 0755, true);
 
