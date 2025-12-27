@@ -25,7 +25,7 @@ class SupportTicketAction extends Model
 
     public function attachments()
     {
-        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'support_ticket_actions');
+        return $this->hasMany(Attachment::class, 'table_id')->where('table', 'support_tickets_actions');
     }
 
     /**
