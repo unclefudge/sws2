@@ -603,7 +603,7 @@ class SitePlannerExportController extends Controller
 
             }
 
-            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . 'Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
+            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . '/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
             touch($output_file);
 
             //return view('pdf/company-attendance', compact('data', 'company', 'from', 'to'));
