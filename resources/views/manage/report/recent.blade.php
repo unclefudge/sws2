@@ -36,7 +36,7 @@
                             <tbody v-if="xx.reports">
                             <tr v-for="(report, size) in xx.reports ">
                                 <td>
-                                    <div class="text-center"><a href="{{ url('/reports/tmp/'.Auth::user()->company_id.'/') }}/@{{ report }}"><i class="fa fa-file-text-o"></i></a></div>
+                                    <div class="text-center"><a href="{{ url('/reports/tmp/'.Auth::user()->company_id.'/') }}/@{{ report }}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
                                 </td>
                                 <td>@{{ report }}</td>
                                 <td>
