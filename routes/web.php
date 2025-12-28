@@ -172,6 +172,15 @@ Route::group(['middleware' => 'auth'], function () {
         return response()->file($path);
     });
     Route::get('/reports/tmp/{company}/{file}', function ($company, $file) {
+        abort_if(str_contains($file, '..'), 403);
+        abort_unless(strtolower(pathinfo($file, PATHINFO_EXTENSION)) === 'pdf', 403);
+
+        $path = storage_path("app/tmp/report/{$company}/{$file}");
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path);
+    });
+    /*Route::get('/reports/tmp/{company}/{file}', function ($company, $file) {
         // Prevent path traversal
         abort_if(str_contains($file, '..'), 403);
 
@@ -187,7 +196,7 @@ Route::group(['middleware' => 'auth'], function () {
             'Content-Disposition' => 'inline; filename="' . $file . '"',
         ]);
         //return response()->download($path);
-    });
+    });*/
 });
 
 
