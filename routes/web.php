@@ -178,7 +178,7 @@ Route::group(['middleware' => 'auth'], function () {
         $path = storage_path("app/tmp/report/{$company}/{$file}");
         abort_unless(is_file($path), 404);
 
-        return response()->file($path);
+        return response()->stream($path);
     });
     /*Route::get('/reports/tmp/{company}/{file}', function ($company, $file) {
         // Prevent path traversal
