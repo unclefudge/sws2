@@ -177,7 +177,16 @@ Route::group(['middleware' => 'auth'], function () {
 
         $path = storage_path("app/tmp/report/{$company}/{$file}");
         abort_unless(file_exists($path), 404);
-        return response()->download($path);
+
+        if (request()->has('download')) {
+            return response()->download($path);
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $file . '"',
+        ]);
+        //return response()->download($path);
     });
 });
 
