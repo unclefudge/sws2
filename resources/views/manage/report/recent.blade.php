@@ -11,55 +11,67 @@
 @stop
 
 @section('content')
-
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
-                <div class="portlet light ">
+                <div class="portlet light">
                     <div class="portlet-title">
                         <div class="caption font-dark">
                             <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Recent Reports</span>
+                            <span class="caption-subject bold uppercase font-green-haze">
+                            Recent Reports
+                        </span>
                         </div>
                     </div>
-                    <div class="portlet-body form">
+
+                    <div class="portlet-body">
                         <h3>Reports created in the last 10 days</h3>
-                        <table class="table table-striped table-bordered table-hover order-column" id="table_list">
+
+                        <table class="table table-striped table-bordered">
                             <thead>
-                            <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th> Report</th>
-                                <th width="20%"> Date</th>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th>Report</th>
+                                <th width="20%">Status</th>
+                                <th width="20%">Date</th>
                             </tr>
                             </thead>
 
-                            <tbody v-if="xx.reports">
-                            <tr v-for="(report, size) in xx.reports ">
-                                <td>
-                                    <div class="text-center"><a href="{{ url('/reports/tmp/'.Auth::user()->company_id.'/') }}/@{{ report }}" target="_blank"><i class="fa fa-file-text-o"></i></a></div>
+                            <tbody>
+                            <tr v-for="report in xx.reports" :key="report.id">
+                                <td class="text-center">
+                                    <i class="fa fa-file-pdf-o"></i></i>
                                 </td>
-                                <td>@{{ report }}</td>
                                 <td>
-                                    <span v-if="size">@{{ date(report) }}</span>
-                                    <span v-else="size"><span class="font-red"><i class="fa fa-spin fa-spinner"> </i> Processing</span></span>
+                                    <a v-if="report.status === 'completed'" :href="`/reports/${report.id}`" target="_blank">@{{ report.name }}</a>
+                                    <span v-else>@{{ report.name }}</span>
+
                                 </td>
+                                <td>
+                                    <span v-if="report.status === 'pending'" class="text-muted"><i class="fa fa-spin fa-spinner text-muted"></i> Pending</span>
+                                    <span v-if="report.status === 'processing'" class="text-warning"><i class="fa fa-spin fa-spinner text-muted"></i> Processing…</span>
+                                    <span v-if="report.status === 'completed'" class="text-success">Ready
+                                </span>
+                                    <span v-if="report.status === 'failed'" class="text-danger">Failed</span>
+                                </td>
+
+                                <td>@{{ formatDate(report.created_at) }}</td>
+                            </tr>
+
+                            <tr v-if="!xx.reports.length">
+                                <td colspan="4" class="text-center">No reports</td>
                             </tr>
                             </tbody>
-                            <tr v-if="!xx.reports">
-                                <td colspan="3"><br>No reports<br><br></td>
-                            </tr>
                         </table>
 
                         <div class="form-actions right">
-                            <a href="/manage/report" class="btn default"> Back</a>
+                            <a href="/manage/report" class="btn default">Back</a>
                         </div>
                     </div>
-                    <!--<pre v-if="xx.dev">@{{ $data | json }}</pre>-->
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -70,43 +82,28 @@
 @stop
 
 @section('page-level-scripts')
-    {{-- Metronic + custom Page Scripts --}}
-    <script src="/js/libs/vue.1.0.24.js" type="text/javascript"></script>
-    <script src="/js/libs/vue-resource.0.7.0.js" type="text/javascript"></script>
-    <script src="/js/vue-app-basic-functions.js" type="text/javascript"></script>
+    <script src="/js/libs/vue.1.0.24.js"></script>
     <script>
-        var xx = {
-            dev: dev, permission: '', user_company_id: '',
-            params: {date: '', supervisor_id: '', site_id: '', site_start: '', trade_id: '', _token: $('meta[name=token]').attr('value')},
-            reports: []
-        };
+        var xx = {reports: []};
 
         new Vue({
             el: 'body',
-            data: function () {
-                //items: []
-                return {xx: xx};
+            data() {
+                return {xx};
             },
             methods: {
-                loadData: function () {
-                    $.get('/manage/report/recent/files', function (response) {
-                        console.log(response);
-                        this.xx.reports = response;
-                    }.bind(this));
+                loadData() {
+                    $.get('/manage/report/recent/files', res => {
+                        this.xx.reports = res;
+                    });
                 },
-                date: function (file) {
-                    var y = file.substr(file.length - 18, 4);
-                    var m = file.substr(file.length - 14, 2);
-                    var d = file.substr(file.length - 12, 2);
-                    return d + '/' + m + '/' + y;
+                formatDate(date) {
+                    return new Date(date).toLocaleDateString();
                 }
             },
-            ready: function () {
+            ready() {
                 this.loadData();
-
-                setInterval(function () {
-                    this.loadData();
-                }.bind(this), 3000);
+                setInterval(this.loadData, 4000);
             }
         });
     </script>

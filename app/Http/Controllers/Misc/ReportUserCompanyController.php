@@ -11,6 +11,7 @@ use App\Models\Company\CompanyDoc;
 use App\Models\Company\CompanyDocCategory;
 use App\Models\Misc\Option;
 use App\Models\Misc\Permission2;
+use App\Models\Misc\Report;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -489,10 +490,11 @@ class ReportUserCompanyController extends Controller
     public function missingCompanyInfoCSV()
     {
         $companies = Company::where('parent_company', Auth::user()->company_id)->where('status', '1')->orderBy('name')->get();
-        $output_file = storage_path("app/tmp/report/company_missinginfo " . Carbon::now()->format('YmdHis') . '.csv');
-        touch($output_file);
 
-        CompanyMissingInfoCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
+        $name = 'company_missinginfo.csv';
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-missinginfo', 'status' => 'pending',]);
+        CompanyMissingInfoCsv::dispatch($report->id, $companies);
 
         return redirect('/manage/report/recent');
     }

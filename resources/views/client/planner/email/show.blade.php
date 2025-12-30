@@ -67,8 +67,8 @@
                             <div class="row">
                                 <div class="col-md-2"><b>Attachments:</b></div>
                                 <div class="col-md-10">
-                                    @foreach ($email->docs as $doc)
-                                        <i class="fa fa-file-pdf-o"></i> <a href="{{ $doc->attachment_url }}" target="_blank" title="{{ $doc->name }}">{{ $doc->name }}</a>, &nbsp;
+                                    @foreach ($email->attachment as $file)
+                                        <i class="fa fa-file-pdf-o"></i> <a href="{{ $file->url }}" target="_blank" title="{{ $file->name }}">{{ $file->name }}</a>, &nbsp;
                                     @endforeach
                                 </div>
                             </div>

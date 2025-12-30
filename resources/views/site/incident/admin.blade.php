@@ -93,91 +93,92 @@ $qRootCause = App\Models\Misc\FormQuestion::find(219);
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        $("#assign_review").select2({placeholder: "Select User", width: "100%"});
-
-        // On Change Notifiable
-        $("#notifiable").change(function () {
-            $("#edit_regulator").hide();
-            if ($("#notifiable").val() == '1') {
-                $("#show_regulator").show();
-            } else
-                $("#show_regulator").hide();
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
-    });
 
-    $(".btn-delete[data-remote]").click(function (e) {
-    //table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        $(document).ready(function () {
+            $("#assign_review").select2({placeholder: "Select User", width: "100%"});
 
-        swal({
-            title: "Are you sure?",
-            text: "Delete incident review for<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted request');
-                    window.location.href = "/site/incident/{{ $incident->id }}/admin";
-                },
+            // On Change Notifiable
+            $("#notifiable").change(function () {
+                $("#edit_regulator").hide();
+                if ($("#notifiable").val() == '1') {
+                    $("#show_regulator").show();
+                } else
+                    $("#show_regulator").hide();
             });
         });
-    });
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        $(".btn-delete[data-remote]").click(function (e) {
+            //table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+            swal({
+                title: "Are you sure?",
+                text: "Delete incident review for<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted request');
+                        window.location.href = "/site/incident/{{ $incident->id }}/admin";
+                    },
+                });
+            });
+        });
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
+        }
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'review') {
-        $('#show_' + errors.FORM).hide();
-        $('#add_' + errors.FORM).show();
-    }
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    console.log(errors)
-    @endif
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'review') {
+            $('#show_' + errors.FORM).hide();
+            $('#add_' + errors.FORM).show();
+        }
+
+        console.log(errors)
+        @endif
+
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
+        });
 
 
-</script>
+    </script>
 @stop

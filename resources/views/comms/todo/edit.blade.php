@@ -31,12 +31,12 @@
                         <div class="form-body">
                             {{-- Display question name for Incidents Prevents --}}
                             @if ($todo->type && $todo->type_id2 && $todo->type == 'incident prevent')
-                                <?php
-                                $question = \App\Models\Misc\FormQuestion::find($todo->type_id2);
-                                $qtext = $question->name;
-                                if ($question->parent)
-                                    $qtext = $question->question->name . " - $qtext";
-                                ?>
+                                    <?php
+                                    $question = \App\Models\Misc\FormQuestion::find($todo->type_id2);
+                                    $qtext = $question->name;
+                                    if ($question->parent)
+                                        $qtext = $question->question->name . " - $qtext";
+                                    ?>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
@@ -127,13 +127,13 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -150,27 +150,28 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#user_list").select2({
-            placeholder: "Select",
-            width: '100%',
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $("#date-reset").click(function () {
-            $('#due_at').val('');
-        })
-    });
-</script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#user_list").select2({
+                placeholder: "Select",
+                width: '100%',
+            });
+
+            $("#date-reset").click(function () {
+                $('#due_at').val('');
+            })
+        });
+    </script>
 @stop
 

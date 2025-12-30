@@ -143,13 +143,13 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -166,93 +166,94 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        /* Select2 */
-        $("#user_list").select2({
-            placeholder: "Select",
-            width: '100%',
-        });
-        $("#company_list").select2({
-            placeholder: "Select",
-            width: '100%'
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $("#group_list").select2({
-            placeholder: "Select",
-            width: '100%'
-        });
-
-        $("#role_list").select2({
-            placeholder: "Select",
-            width: '100%'
-        });
-
-        $("#site_list").select2({
-            placeholder: "Select",
-            width: '100%'
-        });
-
-        $("#test_alert").click(function (e) {
-            e.preventDefault();
-            swal($("#name").val(), $("#info").val());
-        })
-
-        /*
-        $("#test_alert").click(function (e) {
-            e.preventDefault();
-            var string = $("#info").val().replace(/(?:\r\n|\r|\n)/g, '<br />');
-            swal({
-                title: $("#name").val(),
-                text: '<span style="text-align:left">' + string + '</span>',
-                html: true
+        $(document).ready(function () {
+            /* Select2 */
+            $("#user_list").select2({
+                placeholder: "Select",
+                width: '100%',
             });
-        })*/
+            $("#company_list").select2({
+                placeholder: "Select",
+                width: '100%'
+            });
 
-        // On Change Assign To
-        $("#assign_to").change(function () {
+            $("#group_list").select2({
+                placeholder: "Select",
+                width: '100%'
+            });
+
+            $("#role_list").select2({
+                placeholder: "Select",
+                width: '100%'
+            });
+
+            $("#site_list").select2({
+                placeholder: "Select",
+                width: '100%'
+            });
+
+            $("#test_alert").click(function (e) {
+                e.preventDefault();
+                swal($("#name").val(), $("#info").val());
+            })
+
+            /*
+            $("#test_alert").click(function (e) {
+                e.preventDefault();
+                var string = $("#info").val().replace(/(?:\r\n|\r|\n)/g, '<br />');
+                swal({
+                    title: $("#name").val(),
+                    text: '<span style="text-align:left">' + string + '</span>',
+                    html: true
+                });
+            })*/
+
+            // On Change Assign To
+            $("#assign_to").change(function () {
+                showAssignedList();
+            });
+
+
+            function showAssignedList() {
+                $("#user_div").hide();
+                $("#company_div").hide();
+                $("#group_div").hide();
+                $("#role_div").hide();
+                $("#site_div").hide();
+                $("#type").val('user');
+
+                // Assign to User selected
+                if ($("#assign_to").val() == 'user')
+                    $("#user_div").show();
+                // Assign to Company selected
+                if ($("#assign_to").val() == 'company')
+                    $("#company_div").show();
+                // Assign to Group selected
+                if ($("#assign_to").val() == 'group')
+                    $("#group_div").show();
+                // Assign to Role selected
+                if ($("#assign_to").val() == 'role')
+                    $("#role_div").show();
+                // Assign to Group selected
+                if ($("#assign_to").val() == 'site') {
+                    $("#site_div").show();
+                    $("#type").val('site');
+                }
+            }
+
             showAssignedList();
         });
-
-
-        function showAssignedList() {
-            $("#user_div").hide();
-            $("#company_div").hide();
-            $("#group_div").hide();
-            $("#role_div").hide();
-            $("#site_div").hide();
-            $("#type").val('user');
-
-            // Assign to User selected
-            if ($("#assign_to").val() == 'user')
-                $("#user_div").show();
-            // Assign to Company selected
-            if ($("#assign_to").val() == 'company')
-                $("#company_div").show();
-            // Assign to Group selected
-            if ($("#assign_to").val() == 'group')
-                $("#group_div").show();
-            // Assign to Role selected
-            if ($("#assign_to").val() == 'role')
-                $("#role_div").show();
-            // Assign to Group selected
-            if ($("#assign_to").val() == 'site') {
-                $("#site_div").show();
-                $("#type").val('site');
-            }
-        }
-
-        showAssignedList();
-    });
-</script>
+    </script>
 @stop
 

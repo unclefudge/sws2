@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -60,14 +60,14 @@
         <?php $page_count = 1; ?>
         <?php $current_name = '' ?>
         @foreach ($locations as $id => $name)
-            <?php $location = \App\Models\Misc\Equipment\EquipmentLocation::find($id) ?>
+                <?php $location = \App\Models\Misc\Equipment\EquipmentLocation::find($id) ?>
             @continue($location->items->count() < 1)
             <div class="row">
                 <div class="col-md-12">
                     @if ($name == 'other')
                         <b>{{ ($location->id == 1) ? 'STORE' : $location->other }}</b>
                     @elseif ($name == 'no-super')
-                        <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
+                            <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
                         <b>{{ $site->code }} {{ $site->name }} &nbsp; &nbsp; ** No Supervisor Assigned To Site **</b>
                     @else
                         @if ($name != $current_name)
@@ -77,10 +77,10 @@
                                 <div class="col-xs-4"><h6><b>Date: {{ \Carbon\Carbon::today()->format('d/m/Y') }}</b></h6></div>
                             </div>
                             <hr style="margin: 5px 0px">
-                            <?php $current_name = $name ?>
+                                <?php $current_name = $name ?>
                             <h4 class="font-green">{{ $name }}</h4>
                         @endif
-                        <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
+                            <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
                         <b>{{ $site->code }} {{ $site->name }}</b>
                     @endif
                 </div>

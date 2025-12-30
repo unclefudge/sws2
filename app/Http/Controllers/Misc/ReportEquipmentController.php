@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\EquipmentPdf;
+use App\Jobs\EquipmentSitePdf;
 use App\Jobs\EquipmentTransactionsPdf;
 use App\Models\Company\Company;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLocation;
 use App\Models\Misc\Equipment\EquipmentLog;
 use App\Models\Misc\Equipment\EquipmentStocktake;
+use App\Models\Misc\Report;
 use App\Models\Site\Site;
 use Carbon\Carbon;
 use DB;
 use File;
+use Illuminate\Support\Facades\Auth;
 use PDF;
 use Session;
 use Yajra\Datatables\Datatables;
@@ -48,12 +51,13 @@ class ReportEquipmentController extends Controller
     {
         $equipment = Equipment::where('status', 1)->orderBy('name')->get();
 
-        $output_file = storage_path("app/tmp/report/Equipment List " . Carbon::now()->format('YmdHis') . '.pdf');
-        touch($output_file);
+        $name = 'Equipment List.pdf';
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'equipment-list', 'status' => 'pending',]);
 
         //return view('pdf/equipment', compact('equipment'));
         //return PDF::loadView('pdf/equipment', compact('equipment'))->setPaper('a4', 'portrait')->stream();
-        EquipmentPdf::dispatch($equipment, $output_file);
+        EquipmentPdf::dispatch($report->id, $equipment);
 
         return redirect('/manage/report/recent');
     }
@@ -71,7 +75,7 @@ class ReportEquipmentController extends Controller
 
         // Locations without supervisors
         $sites_without_super = [];
-        $sites_without_super[] = Site::where('status', 1)->where('company_id', 3)->where('supervisor_id', null)->pluck('id')->toArray();
+        $sites_without_super = Site::where('status', 1)->where('company_id', 3)->where('supervisor_id', null)->pluck('id')->toArray();
         //foreach ($active_sites as $site) {
         //    if (!$site->supervisor_id)
         //        $sites_without_super[] = $site->id;
@@ -132,13 +136,13 @@ class ReportEquipmentController extends Controller
             }
         }
 
-
-        $output_file = storage_path("app/tmp/report/Equipment List By Site " . Carbon::now()->format('YmdHis') . '.pdf');
-        touch($output_file);
-
         //return view('pdf/equipment-site', compact('locations'));
         //return PDF::loadView('pdf/equipment-site', compact('locations'))->setPaper('a4', 'portrait')->stream();
-        \App\Jobs\EquipmentSitePdf::dispatch($locations, $output_file);
+
+        $name = 'Equipment List By Site.pdf';
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'equipment-site', 'status' => 'pending',]);
+        EquipmentSitePdf::dispatch($report->id, $locations);
 
         return redirect('/manage/report/recent');
     }
@@ -163,16 +167,17 @@ class ReportEquipmentController extends Controller
         $date_to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00')->format('Y-m-d') : Carbon::tomorrow()->format('Y-m-d');
         $transactions = EquipmentLog::whereDate('equipment_log.created_at', '>=', $date_from)->whereDate('equipment_log.created_at', '<=', $date_to)->get();
 
-        //dd($date_from);
-        $output_file = storage_path("app/tmp/report/Equipment Transactions " . Carbon::now()->format('YmdHis') . '.pdf');
-        touch($output_file);
-
         $from = (request('from')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('from') . ' 00:00:00') : Carbon::createFromFormat('Y-m-d H:i:s', '2000-01-01 00:00:00');
         $to = (request('to')) ? Carbon::createFromFormat('d/m/Y H:i:s', request('to') . ' 00:00:00') : Carbon::tomorrow();
 
         //return view('pdf/equipment-transactions', compact('transactions', 'from', 'to'));
         //return PDF::loadView('pdf/equipment-transactions', compact('transactions', 'from', 'to'))->setPaper('a4', 'portrait')->stream();
-        EquipmentTransactionsPdf::dispatch($transactions, $from, $to, $output_file);
+
+        $name = 'Equipment Transactions.pdf';
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'equipment-transaction', 'status' => 'pending',]);
+
+        EquipmentTransactionsPdf::dispatch($report->id, $transactions, $from, $to);
 
         return redirect('/manage/report/recent');
     }

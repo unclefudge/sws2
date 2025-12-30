@@ -28,7 +28,7 @@
                         <div class="portlet-body">
                             <?php $current_name = '' ?>
                             @foreach ($locations as $id => $name)
-                                <?php $location = \App\Models\Misc\Equipment\EquipmentLocation::find($id) ?>
+                                    <?php $location = \App\Models\Misc\Equipment\EquipmentLocation::find($id) ?>
                                 @continue($location->items->count() < 1)
 
                                 <div class="row">
@@ -36,14 +36,14 @@
                                         @if ($name == 'other')
                                             <b>{{ ($location->id == 1) ? 'STORE' : $location->other }}</b>
                                         @elseif ($name == 'no-super')
-                                            <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
+                                                <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
                                             <b>{{ $site->code }} {{ $site->name }} &nbsp; &nbsp; ** No Supervisor Assigned To Site **</b>
                                         @else
                                             @if ($name != $current_name)
-                                                <?php $current_name = $name ?>
+                                                    <?php $current_name = $name ?>
                                                 <h3 class="font-green">{{ $name }}</h3>
                                             @endif
-                                            <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
+                                                <?php $site = \App\Models\Site\Site::find($location->site_id); ?>
                                             <b>{{ $site->code }} {{ $site->name }}</b>
                                         @endif
                                     </div>
@@ -94,11 +94,12 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-</script>
+    <script type="text/javascript">
+    </script>
 @stop

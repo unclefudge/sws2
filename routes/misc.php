@@ -20,6 +20,8 @@ Route::get('/manage/disabled_tasks', '\App\Http\Controllers\Misc\PagesController
 | REPORTS
 |--------------------------------------------------------------------------
 */
+Route::get('/reports/{report}', [\App\Http\Controllers\Misc\ReportController::class, 'viewReport']);
+
 Route::get('/manage/report', '\App\Http\Controllers\Misc\ReportController@index');
 Route::get('/manage/report/recent', '\App\Http\Controllers\Misc\ReportController@recent');
 Route::get('/manage/report/recent/files', '\App\Http\Controllers\Misc\ReportController@recentFiles');

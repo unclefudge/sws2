@@ -8,11 +8,11 @@
         @endif
         <li><span>Users Role</span></li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
+@section('content')
 
-            <!-- BEGIN PAGE CONTENT INNER -->
+    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -35,15 +35,17 @@
                             </thead>
                             <tbody>
                             @foreach($users as $user)
-                                <?php $u = \App\User::find($user->user_id) ?>
-                                <?php $r = \App\Models\Misc\Role2::find($user->role_id)?>
+                                    <?php $u = \App\User::find($user->user_id) ?>
+                                    <?php $r = \App\Models\Misc\Role2::find($user->role_id) ?>
                                 <tr>
-                                    <td><div class="text-center"><a href="/user/{{$u->id}}/security"><i class="fa fa-search"></i></a></div></td>
+                                    <td>
+                                        <div class="text-center"><a href="/user/{{$u->id}}/security"><i class="fa fa-search"></i></a></div>
+                                    </td>
                                     <td>{{ $u->username }}</td>
                                     <td>{{ $u->fullname }}</td>
                                     <td>{{ $r->name }}</td>
                                 </tr>
-                                @endforeach
+                            @endforeach
                             </tbody>
                         </table>
 
@@ -64,5 +66,6 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

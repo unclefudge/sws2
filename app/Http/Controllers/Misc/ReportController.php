@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comms\Todo;
+use App\Models\Misc\Report;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\SiteInspectionElectrical;
@@ -18,6 +19,7 @@ use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use PDF;
 use Session;
 use Yajra\Datatables\Datatables;
@@ -46,65 +48,41 @@ class ReportController extends Controller
         return view('manage/report/list');
     }
 
+    public function viewReport(Report $report)
+    {
+        abort_unless($report->user_id === auth()->id(), 403);
+        abort_unless($report->status === 'ready', 404);
+
+        $disk = Storage::disk($report->disk);
+        abort_unless($disk->exists($report->path), 404);
+
+        $filename = basename($report->path);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return match ($extension) {
+            'pdf' => $disk->response($report->path, $filename, ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline; filename="' . $filename . '"',]),
+            'csv' => $disk->download($report->path, $filename, ['Content-Type' => 'text/csv',]),
+            default => $disk->download($report->path, $filename),
+        };
+    }
+
     public function recent()
     {
-        return view('manage/report/recent');
+        // Delete Reports older than 10 days
+        $delete = Report::where('created_at', '<', now()->subDays(10))->each(function ($report) {
+            Storage::disk($report->disk)->delete("$report->path/$report->name");
+            $report->delete();
+        });
+
+        // Get current reports
+        $reports = Report::where('user_id', Auth::id())->latest()->get();
+
+        return view('manage/report/recent', compact('reports'));
     }
 
     public function recentFiles()
     {
-        $dir = storage_path('app/tmp/report/' . Auth::user()->company_id);
-
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $files = scandir_datesort($dir);
-
-        // 🔑 CRITICAL GUARD
-        if (!is_array($files)) {
-            return [];
-        }
-
-        $reports = [];
-
-        foreach ($files as $file) {
-            if ($file[0] === '.') {
-                continue;
-            }
-
-            $path = "$dir/$file";
-
-            if (!is_file($path)) {
-                continue;
-            }
-
-            $deleted = false;
-
-            // Extract timestamp from filename
-            $date_string =
-                substr($file, -18, 4) .
-                substr($file, -14, 2) .
-                substr($file, -12, 2) .
-                substr($file, -10, 2) .
-                substr($file, -8, 2) .
-                substr($file, -6, 2);
-
-            if (ctype_digit($date_string) && strlen($date_string) === 14) {
-                $date = Carbon::createFromFormat('YmdHis', $date_string);
-
-                if ($date->lt(Carbon::today()->subDays(10))) {
-                    @unlink($path);
-                    $deleted = true;
-                }
-            }
-
-            if (!$deleted) {
-                $reports[$file] = filesize($path);
-            }
-        }
-
-        return $reports;
+        return Report::where('user_id', auth()->id())->where('created_at', '>=', now()->subDays(10))->orderByDesc('id')->get(['id', 'name', 'path', 'status', 'created_at']);
     }
 
     /****************************************************

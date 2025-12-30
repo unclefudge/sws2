@@ -189,7 +189,7 @@
                                     <div class="form-group {!! fieldHasError('injured_nature', $errors) !!}">
                                         <?php $qInjuredNature = App\Models\Misc\FormQuestion::find(50) ?>
                                         {!! Form::label('injured_nature', $qInjuredNature->name, ['class' => 'control-label']) !!}
-                                            @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                        @if (Auth::user()->allowed2('del.site.incident', $incident))
                                             {!! Form::select('injured_nature', $qInjuredNature->optionsArray(), $qInjuredNature->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_nature[]', 'id' => 'injured_nature']) !!}
                                             {!! fieldErrorMessage('injured_nature', $errors) !!}
                                         @else
@@ -204,7 +204,7 @@
                                     <div class="form-group {!! fieldHasError('injured_mechanism', $errors) !!}">
                                         <?php $qInjuredMechanism = App\Models\Misc\FormQuestion::find(69) ?>
                                         {!! Form::label('injured_mechanism', $qInjuredMechanism->name, ['class' => 'control-label']) !!}
-                                            @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                        @if (Auth::user()->allowed2('del.site.incident', $incident))
                                             {!! Form::select('injured_mechanism', $qInjuredMechanism->optionsArray(), $qInjuredMechanism->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_mechanism[]', 'id' => 'injured_mechanism']) !!}
                                             {!! fieldErrorMessage('injured_mechanism', $errors) !!}
                                         @else
@@ -219,7 +219,7 @@
                                     <div class="form-group {!! fieldHasError('injured_agency', $errors) !!}">
                                         <?php $qInjuredAgency = App\Models\Misc\FormQuestion::find(92) ?>
                                         {!! Form::label('injured_agency', $qInjuredAgency->name, ['class' => 'control-label']) !!}
-                                            @if (Auth::user()->allowed2('del.site.incident', $incident))
+                                        @if (Auth::user()->allowed2('del.site.incident', $incident))
                                             {!! Form::select('injured_agency', $qInjuredAgency->optionsArray(), $qInjuredAgency->responsesArray('site_incidents', $incident->id), ['class' => 'form-control select2 ', 'multiple', 'title' => 'Check all applicable',  'name' => 'injured_agency[]', 'id' => 'injured_agency']) !!}
                                             {!! fieldErrorMessage('injured_agency', $errors) !!}
                                         @else
@@ -308,7 +308,7 @@
         </div>
     </div>
 
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -326,71 +326,72 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-        $("#type").select2({placeholder: "Check all applicable"});
-        $("#treatment").select2({placeholder: "Check all applicable"});
-        $("#injured_part").select2({placeholder: "Check all applicable"});
-        $("#injured_nature").select2({placeholder: "Check all applicable"});
-        $("#injured_mechanism").select2({placeholder: "Check all applicable"});
-        $("#injured_agency").select2({placeholder: "Check all applicable"});
-        updateFields();
-
-        // On Change Site ID
-        $("#site_id").change(function () {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+            $("#type").select2({placeholder: "Check all applicable"});
+            $("#treatment").select2({placeholder: "Check all applicable"});
+            $("#injured_part").select2({placeholder: "Check all applicable"});
+            $("#injured_nature").select2({placeholder: "Check all applicable"});
+            $("#injured_mechanism").select2({placeholder: "Check all applicable"});
+            $("#injured_agency").select2({placeholder: "Check all applicable"});
             updateFields();
+
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
+
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
+
+            // On Change Treatment
+            $("#treatment").change(function () {
+                updateFields();
+            });
+
+            // On Change Injured Part
+            $("#injured_part").change(function () {
+                updateFields();
+            });
+
+            function updateFields() {
+                var site_id = $("#site_id").select2("val");
+                var treatment = $("#treatment").select2("val");
+                var injured_part = $("#injured_part").select2("val");
+
+                // Type
+                if ($("#type_text").val())
+                    var types = $("#type_text").val().split(', ');
+                else
+                    var types = $("#type").select2("val");
+
+                $("#injury_details").hide();
+                $("#damage_details").hide();
+                $("#field_treatment_other").hide();
+                $("#field_injured_part_other").hide();
+
+                // Show relevant fields
+                if (types != null && (types.includes('2') || types.includes('Injury / illness'))) $("#injury_details").show();
+                if (types != null && (types.includes('3') || types.includes('Damage'))) $("#damage_details").show();
+                if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
+                if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+            }
+
         });
 
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
+        // Force datepicker to not be able to select dates after today
+        $('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
         });
-
-        // On Change Treatment
-        $("#treatment").change(function () {
-            updateFields();
-        });
-
-        // On Change Injured Part
-        $("#injured_part").change(function () {
-            updateFields();
-        });
-
-        function updateFields() {
-            var site_id = $("#site_id").select2("val");
-            var treatment = $("#treatment").select2("val");
-            var injured_part = $("#injured_part").select2("val");
-
-            // Type
-            if ($("#type_text").val())
-                var types = $("#type_text").val().split(', ');
-            else
-                var types = $("#type").select2("val");
-
-            $("#injury_details").hide();
-            $("#damage_details").hide();
-            $("#field_treatment_other").hide();
-            $("#field_injured_part_other").hide();
-
-            // Show relevant fields
-            if (types != null && (types.includes('2') || types.includes('Injury / illness'))) $("#injury_details").show();
-            if (types != null && (types.includes('3') || types.includes('Damage'))) $("#damage_details").show();
-            if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
-            if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
-        }
-
-    });
-
-    // Force datepicker to not be able to select dates after today
-    $('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });
-</script>
+    </script>
 @stop
 

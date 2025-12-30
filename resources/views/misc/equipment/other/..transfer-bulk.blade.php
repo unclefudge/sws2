@@ -117,7 +117,7 @@
                                             {!! Form::label('due_at', 'Due Date', ['class' => 'control-label']) !!}
                                             <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
                                                 <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="due_at" name="due_at">
-                                            <span class="input-group-btn">
+                                                <span class="input-group-btn">
                                                 <button class="btn default" type="button">
                                                     <i class="fa fa-calendar"></i>
                                                 </button>
@@ -202,11 +202,11 @@
                                                         </thead>
                                                         <tbody>
                                                         @if (count($items))
-                                                            <?php
-                                                            $sorted = $items->sortBy(function ($item) {
-                                                                return $item->item_category_name . '-' . $item->item_name;
-                                                            });
-                                                            ?>
+                                                                <?php
+                                                                $sorted = $items->sortBy(function ($item) {
+                                                                    return $item->item_category_name . '-' . $item->item_name;
+                                                                });
+                                                                ?>
                                                             @foreach($sorted as $loc)
                                                                 @if ($loc->equipment->parent_category == 3)
                                                                     <tr class="itemrow-" id="itemrow-{{ $loc->id }}">
@@ -320,91 +320,92 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site"});
-        $("#user").select2({placeholder: "Select User", width: '100%'});
-        $("#location_id").select2({placeholder: "Select Site"});
-        $("#assign").select2({placeholder: "Select User", width: '100%'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site"});
+            $("#user").select2({placeholder: "Select User", width: '100%'});
+            $("#location_id").select2({placeholder: "Select Site"});
+            $("#assign").select2({placeholder: "Select User", width: '100%'});
 
 
-        // Location
-        $("#location_id").change(function () {
-            $("#table_list").hide();
-            $("#btn-add-item").hide();
-            $("#spinner").show();
-            window.location.href = "/equipment/" + $("#location_id").val() + "/transfer-bulk";
+            // Location
+            $("#location_id").change(function () {
+                $("#table_list").hide();
+                $("#btn-add-item").hide();
+                $("#spinner").show();
+                window.location.href = "/equipment/" + $("#location_id").val() + "/transfer-bulk";
+            });
+
+            $("#type").change(function () {
+                $('#site-div').hide();
+                $('#super-div').hide();
+                $('#user-div').hide();
+                $('#other-div').hide();
+                $('#dispose-div').hide();
+                $('#assign-div').hide();
+
+                if ($("#type").val() == 'store') {
+                    $('#site_id').val(25);
+                    $('#site_id').trigger('change');
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'site') {
+                    $('#site-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'super') {
+                    $('#super-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'user') {
+                    $('#user-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'other') {
+                    $('#other-div').show();
+                    $('#assign-div').show();
+                }
+
+                if ($("#type").val() == 'dispose')
+                    $('#dispose-div').show();
+            });
+
+
+            /*
+             $("#type").change(function () {
+             $('#site-div').hide();
+             $('#other-div').hide();
+             $('#dispose-div').hide();
+             $('#assign-div').hide();
+
+             if ($("#type").val() == 'store') {
+             $('#site_id').val(25);
+             $('#site_id').trigger('change');
+             $('#assign-div').show();
+             }
+
+             if ($("#type").val() == 'site') {
+             $('#site-div').show();
+             $('#assign-div').show();
+             }
+
+             if ($("#type").val() == 'other') {
+             $('#other-div').show();
+             $('#assign-div').show();
+             }
+
+             if ($("#type").val() == 'dispose')
+             $('#dispose-div').show();
+             });*/
         });
-
-        $("#type").change(function () {
-            $('#site-div').hide();
-            $('#super-div').hide();
-            $('#user-div').hide();
-            $('#other-div').hide();
-            $('#dispose-div').hide();
-            $('#assign-div').hide();
-
-            if ($("#type").val() == 'store') {
-                $('#site_id').val(25);
-                $('#site_id').trigger('change');
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'site') {
-                $('#site-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'super') {
-                $('#super-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'user') {
-                $('#user-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'other') {
-                $('#other-div').show();
-                $('#assign-div').show();
-            }
-
-            if ($("#type").val() == 'dispose')
-                $('#dispose-div').show();
-        });
-
-
-        /*
-         $("#type").change(function () {
-         $('#site-div').hide();
-         $('#other-div').hide();
-         $('#dispose-div').hide();
-         $('#assign-div').hide();
-
-         if ($("#type").val() == 'store') {
-         $('#site_id').val(25);
-         $('#site_id').trigger('change');
-         $('#assign-div').show();
-         }
-
-         if ($("#type").val() == 'site') {
-         $('#site-div').show();
-         $('#assign-div').show();
-         }
-
-         if ($("#type").val() == 'other') {
-         $('#other-div').show();
-         $('#assign-div').show();
-         }
-
-         if ($("#type").val() == 'dispose')
-         $('#dispose-div').show();
-         });*/
-    });
-</script>
+    </script>
 @stop

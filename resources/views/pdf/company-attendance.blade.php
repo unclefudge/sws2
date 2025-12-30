@@ -61,7 +61,7 @@
                     <h2 style="margin: 0px">{{ $company->name }}</h2>
                     {{ $company->address }}, {{  $company->suburb_state_postcode }}
                 </td>
-                <td style="width:20%; text-align: right"><h4><b>Dates:</b> {{ $from->format('d/m/Y') }} - {{ $to->format('d/m/Y') }}</h4></td>
+                <td style="width:20%; text-align: right"><h4><b>Dates:</b> {{ ($from) ? $from->format('d/m/Y') : '' }} - {{ ($to) ? $to->format('d/m/Y') : '' }}</h4></td>
             </tr>
         </table>
         <hr style="margin: 5px 0px">

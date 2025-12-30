@@ -55,7 +55,7 @@
                             </div>
 
                             {{-- Purchase --}}
-                            <div class="row"  id="purchase-div">
+                            <div class="row" id="purchase-div">
                                 <div class="col-md-2" id="field-length">
                                     <div class="form-group">
                                         {!! Form::label('length', 'Length', ['class' => 'control-label']) !!}
@@ -125,43 +125,44 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        $('#category_id').change(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            $('#category_id').change(function () {
+                displayFields();
+            });
+
+            $('#subcategory_id').change(function () {
+                displayFields();
+            });
+
             displayFields();
+
+            function displayFields() {
+                $('#field-subcat').hide()
+                $('#field-length').hide()
+                $('#field-minstock').hide()
+
+                if ($('#category_id').val() == 3) {
+                    $('#field-subcat').show();
+                    $('#field-length').show();
+                }
+
+                if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
+                    $('#field-minstock').show();
+                }
+            }
         });
 
-        $('#subcategory_id').change(function () {
-            displayFields();
-        });
-
-        displayFields();
-
-        function displayFields() {
-            $('#field-subcat').hide()
-            $('#field-length').hide()
-            $('#field-minstock').hide()
-
-            if ($('#category_id').val() == 3) {
-                $('#field-subcat').show();
-                $('#field-length').show();
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if ((charCode > 31 && charCode < 48) || charCode > 57) {
+                return false;
             }
-
-            if ($('#category_id').val() == 3 && $('#subcategory_id').val() == 19) {
-                $('#field-minstock').show();
-            }
+            return true;
         }
-    });
-
-    function isNumber(evt) {
-        evt = (evt) ? evt : window.event;
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if ((charCode > 31 && charCode < 48) || charCode > 57) {
-            return false;
-        }
-        return true;
-    }
-</script>
+    </script>
 @stop

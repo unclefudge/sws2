@@ -114,133 +114,134 @@ $reviewsBy = $incident->reviewsBy();
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script> {{-- using the non minimised version with commented out bits to fix error Uncaught TypeError: $(...).datepicker is not a function}} --}}
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site", width: "100%"});
-        $("#type").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#treatment").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_part").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_nature").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_mechanism").select2({placeholder: "Check all applicable", width: "100%"});
-        $("#injured_agency").select2({placeholder: "Check all applicable", width: "100%"});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.js" type="text/javascript"></script> {{-- using the non minimised version with commented out bits to fix error Uncaught TypeError: $(...).datepicker is not a function}} --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site", width: "100%"});
+            $("#type").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#treatment").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_part").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_nature").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_mechanism").select2({placeholder: "Check all applicable", width: "100%"});
+            $("#injured_agency").select2({placeholder: "Check all applicable", width: "100%"});
 
-        updateFields();
-
-        // On Change Site CC
-        $("#site_cc").change(function () {
             updateFields();
-        });
 
-        // On Change Site ID
-        $("#site_id").change(function () {
-            updateFields();
-        });
+            // On Change Site CC
+            $("#site_cc").change(function () {
+                updateFields();
+            });
 
-        // On Change Type
-        $("#type").change(function () {
-            updateFields();
-        });
+            // On Change Site ID
+            $("#site_id").change(function () {
+                updateFields();
+            });
 
-        // On Change Treatment
-        $("#treatment").change(function () {
-            updateFields();
-        });
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
 
-        // On Change Injured Part
-        $("#injured_part").change(function () {
-            updateFields();
-        });
+            // On Change Treatment
+            $("#treatment").change(function () {
+                updateFields();
+            });
 
-        function updateFields() {
-            // Type
-            if ($("#type_text").val())
-                var types = $("#type_text").val().split(', ');
-            else
-                var types = $("#type").select2("val");
+            // On Change Injured Part
+            $("#injured_part").change(function () {
+                updateFields();
+            });
 
-            // Notiification details
-            $("#field_site_id").hide()
-            $("#field_site_name").hide()
-            if ($("#site_cc").val() == '1') $("#field_site_id").show(); // Site id
-            if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
+            function updateFields() {
+                // Type
+                if ($("#type_text").val())
+                    var types = $("#type_text").val().split(', ');
+                else
+                    var types = $("#type").select2("val");
 
-            // Injury details
-            $("#field_treatment_other").hide();
-            $("#field_injured_part_other").hide();
-            if ($("#type").val()) {
-                var treatment = $("#treatment").select2("val");
-                var injured_part = $("#injured_part").select2("val");
-                if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
-                if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+                // Notiification details
+                $("#field_site_id").hide()
+                $("#field_site_name").hide()
+                if ($("#site_cc").val() == '1') $("#field_site_id").show(); // Site id
+                if ($("#site_cc").val() == '0') $("#field_site_name").show() // Site name
+
+                // Injury details
+                $("#field_treatment_other").hide();
+                $("#field_injured_part_other").hide();
+                if ($("#type").val()) {
+                    var treatment = $("#treatment").select2("val");
+                    var injured_part = $("#injured_part").select2("val");
+                    if (treatment != null && treatment.includes('20')) $("#field_treatment_other").show(); // Other treatment
+                    if (injured_part != null && injured_part.includes('49')) $("#field_injured_part_other").show(); // Other part
+                }
             }
-        }
 
-        if ($("#show_signoff").val() == '1') {
-            swal('Incident Review', 'Please review and sign off your acceptance of this incident report');
-        }
+            if ($("#show_signoff").val() == '1') {
+                swal('Incident Review', 'Please review and sign off your acceptance of this incident report');
+            }
 
-        // On Click Review Sign Off
-        $("#signoff_review").click(function (e) {
-            e.preventDefault();
-            swal({
-                title: "Incident Reviewed",
-                text: "I have reviewed and sign off my acceptance of this incident report.<br>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Sign Off",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $("#done_at").val(1);
-                $('#form_reviewed').submit();
+            // On Click Review Sign Off
+            $("#signoff_review").click(function (e) {
+                e.preventDefault();
+                swal({
+                    title: "Incident Reviewed",
+                    text: "I have reviewed and sign off my acceptance of this incident report.<br>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Sign Off",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $("#done_at").val(1);
+                    $('#form_reviewed').submit();
+                });
+
             });
 
         });
 
-    });
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
+        }
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
+        }
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'notification' || errors.FORM == 'injury' || errors.FORM == 'damage' || errors.FORM == 'notes' || errors.FORM == 'compliance') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
-
-    console.log(errors)
-    @endif
+        console.log(errors)
+        @endif
 
 
 
-    // Force datepicker to not be able to select dates after today
-    /*$('.bs-datetime').datetimepicker({
-        endDate: new Date(),
-        format: 'dd/mm/yyyy hh:ii',
-    });*/
+        // Force datepicker to not be able to select dates after today
+        /*$('.bs-datetime').datetimepicker({
+            endDate: new Date(),
+            format: 'dd/mm/yyyy hh:ii',
+        });*/
 
-</script>
-<script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
+    </script>
+    <script src="/js/libs/html5lightbox/html5lightbox.js" type="text/javascript"></script>
 @stop

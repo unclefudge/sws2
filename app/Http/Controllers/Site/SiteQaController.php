@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\SiteQaRequest;
+use App\Jobs\SiteQaClientPdf;
 use App\Jobs\SiteQaPdf;
-use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
+use App\Models\Misc\Report;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Site;
@@ -700,9 +702,8 @@ class SiteQaController extends Controller
         }
 
         $site = Site::find(request('site_id'));
-        if (!$site) {
+        if (!$site)
             return redirect('/manage/report/recent');
-        }
 
         $completed = 1;
         $data = [];
@@ -710,14 +711,9 @@ class SiteQaController extends Controller
         $companies = [];
 
         if ($client_planner_id) {
-            $site_qa = SiteQa::where('site_id', $site->id)
-                ->where('status', '0')
-                ->whereDate('updated_at', '>', $date_from)
-                ->get();
+            $site_qa = SiteQa::where('site_id', $site->id)->where('status', '0')->whereDate('updated_at', '>', $date_from)->get();
         } else {
-            $site_qa = SiteQa::where('site_id', $site->id)
-                ->where('status', '<>', '-1')
-                ->get();
+            $site_qa = SiteQa::where('site_id', $site->id)->where('status', '<>', '-1')->get();
         }
 
         foreach ($site_qa->sortBy('reportOrder') as $qa) {
@@ -813,21 +809,10 @@ class SiteQaController extends Controller
 
                 $qa_name = trim(str_replace($strip, "", strip_tags($qa->name))) . " QA Checklist";
                 $filename = "{$site->name} {$qa_name}.pdf";
+                $path = "site/{$site->id}/emails/client";
+                $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $client_planner_id, 'name' => $filename, 'attachment' => $filename, 'directory' => "$path", 'status' => 2]);
 
-                ClientPlannerEmailDoc::create([
-                    'email_id' => $client_planner_id,
-                    'name' => $qa_name,
-                    'attachment' => $filename,
-                ]);
-
-                $filebankPath = "site/{$site->id}/emails/client/{$filename}";
-
-                SiteQaPdf::dispatch(
-                    $site->id,
-                    [$obj_qa], // single QA per PDF
-                    $filebankPath,
-                    false
-                );
+                SiteQaClientPdf::dispatch($attachment->id, [$obj_qa], $site->id,);
             }
         }
 
@@ -837,18 +822,10 @@ class SiteQaController extends Controller
          * ==========================
          */
         if (!$client_planner_id) {
-            $filename = 'QA ' . sanitizeFilename($site->name)
-                . " ({$site->id}) "
-                . Carbon::now()->format('YmdHis') . '.pdf';
-
-            $filebankPath = "tmp/report/" . Auth::user()->company_id . "/{$filename}";
-
-            SiteQaPdf::dispatch(
-                $site->id,
-                $data,
-                $filebankPath,
-                true
-            );
+            $name = 'QA ' . sanitizeFilename($site->name) . " ({$site->id}) " . Carbon::now()->format('YmdHis') . '.pdf';
+            $path = "report/" . Auth::user()->company_id;
+            $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'site-qa', 'status' => 'pending',]);
+            SiteQaPdf::dispatch($report->id, $data, $site->id);
         }
 
         return redirect('/manage/report/recent');

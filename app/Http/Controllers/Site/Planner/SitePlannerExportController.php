@@ -8,6 +8,7 @@ use App\Jobs\SiteAttendancePdf;
 use App\Jobs\SitePlannerCompanyPdf;
 use App\Jobs\SitePlannerPdf;
 use App\Models\Company\Company;
+use App\Models\Misc\Report;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -301,9 +302,10 @@ class SitePlannerExportController extends Controller
             }
 
             // Create PDF
-            $output_file = storage_path("app/tmp/report/" . Auth::user()->company_id . "/{$client}Site Plan ($site_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            SitePlannerPdf::dispatch($view, $data, $output_file);
+            $name = "{$client}Site Plan ($site_list_csv).pdf";
+            $path = "report/" . Auth::user()->company_id;
+            $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'site-plan', 'status' => 'pending',]);
+            SitePlannerPdf::dispatch($report->id, $data, $view);
 
             // Return just the output PDF filename for Batch reporting
             if ($returnFile) {
@@ -514,24 +516,13 @@ class SitePlannerExportController extends Controller
                 $data[] = $obj_site;
             }
 
-
-            //dd($data);
-            $output_file = storage_path("app/tmp/report/" . Auth::user()->company_id . "/Company Site Plan ($company_list_csv) " . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-            SitePlannerCompanyPdf::dispatch($data, $output_file);
+            // Create PDF
+            $name = "Company Site Plan ($company_list_csv).pdf";
+            $path = "report/" . Auth::user()->company_id;
+            $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-plan', 'status' => 'pending',]);
+            SitePlannerCompanyPdf::dispatch($report->id, $data);
 
             return redirect('/manage/report/recent');
-
-
-            //return view('pdf/plan-company', compact('company_id', 'date', 'weeks', 'sitedata'));
-            //$pdf = PDF::loadView('pdf/plan-company', compact('company_id', 'date', 'weeks', 'data'));
-            //->setOption('page-width', 200)->setOption('page-height', 287)
-            //->setOption('margin-bottom', 10)
-            //->setOrientation('landscape');
-
-            //$file = storage_path('company/' . $doc->for_company_id . '/wms/' . $doc->name . ' v' . $doc->version . ' ref-' . $doc->id . ' ' . '.pdf');
-            //$pdf->save($file);
-            return $pdf->stream();
         }
     }
 
@@ -579,12 +570,11 @@ class SitePlannerExportController extends Controller
             $data[] = $obj_site;
             //dd($sitedata);
 
-            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . '/Site Attendance ' . sanitizeFilename($site->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-
-            //return view('pdf/site-attendance', compact('site', 'data', 'company', 'from', 'to'));
-            //return PDF::loadView('pdf/site-attendance', compact('site', 'data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->stream();
-            SiteAttendancePdf::dispatch($data, $site_id, $company, $from, $to, $output_file);
+            // Create PDF
+            $name = 'Site Attendance ' . sanitizeFilename($site->name) . '.pdf';
+            $path = "report/" . Auth::user()->company_id;
+            $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'site-attendance', 'status' => 'pending',]);
+            SiteAttendancePdf::dispatch($report->id, $data, $site_id, $company, $from, $to);
         } else {
             //dd('company rep');
             $user_ids = $company->staff->pluck('id')->toArray();
@@ -603,133 +593,16 @@ class SitePlannerExportController extends Controller
 
             }
 
-            $output_file = storage_path('app/tmp/report/' . Auth::user()->company_id . '/Company Attendance ' . sanitizeFilename($company->name) . ' ' . Carbon::now()->format('YmdHis') . '.pdf');
-            touch($output_file);
-
-            //return view('pdf/company-attendance', compact('data', 'company', 'from', 'to'));
-            //return PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->stream();
-            //$pdf = PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->save($this->output_file);
-            CompanyAttendancePdf::dispatch($data, $company, $from, $to, $output_file);
+            if ($company) {
+                $name = 'Company Attendance ' . sanitizeFilename($company->name) . '.pdf';
+                $path = "report/" . Auth::user()->company_id;
+                $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-attendance', 'status' => 'pending',]);
+                CompanyAttendancePdf::dispatch($report->id, $data, $company, $from, $to);
+            }
         }
 
         return redirect('/manage/report/recent');
     }
-
-    /*
-     * Create Export Site Attendance PDF
-     */
-    /*
-    public function attendance2PDF(Request $request, $site_id)
-    {
-        $siteID = $request->get('site_id');
-
-        $site = Site::findOrFail($siteID);
-        $obj_site = (object) [];
-        $obj_site->site_id = $site->id;
-        $obj_site->site_name = $site->name;
-        $obj_site->weeks = [];
-
-        // First Attendance
-        $first_date = SiteAttendance::where('site_id', $siteID)->orderBy('date')->first();
-        $last_date = SiteAttendance::where('site_id', $siteID)->orderBy('date', 'DESC')->first();
-
-        //$date = Carbon::createFromFormat('d/m/Y H:i:s', $request->get('date') . ' 00:00:00')->format('Y-m-d');
-        if ($first_date) {
-            $current_date = $first_date->date->startOfWeek()->format('Y-m-d');
-            $date = $first_date->date->startOfWeek()->format('Y-m-d');
-            //echo "date: " . $first_date->date->format('Y-m-d') . '<br>';
-            //echo "mon: " . $current_date . '<br>';
-            //echo 'last: ' . $last_date->date->format('Y-m-d') . '<br>';
-            //echo $last_date->date->diffInWeeks($first_date->date) . '<br>--<br>';
-
-            $weeks = $last_date->date->diffInWeeks($first_date->date) + 1;
-            $date1 = Carbon::createFromFormat('d/m/Y H:i:s', '25/05/2017 00:00:00');
-            $date2 = Carbon::createFromFormat('d/m/Y H:i:s', '29/05/2017 00:00:00');
-            //echo 'd1 ' . $date1->format('Y-m-d') . '<br>';
-            //echo 'm1 ' . $date1->startOfWeek()->format('Y-m-d') . '<br>';
-            //echo 'd2 ' . $date2->format('Y-m-d') . '<br>';
-            //echo $date2->diffInWeeks($date1->startOfWeek()) + 1 . '<br>';
-        } else
-            $weeks = 0;
-
-
-        //dd($current_date);
-        // For each week get Entities on the Planner
-        for ($w = 1; $w <= $weeks; $w ++) {
-            $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
-            if ($date_from->isWeekend()) $date_from->addDays(1);
-            if ($date_from->isWeekend()) $date_from->addDays(1);
-
-            // Calculate Date to ensuring not a weekend
-            $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date_from->format('Y-m-d H:i:s'));
-            $dates = [$date_from->format('Y-m-d')];
-            for ($i = 1; $i < 7; $i ++) {
-                $date_to->addDays(1);
-                $dates[] = $date_to->format('Y-m-d');
-            }
-
-            // Create Header Row for Current Week
-            $obj_site->weeks[$w] = [];
-            $i = 1;
-            $offset = 1; // Used to set column 0/1 for client export
-            foreach ($dates as $d) {
-                $obj_site->weeks[$w][0][$i] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('D d/m'));
-
-                $attendance = SiteAttendance::select(['id', 'site_id', 'user_id', 'date'])->where('site_id', $siteID)->whereDate('date', '=', $d)->get();
-                $companies_onsite = [];
-                if ($attendance->count()) {
-                    foreach ($attendance as $attend) {
-                        $user = User::find($attend->user_id);
-                        $companies_onsite[$user->company->name_alias][$user->id] = $user->full_name;
-                    }
-                    $string = '';
-                    foreach ($companies_onsite as $company_name => $users) {
-                        $string = $company_name . ' (' . count($users) . ')<br>';
-                    }
-                    //$obj_site->weeks[$w][1][$i++] = $companies_onsite;
-                    $obj_site->weeks[$w][1][$i ++] = $string;
-                } else {
-                    $obj_site->weeks[$w][1][$i ++] = '&nbsp;';
-                }
-            }
-
-            $date_next = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00')->addDays(7);;
-            $current_date = $date_next->format('Y-m-d');
-        }
-        $sitedata[] = $obj_site;
-        //dd($sitedata);
-
-        $filename = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . uniqid('pdf_attendance_header_', true) . '.html';
-        $filename = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.html';
-        //dd($filename);
-
-        $header_html = '<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Site Attendance</title>
-    <link href="' . asset('/') . '/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
-    <link href="' . asset('/') . '/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <style>
-        @import url(http://fonts.googleapis.com/css?family=PT+Sans);
-        body, h1, h2, h3, h4, h5, h6 {font-family: \'PT Sans\', serif;}
-        h1 {font-weight: 700;}
-        body {font-size: 10px;}
-    </style>
-</head><body><br><br><br>br><br><h6 class="pull-right"><b>Supervisor:</b> ' . $site->supervisorName . '</h6><h3 style="margin-top: 10px">' . $site->name . ' <small>site: ' . $site->code . '</small></h3>' . $site->address . ', ' . $site->suburb_state_postcode . '</div><hr style="margin: 5px 0px"></body></html>';
-        file_put_contents($filename, $header_html);
-        //return view('pdf/site-attendance', compact('site', 'date', 'weeks', 'sitedata'));
-
-        $pdf = PDF::loadView('pdf/site-attendance', compact('site', 'weeks', 'sitedata'))
-            ->setOption('page-width', 200)->setOption('page-height', 287)
-            ->setOption('margin-bottom', 10)
-            ->setOption('margin-top', 10)
-            //->setOption('header-html', $filename)
-            ->setOrientation('landscape');
-
-        return $pdf->stream();
-    }*/
-
 
     /**
      * Create Job Start PDF

@@ -119,7 +119,8 @@
                                             @endif
                                         @endif
 
-                                        @if ($talk->status != 3) {{-- Not Pending --}}
+                                        @if ($talk->status != 3)
+                                            {{-- Not Pending --}}
                                             @if(!$talk->master && $talk->status == 1)
                                                 <li><a data-original-title="Archive" data-toggle="modal" href="#modal_users"><i class="fa fa-archive"></i> Edit Users</a></li>
                                                 <li class="divider"></li>

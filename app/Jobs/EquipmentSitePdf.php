@@ -2,47 +2,38 @@
 
 namespace App\Jobs;
 
+use App\Models\Misc\Report;
 use DB;
-use PDF;
-use Log;
-use Illuminate\Support\Facades\Auth;
-use App\User;
-use App\Models\Misc\Equipment\Equipment;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Log;
+use PDF;
 
-class EquipmentSitePdf implements ShouldQueue {
-
+class EquipmentSitePdf implements ShouldQueue
+{
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $locations, $output_file;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($locations, $output_file)
+    public function __construct(public int $reportId, public $locations)
     {
-        $this->locations = $locations;
-        $this->output_file = $output_file;
+
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
-        $locations = $this->locations;
+        $report = Report::findOrFail($this->reportId);
+        $report->update(['status' => 'processing']);
 
-        $pdf = PDF::loadView('pdf/equipment-site', compact('locations'));
-        $pdf->setPaper('a4');
-        $pdf->save($this->output_file);
+        try {
+            $pdf = PDF::loadView('pdf/equipment-site', ['locations' => $this->locations])->setPaper('a4', 'landscape')->output();
+            Storage::disk('filebank_spaces')->put("$report->path/$report->name", $pdf);
+            $report->update(['status' => 'completed', 'disk' => 'filebank_spaces']);
+        } catch (\Throwable $e) {
+            $report->update(['status' => 'failed', 'error' => $e->getMessage(),]);
+            throw $e;
+        }
     }
 }

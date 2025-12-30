@@ -2,53 +2,38 @@
 
 namespace App\Jobs;
 
+use App\Models\Misc\Report;
 use DB;
-use PDF;
-use Log;
-use Illuminate\Support\Facades\Auth;
-use App\User;
-use App\Models\Company\Company;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Log;
+use PDF;
 
 class CompanyAttendancePdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $data, $company, $from, $to, $output_file;
-
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct($data, $company, $from, $to, $output_file)
+    public function __construct(public int $reportId, public array $data, public $company, public $from, public $to)
     {
-        $this->data = $data;
-        $this->company = $company;
-        $this->from = $from;
-        $this->to = $to;
-        $this->output_file = $output_file;
+
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle()
     {
-        $data = $this->data;
-        $company = $this->company;
-        $from = $this->from;
-        $to = $this->to;
+        $report = Report::findOrFail($this->reportId);
+        $report->update(['status' => 'processing']);
 
-        $pdf = PDF::loadView('pdf/company-attendance', compact('data', 'company', 'from', 'to'))->setPaper('a4', 'landscape')->save($this->output_file);
+        try {
+            $pdf = PDF::loadView('pdf/company-attendance', ['data' => $this->data, 'company' => $this->company, 'from' => $this->from, 'to' => $this->to])->setPaper('a4', 'landscape')->output();
+            Storage::disk('filebank_spaces')->put("$report->path/$report->name", $pdf);
+            $report->update(['status' => 'completed', 'disk' => 'filebank_spaces']);
+        } catch (\Throwable $e) {
+            $report->update(['status' => 'failed', 'error' => $e->getMessage(),]);
+            throw $e;
+        }
     }
 }

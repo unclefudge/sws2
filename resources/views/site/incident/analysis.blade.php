@@ -90,128 +90,129 @@ $qPreventive = App\Models\Misc\FormQuestion::find(236);
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#response_113").select2({placeholder: "Check all applicable", width: "100%"}); // Conditions
-        $("#response_125").select2({placeholder: "Check all applicable", width: "100%"}); // Absent / Failed Defences
-        $("#response_148").select2({placeholder: "Check all applicable", width: "100%"}); // Individual / Team Actions
-        $("#response_167").select2({placeholder: "Check all applicable", width: "100%"}); // Workplace Conditions
-        $("#response_192").select2({placeholder: "Check all applicable", width: "100%"}); // Human Factors
-        $("#response_219").select2({placeholder: "Check all applicable", width: "100%"}); // Root Cause
-        $("#response_236").select2({placeholder: "Check all applicable", width: "100%"}); // Prevent
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#response_113").select2({placeholder: "Check all applicable", width: "100%"}); // Conditions
+            $("#response_125").select2({placeholder: "Check all applicable", width: "100%"}); // Absent / Failed Defences
+            $("#response_148").select2({placeholder: "Check all applicable", width: "100%"}); // Individual / Team Actions
+            $("#response_167").select2({placeholder: "Check all applicable", width: "100%"}); // Workplace Conditions
+            $("#response_192").select2({placeholder: "Check all applicable", width: "100%"}); // Human Factors
+            $("#response_219").select2({placeholder: "Check all applicable", width: "100%"}); // Root Cause
+            $("#response_236").select2({placeholder: "Check all applicable", width: "100%"}); // Prevent
 
-        updateFields();
+            updateFields();
 
-        // On Change Notifiable
-        $("#notifiable").change(function () {
-            $("#edit_regulator").hide();
-            if ($("#notifiable").val() == '1') {
-                $("#show_regulator").show();
-            } else
-                $("#show_regulator").hide();
-        });
-
-        // On Change Conditions
-        $("#response_113").change(function () {
-            updateFields()
-        });
-
-        // On Change Absent / Failed Responses
-        $("#response_125").change(function () {
-            updateFields()
-        });
-
-        // On Change Individual / Team Actions
-        $("#response_148").change(function () {
-            updateFields()
-        });
-
-        // On Change Workplace Conditions
-        $("#response_167").change(function () {
-            updateFields()
-        });
-
-        // On Change Human Factors
-        $("#response_192").change(function () {
-            updateFields()
-        });
-
-        // On Change Root Cause
-        $("#response_219").change(function () {
-            updateFields()
-        });
-
-        function updateFields() {
-            var response_113 = $("#response_113").select2("val"); // Conditions
-            var response_125 = $("#response_125").select2("val"); // Absent / Failed Defences
-            var response_148 = $("#response_148").select2("val"); // Individual / Team Actions
-            var response_167 = $("#response_167").select2("val"); // Workplace Conditions
-            var response_192 = $("#response_192").select2("val"); // Human Factors
-            var response_219 = $("#response_219").select2("val"); // Root Cause
-
-            // Conditions
-            var condition_ids = ['114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124'];
-            condition_ids.forEach(function (id, index) {
-                $("#field_response_" + id).hide()
-                if (response_113 != null && response_113.includes(id)) $("#field_response_" + id).show();
+            // On Change Notifiable
+            $("#notifiable").change(function () {
+                $("#edit_regulator").hide();
+                if ($("#notifiable").val() == '1') {
+                    $("#show_regulator").show();
+                } else
+                    $("#show_regulator").hide();
             });
 
-            // Absent / Failed Defences
-            $("#field_response_147").hide();
-            if (response_125 != null && response_125.includes('147')) $("#field_response_147").show(); // Other response
-
-            // Individual / Team Actions
-            $("#field_response_166").hide();
-            if (response_148 != null && response_148.includes('166')) $("#field_response_166").show(); // Other response
-
-            // Workplace Conditions
-            $("#field_response_191").hide();
-            if (response_167 != null && response_167.includes('191')) $("#field_response_191").show(); // Other response
-
-            // Human Factors
-            $("#field_response_218").hide();
-            if (response_192 != null && response_192.includes('218')) $("#field_response_218").show(); // Other response
-
-            // Root Cause
-            var rootcause_ids = ['220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235'];
-            rootcause_ids.forEach(function (id, index) {
-                $("#field_response_" + id).hide()
-                if (response_219 != null && response_219.includes(id)) $("#field_response_" + id).show();
+            // On Change Conditions
+            $("#response_113").change(function () {
+                updateFields()
             });
+
+            // On Change Absent / Failed Responses
+            $("#response_125").change(function () {
+                updateFields()
+            });
+
+            // On Change Individual / Team Actions
+            $("#response_148").change(function () {
+                updateFields()
+            });
+
+            // On Change Workplace Conditions
+            $("#response_167").change(function () {
+                updateFields()
+            });
+
+            // On Change Human Factors
+            $("#response_192").change(function () {
+                updateFields()
+            });
+
+            // On Change Root Cause
+            $("#response_219").change(function () {
+                updateFields()
+            });
+
+            function updateFields() {
+                var response_113 = $("#response_113").select2("val"); // Conditions
+                var response_125 = $("#response_125").select2("val"); // Absent / Failed Defences
+                var response_148 = $("#response_148").select2("val"); // Individual / Team Actions
+                var response_167 = $("#response_167").select2("val"); // Workplace Conditions
+                var response_192 = $("#response_192").select2("val"); // Human Factors
+                var response_219 = $("#response_219").select2("val"); // Root Cause
+
+                // Conditions
+                var condition_ids = ['114', '115', '116', '117', '118', '119', '120', '121', '122', '123', '124'];
+                condition_ids.forEach(function (id, index) {
+                    $("#field_response_" + id).hide()
+                    if (response_113 != null && response_113.includes(id)) $("#field_response_" + id).show();
+                });
+
+                // Absent / Failed Defences
+                $("#field_response_147").hide();
+                if (response_125 != null && response_125.includes('147')) $("#field_response_147").show(); // Other response
+
+                // Individual / Team Actions
+                $("#field_response_166").hide();
+                if (response_148 != null && response_148.includes('166')) $("#field_response_166").show(); // Other response
+
+                // Workplace Conditions
+                $("#field_response_191").hide();
+                if (response_167 != null && response_167.includes('191')) $("#field_response_191").show(); // Other response
+
+                // Human Factors
+                $("#field_response_218").hide();
+                if (response_192 != null && response_192.includes('218')) $("#field_response_218").show(); // Other response
+
+                // Root Cause
+                var rootcause_ids = ['220', '221', '222', '223', '224', '225', '226', '227', '228', '229', '230', '231', '232', '233', '234', '235'];
+                rootcause_ids.forEach(function (id, index) {
+                    $("#field_response_" + id).hide()
+                    if (response_219 != null && response_219.includes(id)) $("#field_response_" + id).show();
+                });
+            }
+
+        });
+
+        function editForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).show();
+            $('#add_' + name).hide();
         }
 
-    });
+        function cancelForm(e, name) {
+            e.preventDefault();
+            $('#show_' + name).show();
+            $('#edit_' + name).hide();
+            $('#add_' + name).hide();
+        }
 
-    function editForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).show();
-        $('#add_' + name).hide();
-    }
+        function addForm(name) {
+            $('#show_' + name).hide();
+            $('#edit_' + name).hide();
+            $('#add_' + name).show();
+        }
 
-    function cancelForm(e, name) {
-        e.preventDefault();
-        $('#show_' + name).show();
-        $('#edit_' + name).hide();
-        $('#add_' + name).hide();
-    }
+        @if (count($errors) > 0)
+        var errors = {!! $errors !!};
+        if (errors.FORM == 'conditions' || errors.FORM == 'confactors' || errors.FORM == 'rootcause' || errors.FORM == 'prevent') {
+            $('#show_' + errors.FORM).hide();
+            $('#edit_' + errors.FORM).show();
+        }
 
-    function addForm(name) {
-        $('#show_' + name).hide();
-        $('#edit_' + name).hide();
-        $('#add_' + name).show();
-    }
+        console.log(errors)
+        @endif
 
-            @if (count($errors) > 0)
-    var errors = {!! $errors !!};
-    if (errors.FORM == 'conditions' || errors.FORM == 'confactors' || errors.FORM == 'rootcause' || errors.FORM == 'prevent') {
-        $('#show_' + errors.FORM).hide();
-        $('#edit_' + errors.FORM).show();
-    }
-
-    console.log(errors)
-    @endif
-
-</script>
+    </script>
 @stop

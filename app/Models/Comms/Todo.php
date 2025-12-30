@@ -336,7 +336,6 @@ class Todo extends Model
         //--------------------------------------------------------------------------
         // Resolve TO recipients
         //--------------------------------------------------------------------------
-        $emailTo = [env('EMAIL_ME')];
         if ($isProd) {
             // If not explicitly provided or marked as ASSIGNED, resolve assigned users
             if (!$emailTo || $emailTo === 'ASSIGNED') {
@@ -347,7 +346,8 @@ class Todo extends Model
                         $emailTo[] = $user->email;
                 }
             }
-        }
+        } else
+            $emailTo = [env('EMAIL_ME')];
 
         //--------------------------------------------------------------------------
         // Resolve CC recipients

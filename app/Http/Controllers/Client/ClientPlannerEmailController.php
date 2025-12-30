@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Site\SiteQaController;
 use App\Http\Utilities\ClientPlannerActionItems;
 use App\Models\Client\ClientPlannerEmail;
-use App\Models\Client\ClientPlannerEmailDoc;
 use App\Models\Company\Company;
 use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SitePlanner;
@@ -185,11 +185,14 @@ class ClientPlannerEmailController extends Controller
         /* ------------------------------------------------------------
         | Handle attachments
         |------------------------------------------------------------ */
+        //dd(request()->all());
         $attachments = request("filepond");
         if ($attachments) {
             foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'directory' => "site/{$email->site_id}/emails/client"]);
-                $attachment->saveAttachment($tmp_filename);
+                if ($tmp_filename) {
+                    $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'directory' => "site/{$email->site_id}/emails/client"]);
+                    $attachment->saveAttachment($tmp_filename);
+                }
             }
         }
 
@@ -205,8 +208,7 @@ class ClientPlannerEmailController extends Controller
 
         // Store PDF directly to Spaces
         FileBank::putContents($path, $pdf->output());
-
-        ClientPlannerEmailDoc::create(['email_id' => $email->id, 'name' => 'Client Planner', 'attachment' => $filename]);
+        $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'name' => $filename, 'attachment' => $filename, 'directory' => $basePath]);
 
 
         /* ------------------------------------------------------------
@@ -461,6 +463,24 @@ class ClientPlannerEmailController extends Controller
     public function checkDocs($id)
     {
         $email = ClientPlannerEmail::findOrFail($id);
+        $results = [];
+
+        foreach ($email->attachments as $file) {
+            $path = trim($file->directory, '/') . '/' . $file->attachment;
+            $results[] = [
+                'id' => $file->id,
+                'name' => $file->name,
+                'url' => FileBank::url($path),
+                'status' => $file->status,
+            ];
+        }
+
+        return $results;
+    }
+
+    public function checkDocs2($id)
+    {
+        $email = ClientPlannerEmail::findOrFail($id);
 
         $results = [];
 
@@ -470,7 +490,7 @@ class ClientPlannerEmailController extends Controller
                 $results[] = [
                     'id' => $file->id,
                     'name' => $file->name,
-                    'url' => null,
+                    'url' => FileBank::url($path),
                     'status' => 0, // not started
                 ];
                 continue;

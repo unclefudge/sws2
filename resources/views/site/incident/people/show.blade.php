@@ -35,7 +35,9 @@
                         @if ($incident->status == 2)
                             <div class="row">
                                 <div class="col-md-12">
-                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} @if ($incident->site)({{ $incident->site->full_address }})@endif</b><br><br>
+                                    <b>The following person was involved in an incident on {{ $incident->date->format('d/m/Y') }} at {{ $incident->site_name }} @if ($incident->site)
+                                            ({{ $incident->site->full_address }})
+                                        @endif</b><br><br>
                                 </div>
                             </div>
                         @endif
@@ -171,7 +173,7 @@
         </div>
     </div>
 
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -188,99 +190,100 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-        /* Select2 */
-        //$("#type").select2({placeholder: "Check all applicable"});
-        $("#user_id").select2({placeholder: "Select user"});
+            /* Select2 */
+            //$("#type").select2({placeholder: "Check all applicable"});
+            $("#user_id").select2({placeholder: "Select user"});
 
-        updateFields();
-
-        // On Change Type
-        $("#type").change(function () {
             updateFields();
-        });
 
-        // On Change User_id
-        $("#user_id").change(function () {
-            var user_id = $("#user_id").select2("val");
-            if (user_id) {
-                $.ajax({
-                    url: '/user/data/details/' + user_id,
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        var fullname = data.firstname;
-                        var address = data.address;
+            // On Change Type
+            $("#type").change(function () {
+                updateFields();
+            });
 
-                        if (data.lastname) fullname = fullname + ' ' + data.lastname
-                        if (address) address = address + ', ' + data.suburb;
-                        if (address) address = address + ', ' + data.state;
-                        if (address) address = address + ', ' + data.postcode;
+            // On Change User_id
+            $("#user_id").change(function () {
+                var user_id = $("#user_id").select2("val");
+                if (user_id) {
+                    $.ajax({
+                        url: '/user/data/details/' + user_id,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var fullname = data.firstname;
+                            var address = data.address;
 
-                        $("#name").val(fullname);
-                        $("#contact").val(data.phone);
-                        $("#address").val(address);
+                            if (data.lastname) fullname = fullname + ' ' + data.lastname
+                            if (address) address = address + ', ' + data.suburb;
+                            if (address) address = address + ', ' + data.state;
+                            if (address) address = address + ', ' + data.postcode;
 
-                        // Company Details
-                        $.ajax({
-                            url: '/company/data/details/' + data.company_id,
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function (data2) {
-                                $("#employer").val(data2.name);
-                            },
-                        })
-                    },
-                })
+                            $("#name").val(fullname);
+                            $("#contact").val(data.phone);
+                            $("#address").val(address);
+
+                            // Company Details
+                            $.ajax({
+                                url: '/company/data/details/' + data.company_id,
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (data2) {
+                                    $("#employer").val(data2.name);
+                                },
+                            })
+                        },
+                    })
+                }
+            });
+
+            function updateFields() {
+                $("#field_type_other").hide();
+
+                // Type Other
+                if ($("#type").val() == '13')
+                    $("#field_type_other").show();
             }
-        });
 
-        function updateFields() {
-            $("#field_type_other").hide();
+            $("#btn-delete").click(function (e) {
+                e.preventDefault();
 
-            // Type Other
-            if ($("#type").val() == '13')
-                $("#field_type_other").show();
-        }
-
-        $("#btn-delete").click(function (e) {
-            e.preventDefault();
-
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to recover this person involved!<br><b>" + $('#name').val() + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                $.ajax({
-                    url: '/site/incident/{{ $incident->id }}/people/{{ $person->id }}',
-                    type: 'DELETE',
-                    dataType: 'json',
-                    data: {method: '_DELETE', submit: true},
-                    success: function (data) {
-                        toastr.error('Deleted person');
-                        window.location.href = "/site/incident/{{ $incident->id }}";
-                    },
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to recover this person involved!<br><b>" + $('#name').val() + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    $.ajax({
+                        url: '/site/incident/{{ $incident->id }}/people/{{ $person->id }}',
+                        type: 'DELETE',
+                        dataType: 'json',
+                        data: {method: '_DELETE', submit: true},
+                        success: function (data) {
+                            toastr.error('Deleted person');
+                            window.location.href = "/site/incident/{{ $incident->id }}";
+                        },
+                    });
                 });
             });
+
         });
 
-    });
-
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop
 
