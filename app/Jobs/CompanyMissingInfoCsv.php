@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use Log;
 
 class CompanyMissingInfoCsv implements ShouldQueue
@@ -41,7 +42,7 @@ class CompanyMissingInfoCsv implements ShouldQueue
                         $csv .= "\r\n";
                     }
             }
-            Storage::disk('filebank_spaces')->put($report->path, $csv);
+            Storage::disk('filebank_spaces')->put("$report->path/$report->name", $csv);
             $report->update(['status' => 'completed', 'disk' => 'filebank_spaces']);
         } catch (\Throwable $e) {
             $report->update(['status' => 'failed', 'error' => $e->getMessage(),]);

@@ -534,12 +534,12 @@ class ReportUserCompanyController extends Controller
         $companies = [];
         foreach ($cids as $key => $value)
             $companies[] = Company::find($key);
+        
+        $name = 'company_missinginfo_planned.csv';
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-missinginfo-planned', 'status' => 'pending',]);
+        CompanyMissingInfoPlannerCsv::dispatch($report->id, $companies);
 
-        $output_file = storage_path("app/tmp/report/company_missinginfo_planned " . Carbon::now()->format('YmdHis') . '.csv');
-        touch($output_file);
-
-        //dd('here');
-        CompanyMissingInfoPlannerCsv::dispatch($companies, $output_file); // Queue the job to generate PDF
 
         return redirect('/manage/report/recent');
     }

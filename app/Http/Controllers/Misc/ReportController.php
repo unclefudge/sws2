@@ -51,18 +51,33 @@ class ReportController extends Controller
     public function viewReport(Report $report)
     {
         abort_unless($report->user_id === auth()->id(), 403);
-        abort_unless($report->status === 'ready', 404);
+        abort_unless($report->status === 'completed', 404);
 
         $disk = Storage::disk($report->disk);
-        abort_unless($disk->exists($report->path), 404);
+        $fullPath = trim($report->path, '/') . '/' . $report->name;
 
-        $filename = basename($report->path);
+        abort_unless($disk->exists($fullPath), 404);
+
+        $filename = $report->name;
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         return match ($extension) {
-            'pdf' => $disk->response($report->path, $filename, ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline; filename="' . $filename . '"',]),
-            'csv' => $disk->download($report->path, $filename, ['Content-Type' => 'text/csv',]),
-            default => $disk->download($report->path, $filename),
+            'pdf' => $disk->response(
+                $fullPath,
+                $filename,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $filename . '"',
+                ]
+            ),
+
+            'csv' => $disk->download(
+                $fullPath,
+                $filename,
+                ['Content-Type' => 'text/csv']
+            ),
+
+            default => $disk->download($fullPath, $filename),
         };
     }
 

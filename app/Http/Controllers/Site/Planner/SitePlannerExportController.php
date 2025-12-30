@@ -309,7 +309,7 @@ class SitePlannerExportController extends Controller
 
             // Return just the output PDF filename for Batch reporting
             if ($returnFile) {
-                return $output_file;
+                return "$path/$name";
             }
 
             return redirect('/manage/report/recent');

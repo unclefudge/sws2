@@ -30,7 +30,6 @@
                         <table class="table table-striped table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">#</th>
                                 <th>Report</th>
                                 <th width="20%">Status</th>
                                 <th width="20%">Date</th>
@@ -39,9 +38,6 @@
 
                             <tbody>
                             <tr v-for="report in xx.reports" :key="report.id">
-                                <td class="text-center">
-                                    <i class="fa fa-file-pdf-o"></i></i>
-                                </td>
                                 <td>
                                     <a v-if="report.status === 'completed'" :href="`/reports/${report.id}`" target="_blank">@{{ report.name }}</a>
                                     <span v-else>@{{ report.name }}</span>
