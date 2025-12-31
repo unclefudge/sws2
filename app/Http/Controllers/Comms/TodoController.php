@@ -183,8 +183,8 @@ class TodoController extends Controller
         // -------------------------------------------------
         // Attachments (FilePond → Spaces)
         // -------------------------------------------------
-        foreach (request('filepond') as $tmp_filename) {
-            ray('filepond', $tmp_filename);
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
             $attachment = Attachment::create(['table' => 'todo', 'table_id' => $todo->id, 'directory' => "todo/{$todo->id}",]);
             $attachment->saveAttachment($tmp_filename);
         }
