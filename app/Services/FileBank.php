@@ -266,6 +266,27 @@ class FileBank
         throw new \RuntimeException("File not found: {$path}");
     }
 
+    public static function readStream(string $path)
+    {
+        $path = self::normalizePath($path);
+
+        foreach (self::readDisks() as $disk) {
+            if (!self::disk($disk)->exists($path)) {
+                continue;
+            }
+
+            $stream = self::disk($disk)->readStream($path);
+
+            if (!is_resource($stream)) {
+                throw new \RuntimeException("Unable to read stream: {$path}");
+            }
+
+            return $stream;
+        }
+
+        throw new \RuntimeException("File not found: {$path}");
+    }
+
     // Calculate total size (bytes) of a folder/prefix.
     public static function folderSize(string $prefix): int
     {

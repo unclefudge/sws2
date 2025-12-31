@@ -662,21 +662,23 @@ class SiteIncidentController extends Controller
         // ------------------------------------------------------------------
         // Generate PDF
         // ------------------------------------------------------------------
-        $pdfPath = "{$tmpDir}/Incident Report {$incident->id}.pdf";
+        $pdfFilename = "Incident Report {$incident->id}.pdf";
+        $pdfPath = "{$tmpDir}/{$pdfFilename}";
         $pdf = PDF::loadView('pdf/site/incident', compact('incident'))->setPaper('a4');
         Storage::disk('local')->put($pdfPath, $pdf->output());
 
         // ------------------------------------------------------------------
         // Create ZIP
         // ------------------------------------------------------------------
-        $zipPath = Storage::disk('local')->path("{$tmpDir}/Incident Report {$incident->id}.zip");
         $zip = new ZipArchive();
+        $zipPath = Storage::disk('local')->path("{$tmpDir}/Incident Report {$incident->id}.zip");
 
-        if ($zip->open($zipPath, ZipArchive::CREATE) !== true)
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             abort(500, 'Unable to create ZIP file');
+        }
 
         // Add PDF
-        $zip->addFile(Storage::disk('local')->path($pdfPath), "Incident Report {$incident->id}.pdf");
+        $zip->addFile(Storage::disk('local')->path($pdfPath), $pdfFilename);
 
         // ------------------------------------------------------------------
         // Incident documents (FileBank / Spaces)
@@ -686,15 +688,22 @@ class SiteIncidentController extends Controller
                 continue;
 
             $path = "$file->directory/{$file->attachment}";
+            if (!FileBank::exists($path))
+                continue;
 
-            if (FileBank::exists($path)) {
-                $stream = FileBank::downloadResponse($path)->getFile();
+            // FileBank → local temp copy (ZipArchive requires local file)
+            $localCopy = "{$tmpDir}/{$file->attachment}";
 
-                // Copy into temp so ZipArchive can read it
-                $localCopy = "{$tmpDir}/{$file->attachment}";
-                Storage::disk('local')->put($localCopy, FileBank::get($path));
-                $zip->addFile(Storage::disk('local')->path($localCopy), $file->attachment);
-            }
+            $readStream = FileBank::readStream($path);
+            $writeStream = Storage::disk('local')->writeStream($localCopy, $readStream);
+
+            if (is_resource($readStream))
+                fclose($readStream);
+
+            if ($writeStream === false)
+                continue;
+
+            $zip->addFile(Storage::disk('local')->path($localCopy), $file->attachment);
         }
 
         // ------------------------------------------------------------------
@@ -706,11 +715,18 @@ class SiteIncidentController extends Controller
 
             $path = "todo/{$todo->id}/{$todo->attachment}";
 
-            if (FileBank::exists($path)) {
-                $localCopy = "{$tmpDir}/{$todo->attachment}";
-                Storage::disk('local')->put($localCopy, FileBank::get($path));
-                $zip->addFile(Storage::disk('local')->path($localCopy), $todo->attachment);
-            }
+            $localCopy = "{$tmpDir}/{$todo->attachment}";
+
+            $readStream = FileBank::readStream($path);
+            $writeStream = Storage::disk('local')->writeStream($localCopy, $readStream);
+
+            if (is_resource($readStream))
+                fclose($readStream);
+
+            if ($writeStream === false)
+                continue;
+            
+            $zip->addFile(Storage::disk('local')->path($localCopy), $todo->attachment);
         }
 
         $zip->close();
