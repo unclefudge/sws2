@@ -681,19 +681,19 @@ class SiteIncidentController extends Controller
         // ------------------------------------------------------------------
         // Incident documents (FileBank / Spaces)
         // ------------------------------------------------------------------
-        foreach ($incident->docs as $doc) {
-            if (!$doc->attachment)
+        foreach ($incident->attachments as $file) {
+            if (!$file->attachment)
                 continue;
 
-            $path = "incident/{$doc->incident_id}/{$doc->attachment}";
+            $path = "$file->directory/{$doc->attachment}";
 
             if (FileBank::exists($path)) {
                 $stream = FileBank::downloadResponse($path)->getFile();
 
                 // Copy into temp so ZipArchive can read it
-                $localCopy = "{$tmpDir}/{$doc->attachment}";
+                $localCopy = "{$tmpDir}/{$file->attachment}";
                 Storage::disk('local')->put($localCopy, FileBank::get($path));
-                $zip->addFile(Storage::disk('local')->path($localCopy), $doc->attachment);
+                $zip->addFile(Storage::disk('local')->path($localCopy), $file->attachment);
             }
         }
 
