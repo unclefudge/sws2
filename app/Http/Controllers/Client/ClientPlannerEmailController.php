@@ -186,13 +186,11 @@ class ClientPlannerEmailController extends Controller
         | Handle attachments
         |------------------------------------------------------------ */
         //dd(request()->all());
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                if ($tmp_filename) {
-                    $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'directory' => "site/{$email->site_id}/emails/client"]);
-                    $attachment->saveAttachment($tmp_filename);
-                }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            if ($tmp_filename) {
+                $attachment = Attachment::create(['table' => 'client_planner_emails', 'table_id' => $email->id, 'directory' => "site/{$email->site_id}/emails/client"]);
+                $attachment->saveAttachment($tmp_filename);
             }
         }
 

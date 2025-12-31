@@ -75,12 +75,10 @@ class SiteHazardController extends Controller
             $hazard->touch(); // update timestamp
 
             // Handle attachments
-            $attachments = request("filepond");
-            if ($attachments) {
-                foreach ($attachments as $tmp_filename) {
-                    $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
-                    $attachment->saveAttachment($tmp_filename);
-                }
+            $attachments = collect(request('filepond', []))->filter()->values();
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
+                $attachment->saveAttachment($tmp_filename);
             }
 
             // Email hazard
@@ -131,12 +129,10 @@ class SiteHazardController extends Controller
         //dd(request()->all());
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         if ($hazard->status == '9' && $hazard->status != $old_status) {

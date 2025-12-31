@@ -140,12 +140,10 @@ class SiteIncidentController extends Controller
         $incident->save();
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         //$incident->emailIncident(); // Email incident
@@ -223,13 +221,12 @@ class SiteIncidentController extends Controller
         $incident = SiteIncident::create($incident_request);
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_incidents', 'table_id' => $incident->id, 'directory' => "incident/{$incident->site_id}"]);
+            $attachment->saveAttachment($tmp_filename);
         }
+
 
         //
         // Form Responses

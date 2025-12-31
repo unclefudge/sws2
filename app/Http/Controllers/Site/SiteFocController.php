@@ -139,13 +139,12 @@ class SiteFocController extends Controller
         }
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
+            $attachment->saveAttachment($tmp_filename);
         }
+
 
         // Create ToDoo to assign Supervisor
         $foc->createAssignSupervisorToDo([108]); // Kirstie
@@ -198,12 +197,10 @@ class SiteFocController extends Controller
         $foc->update($foc_request);
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/prac"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/prac"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         // Email if Super Assigned is updated
@@ -419,12 +416,10 @@ class SiteFocController extends Controller
         }
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_foc', 'table_id' => $foc->id, 'directory' => "site/$foc->site_id/foc"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         // Create ToDoo to assign Supervisor

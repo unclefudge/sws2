@@ -57,12 +57,10 @@ class SupportTicketController extends Controller
             $action = $ticket->actions()->save(new SupportTicketAction($action_request));
 
             // Handle attachments
-            $attachments = request("filepond");
-            if ($attachments) {
-                foreach ($attachments as $tmp_filename) {
-                    $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
-                    $attachment->saveAttachment($tmp_filename);
-                }
+            $attachments = collect(request('filepond', []))->filter()->values();
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
+                $attachment->saveAttachment($tmp_filename);
             }
 
             // Email ticket
@@ -123,12 +121,10 @@ class SupportTicketController extends Controller
             $action = $ticket->actions()->save(new SupportTicketAction(['action' => request('action')]));
 
             // Handle attachments
-            $attachments = request("filepond");
-            if ($attachments) {
-                foreach ($attachments as $tmp_filename) {
-                    $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
-                    $attachment->saveAttachment($tmp_filename);
-                }
+            $attachments = collect(request('filepond', []))->filter()->values();
+            foreach ($attachments as $tmp_filename) {
+                $attachment = Attachment::create(['table' => 'support_tickets_actions', 'table_id' => $action->id, 'directory' => "support/ticket"]);
+                $attachment->saveAttachment($tmp_filename);
             }
 
             // Email action

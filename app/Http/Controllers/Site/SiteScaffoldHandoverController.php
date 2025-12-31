@@ -148,13 +148,12 @@ class SiteScaffoldHandoverController extends Controller
         $report = SiteScaffoldHandover::create($report_request);
 
 
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
+            $attachment->saveAttachment($tmp_filename);
         }
+
         Toastr::success("Created certificate");
 
         return redirect('/site/scaffold/handover/' . $report->id . '/edit');
@@ -209,13 +208,12 @@ class SiteScaffoldHandoverController extends Controller
         $report->closeToDo();
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_scaffold_handover', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/scaffold"]);
+            $attachment->saveAttachment($tmp_filename);
         }
+
         // Handle attached file license
         if (request()->hasFile('singlefile')) {
             $basePath = "site/$report->site_id/scaffold";

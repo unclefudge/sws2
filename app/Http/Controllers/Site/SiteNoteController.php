@@ -212,12 +212,10 @@ class SiteNoteController extends Controller
         $note = SiteNote::create($note_request);
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         // Create Variations Cost Items for Approved/For Issue
@@ -288,12 +286,10 @@ class SiteNoteController extends Controller
 
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         return redirect("site/note/$note->id");

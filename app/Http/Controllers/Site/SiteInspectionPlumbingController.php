@@ -93,12 +93,10 @@ class SiteInspectionPlumbingController extends Controller
         $report = SiteInspectionPlumbing::create($report_request);
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         // Create Todoo to assign a company
@@ -238,12 +236,10 @@ class SiteInspectionPlumbingController extends Controller
         $report->update($report_request);
 
         // Handle attachments
-        $attachments = request("filepond");
-        if ($attachments) {
-            foreach ($attachments as $tmp_filename) {
-                $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
-                $attachment->saveAttachment($tmp_filename);
-            }
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_inspection_plumbing', 'table_id' => $report->id, 'directory' => "site/{$report->site_id}/inspection"]);
+            $attachment->saveAttachment($tmp_filename);
         }
 
         Toastr::success("Updated inspection report");
