@@ -53,12 +53,13 @@ class ReportController extends Controller
         abort_unless($report->user_id === auth()->id(), 403);
         abort_unless($report->status === 'completed', 404);
 
-        dd('here');
+
         $disk = Storage::disk($report->disk);
         $fullPath = trim($report->path, '/') . '/' . $report->name;
 
         abort_unless($disk->exists($fullPath), 404);
 
+        dd('here2');
         $filename = $report->name;
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
