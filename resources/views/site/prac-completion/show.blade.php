@@ -183,10 +183,11 @@
                                         @if ($files->isNotEmpty())
                                             <div class="row" style="margin: 0">
                                                 @foreach ($files as $attachment)
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
                                                     @if(Auth::user()->allowed2('del.prac.completion', $prac))
                                                         <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                     @endif
+                                                    <br>
                                                 @endforeach
                                             </div>
                                         @endif
