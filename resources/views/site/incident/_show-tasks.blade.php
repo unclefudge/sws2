@@ -37,27 +37,36 @@
                         @if ($todo->attachment)
                             <br><a href="{{ $todo->attachmentUrl }}" target="_blank" class="btn btn-xs blue"><i class="fa fa-picture-o"></i> Photo</a>
                         @endif
-                        @if ($todo->attachments->count())
+                        {{-- Attachments --}}
+                        @php
+                            $attachments = $todo->attachments;
+                            $images = $attachments->where('type', 'image');
+                            $files  = $attachments->where('type', 'file');
+                        @endphp
+
+                        @if ($attachments->isNotEmpty())
                             <hr style="margin: 10px 0px; padding: 0px;">
                             {{-- Image attachments --}}
-                            <div class="row" style="margin: 0">
-                                @foreach ($todo->attachment as $attachment)
-                                    @if ($attachment->type == 'image')
+                            @if ($images->isNotEmpty())
+                                <div class="row" style="margin: 0">
+                                    @foreach ($images as $attachment)
                                         <div style="width: 60px; float: left; padding-right: 5px">
-                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                            </a>
                                         </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                            {{-- File attachments  --}}
-                            <div class="row" style="margin: 0">
-                                @foreach ($todo->attachments as $attachment)
-                                    @if ($attachment->type == 'file')
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- File attachments --}}
+                            @if ($files->isNotEmpty())
+                                <div class="row" style="margin: 0">
+                                    @foreach ($files as $attachment)
                                         <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                    @endif
-                                @endforeach
-                            </div>
-                            <br>
+                                    @endforeach
+                                </div>
+                            @endif
                         @endif
                     </div>
                     <div class="col-xs-3">
