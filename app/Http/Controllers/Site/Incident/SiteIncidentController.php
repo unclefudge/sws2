@@ -685,7 +685,7 @@ class SiteIncidentController extends Controller
             if (!$file->attachment)
                 continue;
 
-            $path = "$file->directory/{$doc->attachment}";
+            $path = "$file->directory/{$file->attachment}";
 
             if (FileBank::exists($path)) {
                 $stream = FileBank::downloadResponse($path)->getFile();
