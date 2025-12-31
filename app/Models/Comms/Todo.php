@@ -389,13 +389,14 @@ class Todo extends Model
         // -----------------------------
         // Resolve TO recipients
         // -----------------------------
-        $emailTo = [env('EMAIL_ME')];
         if (app()->environment('prod')) {
             if (!$emailTo) {
                 $emailTo = collect($this->assignedTo())->pluck('email')->filter(fn($email) => validEmail($email))->values()->all();
             }
 
-        }
+        } else
+            $emailTo = [env('EMAIL_ME')];
+        
         if (empty($emailTo)) return;
 
         // -----------------------------
