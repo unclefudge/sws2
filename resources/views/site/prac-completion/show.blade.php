@@ -163,7 +163,6 @@
                                         $files  = $attachments->where('type', 'file');
                                     @endphp
                                     @if ($attachments->isNotEmpty())
-                                        <hr style="margin: 10px 0px; padding: 0px;">
                                         {{-- Image attachments --}}
                                         @if ($images->isNotEmpty())
                                             <div class="row" style="margin: 0">
