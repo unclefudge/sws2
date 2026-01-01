@@ -34,9 +34,9 @@ Array.from(inputElements).forEach(inputElement => {
 
         // display added file info to console for debuging
         onaddfile: (err, fileItem) => {
-            console.log('File added');
+            //console.log('File added');
             //console.log(fileItem);
-            console.log(fileItem.fileType);
+            //console.log(fileItem.fileType);
             //console.log(fileItem.getMetadata('resize'));
             //console.log(inputElement);
             //console.log(inputElement.name);
@@ -45,8 +45,8 @@ Array.from(inputElements).forEach(inputElement => {
 
         // alter the output property
         onpreparefile: (fileItem, output) => {
-            console.log('File prepared');
-            console.log('fileType:' + fileItem.fileType);
+            //console.log('File prepared');
+            //console.log('fileType:' + fileItem.fileType);
             var imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
 
             if (imageTypes.includes(fileItem.fileType)) {
@@ -59,29 +59,45 @@ Array.from(inputElements).forEach(inputElement => {
                 img.id = question + '-photo-' + fileItem.id; //URL.createObjectURL(output);
                 img.width = 100;
                 img.style = 'margin-right: 20px; display:none';
+                img.dataset.filepondId = fileItem.id;
 
-                console.log('Ele:' + inputElement);
+                //console.log('Ele:' + inputElement);
 
                 var gallery = document.getElementById(question + '-gallery');
                 gallery.appendChild(img);
 
                 var thumbnail = document.getElementById(img.id);
                 thumbnail.style.opacity = '0.5';
-                console.log(thumbnail);
+                //console.log(thumbnail);
             }
         },
 
         onprocessfile: (err, fileItem) => {
-            console.log('File processing:' + err);
-            console.log(fileItem);
+            //console.log('File processing:' + err);
+            //console.log(fileItem);
+            if (err) return;
+
             var imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            if (!imageTypes.includes(fileItem.fileType)) return;
+
+            // FilePond server response
+            const response = fileItem.serverId ? JSON.parse(fileItem.serverId) : null;
+
+            if (!response || !response.path) return;
+
+            // Store FileBank metadata
+            thumbnail.dataset.filebankPath = response.path;
+            thumbnail.dataset.filename = response.filename;
+
+            thumbnail.style.display = 'inline';
+            thumbnail.style.opacity = '1';
 
             // Reveal newly uploaded thumbnail image
-            if (!err && imageTypes.includes(fileItem.fileType)) {
+            /*if (!err && imageTypes.includes(fileItem.fileType)) {
                 var question = inputElement.name.split('-media[')[0];
                 var thumbnail = document.getElementById(question + '-photo-' + fileItem.id);
                 thumbnail.style.display = 'inline';
-            }
+            }*/
         },
 
         // remove file
@@ -103,9 +119,20 @@ Array.from(inputElements).forEach(inputElement => {
 });
 
 function openGalleryPreview(image) {
-    document.getElementById("myGalleryFullscreen").style.width = "100%";  // show Gallery Fullscreen
-    document.getElementById("myGalleryImage").src = image.src;  // set Gallery image to clicked
+    //document.getElementById("myGalleryFullscreen").style.width = "100%";  // show Gallery Fullscreen
+    //document.getElementById("myGalleryImage").src = image.src;  // set Gallery image to clicked
     //imageFullscreen.src = image.src;
+
+    const fullscreen = document.getElementById("myGalleryFullscreen");
+    const viewer = document.getElementById("myGalleryImage");
+
+    fullscreen.style.width = "100%";
+
+    viewer.src = image.src;
+
+    // propagate FileBank metadata
+    viewer.dataset.filebankPath = image.dataset.filebankPath;
+    viewer.dataset.filename = image.dataset.filename;
 }
 
 function closeGalleryPreview() {
@@ -113,50 +140,95 @@ function closeGalleryPreview() {
 }
 
 function deleteGalleryPreview() {
-    var image = document.getElementById("myGalleryImage");
-    var host = window.location.protocol + "//" + window.location.host;
-    var file_url = image.src.split(host)[1];
-    var file = file_url.split('/filebank/inspection/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
-    var qid = file.split('-')[0];
+    const image = document.getElementById("myGalleryImage");
+    const path = image.dataset.filebankPath;
 
-    console.log('Delete image')
-    // Create new input element with name of file to delete and add to DOM
-    var input = document.createElement("input");
-    input.type = "text";
-    input.name = "myGalleryDelete[]";
-    input.value = file;
-    input.style.display = 'none';
-    document.getElementById('custom_form').appendChild(input); // put it into the DOM
+    if (!path) {
+        console.error('Missing FileBank path');
+        return;
+    }
 
-    var galleryDelete = document.getElementById('myGalleryDelete');
+    fetch('/form/media', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="token"]').content,
+        },
+        body: JSON.stringify({
+            path: path,
+            form_id: document.querySelector('[name="form_id"]').value
+        }),
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('Delete failed');
+            return res.json();
+        })
+        .then(() => {
+            // Hide thumbnail
+            const thumb = document.querySelector(
+                `[data-filebank-path="${path}"]`
+            );
+            if (thumb) thumb.remove();
 
-    // hide deleted file from gallery
-    var thumbnail = document.getElementById('q' + qid + '-photo-' + file_url);
-    console.log(thumbnail);
-    thumbnail.style.display = 'none';
-
-    //console.log(host);
-    //console.log(thumbnail);
-
-    document.getElementById("myGalleryFullscreen").style.width = "0%"; // close Gallery Fullscreen
-
+            // Close fullscreen
+            document.getElementById("myGalleryFullscreen").style.width = "0%";
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Unable to delete file');
+        });
 }
+
+function deleteGalleryPreview2() {
+    const image = document.getElementById("myGalleryImage");
+
+    console.log('DELETE HANDLER HIT – NEW VERSION');
+    console.log(image.dataset);
+
+    const path = image.dataset.filebankPath;
+    const filename = image.dataset.filename;
+
+    if (!path) {
+        console.error('Missing FileBank path on image', image);
+        return;
+    }
+
+    // create hidden input for backend
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "myGalleryDelete[]";
+    input.value = path;
+    document.getElementById('custom_form').appendChild(input);
+
+    // hide thumbnail
+    const thumb = document.querySelector(
+        `[data-filebank-path="${path}"]`
+    );
+    if (thumb) thumb.style.display = 'none';
+
+    document.getElementById("myGalleryFullscreen").style.width = "0%";
+}
+
 
 function downloadGalleryPreview() {
-    //alert('download');
-    var image = document.getElementById("myGalleryImage");
-    var host = window.location.protocol + "//" + window.location.host;
-    var file_url = image.src.split(host)[1];
-    var file = file_url.split('/filebank/inspection/')[1].split('/')[1]; // get only the filename ie strip out '/filebank/form/{id}/'
+    const image = document.getElementById("myGalleryImage");
 
-    // create temp <a> tag to download file
-    var el = document.createElement("a");
-    el.setAttribute("href", file_url);
-    el.setAttribute("download", file);
-    document.body.appendChild(el);
-    el.click();
-    el.remove();
+    const path = image.dataset.filebankPath;
+    const filename = image.dataset.filename;
 
+    if (!path || !filename) {
+        console.error('Missing FileBank metadata');
+        return;
+    }
+
+    // Always download via FileBank proxy
+    const url = `/filebank/${path}`;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 }
-
 

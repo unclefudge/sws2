@@ -152,7 +152,8 @@ if ($showrequired && $question->required) {
         @if ($question->files($form->id)->count())
             @foreach ($question->files($form->id) as $file)
                 @if ($file->type == 'image')
-                    <img src="{{$file->url}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px">
+                    <img src="{{$file->url}}" class="mygallery" id="q{{$question->id}}-photo-{{$file->attachment}}" width="100" style="margin:0px 10px 10px 0px"
+                         data-filebank-path="inspection/{{ $file->form_id }}/{{ $file->attachment }}" data-filename="{{ $file->attachment }}">
                 @endif
             @endforeach
         @endif

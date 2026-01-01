@@ -459,13 +459,22 @@ class FormController extends Controller
         // Delete any media marked to delete
         //
         if (request('myGalleryDelete')) {
-            foreach (request('myGalleryDelete') as $filename) {
-                list($qid, $rest) = explode('-', $filename, 2);
+            foreach (request('myGalleryDelete') as $path) {
+                $filename = basename($path);
+                [$qid] = explode('-', $filename, 2);
+
+                // Safety guard
+                if (!is_numeric($qid)) {
+                    logger()->warning('Invalid gallery delete filename', ['path' => $path,]);
+                    continue;
+                }
 
                 // Delete FormFile + FormResponses
                 $form_file = FormFile::where('form_id', $form->id)->where('question_id', $qid)->where('attachment', "$filename")->first();
                 if ($form_file) {
                     FormResponse::where('form_id', $form->id)->where('question_id', $qid)->where('value', $form_file->id)->delete();
+                    if (FileBank::exists($path))
+                        FileBank::delete($path);
                     $form_file->delete();
                 }
             }
@@ -643,6 +652,38 @@ class FormController extends Controller
         $formFile->delete();
 
         return response()->json('success');
+    }
+
+    public function deleteMedia()
+    {
+        request()->validate(['path' => 'required|string',]);
+
+        $path = request('path'); // inspection/7/310-2Facebook.png
+        $filename = basename($path);
+
+        // Extract question id
+        [$qid] = explode('-', $filename, 2);
+
+        if (!is_numeric($qid)) {
+            return response()->json(['error' => 'Invalid file'], 422);
+        }
+
+        // Find DB record
+        $formFile = FormFile::where('form_id', request('form_id'))->where('question_id', $qid)->where('attachment', $filename)->first();
+
+        if (!$formFile)
+            return response()->json(['error' => 'File not found'], 404);
+
+        // Delete responses
+        FormResponse::where('form_id', $formFile->form_id)->where('question_id', $qid)->where('value', $formFile->id)->delete();
+
+        // Delete from Spaces
+        if (FileBank::exists($path))
+            FileBank::delete($path);
+
+        $formFile->delete();
+
+        return response()->json(['success' => true]);
     }
 
     /**

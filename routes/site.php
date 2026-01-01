@@ -237,6 +237,7 @@ Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\F
 Route::get('site/inspection/{form_id}/media/{view}', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
 Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
 Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
+Route::delete('form/media', [\App\Http\Controllers\Misc\Form\FormController::class, 'deleteMedia'])->name('form.media.delete');
 
 // Site Inspection Electrical Register
 Route::get('site/inspection/electrical/dt/list', '\App\Http\Controllers\Site\SiteInspectionElectricalController@getInspections');
