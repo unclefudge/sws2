@@ -14,114 +14,77 @@
 @stop
 
 @section('content')
+    <style>
+        /* Directly in blade they work */
+
+    </style>
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Lodge Hazard</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_hazard', ['action' => ['Site\SiteHazardController@store'], 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action('Site\SiteHazardController@store') }}" enctype="multipart/form-data">
+                            @csrf
 
-                        <div class="form-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
+                                    <x-form.select name="site_id" label="Site" class="select2">
+                                        {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
+                                    </x-form.select>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('address', 'Site Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
+                                    <x-form.input name="address" label="Site Address" readonly/>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('code', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
+                                    <x-form.input name="code" label="Job #" readonly/>
                                 </div>
                             </div>
-                            <!-- Location -->
+
                             <div class="row">
                                 <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Location of hazard (eg. bathroom, first floor addition, kitchen, backyard)', ['class' => 'control-label']) !!}
-                                        {!! Form::text('location', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
-                                    </div>
+                                    <x-form.input name="location" label="Location of hazard"/>
                                 </div>
-                                <div class="col-md-2">
-                                </div>
+                                <div class="col-md-2"></div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('rating', $errors) !!}">
-                                        {!! Form::label('rating', 'Risk Rating', ['class' => 'control-label']) !!}
-                                        {!! Form::select('rating', ['' => 'Select rating', '1' => "Low", '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('rating', $errors) !!}
-                                    </div>
+                                    <x-form.select name="rating" label="Risk Rating" :options="['' => 'Select rating', 1 => 'Low', 2 => 'Medium', 3 => 'High', 4 => 'Extreme',]" class="bs-select"/>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('reason', $errors) !!}">
-                                        {!! Form::label('reason', 'What is the hazard / safety issue?', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('reason', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('reason', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('action', $errors) !!}">
-                                        {!! Form::label('action', 'What action/s (if any) have you taken to resolve the issue?', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('action', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('action', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
+
+                            <x-form.textarea name="reason" label="What is the hazard / safety issue?"/>
+
+                            <x-form.textarea name="action" label="What action/s have you taken?"/>
+
+                            <div class="row" style="margin-bottom: 20px">
                                 <div class="col-md-6">
                                     <h5>Upload Photos/Video of issue</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                    <x-form.filepond/>
                                 </div>
                             </div>
+
                             <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('action_required', '1', null,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
+                                <div class="col-md-2">
+                                    <x-form.checkbox2 name="action_required"/>
                                 </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    Does site owner need to take any action?
-                                </div>
+                                <div class="col-md-4" style="height: 4rem; line-height: 4rem;">Does site owner need to take any action?</div>
                             </div>
+
+
                             <div class="form-actions right">
-                                <a href="/site/hazard" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit">Submit</button>
+                                <a href="/site/hazard" class="btn default">Back</a>
+                                <button class="btn green">Submit</button>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

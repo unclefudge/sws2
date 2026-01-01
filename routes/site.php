@@ -230,6 +230,14 @@ Route::prefix('site/asbestos')->as('site.asbestos.')->group(function () {
     Route::resource('notification', \App\Http\Controllers\Site\SiteAsbestosController::class);
 });
 
+Route::get('site/inspection/dt/forms', '\App\Http\Controllers\Misc\Form\FormController@getForms');
+////Route::get('site/inspection/dt/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@getTemplateForms');
+Route::get('site/inspection/list/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@listForms');
+Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@createForm');
+Route::get('site/inspection/{form_id}/media/{view}', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
+Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
+Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
+
 // Site Inspection Electrical Register
 Route::get('site/inspection/electrical/dt/list', '\App\Http\Controllers\Site\SiteInspectionElectricalController@getInspections');
 Route::any('site/inspection/electrical/{id}/docs', '\App\Http\Controllers\Site\SiteInspectionElectricalController@documents');

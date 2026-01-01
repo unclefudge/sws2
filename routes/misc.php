@@ -160,13 +160,23 @@ Route::get('form/media/{file_id}/delete', '\App\Http\Controllers\Misc\Form\FormC
 Route::resource('form/template', '\App\Http\Controllers\Misc\Form\FormTemplateController');
 
 // Site Inspection Forms
-Route::get('site/inspection/dt/forms', '\App\Http\Controllers\Misc\Form\FormController@getForms');
-//Route::get('site/inspection/dt/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@getTemplateForms');
-Route::get('site/inspection/list/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@listForms');
-Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@createForm');
-Route::get('site/inspection/{form_id}/media/{view}', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
-Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
-Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
+//Route::get('site/inspection/dt/forms', '\App\Http\Controllers\Misc\Form\FormController@getForms');
+////Route::get('site/inspection/dt/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@getTemplateForms');
+//Route::get('site/inspection/list/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@listForms');
+//Route::get('site/inspection/create/{template_id}', '\App\Http\Controllers\Misc\Form\FormController@createForm');
+//Route::get('site/inspection/{form_id}/media/{view}', '\App\Http\Controllers\Misc\Form\FormController@showMedia');
+//Route::get('site/inspection/{form_id}/{pagenumber}', '\App\Http\Controllers\Misc\Form\FormController@showPage');
+//Route::resource('site/inspection', '\App\Http\Controllers\Misc\Form\FormController');
+/*Route::prefix('site/inspection')
+    ->as('site.inspection.')
+    ->group(function () {
+        Route::get('dt/forms', [\App\Http\Controllers\Misc\Form\FormController::class, 'getForms']);
+        Route::get('list/{template_id}', [\App\Http\Controllers\Misc\Form\FormController::class, 'listForms']);
+        Route::get('create/{template_id}', [\App\Http\Controllers\Misc\Form\FormController::class, 'createForm']);
+        Route::get('{form_id}/media/{view}', [\App\Http\Controllers\Misc\Form\FormController::class, 'showMedia']);
+        Route::get('{form_id}/{pagenumber}', [\App\Http\Controllers\Misc\Form\FormController::class, 'showPage']);
+        Route::resource('/', \App\Http\Controllers\Misc\Form\FormController::class)->parameters(['' => 'inspection']);
+    });*/
 
 // Supervisor Checklist
 Route::get('supervisor/checklist/dt/list', '\App\Http\Controllers\Misc\SuperChecklistController@getChecklists');

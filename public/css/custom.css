@@ -105,6 +105,74 @@ span.select2.select2-container.select2-container--bootstrap {
     box-shadow: none; /* You may want to include this as bootstrap applies these styles too */
 }
 
+/* Checkbox2-Toggle */
+.checkbox2-wrapper {
+    display: inline-flex;
+    align-items: center;
+}
+
+.checkbox2-input {
+    display: none;
+}
+
+.checkbox2 {
+    --checkbox2-on-color: #26a69a;
+    --checkbox2-off-color: #e7505a;
+
+    position: relative;
+    display: inline-flex;
+    width: 150px;
+    height: 36px;
+    background: #e5e5e5;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    overflow: hidden;
+}
+
+.checkbox2-option {
+    flex: 1;
+    text-align: center;
+    line-height: 36px;
+    font-weight: 600;
+    font-size: 13px;
+    z-index: 2;
+    transition: color 0.2s ease;
+}
+
+.checkbox2-on {
+    color: #fff;
+}
+
+.checkbox2-off {
+    color: #555;
+}
+
+.checkbox2-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--checkbox2-on-color);
+    transition: all 0.25s ease;
+    z-index: 1;
+}
+
+/* OFF state */
+.checkbox2-input:not(:checked) + .checkbox2 .checkbox2-handle {
+    left: 50%;
+    background: var(--checkbox2-off-color);
+}
+
+.checkbox2-input:not(:checked) + .checkbox2 .checkbox2-on {
+    color: #555;
+}
+
+.checkbox2-input:not(:checked) + .checkbox2 .checkbox2-off {
+    color: #fff;
+}
+
 /*  Custom 2 Col table style  */
 .table.col2-table tr td, .table.col2-table tr th {
     border-width: 0;

@@ -15,7 +15,7 @@
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta content="" name="description"/>
     <meta content="" name="author"/>
-    <meta id="token" name="token" value="{{ csrf_token() }}" content="{{ csrf_token() }}" />
+    <meta id="token" name="token" value="{{ csrf_token() }}" content="{{ csrf_token() }}"/>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <!--<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/>-->
     <link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
@@ -27,7 +27,7 @@
 
     <!-- BEGIN PAGE LEVEL PLUGINS -->
     <link href="/assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/global/plugins/bootstrap-toastr/toastr.min.css" rel="stylesheet" type="text/css"/>
     @yield('page-level-plugins-head')
     <!-- END PAGE LEVEL PLUGINS -->
 
@@ -37,7 +37,6 @@
     <!-- END THEME GLOBAL STYLES -->
 
     <!-- BEGIN PAGE LEVEL STYLES -->
-    <link href="/css/custom.css" rel="stylesheet" type="text/css"/>
     <link href="/css/app.css" rel="stylesheet" type="text/css"/>
     <link href="/css/libs.css" rel="stylesheet" type="text/css"/>
     <link href="/css/vue-modal.css" rel="stylesheet" type="text/css"/>
@@ -49,6 +48,7 @@
     <link href="/assets/layouts/layout3/css/themes/default.min.css" rel="stylesheet" type="text/css" id="style_color"/>
     <link href="/assets/layouts/layout3/css/custom.min.css" rel="stylesheet" type="text/css"/>
     <!-- END THEME LAYOUT STYLES -->
+    <link href="/css/custom.css?v={{ filemtime(public_path('css/custom.css')) }}" rel="stylesheet">
     <link rel="shortcut icon" href="/favicon.ico"/>
 </head>
 <!-- END HEAD -->

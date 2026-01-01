@@ -71,7 +71,7 @@ class SiteHazardController extends Controller
         // Create action taken + attach image to issue
         if ($hazard) {
             $action = Action::create(['action' => 'Reported Hazard', 'table' => 'site_hazards', 'table_id' => $hazard->id]);
-            $action = Action::create(['action' => $request->get('action'), 'table' => 'site_hazards', 'table_id' => $hazard->id]);
+            $action = Action::create(['action' => request('action'), 'table' => 'site_hazards', 'table_id' => $hazard->id]);
             $hazard->touch(); // update timestamp
 
             // Handle attachments
