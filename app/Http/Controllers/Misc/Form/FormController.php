@@ -457,8 +457,8 @@ class FormController extends Controller
 
         //
         // Delete any media marked to delete
-        //
-        if (request('myGalleryDelete')) {
+        // - no longer being used as delete file directly via filepond + deleteMedia function
+        /*if (request('myGalleryDelete')) {
             foreach (request('myGalleryDelete') as $path) {
                 $filename = basename($path);
                 [$qid] = explode('-', $filename, 2);
@@ -478,7 +478,7 @@ class FormController extends Controller
                     $form_file->delete();
                 }
             }
-        }
+        }*/
         $form->save();
 
         //
@@ -664,13 +664,11 @@ class FormController extends Controller
         // Extract question id
         [$qid] = explode('-', $filename, 2);
 
-        if (!is_numeric($qid)) {
+        if (!is_numeric($qid))
             return response()->json(['error' => 'Invalid file'], 422);
-        }
 
         // Find DB record
         $formFile = FormFile::where('form_id', request('form_id'))->where('question_id', $qid)->where('attachment', $filename)->first();
-
         if (!$formFile)
             return response()->json(['error' => 'File not found'], 404);
 

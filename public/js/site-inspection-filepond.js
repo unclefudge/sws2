@@ -73,31 +73,28 @@ Array.from(inputElements).forEach(inputElement => {
         },
 
         onprocessfile: (err, fileItem) => {
-            //console.log('File processing:' + err);
-            //console.log(fileItem);
             if (err) return;
 
-            var imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
+            const imageTypes = ['image/png', 'image/jpeg', 'image/gif'];
             if (!imageTypes.includes(fileItem.fileType)) return;
 
-            // FilePond server response
-            const response = fileItem.serverId ? JSON.parse(fileItem.serverId) : null;
+            const question = inputElement.name.split('-media[')[0];
+            const thumbnail = document.getElementById(
+                `${question}-photo-${fileItem.id}`
+            );
 
-            if (!response || !response.path) return;
+            if (!thumbnail) return;
 
-            // Store FileBank metadata
-            thumbnail.dataset.filebankPath = response.path;
-            thumbnail.dataset.filename = response.filename;
+            // FilePond returns a STRING serverId
+            const tmpFolder = fileItem.serverId;
+
+            if (!tmpFolder) return;
+
+            thumbnail.dataset.tmpFolder = tmpFolder;
+            thumbnail.dataset.filename = fileItem.filename;
 
             thumbnail.style.display = 'inline';
-            thumbnail.style.opacity = '1';
-
-            // Reveal newly uploaded thumbnail image
-            /*if (!err && imageTypes.includes(fileItem.fileType)) {
-                var question = inputElement.name.split('-media[')[0];
-                var thumbnail = document.getElementById(question + '-photo-' + fileItem.id);
-                thumbnail.style.display = 'inline';
-            }*/
+            thumbnail.style.opacity = '0.5';
         },
 
         // remove file
@@ -165,9 +162,7 @@ function deleteGalleryPreview() {
         })
         .then(() => {
             // Hide thumbnail
-            const thumb = document.querySelector(
-                `[data-filebank-path="${path}"]`
-            );
+            const thumb = document.querySelector(`[data-filebank-path="${path}"]`);
             if (thumb) thumb.remove();
 
             // Close fullscreen
