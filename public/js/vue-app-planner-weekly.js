@@ -250,8 +250,9 @@ Vue.component('app-dayplan', {
         },
         pastDate: function (date) {
             // determine if given date is before today
-            if (moment(date).isBefore(moment(), 'day')) this.xx.permission == 'view')
+            if (moment(date).isBefore(moment(), 'day') && this.xx.permission === 'view') {
                 return true;
+            }
             return false;
         },
         entityClass: function (entity) {
