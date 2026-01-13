@@ -108,7 +108,6 @@ class CronTaskController extends Controller
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();
-        echo "Start data\n";
 
         // -------------------------------------------------
         // Generate PDF
@@ -118,30 +117,26 @@ class CronTaskController extends Controller
         $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'))->setPaper('A4', 'landscape');
         $pdf->save($file);
 
+
         // -------------------------------------------------
         // Email
         // -------------------------------------------------
         $today = Carbon::now();
         if (app()->environment('prod')) {
-            echo "Prod\n";
-            if (Carbon::today()->isMonday()) {
+            if ($today->isMonday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au'];
                 $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
             }
-            if (Carbon::today()->isThursday()) {
+            if ($today->isThursday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
-            $email_to = 'support@openhands.com.au';
-            $email_cc = 'support@openhands.com.au';
-            echo "Email to: " . $email_to . "\n";
-            if ($email_to) {
-                echo "emailing test\n";
-                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting Test"));
-                echo "emailed<br>";
-            }
+
+            if ($email_to)
+                Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
+
         } else {
             $email_to = env('EMAIL_DEV');
             Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting"));
