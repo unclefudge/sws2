@@ -136,6 +136,7 @@ class CronTaskController extends Controller
             }
             $email_to = env('EMAIL_DEV');
             $email_cc = env('EMAIL_DEV');
+            echo "Email to: " . $email_to . "\n";
             if ($email_to) {
                 echo "emailing test\n";
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting Test"));
