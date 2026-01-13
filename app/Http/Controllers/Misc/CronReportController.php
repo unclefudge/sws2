@@ -27,11 +27,13 @@ use App\Models\Site\SiteProjectSupply;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteUpcomingSettings;
+use App\Services\SitePlannerDataBuilder;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Str;
 use Mail;
 use PDF;
 
@@ -1422,8 +1424,11 @@ class CronReportController extends Controller
                 continue;
 
             $name = "Supervisor Site Plan ({$super->initials}).pdf";
-            $path = "report/{$company->id}";
+            $path = "report/{$cc->id}";
 
+            // --------------------------------------------------
+            // Create report record
+            // --------------------------------------------------
             $report = Report::create([
                 'user_id' => $super->id,
                 'company_id' => $cc->id,
@@ -1434,13 +1439,16 @@ class CronReportController extends Controller
                 'batch_id' => $batchId,
             ]);
 
-            $data = [
-                'date' => $yesterday->format('d/m/Y'),
-                'weeks' => '4',
-                'outputPDF' => 'pdf',
-                'export_supervisor' => 'yes',
-                'supervisor_id' => [$super->id],
-            ];
+            // --------------------------------------------------
+            // Build canonical data (IMPORTANT)
+            // --------------------------------------------------
+            $data = SitePlannerDataBuilder::build([
+                'date' => $yesterday->format('Y-m-d'),
+                'weeks' => 4,
+                'mode' => 'supervisor',
+                'site_ids' => [],
+                'supervisor_ids' => [$super->id],
+            ]);
 
             $jobs[] = new SitePlannerPdf($report->id, $data, 'pdf.plan-site');
         }
@@ -1449,20 +1457,28 @@ class CronReportController extends Controller
         if (empty($jobs))
             $log .= "No supervisor reports to generate.\n";
 
-        Bus::batch($jobs)->name('Supervisor Site Export')->then(function () use ($batchId, $emailTo) {
-            $reports = Report::where('batch_id', $batchId)->where('status', 'completed')->get();
+        Bus::batch($jobs)->name('Supervisor Site Export')
+            ->finally(function (\Illuminate\Bus\Batch $batch) use ($batchId, $emailTo) {
+                \Log::info('Supervisor export batch finished', [
+                    'batch_id' => $batch->id,
+                    'total' => $batch->totalJobs,
+                    'failed' => $batch->failedJobs,
+                    'processed' => $batch->processedJobs(),
+                ]);
 
-            if ($reports->isEmpty()) {
-                \Log::warning('Supervisor export batch completed with no successful reports', ['batch_id' => $batchId,]);
-                return;
-            }
+                // Fetch ONLY successfully completed reports
+                $reports = Report::where('batch_id', $batchId)->where('status', 'completed')->get();
 
-            $attachments = $reports->map(fn($r) => "{$r->path}/{$r->name}")->toArray();
+                if ($reports->isEmpty()) {
+                    \Log::warning('Supervisor export finished with no completed reports', ['batch_id' => $batch->id,]);
+                    return;
+                }
 
-            Mail::to($emailTo)->send(new SiteSupervisorSiteExport($attachments));
-        })->catch(function ($batch, \Throwable $e) {
-            \Log::error('Supervisor export batch failed', ['batch_id' => $batch->id, 'error' => $e->getMessage(),]);
-        })->dispatch();
+                $attachments = $reports->map(fn($r) => "{$r->path}/{$r->name}")->toArray();
+                Mail::to($emailTo)->send(new SiteSupervisorSiteExport($attachments));
+
+                \Log::info('Supervisor export email sent', ['batch_id' => $batch->id, 'attached' => count($attachments),]);
+            })->dispatch();
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

@@ -14,6 +14,7 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
+use App\Services\SitePlannerDataBuilder;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -87,7 +88,316 @@ class SitePlannerExportController extends Controller
     /*
      * Create Export Site PDF
      */
-    static public function sitePDF()
+    public static function sitePDF()
+    {
+        request()->validate(['date' => 'required', 'weeks' => 'required',]);
+
+
+        if (request()->has('export_company'))
+            return self::createCompanyExport();
+
+        return self::createSiteExport();
+    }
+
+    protected static function createSiteExport()
+    {
+        $date = Carbon::createFromFormat('d/m/Y', request('date'))->format('Y-m-d');
+        $weeks = (int)request('weeks');
+        $returnFile = request('outputPDF') === 'pdf';
+
+        // --------------------------------------------------
+        // Determine type of report
+        // --------------------------------------------------
+        if (request()->has('export_site')) {
+            $mode = 'site';
+            $siteIds = request('site_id');
+            $clientPrefix = '';
+        } elseif (request()->has('export_site_client')) {
+            $mode = 'client';
+            $siteIds = request('site_id_client');
+            $clientPrefix = 'Client ';
+        } else {
+            $mode = 'supervisor';
+            $siteIds = [];
+            $clientPrefix = 'Supervisor ';
+        }
+
+        // --------------------------------------------------
+        // Build canonical data
+        // --------------------------------------------------
+        $data = SitePlannerDataBuilder::build([
+            'date' => $date,
+            'weeks' => $weeks,
+            'mode' => $mode,
+            'site_ids' => $siteIds,
+            'supervisor_ids' => request('supervisor_id', []),
+        ]);
+
+        // --------------------------------------------------
+        // Sort data
+        // --------------------------------------------------
+        if ($mode === 'supervisor')
+            array_multisort(array_column($data, 'supervisor'), SORT_ASC, array_column($data, 'prac_complete'), SORT_ASC, $data);
+        else
+            array_multisort(array_column($data, 'site_name'), SORT_ASC, $data);
+
+
+        // --------------------------------------------------
+        // Determine view + filename
+        // --------------------------------------------------
+        $view = $mode === 'client' ? 'pdf.plan-site-client' : 'pdf.plan-site';
+        $csv = 'All';
+
+        if (in_array($mode, ['site', 'client']) && $siteIds) {
+            $siteIds = is_array($siteIds) ? $siteIds : [$siteIds];
+            $csv = collect($siteIds)->map(fn($id) => optional(Site::find($id))->code)->filter()->implode(', ');
+        }
+
+        if ($mode === 'supervisor' && request('supervisor_id')) {
+            $supervisors = User::find(request('supervisor_id'));
+
+            if ($supervisors)
+                $csv = $supervisors->pluck('initials')->implode(', ');
+        }
+
+        if ($csv === '')
+            $csv = 'All';
+
+        $filename = "{$clientPrefix}Site Plan ({$csv}).pdf";
+
+        // --------------------------------------------------
+        // Create report
+        // --------------------------------------------------
+        $path = 'report/' . Auth::user()->company_id;
+        $report = Report::create([
+            'user_id' => Auth::id(),
+            'company_id' => Auth::user()->company_id,
+            'name' => $filename,
+            'path' => $path,
+            'type' => 'site-plan',
+            'status' => 'pending',
+        ]);
+
+        SitePlannerPdf::dispatch($report->id, $data, $view);
+
+        if ($returnFile)
+            return "{$path}/{$filename}";
+
+        return redirect('/manage/report/recent');
+    }
+
+    protected static function createCompanyExport()
+    {
+        $date = Carbon::createFromFormat('d/m/Y', request('date'))->format('Y-m-d');
+        $weeks = (int)request('weeks');
+
+        $company_id = request('company_id');
+        if ($company_id)
+            $companies = $company_id;
+        else
+            $companies = Auth::user()->company->companies('1')->pluck('id')->toArray();
+
+        // Create Company List & Sort by Name
+        $company_list = [];
+        $company_list_csv = '';
+        foreach ($companies as $cid) {
+            if ($cid == 'all') {
+                $company_list = Auth::user()->company->companies('1')->pluck('id')->toArray();
+                $company_list_csv = 'All';
+                break;
+            }
+            $company = Company::find($cid);
+            if ($company) {
+                $company_list[$cid] = $company->name;
+                $company_list_csv .= $company->id . ", ";
+            }
+        }
+        asort($company_list);
+
+        if ($company_id)
+            $company_list_csv = (count($companies) > 5) ? 'multiple 5+' : rtrim($company_list_csv, ', ');
+        else
+            $company_list_csv = 'All';
+
+
+        //dd($company_list);
+        // For each Company get Tasks om Planner
+        $data = [];
+        foreach ($company_list as $cid => $cname) {
+            $company = Company::find($cid);
+            $obj_site = (object)[];
+            $obj_site->company_id = $company->id;
+            $obj_site->company_name = $company->name_alias;
+            $obj_site->weeks = [];
+            $obj_site->upcoming = [];
+
+            // For each week get Sites on the Planner
+            $current_date = $date;
+            for ($w = 1; $w <= $weeks; $w++) {
+                $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
+                if ($date_from->isWeekend()) $date_from->addDays(1);
+                if ($date_from->isWeekend()) $date_from->addDays(1);
+
+                // Calculate Date To ensuring not a weekend
+                $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $date_from->format('Y-m-d H:i:s'));
+                $dates = [$date_from->format('Y-m-d')];
+                for ($i = 2; $i < 6; $i++) {
+                    $date_to->addDays(1);
+                    if ($date_to->isWeekend())
+                        $date_to->addDays(2);
+                    $dates[] = $date_to->format('Y-m-d');
+                }
+                //echo "From: " . $date_from->format('d/m/Y') . " To:" . $date_to->format('d/m/Y') . "<br>";
+
+                $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+                    // Tasks that start 'from' between mon-fri of given week
+                    ->where(function ($q) use ($date_from, $date_to, $company) {
+                        $q->where('from', '>=', $date_from->format('Y-m-d'));
+                        $q->Where('from', '<=', $date_to->format('Y-m-d'));
+                        $q->where('entity_type', 'c');
+                        $q->where('entity_id', $company->id);
+                    })
+                    // Tasks that end 'to between mon-fri of given week
+                    ->orWhere(function ($q) use ($date_from, $date_to, $company) {
+                        $q->where('to', '>=', $date_from->format('Y-m-d'));
+                        $q->Where('to', '<=', $date_to->format('Y-m-d'));
+                        $q->where('entity_type', 'c');
+                        $q->where('entity_id', $company->id);
+                    })
+                    // Tasks that start before mon but end after fri
+                    // ie they span the whole week but begin prior + end after given week
+                    ->orWhere(function ($q) use ($date_from, $date_to, $company) {
+                        $q->where('from', '<', $date_from->format('Y-m-d'));
+                        $q->Where('to', '>', $date_to->format('Y-m-d'));
+                        $q->where('entity_type', 'c');
+                        $q->where('entity_id', $company->id);
+                    })
+                    ->orderBy('from')->get();
+
+                // Get Unique list of Sites for current week
+                $sites = [];
+                foreach ($planner as $plan) {
+                    if (!isset($sites[$plan->site_id])) {
+                        $site = Site::find($plan->site_id);
+                        $sites[$plan->site_id] = ['site_id' => $plan->site_id, 'site_name' => $site->name, 'site_supervisor' => $site->supervisorInitials];
+                        for ($i = 0; $i < 5; $i++)
+                            $sites[$plan->site_id][$dates[$i]] = '';
+                    }
+                };
+                usort($sites, 'sortSiteName');
+
+                // Create Header Row for Current Week
+                $obj_site->weeks[$w] = [];
+                $obj_site->weeks[$w][0][] = 'SITE';
+                foreach ($dates as $d)
+                    $obj_site->weeks[$w][0][] = strtoupper(Carbon::createFromFormat('Y-m-d H:i:s', $d . ' 00:00:00')->format('l d/m'));
+
+                // For each Site on for current week get the Company Tasks for each day of the week
+                $site_count = 1;
+                if ($sites) {
+                    foreach ($sites as $s) {
+                        $obj_site->weeks[$w][$site_count][] = $s['site_name'] . ' (' . $s['site_supervisor'] . ')';
+                        for ($i = 1; $i <= 5; $i++) {
+                            $site = Site::find($s['site_id']);
+                            $tasks = $site->entityTasksOnDate('c', $company->id, $dates[$i - 1]);
+                            if ($tasks) {
+                                $str = '';
+                                foreach ($tasks as $task_id => $task_name)
+                                    $str .= $task_name . '<br>';
+                            } else
+                                $str = '&nbsp;';
+
+                            $obj_site->weeks[$w][$site_count][$i] = $str;
+                        }
+                        $site_count++;
+                    }
+                } else {
+                    $obj_site->weeks[$w][1][] = 'NOTHING-ON-PLAN';
+                    $obj_site->weeks[$w][1][1] = '';
+                }
+
+                $date_next = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00')->addDays(7);;
+                $current_date = $date_next->format('Y-m-d');
+            }
+
+            /*
+             * Upcoming
+             */
+            //for ($w = 1; $w <= 2; $w++) {
+            $date_from = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
+            $date_to = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
+            $date_to->addDays(14);
+            //echo "From: " . $date_from->format('d/m/Y') . " To:" . $date_to->format('d/m/Y') . "<br>";
+            $planner = SitePlanner::select(['id', 'site_id', 'entity_type', 'entity_id', 'task_id', 'from', 'to', 'days'])
+                // Tasks that start 'from' between mon-fri of given week
+                ->where(function ($q) use ($date_from, $date_to, $company) {
+                    $q->where('from', '>=', $date_from->format('Y-m-d'));
+                    $q->Where('from', '<=', $date_to->format('Y-m-d'));
+                    $q->where('entity_type', 'c');
+                    $q->where('entity_id', $company->id);
+                })
+                // Tasks that end 'to between mon-fri of given week
+                ->orWhere(function ($q) use ($date_from, $date_to, $company) {
+                    $q->where('to', '>=', $date_from->format('Y-m-d'));
+                    $q->Where('to', '<=', $date_to->format('Y-m-d'));
+                    $q->where('entity_type', 'c');
+                    $q->where('entity_id', $company->id);
+                })
+                // Tasks that start before mon but end after fri
+                // ie they span the whole week but begin prior + end after given week
+                ->orWhere(function ($q) use ($date_from, $date_to, $company) {
+                    $q->where('from', '<', $date_from->format('Y-m-d'));
+                    $q->Where('to', '>', $date_to->format('Y-m-d'));
+                    $q->where('entity_type', 'c');
+                    $q->where('entity_id', $company->id);
+                })
+                ->orderBy('from')->get();
+
+            //dd($planner);
+            $sites = [];
+            foreach ($planner as $plan) {
+                if (!in_array($plan->site_id, $sites))
+                    $sites[] = $plan->site_id;
+            }
+
+
+            $current_date = Carbon::createFromFormat('Y-m-d H:i:s', $current_date . ' 00:00:00');
+            if ($sites) {
+                for ($x = 1; $x <= 14; $x++) {
+                    // Skip Weekends
+                    if ($current_date->isWeekend()) $current_date->addDays(1);
+                    if ($current_date->isWeekend()) $current_date->addDays(1);
+
+                    foreach ($sites as $s) {
+                        $site = Site::find($s);
+                        $tasks = $site->entityTasksOnDate('c', $company->id, $current_date->format('Y-m-d'));
+                        if ($tasks) {
+                            $task_list = '';
+                            foreach ($tasks as $task_id => $task_name)
+                                $task_list .= $task_name . ', ';
+                            $task_list = rtrim($task_list, ', ');
+                            $obj_site->upcoming[] = ['date' => $current_date->format('M j'), 'site' => $site->name, 'tasks' => $task_list];
+                        }
+                    }
+                    $current_date->addDay(1);
+                }
+            }
+
+            //}
+            $data[] = $obj_site;
+        }
+
+        // Create PDF
+        $name = "Company Site Plan ($company_list_csv).pdf";
+        $path = "report/" . Auth::user()->company_id;
+        $report = Report::create(['user_id' => Auth::id(), 'company_id' => Auth::user()->company_id, 'name' => $name, 'path' => $path, 'type' => 'company-plan', 'status' => 'pending',]);
+        SitePlannerCompanyPdf::dispatch($report->id, $data);
+
+        return redirect('/manage/report/recent');
+    }
+
+
+    static public function sitePDF2()
     {
         $rules = ['date' => 'required', 'weeks' => 'required'];
         $mesg = [];
