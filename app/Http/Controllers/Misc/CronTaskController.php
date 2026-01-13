@@ -134,8 +134,8 @@ class CronTaskController extends Controller
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
-            $email_to = env('EMAIL_DEV');
-            $email_cc = env('EMAIL_DEV');
+            $email_to = 'support@openhands.com.au';
+            $email_cc = 'support@openhands.com.au';
             echo "Email to: " . $email_to . "\n";
             if ($email_to) {
                 echo "emailing test\n";
