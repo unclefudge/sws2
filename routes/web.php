@@ -69,6 +69,7 @@ Route::group(['middleware' => 'auth'], function () {
     require __DIR__ . '/planner.php';
     //require __DIR__ . '/admin.php';
     require __DIR__ . '/misc.php';
+    require __DIR__ . '/cron.php';
 
 
     /*

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Misc;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Site\SiteUpcomingComplianceController;
 use App\Http\Site\Planner\SitePlannerExportRequest;
+use App\Jobs\SitePlannerPdf;
+use App\Mail\Site\SiteSupervisorSiteExport;
 use App\Models\Comms\Todo;
 use App\Models\Company\Company;
 use App\Models\Company\CompanyDoc;
 use App\Models\Misc\Equipment\Equipment;
 use App\Models\Misc\Equipment\EquipmentLog;
+use App\Models\Misc\Report;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
@@ -28,7 +31,7 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use File;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Mail;
 use PDF;
 
@@ -1404,41 +1407,62 @@ class CronReportController extends Controller
         $log .= "Email $func_name\n";
         $log .= "------------------------------------------------------------------------\n\n";
 
-        $cc = Company::find(3);
-        $email_to = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
-        $email_cc = [];
-        $emails = implode("; ", array_merge($email_to, $email_cc));
-
-        $today = Carbon::now();
+        $yesterday = Carbon::now()->subDay();
         $cc = Company::find(3);
 
-        $superReports = [];
-        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
-            if ($super->name != "TO BE ALLOCATED") {
-                $data = ['date' => $today->subDay()->format('d/m/Y'), 'weeks' => '4', 'outputPDF' => 'pdf', 'export_supervisor' => 'yes', 'supervisor_id' => [$super->id], '_token' => csrf_token()];
-                $internalRequest = Request::create('/site/export/site', 'POST', $data);
-
-                // Handle the internal request
-                $response = app()->handle($internalRequest);
-                $statusCode = $response->getStatusCode();
-                $content = $response->getContent();
-                $superReports[] = $content;
-            }
-        }
-
-        // Pause for 2min to wait for reports to be created (they take time)
-        sleep(60);
-
-        //
-        // Send email
-        //
-        if ($email_to && $email_cc)
-            Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteSupervisorSiteExport($superReports));
-        elseif ($email_to)
-            Mail::to($email_to)->send(new \App\Mail\Site\SiteSupervisorSiteExport($superReports));
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
+        $batchId = (string)Str::uuid();
+        $jobs = [];
 
+        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
+            if ($super->name === 'TO BE ALLOCATED')
+                continue;
+
+            $name = "Supervisor Site Plan ({$super->initials}).pdf";
+            $path = "report/{$company->id}";
+
+            $report = Report::create([
+                'user_id' => $super->id,
+                'company_id' => $cc->id,
+                'name' => $name,
+                'path' => $path,
+                'type' => 'site-plan',
+                'status' => 'pending',
+                'batch_id' => $batchId,
+            ]);
+
+            $data = [
+                'date' => $yesterday->format('d/m/Y'),
+                'weeks' => '4',
+                'outputPDF' => 'pdf',
+                'export_supervisor' => 'yes',
+                'supervisor_id' => [$super->id],
+            ];
+
+            $jobs[] = new SitePlannerPdf($report->id, $data, 'pdf.plan-site');
+        }
+
+        // Guard: no jobs created
+        if (empty($jobs))
+            $log .= "No supervisor reports to generate.\n";
+
+        Bus::batch($jobs)->name('Supervisor Site Export')->then(function () use ($batchId, $emailTo) {
+            $reports = Report::where('batch_id', $batchId)->where('status', 'completed')->get();
+
+            if ($reports->isEmpty()) {
+                \Log::warning('Supervisor export batch completed with no successful reports', ['batch_id' => $batchId,]);
+                return;
+            }
+
+            $attachments = $reports->map(fn($r) => "{$r->path}/{$r->name}")->toArray();
+
+            Mail::to($emailTo)->send(new SiteSupervisorSiteExport($attachments));
+        })->catch(function ($batch, \Throwable $e) {
+            \Log::error('Supervisor export batch failed', ['batch_id' => $batch->id, 'error' => $e->getMessage(),]);
+        })->dispatch();
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";

@@ -132,17 +132,21 @@ class CronTaskController extends Controller
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
                 $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
             }
-
+            $email_to = env('EMAIL_DEV');
+            $email_cc = env('EMAIL_DEV');
             if ($email_to) {
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
                 echo "emailed<br>";
             }
+        } else {
+            $email_to = env('EMAIL_DEV');
+            Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting"));
         }
 
         // -------------------------------------------------
         // Cleanup
         // -------------------------------------------------
-        register_shutdown_function(fn() => @unlink($file));
+        //register_shutdown_function(fn() => @unlink($file));
     }
 
 }
