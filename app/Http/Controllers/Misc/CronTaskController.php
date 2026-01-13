@@ -108,6 +108,7 @@ class CronTaskController extends Controller
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();
+        echo "Start data\n";
 
         // -------------------------------------------------
         // Generate PDF
@@ -122,6 +123,7 @@ class CronTaskController extends Controller
         // -------------------------------------------------
         $today = Carbon::now();
         if (app()->environment('prod')) {
+            echo "Prod\n";
             if (Carbon::today()->isMonday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au'];
@@ -135,7 +137,7 @@ class CronTaskController extends Controller
             $email_to = env('EMAIL_DEV');
             $email_cc = env('EMAIL_DEV');
             if ($email_to) {
-                echo "emailing test";
+                echo "emailing test\n";
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting Test"));
                 echo "emailed<br>";
             }
