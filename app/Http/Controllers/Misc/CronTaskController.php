@@ -126,12 +126,12 @@ class CronTaskController extends Controller
             if ($today->isMonday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au'];
-                $email_subject = "Jobs Board - Pre Planning Meeting " . $today->format('d.m.y');
+                $email_subject = "Upcoming Jobs Compliance - Pre Planning Meeting " . $today->format('d.m.y');
             }
             if ($today->isThursday()) {
                 $email_to = ['alethea@capecod.com.au', 'keith@capecod.com.au', 'kirstie@capecod.com.au', 'nadia@capecod.com.au', 'ross@capecod.com.au'];
                 $email_cc = ['clinton@capecod.com.au', 'jim@capecod.com.au', 'juliana@capecod.com.au', 'scott@capecod.com.au', 'michelle@capecod.com.au', 'jayden@capecod.com.au'];
-                $email_subject = "Jobs Board - Post Planning Meeting " . $today->format('d.m.y');
+                $email_subject = "Upcoming Jobs Compliance - Post Planning Meeting " . $today->format('d.m.y');
             }
 
             if ($email_to)
