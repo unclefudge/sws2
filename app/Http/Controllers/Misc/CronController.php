@@ -29,10 +29,10 @@ use App\Models\Site\SiteQaItem;
 use App\Models\Site\SiteScaffoldHandover;
 use App\Models\Support\SupportHour;
 use App\User;
+use Auth;
 use Carbon\Carbon;
 use DB;
 use File;
-use Illuminate\Support\Facades\Auth;
 use Mail;
 
 class CronController extends Controller
@@ -110,7 +110,7 @@ class CronController extends Controller
         $log = "\nALL DONE - NIGHTLY COMPLETE\n\n\n";
 
         // Append Log
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -132,7 +132,7 @@ class CronController extends Controller
         }
         $log .= "\n\nAmen.";
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function supporthours()
@@ -201,7 +201,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -276,7 +276,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -459,7 +459,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -491,7 +491,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -544,7 +544,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -596,7 +596,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function rogueToDo()
@@ -640,7 +640,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
 
         /*
             'incident' => "Incident Report",
@@ -791,7 +791,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -851,7 +851,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -924,7 +924,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -974,7 +974,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1013,7 +1013,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1099,7 +1099,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function debugEmail($name1, $list1, $name2 = '', $list2 = '')
@@ -1204,7 +1204,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
 
@@ -1352,7 +1352,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1422,7 +1422,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1524,7 +1524,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1574,7 +1574,7 @@ class CronController extends Controller
         $log .= "\nCompleted\n\n\n";
 
         // Append Log
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1653,7 +1653,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -1747,7 +1747,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskReminder()
@@ -1799,7 +1799,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     static public function siteExtensionsSupervisorTaskFinalReminder()
@@ -1848,7 +1848,7 @@ class CronController extends Controller
 
         // Append Log
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*

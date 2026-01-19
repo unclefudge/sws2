@@ -33,6 +33,7 @@ class SitePlannerDataBuilder
         $date = Carbon::parse($options['date'])->format('Y-m-d');
         $weeks = (int)$options['weeks'];
         $mode = $options['mode'];
+        $company = (Auth::check()) ? Auth::user()->company->reportsTo() : Company::find(3);
 
         // --------------------------------------------------
         // Resolve sites
@@ -40,7 +41,7 @@ class SitePlannerDataBuilder
         if ($mode === 'supervisor') {
             $superIds = $options['supervisor_ids'] ?? [];
 
-            $superSites = Auth::user()->company->reportsTo()->sites('1')->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
+            $superSites = $company->sites('1')->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
             $sites = [];
             foreach ($superSites as $sid) {
                 $site = Site::find($sid);
@@ -49,16 +50,31 @@ class SitePlannerDataBuilder
                 }
             }
         } else
-            $sites = $options['site_ids'] ?? Auth::user()->company->reportsTo()->sites('1')->pluck('id')->toArray();
+            $sites = $options['site_ids'] ?? $company->sites('1')->pluck('id')->toArray();
 
         // --------------------------------------------------
-        // Build planner data (UNCHANGED LOGIC)
+        // Sort sites
+        // - by Prac Complete then by Site name
+        // --------------------------------------------------
+        $sites = Site::whereIn('id', $sites)->get()
+            ->sort(function ($a, $b) {
+                // Group by prac_complete (false first, true last)
+                $aComplete = (int)(bool)$a->completion_signed;
+                $bComplete = (int)(bool)$b->completion_signed;
+
+                if ($aComplete !== $bComplete)
+                    return $aComplete <=> $bComplete;
+
+                // Within each group, sort by site name
+                return strcasecmp($a->name, $b->name);
+            })->values();
+
+        // --------------------------------------------------
+        // Build planner data
         // --------------------------------------------------
         $data = [];
 
-        foreach ($sites as $siteID) {
-            $site = Site::findOrFail($siteID);
-
+        foreach ($sites as $site) {
             $obj_site = (object)[
                 'site_id' => $site->id,
                 'site_name' => $site->name,

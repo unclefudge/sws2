@@ -13,6 +13,7 @@ use DB;
 use File;
 use Mail;
 use PDF;
+use Auth:
 
 class CronTaskController extends Controller
 {
@@ -78,7 +79,7 @@ class CronTaskController extends Controller
             }
         }
 
-        file_put_contents($logFile, $log, FILE_APPEND);
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND);
     }
 
     /*
@@ -145,7 +146,7 @@ class CronTaskController extends Controller
         // -------------------------------------------------
         // Cleanup
         // -------------------------------------------------
-        //register_shutdown_function(fn() => @unlink($file));
+        register_shutdown_function(fn() => @unlink($file));
     }
 
 }
