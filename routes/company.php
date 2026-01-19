@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('company/{cid}')->as('company.')->group(function () {
     Route::get('doc/dt/docs', '\App\Http\Controllers\Company\CompanyDocController@getDocs');
-    Route::get('doc/upload', 'CompanyDocController@create');
+    Route::get('doc/upload', '\App\Http\Controllers\Company\CompanyDocController@create');
     Route::post('doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
     Route::get('doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
     Route::get('doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
