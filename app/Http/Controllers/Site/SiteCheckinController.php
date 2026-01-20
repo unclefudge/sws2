@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use Alert;
 use App\Http\Controllers\Controller;
 use App\Models\Misc\Action;
+use App\Models\Misc\Attachment;
 use App\Models\Site\Planner\SiteAttendance;
 use App\Models\Site\Planner\SiteRoster;
 use App\Models\Site\Site;
@@ -200,10 +201,10 @@ class SiteCheckinController extends Controller
                 $hazard->touch(); // update timestamp
 
                 // Handle attachments
-                $attachments = request("filepond");
-                if ($attachments) {
-                    foreach ($attachments as $tmp_filename)
-                        $hazard->saveAttachment($tmp_filename);
+                $attachments = collect(request('filepond', []))->filter()->values();
+                foreach ($attachments as $tmp_filename) {
+                    $attachment = Attachment::create(['table' => 'site_hazards', 'table_id' => $hazard->id, 'directory' => "site/{$hazard->site_id}/hazard"]);
+                    $attachment->saveAttachment($tmp_filename);
                 }
 
                 // Email hazard
