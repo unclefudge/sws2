@@ -225,20 +225,48 @@ function updateTaskToDate(task) {
             publichols = [];
             if (result) {
                 publicholidays = result
-                //console.log('got hols');
-                //console.log(publicholidays);
+                console.log('got hols');
+                console.log(publicholidays);
             }
             var originalDate = task.to;
             var currentDate = moment(new Date(task.from));
-            for (var i = 1; i < task.days; i++) {
+
+
+            /*for (var i = 1; i < task.days; i++) {
                 currentDate.add(1, 'days');
-                if (currentDate.day() === 6)
+                if (currentDate.day() === 6) {
                     currentDate.add(2, 'days');
+                    console.log('Sat: ' + currentDate.format('YYYY-MM-DD'));
+                }
                 if (currentDate.format('YYYY-MM-DD') in publicholidays) {
                     console.log('Pub hol: ' + currentDate.format('YYYY-MM-DD'));
                     currentDate.add(1, 'days');
                 }
+            }*/
+            for (var i = 1; i < task.days; i++) {
+                currentDate.add(1, 'days');
+
+                // Skip weekends
+                while (currentDate.day() === 6 || currentDate.day() === 0) {
+                    console.log('Weekend: ' + currentDate.format('YYYY-MM-DD'));
+                    currentDate.add(1, 'days');
+                }
+
+                // Skip public holidays
+                while (currentDate.format('YYYY-MM-DD') in publicholidays) {
+                    console.log('Public holiday: ' + currentDate.format('YYYY-MM-DD') +
+                        ' (' + publicholidays[currentDate.format('YYYY-MM-DD')] + ')'
+                    );
+                    currentDate.add(1, 'days');
+
+                    // Re-check weekend after holiday bump
+                    while (currentDate.day() === 6 || currentDate.day() === 0) {
+                        currentDate.add(1, 'days');
+                    }
+                }
             }
+
+
             task.to = currentDate.format('YYYY-MM-DD');
 
             // Update task in DB and once done fulfil the 'promise'
