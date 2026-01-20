@@ -125,6 +125,43 @@ function rosterOnDate(roster, date, etype, eid) {
 // Determine next 'work' day ie mon-fri (x) days from given date
 // either before (-) or after (+) given date (excluding public holiays)
 function nextWorkDate(date, direction, days) {
+    let newDate = moment(date);
+
+    for (let i = 0; i < days; i++) {
+
+        newDate.add(direction === '+' ? 1 : -1, 'days');
+
+        // normalize until it's a working day
+        while (true) {
+
+            // weekend
+            if (newDate.day() === 6) { // Saturday
+                newDate.add(direction === '+' ? 2 : -1, 'days');
+                continue;
+            }
+
+            if (newDate.day() === 0) { // Sunday
+                newDate.add(direction === '+' ? 1 : -2, 'days');
+                continue;
+            }
+
+            // public holiday
+            const key = newDate.format('YYYY-MM-DD');
+            if (key in this.xx.holidays) {
+                console.log('Public holiday:', key, this.xx.holidays[key]);
+                newDate.add(direction === '+' ? 1 : -1, 'days');
+                continue;
+            }
+
+            break; // valid working day
+        }
+    }
+    //console.log('NextWorkDate: ' + newDate.format('YYYY-MM-DD'));
+
+    return newDate.format('YYYY-MM-DD');
+}
+
+function nextWorkDateOld(date, direction, days) {
     var newDate = moment(date);
 
     //console.log(this.xx.holidays);
@@ -151,12 +188,41 @@ function nextWorkDate(date, direction, days) {
                 newDate = moment(newDate).subtract(2, 'days');
         }
     }
+
+    //console.log('NextWorkDateOld: ' + newDate.format('YYYY-MM-DD'));
     return newDate.format('YYYY-MM-DD');
 }
 
 // Determine number of 'work' days ie mon-fri (excluding public holidays)
 // between 2 dates (inclusive of from, to dates)
 function workDaysBetween(from, to) {
+    let start = moment(from);
+    let end = moment(to);
+
+    if (start.isAfter(end)) {
+        [start, end] = [end, start];
+    }
+
+    let count = 0;
+
+    while (start.isSameOrBefore(end, 'day')) {
+        const day = start.day();
+        const key = start.format('YYYY-MM-DD');
+
+        const isWeekend = (day === 0 || day === 6);
+        const isHoliday = key in this.xx.holidays;
+
+        if (!isWeekend && !isHoliday) {
+            count++;
+        }
+
+        start.add(1, 'days');
+    }
+    //console.log('WorkDays: ' + count);
+    return count;
+}
+
+function workDaysBetweenOld(from, to) {
     if (moment(from).isBefore(to)) {
         var startDate = moment(from);
         var endDate = moment(to);
@@ -225,12 +291,11 @@ function updateTaskToDate(task) {
             publichols = [];
             if (result) {
                 publicholidays = result
-                console.log('got hols');
-                console.log(publicholidays);
+                //console.log('got hols');
+                //console.log(publicholidays);
             }
             var originalDate = task.to;
             var currentDate = moment(new Date(task.from));
-
 
             /*for (var i = 1; i < task.days; i++) {
                 currentDate.add(1, 'days');
@@ -248,15 +313,13 @@ function updateTaskToDate(task) {
 
                 // Skip weekends
                 while (currentDate.day() === 6 || currentDate.day() === 0) {
-                    console.log('Weekend: ' + currentDate.format('YYYY-MM-DD'));
+                    //console.log('Weekend: ' + currentDate.format('YYYY-MM-DD'));
                     currentDate.add(1, 'days');
                 }
 
                 // Skip public holidays
                 while (currentDate.format('YYYY-MM-DD') in publicholidays) {
-                    console.log('Public holiday: ' + currentDate.format('YYYY-MM-DD') +
-                        ' (' + publicholidays[currentDate.format('YYYY-MM-DD')] + ')'
-                    );
+                    //console.log('Public holiday: ' + currentDate.format('YYYY-MM-DD') + ' (' + publicholidays[currentDate.format('YYYY-MM-DD')] + ')');
                     currentDate.add(1, 'days');
 
                     // Re-check weekend after holiday bump
@@ -265,7 +328,6 @@ function updateTaskToDate(task) {
                     }
                 }
             }
-
 
             task.to = currentDate.format('YYYY-MM-DD');
 
