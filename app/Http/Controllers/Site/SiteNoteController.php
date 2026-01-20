@@ -406,8 +406,28 @@ class SiteNoteController extends Controller
      */
     public function getNotes()
     {
+        /*$supervisor = request('supervisor');
+        $category = request('category');
         $site_list = (request('site_id') == 'all') ? Auth::user()->authSites('view.site.note')->pluck('id')->toArray() : [request('site_id')];
-        $note_ids = SiteNote::whereIn('site_id', $site_list)->orWhere('created_by', Auth::user()->id)->pluck('id')->toArray();
+        $note_ids = SiteNote::whereIn('site_id', $site_list)->orWhere('created_by', Auth::user()->id)->pluck('id')->toArray();*/
+
+        ray(request()->all());
+        $supervisor = request('supervisor');
+        $category = request('category');
+
+        $site_list = request('site_id') === 'all'
+            ? Auth::user()->authSites('view.site.note')->pluck('id')->toArray()
+            : [request('site_id')];
+
+        $note_ids = SiteNote::where(function ($q) use ($site_list) {
+            $q->whereIn('site_id', $site_list)->orWhere('created_by', Auth::id());
+        })->when($category !== null, function ($q) use ($category) {
+            $q->where('category_id', $category);
+        })->when($supervisor !== null, function ($q) use ($supervisor) {
+            $q->whereHas('site', function ($sq) use ($supervisor) {
+                $sq->where('supervisor_id', $supervisor);
+            });
+        })->pluck('id')->toArray();
 
         $records = SiteNote::select([
             'site_notes.id', 'site_notes.site_id', 'site_notes.category_id', 'site_notes.variation_name', 'site_notes.notes', 'site_notes.parent', 'site_notes.updated_at', 'site_notes.created_at', 'site_notes.created_by', // 'sites.name',

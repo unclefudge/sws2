@@ -34,10 +34,22 @@
                     {!! Form::hidden('site_id_set', $site_id, ['id' => 'site_id_set']) !!}
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
                                 {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {!! Form::label('supervisor', 'Supervisor', ['class' => 'control-label']) !!}
+                                {!! Form::select('supervisor', ['' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {!! Form::label('category', 'Category', ['class' => 'control-label']) !!}
+                                {!! Form::select('category', ['' => 'All categories'] + $categories, null, ['class' => 'form-control bs-select', 'id' => 'category']) !!}
                             </div>
                         </div>
                     </div>
@@ -119,6 +131,8 @@
                 'type': 'GET',
                 'data': function (d) {
                     d.site_id = $('#site_id').val();
+                    d.supervisor = $('#supervisor').val();
+                    d.category = $('#category').val();
                 }
             },
             columns: [
@@ -192,6 +206,14 @@
                 window.location.href = "/site/" + $('#site_id').val() + "/notes";
 
             // Otherwise judst reload table
+            table1.ajax.reload();
+        });
+
+        $('#category').change(function () {
+            table1.ajax.reload();
+        });
+
+        $('#supervisor').change(function () {
             table1.ajax.reload();
         });
     </script>
