@@ -43,7 +43,7 @@
                         <div class="col-md-6" id="site_upcoming">
                             <div class="form-group">
                                 <!--<label for="site_id_all" class="control-label">Any Site ({!! Auth::user()->company->sites()->count() !!})</label>-->
-                                {!! Form::select('site_id_upcoming', Auth::user()->company->sitesSelect('ALL', -1), null, ['class' => 'form-control select2', 'id' => 'site_id_all']) !!}
+                                {!! Form::select('site_id_upcoming', Auth::user()->company->sitesSelect('ALL', -1), null, ['class' => 'form-control select2', 'id' => 'site_id_upcoming']) !!}
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -131,6 +131,7 @@
                     d.site_id_all = $('#site_id_all').val();
                     d.site_id_active = $('#site_id_active').val();
                     d.site_id_completed = $('#site_id_completed').val();
+                    d.site_id_upcoming = $('#site_id_upcoming').val();
                     d.type = $('#type').val();
                     d.status = $('#status').val();
                 }

@@ -286,6 +286,7 @@ class SiteDocController extends Controller
         $records = SiteDoc::with('site')->whereIn('site_id', $allowedSites)->where('status', 1);
         if ($type !== 'ALL')
             $records->where('type', $type);
+        
 
         $user = Auth::user();
         return DataTables::of($records)
