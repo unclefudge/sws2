@@ -109,12 +109,14 @@ class CronTaskController extends Controller
         }
 
         $startdata = SiteUpcomingComplianceController::getUpcomingData();
+        ray($startdata);
 
         // -------------------------------------------------
         // Generate PDF
         // -------------------------------------------------
         $file = storage_path('app/tmp/upcoming-jobs.pdf');
         //return view('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'));
+        //return PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'))->setPaper('A4', 'landscape')->stream('upcoming-jobs.pdf');
         $pdf = PDF::loadView('pdf/site/upcoming-compliance', compact('startdata', 'settings_colours'))->setPaper('A4', 'landscape');
         $pdf->save($file);
 
@@ -135,6 +137,9 @@ class CronTaskController extends Controller
                 $email_subject = "Upcoming Jobs Compliance - Post Planning Meeting " . $today->format('d.m.y');
             }
 
+            $email_to = 'fudge@jordan.net.au';
+            $email_cc = 'fudge@jordan.net.au';
+
             if ($email_to)
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
 
@@ -142,11 +147,6 @@ class CronTaskController extends Controller
             $email_to = env('EMAIL_DEV');
             Mail::to($email_to)->send(new \App\Mail\Site\SiteUpcomingJobs($file, "Jobs Board - Planning Meeting"));
         }
-
-        // -------------------------------------------------
-        // Cleanup
-        // -------------------------------------------------
-        register_shutdown_function(fn() => @unlink($file));
     }
 
 }

@@ -32,10 +32,11 @@ class SiteUpcomingJobs extends Mailable implements ShouldQueue
      */
     public function build()
     {
+        $email = $this->markdown('emails/site/upcoming-jobs')->subject($this->subject);
         if ($this->file_attachment && file_exists($this->file_attachment)) {
-            return $this->markdown('emails/site/upcoming-jobs')->subject($this->subject)->attach($this->file_attachment);
+            $email->attach($this->file_attachment);
         }
 
-        return $this->markdown('emails/site/upcoming-jobs')->subject($this->subject);
+        return $email;
     }
 }
