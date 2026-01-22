@@ -137,9 +137,6 @@ class CronTaskController extends Controller
                 $email_subject = "Upcoming Jobs Compliance - Post Planning Meeting " . $today->format('d.m.y');
             }
 
-            $email_to = 'fudge@jordan.net.au';
-            $email_cc = 'kirstie@capecod.com.au';
-
             if ($email_to)
                 Mail::to($email_to)->cc($email_cc)->send(new \App\Mail\Site\SiteUpcomingJobs($file, $email_subject));
 
