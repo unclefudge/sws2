@@ -13,8 +13,17 @@ Route::prefix('company/{cid}')->as('company.')->group(function () {
     Route::post('doc/reject/{id}', '\App\Http\Controllers\Company\CompanyDocController@reject');
     Route::get('doc/archive/{id}', '\App\Http\Controllers\Company\CompanyDocController@archive');
     Route::get('doc/cats/{department}', '\App\Http\Controllers\Company\CompanyDocController@getCategories');
-    Route::resource('doc', '\App\Http\Controllers\Company\CompanyDocController');
+
+    Route::resource('doc', '\App\Http\Controllers\Company\CompanyDocController')
+        ->except(['destroy']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| COMPANY DOCS – DELETE (no company context)
+|--------------------------------------------------------------------------
+*/
+Route::delete('company/doc/{doc}', [\App\Http\Controllers\Company\CompanyDocController::class, 'destroy'])->name('company.doc.destroy');
 
 // Company Leave Routes
 Route::get('/company/leave/dt/leave', '\App\Http\Controllers\Company\CompanyLeaveController@getCompanyLeave');
