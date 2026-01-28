@@ -16,7 +16,7 @@
                 @endif
             </div>
             <div class="col-md-4 col-sm-6 col-xs-12 footer-block">
-                <h2>Contact</h2>
+                <h2>Contact</h2> {{ Auth::user()->company_id }} - {{ Auth::user()->parent_company }} PP
                 @if (in_array(Auth::user()->company_id, [41,198, 210, 302]) || in_array(Auth::user()->parent_company, [41, 198, 210, 302]))
                     <address class="margin-bottom-40">
                         @if (in_array(Auth::user()->company_id, [41,198, 210, 302]))

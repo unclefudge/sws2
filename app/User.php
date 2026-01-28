@@ -770,5 +770,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         if ($this->status == 0)
             return '<span class="font-red">INACTIVE</span>';
     }
+
+    public function getParentCompanyAttribute()
+    {
+        return $this->company->reportsTo()->id;
+    }
 }
 
