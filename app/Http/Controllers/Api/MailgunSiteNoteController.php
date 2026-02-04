@@ -103,7 +103,7 @@ class MailgunSiteNoteController extends Controller
         // -------------------------------------------------
         // Email notification (unchanged behaviour)
         // -------------------------------------------------
-        $note->emailNote();
+        //$note->emailNote();
 
         if ($this->debug) {
             Log::info('SiteNote import completed', [

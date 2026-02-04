@@ -1405,8 +1405,12 @@ class Site extends Model
     {
         $string = '';
 
-        if ($this->attributes['project_mgr'])
-            $string = $this->projectManager->initials;
+        if ($this->attributes['project_mgr_name']) {
+            $words = explode(' ', $this->project_mgr_name);
+            foreach ($words as $word) {
+                $string .= mb_strtoupper(mb_substr($word, 0, 1));
+            }
+        }
 
         return ($string) ? $string : '-';
     }
