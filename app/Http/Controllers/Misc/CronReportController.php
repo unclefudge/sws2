@@ -922,14 +922,16 @@ class CronReportController extends Controller
         $email_list = (app()->environment('prod')) ? $cc->notificationsUsersEmailType('site.inspection.pending') : [env('EMAIL_DEV')];
         $emails = implode("; ", $email_list);
 
+        $includedSites = Site::whereIn('status', [1, 2, '-1'])->pluck('id')->toArray();
+
         // Electrical
-        $elPendingAdmin = SiteInspectionElectrical::where('status', 3)->where('supervisor_sign_by', null)->get();
-        $elPendingTech = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', null)->get();
-        $elClientNot = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+        $elPendingAdmin = SiteInspectionElectrical::where('status', 3)->where('supervisor_sign_by', null)->whereIn('site_id', $includedSites)->get();
+        $elPendingTech = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', null)->whereIn('site_id', $includedSites)->get();
+        $elClientNot = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', '<>', null)->whereIn('site_id', $includedSites)->get();
         // Plumbing
-        $plPendingAdmin = SiteInspectionPlumbing::where('status', 3)->where('supervisor_sign_by', null)->get();
-        $plPendingTech = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->get();
-        $plClientNot = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+        $plPendingAdmin = SiteInspectionPlumbing::where('status', 3)->where('supervisor_sign_by', null)->whereIn('site_id', $includedSites)->get();
+        $plPendingTech = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->whereIn('site_id', $includedSites)->get();
+        $plClientNot = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->whereIn('site_id', $includedSites)->get();
 
 
         //dd(count($projs));
@@ -1445,7 +1447,7 @@ class CronReportController extends Controller
             // --------------------------------------------------
             $data = SitePlannerDataBuilder::build([
                 'date' => $yesterday->format('Y-m-d'),
-                'weeks' => 4,
+                'weeks' => 6,
                 'mode' => 'supervisor',
                 'site_ids' => [],
                 'supervisor_ids' => [$super->id],
