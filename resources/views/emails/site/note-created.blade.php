@@ -10,6 +10,11 @@
 
 A note has been added for {{ $note->site->name }}. {!! ($note->response_req) ? "**Response Required**" : '' !!}
 
+{{-- 12. Allowance Query, 13. Plans & Details Query, 14. Compliance Query  --}}
+@if (in_array($note->category_id, [12, 13, 14]))
+Response Required: {{ ($note->response_req) ? 'Yes' : 'No - FYI only' }}<br>
+<br>
+@endif
 {{-- 15. Costing fields --}}
 @if ($note->category_id == '15')
 Credit/Extra: {{ $note->costing_extra_credit }}<br>

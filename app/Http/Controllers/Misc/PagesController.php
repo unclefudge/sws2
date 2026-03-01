@@ -20,7 +20,6 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Mail;
 use Session;
 
@@ -142,9 +141,19 @@ class PagesController extends Controller
 
         echo "<h1>Migrate backups</h1><br>";
 
-        $files = Storage::disk('filebank_local')->allFiles('');
-        $result = FileBank::migrateMany($files, true);
-        dd($result);
+        // Get codes that appear more than once
+        $duplicateCodes = Site::select('code', DB::raw('COUNT(*) as total'))
+            ->groupBy('code')
+            ->having('total', '>', 1)
+            ->pluck('code');
+
+// If you want the actual Site records that are duplicates:
+        $duplicateSites = Site::whereIn('code', $duplicateCodes)
+            ->orderBy('code')
+            ->get();
+        foreach ($duplicateSites as $site) {
+            echo "$site->id - $site->code -  $site->name<br>";
+        }
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
