@@ -509,7 +509,7 @@ class SiteUpcomingComplianceController extends Controller
         foreach ($site_list as $site_id) {
             $site = Site::find($site_id);
 
-            if ($site) {
+            if ($site && !in_array($site->status, [0, -2])) {
                 $cc = $cc_stage = null;
                 if ($site->cc) {
                     $cc = $site->cc;
