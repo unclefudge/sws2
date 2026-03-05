@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
 use App\Models\Misc\Action;
 use App\Models\Misc\Attachment;
+use App\Models\Site\Site;
 use App\Models\Site\SiteInspectionPlumbing;
 use Carbon\Carbon;
 use DB;
@@ -35,9 +36,10 @@ class SiteInspectionPlumbingController extends Controller
         if (!Auth::user()->hasAnyPermissionType('site.inspection'))
             return view('errors/404');
 
-        $non_assigned = SiteInspectionPlumbing::Where('assigned_to', null)->get();
-        $pending = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->get();
-        $client_not_sent = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->get();
+        $excludedSites = Site::whereIn('status', [0, -2])->pluck('id')->toArray();
+        $non_assigned = SiteInspectionPlumbing::Where('assigned_to', null)->whereNotIn('site_id', $excludedSites)->get();
+        $pending = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', null)->whereNotIn('site_id', $excludedSites)->get();
+        $client_not_sent = SiteInspectionPlumbing::where('status', 3)->where('manager_sign_by', '<>', null)->whereNotIn('site_id', $excludedSites)->get();
         $assignedList = ['all' => 'All sites'];
         foreach (Auth::user()->company->reportsTo()->companies('1')->sortBy('name') as $company) {
             if (in_array('8', $company->tradesSkilledIn->pluck('id')->toArray()))
