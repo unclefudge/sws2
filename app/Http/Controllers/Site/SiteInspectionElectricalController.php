@@ -36,7 +36,7 @@ class SiteInspectionElectricalController extends Controller
         if (!Auth::user()->hasAnyPermissionType('site.inspection'))
             return view('errors/404');
 
-        $excludedSites = Site::whereIn('status', [0, -2])->pluck('id')->toArray();
+        $excludedSites = Site::whereIn('status', [-2])->pluck('id')->toArray();
         $non_assigned = SiteInspectionElectrical::where('assigned_to', null)->whereNotIn('site_id', $excludedSites)->get();
         $pending = SiteInspectionElectrical::where('status', 3)->whereNotIn('site_id', $excludedSites)->get();
         $client_not_sent = SiteInspectionElectrical::where('status', 3)->where('manager_sign_by', '<>', null)->whereNotIn('site_id', $excludedSites)->get();
