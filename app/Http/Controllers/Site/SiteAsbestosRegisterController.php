@@ -227,6 +227,42 @@ class SiteAsbestosRegisterController extends Controller
         return redirect("/site/asbestos/register/$asb->id");
     }
 
+    public function createNone($id)
+    {
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('add.site.asbestos'))
+            return view('errors/404');
+
+        $asb = SiteAsbestosRegister::findOrFail($id);
+
+        // Create Site Asbestos
+        if ($asb) {
+            // Increment major version
+            list($major, $minor) = explode('.', $asb->version);
+            $major++;
+            $asb->version = $major . '.0';
+        }
+
+        // Create Item
+        if ($asb) {
+            $item_request['register_id'] = $asb->id;
+            $item_request['date'] = Carbon::now()->toDateTimeString();
+            $item_request['location'] = 'No asbestos found';
+            $item_request['amount'] = 0;
+            $item_request['status'] = 0;
+            $asb->items()->save(new SiteAsbestosRegisterItem($item_request));
+
+            // Create PDF
+            $asb->attachment = $this->createPDF($asb->id);
+            $asb->save();
+        }
+
+        Toastr::success("Marked No Asbestos");
+
+        return redirect("/site/asbestos/register/$asb->id");
+
+    }
+
     /**
      * Delete Item
      */

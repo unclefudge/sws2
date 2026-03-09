@@ -45,8 +45,8 @@
                                 </div>
                             </div>
                             <hr>
-
                             <a class="btn btn-circle green btn-outline btn-sm pull-right" href="/site/asbestos/register/{{ $asb->id }}/create" data-original-title="Add">Add item</a>
+                            <a class="btn btn-circle red btn-outline btn-sm pull-right" href="/site/asbestos/register/{{ $asb->id }}/marknone" style="margin-right: 10px"> Mark No Asbestos Found</a>
                             <br><br>
                             <table class="table table-striped table-bordered table-nohover order-column">
                                 <thead>
@@ -69,7 +69,9 @@
                                             <td>{{ $item->date->format('d/m/Y') }}</td>
                                             <td>{{ $item->location }}</td>
                                             <td>{{ $item->type }}</td>
-                                            <td>{{ ($item->friable) ? 'Friable' : 'Non-friable' }}</td>
+                                            <td> @if ($item->amount != 0)
+                                                    {{ ($item->friable) ? 'Friable' : 'Non-friable' }}
+                                                @endif</td>
                                             <td>{{ $item->amount }}</td>
                                             <td>{{ $item->condition }}</td>
                                             <td>{{ $item->assessment }}</td>
@@ -105,9 +107,7 @@
         </div>
     </div>
 
-
-
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -116,27 +116,28 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
 
-    $(document).ready(function () {
-        $('#delete').on('click', function () {
-            var id = "{{ $asb->id }}";
-            var name = "{{ $asb->site->name }}";
-            swal({
-                title: "Are you sure?",
-                text: "You will not be able to restore this asbestos record!<br><b>" + name + "</b>",
-                showCancelButton: true,
-                cancelButtonColor: "#555555",
-                confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
-                allowOutsideClick: true,
-                html: true,
-            }, function () {
-                window.location = "/site/asbestos/register/" + id + '/destroy';
+        $(document).ready(function () {
+            $('#delete').on('click', function () {
+                var id = "{{ $asb->id }}";
+                var name = "{{ $asb->site->name }}";
+                swal({
+                    title: "Are you sure?",
+                    text: "You will not be able to restore this asbestos record!<br><b>" + name + "</b>",
+                    showCancelButton: true,
+                    cancelButtonColor: "#555555",
+                    confirmButtonColor: "#E7505A",
+                    confirmButtonText: "Yes, delete it!",
+                    allowOutsideClick: true,
+                    html: true,
+                }, function () {
+                    window.location = "/site/asbestos/register/" + id + '/destroy';
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop
 

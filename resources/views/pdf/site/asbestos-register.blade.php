@@ -31,11 +31,11 @@
             page-break-inside: avoid;
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd) {
+        .table-striped > tbody > tr:nth-of-type(odd) {
             background-color: #ffffff;
         }
 
-        .table-striped>tbody>tr:nth-of-type(even) {
+        .table-striped > tbody > tr:nth-of-type(even) {
             background-color: #fbfbfb;
         }
 
@@ -71,7 +71,7 @@
         {{--}}Document created: {!! date('\ d/m/Y\ ') !!} <span style="float: right">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </span><br>Version: {{ $asb->version }} --}}
         <div class="row">
             <div class="col-xs-10">Document created {!! date('\ d/m/Y\ ') !!}</div>
-            <div class="col-xs-2">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp; </div>
+            <div class="col-xs-2">Page <span class="pagenum"></span> &nbsp; &nbsp; &nbsp;</div>
         </div>
     </div>
 </footer>
@@ -94,7 +94,8 @@
             <h4 style="margin: 0px">{{ $asb->site->name }}</h4>{{ $asb->site->address }}, {{  $asb->site->suburb_state_postcode }}
         </div>
         <div class="col-xs-2">Last Updated: {{ $asb->updated_at->format('d/m/Y') }}</div>
-    </div><br><br>
+    </div>
+    <br><br>
 
     <table class="table table-striped table-bordered table-hover order-column" style="padding: 0px; margin: 0px">
         <thead>
@@ -113,7 +114,11 @@
                 <td width="5%" class="pad5">{!! $item->date->format('d/m/Y') !!}</td>
                 <td width="20%" class="pad5">{!! $item->location !!}</td>
                 <td width="16%" class="pad5">{!! $item->type !!}</td>
-                <td width="8%" class="pad5">{!! ($item->friable) ? 'Friable' : 'Non-friable' !!}</td>
+                <td width="8%" class="pad5">
+                    @if ($item->amount != 0)
+                        {!! ($item->friable) ? 'Friable' : 'Non-friable' !!}
+                    @endif
+                </td>
                 <td width="5%" class="pad5">{!! $item->amount !!}</td>
                 <td width="23%" class="pad5">{!! $item->condition !!}</td>
                 <td width="23%" class="pad5">{!! $item->assessment !!}</td>

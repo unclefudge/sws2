@@ -26,7 +26,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($note, ['method' => 'PATCH', 'action' => ['Site\SiteNoteController@update', $note->id], 'class' => 'horizontal-form']) !!}
+                        {!! Form::model($note, ['method' => 'POST', 'action' => ['Site\SiteNoteController@uploadAttachment', $note->id], 'class' => 'horizontal-form']) !!}
                         <div class="form-body">
                             <div class="row">
                                 {{-- Site --}}
@@ -236,7 +236,7 @@
                         </div>
 
                         {{-- Attachments --}}
-                        <h5><b>Attachments:</b> <small><a href="/site/note/{{$note->id}}/edit">EDIT</a></small></h5>
+                        <h5><b>Attachments</b> <small><a id="edit-attachment-link">EDIT</a></small></h5>
                         <hr style="margin: 10px 0px; padding: 0px;">
                         @php
                             $attachments = $note->attachments;
@@ -249,8 +249,8 @@
                                 <div class="row" style="margin: 0">
                                     @foreach ($images as $attachment)
                                         <div style="width: 60px; float: left; padding-right: 5px">
-                                            @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
-                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                            @if (Auth::user()->hasPermission2("del.site.note"))
+                                                <i class="fa fa-times font-red deleteFile edit-toggle" style="cursor:pointer; display:none;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
                                             @endif
                                             <a href="{{ $attachment->url }}" target="_blank" data-lity>
                                                 <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
@@ -265,8 +265,8 @@
                                 <div class="row" style="margin: 0">
                                     @foreach ($files as $attachment)
                                         <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                        @if (Auth::user()->hasPermission2("del.site.note") && $edit == 'true')
-                                            <i class="fa fa-times font-red deleteFile" style="cursor:pointer;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
+                                        @if (Auth::user()->hasPermission2("del.site.note"))
+                                            <i class="fa fa-times font-red deleteFile edit-toggle" style="cursor:pointer; display:none;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
                                         @endif
                                         <br>
                                     @endforeach
@@ -276,18 +276,16 @@
                             None
                         @endif
 
-                        @if ($edit == 'true')
-                            <div class="row" id="upload_attachment_div">
-                                <div class="col-md-6">
-                                    <h5 id="uploads_label">Upload Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                                <div class="col-md-6">
-                                    <br><br>
-                                    <button type="submit" class="btn green" id="submit"> Save</button>
-                                </div>
+                        <div class="row edit-toggle" style="display: none">
+                            <div class="col-md-6">
+                                <h5 id="uploads_label">Upload Attachments</h5>
+                                <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
                             </div>
-                        @endif
+                            <div class="col-md-6">
+                                <br><br>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
+                            </div>
+                        </div>
 
                         {!! Form::close() !!}
 
@@ -312,6 +310,9 @@
                         <br><br>
                         <div class="form-actions right">
                             <a href="/site/note" class="btn default"> Back</a>
+                            @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                <a href="/site/note/{{$note->id}}/edit" class="btn green"> Edit </a>
+                            @endif
                             @if (in_array($note->category_id, [19,20]))
                                 <a href="/site/{{$note->id}}/notes/convert" class="btn green"> Copy & Create To Approved Site Variation </a>
                             @endif
@@ -343,6 +344,18 @@
     <script src="/js/filepond-basic.js" type="text/javascript"></script>
     <script>
         $(document).ready(function () {
+            $('#edit-attachment-link').on('click', function (e) {
+                e.preventDefault();
+                $('.edit-toggle').toggle();
+
+                // Toggle link text
+                if ($(this).text() === 'EDIT') {
+                    $(this).text('DONE');
+                } else {
+                    $(this).text('EDIT');
+                }
+            });
+
             // Delete from Ashbys
             $('.deleteFile').click(function (e) {
                 e.preventDefault();

@@ -251,8 +251,11 @@ class SiteNoteController extends Controller
             return view('errors/404');
 
         $categories = Category::where('type', 'site_note')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
+        $cost_centres = Category::where('type', 'site_note_cost')->where('status', 1)->orderBy('order')->pluck('name', 'id')->toArray();
         $site_list = ['all' => 'All sites'] + Auth::user()->authSites('view.site.note', [1, 2])->where('special', null)->pluck('name', 'id')->toArray();
         $edit = 'true';
+
+        return view('site/note/edit', compact('note', 'site_list', 'categories', 'cost_centres'));
 
         if ($note->status == 1)
             return view('site/note/show', compact('note', 'site_list', 'categories', 'edit'));
@@ -269,21 +272,140 @@ class SiteNoteController extends Controller
     public function update($id)
     {
         $note = SiteNote::findOrFail($id);
-
         //dd(request()->all());
 
         // Check authorisation and throw 404 if not
         if (!Auth::user()->allowed2('edit.site.note', $note))
             return view('errors/404');
 
-        $rules = ['site_id' => 'required'];
-        $mesg = ['site_id.required' => 'The site field is required.',];
+        $rules = ['category_id' => 'required'];
+        $mesg = ['site_id.required' => 'The site field is required.',
+            'site_id2.required' => 'The site field is required.',
+            'category_id.required' => 'The category field is required.',
+            'notes.required' => 'The notes field is required.',
+            'costing_extra_credit.required' => 'The costing credit/extra field is required.',
+            'costing_item.required' => 'The new item/in lieu field is required.',
+            'costing_room.required' => 'The room field is required.',
+            'costing_location.required' => 'The location days field is required.',
+            'costing_priority.required' => 'The priority field is required.',
+            'variation_name.required' => 'The name field is required.',
+            'variation_info.required' => 'The description field is required.',
+            'variation_net.required' => 'The net cost field is required.',
+            'variation_cost.required' => 'The gross cost field is required.',
+            'variation_days.required' => 'The days field is required.',
+            'prac_notified.required' => 'The prac notified field is required.',
+            'prac_meeting_date.required' => 'The prac meeting date field is required.',
+            'prac_meeting_time.required' => 'The prac meeting time field is required.',
+            'cc-1.required' => 'The cost centre item 1 required'
+        ];
+
+        // Wel Call
+        if (request('category_id') == 93)
+            $rules = $rules + ['site_id2' => 'required'];
+        else
+            $rules = $rules + ['site_id' => 'required'];
+
+        // Costing Request
+        if (request('category_id') == 15)
+            $rules = $rules + ['costing_extra_credit' => 'required', 'costing_item' => 'required', 'costing_room' => 'required', 'costing_location' => 'required', 'costing_priority' => 'required', 'notes' => 'required'];
+
+        // Prac Completion Request
+        if (request('category_id') == 89)
+            $rules = $rules + ['prac_notified' => 'required', 'prac_meeting_date' => 'required', 'prac_meeting_time' => 'required'];
+
+        // Early Occupation
+        if (request('category_id') == 94)
+            $rules = $rules + ['occupation_date' => 'required', 'occupation_area' => 'required'];
+
+        // Variations
+        elseif (in_array(request('category_id'), [16, 19, 93])) { // Approved / For Issue to Client
+            $rules = $rules + [
+                    'variation_name' => 'required', 'variation_info' => 'required', 'variation_net' => 'required', 'variation_cost' => 'required',
+                    'variation_days' => 'required'];
+            if (in_array(request('category_id'), [16, 19])) // exclude Wet calls
+                $rules = $rules + ['variation_extra_credit' => 'required'];
+            /*for ($i = 1; $i <= 20; $i++) {
+                if (request("cc-$i")) {
+                    $rules = $rules + ["cinfo-$i" => 'required'];
+                    $mesg = $mesg + ["cc-$i.required" => "The cost centre item $i required", "cinfo-$i.required" => "The variation item $i details required"];
+                }
+            }*/
+        } elseif (request('category_id') == 20) { // TBA Site Variations
+            $rules = $rules + ['variation_name' => 'required', 'variation_info' => 'required', 'notes' => 'required'];
+        } else {
+            $rules = $rules + ['notes' => 'required'];
+        }
+
         request()->validate($rules, $mesg); // Validate
 
-        //dd(request()->all());
-        // Update Site Note
-        //$note->update(request()->all());
+        $note_request = request()->all();
 
+        if (request('variation_extra_credit'))
+            $note_request['costing_extra_credit'] = request('variation_extra_credit');
+
+        $note_request['prac_notified'] = (request('prac_notified')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_notified') . '00:00')->toDateTimeString() : null;
+        $note_request['prac_meeting'] = (request('prac_meeting_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('prac_meeting_date') . date("H:i", strtotime(request('prac_meeting_time'))))->toDateTimeString() : null;
+        $note_request['occupation_date'] = (request('occupation_date')) ? Carbon::createFromFormat('d/m/Y H:i', request('occupation_date') . '00:00')->toDateTimeString() : null;
+
+        // Wet call - update site_id
+        if (request('category_id') == 93)
+            $note_request['site_id'] = request('site_id2');
+
+        //dd($note_request);
+
+        // Update Site Note
+        $note->update($note_request);
+
+        // Handle attachments
+        $attachments = collect(request('filepond', []))->filter()->values();
+        foreach ($attachments as $tmp_filename) {
+            $attachment = Attachment::create(['table' => 'site_notes', 'table_id' => $note->id, 'directory' => "site/$note->site_id/note"]);
+            $attachment->saveAttachment($tmp_filename);
+        }
+
+        // Update Variations Cost Items for Approved/For Issue
+        if (in_array(request('category_id'), [16, 19])) {
+            // Only inputs that start with "cc-"
+            $ccInputs = request()->collect()->filter(fn($value, $key) => str_starts_with($key, 'cc-'));
+
+            foreach ($ccInputs as $key => $costCentreId) {
+                // key looks like "cc-123" where 123 is SiteNoteCost.id
+                if (!preg_match('/^cc-(\d+)$/', (string)$key, $m)) continue;
+
+                $siteNoteCostId = (int)$m[1];
+                $detailsKey = "cinfo-{$siteNoteCostId}";
+                $details = request()->input($detailsKey); // can be null
+
+                // Only update rows that belong to THIS note (prevents tampering)
+                $item = SiteNoteCost::where('id', $siteNoteCostId)->where('note_id', $note->id)->first();
+
+                if (!$item) continue;
+
+                // If your form can submit blanks and you DON'T want blanks to overwrite:
+                if (blank($costCentreId) && blank($details)) continue;
+
+                if (!blank($costCentreId))
+                    $item->cost_id = $costCentreId;
+
+                // Only update details if that field was actually present in request
+                if (request()->has($detailsKey))
+                    $item->details = $details;
+
+                $item->save();
+            }
+        }
+
+        return redirect("site/note/$note->id");
+    }
+
+    public function uploadAttachment($id)
+    {
+        $note = SiteNote::findOrFail($id);
+        //dd(request()->all());
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('edit.site.note', $note))
+            return view('errors/404');
 
         // Handle attachments
         $attachments = collect(request('filepond', []))->filter()->values();
@@ -293,7 +415,6 @@ class SiteNoteController extends Controller
         }
 
         return redirect("site/note/$note->id");
-
     }
 
     /**

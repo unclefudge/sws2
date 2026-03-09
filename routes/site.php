@@ -68,6 +68,7 @@ Route::post('site/note/settings', '\App\Http\Controllers\Site\SiteNoteController
 Route::get('site/note/settings/cost-centres', '\App\Http\Controllers\Site\SiteNoteController@costCentres');
 Route::post('site/note/settings/cost-centres', '\App\Http\Controllers\Site\SiteNoteController@updateCostCentres');
 Route::get('site/note/{id}/delattachment/{attach_id}', '\App\Http\Controllers\Site\SiteNoteController@delAttachment');
+Route::post('site/note/{id}/uploadattachment', '\App\Http\Controllers\Site\SiteNoteController@uploadAttachment');
 //Route::get('site/note/{id}/pdf', '\App\Http\Controllers\Site\SiteNoteController@createPDF');
 Route::resource('site/note', '\App\Http\Controllers\Site\SiteNoteController');
 
@@ -215,6 +216,7 @@ Route::prefix('site')->as('site.')->group(function () {
 // Site Asbestos Register
 Route::get('site/asbestos/register/dt/list', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@getReports');
 Route::get('site/asbestos/register/{id}/create', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@createItem');
+Route::get('site/asbestos/register/{id}/marknone', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@createNone');
 Route::get('site/asbestos/register/delete/{id}', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@deleteItem');
 Route::get('site/asbestos/register/{id}/createpdf', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@createPDF');
 Route::get('site/asbestos/register/{id}/destroy', '\App\Http\Controllers\Site\SiteAsbestosRegisterController@destroy');
