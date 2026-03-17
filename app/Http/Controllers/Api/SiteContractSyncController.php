@@ -88,6 +88,7 @@ class SiteContractSyncController extends Controller
         // -----------------------------
         $hiaResult = null;
         $hiaPdfStored = null;
+        $hadExistingHiaContract = !empty($contract->hia_contract_id);
 
         try {
             // Use site + related site_contract data in mapper
@@ -128,7 +129,7 @@ class SiteContractSyncController extends Controller
                     'contract_id' => $hiaContract['ContractId'] ?? null,
                     'template_id' => $hiaContract['TemplateId'] ?? null,
                     'pdf_path' => $hiaPdfStored,
-                    'sync_action' => $contract->hia_contract_id ? 'updated' : 'created',
+                    'sync_action' => $hadExistingHiaContract ? 'updated' : 'created',
                 ];
             }
         } catch (\Throwable $e) {
