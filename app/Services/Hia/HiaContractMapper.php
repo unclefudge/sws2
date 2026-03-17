@@ -1,0 +1,656 @@
+<?php
+
+namespace App\Services\Hia;
+
+use App\Models\Site\Site;
+use Carbon\Carbon;
+
+class HiaContractMapper
+{
+    public function fromSite(Site $site): array
+    {
+        $clientName = $this->fullName(
+            $site->client1_firstname,
+            $site->client1_lastname
+        );
+
+        $client2Name = $this->fullName(
+            $site->client2_firstname,
+            $site->client2_lastname
+        );
+
+        return [
+            /*
+            |--------------------------------------------------------------------------
+            | Contract meta
+            |--------------------------------------------------------------------------
+            */
+            'job_number' => $site->code,
+            'client' => $clientName,
+            // 'contract_date' => optional($site->contract_sent)->format('Y-m-d'),
+            // 'contract_date' => $this->formatDate($site->contract_signed ?? $site->contract_sent ?? $site->created_at),
+            'contract_date' => '11/03/2026',
+            'status' => 1,
+            'period_type' => 'Working Days',
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2. Contract Price / Progress Payments
+            |--------------------------------------------------------------------------
+           */
+            'payment' => [
+                'deposit' => 10000,
+                'total_ex_gst' => 250000,
+                'gst' => 25000,
+                'total_inc_gst' => 275000,
+                'rounded' => false,
+
+                'progress_payment' => [
+                    'method' => 'customised',
+                    'custom_reason' => 'Testing custom progress stages via API',
+                    'base_stage_type' => null,
+
+                    'rounding_message' => null,
+                    'total_calculated_percent' => 100,
+                    'total_calculated_amount' => 275000,
+                    'adjustment' => 0,
+
+                    'stages' => [
+                        [
+                            'name' => 'Stage 1 – Deposit',
+                            'description' => 'Initial contract deposit',
+                            'percent' => 10,
+                            'amount' => 27500,
+                            'adjustment' => null,
+                            'update' => null,
+                        ],
+                        [
+                            'name' => 'Stage 2 – Frame Complete',
+                            'description' => 'Frame construction completed',
+                            'percent' => 40,
+                            'amount' => 110000,
+                            'adjustment' => null,
+                            'update' => null,
+                        ],
+                        [
+                            'name' => 'Stage 3 – Practical Completion',
+                            'description' => 'Final completion of building works',
+                            'percent' => 50,
+                            'amount' => 137500,
+                            'adjustment' => null,
+                            'update' => null,
+                        ],
+                    ],
+                ],
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3. Owner(s)
+            |--------------------------------------------------------------------------
+            */
+            'owner' => [
+                // name
+                'type' => 'individual',
+                'organisation' => null,
+                'title' => $site->client1_title,
+                'firstname' => $site->client1_firstname,
+                'givennames' => $site->client1_firstname,
+                'lastname' => $site->client1_lastname,
+                'fullname' => $clientName,
+
+                // address
+                'dpid' => null,
+                'building' => null,
+                'floor' => null,
+                'unit' => null,
+                'number' => null,
+                'address_line1' => $site->address,
+                'address_line2' => $site->address2,
+                'suburb' => $site->suburb,
+                'state' => $site->state,
+                'pobox' => null,
+                'postcode' => $site->postcode,
+                'country' => $site->country ?: 'Australia',
+                'block' => null,
+                'lot' => null,
+                'section' => null,
+                'volume' => null,
+                'folio' => null,
+                'certificate_of_title' => null,
+
+                // contact
+                'workphone' => null,
+                'homephone' => null,
+                'fax' => null,
+                'mobile' => $site->client1_mobile ?: $site->client_phone,
+                'email' => $site->client1_email ?: $site->client_email,
+
+                // mailing address
+                'mail_dpid' => null,
+                'mail_building' => null,
+                'mail_floor' => null,
+                'mail_unit' => null,
+                'mail_number' => null,
+                'mail_line1' => null,
+                'mail_line2' => null,
+                'mail_suburb' => null,
+                'mail_state' => null,
+                'mail_pobox' => null,
+                'mail_postcode' => null,
+                'mail_country' => 'Australia',
+                'mail_block' => null,
+                'mail_lot' => null,
+                'mail_section' => null,
+                'mail_volume' => null,
+                'mail_folio' => null,
+                'mail_certificate_of_title' => null,
+
+                // misc
+                'resident_contact' => null,
+                'occupation' => null,
+                'abn' => null,
+                'acn' => null,
+                'resident' => true,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Optional second owner / secondary client
+            |--------------------------------------------------------------------------
+            | Only useful if you later expand your XML service to support multiple
+            | <hia:owner> nodes.
+            */
+            'owner2' => [
+                'type' => 'individual',
+                'organisation' => null,
+                'title' => $site->client2_title,
+                'firstname' => $site->client2_firstname,
+                'givennames' => $site->client2_firstname,
+                'lastname' => $site->client2_lastname,
+                'fullname' => $client2Name,
+
+                'dpid' => null,
+                'building' => null,
+                'floor' => null,
+                'unit' => null,
+                'number' => null,
+                'address_line1' => $site->address,
+                'address_line2' => $site->address2,
+                'suburb' => $site->suburb,
+                'state' => $site->state,
+                'pobox' => null,
+                'postcode' => $site->postcode,
+                'country' => $site->country ?: 'Australia',
+                'block' => null,
+                'lot' => null,
+                'section' => null,
+                'volume' => null,
+                'folio' => null,
+                'certificate_of_title' => null,
+
+                'workphone' => null,
+                'homephone' => null,
+                'fax' => null,
+                'mobile' => $site->client2_mobile ?: $site->client_phone2,
+                'email' => $site->client2_email ?: $site->client_email2,
+
+                'mail_dpid' => null,
+                'mail_building' => null,
+                'mail_floor' => null,
+                'mail_unit' => null,
+                'mail_number' => null,
+                'mail_line1' => null,
+                'mail_line2' => null,
+                'mail_suburb' => null,
+                'mail_state' => null,
+                'mail_pobox' => null,
+                'mail_postcode' => null,
+                'mail_country' => 'Australia',
+                'mail_block' => null,
+                'mail_lot' => null,
+                'mail_section' => null,
+                'mail_volume' => null,
+                'mail_folio' => null,
+                'mail_certificate_of_title' => null,
+
+                'occupation' => null,
+                'abn' => null,
+                'acn' => null,
+                'resident' => true,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. Builder
+            |--------------------------------------------------------------------------
+            | Replace these with real company/builder values later
+            */
+            'builder' => [
+                // name
+                'type' => 'entity',
+                'organisation' => 'CAPE COD AUSTRALIA PTY LTD',
+                'title' => null,
+                'firstname' => null,
+                'givennames' => null,
+                'lastname' => null,
+                'fullname' => 'CAPE COD AUSTRALIA PTY LTD',
+
+                // address
+                'dpid' => null,
+                'building' => null,
+                'floor' => null,
+                'unit' => null,
+                'number' => null,
+                'address_line1' => 'SHOP 4, 426 CHURCH ST',
+                'address_line2' => null,
+                'suburb' => 'NORTH PARAMATTA',
+                'state' => 'NSW',
+                'pobox' => null,
+                'postcode' => '2151',
+                'country' => 'AUSTRALIA',
+                'block' => null,
+                'lot' => null,
+                'section' => null,
+                'volume' => null,
+                'folio' => null,
+                'certificate_of_title' => null,
+
+                // contact
+                'workphone' => '02 9849 4444',
+                'homephone' => null,
+                'fax' => null,
+                'mobile' => null,
+                'email' => 'inform@capecod.com.au',
+
+                // mail address
+                'mail_dpid' => null,
+                'mail_building' => null,
+                'mail_floor' => null,
+                'mail_unit' => null,
+                'mail_number' => null,
+                'mail_line1' => null,
+                'mail_line2' => null,
+                'mail_suburb' => null,
+                'mail_state' => null,
+                'mail_pobox' => null,
+                'mail_postcode' => null,
+                'mail_country' => 'Australia',
+                'mail_block' => null,
+                'mail_lot' => null,
+                'mail_section' => null,
+                'mail_volume' => null,
+                'mail_folio' => null,
+                'mail_certificate_of_title' => null,
+
+                // licence/company
+                'licence_number' => '5519',
+                'licence_category' => null,
+                'hia_member_number' => '307160',
+                'hia_membership_expiry' => null,
+                'abn' => '54 000 605 407',
+                'acn' => null,
+                'registered_building_practitioner' => null,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 5. The Land
+            |--------------------------------------------------------------------------
+            */
+            'site' => [
+                'dpid' => null,
+                'building' => null,
+                'floor' => null,
+                'unit' => null,
+                'number' => null,
+                'line1' => $site->address,
+                'line2' => $site->address2,
+                'suburb' => $site->suburb,
+                'state' => $site->state,
+                'pobox' => null,
+                'postcode' => $site->postcode,
+                'country' => $site->country ?: 'Australia',
+                'block' => 'block',
+                'lot' => null,
+                'section' => 'section',
+                'volume' => null,
+                'folio' => null,
+                'division' => 'div', // note: your XML service may need a custom mapping for this if template supports it
+                'certificate_of_title' => null,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mortgage / lending / funding
+            |--------------------------------------------------------------------------
+            */
+            'mortgage' => [
+                'lending_body' => null,
+                'amount' => null,
+                'branch' => null,
+                'contact' => null,
+                'supply_date' => null,
+                'interest' => null,
+                'term_length' => null,
+            ],
+
+            'funding' => [
+                'total' => null,
+                'item' => [
+                    'description' => null,
+                    'amount' => null,
+                    'approval_period' => null,
+                ],
+            ],
+
+            'lending' => [
+                'funds' => [
+                    'lending_body' => null,
+                    'branch' => null,
+                    'contact' => null,
+                ],
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 6. Building period / 7. Initial period
+            |--------------------------------------------------------------------------
+            */
+            'timeframe' => [
+                'start' => $this->formatDate($site->jobstart_estimate),
+                'price_review' => null,
+                'start_price_review_string' => null,
+                'end' => $this->formatDate($site->forecast_completion),
+                'initial_period_days' => '66', //$siteContract->initial_period_days ?? null,
+                'days' => [
+                    'commencement' => null, // Initial Period
+                    'completion' => '22',  // Practical Completion
+                    'weather' => null,
+                    'weekend' => null,
+                    'other' => null,
+                    'defect_liability' => null,
+                    'defect_rectification' => null,
+                    'progress_payment' => null,
+                ],
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 10. Development application and complying development certificate
+            |--------------------------------------------------------------------------
+            */
+            'responsibilities' => [
+                'design' => [
+                    'supplier' => [
+                        'type' => null,
+                        'organisation' => null,
+                        'title' => null,
+                        'firstname' => null,
+                        'givennames' => null,
+                        'lastname' => null,
+                        'fullname' => null,
+                    ],
+                    'pages' => null,
+                    'days_to_obtain' => null,
+                ],
+
+                'planning_approval' => [
+                    'supplier' => [
+                        'type' => null,
+                        'organisation' => null,
+                        'title' => null,
+                        'firstname' => null,
+                        'givennames' => null,
+                        'lastname' => null,
+                        'fullname' => null,
+                    ],
+                    'pages' => null,
+                    'days_to_obtain' => null,
+                ],
+
+                'building_permit' => [
+                    'supplier' => [
+                        'type' => null,
+                        'organisation' => null,
+                        'title' => null,
+                        'firstname' => null,
+                        'givennames' => null,
+                        'lastname' => null,
+                        'fullname' => 'CAPE COD AUSTRALIA PTY LTD',  // Development application
+                    ],
+                    'pages' => null,
+                    'days_to_obtain' => null,
+                ],
+
+                'work_specification' => [
+                    'supplier' => [
+                        'type' => null,
+                        'organisation' => null,
+                        'title' => null,
+                        'firstname' => null,
+                        'givennames' => null,
+                        'lastname' => null,
+                        'fullname' => null,
+                    ],
+                    'pages' => null,
+                    'days_to_obtain' => null,
+                ],
+
+                'engineering_design' => [
+                    'supplier' => [
+                        'type' => null,
+                        'organisation' => null,
+                        'title' => null,
+                        'firstname' => null,
+                        'givennames' => null,
+                        'lastname' => null,
+                        'fullname' => null,
+                    ],
+                    'pages' => null,
+                    'days_to_obtain' => null,
+                ],
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 11. Liquidated damages / 12. Interest / 13. Builder's margin
+            |--------------------------------------------------------------------------
+            */
+            'damages' => [
+                'late_completion_daily' => null,
+                'liquidated_daily' => '200',
+                'late_completion_percentage' => null,
+                'late_payment_percentage' => '8',
+                'delay_daily' => null,
+            ],
+            'builders_margin' => '20',
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Covenants / exclusions / text areas
+            |--------------------------------------------------------------------------
+            */
+            'covenants' => null,
+            'statutory_obligations' => null,
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | 14. Guarantor
+            |--------------------------------------------------------------------------
+            */
+            'guarantor' => [
+                'name' => [
+                    'type' => 'individual',
+                    'organisation' => null,
+                    'title' => null,
+                    'firstname' => null,
+                    'givennames' => null,
+                    'lastname' => null,
+                    'fullname' => null,
+                ],
+
+                'address' => [
+                    'dpid' => null,
+                    'building' => null,
+                    'floor' => null,
+                    'unit' => null,
+                    'number' => null,
+                    'line1' => null,
+                    'line2' => null,
+                    'suburb' => null,
+                    'state' => null,
+                    'pobox' => null,
+                    'postcode' => null,
+                    'country' => null,
+                    'block' => null,
+                    'lot' => null,
+                    'section' => null,
+                    'volume' => null,
+                    'folio' => null,
+                    'certificate_of_title' => null,
+                ],
+
+                'contact' => [
+                    'workphone' => null,
+                    'homephone' => null,
+                    'fax' => null,
+                    'mobile' => null,
+                    'email' => null,
+                ],
+
+                'abn' => null,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Schedule 3. Excluded Items
+            |--------------------------------------------------------------------------
+            */
+            'exclusions' => 'REFER TO SPECIFICATION CLAUSE N0 1.7 OR WORKS BY OWNER AS SHOWN ON CONTRACT PLANS',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Schedule 4. Description of Work
+            |--------------------------------------------------------------------------
+            */
+            'works_description' => 'REFER TO BUILDING SPECIFCATION ISSUED CONTRACT ALONG WITH CONTRACT PLANS',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Schedule 5. Documents
+            |--------------------------------------------------------------------------
+            */
+            'documents' => [
+                'document' => null,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Schedule 6. Warranty insurance
+            |--------------------------------------------------------------------------
+            */
+            'insurer' => [
+                'name' => [
+                    'type' => 'entity',
+                    'organisation' => 'Insurance and Care NSW (icare)',
+                    'title' => null,
+                    'firstname' => null,
+                    'givennames' => null,
+                    'lastname' => null,
+                    'fullname' => 'Insurance and Care NSW (icare)',
+                ],
+
+                'address' => [
+                    'dpid' => null,
+                    'building' => null,
+                    'floor' => null,
+                    'unit' => null,
+                    'number' => null,
+                    'line1' => null,
+                    'line2' => null,
+                    'suburb' => null,
+                    'state' => null,
+                    'pobox' => null,
+                    'postcode' => null,
+                    'country' => 'Australia',
+                    'block' => null,
+                    'lot' => null,
+                    'section' => null,
+                    'volume' => null,
+                    'folio' => null,
+                    'certificate_of_title' => null,
+                ],
+
+                'contact' => [
+                    'workphone' => null,
+                    'homephone' => null,
+                    'fax' => null,
+                    'mobile' => null,
+                    'email' => null,
+                ],
+
+                'insured_name' => null,
+                'premium' => '77',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Schedule 7. Prime Cost and Provisional Sum items
+            |--------------------------------------------------------------------------
+            */
+            'prime_cost' => [
+                'total' => null,
+                'item' => [
+                    'description' => 'REFER TO BUILDING SPECIFICATION ISSUED FOR CONTRACT',
+                    'quantity' => null,
+                    'rate' => null,
+                    'allowance' => null,
+                    'margin' => null,
+                ],
+            ],
+
+            'provisional_sum' => [
+                'total' => null,
+                'item' => [
+                    'description' => 'REFER TO BUILDING SPECIFICATION ISSUED FOR CONTRACT',
+                    'quantity' => null,
+                    'rate' => null,
+                    'allowance' => null,
+                    'margin' => null,
+                ],
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Special Conditions
+            |--------------------------------------------------------------------------
+            */
+            'special_conditions' => 'losts of stuffer here',
+        ];
+    }
+
+    protected function fullName(?string $firstName, ?string $lastName): string
+    {
+        return trim(collect([$firstName, $lastName])->filter()->implode(' '));
+    }
+
+    protected function formatDate($value): ?string
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format('Y-m-d');
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}

@@ -35,4 +35,14 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'hia' => [
+        'base_url' => env('HIA_BASE_URL'),
+        'username' => env('HIA_USERNAME'),
+        'password' => env('HIA_PASSWORD'),
+        'client_id' => env('HIA_CLIENT_ID'),
+        'client_secret' => env('HIA_CLIENT_SECRET'),
+        'api_version' => env('HIA_API_VERSION', '1.0.0'),
+        'scope' => env('HIA_SCOPE', 'BASIC,COL,DIRECTAUTH'),
+    ],
+
 ];

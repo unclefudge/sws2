@@ -57,6 +57,11 @@ class Site extends Model
         return $this->belongsTo('App\Models\Misc\Client');
     }
 
+    public function contract()
+    {
+        return $this->hasOne(\App\Models\Site\SiteContract::class, 'site_id');
+    }
+
     /**
      * A Site belongs to a Project Manager
      *
