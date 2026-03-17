@@ -8,6 +8,7 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteContract;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SiteContractSyncController extends Controller
 {
@@ -16,19 +17,18 @@ class SiteContractSyncController extends Controller
         return response()->json(SiteContract::with('site')->get());
     }
 
-    public function store(Request $request)
+    public function store(Request $request, HiaContractService $hia, HiaContractMapper $mapper)
     {
         // Debug
         $save_enabled = true;
-        $overwrite_with_blank = false;
         $today = Carbon::now();
         $cc = Company::find(3);
 
         // Logging
+        Log::channel('single')->debug('========= HIA Contract ==========');
         $log = "Zoho Sync: " . $today->format('Y-m-d h:ia') . "  (" . request('username') . ")\n";
         $log = '';
         if (!$save_enabled) $log .= "Save: DISABLED\n";
-        if ($overwrite_with_blank) $log .= "Save: Overwrite With Blank\n";
 
         // Min required fields
         $code = request('code');
@@ -71,11 +71,73 @@ class SiteContractSyncController extends Controller
             $value = request($field);
             $data[$field] = ($value === '') ? null : $value;
         }
+        Log::channel('single')->debug($data);
 
-        if ($save_enabled)
+        if ($save_enabled && count($data))
             $contract->update($data);
 
-        return $this->success("{$action}d site contract", ['site_id' => $site->id, 'site_contract_id' => $contract->id, 'updated_fields' => array_keys($data),]);
+        // Refresh relationships/data before mapping to HIA
+        $site->refresh();
+        $contract->refresh();
+
+        // -----------------------------
+        // Sync to HIA
+        // -----------------------------
+        $hiaResult = null;
+        $hiaPdfStored = null;
+
+        try {
+            // Use site + related site_contract data in mapper
+            $hiaData = $mapper->fromSite($site);
+            ray($hiaData);
+
+            if ($save_enabled) {
+                if ($contract->hia_contract_id) {
+                    // Update existing HIA contract
+                    $hiaContract = $hia->updateContractFromData((int)$contract->hia_contract_id, $hiaData);
+                } else {
+                    // Create new HIA contract
+                    $hiaContract = $hia->createContractFromTemplateAndData(9022, $hiaData);
+                }
+                ray($hiaContract);
+
+                // Save HIA identifiers / XML
+                $updateContractData = [
+                    'hia_contract_id' => $hiaContract['ContractId'] ?? null,
+                    'hia_template_id' => $hiaContract['TemplateId'] ?? null,
+                    'hia_xml' => $hiaContract['Source'] ?? null,
+                ];
+
+                // Try fetch/store PDF
+                if (!empty($hiaContract['ContractId'])) {
+                    $pdfBinary = $hia->getContractPdf((int)$hiaContract['ContractId']);
+
+                    $pdfPath = "site/{$site->id}/contracts/hia-contract-" . $hiaContract['ContractId'] . ".pdf";
+                    Storage::disk('local')->put($pdfPath, $pdfBinary);
+
+                    $updateContractData['hia_pdf'] = $pdfPath;
+                    $hiaPdfStored = $pdfPath;
+                }
+
+                $contract->update($updateContractData);
+
+                $hiaResult = [
+                    'contract_id' => $hiaContract['ContractId'] ?? null,
+                    'template_id' => $hiaContract['TemplateId'] ?? null,
+                    'pdf_path' => $hiaPdfStored,
+                    'sync_action' => $contract->hia_contract_id ? 'updated' : 'created',
+                ];
+            }
+        } catch (\Throwable $e) {
+            return $this->error('SiteContract saved, but HIA sync failed: ' . $e->getMessage(), 500);
+        }
+
+        return $this->success("{$action}d site contract", [
+            'site_id' => $site->id,
+            'site_contract_id' => $contract->id,
+            'updated_fields' => array_keys($data),
+            'hia' => $hiaResult,
+        ]);
     }
 
     public function show(SiteContract $siteContract)

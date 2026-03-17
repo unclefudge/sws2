@@ -15,11 +15,7 @@ class SiteContract extends Model
         'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode',
         'building_period', 'initial_period', 'hia_contract_id', 'hia_template_id', 'hia_pdf', 'hia_xml', 'status', 'notes'];
 
-    /**
-     * A Document belongs to a Site.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+
     public function site()
     {
         return $this->belongsTo('App\Models\Site\Site', 'site_id');

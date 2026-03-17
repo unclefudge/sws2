@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/test-hia-contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
 Route::get('/test-hia-contract-create', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
 Route::get('/test-hia-contract-update/{contractId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateExisting']);
 Route::get('/test-hia-contract-from-site/{contractId}/{siteId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);

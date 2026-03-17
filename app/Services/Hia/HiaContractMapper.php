@@ -18,6 +18,7 @@ class HiaContractMapper
             $site->client2_firstname,
             $site->client2_lastname
         );
+        $siteContract = $site->contract;
 
         return [
             /*
@@ -39,10 +40,10 @@ class HiaContractMapper
             |--------------------------------------------------------------------------
            */
             'payment' => [
-                'deposit' => 10000,
-                'total_ex_gst' => 250000,
-                'gst' => 25000,
-                'total_inc_gst' => 275000,
+                'deposit' => $siteContract->deposit,
+                'total_ex_gst' => $siteContract->net,
+                'gst' => $siteContract->gst,
+                'total_inc_gst' => $siteContract->contract_price,
                 'rounded' => false,
 
                 'progress_payment' => [
@@ -52,7 +53,7 @@ class HiaContractMapper
 
                     'rounding_message' => null,
                     'total_calculated_percent' => 100,
-                    'total_calculated_amount' => 275000,
+                    'total_calculated_amount' => $siteContract->contract_price,
                     'adjustment' => 0,
 
                     'stages' => [
@@ -93,11 +94,11 @@ class HiaContractMapper
                 // name
                 'type' => 'individual',
                 'organisation' => null,
-                'title' => $site->client1_title,
-                'firstname' => $site->client1_firstname,
-                'givennames' => $site->client1_firstname,
-                'lastname' => $site->client1_lastname,
-                'fullname' => $clientName,
+                'title' => $siteContract->owner1_title,
+                'firstname' => null,
+                'givennames' => null,
+                'lastname' => null,
+                'fullname' => $siteContract->owner1_name,
 
                 // address
                 'dpid' => null,
@@ -105,13 +106,13 @@ class HiaContractMapper
                 'floor' => null,
                 'unit' => null,
                 'number' => null,
-                'address_line1' => $site->address,
-                'address_line2' => $site->address2,
-                'suburb' => $site->suburb,
-                'state' => $site->state,
+                'address_line1' => $siteContract->owner_address,
+                'address_line2' => null,
+                'suburb' => $siteContract->owner_suburb,
+                'state' => $siteContract->owner_state,
                 'pobox' => null,
-                'postcode' => $site->postcode,
-                'country' => $site->country ?: 'Australia',
+                'postcode' => $siteContract->owner_postcode,
+                'country' => 'Australia',
                 'block' => null,
                 'lot' => null,
                 'section' => null,
@@ -123,8 +124,8 @@ class HiaContractMapper
                 'workphone' => null,
                 'homephone' => null,
                 'fax' => null,
-                'mobile' => $site->client1_mobile ?: $site->client_phone,
-                'email' => $site->client1_email ?: $site->client_email,
+                'mobile' => $siteContract->owner1_mobile,
+                'email' => $siteContract->owner1_email,
 
                 // mailing address
                 'mail_dpid' => null,
@@ -164,24 +165,25 @@ class HiaContractMapper
             'owner2' => [
                 'type' => 'individual',
                 'organisation' => null,
-                'title' => $site->client2_title,
-                'firstname' => $site->client2_firstname,
-                'givennames' => $site->client2_firstname,
-                'lastname' => $site->client2_lastname,
-                'fullname' => $client2Name,
+                'title' => $siteContract->owner2_title,
+                'firstname' => null,
+                'givennames' => null,
+                'lastname' => null,
+                'fullname' => $siteContract->owner2_name,
 
+                // address
                 'dpid' => null,
                 'building' => null,
                 'floor' => null,
                 'unit' => null,
                 'number' => null,
-                'address_line1' => $site->address,
-                'address_line2' => $site->address2,
-                'suburb' => $site->suburb,
-                'state' => $site->state,
+                'address_line1' => $siteContract->owner_address,
+                'address_line2' => null,
+                'suburb' => $siteContract->owner_suburb,
+                'state' => $siteContract->owner_state,
                 'pobox' => null,
-                'postcode' => $site->postcode,
-                'country' => $site->country ?: 'Australia',
+                'postcode' => $siteContract->owner_postcode,
+                'country' => 'Australia',
                 'block' => null,
                 'lot' => null,
                 'section' => null,
@@ -189,11 +191,12 @@ class HiaContractMapper
                 'folio' => null,
                 'certificate_of_title' => null,
 
+                // contact
                 'workphone' => null,
                 'homephone' => null,
                 'fax' => null,
-                'mobile' => $site->client2_mobile ?: $site->client_phone2,
-                'email' => $site->client2_email ?: $site->client_email2,
+                'mobile' => $siteContract->owner2_mobile,
+                'email' => $siteContract->owner2_email,
 
                 'mail_dpid' => null,
                 'mail_building' => null,
@@ -304,15 +307,15 @@ class HiaContractMapper
                 'floor' => null,
                 'unit' => null,
                 'number' => null,
-                'line1' => $site->address,
-                'line2' => $site->address2,
-                'suburb' => $site->suburb,
-                'state' => $site->state,
+                'line1' => $siteContract->land_address,
+                'line2' => null,
+                'suburb' => $siteContract->land_suburb,
+                'state' => $siteContract->land_state,
                 'pobox' => null,
-                'postcode' => $site->postcode,
-                'country' => $site->country ?: 'Australia',
+                'postcode' => $siteContract->land_postcode,
+                'country' => 'Australia',
                 'block' => 'block',
-                'lot' => null,
+                'lot' => $siteContract->land_lot,
                 'section' => 'section',
                 'volume' => null,
                 'folio' => null,
@@ -358,14 +361,14 @@ class HiaContractMapper
             |--------------------------------------------------------------------------
             */
             'timeframe' => [
-                'start' => $this->formatDate($site->jobstart_estimate),
+                'start' => null, //$this->formatDate($site->jobstart_estimate),
                 'price_review' => null,
                 'start_price_review_string' => null,
-                'end' => $this->formatDate($site->forecast_completion),
-                'initial_period_days' => '66', //$siteContract->initial_period_days ?? null,
+                'end' => null, //$this->formatDate($site->forecast_completion),
+                'initial_period_days' => $siteContract->initial_period ?? null,
                 'days' => [
                     'commencement' => null, // Initial Period
-                    'completion' => '22',  // Practical Completion
+                    'completion' => $siteContract->building_period ?? null,  // Practical Completion
                     'weather' => null,
                     'weekend' => null,
                     'other' => null,
@@ -628,7 +631,7 @@ class HiaContractMapper
             | Special Conditions
             |--------------------------------------------------------------------------
             */
-            'special_conditions' => 'losts of stuffer here',
+            'special_conditions' => 'losts of stuff here',
         ];
     }
 

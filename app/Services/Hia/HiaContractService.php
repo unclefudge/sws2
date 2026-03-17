@@ -66,6 +66,22 @@ class HiaContractService
         return $this->api->getContractById($contractId);
     }
 
+    public function listContractsSummary(): array
+    {
+        $contracts = $this->api->getContracts(); // raw list from HIA
+
+        return collect($contracts)->map(function ($c) {
+            return [
+                'contract_id' => $c['ContractId'] ?? null,
+                'template_id' => $c['TemplateId'] ?? null,
+                'job_number' => $c['JobNumber'] ?? null,
+                'client' => $c['Client'] ?? null,
+                'status' => $c['Status'] ?? null,
+                'modified' => $c['LastModifiedDate'] ?? null,
+            ];
+        })->values()->all();
+    }
+
     public function getContractById(int $contractId): array
     {
         return $this->api->getContractById($contractId);

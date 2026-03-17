@@ -10,9 +10,26 @@ use Illuminate\Http\JsonResponse;
 
 class HiaContractController extends Controller
 {
+    public function listContracts(HiaContractService $hia): JsonResponse|null
+    {
+        $contracts = $hia->listContractsSummary();
+        ray($contracts);
+
+        foreach ($contracts as $contract) {
+            echo "Contract ID: " . $contract['contract_id'] . "<br>";
+            echo "Job: " . $contract['job_number'] . "<br>";
+            echo "Client: " . $contract['client'] . "<br>";
+            echo "Updated: " . $contract['modified'] . "<br><br>";
+
+        }
+        return null;
+        return response()->json(['count' => count($contracts), 'data' => $contracts,]);
+    }
+
     public function createTest(HiaContractService $hia): JsonResponse
     {
         $contract = $hia->createContractFromTemplateAndData(9022, $this->sampleData('TEST-007', 'Sammple'));
+        ray($contract);
 
         return response()->json($contract);
     }
