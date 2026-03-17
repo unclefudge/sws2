@@ -67,7 +67,7 @@ class SiteContractSyncController extends Controller
             'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode', //'hia_template_id',
         ];
 
-        $data = [];
+        $data = ['action' => !empty($contract->hia_contract_id) ? 'created' : 'updated'];
         foreach ($fields as $field) {
             if (!request()->has($field)) continue;
 
