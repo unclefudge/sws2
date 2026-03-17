@@ -302,7 +302,7 @@ class HiaContractMapper
             |--------------------------------------------------------------------------
             */
             'site' => [
-                'dpid' => $siteContract->land_dp, ,
+                'dpid' => $siteContract->land_dp,
                 'building' => null,
                 'floor' => null,
                 'unit' => null,
