@@ -10,6 +10,7 @@ use App\Services\Hia\HiaContractMapper;
 use App\Services\Hia\HiaContractService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SiteContractSyncController extends Controller
