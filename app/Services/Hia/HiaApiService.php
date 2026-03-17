@@ -26,6 +26,10 @@ class HiaApiService
         $this->clientSecret = (string)config('services.hia.client_secret');
         $this->apiVersion = (string)config('services.hia.api_version', '1.0.0');
         $this->scope = (string)config('services.hia.scope', 'BASIC,COL,DIRECTAUTH');
+
+        if (blank($this->baseUrl)) {
+            throw new RuntimeException('HIA base_url is not configured.');
+        }
     }
 
     public function token(): string
