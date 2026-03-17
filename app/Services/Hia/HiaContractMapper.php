@@ -41,8 +41,8 @@ class HiaContractMapper
            */
             'payment' => [
                 'deposit' => $siteContract->deposit,
-                'total_ex_gst' => $siteContract->net,
-                'gst' => $siteContract->gst,
+                'total_ex_gst' => $siteContract->contract_net,
+                'gst' => $siteContract->contract_gst,
                 'total_inc_gst' => $siteContract->contract_price,
                 'rounded' => false,
 
