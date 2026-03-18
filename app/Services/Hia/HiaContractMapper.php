@@ -56,32 +56,7 @@ class HiaContractMapper
                     'total_calculated_amount' => $siteContract->contract_price ?? null,
                     'adjustment' => 0,
 
-                    'stages' => [
-                        [
-                            'name' => 'Stage 1 – Deposit',
-                            'description' => 'Initial contract deposit',
-                            'percent' => 10,
-                            'amount' => 27500,
-                            'adjustment' => null,
-                            'update' => null,
-                        ],
-                        [
-                            'name' => 'Stage 2 – Frame Complete',
-                            'description' => 'Frame construction completed',
-                            'percent' => 40,
-                            'amount' => 110000,
-                            'adjustment' => null,
-                            'update' => null,
-                        ],
-                        [
-                            'name' => 'Stage 3 – Practical Completion',
-                            'description' => 'Final completion of building works',
-                            'percent' => 50,
-                            'amount' => 137500,
-                            'adjustment' => null,
-                            'update' => null,
-                        ],
-                    ],
+                    'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
                 ],
             ],
 
@@ -633,6 +608,172 @@ class HiaContractMapper
             */
             'special_conditions' => 'losts of stuff here',
         ];
+    }
+
+    protected function buildCustomProgressStages(float $contractPrice): array
+    {
+        $definitions = [
+            [
+                'name' => 'BUILDING CONTRACT DEPOSIT',
+                'description' => 'Deposit payable on signing of contract',
+                'percent' => 10,
+            ],
+            [
+                'name' => 'FIRST FLOOR - SCAFFOLD & ROOF DEMOLITION IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 5,
+            ],
+            [
+                'name' => 'FIRST FLOOR - FLOOR FRAME IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - WALL AND ROOF FRAME IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - LOCK UP IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - SERVICES ROUGH-IN IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 8,
+            ],
+            [
+                'name' => 'FIRST FLOOR - PLASTERBOARD IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 9,
+            ],
+            [
+                'name' => 'FIRST FLOOR - FIXOUT IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 8,
+            ],
+            [
+                'name' => 'GROUND FLOOR - WORKS IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 3,
+            ],
+            [
+                'name' => 'FIRST FLOOR - STAIRCASE IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 4,
+            ],
+            [
+                'name' => 'FIRST FLOOR - WALL+FLOOR TILES IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 3,
+            ],
+            [
+                'name' => 'PRACTICAL COMPLETION',
+                'description' => null,
+                'percent' => 5,
+            ],
+        ];
+
+        return $this->calculateStageAmounts($definitions, $contractPrice);
+    }
+
+    protected function buildCustomProgressStages(float $contractPrice): array
+    {
+        $definitions = [
+            [
+                'name' => 'BUILDING CONTRACT DEPOSIT',
+                'description' => 'Deposit payable on signing of contract',
+                'percent' => 10,
+            ],
+            [
+                'name' => 'FIRST FLOOR - SCAFFOLD & ROOF DEMOLITION IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 5,
+            ],
+            [
+                'name' => 'FIRST FLOOR - FLOOR FRAME IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - WALL AND ROOF FRAME IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - LOCK UP IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 15,
+            ],
+            [
+                'name' => 'FIRST FLOOR - SERVICES ROUGH-IN IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 8,
+            ],
+            [
+                'name' => 'FIRST FLOOR - PLASTERBOARD IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 9,
+            ],
+            [
+                'name' => 'FIRST FLOOR - FIXOUT IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 8,
+            ],
+            [
+                'name' => 'GROUND FLOOR - WORKS IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 3,
+            ],
+            [
+                'name' => 'FIRST FLOOR - STAIRCASE IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 4,
+            ],
+            [
+                'name' => 'FIRST FLOOR - WALL+FLOOR TILES IN PROGRESS STAGE',
+                'description' => null,
+                'percent' => 3,
+            ],
+            [
+                'name' => 'PRACTICAL COMPLETION',
+                'description' => null,
+                'percent' => 5,
+            ],
+        ];
+
+        return $this->calculateStageAmounts($definitions, $contractPrice);
+    }
+
+    protected function calculateStageAmounts(array $definitions, float $contractPrice): array
+    {
+        $stages = [];
+        $runningTotal = 0.0;
+        $lastIndex = count($definitions) - 1;
+
+        foreach ($definitions as $index => $stage) {
+            $percent = (float)($stage['percent'] ?? 0);
+
+            if ($index === $lastIndex) {
+                // Make the last stage the remainder so totals always match exactly
+                $amount = round($contractPrice - $runningTotal, 2);
+            } else {
+                $amount = round($contractPrice * ($percent / 100), 2);
+                $runningTotal += $amount;
+            }
+
+            $stages[] = [
+                'name' => $stage['name'],
+                'description' => $stage['description'] ?? null,
+                'percent' => $percent,
+                'amount' => $amount,
+                'adjustment' => null,
+                'update' => null,
+            ];
+        }
+
+        return $stages;
     }
 
     protected function fullName(?string $firstName, ?string $lastName): string
