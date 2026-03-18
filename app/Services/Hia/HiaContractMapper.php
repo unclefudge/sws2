@@ -43,7 +43,7 @@ class HiaContractMapper
                 'deposit' => $siteContract->deposit ?? null,
                 'total_ex_gst' => $siteContract->contract_net ?? null,
                 'gst' => $siteContract->contract_gst ?? null,
-                'total_inc_gst' => '626438', //$siteContract->contract_price ?? null,
+                'total_inc_gst' => $siteContract->contract_price ?? null,
                 'rounded' => false,
 
                 'progress_payment' => [
@@ -53,7 +53,7 @@ class HiaContractMapper
 
                     'rounding_message' => null,
                     'total_calculated_percent' => 100,
-                    'total_calculated_amount' => $siteContract->contract_price ?? null,
+                    'total_calculated_amount' => '626438', //$siteContract->contract_price ?? null,
                     'adjustment' => 0,
 
                     'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
