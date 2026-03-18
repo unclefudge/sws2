@@ -56,7 +56,8 @@ class HiaContractMapper
                     'total_calculated_amount' => '626438', //$siteContract->contract_price ?? null,
                     'adjustment' => 0,
 
-                    'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
+                    //'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
+                    'stages' => $this->buildCustomProgressStages((float)(626438)),
                 ],
             ],
 
