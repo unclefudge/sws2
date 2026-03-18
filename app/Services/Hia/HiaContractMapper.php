@@ -689,10 +689,11 @@ class HiaContractMapper
             $percent = (float)($stage['percent'] ?? 0);
 
             if ($index === $lastIndex) {
-                // Make the last stage the remainder so totals always match exactly
+                // Final stage is the balancing figure
                 $amount = round($contractPrice - $runningTotal, 2);
             } else {
-                $amount = round($contractPrice * ($percent / 100), 2);
+                // Round each stage to a whole dollar
+                $amount = round($contractPrice * ($percent / 100), 0);
                 $runningTotal += $amount;
             }
 
@@ -700,7 +701,7 @@ class HiaContractMapper
                 'name' => $stage['name'],
                 'description' => $stage['description'] ?? null,
                 'percent' => $percent,
-                'amount' => $amount,
+                'amount' => number_format($amount, 2, '.', ''),
                 'adjustment' => null,
                 'update' => null,
             ];
