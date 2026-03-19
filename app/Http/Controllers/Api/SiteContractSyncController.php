@@ -64,16 +64,24 @@ class SiteContractSyncController extends Controller
             'owner2_title', 'owner2_name', 'owner2_mobile', 'owner2_email', 'owner2_abn',
             'owner_address', 'owner_suburb', 'owner_state', 'owner_postcode',
             'contract_price', 'contract_net', 'contract_gst', 'deposit', 'building_period', 'initial_period',
-            'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode', //'hia_template_id',
+            'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode',
+            'warranty_amount', 'special_conditions', 'special_conditions_full', 'stages' //'hia_template_id',
         ];
 
-        $data = ['action' => !empty($contract->hia_contract_id) ? 'created' : 'updated'];
+        $data = ['action' => !empty($contract->hia_contract_id) ? 'updated' : 'created'];
         foreach ($fields as $field) {
             if (!request()->has($field)) continue;
 
             $value = request($field);
             $data[$field] = ($value === '') ? null : $value;
         }
+
+        // HANDLE STAGES
+        if ($request->has('stages') && is_array($request->stages)) {
+            $stages = collect($request->stages)->sortBy('stage_no')->values()->toArray();
+            $data['stages'] = $stages;
+        }
+
         Log::channel('single')->debug($data);
 
         if ($save_enabled && count($data))

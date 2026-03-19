@@ -12,9 +12,9 @@ class SiteContract extends Model
     protected $fillable = [
         'site_id', 'owner1_title', 'owner1_name', 'owner1_mobile', 'owner1_email', 'owner1_abn', 'owner2_title', 'owner2_name', 'owner2_mobile', 'owner2_email', 'owner2_abn',
         'owner_address', 'owner_suburb', 'owner_state', 'owner_postcode', 'contract_price', 'contract_net', 'contract_gst', 'deposit',
-        'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode',
-        'building_period', 'initial_period', 'hia_contract_id', 'hia_template_id', 'hia_pdf', 'hia_xml', 'status', 'notes'];
-
+        'land_lot', 'land_dp', 'land_title', 'land_address', 'land_suburb', 'land_state', 'land_postcode', 'stages',
+        'building_period', 'initial_period', 'warranty_amount', 'special_conditions', 'special_conditions_full', 'hia_contract_id', 'hia_template_id', 'hia_pdf', 'hia_xml', 'status', 'notes'];
+    protected $casts = ['stages' => 'array'];
 
     public function site()
     {
