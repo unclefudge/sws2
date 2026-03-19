@@ -58,7 +58,7 @@ class ReportController extends Controller
         $fullPath = trim($report->path, '/') . '/' . $report->name;
 
         abort_unless($disk->exists($fullPath), 404);
-        
+
         $filename = $report->name;
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 

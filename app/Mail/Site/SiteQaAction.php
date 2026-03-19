@@ -2,14 +2,15 @@
 
 namespace App\Mail\Site;
 
-use App\Models\Site\SiteQa;
 use App\Models\Misc\Action;
+use App\Models\Site\SiteQa;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SiteQaAction extends Mailable implements ShouldQueue {
+class SiteQaAction extends Mailable implements ShouldQueue
+{
 
     use Queueable, SerializesModels;
 

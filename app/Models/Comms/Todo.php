@@ -396,7 +396,7 @@ class Todo extends Model
 
         } else
             $emailTo = [env('EMAIL_ME')];
-        
+
         if (empty($emailTo)) return;
 
         // -----------------------------

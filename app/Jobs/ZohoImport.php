@@ -2,20 +2,15 @@
 
 namespace App\Jobs;
 
-use DB;
-use PDF;
-use Log;
-use Illuminate\Support\Facades\Auth;
-use App\User;
-use App\Models\Company\Company;
 use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use Carbon\Carbon;
+use DB;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Log;
+use PDF;
 
 class ZohoImport implements ShouldQueue
 {

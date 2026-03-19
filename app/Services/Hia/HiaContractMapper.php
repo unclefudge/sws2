@@ -9,15 +9,8 @@ class HiaContractMapper
 {
     public function fromSite(Site $site): array
     {
-        $clientName = $this->fullName(
-            $site->client1_firstname,
-            $site->client1_lastname
-        );
-
-        $client2Name = $this->fullName(
-            $site->client2_firstname,
-            $site->client2_lastname
-        );
+        $clientName = $this->fullName($site->client1_firstname, $site->client1_lastname);
+        $client2Name = $this->fullName($site->client2_firstname, $site->client2_lastname);
         $siteContract = $site->contract;
 
         return [
@@ -30,7 +23,7 @@ class HiaContractMapper
             'client' => $clientName,
             // 'contract_date' => optional($site->contract_sent)->format('Y-m-d'),
             // 'contract_date' => $this->formatDate($site->contract_signed ?? $site->contract_sent ?? $site->created_at),
-            'contract_date' => '11/03/2026',
+            'contract_date' => null // '11/03/2026',
             'status' => 1,
             'period_type' => 'Working Weeks',
 
@@ -56,7 +49,6 @@ class HiaContractMapper
                     'total_calculated_amount' => $siteContract->contract_price ?? null,
                     'adjustment' => 0,
 
-                    //'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
                     'stages' => $this->buildStagesFromContract($siteContract)
                 ],
             ],
@@ -612,74 +604,6 @@ class HiaContractMapper
     }
 
 
-    protected function buildCustomProgressStages(float $contractPrice): array
-    {
-        $definitions = [
-            [
-                'name' => 'BUILDING CONTRACT DEPOSIT',
-                'description' => 'Deposit payable on signing of contract',
-                'percent' => 10,
-            ],
-            [
-                'name' => 'FIRST FLOOR - SCAFFOLD & ROOF DEMOLITION IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 5,
-            ],
-            [
-                'name' => 'FIRST FLOOR - FLOOR FRAME IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 15,
-            ],
-            [
-                'name' => 'FIRST FLOOR - WALL AND ROOF FRAME IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 15,
-            ],
-            [
-                'name' => 'FIRST FLOOR - LOCK UP IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 15,
-            ],
-            [
-                'name' => 'FIRST FLOOR - SERVICES ROUGH-IN IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 8,
-            ],
-            [
-                'name' => 'FIRST FLOOR - PLASTERBOARD IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 9,
-            ],
-            [
-                'name' => 'FIRST FLOOR - FIXOUT IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 8,
-            ],
-            [
-                'name' => 'GROUND FLOOR - WORKS IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 3,
-            ],
-            [
-                'name' => 'FIRST FLOOR - STAIRCASE IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 4,
-            ],
-            [
-                'name' => 'FIRST FLOOR - WALL+FLOOR TILES IN PROGRESS STAGE',
-                'description' => null,
-                'percent' => 3,
-            ],
-            [
-                'name' => 'PRACTICAL COMPLETION',
-                'description' => null,
-                'percent' => 5,
-            ],
-        ];
-
-        return $this->calculateStageAmounts($definitions, $contractPrice);
-    }
-
     protected function buildStagesFromContract($siteContract): array
     {
         $contractPrice = (float)($siteContract->contract_price ?? 0);
@@ -719,37 +643,6 @@ class HiaContractMapper
         }
 
         return $result;
-    }
-
-    protected function calculateStageAmounts(array $definitions, float $contractPrice): array
-    {
-        $stages = [];
-        $runningTotal = 0.0;
-        $lastIndex = count($definitions) - 1;
-
-        foreach ($definitions as $index => $stage) {
-            $percent = (float)($stage['percent'] ?? 0);
-
-            if ($index === $lastIndex) {
-                // Final stage is the balancing figure
-                $amount = round($contractPrice - $runningTotal, 2);
-            } else {
-                // Round each stage to a whole dollar
-                $amount = round($contractPrice * ($percent / 100), 0);
-                $runningTotal += $amount;
-            }
-
-            $stages[] = [
-                'name' => $stage['name'],
-                'description' => $stage['description'] ?? null,
-                'percent' => $percent,
-                'amount' => number_format($amount, 2, '.', ''),
-                'adjustment' => null,
-                'update' => null,
-            ];
-        }
-
-        return $stages;
     }
 
     protected function fullName(?string $firstName, ?string $lastName): string

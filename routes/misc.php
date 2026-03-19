@@ -2,12 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/test-hia-contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
-Route::get('/test-hia-contract-create', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
-Route::get('/test-hia-contract-update/{contractId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateExisting']);
-Route::get('/test-hia-contract-from-site/{contractId}/{siteId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);
-Route::get('/test-hia-contract-pdf/{contractId}', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf']);
-
 // Pages
 //Route::get('/', '\App\Http\Controllers\Misc\PagesController@index');
 Route::get('/home', '\App\Http\Controllers\Misc\PagesController@index');
@@ -120,6 +114,15 @@ Route::get('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportActio
 Route::post('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportActionController@store');
 Route::patch('report/actions/{type}/{id}', '\App\Http\Controllers\Misc\ReportActionController@update');
 
+/*
+|--------------------------------------------------------------------------
+| HIA Contracts
+|--------------------------------------------------------------------------
+*/
+Route::get('/hia/contracts', [\App\Http\Controllers\Misc\HiaContractController::class, 'listContracts']);
+Route::get('/hia/contract/createTest', [\App\Http\Controllers\Misc\HiaContractController::class, 'createTest']);
+Route::get('/hia/contract/{contractId}/{siteId}/update', [\App\Http\Controllers\Misc\HiaContractController::class, 'updateFromSite']);
+Route::get('/hia/contract/{contractId}/pdf', [\App\Http\Controllers\Misc\HiaContractController::class, 'pdf']);
 /*
 |--------------------------------------------------------------------------
 | IMPORT + OTHER

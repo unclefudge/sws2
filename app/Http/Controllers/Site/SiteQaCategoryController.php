@@ -2,34 +2,24 @@
 
 namespace App\Http\Controllers\Site;
 
-use Illuminate\Http\Request;
-use Validator;
-
-use DB;
-use PDF;
-use Mail;
-use Session;
-use App\User;
-use App\Models\Site\Site;
-use App\Models\Site\SiteQa;
-use App\Models\Site\SiteQaItem;
-use App\Models\Site\SiteQaCategory;
-use App\Models\Site\SiteQaAction;
-use App\Models\Site\Planner\SitePlanner;
-use App\Models\Company\Company;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Site\SiteQa;
+use App\Models\Site\SiteQaAction;
+use App\Models\Site\SiteQaCategory;
+use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Datatables;
+use Mail;
 use nilsenj\Toastr\Facades\Toastr;
-use Carbon\Carbon;
+use Session;
+use Validator;
+use Yajra\Datatables\Datatables;
 
 /**
  * Class SiteQaCategoryController
  * @package App\Http\Controllers\Site
  */
-class SiteQaCategoryController extends Controller {
+class SiteQaCategoryController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -151,7 +141,6 @@ class SiteQaCategoryController extends Controller {
     }
 
 
-
     /**
      * Get QA templates current user is authorised to manage + Process datatables ajax request.
      */
@@ -161,7 +150,7 @@ class SiteQaCategoryController extends Controller {
 
         $dt = Datatables::of($records)
             ->addColumn('reports', function ($cat) {
-                $reports = implode(', ',$cat->reports->where('master', 1)->where('status', 1)->pluck('name')->toArray());
+                $reports = implode(', ', $cat->reports->where('master', 1)->where('status', 1)->pluck('name')->toArray());
                 return $reports;
             })
             ->addColumn('action', function ($cat) {
