@@ -146,7 +146,7 @@ class SiteContractSyncController extends Controller
 
         Log::channel('single')->debug("---------- HIA Succesful ----------");
         Log::channel('single')->debug("{$action}d site contract");
-        Log::channel('single')->debug("$hiaResult");
+        //Log::channel('single')->debug("$hiaResult");
 
         return $this->success("{$action}d site contract", [
             'site_id' => $site->id,
