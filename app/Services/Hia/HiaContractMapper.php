@@ -23,7 +23,7 @@ class HiaContractMapper
             'client' => $clientName,
             // 'contract_date' => optional($site->contract_sent)->format('Y-m-d'),
             // 'contract_date' => $this->formatDate($site->contract_signed ?? $site->contract_sent ?? $site->created_at),
-            'contract_date' => null // '11/03/2026',
+            'contract_date' => null, // '11/03/2026',
             'status' => 1,
             'period_type' => 'Working Weeks',
 
