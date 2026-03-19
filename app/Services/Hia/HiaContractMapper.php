@@ -32,7 +32,7 @@ class HiaContractMapper
             // 'contract_date' => $this->formatDate($site->contract_signed ?? $site->contract_sent ?? $site->created_at),
             'contract_date' => '11/03/2026',
             'status' => 1,
-            'period_type' => 'Working Days',
+            'period_type' => 'Working Weeks',
 
             /*
             |--------------------------------------------------------------------------
@@ -56,7 +56,8 @@ class HiaContractMapper
                     'total_calculated_amount' => $siteContract->contract_price ?? null,
                     'adjustment' => 0,
 
-                    'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
+                    //'stages' => $this->buildCustomProgressStages((float)($siteContract->contract_price ?? 0)),
+                    'stages' => $this->buildStagesFromContract($siteContract)
                 ],
             ],
 
@@ -610,6 +611,7 @@ class HiaContractMapper
         ];
     }
 
+
     protected function buildCustomProgressStages(float $contractPrice): array
     {
         $definitions = [
@@ -676,6 +678,47 @@ class HiaContractMapper
         ];
 
         return $this->calculateStageAmounts($definitions, $contractPrice);
+    }
+
+    protected function buildStagesFromContract($siteContract): array
+    {
+        $contractPrice = (float)($siteContract->contract_price ?? 0);
+        $stages = $siteContract->stages ?? [];
+
+        if (empty($stages)) {
+            return [];
+        }
+
+        // Ensure sorted
+        $stages = collect($stages)->sortBy('stage_no')->values();
+
+        $result = [];
+        $runningTotal = 0.0;
+        $lastIndex = $stages->count() - 1;
+
+        foreach ($stages as $index => $stage) {
+            $percent = (float)($stage['percent'] ?? 0);
+
+            if ($index === $lastIndex) {
+                // Final stage = balancing
+                $amount = round($contractPrice - $runningTotal, 2);
+            } else {
+                // Round to whole dollars
+                $amount = round($contractPrice * ($percent / 100), 0);
+                $runningTotal += $amount;
+            }
+
+            $result[] = [
+                'name' => $stage['description'], // Zoho description becomes name
+                'description' => null,           // or reuse if you want
+                'percent' => $percent,
+                'amount' => number_format($amount, 2, '.', ''),
+                'adjustment' => null,
+                'update' => null,
+            ];
+        }
+
+        return $result;
     }
 
     protected function calculateStageAmounts(array $definitions, float $contractPrice): array
