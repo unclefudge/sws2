@@ -572,7 +572,7 @@ class HiaContractMapper
                 ],
 
                 'insured_name' => null,
-                'premium' => '77',
+                'premium' => $siteContract->warranty_amount ?? null,
             ],
 
             /*
