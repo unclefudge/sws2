@@ -47,10 +47,10 @@ class SiteContractSyncController extends Controller
 
         // Get or Create Contract
         $contract = SiteContract::where('site_id', $site->id)->first();
-        $action = 'update';
+        $action = 'Update';
 
         if (!$contract) {
-            $action = 'create';
+            $action = 'Create';
 
             if ($save_enabled)
                 $contract = SiteContract::create(['site_id' => $site->id, 'status' => 1,]);
@@ -68,7 +68,7 @@ class SiteContractSyncController extends Controller
             'warranty_amount', 'special_conditions', 'special_conditions_full', 'stages' //'hia_template_id',
         ];
 
-        $data = ['action' => !empty($contract->hia_contract_id) ? 'updated' : 'created'];
+        $data = ['action' => !empty($contract->hia_contract_id) ? 'Updated' : 'Created'];
         foreach ($fields as $field) {
             if (!request()->has($field)) continue;
 
@@ -148,7 +148,7 @@ class SiteContractSyncController extends Controller
         Log::channel('single')->debug("{$action}d site contract");
         //Log::channel('single')->debug("$hiaResult");
 
-        return $this->success("{$action}d site contract", [
+        return $this->success("{$action}d HIA contract", [
             'site_id' => $site->id,
             'site_contract_id' => $contract->id,
             'updated_fields' => array_keys($data),

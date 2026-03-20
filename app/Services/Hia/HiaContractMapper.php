@@ -262,7 +262,21 @@ class HiaContractMapper
                 'abn' => '54 000 605 407',
                 'acn' => null,
                 'registered_building_practitioner' => null,
+
+                // execution / signatures
+
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Builder Execution / Signatures
+            |--------------------------------------------------------------------------
+            */
+            /*'builder_execution' => [
+                'signed_by' => 'KEITH BOW',
+                'witness_name' => 'ALETHEA LEBEDEVAS',
+                'witness_address' => 'SHOP 4/426 CHURCH STREET, NORTH PARRAMATTA NSW 2151',
+            ],*/
 
             /*
             |--------------------------------------------------------------------------

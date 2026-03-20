@@ -7,11 +7,15 @@ use App\Models\Site\Site;
 use App\Services\Hia\HiaContractMapper;
 use App\Services\Hia\HiaContractService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class HiaContractController extends Controller
 {
     public function listContracts(HiaContractService $hia): JsonResponse|null
     {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+        
         $contracts = $hia->listContractsSummary();
         ray($contracts);
 
@@ -28,6 +32,9 @@ class HiaContractController extends Controller
 
     public function createTest(HiaContractService $hia): JsonResponse
     {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
         $contract = $hia->createContractFromTemplateAndData(9022, $this->sampleData('TEST-007', 'Sammple'));
         ray($contract);
 
@@ -36,6 +43,9 @@ class HiaContractController extends Controller
 
     public function updateFromSite(HiaContractService $hia, HiaContractMapper $mapper, int $contractId, int $siteId): JsonResponse
     {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
         $site = Site::findOrFail($siteId);
         $data = $mapper->fromSite($site);
         ray($data);
@@ -48,6 +58,9 @@ class HiaContractController extends Controller
 
     public function pdf(HiaContractService $hia, int $contractId)
     {
+        if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+            return view('errors/404');
+
         $pdf = $hia->getContractPdf($contractId);
 
         return response($pdf, 200, [

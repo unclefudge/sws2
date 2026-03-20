@@ -194,6 +194,12 @@ class HiaContractXmlService
             $this->setValue($xml, '//hia:builder/acn', $builder['acn'] ?? null);
             $this->setValue($xml, '//hia:builder/registeredbuildingpracticioner', $builder['registered_building_practitioner'] ?? null);
         }
+        /*if (isset($data['builder_execution'])) {
+            $exec = $data['builder_execution'];
+            $this->setValue($xml, '//builder_execution/signed_by', $exec['signed_by'] ?? null);
+            $this->setValue($xml, '//builder_execution/witness_name', $exec['witness_name'] ?? null);
+            $this->setValue($xml, '//builder_execution/witness_address', $exec['witness_address'] ?? null);
+        }*/
 
         if (isset($data['site'])) {
             $site = $data['site'];
