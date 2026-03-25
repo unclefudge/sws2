@@ -56,9 +56,7 @@ class HiaApiService
                 ->post($this->baseUrl . '/token');
 
             if (!$response->successful()) {
-                throw new RuntimeException(
-                    'HIA token request failed: ' . $response->status() . ' - ' . $response->body()
-                );
+                throw new RuntimeException('HIA token request failed: ' . $response->status() . ' - ' . $response->body());
             }
 
             $json = $response->json();
@@ -101,9 +99,7 @@ class HiaApiService
         $response = $this->request()->put("/api/contracts/ContractInstances/{$dataTemplateId}");
 
         if (!$response->successful()) {
-            throw new RuntimeException(
-                'HIA create contract failed: ' . $response->status() . ' - ' . $response->body()
-            );
+            throw new RuntimeException('HIA create contract failed: ' . $response->status() . ' - ' . $response->body());
         }
 
         $contractId = trim($response->body());
@@ -135,9 +131,7 @@ class HiaApiService
 
     public function updateContract(array $contractInstance): bool
     {
-        $payload = [
-            'ContractInstance' => $contractInstance,
-        ];
+        $payload = ['ContractInstance' => $contractInstance,];
 
         $response = $this->request()
             ->withHeaders([
@@ -148,9 +142,7 @@ class HiaApiService
             ->post('/api/contracts/ContractInstances', $payload);
 
         if (!$response->successful()) {
-            throw new RuntimeException(
-                'HIA update contract failed: ' . $response->status() . ' - ' . $response->body()
-            );
+            throw new RuntimeException('HIA update contract failed: ' . $response->status() . ' - ' . $response->body());
         }
 
         return true;
@@ -159,9 +151,7 @@ class HiaApiService
     protected function handleJsonResponse(Response $response): array
     {
         if (!$response->successful()) {
-            throw new RuntimeException(
-                'HIA API request failed: ' . $response->status() . ' - ' . $response->body()
-            );
+            throw new RuntimeException('HIA API request failed: ' . $response->status() . ' - ' . $response->body());
         }
 
         return $response->json();
@@ -170,16 +160,12 @@ class HiaApiService
     public function getContractPdf(int $contractId): string
     {
         $response = $this->request()
-            ->withHeaders([
-                'Accept' => '*/*',
-            ])
+            ->withHeaders(['Accept' => '*/*',])
             ->timeout(180)
             ->get("/api/contracts/PDF/{$contractId}");
 
         if (!$response->successful()) {
-            throw new RuntimeException(
-                'HIA get PDF failed: ' . $response->status() . ' - ' . $response->body()
-            );
+            throw new RuntimeException('HIA get PDF failed: ' . $response->status() . ' - ' . $response->body());
         }
 
         $pdf = base64_decode(trim($response->body(), '"'), true);

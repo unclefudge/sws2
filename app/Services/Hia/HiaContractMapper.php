@@ -264,7 +264,9 @@ class HiaContractMapper
                 'registered_building_practitioner' => null,
 
                 // execution / signatures
-
+                'signed_by' => 'KEITH BOW',
+                'witness_name' => 'ALETHEA LEBEDEVAS',
+                'witness_address' => 'SHOP 4/426 CHURCH STREET, NORTH PARRAMATTA NSW 2151',
             ],
 
             /*
@@ -272,11 +274,11 @@ class HiaContractMapper
             | Builder Execution / Signatures
             |--------------------------------------------------------------------------
             */
-            /*'builder_execution' => [
+            'builder_execution' => [
                 'signed_by' => 'KEITH BOW',
                 'witness_name' => 'ALETHEA LEBEDEVAS',
                 'witness_address' => 'SHOP 4/426 CHURCH STREET, NORTH PARRAMATTA NSW 2151',
-            ],*/
+            ],
 
             /*
             |--------------------------------------------------------------------------
@@ -613,7 +615,7 @@ class HiaContractMapper
             | Special Conditions
             |--------------------------------------------------------------------------
             */
-            'special_conditions' => 'losts of stuff here',
+            'special_conditions' => 'lots of stuff here',
         ];
     }
 

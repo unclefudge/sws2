@@ -66,7 +66,7 @@ class HiaContractXmlService
             $this->setValue($xml, '//period_type', $data['period_type']);
         }
 
-        if (isset($data['owner'])) {
+        /*if (isset($data['owner'])) {
             $owner = $data['owner'];
 
             $this->setValue($xml, '//owners/hia:owner/name/type', $owner['type'] ?? 'individual');
@@ -125,7 +125,7 @@ class HiaContractXmlService
             $this->setValue($xml, '//owners/hia:owner/abn', $owner['abn'] ?? null);
             $this->setValue($xml, '//owners/hia:owner/acn', $owner['acn'] ?? null);
             $this->setValue($xml, '//owners/hia:owner/resident', $this->nullableBoolString($owner['resident'] ?? null));
-        }
+        }*/
 
         if (isset($data['owner'])) {
             $this->applyOwners($xml, $data['owner'], $data['owner2'] ?? null);
@@ -193,13 +193,17 @@ class HiaContractXmlService
             $this->setValue($xml, '//hia:builder/abn', $builder['abn'] ?? null);
             $this->setValue($xml, '//hia:builder/acn', $builder['acn'] ?? null);
             $this->setValue($xml, '//hia:builder/registeredbuildingpracticioner', $builder['registered_building_practitioner'] ?? null);
+
+            $this->setValue($xml, '//builder_execution/signed_by', $exec['signed_by'] ?? null);
+            $this->setValue($xml, '//builder_execution/witness_name', $exec['witness_name'] ?? null);
+            $this->setValue($xml, '//builder_execution/witness_address', $exec['witness_address'] ?? null);
         }
-        /*if (isset($data['builder_execution'])) {
+        if (isset($data['builder_execution'])) {
             $exec = $data['builder_execution'];
             $this->setValue($xml, '//builder_execution/signed_by', $exec['signed_by'] ?? null);
             $this->setValue($xml, '//builder_execution/witness_name', $exec['witness_name'] ?? null);
             $this->setValue($xml, '//builder_execution/witness_address', $exec['witness_address'] ?? null);
-        }*/
+        }
 
         if (isset($data['site'])) {
             $site = $data['site'];
