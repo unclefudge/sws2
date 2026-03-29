@@ -214,6 +214,8 @@
                             data: record,
                             success: function (result) {
                                 console.log('DB updated hours');
+                                window.location.href = "/support/hours";
+
                             },
                             error: function (result) {
                                 //console.log('FAILED updated hours');
