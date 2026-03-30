@@ -163,6 +163,12 @@ class HiaApiService
     {
         $response = $this->request()->get("/api/contracts/ContractInstances/{$contractId}");
 
+        $json = $response->json();
+
+        if ($response->successful() && is_string($json) && str_contains($json, 'Contract details not found')) {
+            throw new RuntimeException("HIA contract {$contractId} not found.");
+        }
+
         return $this->handleJsonResponse($response);
     }
 

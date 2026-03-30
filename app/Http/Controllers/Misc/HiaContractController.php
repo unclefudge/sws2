@@ -15,7 +15,7 @@ class HiaContractController extends Controller
     {
         if (!Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
             return view('errors/404');
-        
+
         $contracts = $hia->listContractsSummary();
         ray($contracts);
 
@@ -24,6 +24,7 @@ class HiaContractController extends Controller
             echo "Job: " . $contract['job_number'] . "<br>";
             echo "Client: " . $contract['client'] . "<br>";
             echo "Updated: " . $contract['modified'] . "<br><br>";
+            echo "<a href='/hia/contract/" . $contract['contract_id'] . "/pdf' target='_blank'>PDF</a><br><br>";
 
         }
         return null;
