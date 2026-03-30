@@ -35,6 +35,42 @@ class HiaApiService
     public function token(): string
     {
         return Cache::remember('hia_access_token', now()->addMinutes(18), function () {
+            $response = Http::asForm()
+                ->withHeaders([
+                    'Accept' => '*/*',
+                ])
+                ->connectTimeout(30)
+                ->timeout(90)
+                ->post($this->baseUrl . '/token', [
+                    'grant_type' => 'password',
+                    'username' => $this->username,
+                    'password' => $this->password,
+                    'client_id' => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'api_version' => $this->apiVersion,
+                    'scope[]' => $this->scope,
+                    'templates_version' => '1.0.0',
+                ]);
+
+            if (!$response->successful()) {
+                throw new RuntimeException(
+                    'HIA token request failed: ' . $response->status() . ' - ' . $response->body()
+                );
+            }
+
+            $json = $response->json();
+
+            if (!isset($json['access_token'])) {
+                throw new RuntimeException('HIA token response missing access_token.');
+            }
+
+            return $json['access_token'];
+        });
+    }
+
+    public function tokenOld(): string
+    {
+        return Cache::remember('hia_access_token', now()->addMinutes(18), function () {
             $payload = http_build_query([
                 'grant_type' => 'password',
                 'username' => $this->username,
@@ -51,8 +87,8 @@ class HiaApiService
                 'Accept' => '*/*',
             ])
                 ->withBody($payload, 'application/x-www-form-urlencoded')
-                ->connectTimeout(10)
-                ->timeout(60)
+                ->connectTimeout(30)
+                ->timeout(90)
                 ->post($this->baseUrl . '/token');
 
             if (!$response->successful()) {
@@ -76,7 +112,7 @@ class HiaApiService
                 'Accept' => '*/*',
             ])
             ->baseUrl($this->baseUrl)
-            ->connectTimeout(10)
+            ->connectTimeout(30)
             ->timeout(180);
     }
 
