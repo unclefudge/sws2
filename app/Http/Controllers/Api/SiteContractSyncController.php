@@ -141,6 +141,8 @@ class SiteContractSyncController extends Controller
                 ];
             }
         } catch (\Throwable $e) {
+            Log::channel('single')->debug("---------- SiteContract saved, but HIA sync failed ----------");
+
             return $this->error('SiteContract saved, but HIA sync failed: ' . $e->getMessage(), 500);
         }
 

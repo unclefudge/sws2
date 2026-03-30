@@ -5,6 +5,7 @@ namespace App\Services\Hia;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class HiaApiService
@@ -185,6 +186,26 @@ class HiaApiService
     }
 
     protected function handleJsonResponse(Response $response): array
+    {
+        if (!$response->successful()) {
+            throw new RuntimeException(
+                'HIA API request failed: ' . $response->status() . ' - ' . $response->body()
+            );
+        }
+
+        $json = $response->json();
+        Log::debug('HIA raw response', ['status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(),]);
+
+        if (!is_array($json)) {
+            throw new RuntimeException(
+                'Unexpected HIA response type [' . gettype($json) . '] body: ' . $response->body()
+            );
+        }
+
+        return $json;
+    }
+
+    protected function handleJsonResponseOld(Response $response): array
     {
         if (!$response->successful()) {
             throw new RuntimeException('HIA API request failed: ' . $response->status() . ' - ' . $response->body());
