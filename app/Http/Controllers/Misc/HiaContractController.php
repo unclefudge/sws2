@@ -17,13 +17,13 @@ class HiaContractController extends Controller
             return view('errors/404');
 
         $contracts = $hia->listContractsSummary();
-        ray($contracts);
+        //ray($contracts);
 
         foreach ($contracts as $contract) {
             echo "Contract ID: " . $contract['contract_id'] . "<br>";
             echo "Job: " . $contract['job_number'] . "<br>";
             echo "Client: " . $contract['client'] . "<br>";
-            echo "Updated: " . $contract['modified'] . "<br><br>";
+            echo "Updated: " . $contract['modified'] . "<br>";
             echo "<a href='/hia/contract/" . $contract['contract_id'] . "/pdf' target='_blank'>PDF</a><br><br>";
 
         }
@@ -37,7 +37,7 @@ class HiaContractController extends Controller
             return view('errors/404');
 
         $contract = $hia->createContractFromTemplateAndData(9022, $this->sampleData('TEST-007', 'Sammple'));
-        ray($contract);
+        //ray($contract);
 
         return response()->json($contract);
     }
@@ -49,9 +49,9 @@ class HiaContractController extends Controller
 
         $site = Site::findOrFail($siteId);
         $data = $mapper->fromSite($site);
-        ray($data);
+        //ray($data);
         $contract = $hia->updateContractFromData($contractId, $data);
-        ray($contract);
+        //ray($contract);
 
         return response()->json($contract);
     }
