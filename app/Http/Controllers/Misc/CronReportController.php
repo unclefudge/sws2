@@ -1072,6 +1072,7 @@ class CronReportController extends Controller
         }
         //dd($report);
 
+        dd($emailTo);
         if ($emailTo) {
             Mail::to($emailTo)->send(new \App\Mail\Site\SiteNoWorksPlanned($report));
             echo "Sending email to: $emails<br>";
