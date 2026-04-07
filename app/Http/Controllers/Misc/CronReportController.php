@@ -1050,6 +1050,7 @@ class CronReportController extends Controller
 
         $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
         $emailTo = [env('EMAIL_DEV')];
+        dd($emailTo);
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1072,7 +1073,6 @@ class CronReportController extends Controller
         }
         //dd($report);
 
-        dd($emailTo);
         if ($emailTo) {
             Mail::to($emailTo)->send(new \App\Mail\Site\SiteNoWorksPlanned($report));
             echo "Sending email to: $emails<br>";
