@@ -1049,7 +1049,7 @@ class CronReportController extends Controller
         $cc = Company::find(3);
 
         $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
-        dd($emailTo);
+        dd(env('EMAIL_DEV'));
         $emailTo = [env('EMAIL_DEV')];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
@@ -1071,7 +1071,7 @@ class CronReportController extends Controller
                 $report[$super->id] = ['supervisor' => $super, 'sites' => $sites,];
             }
         }
-        //dd($report);
+        dd($report);
 
         if ($emailTo) {
             Mail::to($emailTo)->send(new \App\Mail\Site\SiteNoWorksPlanned($report));
