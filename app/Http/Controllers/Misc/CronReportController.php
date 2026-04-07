@@ -1048,7 +1048,7 @@ class CronReportController extends Controller
         $twoWeeks = Carbon::now()->addDays(14);
         $cc = Company::find(3);
 
-        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.nowork.planned') : [env('EMAIL_DEV')];
         $emailTo = ['fudge@jordan.net.au'];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
