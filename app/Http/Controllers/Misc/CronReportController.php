@@ -1070,7 +1070,7 @@ class CronReportController extends Controller
                 $report[$super->id] = ['supervisor' => $super, 'sites' => $sites,];
             }
         }
-        dd($report);
+        //dd($report);
 
         if ($emailTo) {
             Mail::to($emailTo)->send(new \App\Mail\Site\SiteNoWorksPlanned($report));
