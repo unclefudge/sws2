@@ -71,6 +71,7 @@ class CronReportController extends Controller
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailProjectSupplyOverdue();
             CronReportController::emailPendingElectricalPlumbing();
+            CronReportController::emailNoWorksPlanned();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -1028,6 +1029,75 @@ class CronReportController extends Controller
         $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
     }
+
+
+    /*
+    *  Email No Works Planned
+    */
+    static public function emailNoWorksPlanned()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Email Supervisor Site Export";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $today = Carbon::now()->startOfDay();
+        $twoWeeks = Carbon::now()->addDays(14);
+        $cc = Company::find(3);
+
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $emailTo = [env('EMAIL_DEV')];
+        $emails = implode("; ", $emailTo);
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+        $report = [];
+
+        // Site IDs that already HAVE planner work scheduled in the next 2 weeks
+        $plannedSiteIds = SitePlanner::whereDate('from', '>=', $today)->whereDate('from', '<=', $twoWeeks)->pluck('site_id')->unique()->toArray();
+
+        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
+            if ($super->name === 'TO BE ALLOCATED') {
+                continue;
+            }
+
+            // Adjust this relationship/query to match your actual Site model setup
+            $sites = Site::where('supervisor_id', $super->id)->whereNotIn('id', $plannedSiteIds)->where('status', 1)->get();
+
+            if ($sites->isNotEmpty()) {
+                $report[$super->id] = ['supervisor' => $super, 'sites' => $sites,];
+            }
+        }
+        //dd($report);
+
+        if ($emailTo) {
+            Mail::to($emailTo)->send(new \App\Mail\Site\SiteNoWorksPlanned($report));
+            echo "Sending email to: $emails<br>";
+            $log .= "Sending email to: $emails\n";
+        }
+
+        // Output for testing
+        /*foreach ($report as $row) {
+            echo "<h3>" . e($row['supervisor']->name) . "</h3>";
+            $log .= $row['supervisor']->name . "\n";
+
+            foreach ($row['sites'] as $site) {
+                echo "- {$site->name}<br>";
+                $log .= "- {$site->name}\n";
+            }
+
+            echo "<br>";
+            $log .= "\n";
+        }*/
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
+    }
+
 
 
     /****************************************************

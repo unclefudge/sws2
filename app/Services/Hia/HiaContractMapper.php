@@ -258,7 +258,7 @@ class HiaContractMapper
                 'licence_number' => '5519',
                 'licence_category' => null,
                 'hia_member_number' => '307160',
-                'hia_membership_expiry' => null,
+                'hia_membership_expiry' => '31/09/2026',  //31 July 2026,
                 'abn' => '54 000 605 407',
                 'acn' => null,
                 'registered_building_practitioner' => null,

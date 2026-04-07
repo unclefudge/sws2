@@ -41,6 +41,7 @@ Route::get('cron/email-missing-company-info-planner', '\App\Http\Controllers\Mis
 Route::get('cron/email-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@emailPlannerKeyTasks');
 Route::get('cron/email-asbestos', '\App\Http\Controllers\Misc\CronReportController@emailActiveAsbestos');
 Route::get('cron/email-supervisor-siteexport', '\App\Http\Controllers\Misc\CronReportController@emailSupervisorSiteExport');
+Route::get('cron/email-noworks-planned', '\App\Http\Controllers\Misc\CronReportController@emailNoWorksPlanned');
 Route::get('cron/email-upcoming-jobs', '\App\Http\Controllers\Misc\CronTaskController@emailUpcomingJobs');
 Route::get('cron/action-planner-key-tasks', '\App\Http\Controllers\Misc\CronController@actionPlannerKeyTasks');
 Route::get('cron/site-extensions', '\App\Http\Controllers\Misc\CronController@siteExtensions');

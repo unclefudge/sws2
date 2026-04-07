@@ -553,7 +553,7 @@
                     <div class="col-md-9">
                         <select v-model="xx.item.assigned_to" class='form-control' v-on:change="updateTaskOptions(xx.item)">
                             <option v-for="option in xx.sel_company" value="@{{ option.value }}"
-                                    selected="@{{option.value == item.assigned_to}}">@{{ option.text }}
+                                    selected="@{{option.value == xx.item.assigned_to}}">@{{ option.text }}
                             </option>
                         </select>
                     </div>
@@ -564,7 +564,7 @@
                     <div class="col-md-9">
                         <select v-model="xx.item.planner_task_id" class='form-control' v-on:change="doNothing">
                             <option v-for="option in xx.sel_task" value="@{{ option.value }}"
-                                    selected="@{{option.value == item.planner_task_id}}">@{{ option.text }}
+                                    selected="@{{option.value == xx.item.planner_task_id}}">@{{ option.text }}
                             </option>
                         </select>
                     </div>
@@ -585,7 +585,7 @@
                         <div v-if="xx.editItemModal" class="input-group">
                             <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
                                 <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
-                                        selected="@{{option.value == item.status}}">@{{ option.text }}
+                                        selected="@{{option.value == xx.item.status}}">@{{ option.text }}
                                 </option>
                             </select>
                         </div>
