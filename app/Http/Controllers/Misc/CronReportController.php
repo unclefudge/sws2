@@ -1049,8 +1049,7 @@ class CronReportController extends Controller
         $cc = Company::find(3);
 
         $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
-        dd(env('EMAIL_DEV'));
-        $emailTo = [env('EMAIL_DEV')];
+        $emailTo = ['fudge@jordan.net.au'];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
