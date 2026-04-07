@@ -71,7 +71,6 @@ class CronReportController extends Controller
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailProjectSupplyOverdue();
             CronReportController::emailPendingElectricalPlumbing();
-            CronReportController::emailNoWorksPlanned();
         }
 
         if (Carbon::today()->isTuesday()) {
@@ -79,6 +78,7 @@ class CronReportController extends Controller
             CronReportController::emailMaintenanceSupervisorNoAction();
             CronReportController::emailPracCompletionSupervisorNoAction();
             CronReportController::emailSupervisorSiteExport();
+            CronReportController::emailNoWorksPlanned();
         }
         if (Carbon::today()->isWednesday()) {
             //CronReportController::emailMaintenanceOnHold();
