@@ -83,8 +83,8 @@
                                 <th>FC Structural</th>
                                 <th>CF-EST</th>
                                 <th>CF-ADM</th>
-                                <th>GAL</th>
-                                <th>STEEL</th>
+                                <th style="width:5%">GAL</th>
+                                <th style="width:5%">STEEL</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -233,8 +233,8 @@
                         </div>
                     @endif
 
-                    {{-- Admins --}}
-                    @if (Auth::user()->hasAnyRole2('gen-administrator|gen-admin-manager|con-administrator|mgt-general-manager|web-admin'))
+                    {{-- Admins + Jayden (473)--}}
+                    @if (Auth::user()->hasAnyRole2('gen-administrator|gen-admin-manager|con-administrator|mgt-general-manager|web-admin') || in_array(Auth::user()->id, [473]))
                         {{-- CF-ADM --}}
                         <div class="row">
                             <div class="col-md-3">
