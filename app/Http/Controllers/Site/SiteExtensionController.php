@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Category;
+use App\Models\Site\Planner\SitePlanner;
+use App\Models\Site\Planner\Task;
 use App\Models\Site\SiteExtension;
 use App\Models\Site\SiteExtensionSite;
 use App\Models\Site\SiteNote;
@@ -94,8 +96,13 @@ class SiteExtensionController extends Controller
         //ray($site_ids);
         $notes = SiteNote::where('category_id', 16)->where('variation_days', '>', 0)->whereIn('site_id', $site_ids)->whereBetween('created_at', [$last_mon, $last_sun])->where('parent', null)->get();
 
+        // Client Information
+        $clientTaskIds = Task::where('trade_id', 48)->pluck('id')->toArray();
+        $clientTasks = SitePlanner::whereIn('task_id', $clientTaskIds)->whereBetween('from', [$last_mon, $last_sun])->get();
+        //dd($clientTasks);
+
         //ray($notes);
-        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes'));
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes', 'clientTasks'));
     }
 
     /**

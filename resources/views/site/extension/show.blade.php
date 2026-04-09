@@ -47,6 +47,16 @@
                                 </ul>
                             </div>
                         @endif
+                        @if ($clientTasks->count())
+                            <div class="col-md-12 note note-warning">
+                                The following sites had Client Information tasks the previous week:
+                                <ul>
+                                    @foreach ($clientTasks as $plan)
+                                        <li><b>{{ $plan->site->name }}</b> - {{$plan->task->name}} ({{$plan->from->format('d/m')}} - {{$plan->to->format('d/m')}} )</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <table class="table table-striped table-bordered table-nohover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
