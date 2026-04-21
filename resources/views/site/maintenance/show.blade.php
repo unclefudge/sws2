@@ -377,7 +377,7 @@
                                             <select id="super_id" name="super_id" class="form-control select2"
                                                     style="width:100%">
                                                 <option value=""></option>
-                                                <optgroup label="Cape Code Supervisors"></optgroup>
+                                                {{--}}<optgroup label="Cape Code Supervisors"></optgroup>--}}
                                                 @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
                                                     <option value="{{ $super->id }}" {{ ($super->id == $main->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
                                                 @endforeach
