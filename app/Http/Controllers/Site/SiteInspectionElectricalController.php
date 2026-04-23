@@ -444,9 +444,12 @@ class SiteInspectionElectricalController extends Controller
                 $inpect_ids = SiteInspectionElectrical::where('status', request('status'))->pluck('id')->toArray();
         }
 
-        $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        //$assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        $assigned = Auth::user()->company->pluck('id')->toArray();
         if (request('assigned_to') != 'all')
             $assigned = [request('assigned_to')];
+
+        ray($assigned);
 
         $inspect_records = SiteInspectionElectrical::select([
             'site_inspection_electrical.id', 'site_inspection_electrical.site_id', 'site_inspection_electrical.inspected_name', 'site_inspection_electrical.inspected_by',
