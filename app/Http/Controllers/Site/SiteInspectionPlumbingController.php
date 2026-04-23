@@ -454,7 +454,8 @@ class SiteInspectionPlumbingController extends Controller
                 $inpect_ids = SiteInspectionPlumbing::where('status', request('status'))->pluck('id')->toArray();
         }
 
-        $assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        //$assigned = Auth::user()->company->companies('1')->pluck('id')->toArray();
+        $assigned = Auth::user()->company->pluck('id')->toArray(); // Need to be all to display completed ones by inactive companies.
         if (request('assigned_to') != 'all')
             $assigned = [request('assigned_to')];
 
