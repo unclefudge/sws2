@@ -364,6 +364,13 @@ class HiaContractMapper
 
             /*
             |--------------------------------------------------------------------------
+            | 8. Encumbrances /  Covenants
+            |--------------------------------------------------------------------------
+            */
+            'covenants' => "REFER TO THE NEW SOUTH WALES LAND REGISTRY SERVICES - TITLE SEARCH FOR THE LAND OUTLINED IN SCHEDULE 1. PARTICULARS OF CONTRACT - ITEM 5. THE LAND",
+
+            /*
+            |--------------------------------------------------------------------------
             | 10. Development application and complying development certificate
             |--------------------------------------------------------------------------
             */
@@ -456,10 +463,9 @@ class HiaContractMapper
 
             /*
             |--------------------------------------------------------------------------
-            | Covenants / exclusions / text areas
+            | Statutory Obligations / exclusions / text areas
             |--------------------------------------------------------------------------
             */
-            'covenants' => null,
             'statutory_obligations' => null,
 
 
