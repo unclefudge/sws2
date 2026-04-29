@@ -60,8 +60,9 @@ class SiteSyncController extends Controller
             if (!$site && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                 $action = 'create';
                 if ($save_enabled) {
+                    $status = ($job_stage == '900 Dead Filed') ? 0 : -1;
                     // Assigned 'TO BE ALLOCATED' as Supervisor;
-                    $site = Site::create(['name' => request('name'), 'code' => request('code'), 'state' => 'NSW', 'supervisor_id' => '136', 'status' => "-1", 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
+                    $site = Site::create(['name' => request('name'), 'code' => request('code'), 'state' => 'NSW', 'supervisor_id' => '136', 'status' => $status, 'company_id' => $cid, 'created_by' => 1, 'updated_by' => 1]);
 
                     // Create Equipment Location
                     $location = EquipmentLocation::where('site_id', $site->id)->first();
