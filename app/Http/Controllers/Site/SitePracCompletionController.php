@@ -10,6 +10,7 @@ use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Site;
 use App\Models\Site\SitePracCompletion;
 use App\Models\Site\SitePracCompletionItem;
+use App\Services\Zoho\ZohoConnectService;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -236,7 +237,6 @@ class SitePracCompletionController extends Controller
                 // Close any outstanding ToDos for supervisors and Create one for Area Super / Con Mgr
                 $prac->closeToDo();
                 if (!$prac->manager_sign_by) {
-                    $site = Site::findOrFail($prac->site_id);
                     $prac->createManagerSignOffToDo([108]);
                 }
                 $action = Action::create(['action' => "Report has been signed off by Supervisor", 'table' => 'site_prac_completion', 'table_id' => $prac->id]);
@@ -254,6 +254,13 @@ class SitePracCompletionController extends Controller
                     $email_list = $prac->site->company->notificationsUsersEmailType('prac.completion.completed');
 
                 if ($email_list) Mail::to($email_list)->send(new \App\Mail\Site\SitePracCompletionCompleted($prac));
+
+                // Update Zoho Card Status
+                $zoho = app(ZohoConnectService::class);
+                $cardTitle = $prac->site->name;
+                $statusCompleted = '185487000002355093';
+                $construction_BoardID = '185487000002355019';
+                $zoho->updateTaskStatusByTitle($construction_BoardID, $cardTitle, $statusCompleted)
             }
 
             //dd($prac_request);

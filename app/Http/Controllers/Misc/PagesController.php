@@ -16,6 +16,7 @@ use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
 use App\Services\FileBank;
+use App\Services\Zoho\ZohoConnectService;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -139,21 +140,24 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>Migrate backups</h1><br>";
+        echo "<h1>Zoho Connect Card - update Status</h1><br>";
+        $zoho = app(ZohoConnectService::class);
 
-        // Get codes that appear more than once
-        $duplicateCodes = Site::select('code', DB::raw('COUNT(*) as total'))
-            ->groupBy('code')
-            ->having('total', '>', 1)
-            ->pluck('code');
+        $job = Site::where('name', '8259-Murphy.Price-Bondi')->first();
 
-// If you want the actual Site records that are duplicates:
-        $duplicateSites = Site::whereIn('code', $duplicateCodes)
-            ->orderBy('code')
-            ->get();
-        foreach ($duplicateSites as $site) {
-            echo "$site->id - $site->code -  $site->name<br>";
+        if ($job) {
+            $result = $zoho->findTaskByTitle('185487000002355019', $job->name);
+            dd($result);
         }
+
+        $statusPracItems = '185487000002422558';
+        $statusPracComps = '185487000002355089';
+        $statusNewStart = '185487000002355097';
+        $taskID = '185487000009706557';
+        $statusID = $statusNewStart;
+        echo "Updating status: $statusID<br>";
+        //$result = $zoho->updateTaskStatus($taskID, $statusID);
+        ray($result);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {

@@ -45,4 +45,14 @@ return [
         'scope' => env('HIA_SCOPE', 'BASIC,COL,DIRECTAUTH'),
     ],
 
+    'zoho' => [
+        'client_id' => env('ZOHO_CLIENT_ID'),
+        'client_secret' => env('ZOHO_CLIENT_SECRET'),
+        'crm_refresh_token' => env('ZOHO_CRM_REFRESH_TOKEN'),
+        'connect_refresh_token' => env('ZOHO_CONNECT_REFRESH_TOKEN'),
+        'connect_scope_id' => env('ZOHO_CONNECT_SCOPE_ID'),
+        'accounts_url' => env('ZOHO_ACCOUNTS_URL', 'https://accounts.zoho.com'),
+        'connect_url' => env('ZOHO_CONNECT_URL', 'https://connect.zoho.com'),
+    ],
+
 ];
