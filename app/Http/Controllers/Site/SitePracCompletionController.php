@@ -260,7 +260,7 @@ class SitePracCompletionController extends Controller
                 $cardTitle = $prac->site->name;
                 $statusCompleted = '185487000002355093';
                 $construction_BoardID = '185487000002355019';
-                $zoho->updateTaskStatusByTitle($construction_BoardID, $cardTitle, $statusCompleted)
+                $zoho->updateTaskStatusByTitle($construction_BoardID, $cardTitle, $statusCompleted);
             }
 
             //dd($prac_request);
