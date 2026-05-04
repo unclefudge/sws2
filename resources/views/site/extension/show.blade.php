@@ -77,8 +77,11 @@
                             @foreach ($data as $row)
                                     <?php
                                     $site = \App\Models\Site\Site::where('name', $row['name'])->first();
-                                    $completion_date = $site->forecast_completion;
-                                    $complete_date_sub2month = $site->forecast_completion->subMonths(2);
+                                    $completion_date = null;
+                                    if ($site->forecast_completion) {
+                                        $completion_date = $site->forecast_completion;
+                                        $complete_date_sub2month = $site->forecast_completion->subMonths(2);
+                                    }
 
 
                                     //$completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
