@@ -82,8 +82,6 @@
                                         $completion_date = $site->forecast_completion;
                                         $complete_date_sub2month = $site->forecast_completion->subMonths(2);
                                     }
-
-
                                     //$completion_date = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00') : null;
                                     //$complete_date_sub2month = ($row['completion_date']) ? \Carbon\Carbon::createFromFormat('d/m/y H:i', $row['completion_date'] . ' 00:00')->subMonths(2) : null;
 
@@ -98,7 +96,7 @@
                                         <td id="sitename-{{$row['id']}}">{{ $row['name'] }}</td>
                                         <td>{{ $row['super_initials'] }}</td>
                                         <td style="{{ $completion_bg }}">
-                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ $completion_date->format('d/m/y') }}</span>
+                                            <span class="{{ ($completion_date && $completion_date->lte($today)) ? 'font-red' : '' }}">{{ ($completion_date ? $completion_date->format('d/m/y') : ''}}</span>
                                         </td>
                                         <td class="hoverDiv editField" id="reason-{{$row['id']}}-td">
                                             {{ $row['extend_reasons_text'] }}
