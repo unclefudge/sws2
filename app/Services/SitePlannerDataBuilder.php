@@ -41,7 +41,7 @@ class SitePlannerDataBuilder
         if ($mode === 'supervisor') {
             $superIds = $options['supervisor_ids'] ?? [];
 
-            $superSites = $company->sites('1')->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
+            $superSites = $company->sites([1, 2])->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
             $sites = [];
             foreach ($superSites as $sid) {
                 $site = Site::find($sid);
@@ -54,19 +54,27 @@ class SitePlannerDataBuilder
 
         // --------------------------------------------------
         // Sort sites
-        // - by Prac Complete then by Site name
+        // - by Prac Complete then by Site name, with Maintence Jobs at end.
         // --------------------------------------------------
         $sites = Site::whereIn('id', $sites)->get()
             ->sort(function ($a, $b) {
-                // Group by prac_complete (false first, true last)
-                $aComplete = (int)(bool)$a->completion_signed;
-                $bComplete = (int)(bool)$b->completion_signed;
+                $aStatus = (int)$a->status;
+                $bStatus = (int)$b->status;
 
-                if ($aComplete !== $bComplete)
-                    return $aComplete <=> $bComplete;
+                $groupA = match ($aStatus) {
+                    1 => $a->completion_signed ? 2 : 1, // active, prac complete last in active
+                    2 => 3,                             // maintenance always after active
+                    default => 4,
+                };
 
-                // Within each group, sort by site name
-                return strcasecmp($a->name, $b->name);
+                $groupB = match ($bStatus) {
+                    1 => $b->completion_signed ? 2 : 1,
+                    2 => 3,
+                    default => 4,
+                };
+
+                return $groupA <=> $groupB
+                    ?: strcasecmp($a->name, $b->name);
             })->values();
 
         // --------------------------------------------------
@@ -75,12 +83,18 @@ class SitePlannerDataBuilder
         $data = [];
 
         foreach ($sites as $site) {
+            $title = '';
+            if ($site->status == 2)
+                $title = 'MAINTENANCE';
+            else if ($site->completion_signed)
+                $title = 'PRAC COMPLETION';
             $obj_site = (object)[
                 'site_id' => $site->id,
                 'site_name' => $site->name,
                 'supervisor' => $site->supervisor?->name ?? '',
                 'prac_complete' => (bool)$site->completion_signed,
                 'reportType' => $mode,
+                'title' => $title,
                 'weeks' => [],
             ];
 

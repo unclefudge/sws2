@@ -71,13 +71,13 @@ class CronReportController extends Controller
             CronReportController::emailEquipmentTransfers();
             CronReportController::emailProjectSupplyOverdue();
             CronReportController::emailPendingElectricalPlumbing();
+            CronReportController::emailSupervisorSiteExport();
         }
 
         if (Carbon::today()->isTuesday()) {
             CronReportController::emailUpcomingJobCompilance();
             CronReportController::emailMaintenanceSupervisorNoAction();
             CronReportController::emailPracCompletionSupervisorNoAction();
-            CronReportController::emailSupervisorSiteExport();
             CronReportController::emailNoWorksPlanned();
         }
         if (Carbon::today()->isWednesday()) {
@@ -1049,7 +1049,6 @@ class CronReportController extends Controller
         $cc = Company::find(3);
 
         $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.nowork.planned') : [env('EMAIL_DEV')];
-        $emailTo = ['fudge@jordan.net.au'];
         $emails = implode("; ", $emailTo);
         echo "Sending email to: $emails<br>";
         $log .= "Sending email to: $emails\n";
@@ -1091,6 +1090,96 @@ class CronReportController extends Controller
             echo "<br>";
             $log .= "\n";
         }*/
+
+        echo "<h4>Completed</h4>";
+        $log .= "\nCompleted\n\n\n";
+        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
+        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
+    }
+
+    /*
+    *  Email SupervisorSiteExport
+    */
+    static public function emailSupervisorSiteExport()
+    {
+        $log = '';
+        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
+        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
+        $func_name = "Email Supervisor Site Export";
+        echo "<h2>Email $func_name</h2>";
+        $log .= "Email $func_name\n";
+        $log .= "------------------------------------------------------------------------\n\n";
+
+        $yesterday = Carbon::now()->subDay();
+        $cc = Company::find(3);
+
+        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
+        $emails = implode("; ", $emailTo);
+        echo "Sending email to: $emails<br>";
+        $log .= "Sending email to: $emails\n";
+        $batchId = (string)Str::uuid();
+        $jobs = [];
+
+        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
+            if ($super->name === 'TO BE ALLOCATED')
+                continue;
+
+            $name = "Supervisor Site Plan ({$super->initials}).pdf";
+            $path = "report/{$cc->id}";
+
+            // --------------------------------------------------
+            // Create report record
+            // --------------------------------------------------
+            $report = Report::create([
+                'user_id' => $super->id,
+                'company_id' => $cc->id,
+                'name' => $name,
+                'path' => $path,
+                'type' => 'site-plan',
+                'status' => 'pending',
+                'batch_id' => $batchId,
+            ]);
+
+            // --------------------------------------------------
+            // Build canonical data (IMPORTANT)
+            // --------------------------------------------------
+            $data = SitePlannerDataBuilder::build([
+                'date' => $yesterday->format('Y-m-d'),
+                'weeks' => 6,
+                'mode' => 'supervisor',
+                'site_ids' => [],
+                'supervisor_ids' => [$super->id],
+            ]);
+
+            $jobs[] = new SitePlannerPdf($report->id, $data, 'pdf.plan-site');
+        }
+
+        // Guard: no jobs created
+        if (empty($jobs))
+            $log .= "No supervisor reports to generate.\n";
+
+        Bus::batch($jobs)->name('Supervisor Site Export')
+            ->finally(function (\Illuminate\Bus\Batch $batch) use ($batchId, $emailTo) {
+                \Log::info('Supervisor export batch finished', [
+                    'batch_id' => $batch->id,
+                    'total' => $batch->totalJobs,
+                    'failed' => $batch->failedJobs,
+                    'processed' => $batch->processedJobs(),
+                ]);
+
+                // Fetch ONLY successfully completed reports
+                $reports = Report::where('batch_id', $batchId)->where('status', 'completed')->get();
+
+                if ($reports->isEmpty()) {
+                    \Log::warning('Supervisor export finished with no completed reports', ['batch_id' => $batch->id,]);
+                    return;
+                }
+
+                $attachments = $reports->map(fn($r) => "{$r->path}/{$r->name}")->toArray();
+                Mail::to($emailTo)->send(new SiteSupervisorSiteExport($attachments));
+
+                \Log::info('Supervisor export email sent', ['batch_id' => $batch->id, 'attached' => count($attachments),]);
+            })->dispatch();
 
         echo "<h4>Completed</h4>";
         $log .= "\nCompleted\n\n\n";
@@ -1469,95 +1558,6 @@ class CronReportController extends Controller
         if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
     }
 
-    /*
-    *  Email SupervisorSiteExport
-    */
-    static public function emailSupervisorSiteExport()
-    {
-        $log = '';
-        echo "<h1>++++++++ " . __FUNCTION__ . " ++++++++</h1>";
-        $log .= "++++++++ " . __FUNCTION__ . " ++++++++\n";
-        $func_name = "Email Supervisor Site Export";
-        echo "<h2>Email $func_name</h2>";
-        $log .= "Email $func_name\n";
-        $log .= "------------------------------------------------------------------------\n\n";
-
-        $yesterday = Carbon::now()->subDay();
-        $cc = Company::find(3);
-
-        $emailTo = app()->environment('prod') ? $cc->notificationsUsersEmailType('site.supervisor.export') : [env('EMAIL_DEV')];
-        $emails = implode("; ", $emailTo);
-        echo "Sending email to: $emails<br>";
-        $log .= "Sending email to: $emails\n";
-        $batchId = (string)Str::uuid();
-        $jobs = [];
-
-        foreach ($cc->supervisors()->where('status', 1)->sortBy('firstname') as $super) {
-            if ($super->name === 'TO BE ALLOCATED')
-                continue;
-
-            $name = "Supervisor Site Plan ({$super->initials}).pdf";
-            $path = "report/{$cc->id}";
-
-            // --------------------------------------------------
-            // Create report record
-            // --------------------------------------------------
-            $report = Report::create([
-                'user_id' => $super->id,
-                'company_id' => $cc->id,
-                'name' => $name,
-                'path' => $path,
-                'type' => 'site-plan',
-                'status' => 'pending',
-                'batch_id' => $batchId,
-            ]);
-
-            // --------------------------------------------------
-            // Build canonical data (IMPORTANT)
-            // --------------------------------------------------
-            $data = SitePlannerDataBuilder::build([
-                'date' => $yesterday->format('Y-m-d'),
-                'weeks' => 6,
-                'mode' => 'supervisor',
-                'site_ids' => [],
-                'supervisor_ids' => [$super->id],
-            ]);
-
-            $jobs[] = new SitePlannerPdf($report->id, $data, 'pdf.plan-site');
-        }
-
-        // Guard: no jobs created
-        if (empty($jobs))
-            $log .= "No supervisor reports to generate.\n";
-
-        Bus::batch($jobs)->name('Supervisor Site Export')
-            ->finally(function (\Illuminate\Bus\Batch $batch) use ($batchId, $emailTo) {
-                \Log::info('Supervisor export batch finished', [
-                    'batch_id' => $batch->id,
-                    'total' => $batch->totalJobs,
-                    'failed' => $batch->failedJobs,
-                    'processed' => $batch->processedJobs(),
-                ]);
-
-                // Fetch ONLY successfully completed reports
-                $reports = Report::where('batch_id', $batchId)->where('status', 'completed')->get();
-
-                if ($reports->isEmpty()) {
-                    \Log::warning('Supervisor export finished with no completed reports', ['batch_id' => $batch->id,]);
-                    return;
-                }
-
-                $attachments = $reports->map(fn($r) => "{$r->path}/{$r->name}")->toArray();
-                Mail::to($emailTo)->send(new SiteSupervisorSiteExport($attachments));
-
-                \Log::info('Supervisor export email sent', ['batch_id' => $batch->id, 'attached' => count($attachments),]);
-            })->dispatch();
-
-        echo "<h4>Completed</h4>";
-        $log .= "\nCompleted\n\n\n";
-        $logFile = storage_path('app/log/nightly/' . Carbon::now()->format('Ymd') . '.txt');
-        if (!Auth::check()) file_put_contents($logFile, $log, FILE_APPEND); // Append Log
-    }
 
     /*
     * Email Old Users

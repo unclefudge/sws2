@@ -61,8 +61,8 @@
         <div class="row">
             <div class="col-xs-8">
                 <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}
-                @if ($siteplan->reportType == 'supervisor' && $siteplan->prac_complete)
-                    <h4 style="margin: 0px">PRAC COMPLETION</h4>
+                @if ($siteplan->reportType == 'supervisor' && $siteplan->title)
+                    <h4 style="margin: 0px">{{$siteplan->title}}</h4>
                 @endif
             </div>
             <div class="col-xs-4">
