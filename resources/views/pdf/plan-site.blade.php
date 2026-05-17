@@ -59,15 +59,17 @@
             <?php $site = App\Models\Site\Site::find($siteplan->site_id) ?>
             <?php $site_count++ ?>
         <div class="row">
-            <div class="col-xs-8">
-                <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}
-                @if ($siteplan->reportType == 'supervisor' && $siteplan->title)
-                    <h4 style="margin: 0px">{{$siteplan->title}}</h4>
-                @endif
-            </div>
-            <div class="col-xs-4">
-                <h6><b>Supervisor:</b> {{ $site->supervisorName }}</h6>
-            </div>
+            <table class="table" style="padding: 0px; margin: 0px; width: 100%">
+                <tr>
+                    <td style="width:80%">
+                        <h3 style="margin: 0px">{{ $site->name }}</h3>{{ $site->address }}, {{  $site->suburb_state_postcode }}
+                        @if ($siteplan->reportType == 'supervisor' && $siteplan->title)
+                            <h4 style="margin: 0px">{{$siteplan->title}}</h4>
+                        @endif
+                    </td>
+                    <td><h5><b>Supervisor:</b> {{ $site->supervisorName }}</h5></td>
+                </tr>
+            </table>
         </div>
 
         <hr style="margin: 5px 0px">

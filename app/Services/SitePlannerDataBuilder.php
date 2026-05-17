@@ -6,6 +6,7 @@ use App\Models\Company\Company;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
+use App\Models\Site\SiteMaintenance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,14 +42,16 @@ class SitePlannerDataBuilder
         if ($mode === 'supervisor') {
             $superIds = $options['supervisor_ids'] ?? [];
 
-            $superSites = $company->sites([1, 2])->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
+            $activeSites = $company->sites([1])->whereIn('supervisor_id', $superIds)->pluck('id')->toArray();
             $sites = [];
-            foreach ($superSites as $sid) {
+            foreach ($activeSites as $sid) {
                 $site = Site::find($sid);
                 if ($site && $site->JobStart && $site->JobStart->lt(Carbon::today())) {
                     $sites[] = $sid;
                 }
             }
+            $maintSites = SiteMaintenance::where('status', 1)->whereIn('super_id', $superIds)->distinct()->pluck('site_id')->toArray();
+            $sites = array_merge($sites, $maintSites);
         } else
             $sites = $options['site_ids'] ?? $company->sites('1')->pluck('id')->toArray();
 
@@ -125,8 +128,7 @@ class SitePlannerDataBuilder
                         ->orWhere(function ($q2) use ($date_from, $date_to) {
                             $q2->where('from', '<', $date_from)->where('to', '>', $date_to);
                         });
-                })
-                    ->orderBy('from')->get();
+                })->orderBy('from')->get();
 
                 // Build entities
                 $entities = [];
