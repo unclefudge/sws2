@@ -32,7 +32,7 @@
                     {{-----------------------------------------------------------------------------------
                        Job Site Info
                      -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('site|site.doc|site.list|site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner|site.note|site.extension|site.project.supply|site.qa|site.qa|super.checklist|site.attendance|prac.completion|site.maintenance|site.foc'))
+                    @if (Auth::user()->hasAnyPermissionType('site.hazard|site.accident|safety.doc|site.doc|site'))
                         <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
                             <a href="javascript:;"><i class="fa fa-wrench"></i> Job Site Info
                                 <span class="arrow"></span>
@@ -42,90 +42,112 @@
                                     <div class="mega-menu-content">
                                         <div class="row">
                                             <div class="col-md-1 hidden-sm hidden-xs"><img src="/img/menu_siteinfo.png"></div>
-                                            {{-- GENERAL --}}
+                                            {{-- Site Info Safety --}}
+                                            @if (Auth::user()->hasAnyPermissionType('site.hazard|site.incident|site.accident|safety.doc'))
+                                                <div class="col-md-2">
+                                                    <ul class="mega-menu-submenu">
+                                                        <li><h3 class="h3-submenu">Safety</h3></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('site.hazard'))
+                                                            <li><a href="/site/hazard" class="nav-link @if (Auth::user()->siteHazards('1')->count()) font-yellow-lemon @endif">Hazards</a></li>
+                                                        @endif
+
+                                                        @if (Auth::user()->hasAnyPermissionType('site.accident') && !Auth::user()->hasAnyPermissionType('site.incident'))
+                                                            <li><a href="/site/accident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Accidents</a>
+                                                            </li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.incident'))
+                                                            <li><a href="/site/incident" class="nav-link @if (Auth::user()->siteincidents('1')->count()) font-yellow-lemon @endif">Incidents</a>
+                                                            </li>
+                                                        @endif
+
+                                                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
+                                                            <li><a href="/site/doc/type/risk" class="nav-link "> Risk Assessments</a></li>
+                                                            <li><a href="/site/doc/type/hazard" class="nav-link "> Hazardous Materials</a></li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                            @if (Auth::user()->hasAnyPermissionType('site.asbestos|site.scaffold.handover'))
+                                                <div class="col-md-2">
+                                                    <ul class="mega-menu-submenu">
+                                                        <li><h3>&nbsp;</h3></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('site.asbestos'))
+                                                            <li><a href="/site/asbestos/register" class="nav-link "> Asbestos Register</a></li>
+                                                            <li><a href="/site/asbestos/notification" class="nav-link "> Asbestos Notifications</a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
+                                                            <li><a href="/site/scaffold/handover" class="nav-link "> Scaffold Handover</a></li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                            {{-- Site Info Document --}}
                                             @if (Auth::user()->hasAnyPermissionType('site.doc|site.list'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">General</h3></li>
+                                                        <li><h3 class="h3-submenu">Documents</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('site.doc'))
                                                             <li><a href="/site/doc/type/plan" class="nav-link"> Site Plans </a></li>
                                                         @endif
+
                                                         @if (Auth::user()->hasAnyPermissionType('site.list'))
                                                             <li><a href="/sitelist" class="nav-link"> Site List </a></li>
                                                         @endif
                                                     </ul>
                                                 </div>
                                             @endif
-                                            {{-- PRE CONSTRUCTION --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.inspection.whs|site.inspection|site.upcoming.compliance|preconstruction.planner'))
+                                            {{-- Site Info Document --}}
+                                            @if (Auth::user()->hasAnyPermissionType('site.attendance|site.qa|site.qa|site.qa.templates|site.maintenance|site.project.supply|site.inspection|site.upcoming.compliance|super.checklist'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Pre Construction</h3></li>
+                                                        <li><h3 class="h3-submenu">Reports / Info</h3></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('site.attendance'))
+                                                            <li><a href="/site/attendance" class="nav-link"> Site Attendance </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('prac.completion'))
+                                                            <li><a href="/site/prac-completion" class="nav-link"> Prac Completion </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.foc'))
+                                                            <li><a href="/site/foc" class="nav-link"> FOC Requirements </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.maintenance'))
+                                                            <li><a href="/site/maintenance" class="nav-link"> Maintenance Requests </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.qa'))
+                                                            <li><a href="/site/qa" class="nav-link"> Quality Assurance </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('super.checklist') || Auth::user()->hasAnyRole2('con-supervisor|web-admin|mgt-general-manager'))
+                                                            <li><a href="/supervisor/checklist/checklist" class="nav-link"> Supervisor Checklist </a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.note'))
+                                                            <li><a href="/site/note" class="nav-link"> Site Notes </a></li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <ul class="mega-menu-submenu">
+                                                        <li><h3 class="h3-submenu">&nbsp;</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('site.inspection.whs'))
-                                                            <li><a href="/site/inspection" class="nav-link"> Project Aspects & Conditions </a></li>
+                                                            <li><a href="/site/inspection" class="nav-link"> Site Inspection</a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.inspection'))
                                                             <li><a href="/site/inspection/electrical" class="nav-link"> Electrical Inspection </a></li>
                                                             <li><a href="/site/inspection/plumbing" class="nav-link"> Plumbing Inspection </a></li>
                                                         @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('site.project.supply'))
+                                                            <li><a href="/site/supply" class="nav-link"> Project Suppy Info </a></li>
+                                                            <li><a href="/site/shutdown" class="nav-link"> Site Shutdown </a></li>
+                                                        @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.upcoming.compliance'))
                                                             <li><a href="/site/upcoming/compliance" class="nav-link"> Upcoming Jobs </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('preconstruction.planner'))
-                                                            <li><a href="/planner/upcoming" class="nav-link"> Upcoming Projects </a></li>
-                                                            {{--<li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>--}}
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                            {{-- CONSTRUCTION --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.note|site.extension|site.project.supply|site.qa|site.qa|super.checklist|site.attendance'))
-                                                <div class="col-md-2">
-                                                    <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Construction</h3></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('site.note'))
-                                                            <li><a href="/site/note" class="nav-link"> Site Notes </a></li>
                                                         @endif
                                                         @if (Auth::user()->hasAnyPermissionType('site.extension'))
                                                             <li><a href="/site/extension" class="nav-link"> Contract Extensions</a></li>
                                                         @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.project.supply'))
-                                                            <li><a href="/site/supply" class="nav-link"> Project Suppy Info </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.qa'))
-                                                            <li><a href="/site/qa" class="nav-link"> Quality Assurance </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.project.supply'))
-                                                            {{--}}<li><a href="/site/shutdown" class="nav-link"> Site Shutdown </a></li>--}}
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('super.checklist') || Auth::user()->hasAnyRole2('con-supervisor|web-admin|mgt-general-manager'))
-                                                            <li><a href="/supervisor/checklist/checklist" class="nav-link"> Supervisor Checklist </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.attendance'))
-                                                            <li><a href="/site/attendance" class="nav-link"> Site Attendance </a></li>
-                                                        @endif
                                                     </ul>
                                                 </div>
                                             @endif
-
-                                            {{-- POST CONSTRUCTION --}}
-                                            @if (Auth::user()->hasAnyPermissionType('prac.completion|site.maintenance|site.foc'))
-                                                <div class="col-md-2">
-                                                    <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Post Construction</h3></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('prac.completion'))
-                                                            <li><a href="/site/prac-completion" class="nav-link"> Prac Completion </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.maintenance'))
-                                                            <li><a href="/site/maintenance" class="nav-link"> Maintenance </a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.foc'))
-                                                            <li><a href="/site/foc" class="nav-link"> FOC Requirements </a></li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                            <div class="col-md-3 hidden-sm hidden-xs pull-right"><img src="/img/think-safety.png"></div>
+                                            <!--<div class="col-md-3 hidden-sm hidden-xs pull-right"><img src="/img/think-safety.png"></div>-->
                                         </div>
                                         <div class="row hidden-sm hidden-xs" style="background:#444d58; border-top: 1px solid grey; padding:10px; margin-bottom: -50px">
                                             <div class="col-md-4">&nbsp;</div>
@@ -137,84 +159,11 @@
                     @endif
 
                     {{-----------------------------------------------------------------------------------
-                       Planners
+                       General Info
                      -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster|preconstruction.planner|equipment|equipment.stocktake|client.planner.email'))
+                    @if (Auth::user()->hasAnyPermissionType('wms|toolbox|sds'))
                         <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
-                            <a href="javascript:;"><i class="fa fa-calendar"></i> Planners
-                                <span class="arrow"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <div class="mega-menu-content">
-                                        <div class="row">
-                                            <div class="col-md-1 hidden-sm hidden-xs"><img src="/img/menu_planners.png"></div>
-                                            <div class="col-md-2">
-                                                <ul class="mega-menu-submenu">
-                                                    <li><h3 class="h3-submenu">Planners</h3></li>
-                                                    @if (Auth::user()->hasAnyPermissionType('weekly.planner'))
-                                                        <li><a href="/planner/weekly" class="nav-link"> Weekly Planner </a></li>
-                                                    @endif
-                                                    @if (Auth::user()->hasAnyPermissionType('trade.planner'))
-                                                        <li><a href="/planner/trade" class="nav-link"> Trade Planner </a></li>
-                                                    @endif
-                                                    @if (Auth::user()->hasAnyPermissionType('trade.planner'))
-                                                        <li><a href="/planner/transient" class="nav-link"> Labourer Planner </a></li>
-                                                    @endif
-
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <ul class="mega-menu-submenu">
-                                                    <li class="hidden-sm hidden-xs"><h3 class="h3-submenu">&nbsp;</h3></li>
-                                                    @if (Auth::user()->hasAnyPermissionType('site.planner'))
-                                                        <li><a href="/planner/site" class="nav-link"> Site Planner </a></li>
-                                                    @endif
-                                                    @if (Auth::user()->hasAnyPermissionType('roster'))
-                                                        <li><a href="/planner/roster" class="nav-link"> Site Roster </a></li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <ul class="mega-menu-submenu">
-                                                    @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
-                                                        <li><h3 class="h3-submenu">Reports</h3></li>
-                                                        <li><a href="/client/planner/email" class="nav-link"> Client Email </a></li>
-                                                        <li><a href="/site/export/plan" class="nav-link"> Planner Export </a></li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                            @if (Auth::user()->hasAnyPermissionType('equipment|equipment.stocktake'))
-                                                <div class="col-md-2">
-                                                    <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Asset Management</h3></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('equipment'))
-                                                            <li><a href="/equipment" class="nav-link "> Equipment Allocation</a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('equipment.stocktake'))
-                                                            <li><a href="/equipment/stocktake/0" class="nav-link "> Equipment Stocktake</a></li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                            <div class="col-md-3 hidden-sm hidden-xs"><img src="/img/think-safety.png"></div>
-                                        </div>
-                                        <div class="row hidden-sm hidden-xs"
-                                             style="background:#444d58; border-top: 1px solid grey; padding:10px; margin-bottom: -50px">
-                                            <div class="col-md-4">&nbsp;</div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    @endif
-
-                    {{-----------------------------------------------------------------------------------
-                           WHS
-                     -----------------------------------------------------------------------------------}}
-                    @if (Auth::user()->hasAnyPermissionType('site.hazard|site.incident|site.accident|safety.doc|wms|toolbox|sds|site.scaffold.handover|site.asbestos'))
-                        <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
-                            <a href="javascript:;"><i class="fa fa-file-text-o"></i> WHS
+                            <a href="javascript:;"><i class="fa fa-file-text-o"></i> General Info
                                 <span class="arrow"></span>
                             </a>
                             <ul class="dropdown-menu">
@@ -222,51 +171,11 @@
                                     <div class="mega-menu-content">
                                         <div class="row">
                                             <div class="col-md-1 hidden-sm hidden-xs"><img src="/img/menu_generalinfo.png"></div>
-                                            {{-- REPORTING --}}
-                                            @if (Auth::user()->hasAnyPermissionType('site.hazard|site.incident|site.accident'))
-                                                <div class="col-md-2">
-                                                    <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Reporting</h3></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('site.hazard'))
-                                                            <li><a href="/site/hazard" class="nav-link @if (Auth::user()->siteHazards('1')->count()) font-yellow-lemon @endif">Hazards</a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.accident') && !Auth::user()->hasAnyPermissionType('site.incident'))
-                                                            <li><a href="/site/accident" class="nav-link @if (Auth::user()->siteAccidents('1')->count()) font-yellow-lemon @endif">Accidents</a>
-                                                            </li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.incident'))
-                                                            <li><a href="/site/incident" class="nav-link @if (Auth::user()->siteincidents('1')->count()) font-yellow-lemon @endif">Incidents</a>
-                                                            </li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            @endif
-
-                                            {{-- JOB SITE SPECIFIC --}}
-                                            @if (Auth::user()->hasAnyPermissionType('safety.doc|site.scaffold.handover|site.asbestos'))
-                                                <div class="col-md-2">
-                                                    <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Job Site Specific</h3></li>
-                                                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
-                                                            <li><a href="/site/doc/type/risk" class="nav-link "> Risk Assessments</a></li>
-                                                            <li><a href="/site/doc/type/hazard" class="nav-link "> Hazardous Materials</a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.scaffold.handover'))
-                                                            <li><a href="/site/scaffold/handover" class="nav-link "> Scaffold Handover</a></li>
-                                                        @endif
-                                                        @if (Auth::user()->hasAnyPermissionType('site.asbestos'))
-                                                            <li><a href="/site/asbestos/register" class="nav-link "> Asbestos Register</a></li>
-                                                            <li><a href="/site/asbestos/notification" class="nav-link "> Asbestos Notifications</a></li>
-                                                        @endif
-                                                    </ul>
-                                                </div>
-                                            @endif
-
-                                            {{-- RISK MANAGEMENT  --}}
+                                            {{-- General Info Safety --}}
                                             @if (Auth::user()->hasAnyPermissionType('wms|toolbox|sds'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
-                                                        <li><h3 class="h3-submenu">Risk Management </h3></li>
+                                                        <li><h3 class="h3-submenu">Safety</h3></li>
                                                         @if (Auth::user()->hasAnyPermissionType('wms'))
                                                             <li><a href="/safety/doc/wms" class="nav-link "> SWMS</a></li>
                                                         @endif
@@ -291,9 +200,95 @@
                                                     </ul>
                                                 </div>
                                             @endif
+                                            @if (Auth::user()->hasAnyPermissionType('equipment|equipment.stocktake'))
+                                                <div class="col-md-2">
+                                                    <ul class="mega-menu-submenu">
+                                                        <li><h3 class="h3-submenu">Equipment</h3></li>
+                                                        @if (Auth::user()->hasAnyPermissionType('equipment'))
+                                                            <li><a href="/equipment" class="nav-link "> Equipment Allocation</a></li>
+                                                        @endif
+                                                        @if (Auth::user()->hasAnyPermissionType('equipment.stocktake'))
+                                                            <li><a href="/equipment/stocktake/0" class="nav-link "> Equipment Stocktake</a></li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                            @endif
                                             <div class="col-md-3 hidden-sm hidden-xs pull-right"><img src="/img/think-safety.png"></div>
                                         </div>
                                         <div class="row hidden-sm hidden-xs" style="background:#444d58; border-top: 1px solid grey; padding:10px; margin-bottom: -50px">
+                                            <div class="col-md-4">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    @endif
+
+                    {{-----------------------------------------------------------------------------------
+                       Planners
+                     -----------------------------------------------------------------------------------}}
+                    @if (Auth::user()->hasAnyPermissionType('weekly.planner|site.planner|trade.planner|roster|preconstruction.planner'))
+                        <li class="menu-dropdown mega-menu-dropdown mega-menu-full">
+                            <a href="javascript:;"><i class="fa fa-calendar"></i> Planners
+                                <span class="arrow"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <div class="mega-menu-content">
+                                        <div class="row">
+                                            <div class="col-md-1 hidden-sm hidden-xs"><img src="/img/menu_planners.png"></div>
+                                            <div class="col-md-2">
+                                                <ul class="mega-menu-submenu">
+                                                    <li><h3 class="h3-submenu">Planners</h3></li>
+                                                    @if (Auth::user()->hasAnyPermissionType('weekly.planner'))
+                                                        <li><a href="/planner/weekly" class="nav-link"> Weekly Planner </a></li>
+                                                    @endif
+                                                    @if (Auth::user()->hasAnyPermissionType('trade.planner'))
+                                                        <li><a href="/planner/trade" class="nav-link"> Trade Planner </a></li>
+                                                    @endif
+                                                    @if (Auth::user()->hasAnyPermissionType('site.planner'))
+                                                        <li><a href="/planner/site" class="nav-link"> Site Planner </a></li>
+                                                    @endif
+                                                    @if (Auth::user()->hasAnyPermissionType('roster'))
+                                                        <li><a href="/planner/roster" class="nav-link"> Site Roster </a></li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <ul class="mega-menu-submenu">
+                                                    <li><h3 class="h3-submenu">&nbsp;</h3></li>
+                                                    @if (Auth::user()->hasAnyPermissionType('trade.planner'))
+                                                        <li><a href="/planner/transient" class="nav-link"> Labourer Planner </a></li>
+                                                    @endif
+                                                    @if (Auth::user()->hasAnyPermissionType('preconstruction.planner'))
+                                                        <li><a href="/planner/upcoming" class="nav-link"> Upcoming Projects </a></li>
+                                                        {{--<li><a href="/planner/preconstruction" class="nav-link"> Pre-construction Planner </a></li>--}}
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <ul class="mega-menu-submenu">
+                                                    @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                                                        <li><h3 class="h3-submenu">Reports</h3></li>
+                                                        <li><a href="/client/planner/email" class="nav-link"> Client Email </a></li>
+                                                        <li><a href="/site/export/plan" class="nav-link"> Planner Export </a></li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-2">
+                                                @if (Auth::user()->hasAnyPermissionType('settings'))
+                                                    <ul class="mega-menu-submenu">
+                                                        @if (Auth::user()->hasAnyPermissionType('client.planner.email'))
+                                                            <li><h3 class="h3-submenu">Settings</h3></li>
+                                                            <li><a href="/planner/publicholidays" class="nav-link"> Public holidays </a></li>
+                                                        @endif
+                                                    </ul>
+                                                @endif
+                                            </div>
+                                            <div class="col-md-3 hidden-sm hidden-xs"><img src="/img/think-safety.png"></div>
+                                        </div>
+                                        <div class="row hidden-sm hidden-xs"
+                                             style="background:#444d58; border-top: 1px solid grey; padding:10px; margin-bottom: -50px">
                                             <div class="col-md-4">&nbsp;</div>
                                         </div>
                                     </div>
@@ -390,16 +385,14 @@
                                                 </div>
                                             @endif
 
-                                            @if(Auth::user()->hasAnyPermissionType('web-admin|mgt-general-manager|settings'))
+
+                                            @if(Auth::user()->hasAnyPermissionType('settings'))
                                                 <div class="col-md-2">
                                                     <ul class="mega-menu-submenu">
                                                         @if(Auth::user()->hasAnyPermissionType('settings'))
                                                             <li><h3 class="h3-submenu">Configuration</h3></li>
                                                             @if(Auth::user()->hasAnyPermissionType('settings'))
                                                                 <li><a href="/settings" class="nav-link"> Settings</a></li>
-                                                            @endif
-                                                            @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                                                                <li><a href="/support/ticket"> Support Ticket</a></li>
                                                             @endif
                                                         @endif
                                                     </ul>
@@ -415,6 +408,13 @@
                         </li>
                     @endif
                 @endif {{-- End - Company status == 1 --}}
+
+                @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                    <li class="menu-dropdown classic-menu-dropdown {{ (Request::is('dashboard') ? 'active' : '') }}">
+                        <a href="/support/ticket"><i class="fa fa-tag"></i> Support </a>
+                    </li>
+                @endif
+
 
             </ul>
         </div>
