@@ -124,6 +124,17 @@
                                 </div>
                             </div>
                         @endif
+                        @if (Auth::user()->hasAnyPermissionType('safety.doc'))
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-md-6">
+                                    <a href="/site/doc/type/hazard" class="btn btn-lg yellow-mint center-block"> Hazardous Materials</a>
+                                </div>
+                                <div class="margin-bottom-10 visible-sm visible-xs"></div>
+                                <div class="col-md-6">
+                                    <a href="/site/doc/type/risk" class="btn btn-lg grey-mint center-block"> Risk Assessments </a>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
