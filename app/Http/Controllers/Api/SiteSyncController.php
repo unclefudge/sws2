@@ -152,7 +152,7 @@ class SiteSyncController extends Controller
                 // Fields types
                 //
                 $textfields = [
-                    'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'osd', 'sw', 'gal', 'holidays_added',
+                    'name', 'address', 'suburb', 'postcode', 'consultant_name', 'project_mgr', 'project_mgr_name', 'estimator_fc', 'osd', 'sw', 'gal', 'holidays_added', 'zoho_job_id',
                     'client1_title', 'client1_firstname', 'client1_lastname', 'client1_mobile', 'client1_email',
                     'client2_title', 'client2_firstname', 'client2_lastname', 'client2_mobile', 'client2_email', 'client_intro'];
                 $datefields = [
