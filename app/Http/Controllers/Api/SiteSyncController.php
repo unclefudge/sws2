@@ -58,6 +58,7 @@ class SiteSyncController extends Controller
             $action = 'update';
 
             $job_stage = request('job_stage');
+            $council_area = request('council_area');
             // Create new site if required (except for Stages '950 + 160')
             if (!$site && !in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                 $action = 'create';
@@ -141,6 +142,14 @@ class SiteSyncController extends Controller
                         $elec_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
                     }
                     // Plumbing
+                    $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
+                    if (!$plub_report) {
+                        $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
+                        $plub_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
+                    }
+                }
+                if ($job_stage && $job_stage == '110 Plan Order Accepted' && $council_area == 'Waverley') {
+                    // Plumbing (Waverly Council)
                     $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
                     if (!$plub_report) {
                         $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);

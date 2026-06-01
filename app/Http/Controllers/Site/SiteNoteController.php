@@ -10,10 +10,12 @@ use App\Models\Site\Site;
 use App\Models\Site\SiteNote;
 use App\Models\Site\SiteNoteCategory;
 use App\Models\Site\SiteNoteCost;
+use App\Services\Zoho\ZohoCrmService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Input;
 use Mail;
 use nilsenj\Toastr\Facades\Toastr;
@@ -231,6 +233,37 @@ class SiteNoteController extends Controller
 
         // Email note
         $note->emailNote();
+
+        //--------------------------
+        // Create Zoho Variation
+        //--------------------------
+        if (false && in_array($note->category_id, [16, 19, 20]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations
+            try {
+                $zoho = app(ZohoCrmService::class);
+
+                $varStatus = ($note->category_id == 19) ? '5-Sent to DC/Super' : '7-Client OK';
+                $varDesciption = $note->variation_info . "\r\n\r\nNote:\r\n" . $note->notes . "\r\n\r\n" . "Total Extension Days: $note->variation_days";
+                // Test Job 1976497000011760001
+                $data = [
+                    'var_type' => 'SV',
+                    'job_number' => $note->site->code,
+                    'job_name' => $note->site->zoho_job_id,
+                    'product_name' => $note->variation_name,
+                    'debit_or_credit' => ($note->costing_extra_credit == 'Extra') ? 'DEBIT Variation' : 'CRBIT Variation',
+                    'status' => $varStatus,
+                    'variation_cost' => preg_replace('/[^0-9]/', '', $note->variation_net),
+                    'client_price' => preg_replace('/[^0-9]/', '', $note->variation_cost),
+                    'margin' => 20,
+                    'super' => ($note->site->super) ? $note->site->super->initials : '',
+                    'description' => $varDesciption,
+                ];
+
+                $zohoResult = $zoho->createVariation($data);
+                //Log::info('Zoho variation created from site note', ['site_note_id' => $siteNote->id, 'zoho_product_id' => $zohoResult['zoho_product_id'] ?? null,]);
+            } catch (\Throwable $e) {
+                Log::error('Failed to create Zoho variation from site note', ['site_note_id' => $note->id, 'error' => $e->getMessage(),]);
+            }
+        }
 
         $previous_url = parse_url(request('previous_url'));
         if (preg_match("/notes/", $previous_url['path']) || preg_match("/site\/note/", $previous_url['path']))

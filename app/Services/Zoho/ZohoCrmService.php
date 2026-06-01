@@ -2,6 +2,7 @@
 
 namespace App\Services\Zoho;
 
+use Carbon\Carbon;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -39,6 +40,7 @@ class ZohoCrmService
 
     public function createVariation(array $data): array
     {
+        $today = Carbon::now()->format('Y-m-d');
         $payload = [
             'data' => [
                 [
@@ -46,18 +48,21 @@ class ZohoCrmService
                     'Job_Number' => $data['job_number'] ?? null,
                     'Job_Name' => $data['job_name'] ?? null,
                     'Product_Name' => $data['product_name'],
-                    'Debit_or_Credit' => $data['debit_or_credit'] ?? null,
                     'Status' => $data['status'] ?? null,
-
-                    // Bottom fields
+                    'Super' => $data['super'] ?? null,
+                    'Description' => $data['description'] ?? null,
+                    // Cost fields
                     'Variation_Cost' => $data['variation_cost'] ?? null,
                     'Client_Price' => $data['client_price'] ?? null,
                     'Margin' => $data['margin'] ?? null,
-                    'Super' => $data['super'] ?? null,
+                    'Debit_or_Credit' => $data['debit_or_credit'] ?? null,
+                    // Date fields
+                    'Date_1' => $today,
+                    'Date_2' => $today,
+                    'RFV_8_Released' => $today,
                 ],
-                // run workflows etc, remove or change if you don't want this
             ],
-            'trigger' => ['workflow',],
+            //'trigger' => ['workflow',],
         ];
 
         $response = $this->sendCreateRecordRequest('Products', $payload);

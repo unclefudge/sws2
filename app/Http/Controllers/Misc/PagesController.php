@@ -11,6 +11,7 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
+use App\Models\Site\SiteNote;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -21,7 +22,6 @@ use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Mail;
 use Session;
 
@@ -142,23 +142,25 @@ class PagesController extends Controller
     {
 
         echo "<h1>Zoho Create Variation</h1><br>";
-        Cache::forget('zoho_crm_access_token');
-        
+        $note = SiteNote::find(1979);
         try {
             $zoho = app(ZohoCrmService::class);
 
+            $varStatus = ($note->category_id == 19) ? '5-Sent to DC/Super' : '7-Client OK';
+            $varDesciption = $note->variation_info . "\r\n\r\n" . $note->notes . "\r\n\r\n" . "Total Extension Days: $note->variation_days";
             // Test Job 1976497000011760001
             $data = [
                 'var_type' => 'SV',
-                'job_number' => '1234',
-                'job_name' => '1976497000011760001',
-                'product_name' => 'Test Variation from SWS',
-                'debit_or_credit' => 'DEBIT Variation',
-                'status' => '7-Client OK',
-                'variation_cost' => 10,
-                'client_price' => 70,
+                'job_number' => $note->site->code,
+                'job_name' => $note->site->zoho_job_id,
+                'product_name' => "TESTING " . $note->variation_name,
+                'debit_or_credit' => ($note->costing_extra_credit == 'Extra') ? 'DEBIT Variation' : 'CRBIT Variation',
+                'status' => $varStatus,
+                'variation_cost' => preg_replace('/[^0-9]/', '', $note->variation_net),
+                'client_price' => preg_replace('/[^0-9]/', '', $note->variation_cost),
                 'margin' => 20,
-                'super' => 'RT',
+                'super' => ($note->site->super) ? $note->site->super->initials : '',
+                'description' => "**TESTING**\r\n" . $varDesciption,
             ];
 
             $zohoResult = $zoho->createVariation($data);
