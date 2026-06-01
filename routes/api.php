@@ -30,4 +30,3 @@ Route::group([
 //Route::apiResource('site', 'Api\SiteSyncController');
 Route::middleware('auth:sanctum')->apiResource('site', 'Api\SiteSyncController');
 Route::middleware('auth:sanctum')->apiResource('contract', 'Api\SiteContractSyncController');
-

@@ -11,6 +11,8 @@ use App\Models\Misc\ZohoSiteLog;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteFoc;
+use App\Models\Site\SiteInspectionElectrical;
+use App\Models\Site\SiteInspectionPlumbing;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -94,9 +96,11 @@ class SiteSyncController extends Controller
                 // A few special cases to update for Site Status + Supervisor
                 //
                 if ($job_stage) {
+                    //---------------------------------------------------------------------------------------
                     // Need to ensure we only do the below updates if JOB_STAGE is included in the Sync
                     // because sometimes the sync is only select fields when doing manual one-off syncs.
                     // Not providing a JOB_STAGE as a paramenter affects how the belows actions operate.
+                    //---------------------------------------------------------------------------------------
                     if (in_array($job_stage, ['950 Sales Dropout', '160 On Hold'])) {
                         // For Stages '950 + 160' update Status to 'Cancelled'
                         if ($site->status != '-2') {
@@ -126,6 +130,23 @@ class SiteSyncController extends Controller
                     }
                 }
 
+                //
+                // Create Plumbing / Electrical Reports - for Job Stage 150 Plans to Client
+                //
+                if ($job_stage && $job_stage == '150 Plans to Client') {
+                    // Electrical
+                    $elec_report = SiteInspectionElectrical::where('site_id', $site->id)->first();
+                    if (!$elec_report) {
+                        $elec_report = SiteInspectionElectrical::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
+                        $elec_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
+                    }
+                    // Plumbing
+                    $plub_report = SiteInspectionPlumbing::where('site_id', $site->id)->first();
+                    if (!$plub_report) {
+                        $plub_report = SiteInspectionPlumbing::create(['site_id' => $site->id, 'client_name' => $site->name, 'client_address' => $site->addressFormattedSingle, 'status' => 1]);
+                        $plub_report->createAssignCompanyToDo([108]);  // Create Todoo to assign a company
+                    }
+                }
 
                 //
                 // Fields types

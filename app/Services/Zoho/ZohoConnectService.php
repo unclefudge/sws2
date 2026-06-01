@@ -41,7 +41,6 @@ class ZohoConnectService
     public function findTaskByTitle(string|int $boardId, string $cardTitle): array
     {
         $accessToken = $this->getAccessToken('crm');
-        //$accessToken = $this->getAccessToken('connect');
 
         $url = config('services.zoho.connect_url')
             . '/pulse/nativeapi/sectionTasks?scopeID=' . config('services.zoho.connect_scope_id')
@@ -55,7 +54,6 @@ class ZohoConnectService
         }
 
         //dd(['status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(), 'headers' => $response->headers()]);
-
         if ($response->failed()) {
             Log::error('Zoho sectionTasks failed', ['http_status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(), 'headers' => $response->headers(),]);
 
@@ -108,7 +106,6 @@ class ZohoConnectService
     public function updateTaskStatusByTitle($boardId, $cardTitle, $statusId)
     {
         $task = $this->findTaskByTitle($boardId, $cardTitle);
-
         if (!$task['found']) {
             throw new \RuntimeException("Task not found: {$cardTitle}");
         }
@@ -119,15 +116,12 @@ class ZohoConnectService
     public function updateTaskStatus(string|int $taskId, string|int $newStatusId): array
     {
         $response = $this->sendUpdateTaskRequest($taskId, $newStatusId);
-
         if ($response->status() === 401) {
             Cache::forget($this->tokenCacheKey);
-
             $response = $this->sendUpdateTaskRequest($taskId, $newStatusId);
         }
 
         //Log::debug('Zoho Connect updateTask response', ['task_id' => $taskId, 'status_id' => $newStatusId, 'http_status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(),]);
-
         if ($response->failed()) {
             throw new RuntimeException('Zoho Connect updateTask failed: ' . $response->body());
         }

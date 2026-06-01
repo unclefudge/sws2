@@ -16,11 +16,12 @@ use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
 use App\Services\FileBank;
-use App\Services\Zoho\ZohoConnectService;
+use App\Services\Zoho\ZohoCrmService;
 use App\User;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Mail;
 use Session;
 
@@ -140,24 +141,33 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>Zoho Connect Card - update Status</h1><br>";
-        $zoho = app(ZohoConnectService::class);
+        echo "<h1>Zoho Create Variation</h1><br>";
+        Cache::forget('zoho_crm_access_token');
+        
+        try {
+            $zoho = app(ZohoCrmService::class);
 
-        $job = Site::where('name', '8259-Murphy.Price-Bondi')->first();
+            // Test Job 1976497000011760001
+            $data = [
+                'var_type' => 'SV',
+                'job_number' => '1234',
+                'job_name' => '1976497000011760001',
+                'product_name' => 'Test Variation from SWS',
+                'debit_or_credit' => 'DEBIT Variation',
+                'status' => '7-Client OK',
+                'variation_cost' => 10,
+                'client_price' => 70,
+                'margin' => 20,
+                'super' => 'RT',
+            ];
 
-        if ($job) {
-            $result = $zoho->findTaskByTitle('185487000002355019', $job->name);
-            dd($result);
+            $zohoResult = $zoho->createVariation($data);
+            echo "Created Var";
+            //Log::info('Zoho variation created from site note', ['site_note_id' => $siteNote->id, 'zoho_product_id' => $zohoResult['zoho_product_id'] ?? null,]);
+        } catch (\Throwable $e) {
+            echo "Failed to create\n" . $e->getMessage();
+            //Log::error('Failed to create Zoho variation from site note', ['site_note_id' => $siteNote->id, 'error' => $e->getMessage(),]);
         }
-
-        $statusPracItems = '185487000002422558';
-        $statusPracComps = '185487000002355089';
-        $statusNewStart = '185487000002355097';
-        $taskID = '185487000009706557';
-        $statusID = $statusNewStart;
-        echo "Updating status: $statusID<br>";
-        //$result = $zoho->updateTaskStatus($taskID, $statusID);
-        ray($result);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {

@@ -48,11 +48,11 @@ return [
     'zoho' => [
         'client_id' => env('ZOHO_CLIENT_ID'),
         'client_secret' => env('ZOHO_CLIENT_SECRET'),
+        'crm_url' => env('ZOHO_CRM_URL', 'https://www.zohoapis.com.au/crm/v8'),
         'crm_refresh_token' => env('ZOHO_CRM_REFRESH_TOKEN'),
+        'connect_url' => env('ZOHO_CONNECT_URL', 'https://connect.zoho.com'),
         'connect_refresh_token' => env('ZOHO_CONNECT_REFRESH_TOKEN'),
         'connect_scope_id' => env('ZOHO_CONNECT_SCOPE_ID'),
         'accounts_url' => env('ZOHO_ACCOUNTS_URL', 'https://accounts.zoho.com'),
-        'connect_url' => env('ZOHO_CONNECT_URL', 'https://connect.zoho.com'),
     ],
-
 ];
