@@ -10,8 +10,6 @@ use RuntimeException;
 
 class ZohoConnectService
 {
-    protected string $tokenCacheKey = 'zoho_connect_access_token';
-
     protected function getAccessToken(string $type = 'connect'): string
     {
         $cacheKey = "zoho_{$type}_access_token";
@@ -48,7 +46,7 @@ class ZohoConnectService
 
         $response = Http::withHeaders(['Authorization' => 'Zoho-oauthtoken ' . $accessToken, 'Accept' => 'application/json', 'User-Agent' => 'Mozilla/5.0',])->get($url);
         if ($response->status() === 401) {
-            Cache::forget($this->tokenCacheKey);
+            $this->forgetAccessToken('crm');
 
             return $this->findTaskByTitle($boardId, $cardTitle);
         }
@@ -117,7 +115,7 @@ class ZohoConnectService
     {
         $response = $this->sendUpdateTaskRequest($taskId, $newStatusId);
         if ($response->status() === 401) {
-            Cache::forget($this->tokenCacheKey);
+            $this->forgetAccessToken('connect');
             $response = $this->sendUpdateTaskRequest($taskId, $newStatusId);
         }
 
@@ -142,8 +140,8 @@ class ZohoConnectService
         ])->post(config('services.zoho.connect_url') . '/pulse/api/updateTask', []);
     }
 
-    public function forgetAccessToken(): void
+    protected function forgetAccessToken(string $type = 'connect'): void
     {
-        Cache::forget($this->tokenCacheKey);
+        Cache::forget("zoho_{$type}_access_token");
     }
 }
