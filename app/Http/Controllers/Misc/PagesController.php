@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ZohoCreateVariation;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
@@ -17,7 +18,6 @@ use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
 use App\Models\Support\SupportTicket;
 use App\Services\FileBank;
-use App\Services\Zoho\ZohoCrmService;
 use App\User;
 use Carbon\Carbon;
 use DB;
@@ -143,33 +143,8 @@ class PagesController extends Controller
 
         echo "<h1>Zoho Create Variation</h1><br>";
         $note = SiteNote::find(1979);
-        try {
-            $zoho = app(ZohoCrmService::class);
-
-            $varStatus = ($note->category_id == 19) ? '5-Sent to DC/Super' : '7-Client OK';
-            $varDesciption = $note->variation_info . "\r\n\r\n" . $note->notes . "\r\n\r\n" . "Total Extension Days: $note->variation_days";
-            // Test Job 1976497000011760001
-            $data = [
-                'var_type' => 'SV',
-                'job_number' => $note->site->code,
-                'job_name' => $note->site->zoho_job_id,
-                'product_name' => "TESTING " . $note->variation_name,
-                'debit_or_credit' => ($note->costing_extra_credit == 'Extra') ? 'DEBIT Variation' : 'CRBIT Variation',
-                'status' => $varStatus,
-                'variation_cost' => preg_replace('/[^0-9]/', '', $note->variation_net),
-                'client_price' => preg_replace('/[^0-9]/', '', $note->variation_cost),
-                'margin' => 20,
-                'super' => ($note->site->super) ? $note->site->super->initials : '',
-                'description' => "**TESTING**\r\n" . $varDesciption,
-            ];
-
-            $zohoResult = $zoho->createVariation($data);
-            echo "Created Var";
-            //Log::info('Zoho variation created from site note', ['site_note_id' => $siteNote->id, 'zoho_product_id' => $zohoResult['zoho_product_id'] ?? null,]);
-        } catch (\Throwable $e) {
-            echo "Failed to create\n" . $e->getMessage();
-            //Log::error('Failed to create Zoho variation from site note', ['site_note_id' => $siteNote->id, 'error' => $e->getMessage(),]);
-        }
+        echo "Creating variation....<br>";
+        ZohoCreateVariation::dispatch($note->id);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {
