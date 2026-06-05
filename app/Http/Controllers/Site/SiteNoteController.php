@@ -230,7 +230,7 @@ class SiteNoteController extends Controller
         //dd(request()->all());
 
         // Email note
-        $note->emailNote();
+        $note->emailNote(); //
 
         //--------------------------
         // Create Zoho Variation
