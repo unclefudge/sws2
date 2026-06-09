@@ -71,7 +71,7 @@ class ZohoCrmService
 
         $payload = [
             'data' => [$record,],
-            //'trigger' => ['workflow',],
+            'trigger' => ['workflow',],
         ];
 
         //Log::info('Zoho variation payload', ['file_ids' => $data['file_ids'] ?? [], 'record_file_field' => $record['File_Upload'] ?? null, 'payload' => $payload,]);
@@ -130,14 +130,7 @@ class ZohoCrmService
                 }
 
                 if ($response->failed()) {
-                    Log::error('Zoho CRM attachment upload failed', [
-                        'module' => $moduleApiName,
-                        'record_id' => $recordId,
-                        'file_name' => $file['name'],
-                        'http_status' => $response->status(),
-                        'body' => $response->body(),
-                        'json' => $response->json(),
-                    ]);
+                    Log::error('Zoho CRM attachment upload failed', ['module' => $moduleApiName, 'record_id' => $recordId, 'file_name' => $file['name'], 'http_status' => $response->status(), 'body' => $response->body(), 'json' => $response->json(),]);
 
                     throw new RuntimeException('Zoho CRM attachment upload failed. HTTP Status: ' . $response->status() . ' Body: ' . $response->body());
                 }
