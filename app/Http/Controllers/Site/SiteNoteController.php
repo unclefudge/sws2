@@ -235,7 +235,7 @@ class SiteNoteController extends Controller
         //--------------------------
         // Create Zoho Variation
         //--------------------------
-        if (false && in_array($note->category_id, [16, 19, 20]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations
+        if (in_array($note->category_id, [16, 19, 20]) && $note->site->zoho_job_id) { // Approved / For Issue / TBA Site Variations
             ZohoCreateVariation::dispatch($note->id);
         }
 

@@ -44,51 +44,50 @@
     </style>
 </head>
 <body>
-
-<h1>Site Variation</h1>
-
 <p class="muted">
     Job: {{ $site->name ?? '' }}<br>
     Site Note ID: {{ $note->id }}
 </p>
-
 <table>
     <tr>
         <th>Name</th>
-        <td>{{ $note->variation_name }}</td>
+        <td colspan="3">{{ $note->variation_name }}</td>
     </tr>
     <tr>
         <th>Category</th>
-        <td>{{ $note->category->name }}</td>
+        <td colspan="3">{{ $note->category->name }}</td>
+    </tr>
+    <tr>
+        <th>Net Cost</th>
+        <td>{{ $note->variation_net }}</td>
+        <th>Gross Cost</th>
+        <td>{{ $note->variation_cost }}</td>
+    </tr>
+    <tr>
+        <th>Credit / Extra</th>
+        <td>{{ $note->costing_extra_credit }}</td>
+        <th>Total Extension Days</th>
+        <td>{{ $note->variation_days }}</td>
     </tr>
 </table>
 
 <h2>Description</h2>
 <div class="pre">{{ $note->variation_info }}</div>
 
+<h2>Cost Centres & Item Details</h2>
 <table>
-    <tr>
-        <th>Net</th>
-        <th>Gross</th>
-        <th>Extra / Credit</th>
-    </tr>
-    <tr>
-        <td>{{ $note->variation_net }}</td>
-        <td>{{ $note->variation_cost }}</td>
-        <td>{{ $note->costing_extra_credit }}</td>
-    </tr>
-    <tr>
-        <td colspan="3"><b>Total Extension Days:</b> {{ $note->variation_days }}</td>
-    </tr>
+    @foreach ($note->costs as $cost)
+        <tr>
+            <th>{{$cost->category->name}}</th>
+            <td>{{$cost->details}}</td>
+        </tr>
+    @endforeach
 </table>
 
-<h2>Cost Centres & Item Details</h2>
-@foreach ($note->costs as $cost)
-    {{$cost->category->name}}: {{$cost->details}}<br>
-@endforeach
-
-<h2>Note</h2>
-<div class="pre">{{ $note->notes }}</div>
+@if ($note->notes)
+    <h2>Note</h2>
+    <div class="pre">{{ $note->notes }}</div>
+@endif
 
 </body>
 </html>
