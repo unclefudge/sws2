@@ -267,3 +267,7 @@ Route::as('settings.')->resource('settings/role', \App\Http\Controllers\Misc\Rol
 // Fudge
 Route::get('userlog', '\App\Http\Controllers\Misc\PagesController@userlog');
 Route::post('userlog', '\App\Http\Controllers\Misc\PagesController@userlogAuth');
+
+// WordPress
+Route::get('/wp/request-designer', '\App\Http\Controllers\Misc\WordPressRequestDesignerController@show');
+Route::post('/wp/request-designer', '\App\Http\Controllers\Misc\WordPressRequestDesignerController@store');

@@ -143,7 +143,7 @@ class PagesController extends Controller
         echo "<h1>Zoho Create Variation</h1><br>";
         $note = SiteNote::find(1991);
         echo "Creating variation....<br>";
-        //ZohoCreateVariation::dispatch($note->id);
+        ZohoCreateVariation::dispatch($note->id);
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {

@@ -108,8 +108,8 @@ class ZohoCreateVariation implements ShouldQueue
                     'product_name' => $note->variation_name,
                     'debit_or_credit' => ($note->costing_extra_credit == 'Extra') ? 'DEBIT Variation' : 'CREDIT Variation',
                     'status' => $varStatus,
-                    'variation_cost' => preg_replace('/[^0-9.]/', '', $note->variation_net),
-                    'client_price' => preg_replace('/[^0-9.]/', '', $note->variation_cost),
+                    'variation_cost' => $this->moneyToWholeNumber($note->variation_net),
+                    'client_price' => $this->moneyToWholeNumber($note->variation_cost),
                     'margin' => 20,
                     'super' => $note->site->super?->initials ?? '',
                     'description' => $varDescription,
@@ -160,6 +160,36 @@ class ZohoCreateVariation implements ShouldQueue
             return 'attachment';
 
         return preg_replace('/[^A-Za-z0-9\.\-_ ]/', '_', $filename);
+    }
+
+    protected function moneyToWholeNumber($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // Remove normal spaces and non-breaking spaces
+        $value = trim(str_replace("\xc2\xa0", ' ', (string)$value));
+
+        if ($value === '') {
+            return null;
+        }
+
+        // Remove commas, then keep only digits, decimal point and minus sign
+        $value = str_replace(',', '', $value);
+        $value = preg_replace('/[^0-9.\-]/', '', $value);
+
+        // If more than one decimal point exists, keep the first only
+        $parts = explode('.', $value);
+        if (count($parts) > 2) {
+            $value = array_shift($parts) . '.' . implode('', $parts);
+        }
+
+        if ($value === '' || $value === '.' || $value === '-' || $value === '-.') {
+            return null;
+        }
+
+        return (int)round((float)$value, 0, PHP_ROUND_HALF_UP);
     }
 
     protected function closeOpenStreams(array $files): void

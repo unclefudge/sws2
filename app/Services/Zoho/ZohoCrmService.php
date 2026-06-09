@@ -105,6 +105,36 @@ class ZohoCrmService
         ];
     }
 
+    public function createLead(array $leadData): string
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(),
+            'Accept' => 'application/json',
+        ])->post($this->apiDomain() . '/crm/v8/Leads', [
+            'data' => [
+                $leadData,
+            ],
+            'trigger' => [
+                'workflow',
+            ],
+        ]);
+
+        $json = $response->json();
+
+        if (!$response->successful()) {
+            throw new RuntimeException('Zoho API HTTP error: ' . $response->body());
+        }
+
+        $status = data_get($json, 'data.0.status');
+        $leadId = data_get($json, 'data.0.details.id');
+
+        if ($status !== 'success' || !$leadId) {
+            throw new RuntimeException('Zoho API create lead failed: ' . json_encode($json));
+        }
+
+        return $leadId;
+    }
+
     protected function sendCreateRecordRequest(string $moduleApiName, array $payload): Response
     {
         $accessToken = $this->getAccessToken();
