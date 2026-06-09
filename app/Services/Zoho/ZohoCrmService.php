@@ -71,7 +71,7 @@ class ZohoCrmService
 
         $payload = [
             'data' => [$record,],
-            'trigger' => ['workflow',],
+            //'trigger' => ['workflow',],
         ];
 
         //Log::info('Zoho variation payload', ['file_ids' => $data['file_ids'] ?? [], 'record_file_field' => $record['File_Upload'] ?? null, 'payload' => $payload,]);
