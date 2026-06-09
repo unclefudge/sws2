@@ -80,14 +80,16 @@
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
                                             <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            {!! Form::text('variation_net', null, ['class' => 'form-control']) !!}
+                                            <input type="text" class="form-control" value="{{ old('variation_net') }}" id="variation_net" name="variation_net" onkeydown="return isNumber(event)"/>
+                                            {{--}}{!! Form::text('variation_net', null, ['class' => 'form-control']) !!}--}}
                                             {!! fieldErrorMessage('variation_net', $errors) !!}
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
                                             {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_cost', null, ['class' => 'form-control']) !!}
+                                            <input type="text" class="form-control" value="{{ old('variation_cost') }}" id="variation_cost" name="variation_cost" onkeydown="return isNumber(event)"/>
+                                            {{--}}{!! Form::text('variation_cost', null, ['class' => 'form-control']) !!} --}}
                                             {!! fieldErrorMessage('variation_cost', $errors) !!}
                                         </div>
                                     </div>
