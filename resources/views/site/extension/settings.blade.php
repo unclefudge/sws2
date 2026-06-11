@@ -56,7 +56,7 @@
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
                                 @endif
                             @endforeach
-                            
+
                             {{-- Additional category --}}
                             <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
                                 <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
@@ -74,7 +74,7 @@
                             <br>
 
                             <div class="form-actions right">
-                                <a href="/site/supply" class="btn default"> Back</a>
+                                <a href="/site/extension" class="btn default"> Back</a>
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
 
@@ -101,19 +101,20 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        // Add extra categories
-        $("#btn-add-item").click(function (e) {
-            e.preventDefault();
-            $("#add-items").show();
-            //$(".add-item").show();
-            $("#btn-add-item").hide();
-            $("#add_cat").val(1);
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            // Add extra categories
+            $("#btn-add-item").click(function (e) {
+                e.preventDefault();
+                $("#add-items").show();
+                //$(".add-item").show();
+                $("#btn-add-item").hide();
+                $("#add_cat").val(1);
+            });
         });
-    });
-</script>
+    </script>
 @stop
 
