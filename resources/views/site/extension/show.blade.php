@@ -57,6 +57,16 @@
                                 </ul>
                             </div>
                         @endif
+                        @if (count($public_holidays) && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                            <div class="col-md-12 note note-warning">
+                                The following public holidays occur this week:
+                                <ul>
+                                    @foreach ($public_holidays as $hol)
+                                        <li><b>{{ $hol->date->format('d/m/Y') }}</b> - {{ $hol->name }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <table class="table table-striped table-bordered table-nohover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Misc\CategoryController;
 use App\Models\Comms\Todo;
 use App\Models\Misc\Category;
+use App\Models\Misc\PublicHoliday;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
 use App\Models\Site\SiteExtension;
@@ -101,8 +102,15 @@ class SiteExtensionController extends Controller
         $clientTasks = SitePlanner::whereIn('task_id', $clientTaskIds)->whereBetween('from', [$last_mon, $last_sun])->get();
         //dd($clientTasks);
 
+        // Pubic Holidays
+        $public_holidays = PublicHoliday::query()->whereBetween('date', [
+            Carbon::now()->startOfWeek(Carbon::MONDAY)->toDateString(),
+            Carbon::now()->startOfWeek(Carbon::MONDAY)->addDays(4)->toDateString(),
+        ])->orderBy('date')->get();
+        //dd($public_holidays);
+
         //ray($notes);
-        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes', 'clientTasks'));
+        return view('site/extension/show', compact('supervisor_id', 'extension', 'data', 'extend_reasons', 'reason_na', 'reason_publichol', 'multi_site_sel', 'notes', 'clientTasks', 'public_holidays'));
     }
 
     /**
