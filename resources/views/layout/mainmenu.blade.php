@@ -399,6 +399,7 @@
                                                                 <li><a href="/settings" class="nav-link"> Settings</a></li>
                                                             @endif
                                                             @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                                                <li><a href="/planner/publicholidays" class="nav-link"> Public holidays </a></li>
                                                                 <li><a href="/support/ticket"> Support Ticket</a></li>
                                                             @endif
                                                         @endif
