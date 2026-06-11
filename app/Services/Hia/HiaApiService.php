@@ -109,9 +109,7 @@ class HiaApiService
     protected function request()
     {
         return Http::withToken($this->token())
-            ->withHeaders([
-                'Accept' => '*/*',
-            ])
+            ->withHeaders(['Accept' => '*/*',])
             ->baseUrl($this->baseUrl)
             ->connectTimeout(30)
             ->timeout(180);

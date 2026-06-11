@@ -153,12 +153,15 @@
         }
 
         .rdv-option input[type="checkbox"]:checked::after {
-            content: "";
+            content: "✓";
             display: block;
-            width: 12px;
-            height: 12px;
-            margin: 4px;
-            background: #111;
+            width: 100%;
+            height: 100%;
+            color: #111;
+            font-size: 18px;
+            line-height: 20px;
+            text-align: center;
+            font-weight: 700;
         }
 
         .rdv-option input[type="radio"]:checked::after {
@@ -295,6 +298,11 @@
             opacity: 0;
         }
 
+        .pac-container {
+            z-index: 99999;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         @media (max-width: 600px) {
             .rdv-page {
                 padding: 36px 24px;
@@ -330,7 +338,7 @@
             </div>
         @endif
 
-        <form method="POST" action="wp/request-designer" id="rdvForm">
+        <form method="POST" action="/wp/request-design" id="rdvForm">
             @csrf
 
             <input type="text" name="website" class="rdv-honeypot" tabindex="-1" autocomplete="off">
@@ -342,6 +350,7 @@
 
                 <div class="rdv-field">
                     <label class="rdv-label" for="email">Email *</label>
+
                     <div class="rdv-input-wrap">
                         <input
                                 class="rdv-input"
@@ -351,15 +360,19 @@
                                 value="{{ old('email') }}"
                                 required
                         >
+                        <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
 
-                    <a class="rdv-privacy" href="/privacy-policy" target="_blank">
+                    <a class="rdv-privacy" href="https://www.capecod.com.au/privacy-policy/" target="_blank">
                         To view our privacy policy, please click here
                     </a>
                 </div>
 
                 <div class="rdv-field">
-                    <label class="rdv-label" for="suburb">Suburb of the property to be renovated *</label>
+                    <label class="rdv-label" for="suburb">
+                        Suburb of the property to be renovated *
+                    </label>
+
                     <div class="rdv-input-wrap">
                         <input
                                 class="rdv-input"
@@ -368,9 +381,19 @@
                                 name="suburb"
                                 value="{{ old('suburb') }}"
                                 placeholder="Enter a location"
+                                autocomplete="off"
                                 required
                         >
+                        <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
+
+                    <input type="hidden" name="suburb_place_id" id="suburb_place_id" value="{{ old('suburb_place_id') }}">
+                    <input type="hidden" name="suburb_state" id="suburb_state" value="{{ old('suburb_state') }}">
+                    <input type="hidden" name="suburb_postcode" id="suburb_postcode" value="{{ old('suburb_postcode') }}">
+                    <input type="hidden" name="suburb_country" id="suburb_country" value="{{ old('suburb_country') }}">
+                    <input type="hidden" name="suburb_lat" id="suburb_lat" value="{{ old('suburb_lat') }}">
+                    <input type="hidden" name="suburb_lng" id="suburb_lng" value="{{ old('suburb_lng') }}">
+                    <input type="hidden" name="suburb_formatted_address" id="suburb_formatted_address" value="{{ old('suburb_formatted_address') }}">
                 </div>
 
                 <div class="rdv-group-title">
@@ -382,22 +405,42 @@
                 @endphp
 
                 <label class="rdv-option">
-                    <input type="checkbox" name="work_type[]" value="first_floor" @checked(in_array('first_floor', $oldWork))>
+                    <input
+                            type="checkbox"
+                            name="work_type[]"
+                            value="first_floor"
+                            @checked(in_array('first_floor', $oldWork))
+                    >
                     <span>First Floor Addition (second storey)</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="checkbox" name="work_type[]" value="ground_floor" @checked(in_array('ground_floor', $oldWork))>
+                    <input
+                            type="checkbox"
+                            name="work_type[]"
+                            value="ground_floor"
+                            @checked(in_array('ground_floor', $oldWork))
+                    >
                     <span>Ground Floor Extension (above 50m²)</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="checkbox" name="work_type[]" value="major_internal" @checked(in_array('major_internal', $oldWork))>
+                    <input
+                            type="checkbox"
+                            name="work_type[]"
+                            value="major_internal"
+                            @checked(in_array('major_internal', $oldWork))
+                    >
                     <span>Major Internal Renovation</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="checkbox" name="work_type[]" value="other_unsure" @checked(in_array('other_unsure', $oldWork))>
+                    <input
+                            type="checkbox"
+                            name="work_type[]"
+                            value="other_unsure"
+                            @checked(in_array('other_unsure', $oldWork))
+                    >
                     <span>Other/Unsure</span>
                 </label>
 
@@ -406,17 +449,31 @@
                 </div>
 
                 <label class="rdv-option">
-                    <input type="radio" name="ownership" value="yes" @checked(old('ownership') === 'yes') required>
+                    <input
+                            type="radio"
+                            name="ownership"
+                            value="yes"
+                            @checked(old('ownership') === 'yes')
+                            required
+                    >
                     <span>Yes</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input type="radio" name="ownership" value="pre_purchase" @checked(old('ownership') === 'pre_purchase') required>
+                    <input
+                            type="radio"
+                            name="ownership"
+                            value="pre_purchase"
+                            @checked(old('ownership') === 'pre_purchase')
+                            required
+                    >
                     <span>No, but I am wondering about likely costs before purchasing</span>
                 </label>
 
                 <div class="rdv-actions">
-                    <button type="button" class="rdv-button" id="rdvNext">Next</button>
+                    <button type="button" class="rdv-button" id="rdvNext">
+                        Next
+                    </button>
                 </div>
 
                 <div class="rdv-footer">
@@ -431,27 +488,57 @@
 
                 <div class="rdv-field">
                     <label class="rdv-label" for="first_name">First name *</label>
-                    <input class="rdv-input" id="first_name" type="text" name="first_name" value="{{ old('first_name') }}" required>
+                    <input
+                            class="rdv-input"
+                            id="first_name"
+                            type="text"
+                            name="first_name"
+                            value="{{ old('first_name') }}"
+                            required
+                    >
                 </div>
 
                 <div class="rdv-field">
                     <label class="rdv-label" for="last_name">Last name *</label>
-                    <input class="rdv-input" id="last_name" type="text" name="last_name" value="{{ old('last_name') }}" required>
+                    <input
+                            class="rdv-input"
+                            id="last_name"
+                            type="text"
+                            name="last_name"
+                            value="{{ old('last_name') }}"
+                            required
+                    >
                 </div>
 
                 <div class="rdv-field">
                     <label class="rdv-label" for="phone">Phone *</label>
-                    <input class="rdv-input" id="phone" type="tel" name="phone" value="{{ old('phone') }}" required>
+                    <input
+                            class="rdv-input"
+                            id="phone"
+                            type="tel"
+                            name="phone"
+                            value="{{ old('phone') }}"
+                            required
+                    >
                 </div>
 
                 <div class="rdv-field">
                     <label class="rdv-label" for="message">Any extra details?</label>
-                    <textarea class="rdv-textarea" id="message" name="message">{{ old('message') }}</textarea>
+                    <textarea
+                            class="rdv-textarea"
+                            id="message"
+                            name="message"
+                    >{{ old('message') }}</textarea>
                 </div>
 
                 <div class="rdv-actions">
-                    <button type="button" class="rdv-button secondary" id="rdvBack">Back</button>
-                    <button type="submit" class="rdv-button">Submit</button>
+                    <button type="button" class="rdv-button secondary" id="rdvBack">
+                        Back
+                    </button>
+
+                    <button type="submit" class="rdv-button">
+                        Submit
+                    </button>
                 </div>
 
                 <div class="rdv-footer">
@@ -492,11 +579,109 @@
             el.classList.toggle('active', el.dataset.step === String(step));
         });
 
+        sendHeightToParent();
+    }
+
+    function sendHeightToParent() {
         window.parent?.postMessage({
             type: 'request-designer-height',
             height: document.body.scrollHeight
         }, '*');
     }
+
+    function clearGoogleSuburbFields() {
+        [
+            'suburb_place_id',
+            'suburb_state',
+            'suburb_postcode',
+            'suburb_country',
+            'suburb_lat',
+            'suburb_lng',
+            'suburb_formatted_address'
+        ].forEach(function (id) {
+            const field = document.getElementById(id);
+
+            if (field) {
+                field.value = '';
+            }
+        });
+    }
+
+    function getAddressComponent(place, type, useShortName = false) {
+        if (!place.address_components) {
+            return '';
+        }
+
+        const component = place.address_components.find(function (item) {
+            return item.types.includes(type);
+        });
+
+        if (!component) {
+            return '';
+        }
+
+        return useShortName ? component.short_name : component.long_name;
+    }
+
+    window.initGoogleSuburbAutocomplete = function () {
+        const suburbInput = document.getElementById('suburb');
+
+        if (!suburbInput || !window.google || !google.maps || !google.maps.places) {
+            return;
+        }
+
+        const autocomplete = new google.maps.places.Autocomplete(suburbInput, {
+            componentRestrictions: {
+                country: 'au'
+            },
+            types: ['(regions)'],
+            fields: [
+                'address_components',
+                'formatted_address',
+                'geometry',
+                'place_id',
+                'name'
+            ]
+        });
+
+        suburbInput.addEventListener('input', function () {
+            clearGoogleSuburbFields();
+        });
+
+        autocomplete.addListener('place_changed', function () {
+            const place = autocomplete.getPlace();
+
+            if (!place || !place.place_id) {
+                return;
+            }
+
+            const suburb =
+                getAddressComponent(place, 'locality') ||
+                getAddressComponent(place, 'sublocality') ||
+                getAddressComponent(place, 'postal_town') ||
+                place.name ||
+                suburbInput.value;
+
+            const state = getAddressComponent(place, 'administrative_area_level_1', true);
+            const postcode = getAddressComponent(place, 'postal_code');
+            const country = getAddressComponent(place, 'country', true);
+
+            document.getElementById('suburb_place_id').value = place.place_id || '';
+            document.getElementById('suburb_state').value = state || '';
+            document.getElementById('suburb_postcode').value = postcode || '';
+            document.getElementById('suburb_country').value = country || '';
+            document.getElementById('suburb_formatted_address').value = place.formatted_address || '';
+
+            if (place.geometry && place.geometry.location) {
+                document.getElementById('suburb_lat').value = place.geometry.location.lat();
+                document.getElementById('suburb_lng').value = place.geometry.location.lng();
+            }
+
+            suburbInput.value = [suburb, state].filter(Boolean).join(', ');
+
+            sendHeightToParent();
+        });
+    };
 
     rdvModalClose.addEventListener('click', closeModal);
 
@@ -509,7 +694,11 @@
     rdvNext.addEventListener('click', function () {
         const email = document.getElementById('email');
         const suburb = document.getElementById('suburb');
-        const workTypes = [...document.querySelectorAll('input[name="work_type[]"]:checked')].map(input => input.value);
+        const suburbPlaceId = document.getElementById('suburb_place_id');
+
+        const workTypes = [...document.querySelectorAll('input[name="work_type[]"]:checked')]
+            .map(input => input.value);
+
         const ownership = document.querySelector('input[name="ownership"]:checked');
 
         if (!email.checkValidity()) {
@@ -519,6 +708,11 @@
 
         if (!suburb.checkValidity()) {
             suburb.reportValidity();
+            return;
+        }
+
+        if (!suburbPlaceId.value) {
+            showModal('Please select a suburb from the Google location list.');
             return;
         }
 
@@ -557,11 +751,14 @@
     });
 
     window.addEventListener('load', function () {
-        window.parent?.postMessage({
-            type: 'request-designer-height',
-            height: document.body.scrollHeight
-        }, '*');
+        sendHeightToParent();
     });
+</script>
+
+<script
+        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_browser_key') }}&libraries=places&callback=initGoogleSuburbAutocomplete"
+        async
+        defer>
 </script>
 </body>
 </html>
