@@ -6,12 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
+        /*
+         * Request Designer Visit embedded form
+         * ------------------------------------------------------------
+         * Self-contained two-step form designed to be embedded in WordPress via iframe.
+         *
+         * Part 1 screens the enquiry:
+         * - email
+         * - Google suburb autocomplete
+         * - NSW/service-area postcode validation
+         * - renovation type / ownership filters
+         *
+         * Part 2 collects the full Zoho lead details:
+         * - name, address, phone/contact preference
+         * - how they heard about Cape Cod
+         * - rooms required and additional project information
+         */
         :root {
             --rdv-green: #6f8983;
             --rdv-heading: #355c57;
             --rdv-text: #111;
             --rdv-muted: #666;
             --rdv-border: #111;
+            --rdv-error: #7a1111;
         }
 
         * {
@@ -25,6 +42,10 @@
             background: transparent;
         }
 
+        /*
+         * Main background and spacing.
+         * The image should exist at public/images/designer-visit-bg.jpg.
+         */
         .rdv-page {
             min-height: 100vh;
             padding: 52px 40px 38px;
@@ -32,9 +53,17 @@
             url('/images/designer-visit-bg.jpg') center center / cover no-repeat;
         }
 
+        /*
+         * Step 1 uses the narrow width.
+         * Step 2 adds rdv-wrap-wide via JavaScript to match the wider Cape Cod layout.
+         */
         .rdv-wrap {
             width: 100%;
             max-width: 435px;
+        }
+
+        .rdv-wrap.rdv-wrap-wide {
+            max-width: 920px;
         }
 
         .rdv-title {
@@ -44,6 +73,11 @@
             line-height: 1.15;
             font-weight: 700;
             letter-spacing: .2px;
+        }
+
+        .rdv-title.rdv-title-step2 {
+            color: #111;
+            font-size: 26px;
         }
 
         .rdv-intro {
@@ -69,7 +103,8 @@
         }
 
         .rdv-input,
-        .rdv-textarea {
+        .rdv-textarea,
+        .rdv-select {
             width: 100%;
             border: 1px solid var(--rdv-border);
             border-radius: 0;
@@ -79,17 +114,47 @@
             outline: none;
         }
 
-        .rdv-input {
+        .rdv-input,
+        .rdv-select {
             height: 34px;
             padding: 6px 36px 6px 10px;
         }
 
+        .rdv-input[readonly] {
+            background: #f4f4f4;
+        }
+
         .rdv-textarea {
-            min-height: 92px;
-            padding: 10px;
+            min-height: 34px;
+            padding: 8px 10px;
             resize: vertical;
         }
 
+        /*
+         * Error styling used by both Laravel validation and JavaScript validation.
+         */
+        .rdv-input.has-error,
+        .rdv-textarea.has-error,
+        .rdv-select.has-error {
+            border-color: var(--rdv-error);
+        }
+
+        .rdv-field-error {
+            display: none;
+            margin-top: 10px;
+            color: var(--rdv-error);
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 700;
+        }
+
+        .rdv-field-error.active {
+            display: block;
+        }
+
+        /*
+         * Small teal icon at the right of Google autocomplete fields.
+         */
         .rdv-place-icon {
             position: absolute;
             top: 50%;
@@ -131,6 +196,10 @@
             font-weight: 400;
         }
 
+        /*
+         * Custom square checkbox/radio style.
+         * Checkboxes show a tick. Radios show a dot.
+         */
         .rdv-option {
             display: flex;
             align-items: flex-start;
@@ -218,6 +287,10 @@
             flex: 1;
         }
 
+        /*
+         * Only the active step is visible.
+         * showStep() toggles this class.
+         */
         .rdv-step {
             display: none;
         }
@@ -231,9 +304,10 @@
             padding: 12px 14px;
             background: #fff3f3;
             border: 1px solid #d66;
-            color: #7a1111;
+            color: var(--rdv-error);
             font-size: 13px;
             line-height: 1.5;
+            font-weight: 700;
         }
 
         .rdv-success {
@@ -246,6 +320,9 @@
             line-height: 1.5;
         }
 
+        /*
+         * Modal used for non-field business rule messages and help text.
+         */
         .rdv-modal {
             position: fixed;
             inset: 0;
@@ -263,7 +340,7 @@
 
         .rdv-modal-box {
             position: relative;
-            max-width: 460px;
+            max-width: 520px;
             width: 100%;
             padding: 26px 28px;
             background: #fff;
@@ -292,18 +369,94 @@
             line-height: 1.6;
         }
 
+        /*
+         * Honeypot field for spam protection.
+         */
         .rdv-honeypot {
             position: absolute;
             left: -9999px;
             opacity: 0;
         }
 
+        /*
+         * Google Places dropdown must sit above iframe/page content.
+         */
         .pac-container {
             z-index: 99999;
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        @media (max-width: 600px) {
+        /*
+         * Part 2 layout helpers.
+         */
+        .rdv-grid-2 {
+            display: grid;
+            grid-template-columns: 1.25fr .95fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .rdv-contact-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 540px;
+        }
+
+        .rdv-room-layout {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .rdv-room-checks {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            column-gap: 38px;
+        }
+
+        .rdv-help-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 40px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .rdv-help-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #111;
+            border-radius: 50%;
+            background: transparent;
+            color: #111;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .rdv-postal-extra {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .rdv-postal-extra.active {
+            display: block;
+        }
+
+        .rdv-contact-time-extra {
+            display: none;
+            margin-top: 22px;
+        }
+
+        .rdv-contact-time-extra.active {
+            display: block;
+        }
+
+        @media (max-width: 760px) {
             .rdv-page {
                 padding: 36px 24px;
             }
@@ -311,49 +464,69 @@
             .rdv-title {
                 font-size: 26px;
             }
+
+            .rdv-grid-2,
+            .rdv-contact-options,
+            .rdv-room-layout,
+            .rdv-room-checks,
+            .rdv-help-row {
+                grid-template-columns: 1fr;
+            }
+
+            .rdv-room-checks {
+                column-gap: 0;
+            }
         }
     </style>
 </head>
 <body>
 <div class="rdv-page">
-    <div class="rdv-wrap">
+    <div class="rdv-wrap" id="rdvWrap">
 
-        <h1 class="rdv-title">Request a Designer Visit</h1>
+        <h1 class="rdv-title" id="rdvTitle">Request a Designer Visit</h1>
 
+        {{-- Success after Zoho Lead creation. --}}
         @if (session('success'))
             <div class="rdv-success">
                 {{ session('success') }}
             </div>
         @endif
 
-        @if ($errors->any())
-            <div class="rdv-error">
-                Please check the required fields and try again.
-            </div>
-        @endif
-
+        {{-- Business-rule rejection messages. --}}
         @if (session('reject_message'))
             <div class="rdv-error">
                 {!! session('reject_message') !!}
             </div>
         @endif
 
-        <form method="POST" action="/wp/request-design" id="rdvForm">
+        {{-- Zoho/API errors only. Field-level errors appear under fields. --}}
+        @if ($errors->has('zoho'))
+            <div class="rdv-error">
+                {{ $errors->first('zoho') }}
+            </div>
+        @endif
+
+        <form method="POST" action="/wp/request-designer" id="rdvForm" novalidate>
             @csrf
 
+            {{-- Hidden honeypot field for spam bots. --}}
             <input type="text" name="website" class="rdv-honeypot" tabindex="-1" autocomplete="off">
 
+            {{-- ============================================================
+                 PART 1: Basic enquiry / service area screening
+                 ============================================================ --}}
             <div class="rdv-step active" data-step="1">
                 <p class="rdv-intro">
                     To request your obligation-free designer visit, please provide details below:
                 </p>
 
+                {{-- Email --}}
                 <div class="rdv-field">
                     <label class="rdv-label" for="email">Email *</label>
 
                     <div class="rdv-input-wrap">
                         <input
-                                class="rdv-input"
+                                class="rdv-input @error('email') has-error @enderror"
                                 id="email"
                                 type="email"
                                 name="email"
@@ -363,11 +536,18 @@
                         <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
 
+                    <div class="rdv-field-error @error('email') active @enderror" id="email_error">
+                        @error('email')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
                     <a class="rdv-privacy" href="https://www.capecod.com.au/privacy-policy/" target="_blank">
                         To view our privacy policy, please click here
                     </a>
                 </div>
 
+                {{-- Suburb lookup. Google fills the hidden fields below. --}}
                 <div class="rdv-field">
                     <label class="rdv-label" for="suburb">
                         Suburb of the property to be renovated *
@@ -375,7 +555,7 @@
 
                     <div class="rdv-input-wrap">
                         <input
-                                class="rdv-input"
+                                class="rdv-input @error('suburb') has-error @enderror @error('suburb_place_id') has-error @enderror @error('suburb_postcode') has-error @enderror @error('suburb_state') has-error @enderror"
                                 id="suburb"
                                 type="text"
                                 name="suburb"
@@ -387,6 +567,7 @@
                         <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
 
+                    {{-- Google Places details used for server-side validation. --}}
                     <input type="hidden" name="suburb_place_id" id="suburb_place_id" value="{{ old('suburb_place_id') }}">
                     <input type="hidden" name="suburb_state" id="suburb_state" value="{{ old('suburb_state') }}">
                     <input type="hidden" name="suburb_postcode" id="suburb_postcode" value="{{ old('suburb_postcode') }}">
@@ -394,6 +575,26 @@
                     <input type="hidden" name="suburb_lat" id="suburb_lat" value="{{ old('suburb_lat') }}">
                     <input type="hidden" name="suburb_lng" id="suburb_lng" value="{{ old('suburb_lng') }}">
                     <input type="hidden" name="suburb_formatted_address" id="suburb_formatted_address" value="{{ old('suburb_formatted_address') }}">
+
+                    <div class="rdv-field-error @error('suburb') active @enderror" id="suburb_error">
+                        @error('suburb')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                    <div class="rdv-field-error @error('suburb_place_id') active @enderror @error('suburb_postcode') active @enderror @error('suburb_state') active @enderror" id="suburb_google_error">
+                        @error('suburb_place_id')
+                        {{ $message }}
+                        @enderror
+
+                        @error('suburb_state')
+                        {{ $message }}
+                        @enderror
+
+                        @error('suburb_postcode')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="rdv-group-title">
@@ -402,73 +603,56 @@
 
                 @php
                     $oldWork = old('work_type', []);
+                    $oldRooms = old('new_rooms', []);
                 @endphp
 
+                {{-- Renovation work checkboxes. --}}
                 <label class="rdv-option">
-                    <input
-                            type="checkbox"
-                            name="work_type[]"
-                            value="first_floor"
-                            @checked(in_array('first_floor', $oldWork))
-                    >
+                    <input type="checkbox" name="work_type[]" value="first_floor" @checked(in_array('first_floor', $oldWork))>
                     <span>First Floor Addition (second storey)</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input
-                            type="checkbox"
-                            name="work_type[]"
-                            value="ground_floor"
-                            @checked(in_array('ground_floor', $oldWork))
-                    >
+                    <input type="checkbox" name="work_type[]" value="ground_floor" @checked(in_array('ground_floor', $oldWork))>
                     <span>Ground Floor Extension (above 50m²)</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input
-                            type="checkbox"
-                            name="work_type[]"
-                            value="major_internal"
-                            @checked(in_array('major_internal', $oldWork))
-                    >
+                    <input type="checkbox" name="work_type[]" value="major_internal" @checked(in_array('major_internal', $oldWork))>
                     <span>Major Internal Renovation</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input
-                            type="checkbox"
-                            name="work_type[]"
-                            value="other_unsure"
-                            @checked(in_array('other_unsure', $oldWork))
-                    >
+                    <input type="checkbox" name="work_type[]" value="other_unsure" @checked(in_array('other_unsure', $oldWork))>
                     <span>Other/Unsure</span>
                 </label>
+
+                <div class="rdv-field-error @error('work_type') active @enderror" id="work_type_error">
+                    @error('work_type')
+                    {{ $message }}
+                    @enderror
+                </div>
 
                 <div class="rdv-group-title">
                     Do you currently own the house you are enquiring about? *
                 </div>
 
+                {{-- Ownership selection is used to reject pre-purchase advice enquiries. --}}
                 <label class="rdv-option">
-                    <input
-                            type="radio"
-                            name="ownership"
-                            value="yes"
-                            @checked(old('ownership') === 'yes')
-                            required
-                    >
+                    <input type="radio" name="ownership" value="yes" @checked(old('ownership') === 'yes') required>
                     <span>Yes</span>
                 </label>
 
                 <label class="rdv-option">
-                    <input
-                            type="radio"
-                            name="ownership"
-                            value="pre_purchase"
-                            @checked(old('ownership') === 'pre_purchase')
-                            required
-                    >
+                    <input type="radio" name="ownership" value="pre_purchase" @checked(old('ownership') === 'pre_purchase') required>
                     <span>No, but I am wondering about likely costs before purchasing</span>
                 </label>
+
+                <div class="rdv-field-error @error('ownership') active @enderror" id="ownership_error">
+                    @error('ownership')
+                    {{ $message }}
+                    @enderror
+                </div>
 
                 <div class="rdv-actions">
                     <button type="button" class="rdv-button" id="rdvNext">
@@ -481,57 +665,323 @@
                 </div>
             </div>
 
+            {{-- ============================================================
+                 PART 2: Full lead details
+                 ============================================================ --}}
             <div class="rdv-step" data-step="2">
                 <p class="rdv-intro">
-                    Please provide your contact details and we will be in touch.
+                    Thank you for completing the first step towards meeting with one of our expert designers. Please complete the below details so we can progress your enquiry.
                 </p>
 
+                {{-- Full Name. This is split into First_Name / Last_Name for Zoho in the controller. --}}
                 <div class="rdv-field">
-                    <label class="rdv-label" for="first_name">First name *</label>
+                    <label class="rdv-label" for="full_name">Full Name*</label>
                     <input
-                            class="rdv-input"
-                            id="first_name"
+                            class="rdv-input @error('full_name') has-error @enderror"
+                            id="full_name"
                             type="text"
-                            name="first_name"
-                            value="{{ old('first_name') }}"
+                            name="full_name"
+                            value="{{ old('full_name') }}"
                             required
                     >
+
+                    <div class="rdv-field-error @error('full_name') active @enderror" id="full_name_error">
+                        @error('full_name')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
+                {{-- Street address.
+                     This is intentionally a normal text field, not Google autocomplete.
+                     The suburb/postcode selected in Part 1 is shown beside it for context. --}}
                 <div class="rdv-field">
-                    <label class="rdv-label" for="last_name">Last name *</label>
+                    <label class="rdv-label" for="street_address">Street address of the property to be renovated*</label>
+
+                    <div class="rdv-grid-2">
+                        <input
+                                class="rdv-input @error('street_address') has-error @enderror"
+                                id="street_address"
+                                type="text"
+                                name="street_address"
+                                value="{{ old('street_address') }}"
+                                required
+                        >
+
+                        {{-- Displays the Part 1 selected suburb/postcode beside the street address. --}}
+                        <input
+                                class="rdv-input"
+                                id="part2_suburb_display"
+                                type="text"
+                                value="{{ old('suburb') }}"
+                                readonly
+                        >
+                    </div>
+
+                    <div class="rdv-field-error @error('street_address') active @enderror" id="street_address_error">
+                        @error('street_address')
+                        {{ $message }}
+                        @enderror
+                    </div>
+
+                    {{-- Reveals the postal address input when ticked. --}}
+                    <label class="rdv-option" style="margin-top: 16px;">
+                        <input
+                                type="checkbox"
+                                id="postal_address_different"
+                                name="postal_address_different"
+                                value="1"
+                                @checked(old('postal_address_different'))
+                        >
+                        <span>My postal address is different to my street address</span>
+                    </label>
+
+                    <div class="rdv-postal-extra" id="postalAddressExtra">
+                        <input
+                                class="rdv-input @error('postal_address') has-error @enderror"
+                                id="postal_address"
+                                type="text"
+                                name="postal_address"
+                                value="{{ old('postal_address') }}"
+                                placeholder="Postal address"
+                        >
+
+                        <div class="rdv-field-error @error('postal_address') active @enderror" id="postal_address_error">
+                            @error('postal_address')
+                            {{ $message }}
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Phone/contact numbers. --}}
+                <div class="rdv-field">
+                    <label class="rdv-label" for="contact_numbers">Contact Numbers*</label>
                     <input
-                            class="rdv-input"
-                            id="last_name"
+                            class="rdv-input @error('contact_numbers') has-error @enderror"
+                            id="contact_numbers"
                             type="text"
-                            name="last_name"
-                            value="{{ old('last_name') }}"
+                            name="contact_numbers"
+                            value="{{ old('contact_numbers') }}"
                             required
                     >
+
+                    <div class="rdv-field-error @error('contact_numbers') active @enderror" id="contact_numbers_error">
+                        @error('contact_numbers')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
+                {{-- Preferred contact method. --}}
+                <div class="rdv-group-title">
+                    Preferred method for our Design Consultant to make initial contact*
+                </div>
+
+                <div class="rdv-contact-options">
+                    <label class="rdv-option">
+                        <input type="radio" name="preferred_contact_method" value="phone" @checked(old('preferred_contact_method') === 'phone')>
+                        <span>Phone</span>
+                    </label>
+
+                    <label class="rdv-option">
+                        <input type="radio" name="preferred_contact_method" value="email" @checked(old('preferred_contact_method') === 'email')>
+                        <span>Email</span>
+                    </label>
+
+                    <label class="rdv-option">
+                        <input type="radio" name="preferred_contact_method" value="either" @checked(old('preferred_contact_method') === 'either')>
+                        <span>Either</span>
+                    </label>
+                </div>
+
+                <div class="rdv-field-error @error('preferred_contact_method') active @enderror" id="preferred_contact_method_error">
+                    @error('preferred_contact_method')
+                    {{ $message }}
+                    @enderror
+                </div>
+
+                {{-- Only displayed when "Phone" is selected above. --}}
+                <div
+                        class="rdv-contact-time-extra"
+                        id="bestContactTimeWrap"
+                >
+                    <div class="rdv-group-title" style="margin-top: 0;">
+                        Best time for our Design Consultant to contact you*
+                    </div>
+
+                    <div class="rdv-contact-options" style="max-width: 620px; grid-template-columns: repeat(2, 1fr);">
+                        <label class="rdv-option">
+                            <input type="radio" name="best_contact_time" value="business_hours" @checked(old('best_contact_time') === 'business_hours') disabled>
+                            <span>Business Hours</span>
+                        </label>
+
+                        <label class="rdv-option">
+                            <input type="radio" name="best_contact_time" value="mornings_only" @checked(old('best_contact_time') === 'mornings_only') disabled>
+                            <span>Mornings only</span>
+                        </label>
+
+                        <label class="rdv-option">
+                            <input type="radio" name="best_contact_time" value="anytime_9_8" @checked(old('best_contact_time') === 'anytime_9_8') disabled>
+                            <span>Anytime (9am-8pm)</span>
+                        </label>
+
+                        <label class="rdv-option">
+                            <input type="radio" name="best_contact_time" value="evenings_only" @checked(old('best_contact_time') === 'evenings_only') disabled>
+                            <span>Evenings only</span>
+                        </label>
+                    </div>
+
+                    <div class="rdv-field-error @error('best_contact_time') active @enderror" id="best_contact_time_error">
+                        @error('best_contact_time')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Marketing source dropdown. Update the options here if the client wants different values. --}}
                 <div class="rdv-field">
-                    <label class="rdv-label" for="phone">Phone *</label>
-                    <input
-                            class="rdv-input"
-                            id="phone"
-                            type="tel"
-                            name="phone"
-                            value="{{ old('phone') }}"
-                            required
-                    >
+                    <label class="rdv-label" for="heard_about">How did you hear about us?</label>
+                    <select class="rdv-select @error('heard_about') has-error @enderror" id="heard_about" name="heard_about">
+                        <option value=""></option>
+                        <option value="Google Search" @selected(old('heard_about') === 'Google Search')>Google Search</option>
+                        <option value="Google Ads" @selected(old('heard_about') === 'Google Ads')>Google Ads</option>
+                        <option value="Facebook" @selected(old('heard_about') === 'Facebook')>Facebook</option>
+                        <option value="Instagram" @selected(old('heard_about') === 'Instagram')>Instagram</option>
+                        <option value="Referral" @selected(old('heard_about') === 'Referral')>Referral</option>
+                        <option value="Previous Client" @selected(old('heard_about') === 'Previous Client')>Previous Client</option>
+                        <option value="Signage" @selected(old('heard_about') === 'Signage')>Signage</option>
+                        <option value="Other" @selected(old('heard_about') === 'Other')>Other</option>
+                    </select>
+
+                    <div class="rdv-field-error @error('heard_about') active @enderror" id="heard_about_error">
+                        @error('heard_about')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
+                {{-- New rooms required. Controller requires bedrooms OR at least one checkbox. --}}
+                <div class="rdv-group-title">
+                    NEW rooms required in your home addition <small>(select all that apply)</small>
+                </div>
+
+                <div class="rdv-room-layout">
+                    <div>
+                        <select class="rdv-select @error('bedrooms') has-error @enderror @error('rooms_required') has-error @enderror" id="bedrooms" name="bedrooms">
+                            <option value=""></option>
+                            @for ($i = 1; $i <= 6; $i++)
+                                <option value="{{ $i }}" @selected((string) old('bedrooms') === (string) $i)>{{ $i }}</option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div style="font-weight: 700; padding-top: 8px;"># Bedrooms</div>
+                </div>
+
+                <div class="rdv-room-checks">
+                    <div>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="walk_in_robe" @checked(in_array('walk_in_robe', $oldRooms))><span>Walk-in Robe</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="ensuite" @checked(in_array('ensuite', $oldRooms))><span>Ensuite</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="bathroom" @checked(in_array('bathroom', $oldRooms))><span>Bathroom</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="living" @checked(in_array('living', $oldRooms))><span>Living</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="sitting" @checked(in_array('sitting', $oldRooms))><span>Sitting</span></label>
+                    </div>
+
+                    <div>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="study" @checked(in_array('study', $oldRooms))><span>Study</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="dining" @checked(in_array('dining', $oldRooms))><span>Dining</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="kitchen" @checked(in_array('kitchen', $oldRooms))><span>Kitchen</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="laundry" @checked(in_array('laundry', $oldRooms))><span>Laundry</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="other" @checked(in_array('other', $oldRooms))><span>Other</span></label>
+                    </div>
+
+                    <div>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="balcony" @checked(in_array('balcony', $oldRooms))><span>Balcony</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="deck" @checked(in_array('deck', $oldRooms))><span>Deck</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="garage" @checked(in_array('garage', $oldRooms))><span>Garage</span></label>
+                        <label class="rdv-option"><input type="checkbox" name="new_rooms[]" value="carport" @checked(in_array('carport', $oldRooms))><span>Carport</span></label>
+                    </div>
+                </div>
+
+                <div class="rdv-field-error @error('rooms_required') active @enderror @error('bedrooms') active @enderror @error('new_rooms') active @enderror" id="rooms_required_error">
+                    @error('rooms_required')
+                    {{ $message }}
+                    @enderror
+                    @error('bedrooms')
+                    {{ $message }}
+                    @enderror
+                    @error('new_rooms')
+                    {{ $message }}
+                    @enderror
+                </div>
+
+                {{-- Renovation works details and help modal. --}}
                 <div class="rdv-field">
-                    <label class="rdv-label" for="message">Any extra details?</label>
-                    <textarea
-                            class="rdv-textarea"
-                            id="message"
-                            name="message"
-                    >{{ old('message') }}</textarea>
+                    <label class="rdv-label" for="renovation_works">Renovation works required</label>
+
+                    <div class="rdv-help-row">
+                        <textarea
+                                class="rdv-textarea @error('renovation_works') has-error @enderror"
+                                id="renovation_works"
+                                name="renovation_works"
+                        >{{ old('renovation_works') }}</textarea>
+
+                        <button type="button" class="rdv-help-button" data-help="renovation">?</button>
+                    </div>
+
+                    <div class="rdv-field-error @error('renovation_works') active @enderror" id="renovation_works_error">
+                        @error('renovation_works')
+                        {{ $message }}
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="rdv-actions">
+                {{-- Commencement timing. --}}
+                <div class="rdv-group-title">
+                    When would you like building to commence?*
+                </div>
+
+                <div class="rdv-contact-options" style="max-width: 420px;">
+                    <label class="rdv-option">
+                        <input type="radio" name="commence_time" value="6_12_months" @checked(old('commence_time') === '6_12_months')>
+                        <span>6-12 months</span>
+                    </label>
+
+                    <label class="rdv-option">
+                        <input type="radio" name="commence_time" value="over_12_months" @checked(old('commence_time') === 'over_12_months')>
+                        <span>Over 12 months</span>
+                    </label>
+                </div>
+
+                <div class="rdv-field-error @error('commence_time') active @enderror" id="commence_time_error">
+                    @error('commence_time')
+                    {{ $message }}
+                    @enderror
+                </div>
+
+                {{-- Additional info and help modal. --}}
+                <div class="rdv-field">
+                    <label class="rdv-label" for="additional_information">Additional information</label>
+
+                    <div class="rdv-help-row">
+                        <textarea
+                                class="rdv-textarea @error('additional_information') has-error @enderror"
+                                id="additional_information"
+                                name="additional_information"
+                        >{{ old('additional_information') }}</textarea>
+
+                        <button type="button" class="rdv-help-button" data-help="additional">?</button>
+                    </div>
+
+                    <div class="rdv-field-error @error('additional_information') active @enderror" id="additional_information_error">
+                        @error('additional_information')
+                        {{ $message }}
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="rdv-actions" style="margin-top: 28px;">
                     <button type="button" class="rdv-button secondary" id="rdvBack">
                         Back
                     </button>
@@ -540,15 +990,12 @@
                         Submit
                     </button>
                 </div>
-
-                <div class="rdv-footer">
-                    <span>Part 2 of 2</span>
-                </div>
             </div>
         </form>
     </div>
 </div>
 
+{{-- Modal used for filter messages and help text. --}}
 <div class="rdv-modal" id="rdvModal">
     <div class="rdv-modal-box">
         <button type="button" class="rdv-modal-close" id="rdvModalClose">×</button>
@@ -558,12 +1005,29 @@
 </div>
 
 <script>
+    /*
+     * JavaScript overview
+     * ------------------------------------------------------------
+     * - Handles step switching
+     * - Displays inline validation errors before form submission
+     * - Initializes Google Places autocomplete for the suburb only
+     * - Sends iframe height back to WordPress parent page
+     */
+
     const rdvForm = document.getElementById('rdvForm');
     const rdvNext = document.getElementById('rdvNext');
     const rdvBack = document.getElementById('rdvBack');
     const rdvModal = document.getElementById('rdvModal');
     const rdvModalText = document.getElementById('rdvModalText');
     const rdvModalClose = document.getElementById('rdvModalClose');
+    const rdvWrap = document.getElementById('rdvWrap');
+    const rdvTitle = document.getElementById('rdvTitle');
+
+    /*
+     * Active service-area postcodes passed from the controller/database.
+     * This is used for instant front-end rejection. The controller still validates again.
+     */
+    const allowedPostcodes = @json($allowedPostcodes ?? []);
 
     function showModal(message) {
         rdvModalText.innerHTML = message;
@@ -574,14 +1038,39 @@
         rdvModal.classList.remove('active');
     }
 
+    /*
+     * Move between Part 1 and Part 2.
+     * Also widens the form and updates the title to match the Part 2 design.
+     */
     function showStep(step) {
         document.querySelectorAll('.rdv-step').forEach(el => {
             el.classList.toggle('active', el.dataset.step === String(step));
         });
 
+        const isStep2 = String(step) === '2';
+
+        rdvWrap.classList.toggle('rdv-wrap-wide', isStep2);
+        rdvTitle.classList.toggle('rdv-title-step2', isStep2);
+        rdvTitle.innerText = isStep2
+            ? 'Request a Designer Visit - Part 2'
+            : 'Request a Designer Visit';
+
+        if (isStep2) {
+            const suburb = document.getElementById('suburb').value;
+            const suburbDisplay = document.getElementById('part2_suburb_display');
+
+            if (suburbDisplay) {
+                suburbDisplay.value = suburb;
+            }
+        }
+
         sendHeightToParent();
     }
 
+    /*
+     * Tells the WordPress iframe wrapper how tall the embedded form is.
+     * The parent WordPress page should listen for request-designer-height.
+     */
     function sendHeightToParent() {
         window.parent?.postMessage({
             type: 'request-designer-height',
@@ -589,6 +1078,83 @@
         }, '*');
     }
 
+    /*
+     * Error helper functions.
+     * These use predictable IDs like email_error, suburb_error, etc.
+     */
+    function setFieldError(fieldId, message) {
+        const error = document.getElementById(fieldId + '_error');
+        const field = document.getElementById(fieldId);
+
+        if (error) {
+            error.innerHTML = message;
+            error.classList.add('active');
+        }
+
+        if (field) {
+            field.classList.add('has-error');
+        }
+    }
+
+    function setCustomError(errorId, message) {
+        const error = document.getElementById(errorId);
+
+        if (error) {
+            error.innerHTML = message;
+            error.classList.add('active');
+        }
+    }
+
+    function clearFieldError(fieldId) {
+        const error = document.getElementById(fieldId + '_error');
+        const field = document.getElementById(fieldId);
+
+        if (error) {
+            error.innerHTML = '';
+            error.classList.remove('active');
+        }
+
+        if (field) {
+            field.classList.remove('has-error');
+        }
+    }
+
+    function clearCustomError(errorId) {
+        const error = document.getElementById(errorId);
+
+        if (error) {
+            error.innerHTML = '';
+            error.classList.remove('active');
+        }
+    }
+
+    function clearStepOneErrors() {
+        clearFieldError('email');
+        clearFieldError('suburb');
+        clearCustomError('suburb_google_error');
+        clearCustomError('work_type_error');
+        clearCustomError('ownership_error');
+    }
+
+    function clearStepTwoErrors() {
+        clearFieldError('full_name');
+        clearFieldError('street_address');
+        clearFieldError('postal_address');
+        clearFieldError('contact_numbers');
+        clearCustomError('preferred_contact_method_error');
+        clearCustomError('best_contact_time_error');
+        clearFieldError('heard_about');
+        clearFieldError('bedrooms');
+        clearCustomError('rooms_required_error');
+        clearFieldError('renovation_works');
+        clearCustomError('commence_time_error');
+        clearFieldError('additional_information');
+    }
+
+    /*
+     * Clears hidden Google suburb data when a user manually types again.
+     * This forces them to select a real Google dropdown result.
+     */
     function clearGoogleSuburbFields() {
         [
             'suburb_place_id',
@@ -607,6 +1173,9 @@
         });
     }
 
+    /*
+     * Helper for extracting parts from a Google Places result.
+     */
     function getAddressComponent(place, type, useShortName = false) {
         if (!place.address_components) {
             return '';
@@ -623,66 +1192,157 @@
         return useShortName ? component.short_name : component.long_name;
     }
 
+    /*
+     * Approximate NSW bounds used to restrict Google suggestions.
+     * Google does not offer a perfect "state = NSW only" filter in this older widget,
+     * so we restrict to NSW bounds and then validate the selected state as NSW.
+     */
+    function nswBounds() {
+        return new google.maps.LatLngBounds(
+            new google.maps.LatLng(-37.505, 140.999),
+            new google.maps.LatLng(-28.157, 153.638)
+        );
+    }
+
+    /*
+     * Google callback.
+     * The script tag at the bottom calls this once Maps/Places has loaded.
+     */
     window.initGoogleSuburbAutocomplete = function () {
         const suburbInput = document.getElementById('suburb');
 
-        if (!suburbInput || !window.google || !google.maps || !google.maps.places) {
+        if (!window.google || !google.maps || !google.maps.places) {
             return;
         }
 
-        const autocomplete = new google.maps.places.Autocomplete(suburbInput, {
-            componentRestrictions: {
-                country: 'au'
-            },
-            types: ['(regions)'],
-            fields: [
-                'address_components',
-                'formatted_address',
-                'geometry',
-                'place_id',
-                'name'
-            ]
-        });
+        /*
+         * Part 1 suburb autocomplete.
+         * It only accepts:
+         * - Australia
+         * - within approximate NSW bounds
+         * - selected result has state NSW
+         * - selected postcode exists in allowedPostcodes
+         */
+        if (suburbInput) {
+            const suburbAutocomplete = new google.maps.places.Autocomplete(suburbInput, {
+                componentRestrictions: {
+                    country: 'au'
+                },
+                bounds: nswBounds(),
+                strictBounds: true,
+                types: ['(regions)'],
+                fields: [
+                    'address_components',
+                    'formatted_address',
+                    'geometry',
+                    'place_id',
+                    'name'
+                ]
+            });
 
-        suburbInput.addEventListener('input', function () {
-            clearGoogleSuburbFields();
-        });
+            suburbInput.addEventListener('input', function () {
+                clearGoogleSuburbFields();
+                clearFieldError('suburb');
+                clearCustomError('suburb_google_error');
+            });
 
-        autocomplete.addListener('place_changed', function () {
-            const place = autocomplete.getPlace();
+            suburbAutocomplete.addListener('place_changed', function () {
+                clearFieldError('suburb');
+                clearCustomError('suburb_google_error');
 
-            if (!place || !place.place_id) {
-                return;
-            }
+                const place = suburbAutocomplete.getPlace();
 
-            const suburb =
-                getAddressComponent(place, 'locality') ||
-                getAddressComponent(place, 'sublocality') ||
-                getAddressComponent(place, 'postal_town') ||
-                place.name ||
-                suburbInput.value;
+                if (!place || !place.place_id) {
+                    return;
+                }
 
-            const state = getAddressComponent(place, 'administrative_area_level_1', true);
-            const postcode = getAddressComponent(place, 'postal_code');
-            const country = getAddressComponent(place, 'country', true);
+                const suburb =
+                    getAddressComponent(place, 'locality') ||
+                    getAddressComponent(place, 'sublocality') ||
+                    getAddressComponent(place, 'postal_town') ||
+                    place.name ||
+                    suburbInput.value;
 
-            document.getElementById('suburb_place_id').value = place.place_id || '';
-            document.getElementById('suburb_state').value = state || '';
-            document.getElementById('suburb_postcode').value = postcode || '';
-            document.getElementById('suburb_country').value = country || '';
-            document.getElementById('suburb_formatted_address').value = place.formatted_address || '';
+                const state = getAddressComponent(place, 'administrative_area_level_1', true);
+                const postcode = getAddressComponent(place, 'postal_code');
+                const country = getAddressComponent(place, 'country', true);
 
-            if (place.geometry && place.geometry.location) {
-                document.getElementById('suburb_lat').value = place.geometry.location.lat();
-                document.getElementById('suburb_lng').value = place.geometry.location.lng();
-            }
+                if (state !== 'NSW') {
+                    suburbInput.value = '';
+                    suburbInput.classList.add('has-error');
+                    clearGoogleSuburbFields();
+                    setCustomError('suburb_google_error', 'Please select a suburb in NSW.');
+                    sendHeightToParent();
+                    return;
+                }
 
-            suburbInput.value = [suburb, state].filter(Boolean).join(', ');
+                const normalisedPostcode = String(postcode || '').replace(/\D+/g, '');
 
-            sendHeightToParent();
-        });
+                if (!normalisedPostcode || !allowedPostcodes.includes(normalisedPostcode)) {
+                    suburbInput.value = '';
+                    suburbInput.classList.add('has-error');
+                    clearGoogleSuburbFields();
+                    setCustomError('suburb_google_error', 'Sorry, this property appears to be outside our current service area.');
+                    sendHeightToParent();
+                    return;
+                }
+
+                document.getElementById('suburb_place_id').value = place.place_id || '';
+                document.getElementById('suburb_state').value = state || '';
+                document.getElementById('suburb_postcode').value = normalisedPostcode;
+                document.getElementById('suburb_country').value = country || '';
+                document.getElementById('suburb_formatted_address').value = place.formatted_address || '';
+
+                if (place.geometry && place.geometry.location) {
+                    document.getElementById('suburb_lat').value = place.geometry.location.lat();
+                    document.getElementById('suburb_lng').value = place.geometry.location.lng();
+                }
+
+                suburbInput.value = [suburb, state, normalisedPostcode]
+                    .filter(Boolean)
+                    .join(' ');
+
+                clearFieldError('suburb');
+                clearCustomError('suburb_google_error');
+                sendHeightToParent();
+            });
+        }
     };
 
+    /*
+     * Show best-contact-time options only when Phone is selected.
+     * When Email or Either is selected, hide the options, clear any selection,
+     * and disable the inputs so they are not accidentally submitted.
+     */
+    function syncBestContactTimeVisibility() {
+        const bestContactTimeWrap = document.getElementById('bestContactTimeWrap');
+        const selectedPreferredContact = document.querySelector('input[name="preferred_contact_method"]:checked');
+        const showBestTimes = selectedPreferredContact && selectedPreferredContact.value === 'phone';
+
+        if (!bestContactTimeWrap) {
+            return;
+        }
+
+        bestContactTimeWrap.classList.toggle('active', Boolean(showBestTimes));
+
+        document.querySelectorAll('input[name="best_contact_time"]').forEach(function (timeInput) {
+            timeInput.disabled = !showBestTimes;
+
+            if (!showBestTimes) {
+                timeInput.checked = false;
+            }
+        });
+
+        if (!showBestTimes) {
+            clearCustomError('best_contact_time_error');
+        }
+
+        sendHeightToParent();
+    }
+
+    /*
+     * Modal close handlers.
+     */
     rdvModalClose.addEventListener('click', closeModal);
 
     rdvModal.addEventListener('click', function (event) {
@@ -691,41 +1351,70 @@
         }
     });
 
+    /*
+     * Part 1 "Next" button validation.
+     * This prevents moving to Part 2 until the first step passes.
+     */
     rdvNext.addEventListener('click', function () {
+        clearStepOneErrors();
+
+        let valid = true;
+
         const email = document.getElementById('email');
         const suburb = document.getElementById('suburb');
         const suburbPlaceId = document.getElementById('suburb_place_id');
+        const suburbState = document.getElementById('suburb_state');
+        const suburbPostcode = document.getElementById('suburb_postcode');
 
         const workTypes = [...document.querySelectorAll('input[name="work_type[]"]:checked')]
             .map(input => input.value);
 
         const ownership = document.querySelector('input[name="ownership"]:checked');
 
-        if (!email.checkValidity()) {
-            email.reportValidity();
-            return;
+        if (!email.value.trim()) {
+            setFieldError('email', 'This field is required.');
+            valid = false;
+        } else if (!email.checkValidity()) {
+            setFieldError('email', 'Please enter a valid email address.');
+            valid = false;
         }
 
-        if (!suburb.checkValidity()) {
-            suburb.reportValidity();
-            return;
-        }
-
-        if (!suburbPlaceId.value) {
-            showModal('Please select a suburb from the Google location list.');
-            return;
+        if (!suburb.value.trim()) {
+            setFieldError('suburb', 'Please enter your suburb');
+            valid = false;
+        } else if (!suburbPlaceId.value) {
+            setCustomError('suburb_google_error', 'Please select your suburb from the dropdown list');
+            suburb.classList.add('has-error');
+            valid = false;
+        } else if (suburbState.value !== 'NSW') {
+            setCustomError('suburb_google_error', 'Please select a suburb in NSW.');
+            suburb.classList.add('has-error');
+            valid = false;
+        } else if (!suburbPostcode.value || !allowedPostcodes.includes(suburbPostcode.value)) {
+            setCustomError('suburb_google_error', 'Sorry, this property appears to be outside our current service area.');
+            suburb.classList.add('has-error');
+            valid = false;
         }
 
         if (workTypes.length === 0) {
-            showModal('Please select at least one type of renovation work.');
-            return;
+            setCustomError('work_type_error', 'Please select at least one type of renovation work');
+            valid = false;
         }
 
         if (!ownership) {
-            showModal('Please tell us whether you currently own the house you are enquiring about.');
+            setCustomError('ownership_error', 'Please select an option');
+            valid = false;
+        }
+
+        if (!valid) {
+            sendHeightToParent();
             return;
         }
 
+        /*
+         * Business rule popups.
+         * These are shown as modals rather than inline validation errors.
+         */
         if (ownership.value === 'pre_purchase') {
             showModal(
                 'Sorry but at this time we do not offer pre-purchase advice.<br><br>' +
@@ -750,11 +1439,176 @@
         showStep(1);
     });
 
+    /*
+     * Part 2 submit validation.
+     * The server still validates again in the controller.
+     */
+    rdvForm.addEventListener('submit', function (event) {
+        clearStepTwoErrors();
+
+        let valid = true;
+
+        const fullName = document.getElementById('full_name');
+        const streetAddress = document.getElementById('street_address');
+        const contactNumbers = document.getElementById('contact_numbers');
+        const preferredContact = document.querySelector('input[name="preferred_contact_method"]:checked');
+        const bestContactTime = document.querySelector('input[name="best_contact_time"]:checked');
+        const bedrooms = document.getElementById('bedrooms');
+        const selectedRooms = document.querySelectorAll('input[name="new_rooms[]"]:checked');
+        const commenceTime = document.querySelector('input[name="commence_time"]:checked');
+
+        if (!fullName.value.trim()) {
+            setFieldError('full_name', 'Please enter your full name');
+            valid = false;
+        }
+
+        if (!streetAddress.value.trim()) {
+            setFieldError('street_address', 'Please enter the street address of the property to be renovated');
+            valid = false;
+        }
+
+        if (!contactNumbers.value.trim()) {
+            setFieldError('contact_numbers', 'Please enter your contact number');
+            valid = false;
+        }
+
+        if (!preferredContact) {
+            setCustomError('preferred_contact_method_error', 'Please select your preferred contact method');
+            valid = false;
+        }
+
+        if (preferredContact && preferredContact.value === 'phone' && !bestContactTime) {
+            setCustomError('best_contact_time_error', 'Please select the best time for our Design Consultant to contact you');
+            valid = false;
+        }
+
+        if (!bedrooms.value && selectedRooms.length === 0) {
+            setCustomError('rooms_required_error', 'Please provide us with the number of new bedrooms or other rooms required in your home addition.');
+            bedrooms.classList.add('has-error');
+            valid = false;
+        }
+
+        if (!commenceTime) {
+            setCustomError('commence_time_error', 'Please select when you would like building to commence');
+            valid = false;
+        }
+
+        if (!valid) {
+            event.preventDefault();
+            sendHeightToParent();
+        }
+    });
+
+    /*
+     * Clear errors as users fix fields.
+     */
+    document.getElementById('email').addEventListener('input', function () {
+        clearFieldError('email');
+    });
+
+    document.getElementById('full_name').addEventListener('input', function () {
+        clearFieldError('full_name');
+    });
+
+    document.getElementById('street_address').addEventListener('input', function () {
+        clearFieldError('street_address');
+    });
+
+    document.getElementById('contact_numbers').addEventListener('input', function () {
+        clearFieldError('contact_numbers');
+    });
+
+    document.getElementById('bedrooms').addEventListener('change', function () {
+        clearCustomError('rooms_required_error');
+        this.classList.remove('has-error');
+    });
+
+    /*
+     * Postal address reveal/hide.
+     */
+    document.getElementById('postal_address_different').addEventListener('change', function () {
+        document.getElementById('postalAddressExtra').classList.toggle('active', this.checked);
+        sendHeightToParent();
+    });
+
+    document.querySelectorAll('input[name="work_type[]"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('work_type_error');
+        });
+    });
+
+    document.querySelectorAll('input[name="ownership"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('ownership_error');
+        });
+    });
+
+    document.querySelectorAll('input[name="preferred_contact_method"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('preferred_contact_method_error');
+            clearCustomError('best_contact_time_error');
+            syncBestContactTimeVisibility();
+        });
+    });
+
+    document.querySelectorAll('input[name="best_contact_time"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('best_contact_time_error');
+        });
+    });
+
+    document.querySelectorAll('input[name="new_rooms[]"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('rooms_required_error');
+            document.getElementById('bedrooms').classList.remove('has-error');
+        });
+    });
+
+    document.querySelectorAll('input[name="commence_time"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            clearCustomError('commence_time_error');
+        });
+    });
+
+    /*
+     * Help buttons used beside the larger text fields.
+     */
+    document.querySelectorAll('.rdv-help-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (this.dataset.help === 'renovation') {
+                showModal(
+                    'Please provide us with a brief description of any other building works you would like included within your enquiry – whether it be adding further rooms to the existing level of your home, demolishing some walls to open up the space, renovating your existing Kitchen, Laundry or Bathroom, building a new Deck or Garage or Carport etc. The more information we have the better our Design Consultants can provide you with the best advice.'
+                );
+            }
+
+            if (this.dataset.help === 'additional') {
+                showModal(
+                    'Please provide us with any other non-building information you think is relevant to your enquiry that will help us provide you with the best advice – Are you going to be away sometime this year? Do you have a deadline you’re trying to meet for the Construction? Have you just bought the house and won’t have access for a particular period of time?'
+                );
+            }
+        });
+    });
+
+    /*
+     * Initial page setup.
+     * If Laravel returns Part 2 validation errors, open Part 2 automatically.
+     */
     window.addEventListener('load', function () {
+        if (document.getElementById('postal_address_different').checked) {
+            document.getElementById('postalAddressExtra').classList.add('active');
+        }
+
+        syncBestContactTimeVisibility();
+
+        @if ($errors->has('full_name') || $errors->has('street_address') || $errors->has('contact_numbers') || $errors->has('preferred_contact_method') || $errors->has('best_contact_time') || $errors->has('rooms_required') || $errors->has('commence_time'))
+        showStep(2);
+        @endif
+
         sendHeightToParent();
     });
 </script>
 
+{{-- Google Maps Places API. Callback initializes the suburb autocomplete. --}}
 <script
         src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_browser_key') }}&libraries=places&callback=initGoogleSuburbAutocomplete"
         async

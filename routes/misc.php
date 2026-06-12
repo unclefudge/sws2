@@ -271,3 +271,7 @@ Route::post('userlog', '\App\Http\Controllers\Misc\PagesController@userlogAuth')
 // WordPress
 Route::get('/wp/request-designer', '\App\Http\Controllers\Misc\WordPressRequestDesignerController@show');
 Route::post('/wp/request-designer', '\App\Http\Controllers\Misc\WordPressRequestDesignerController@store');
+Route::get('/wp/postcode-seeder', '\App\Http\Controllers\Misc\PagesImportController@postcodeSeeder');
+Route::get('/wp/request-designer-preview', function () {
+    return view('misc/request-designer-preview');
+});

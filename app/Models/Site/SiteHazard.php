@@ -129,8 +129,8 @@ class SiteHazard extends Model
             if ($this->site->supervisorEmail && !in_array($this->site->supervisorEmail, $email_to))
                 $email_to[] = $this->site->supervisorEmail;
             // Georgie (458) notify to site 0003-vehicles (809)
-            if ($this->site->id == '809')
-                $email_to[] = "georgie@capecod.com.au";
+            //if ($this->site->id == '809')
+            //    $email_to[] = "georgie@capecod.com.au";
 
             $email_user = (Auth::check() && validEmail(Auth::user()->email)) ? Auth::user()->email : '';
         }
