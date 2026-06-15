@@ -98,8 +98,8 @@
 
                                     <h2 style="margin: 0px; padding-right: 20px">
                                         @if($foc->status == '-1')
-                                            <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
-                                            <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
+                                            <span class="pull-right font-red hidden-sm hidden-xs">DISABLED</span>
+                                            <span class="text-center font-red visible-sm visible-xs">DISABLED</span>
                                         @endif
                                         @if($foc->status == '0')
                                             <span class="pull-right font-red hidden-sm hidden-xs"><small
@@ -370,8 +370,10 @@
                                 {{--}}<button v-if="xx.foc.status == 1 && xx.foc.items_total != 0 && xx.foc.items_done != xx.foc.items_total" class="btn blue"
                                         v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
                                 </button>--}}
-                                <button v-if="xx.foc.status == 2 || xx.foc.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
-                                </button>
+                                <button v-if="xx.foc.status == 2 || xx.foc.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active</button>
+                            @endif
+                            @if (!$foc->master && Auth::user()->allowed2('del.site.foc', $foc))
+                                <button v-if="xx.foc.status == 1" class="btn red" v-on:click.prevent="$root.$broadcast('updateReportStatus', -1)"> Disable</button>
                             @endif
                         </div>
                         <br><br>

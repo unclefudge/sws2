@@ -32,7 +32,7 @@
                                     <th style="width:10%"> Created</th>
                                     <th> Site</th>
                                     <th> Current Site Supervisor</th>
-                                    <th style="width:10%"></th>
+                                    <th style="width:15%"></th>
                                 </tr>
                                 </thead>
                                 @foreach ($progress as $foc)
@@ -48,7 +48,7 @@
                                                 <a href="/site/foc/{{ $foc->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
                                             @endif
                                             @if(Auth::user()->allowed2('del.site.foc', $foc))
-                                                <button class="btn dark btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $foc->id }}" data-name="{{ $foc->site->name }}"><i class="fa fa-trash"></i></button>
+                                                <button class="btn grey btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $foc->id }}" data-name="{{ $foc->site->name }}"><i class="fa fa-eye"> </i></button>
                                             @endif
                                         </td>
                                     </tr>
@@ -91,6 +91,7 @@
                         <div class="col-md-2 pull-right">
                             <div class="form-group">
                                 <select name="status1" id="status1" class="form-control bs-select">
+                                    <option value="-1" selected>Disabled</option>
                                     <option value="1" selected>Active</option>
                                     {{--}}<option value="4">On Hold</option>--}}
                                     <option value="0">Completed</option>
@@ -184,11 +185,11 @@
 
             swal({
                 title: "Are you sure?",
-                text: "The FOC <b>" + name + "</b> will be deleted.<br><br><span class='font-red'><i class='fa fa-warning'></i> You will not be able to undo this action!</span>",
+                text: "The FOC <b>" + name + "</b> will be disabled.",
                 showCancelButton: true,
                 cancelButtonColor: "#555555",
                 confirmButtonColor: "#E7505A",
-                confirmButtonText: "Yes, delete it!",
+                confirmButtonText: "Yes, disable it!",
                 allowOutsideClick: true,
                 html: true,
             }, function () {

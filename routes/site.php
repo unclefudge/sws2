@@ -201,6 +201,7 @@ Route::any('site/foc/{id}/delitem', '\App\Http\Controllers\Site\SiteFocControlle
 Route::any('site/foc/{id}/update', '\App\Http\Controllers\Site\SiteFocController@updateReport');
 Route::any('site/foc/{id}/clearsignoff', '\App\Http\Controllers\Site\SiteFocController@clearSignoff');
 Route::get('site/foc/{id}/delfile/{doc_id}', '\App\Http\Controllers\Site\SiteFocController@deleteAttachment');
+Route::get('site/foc/{id}/status/{status}', '\App\Http\Controllers\Site\SiteFocController@updateStatus');
 Route::any('site/foc/item/{id}', '\App\Http\Controllers\Site\SiteFocController@updateItem');
 Route::get('site/foc/dt/foc', '\App\Http\Controllers\Site\SiteFocController@getFoc');
 Route::get('site/foc/settings', '\App\Http\Controllers\Site\SiteFocController@settings');

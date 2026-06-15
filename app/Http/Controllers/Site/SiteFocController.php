@@ -562,7 +562,30 @@ class SiteFocController extends Controller
             return view('errors/404');
 
         $foc->closeToDo();
-        $foc->delete();
+        $foc->status = '-1';
+        $foc->save();
+    }
+
+    public function updateStatus($id, $status)
+    {
+        $foc = SiteFoc::findOrFail($id);
+
+        // Check authorisation and throw 404 if not
+        if (!Auth::user()->allowed2('del.site.foc', $foc))
+            return view('errors/404');
+
+        if ($status == 1) {
+            $foc->status = 1;
+            $foc->save();
+            Toastr::success("Enable");
+        }
+        if ($status == '-1') {
+            $foc->status = '-1';
+            $foc->save();
+            Toastr::success("Disabled");
+        }
+
+        return redirect('/site/foc');
     }
 
     public function clearSignoff($id)
@@ -671,8 +694,10 @@ class SiteFocController extends Controller
             ->addColumn('action', function ($rec) {
                 $foc = SiteFoc::find($rec->id);
                 $action = '';
-                if (($rec->status && Auth::user()->allowed2('edit.site.foc', $foc)) || (!$rec->status && Auth::user()->allowed2('sig.site.foc', $foc)))
+                if (($rec->status > 0 && Auth::user()->allowed2('edit.site.foc', $foc)) || (!$rec->status && Auth::user()->allowed2('sig.site.foc', $foc)))
                     $action .= '<a href="/site/foc/' . $rec->id . '" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>';
+                if ($rec->status == '-1' && Auth::user()->allowed2('del.site.foc', $foc))
+                    $action .= '<a href="/site/foc/' . $rec->id . '/status/1" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom">Enable</a>';
 
                 return $action;
             })
