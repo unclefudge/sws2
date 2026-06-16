@@ -38,7 +38,9 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($asb, ['method' => 'PATCH', 'action' => ['Site\SiteAsbestosController@updateExtra', $asb->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'updateExtra'], $asb->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
                         @include('form-error')
 
                         <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $asb->id }}">
@@ -256,22 +258,11 @@
                                     <div class="row">
                                         {{-- Safe Work Notification --}}
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                {!! Form::label('safework', 'Safe Work Notification', ['class' => 'control-label']) !!}
-                                                    <?php
-                                                    $safe_at = ($asb->safework_at) ? $asb->safework_at->format('d/m/Y') : '';
-                                                    $lodged = "Lodged"; //($asb->safework == 2 && $asb->safework_at) ? "Lodged - $safe_at" : 'Lodged';
-                                                    $accept = "Accepted"; //($asb->safework == 1 && $asb->safework_at) ? "Accepted - $safe_at" : 'Accepted';
-                                                    ?>
-                                                {!! Form::select('safework', ['' => 'Not lodged', '2' => $lodged, '1' => $accept], null, ['class' => 'form-control bs-select']) !!}
-                                            </div>
+                                            <x-form.select name="safework" label="Safe Work Notification" :options="['' => 'Not lodged', '2' => 'Lodged', '1' => 'Accepted']" :value="$asb->safework ?? ''"/>
                                         </div>
                                         {{-- Safe Work Ref# --}}
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                {!! Form::label('safework', 'Safe Work Reference', ['class' => 'control-label']) !!}
-                                                {!! Form::text('safework_ref', null, ['class' => 'form-control']) !!}
-                                            </div>
+                                            <x-form.input name="safework_ref" label="Safe Work Reference" :value="$asb->safework_ref ?? ''"/>
                                         </div>
                                     </div>
 
@@ -280,7 +271,7 @@
                                         {{-- Supervisor Form --}}
                                         <div class="col-md-3">
                                             <div class="input-group">
-                                                {!! Form::label('safework', 'Supervisor form sent', ['class' => 'control-label']) !!}
+                                                <label for="safework" class="control-label">Supervisor form sent</label>
                                                 <br class="col-md-2 visible-sm visible-xs">
                                                 <datepicker :value.sync="xx.supervisor_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
@@ -289,7 +280,7 @@
                                         {{-- Neighbour Form --}}
                                         <div class="col-md-3">
                                             <div class="input-group">
-                                                {!! Form::label('safework', 'Neighbours form sent', ['class' => 'control-label']) !!}
+                                                <label for="safework" class="control-label">Neighbours form sent</label>
                                                 <br class="col-md-2 visible-sm visible-xs">
                                                 <datepicker :value.sync="xx.neighbours_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                             </div>
@@ -304,7 +295,7 @@
                                     {{-- Removal Date --}}
                                     <div class="col-md-3">
                                         <div class="input-group">
-                                            {!! Form::label('safework', 'Removal Date', ['class' => 'control-label']) !!}
+                                            <label for="safework" class="control-label">Removal Date</label>
                                             <br class="col-md-2 visible-sm visible-xs">
                                             <datepicker :value.sync="xx.removal_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>
@@ -313,7 +304,7 @@
                                     {{-- Register Updated Date --}}
                                     <div class="col-md-3">
                                         <div class="input-group">
-                                            {!! Form::label('safework', 'Register Updated', ['class' => 'control-label']) !!}
+                                            <label for="safework" class="control-label">Register Updated</label>
                                             <br class="col-md-2 visible-sm visible-xs">
                                             <datepicker :value.sync="xx.reg_updated_at" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
                                         </div>
@@ -326,7 +317,7 @@
                             @endif
                         </div>
 
-                        {!! Form::close() !!}
+                        </form>
 
                         {{-- Actions --}}
                         <div class="row">

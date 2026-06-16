@@ -19,7 +19,7 @@ use Illuminate\Validation\Rule;
  * 3. store() validates everything server-side again.
  * 4. If valid, a Zoho CRM Lead is created.
  */
-class WordPressRequestDesignerController extends Controller
+class RequestDesignerController extends Controller
 {
     /**
      * Display the embedded form.
@@ -29,12 +29,7 @@ class WordPressRequestDesignerController extends Controller
      */
     public function show()
     {
-        $allowedPostcodes = DesignerPostcode::active()
-            ->orderBy('postcode')
-            ->pluck('postcode')
-            ->map(fn($postcode) => (string)$postcode)
-            ->values()
-            ->all();
+        $allowedPostcodes = DesignerPostcode::active()->orderBy('postcode')->pluck('postcode')->map(fn($postcode) => (string)$postcode)->values()->all();
 
         return view('misc/request-designer', compact('allowedPostcodes'));
     }
@@ -78,15 +73,10 @@ class WordPressRequestDesignerController extends Controller
             // Part 1: email and suburb/service-area validation.
             'email' => ['required', 'email', 'max:255'],
             'suburb' => ['required', 'string', 'max:120'],
-
             'suburb_place_id' => ['required', 'string', 'max:255'],
             'suburb_state' => ['required', 'string', Rule::in(['NSW'])],
 
-            'suburb_postcode' => [
-                'required',
-                'string',
-                Rule::exists((new DesignerPostcode)->getTable(), 'postcode')
-                    ->where(fn($query) => $query->where('active', true)),
+            'suburb_postcode' => ['required', 'string', Rule::exists((new DesignerPostcode)->getTable(), 'postcode')->where(fn($query) => $query->where('active', true)),
             ],
 
             'suburb_country' => ['nullable', 'string', 'max:10'],
@@ -100,14 +90,7 @@ class WordPressRequestDesignerController extends Controller
              * first_floor to be selected before allowing the enquiry.
              */
             'work_type' => ['required', 'array', 'min:1'],
-            'work_type.*' => [
-                'required',
-                Rule::in([
-                    'first_floor',
-                    'ground_floor',
-                    'major_internal',
-                    'other_unsure',
-                ]),
+            'work_type.*' => ['required', Rule::in(['first_floor', 'ground_floor', 'major_internal', 'other_unsure',]),
             ],
 
             /*
@@ -118,17 +101,11 @@ class WordPressRequestDesignerController extends Controller
 
             // Part 2: contact and property details.
             'full_name' => ['required', 'string', 'max:255'],
-
             'street_address' => ['required', 'string', 'max:255'],
-
             'postal_address_different' => ['nullable', 'boolean'],
             'postal_address' => ['nullable', 'string', 'max:255'],
-
             'contact_numbers' => ['required', 'string', 'max:80'],
-
-            'preferred_contact_method' => [
-                'required',
-                Rule::in(['phone', 'email', 'either']),
+            'preferred_contact_method' => ['required', Rule::in(['phone', 'email', 'either']),
             ],
 
             /*
@@ -151,8 +128,7 @@ class WordPressRequestDesignerController extends Controller
             'bedrooms' => ['nullable', 'integer', 'min:0', 'max:10'],
 
             'new_rooms' => ['nullable', 'array'],
-            'new_rooms.*' => [
-                'required',
+            'new_rooms.*' => ['required',
                 Rule::in([
                     'walk_in_robe',
                     'ensuite',
@@ -173,9 +149,7 @@ class WordPressRequestDesignerController extends Controller
 
             'renovation_works' => ['nullable', 'string', 'max:2000'],
 
-            'commence_time' => [
-                'required',
-                Rule::in(['6_12_months', 'over_12_months']),
+            'commence_time' => ['required', Rule::in(['6_12_months', 'over_12_months']),
             ],
 
             'additional_information' => ['nullable', 'string', 'max:2000'],
@@ -206,9 +180,7 @@ class WordPressRequestDesignerController extends Controller
 
         // Business rule: Cape Cod currently does not accept pre-purchase advice enquiries.
         if ($validated['ownership'] === 'pre_purchase') {
-            return back()
-                ->withInput()
-                ->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
+            return back()->withInput()->with('reject_message', 'Sorry but at this time we do not offer pre-purchase advice.');
         }
 
         /*
@@ -216,8 +188,7 @@ class WordPressRequestDesignerController extends Controller
          * Other work can be included, but first floor additions are the primary service.
          */
         if (!in_array('first_floor', $validated['work_type'], true)) {
-            return back()
-                ->withInput()
+            return back()->withInput()
                 ->with('reject_message', 'Thank you for your enquiry. While internal renovation, ground floor extensions and other associated work will often form part of our projects, we are primarily designers and builders of first floor additions and for that reason will not be taking on the project.');
         }
 
@@ -226,11 +197,8 @@ class WordPressRequestDesignerController extends Controller
          * The user can either choose a number of bedrooms or select one/more room checkboxes.
          */
         if (empty($validated['bedrooms']) && empty($validated['new_rooms'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'rooms_required' => 'Please provide us with the number of new bedrooms or other rooms required in your home addition.',
-                ]);
+            return back()->withInput()
+                ->withErrors(['rooms_required' => 'Please provide us with the number of new bedrooms or other rooms required in your home addition.',]);
         }
 
         /*
@@ -279,15 +247,8 @@ class WordPressRequestDesignerController extends Controller
             'over_12_months' => 'Over 12 months',
         ];
 
-        $selectedWork = collect($validated['work_type'])
-            ->map(fn($key) => $workLabels[$key] ?? $key)
-            ->values()
-            ->all();
-
-        $selectedRooms = collect($validated['new_rooms'] ?? [])
-            ->map(fn($key) => $roomLabels[$key] ?? $key)
-            ->values()
-            ->all();
+        $selectedWork = collect($validated['work_type'])->map(fn($key) => $workLabels[$key] ?? $key)->values()->all();
+        $selectedRooms = collect($validated['new_rooms'] ?? [])->map(fn($key) => $roomLabels[$key] ?? $key)->values()->all();
 
         /*
          * Zoho Leads require Last_Name.
@@ -363,25 +324,14 @@ class WordPressRequestDesignerController extends Controller
                 ])),
             ]);
 
-            Log::info('Designer visit Zoho Lead created', [
-                'zoho_lead_id' => $zohoLeadId,
-                'email' => $validated['email'],
-            ]);
+            //Log::info('Designer visit Zoho Lead created', ['zoho_lead_id' => $zohoLeadId, 'email' => $validated['email'],]);
 
-            return redirect('/wp/request-designer')
-                ->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
+            return redirect('/wp/request-designer')->with('success', 'Thank you for your enquiry. We will be in touch shortly.');
         } catch (\Throwable $e) {
             // Log the technical error privately, but show the user a generic message.
-            Log::error('Designer visit Zoho Lead failed', [
-                'message' => $e->getMessage(),
-                'email' => $validated['email'] ?? null,
-            ]);
+            Log::error('Designer visit Zoho Lead failed', ['message' => $e->getMessage(), 'email' => $validated['email'] ?? null,]);
 
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'zoho' => 'Sorry, something went wrong while submitting the form. Please try again.',
-                ]);
+            return back()->withInput()->withErrors(['zoho' => 'Sorry, something went wrong while submitting the form. Please try again.',]);
         }
     }
 }

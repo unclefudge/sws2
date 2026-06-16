@@ -111,9 +111,7 @@ class ZohoCrmService
             'Authorization' => 'Zoho-oauthtoken ' . $this->accessToken(),
             'Accept' => 'application/json',
         ])->post($this->apiDomain() . '/crm/v8/Leads', [
-            'data' => [
-                $leadData,
-            ],
+            'data' => [$leadData,],
             'trigger' => [
                 'workflow',
             ],

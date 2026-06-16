@@ -2,8 +2,12 @@
     'name',
     'label' => null,
     'rows' => 3,
-    'value' => old($name),
+    'value' => null,
 ])
+
+@php
+    $value = old($name, $value);
+@endphp
 
 <div class="form-group {{ $errors->has($name) ? 'has-error' : '' }}">
     @if($label)

@@ -28,15 +28,10 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                            <x-form.select name="supervisor" :options="['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect()" value="all"/>
                         </div>
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status1" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Open</option>
-                                    <option value="0">Closed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status1" :options="['1' => 'Open', '0' => 'Closed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">

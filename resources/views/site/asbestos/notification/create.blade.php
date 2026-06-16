@@ -26,544 +26,404 @@
                     </div>
                     <div class="portlet-body form">
                         <!-- BEGIN FORM-->
-                        {!! Form::model('SiteAsbestos', ['action' => 'Site\SiteAsbestosController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteAsbestosController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <input type="hidden" name="company_id" value="{{ Auth::user()->company_id }}">
-                        {!! Form::hidden('amount_over', '0', ['id' => 'amount_over']) !!}
-                        <div class="form-body">
-                            {{-- Site --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                            <input type="hidden" name="company_id" value="{{ Auth::user()->company_id }}">
+                            <input type="hidden" name="amount_over" value="{{ old('amount_over', '0') }}" id="amount_over">
+                            <div class="form-body">
+                                {{-- Site --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" label="Site" plugin="select2" style="width:100%">
                                             {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Client / Super Details --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    {{-- Individual Details --}}
-                                    <h4>Individual (Client) Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('client_name', $errors) !!}">
-                                                {!! Form::label('client_name', 'Primary Contact', ['class' => 'control-label']) !!}
-                                                {!! Form::text('client_name', old('client_name'), ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('client_name', $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
-                                                {!! Form::label('client_phone', 'Phone', ['class' => 'control-label']) !!}
-                                                {!! Form::text('client_phone', old('client_phone'), ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('client_phone', $errors) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    {{-- Supervisor Details --}}
-                                    <h4>Contact Person (Supervisor) Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('supervisor_id', $errors) !!}">
-                                                {!! Form::label('supervisor_id', 'Supervisor', ['class' => 'control-label']) !!}
-                                                {{--}}{!! Form::select('supervisor_id', ['' => 'Select supervisor', '5' => 'Dean Beringer', '7' => 'Gary Klomp', '13' => 'John Walton'], null, ['class' => 'form-control bs-select']) !!}--}}
-                                                {!! Form::select('supervisor_id',
-                                                Auth::user()->company->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'name' => 'supervisor_id', 'id' => 'supervisor_id', 'title' => 'Select supervisor',]) !!}
-                                                {!! fieldErrorMessage('supervisor_id', $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 {!! fieldHasError('super_phone', $errors) !!}">
-                                            <div class="form-group">
-                                                {!! Form::label('super_phone', 'Phone', ['class' => 'control-label']) !!}
-                                                {!! Form::text('super_phone', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('super_phone', $errors) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-
-                            {{-- Site Details --}}
-                            <h4>Site Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_code', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('site_name', 'Site Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_name', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {!! Form::label('site_address', 'Site Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_address', null, ['class' => 'form-control', 'readonly']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('workplace', $errors) !!}">
-                                        {!! Form::label('workplace', 'Workplace Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('workplace', ['' => 'Select type', 'Residental' => 'Residental',
-                                        'Factory' => 'Factory', 'Office' => 'Office'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('workplace', $errors) !!}
+                                        </x-form.select>
                                     </div>
                                 </div>
 
-                                {{-- Dates - Open Hours --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('hours_from', $errors) !!} {!! fieldHasError('open_to', $errors) !!}">
-                                        {!! Form::label('hours_from', 'Operating hours of the site', ['class' => 'control-label']) !!}
-                                        <div class="input-group">
-                                            {!! Form::text('hours_from', '7:00 AM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('hours_to', '3:30 PM', ['class' => 'form-control timepicker timepicker-no-seconds']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('hours_from', $errors) !!}
-                                        {!! fieldErrorMessage('hours_to', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('date_from', $errors) !!}">
-                                        {!! Form::label('date_from', 'Proposed dates of asbestos removal work', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
-                                            {!! Form::text('date_from', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon"> to </span>
-                                            {!! Form::text('date_to', null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('date_from', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
-
-                            {{-- Asbestos Details --}}
-                            <h4>Asbestos Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-
-                            {{-- Amount --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('amount', $errors) !!}">
-                                        {!! Form::label('amount', 'Amount to be removed (m2)', ['class' => 'control-label']) !!}
-                                        <input type="text" class="form-control" value="{{ old('amount') }}" id="amount" name="amount" onkeydown="return isNumber(event)"> {{--}} onkeydown="return isNumber(event)">--}}
-                                        {!! fieldErrorMessage('amount', $errors) !!}
-                                    </div>
-                                    <div class=" note note-warning" style="display: none;" id="amount_note">
-                                        <p>Volumes over 10m2 are classed as licensed asbestos removal.</p>
-                                        <ul>
-                                            <li><b>5 calendar days notice to SafeWork is required.</b></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('friable', $errors) !!}">
-                                        {!! Form::label('friable', 'Asbestos Class', ['class' => 'control-label']) !!}
-                                        {!! Form::select('friable', ['' => 'Select class', '1' => 'Class A (Friable)', '0' => 'Class B (Non-Friable)'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('friable', $errors) !!}
-                                    </div>
-                                    <div class="note note-warning" style="display: none;" id="friable_note">
-                                        <p><b>NOTE:</b> Cape Cod does not hold the Licence Class required to handle this type of Asbestos</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Type --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type', ['' => 'Select type', 'Asbestos Cement Sheets/Products' => 'Asbestos Cement Sheets/Products',
-                                        'Vinyl floor covering' => 'Vinyl floor covering', 'other' => 'Other'],
-                                             null, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6" style="display: none" id="type_other_div">
-                                    <div class="form-group {!! fieldHasError('type_other', $errors) !!}">
-                                        {!! Form::label('type_other', 'Other type', ['class' => 'control-label']) !!}
-                                        {!! Form::text('type_other', null, ['class' => 'form-control', 'placeholder' => 'Please specify other']) !!}
-                                        {!! fieldErrorMessage('type_other', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Location --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Specific Location of Asbestos', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('location', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="non_friable_removal" style="display: none">
-                                <h3><br>Asbestos Removal</h3>
-                                <hr>
-                                {{-- Asbestos Removalist --}}
+                                {{-- Client / Super Details --}}
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('removalist', $errors) !!}">
-                                            {!! Form::label('removalist', 'Licensed Asbestos Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::select('removalist', Auth::user()->company->asbestosRemovalSelect(), null, ['class' => 'form-control bs-select', 'id' => 'removalist']) !!}
-                                            {!! fieldErrorMessage('removalist', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6" id="removalist_name_div" style="display: none">
-                                        <div class="form-group {!! fieldHasError('removalist_name', $errors) !!}">
-                                            {!! Form::label('removalist_name', 'Name of Removalist', ['class' => 'control-label']) !!}
-                                            {!! Form::text('removalist_name', null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('removalist_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            {{-- Non Friable Extra Fields --}}
-                            <div id="non_friable_fields" style="display: none">
-                                {{-- Workers --}}
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('workers', $errors) !!}">
-                                            {!! Form::label('workers', 'Number of workers involved in the asbestos removal work', ['class' => 'control-label']) !!}
-                                            <input type="text" class="form-control" value="{{ old('workers') }}" id="workers" name="workers" onkeydown="return isNumber(event)"/>
-                                            {!! fieldErrorMessage('workers', $errors) !!}
+                                        {{-- Individual Details --}}
+                                        <h4>Individual (Client) Details</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <x-form.input name="client_name" label="Primary Contact"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <x-form.input name="client_phone" label="Phone"/>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="note note-warning">
-                                            <p><b>NOTE:</b> All workers involved in the removal of Asbestos MUST have successfully completed relevant competency unit.</p>
+                                        {{-- Supervisor Details --}}
+                                        <h4>Contact Person (Supervisor) Details</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <x-form.select name="supervisor_id" label="Supervisor" :options="Auth::user()->company->supervisorsSelect()" title="Select supervisor"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <x-form.input name="super_phone" label="Phone"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <br>
 
-                                {{-- Coal Mine --}}
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('coalmine', $errors) !!}">
-                                            {!! Form::label('coalmine', 'Is this a coal or mining workplace', ['class' => 'control-label']) !!}
-                                            {!! Form::select('coalmine', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('coalmine', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Asbestos Identification --}}
-                                <h4>Asbestos Identification
-                                    <small>(Applicable to Friable / Asbestos in soils)</small>
-                                </h4>
+                                {{-- Site Details --}}
+                                <h4>Site Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('hygiene', $errors) !!}">
-                                            {!! Form::label('hygiene', 'Is a hygienist report available', ['class' => 'control-label']) !!}
-                                            {!! Form::select('hygiene', ['0' => 'No', '1' => 'Yes'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('hygiene', $errors) !!}
-                                        </div>
+                                    <div class="col-md-2">
+                                        <x-form.input name="site_code" label="Job #" readonly/>
                                     </div>
-                                    <div class="col-md-3" id="hygiene_report_div">
-                                        <div class="form-group {!! fieldHasError('hygiene_report', $errors) !!}">
-                                            {!! Form::label('hygiene_report', 'Report type', ['class' => 'control-label']) !!}
-                                            {!! Form::select('hygiene_report', ['' => 'Select type', 'Online Attachment' => 'Online Attachment', 'Email' => 'Email',
-                                            'Faxed' => 'Faxed', 'Post' => 'Post', 'By Hand' => 'By Hand'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('hygiene_report', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Protective Equipment --}}
-                                <h4>Personal Protective Equipment &nbsp;
-                                    <small>(Check all that apply)</small>
-                                </h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12 {!! fieldHasError('equip', $errors) !!}">
-                                        {!! fieldErrorMessage('equip', $errors) !!}
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="mt-checkbox-list">
-                                                <label class="mt-checkbox mt-checkbox-outline"> Protective coveralls
-                                                    {!! Form::checkbox('equip[]', 'equip_overalls') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Protective gloves
-                                                    {!! Form::checkbox('equip[]', 'equip_gloves') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> P2 Mask
-                                                    {!! Form::checkbox('equip[]','equip_mask') !!}
-                                                    <span></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="mt-checkbox-list">
-                                                <label class="mt-checkbox mt-checkbox-outline"> 1/2 face respirator
-                                                    {!! Form::checkbox('equip[]', 'equip_half_face') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Full face air supplied
-                                                    {!! Form::checkbox('equip[]', 'equip_full_face') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Other
-                                                    {!! Form::checkbox('equip[]', 'equip_other', false, ['onClick' => 'checkbox_equipOther(this)']) !!}
-                                                    <span></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6" style="display: none;" id="equip_other_div">
-                                        <div class="form-group {!! fieldHasError('equip_other', $errors) !!}">
-                                            {!! Form::label('equip_other', 'Other Equipment', ['class' => 'control-label']) !!}
-                                            {!! Form::text('equip_other', '', ['class' => 'form-control', 'placeholder' => 'Please specify other']) !!}
-                                            {!! fieldErrorMessage('equip_other', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Isolate Methods --}}
-                                <h4>Methods used to isolate / enclose the removal area &nbsp;
-                                    <small>(Check all that apply)</small>
-                                </h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-12 {!! fieldHasError('method', $errors) !!}">
-                                        {!! fieldErrorMessage('method', $errors) !!}
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="mt-checkbox-list">
-                                                <label class="mt-checkbox mt-checkbox-outline"> Fencing
-                                                    {!! Form::checkbox('method[]', 'method_fencing') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Signage
-                                                    {!! Form::checkbox('method[]', 'method_signage') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Water
-                                                    {!! Form::checkbox('method[]', 'method_water') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> PVA
-                                                    {!! Form::checkbox('method[]', 'method_pva') !!}
-                                                    <span></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <div class="mt-checkbox-list">
-                                                <label class="mt-checkbox mt-checkbox-outline"> Barriers
-                                                    {!! Form::checkbox('method[]', 'method_barriers') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> 200 μm plastic
-                                                    {!! Form::checkbox('method[]', 'method_plastic') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Class H asbestos vacuum cleaners
-                                                    {!! Form::checkbox('method[]', 'method_vacuum') !!}
-                                                    <span></span>
-                                                </label>
-                                                <label class="mt-checkbox mt-checkbox-outline"> Other
-                                                    {!! Form::checkbox('method[]', 'method_other', false, ['onClick' => 'checkbox_methodOther(this)']) !!}
-                                                    <span></span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6" style="display: none;" id="method_other_div">
-                                        <div class="form-group {!! fieldHasError('method_other', $errors) !!}">
-                                            {!! Form::label('method_other', 'Other Method', ['class' => 'control-label']) !!}
-                                            {!! Form::text('method_other', '', ['class' => 'form-control', 'placeholder' => 'Please specify other']) !!}
-                                            {!! fieldErrorMessage('method_other', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Isolation Entent --}}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('isolation', $errors) !!}">
-                                            {!! Form::label('isolation', 'Extent of isolation / encapsulation (how will these methods be used)', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('isolation', null, ['rows' => '3', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('isolation', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div id="non_friable_fields_part2" style="display: none">
-                                {{-- Reviewed Asbestos Register --}}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        {!! Form::label('register', 'Have you reviewed the applicable Asbestos Register to confirm the location of identified asbestos and conducted a site assessment to plan for the removal work?', ['class' => 'control-label']) !!}
-                                    </div>
-                                </div>
-                                <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group {!! fieldHasError('register', $errors) !!}">
-                                            {!! Form::select('register', ['' => 'Select option', '1' => 'Yes', '0' => 'No', 'N/A' => 'An Asbestos Register is not available for this site'],
-                                                 null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('register', $errors) !!}
+                                        <x-form.input name="site_name" label="Site Name" readonly/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-form.input name="site_address" label="Site Address" readonly/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <x-form.select name="workplace" label="Workplace Type" :options="['' => 'Select type', 'Residental' => 'Residental', 'Factory' => 'Factory', 'Office' => 'Office']"/>
+                                    </div>
+
+                                    {{-- Dates - Open Hours --}}
+                                    <div class="col-md-4">
+                                        <div class="form-group {{ $errors->has('hours_from') ? 'has-error' : '' }} {{ $errors->has('hours_to') ? 'has-error' : '' }}">
+                                            <label for="hours_from" class="control-label">Operating hours of the site</label>
+                                            <div class="input-group">
+                                                <input type="text" name="hours_from" value="{{ old('hours_from', '7:00 AM') }}" id="hours_from" class="form-control timepicker timepicker-no-seconds">
+                                                <span class="input-group-addon"> to </span>
+                                                <input type="text" name="hours_to" value="{{ old('hours_to', '3:30 PM') }}" id="hours_to" class="form-control timepicker timepicker-no-seconds">
+                                            </div>
+                                            <x-form.error name="hours_from"/>
+                                            <x-form.error name="hours_to"/>
                                         </div>
                                     </div>
-                                    <div class="col-md-8">
-                                        <div class="alert alert-danger" style="display: none;" id="register_note">
-                                            <p><b>You must review the Asbestos Register relevant to the site</b></p>
+                                    <div class="col-md-4">
+                                        <div class="form-group {{ $errors->has('date_from') ? 'has-error' : '' }}">
+                                            <label for="date_from" class="control-label">Proposed dates of asbestos removal work</label>
+                                            <div class="input-group date date-picker input-daterange" data-date-format="dd/mm/yyyy">
+                                                <input type="text" name="date_from" value="{{ old('date_from', '') }}" id="date_from" class="form-control" readonly style="background:#FFF">
+                                                <span class="input-group-addon"> to </span>
+                                                <input type="text" name="date_to" value="{{ old('date_to', '') }}" id="date_to" class="form-control" readonly style="background:#FFF">
+                                            </div>
+                                            <x-form.error name="date_from"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+
+                                {{-- Asbestos Details --}}
+                                <h4>Asbestos Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+
+                                {{-- Amount --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="amount" label="Amount to be removed (m2)" onkeydown="return isNumber(event)"/>
+                                        <div class=" note note-warning" style="display: none;" id="amount_note">
+                                            <p>Volumes over 10m2 are classed as licensed asbestos removal.</p>
+                                            <ul>
+                                                <li><b>5 calendar days notice to SafeWork is required.</b></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-form.select name="friable" label="Asbestos Class" :options="['' => 'Select class', '1' => 'Class A (Friable)', '0' => 'Class B (Non-Friable)']"/>
+                                        <div class="note note-warning" style="display: none;" id="friable_note">
+                                            <p><b>NOTE:</b> Cape Cod does not hold the Licence Class required to handle this type of Asbestos</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- SWMS --}}
+                                {{-- Type --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="type" label="Type" :options="['' => 'Select type', 'Asbestos Cement Sheets/Products' => 'Asbestos Cement Sheets/Products', 'Vinyl floor covering' => 'Vinyl floor covering', 'other' => 'Other']"/>
+                                    </div>
+                                    <div class="col-md-6" style="display: none" id="type_other_div">
+                                        <x-form.input name="type_other" label="Other type" placeholder="Please specify other"/>
+                                    </div>
+                                </div>
+
+                                {{-- Location --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        {!! Form::label('swms', 'Have you confirmed a Safe Work Method Statement relevant to the asbestos removal work has been developed by the applicable workers?', ['class' => 'control-label']) !!}
+                                        <x-form.textarea name="location" label="Specific Location of Asbestos" rows="3"/>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('swms', $errors) !!}">
-                                            {!! Form::select('swms', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('swms', $errors) !!}
+
+                                <div id="non_friable_removal" style="display: none">
+                                    <h3><br>Asbestos Removal</h3>
+                                    <hr>
+                                    {{-- Asbestos Removalist --}}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.select name="removalist" label="Licensed Asbestos Removalist" :options="Auth::user()->company->asbestosRemovalSelect()"/>
                                         </div>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <div class="alert alert-danger" style="display: none;" id="swms_note">
-                                            <p><b>Work involving asbestos is high risk. A SWMS must be in place for this work to take place.</b></p>
+                                        <div class="col-md-6" id="removalist_name_div" style="display: none">
+                                            <x-form.input name="removalist_name" label="Name of Removalist"/>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- Over 10m2 Removal Fields --}}
-                                <div id="amount_fields" style="display: none">
-                                    <h3><br>Licensed Asbestos Removal (10m2)</h3>
 
-                                    {{-- Inspection Certificate --}}
+                                {{-- Non Friable Extra Fields --}}
+                                <div id="non_friable_fields" style="display: none">
+                                    {{-- Workers --}}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.input name="workers" label="Number of workers involved in the asbestos removal work" onkeydown="return isNumber(event)"/>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="note note-warning">
+                                                <p><b>NOTE:</b> All workers involved in the removal of Asbestos MUST have successfully completed relevant competency unit.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Coal Mine --}}
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="coalmine" label="Is this a coal or mining workplace" :options="['0' => 'No', '1' => 'Yes']"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Asbestos Identification --}}
+                                    <h4>Asbestos Identification
+                                        <small>(Applicable to Friable / Asbestos in soils)</small>
+                                    </h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="hygiene" label="Is a hygienist report available" :options="['0' => 'No', '1' => 'Yes']"/>
+                                        </div>
+                                        <div class="col-md-3" id="hygiene_report_div">
+                                            <x-form.select name="hygiene_report" label="Report type" :options="['' => 'Select type', 'Online Attachment' => 'Online Attachment', 'Email' => 'Email', 'Faxed' => 'Faxed', 'Post' => 'Post', 'By Hand' => 'By Hand']"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Protective Equipment --}}
+                                    <h4>Personal Protective Equipment &nbsp;
+                                        <small>(Check all that apply)</small>
+                                    </h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12 {{ $errors->has('equip') ? 'has-error' : '' }}">
+                                            <x-form.error name="equip"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="mt-checkbox-list">
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Protective coveralls
+                                                        <input type="checkbox" name="equip[]" value="equip_overalls" @checked(in_array('equip_overalls', old('equip', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Protective gloves
+                                                        <input type="checkbox" name="equip[]" value="equip_gloves" @checked(in_array('equip_gloves', old('equip', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> P2 Mask
+                                                        <input type="checkbox" name="equip[]" value="equip_mask" @checked(in_array('equip_mask', old('equip', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="mt-checkbox-list">
+                                                    <label class="mt-checkbox mt-checkbox-outline"> 1/2 face respirator
+                                                        <input type="checkbox" name="equip[]" value="equip_half_face" @checked(in_array('equip_half_face', old('equip', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Full face air supplied
+                                                        <input type="checkbox" name="equip[]" value="equip_full_face" @checked(in_array('equip_full_face', old('equip', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Other
+                                                        <input type="checkbox" name="equip[]" value="equip_other" @checked(in_array('equip_other', old('equip', []))) onclick="checkbox_equipOther(this)">
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="display: none;" id="equip_other_div">
+                                            <x-form.input name="equip_other" label="Other Equipment" placeholder="Please specify other"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Isolate Methods --}}
+                                    <h4>Methods used to isolate / enclose the removal area &nbsp;
+                                        <small>(Check all that apply)</small>
+                                    </h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-12 {{ $errors->has('method') ? 'has-error' : '' }}">
+                                            <x-form.error name="method"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="mt-checkbox-list">
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Fencing
+                                                        <input type="checkbox" name="method[]" value="method_fencing" @checked(in_array('method_fencing', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Signage
+                                                        <input type="checkbox" name="method[]" value="method_signage" @checked(in_array('method_signage', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Water
+                                                        <input type="checkbox" name="method[]" value="method_water" @checked(in_array('method_water', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> PVA
+                                                        <input type="checkbox" name="method[]" value="method_pva" @checked(in_array('method_pva', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="mt-checkbox-list">
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Barriers
+                                                        <input type="checkbox" name="method[]" value="method_barriers" @checked(in_array('method_barriers', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> 200 μm plastic
+                                                        <input type="checkbox" name="method[]" value="method_plastic" @checked(in_array('method_plastic', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Class H asbestos vacuum cleaners
+                                                        <input type="checkbox" name="method[]" value="method_vacuum" @checked(in_array('method_vacuum', old('method', [])))>
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="mt-checkbox mt-checkbox-outline"> Other
+                                                        <input type="checkbox" name="method[]" value="method_other" @checked(in_array('method_other', old('method', []))) onclick="checkbox_methodOther(this)">
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="display: none;" id="method_other_div">
+                                            <x-form.input name="method_other" label="Other Method" placeholder="Please specify other"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- Isolation Entent --}}
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <div class="note note-warning">
-                                                <p><b>Note:</b> A Clearance Inspection is legally required of the Asbestos Removal Area to verify that the area is safe for normal use. Following
-                                                    inspection, a Clearance Insection Certificate MUST be obtained PRIOR to the Abestos Removal Area being reoccupied.
-                                                    This must be conducted by an independant compentent person. Cape Cod enlists the services of Leon Carnevale to conduct clearance inspection and
-                                                    action subsequent asbestos clearance certificate.</p>
+                                            <x-form.textarea name="isolation" label="Extent of isolation / encapsulation (how will these methods be used)" rows="3"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="non_friable_fields_part2" style="display: none">
+                                    {{-- Reviewed Asbestos Register --}}
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="register" class="control-label">Have you reviewed the applicable Asbestos Register to confirm the location of identified asbestos and conducted a site assessment to plan for the removal work?</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <x-form.select name="register" :options="['' => 'Select option', '1' => 'Yes', '0' => 'No', 'N/A' => 'An Asbestos Register is not available for this site']"/>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="alert alert-danger" style="display: none;" id="register_note">
+                                                <p><b>You must review the Asbestos Register relevant to the site</b></p>
                                             </div>
-                                            {!! Form::label('inspection', 'Do you acknowledge that a clearance certificate must be received prior to normal use of the area?', ['class' => 'control-label']) !!}
+                                        </div>
+                                    </div>
+
+                                    {{-- SWMS --}}
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="swms" class="control-label">Have you confirmed a Safe Work Method Statement relevant to the asbestos removal work has been developed by the applicable workers?</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('inspection', $errors) !!}">
-                                                {!! Form::select('inspection', ['' => 'Select option', '1' => 'Yes', '0' => 'No'], null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('inspection', $errors) !!}
-                                            </div>
+                                            <x-form.select name="swms" :options="['' => 'Select option', '1' => 'Yes', '0' => 'No']"/>
                                         </div>
                                         <div class="col-md-9">
-                                            <div class="alert alert-danger" style="display: none;" id="inspection_note">
-                                                <p><b>Refer to WHS & HR Manager; Licensed Asbestos Removal Work is not to commence.</b></p>
+                                            <div class="alert alert-danger" style="display: none;" id="swms_note">
+                                                <p><b>Work involving asbestos is high risk. A SWMS must be in place for this work to take place.</b></p>
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- Supervisor --}}
-                                    {{--}}
-                                    <div class="row" style="padding-top: 10px">
-                                        <div class="col-md-3">
-                                            {!! Form::label('supervisor_id', 'Asbestos Supervisor', ['class' => 'control-label']) !!}
-                                            {!! Form::select('supervisor_id', ['' => 'Select supervisor', '5' => 'Dean Beringer', '7' => 'Gary Klomp', '13' => 'John Walton'], null, ['class' => 'form-control bs-select']) !!}
-                                            {!! fieldErrorMessage('supervisor_id', $errors) !!}
-                                        </div>
-                                    </div>--}}
 
-                                    {{-- Asbestos Assessment --}}
-                                    <h4>Asbestos Assessment</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    {{-- Assessor Contact --}}
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('assessor_name', $errors) !!}">
-                                                {!! Form::label('assessor_name', 'Assessor Name', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_name', ['' => 'Select option', 'Mark Spindler' => 'Mark Spindler', 'Moayad Khateib' => 'Moayad Khateib', 'Tony Gabriel' => 'Tony Gabriel'], null, ['class' => 'form-control bs-select', 'id' => 'assessor_name']) !!}
-                                                {!! fieldErrorMessage('assessor_name', $errors) !!}
+                                    {{-- Over 10m2 Removal Fields --}}
+                                    <div id="amount_fields" style="display: none">
+                                        <h3><br>Licensed Asbestos Removal (10m2)</h3>
+
+                                        {{-- Inspection Certificate --}}
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="note note-warning">
+                                                    <p><b>Note:</b> A Clearance Inspection is legally required of the Asbestos Removal Area to verify that the area is safe for normal use. Following
+                                                        inspection, a Clearance Insection Certificate MUST be obtained PRIOR to the Abestos Removal Area being reoccupied.
+                                                        This must be conducted by an independant compentent person. Cape Cod enlists the services of Leon Carnevale to conduct clearance inspection and
+                                                        action subsequent asbestos clearance certificate.</p>
+                                                </div>
+                                                <label for="inspection" class="control-label">Do you acknowledge that a clearance certificate must be received prior to normal use of the area?</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('assessor_phone', $errors) !!}">
-                                                {!! Form::label('assessor_phone', 'Assessor Phone', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_phone', null, ['class' => 'form-control', 'id' => 'assessor_phone']) !!}
-                                                {!! fieldErrorMessage('assessor_phone', $errors) !!}
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <x-form.select name="inspection" :options="['' => 'Select option', '1' => 'Yes', '0' => 'No']"/>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <div class="alert alert-danger" style="display: none;" id="inspection_note">
+                                                    <p><b>Refer to WHS & HR Manager; Licensed Asbestos Removal Work is not to commence.</b></p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group {!! fieldHasError('assessor_cert', $errors) !!}">
-                                                {!! Form::label('assessor_cert', 'Assessor Qualification', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_cert', ['' => 'Select option', 'Competent person (VET Course)' => 'Competent person (VET Course)',
-                                                'Competent person (Tertiary qualification)' => 'Competent person (Tertiary qualification)',
-                                                'Licensed Asbestos Assessor' => 'Licensed Asbestos Assessor'], null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('assessor_cert', $errors) !!}
+                                        {{-- Supervisor --}}
+                                        {{-- Asbestos Assessment --}}
+                                        <h4>Asbestos Assessment</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        {{-- Assessor Contact --}}
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <x-form.select name="assessor_name" label="Assessor Name" :options="['' => 'Select option', 'Mark Spindler' => 'Mark Spindler', 'Moayad Khateib' => 'Moayad Khateib', 'Tony Gabriel' => 'Tony Gabriel']"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <x-form.input name="assessor_phone" label="Assessor Phone"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <x-form.select name="assessor_cert" label="Assessor Qualification"
+                                                               :options="['' => 'Select option', 'Competent person (VET Course)' => 'Competent person (VET Course)', 'Competent person (Tertiary qualification)' => 'Competent person (Tertiary qualification)', 'Licensed Asbestos Assessor' => 'Licensed Asbestos Assessor']"/>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('assessor_lic', $errors) !!}">
-                                                {!! Form::label('assessor_lic', 'Licence No.', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_lic', null, ['class' => 'form-control', 'id' => 'assessor_lic']) !!}
-                                                {!! fieldErrorMessage('assessor_lic', $errors) !!}
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <x-form.input name="assessor_lic" label="Licence No."/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('assessor_dept', $errors) !!}">
-                                                {!! Form::label('assessor_dept', 'Department of Issue', ['class' => 'control-label']) !!}
-                                                {!! Form::text('assessor_dept', null, ['class' => 'form-control', 'id' => 'assessor_dept']) !!}
-                                                {!! fieldErrorMessage('assessor_dept', $errors) !!}
+                                            <div class="col-md-3">
+                                                <x-form.input name="assessor_dept" label="Department of Issue"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group {!! fieldHasError('assessor_state', $errors) !!}">
-                                                {!! Form::label('assessor_state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('assessor_state', $ozstates::all(), 'NSW', ['class' => 'form-control bs-select', 'id' => 'assessor_state']) !!}
-                                                {!! fieldErrorMessage('assessor_state', $errors) !!}
+                                            <div class="col-md-2">
+                                                <x-form.select name="assessor_state" label="State" :options="$ozstates::all()" value="NSW"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <br><br>
-                            <div class="form-actions right">
-                                <a href="/site/asbestos/notification" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
-                            </div>
+                                <br><br>
+                                <div class="form-actions right">
+                                    <a href="/site/asbestos/notification" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
+                                </div>
 
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                            </div> <!-- /Form body -->
+                        </form>
                     </div>
                 </div>
             </div>
@@ -638,6 +498,7 @@
                 }
                 // Class 'Friable'
                 $("#friable_note").hide();
+                $("#non_friable_removal").hide();
                 $("#non_friable_fields").hide();
                 $("#non_friable_fields_part2").hide();
                 if ($("#friable").val() == '1')
@@ -804,4 +665,3 @@
 
     </script>
 @stop
-

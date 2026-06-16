@@ -28,12 +28,12 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <form method="POST" action="{{ action('Site\SiteHazardController@store') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteHazardController::class, 'store']) }}" enctype="multipart/form-data">
                             @csrf
 
                             <div class="row">
                                 <div class="col-md-6">
-                                    <x-form.select name="site_id" label="Site" class="select2">
+                                    <x-form.select name="site_id" label="Site" plugin="select2">
                                         {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                     </x-form.select>
                                 </div>
@@ -51,7 +51,7 @@
                                 </div>
                                 <div class="col-md-2"></div>
                                 <div class="col-md-3">
-                                    <x-form.select name="rating" label="Risk Rating" :options="['' => 'Select rating', 1 => 'Low', 2 => 'Medium', 3 => 'High', 4 => 'Extreme',]" class="bs-select"/>
+                                    <x-form.select name="rating" label="Risk Rating" :options="['' => 'Select rating', 1 => 'Low', 2 => 'Medium', 3 => 'High', 4 => 'Extreme',]"/>
                                 </div>
                             </div>
 

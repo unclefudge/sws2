@@ -25,242 +25,231 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($hazard, ['method' => 'PATCH', 'action' => ['Site\SiteHazardController@update', $hazard->id]]) !!}
-                        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $hazard->id }}">
-                        <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $hazard->status }}">
-                        <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $hazard->resolved_at }}">
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <div id="sitename-show">
-                                        <h2 style="margin-top: 0px">{{ $hazard->site->name }}
-                                            @if ($hazard->status && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
-                                                <i id="edit-site" class="fa fa-pencil" style="margin-left: 20px; cursor: pointer"></i>
-                                            @endif
-                                        </h2>
-                                        {{ $hazard->site->fulladdress }}
-                                    </div>
-                                    <div id="sitename-edit" style="display:none">
-                                        <b>Re-assign to site</b><br>
-                                        <div class="form-group {!! fieldHasError('rating', $errors) !!}">
-                                            <select id="site_id" name="site_id" class="form-control bs-select" style="width:100%">
-                                                {!! Auth::user()->authSitesSelect2Options('view.site.list', $hazard->site_id) !!}
-                                            </select>
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteHazardController::class, 'update'], $hazard->id) }}">
+                            @csrf
+                            @method('PATCH')
+                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $hazard->id }}">
+                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $hazard->status }}">
+                            <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $hazard->resolved_at }}">
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <div id="sitename-show">
+                                            <h2 style="margin-top: 0px">{{ $hazard->site->name }}
+                                                @if ($hazard->status && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
+                                                    <i id="edit-site" class="fa fa-pencil" style="margin-left: 20px; cursor: pointer"></i>
+                                                @endif
+                                            </h2>
+                                            {{ $hazard->site->fulladdress }}
+                                        </div>
+                                        <div id="sitename-edit" style="display:none">
+                                            <b>Re-assign to site</b><br>
+                                            <x-form.select name="site_id" plugin="select2" style="width:100%">
+                                                {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id', $hazard->site_id)) !!}
+                                            </x-form.select>
                                         </div>
                                     </div>
+                                    <div class="col-md-5">
+                                        @if ($hazard->status == 0)
+                                            <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
+                                        @elseif ($hazard->status == '9')
+                                            <h2 class="font-red pull-right" style="margin-top: 0px">RESOLVED</h2>
+                                        @endif
+                                        <b>Job #:</b> {{ $hazard->site->code }}<br>
+                                        <b>Supervisor:</b> {{ $hazard->site->supervisorName }}<br>
+                                    </div>
                                 </div>
-                                <div class="col-md-5">
-                                    @if ($hazard->status == 0)
-                                        <h2 class="font-red pull-right" style="margin-top: 0px">CLOSED</h2>
-                                    @elseif ($hazard->status == '9')
-                                        <h2 class="font-red pull-right" style="margin-top: 0px">RESOLVED</h2>
-                                    @endif
-                                    <b>Job #:</b> {{ $hazard->site->code }}<br>
-                                    <b>Supervisor:</b> {{ $hazard->site->supervisorName }}<br>
-                                </div>
-                            </div>
 
-                            <hr>
-                            <div class="row" style="line-height: 1.5em">
-                                <div class="col-md-8">
-                                    <h4 class="font-green-haze">Hazard Details</h4>
-                                    <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
-                                    @if ($hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
-                                        <div class="row" style="padding-left: 15px">
-                                            <div class="col-md-3" style="padding-left: 0px">
-                                                <b>Risk Rating</b><br>
-                                                <div class="form-group {!! fieldHasError('rating', $errors) !!}">
-                                                    {!! Form::select('rating', ['' => 'Select rating', '1' => "Low", '2' => 'Medium', '3' => 'High', '4' => 'Extreme'], null, ['class' => 'form-control bs-select']) !!}
-                                                    {!! fieldErrorMessage('rating', $errors) !!}
+                                <hr>
+                                <div class="row" style="line-height: 1.5em">
+                                    <div class="col-md-8">
+                                        <h4 class="font-green-haze">Hazard Details</h4>
+                                        <b>Date Raised: </b>{!! $hazard->created_at->format('d/m/Y') !!}<br><br>
+                                        @if ($hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
+                                            <div class="row" style="padding-left: 15px">
+                                                <div class="col-md-3" style="padding-left: 0px">
+                                                    <b>Risk Rating</b><br>
+                                                    <x-form.select name="rating" :options="['' => 'Select rating', '1' => 'Low', '2' => 'Medium', '3' => 'High', '4' => 'Extreme']" :value="$hazard->rating ?? ''"/>
                                                 </div>
+                                                <br>
                                             </div>
-                                            <br>
-                                        </div>
-                                    @else
-                                        <b>Risk Rating: </b>{!! $hazard->ratingTextColoured !!}<br><br>
-                                    @endif
-                                    <b>Location of Hazard:</b><br>{{ $hazard->location }}<br><br>
-                                    <b>What is the hazard / safety issue:</b><br>{{ $hazard->reason }}<br><br>
-                                    @if (!$hazard->status || !Auth::user()->allowed2('del.site.hazard', $hazard))
-                                        <b>Failure Type:</b> {{ $hazard->failure_type }}<br><br>
-                                        <b>Source:</b><br>{{ $hazard->source }}<br><br>
-                                    @else
-                                        {{-- Edit - Status Open + allowed to del.site.hazard --}}
-                                        <div class="col-md-6" style="padding-left: 0px">
-                                            <b>Failure Type</b><br>
-                                            <div class="form-group {!! fieldHasError('failure', $errors) !!}">
-                                                {!! Form::select('failure', $failureTypes::all(), null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('failure', $errors) !!}
+                                        @else
+                                            <b>Risk Rating: </b>{!! $hazard->ratingTextColoured !!}<br><br>
+                                        @endif
+                                        <b>Location of Hazard:</b><br>{{ $hazard->location }}<br><br>
+                                        <b>What is the hazard / safety issue:</b><br>{{ $hazard->reason }}<br><br>
+                                        @if (!$hazard->status || !Auth::user()->allowed2('del.site.hazard', $hazard))
+                                            <b>Failure Type:</b> {{ $hazard->failure_type }}<br><br>
+                                            <b>Source:</b><br>{{ $hazard->source }}<br><br>
+                                        @else
+                                            {{-- Edit - Status Open + allowed to del.site.hazard --}}
+                                            <div class="col-md-6" style="padding-left: 0px">
+                                                <b>Failure Type</b><br>
+                                                <x-form.select name="failure" :options="$failureTypes::all()" :value="$hazard->failure ?? ''"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3" style="padding-left: 0px">
-                                            <b>Status</b><br>
-                                            <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                                {!! Form::select('status', ['1' => 'Open', '9' => 'Resolved', '0' => 'Closed'], $hazard->status, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('status', $errors) !!}
+                                            <div class="col-md-3" style="padding-left: 0px">
+                                                <b>Status</b><br>
+                                                <x-form.select name="status" :options="['1' => 'Open', '9' => 'Resolved', '0' => 'Closed']" :value="$hazard->status ?? ''"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-9" style="padding-left: 0px">
-                                            <b>Identification Source"</b><br>
-                                            <div class="form-group {!! fieldHasError('source', $errors) !!}">
-                                                {{--}}{!! Form::textarea('source', null, ['rows' => '3', 'class' => 'form-control']) !!}--}}
-                                                {!! Form::select('source', ['' => 'Select source', 'WHS Inspection' => 'WHS Inspection', 'Worker Identification' => 'Worker Identification',
-                                                'Supervisor' => 'Supervisor', 'Client Report' => 'Client Report', 'Regulator' => 'Regulator', 'Council' => 'Council', 'Public' => 'Public'],
-                                                null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('source', $errors) !!}
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    {{-- Attachments --}}
-                                    @php
-                                        $attachments = $hazard->attachments;
-                                        $images = $attachments->where('type', 'image');
-                                        $files  = $attachments->where('type', 'file');
-                                    @endphp
-
-                                    <h5><b>Attachments</b></h5>
-                                    @if ($attachments->isNotEmpty())
-                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                        {{-- Image attachments --}}
-                                        @if ($images->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($images as $attachment)
-                                                    <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                        </a>
-                                                    </div>
-                                                @endforeach
+                                            <div class="col-md-9" style="padding-left: 0px">
+                                                <b>Identification Source"</b><br>
+                                                <x-form.select name="source"
+                                                               :options="['' => 'Select source', 'WHS Inspection' => 'WHS Inspection', 'Worker Identification' => 'Worker Identification', 'Supervisor' => 'Supervisor', 'Client Report' => 'Client Report', 'Regulator' => 'Regulator', 'Council' => 'Council', 'Public' => 'Public']"
+                                                               :value="$hazard->source ?? ''"/>
                                             </div>
                                         @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{-- Attachments --}}
+                                        @php
+                                            $attachments = $hazard->attachments;
+                                            $images = $attachments->where('type', 'image');
+                                            $files  = $attachments->where('type', 'file');
+                                        @endphp
 
-                                        {{-- File attachments --}}
-                                        @if ($files->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($files as $attachment)
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                @endforeach
+                                        <h5><b>Attachments</b></h5>
+                                        @if ($attachments->isNotEmpty())
+                                            <hr style="margin: 10px 0px; padding: 0px;">
+                                            {{-- Image attachments --}}
+                                            @if ($images->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($images as $attachment)
+                                                        <div style="width: 60px; float: left; padding-right: 5px">
+                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            {{-- File attachments --}}
+                                            @if ($files->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($files as $attachment)
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        @else
+                                            <div>None</div>
+                                        @endif
+
+                                        @if ($hazard->status)
+                                            <div>
+                                                <br>
+                                                <x-form.filepond/>
+                                                <br><br>
                                             </div>
                                         @endif
-                                    @else
-                                        <div>None</div>
-                                    @endif
-
-                                    @if ($hazard->status)
-                                        <div>
-                                            <br><input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                        </div>
-                                    @endif
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Notes --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <app-actions :table_id="{{ $hazard->id }}"></app-actions>
+                            {{-- Notes --}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <app-actions :table_id="{{ $hazard->id }}"></app-actions>
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- ToDos--}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3>Assigned Tasks
-                                    {{-- Show add if user has permission to edit hazard --}}
-                                    @if ($hazard->status && Auth::user()->allowed2('edit.site.hazard', $hazard) && Auth::user()->isCompany($hazard->owned_by->id))
-                                        <a href="/todo/create/hazard/{{ $hazard->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
-                                    @endif
-                                </h3>
-                                @if ($hazard->todos()->count())
-                                    <table class="table table-striped table-bordered table-nohover order-column">
-                                        <thead>
-                                        <tr class="mytable-header">
-                                            <th style="width:5%">#</th>
-                                            <th> Action</th>
-                                            <th style="width:15%">Created by</th>
-                                            <th style="width:15%">Completed by</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($hazard->todos() as $todo)
-                                            <tr>
-                                                <td>
-                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                                                </td>
-                                                <td>
-                                                    {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
-                                                    @if ($todo->comments)
-                                                        <br><b>Comments:</b> {{ $todo->comments }}
-                                                    @endif
-                                                    @php
-                                                        $attachments = $todo->attachments;
-                                                        $images = $attachments->where('type', 'image');
-                                                        $files  = $attachments->where('type', 'file');
-                                                    @endphp
-                                                    @if ($attachments->isNotEmpty())
-                                                        <hr style="margin: 10px 0px; padding: 0px;">
-                                                        {{-- Image attachments --}}
-                                                        @if ($images->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($images as $attachment)
-                                                                    <div style="width: 60px; float: left; padding-right: 5px">
-                                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                        </a>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-
-                                                        {{-- File attachments --}}
-                                                        @if ($files->isNotEmpty())
-                                                            <div class="row" style="margin: 0">
-                                                                @foreach ($files as $attachment)
-                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    @endif
-                                                    <br>
-                                                    {{-- Old Image attachments --}}
-                                                    @if ($todo->attachment)
-                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                    @endif
-                                                </td>
-                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
-                                                    <?php
-                                                    $done_by = App\User::find($todo->done_by);
-                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                    ?>
-                                                <td>@if ($todo->status && !$todo->done_by)
-                                                        <span class="font-red">Outstanding</span>
-                                                    @else
-                                                        {!! $done_by  !!}<br>{{ $done_at }}
-                                                    @endif
-                                                </td>
+                            {{-- ToDos--}}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h3>Assigned Tasks
+                                        {{-- Show add if user has permission to edit hazard --}}
+                                        @if ($hazard->status && Auth::user()->allowed2('edit.site.hazard', $hazard) && Auth::user()->isCompany($hazard->owned_by->id))
+                                            <a href="/todo/create/hazard/{{ $hazard->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
+                                        @endif
+                                    </h3>
+                                    @if ($hazard->todos()->count())
+                                        <table class="table table-striped table-bordered table-nohover order-column">
+                                            <thead>
+                                            <tr class="mytable-header">
+                                                <th style="width:5%">#</th>
+                                                <th> Action</th>
+                                                <th style="width:15%">Created by</th>
+                                                <th style="width:15%">Completed by</th>
                                             </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                @endif
+                                            </thead>
+                                            <tbody>
+                                            @foreach($hazard->todos() as $todo)
+                                                <tr>
+                                                    <td>
+                                                        <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                                                    </td>
+                                                    <td>
+                                                        {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
+                                                        @if ($todo->comments)
+                                                            <br><b>Comments:</b> {{ $todo->comments }}
+                                                        @endif
+                                                        @php
+                                                            $attachments = $todo->attachments;
+                                                            $images = $attachments->where('type', 'image');
+                                                            $files  = $attachments->where('type', 'file');
+                                                        @endphp
+                                                        @if ($attachments->isNotEmpty())
+                                                            <hr style="margin: 10px 0px; padding: 0px;">
+                                                            {{-- Image attachments --}}
+                                                            @if ($images->isNotEmpty())
+                                                                <div class="row" style="margin: 0">
+                                                                    @foreach ($images as $attachment)
+                                                                        <div style="width: 60px; float: left; padding-right: 5px">
+                                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                            </a>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+
+                                                            {{-- File attachments --}}
+                                                            @if ($files->isNotEmpty())
+                                                                <div class="row" style="margin: 0">
+                                                                    @foreach ($files as $attachment)
+                                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        @endif
+                                                        <br>
+                                                        {{-- Old Image attachments --}}
+                                                        @if ($todo->attachment)
+                                                            <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
+                                                        @endif
+                                                    </td>
+                                                    <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
+                                                        <?php
+                                                        $done_by = App\User::find($todo->done_by);
+                                                        $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
+                                                        $done_by = ($done_by) ? $done_by->full_name : 'unknown';
+                                                        ?>
+                                                    <td>@if ($todo->status && !$todo->done_by)
+                                                            <span class="font-red">Outstanding</span>
+                                                        @else
+                                                            {!! $done_by  !!}<br>{{ $done_at }}
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/hazard" class="btn default"> Back</a>
-                            {{-- Status Open - allow save --}}
-                            @if ($hazard->status)
-                                <button type="submit" class="btn green" id="submit">Save</button>
-                            @endif
-                            @if(!$hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
-                                <a href="/site/hazard/{{ $hazard->id }}/status/1" class="btn green"> Re-open Hazard</a>
-                            @endif
+                            <div class="form-actions right">
+                                <a href="/site/hazard" class="btn default"> Back</a>
+                                {{-- Status Open - allow save --}}
+                                @if ($hazard->status)
+                                    <button type="submit" class="btn green" id="submit">Save</button>
+                                @endif
+                                @if(!$hazard->status && Auth::user()->allowed2('del.site.hazard', $hazard))
+                                    <a href="/site/hazard/{{ $hazard->id }}/status/1" class="btn green"> Re-open Hazard</a>
+                                @endif
 
-                        </div>
-                        {!! Form::close() !!}
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

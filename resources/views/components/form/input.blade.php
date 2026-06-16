@@ -1,10 +1,14 @@
 @props([
     'name',
     'label' => null,
-    'value' => old($name),
+    'value' => null,
     'type' => 'text',
     'readonly' => false,
 ])
+
+@php
+    $value = old($name, $value);
+@endphp
 
 <div class="form-group {{ $errors->has($name) ? 'has-error' : '' }}">
     @if($label)

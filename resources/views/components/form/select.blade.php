@@ -2,8 +2,14 @@
     'name',
     'label' => null,
     'options' => null,
-    'value' => old($name),
+    'value' => null,
+    'plugin' => 'bs-select',
 ])
+
+@php
+    $value = old($name, $value);
+    $defaultClass = trim('form-control ' . $plugin);
+@endphp
 
 <div class="form-group {{ $errors->has($name) ? 'has-error' : '' }}">
     @if($label)
@@ -15,16 +21,13 @@
     <select
             name="{{ $name }}"
             id="{{ $name }}"
-            {{ $attributes->merge(['class' => 'form-control']) }}
+            {{ $attributes->merge(['class' => $defaultClass]) }}
     >
-        {{-- Slot-based options (legacy / Select2 helpers) --}}
         @if(trim($slot) !== '')
             {{ $slot }}
-
-            {{-- Array-based options --}}
         @elseif(is_array($options))
             @foreach($options as $key => $text)
-                <option value="{{ $key }}" {{ (string)$value === (string)$key ? 'selected' : '' }}>
+                <option value="{{ $key }}" {{ (string) $value === (string) $key ? 'selected' : '' }}>
                     {{ $text }}
                 </option>
             @endforeach

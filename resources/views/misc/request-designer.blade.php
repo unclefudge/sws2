@@ -533,7 +533,6 @@
                                 value="{{ old('email') }}"
                                 required
                         >
-                        <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
 
                     <div class="rdv-field-error @error('email') active @enderror" id="email_error">
@@ -564,7 +563,6 @@
                                 autocomplete="off"
                                 required
                         >
-                        <span class="rdv-place-icon" aria-hidden="true"></span>
                     </div>
 
                     {{-- Google Places details used for server-side validation. --}}

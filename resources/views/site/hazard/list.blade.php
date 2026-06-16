@@ -32,23 +32,14 @@
                     <div class="row">
                         @if (Auth::user()->permissionLevel('view.site.hazard', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('view.site.hazard', Auth::user()->company->reportsTo()->id)))
                             <div class="col-md-5">
-                                <div class="form-group">
-                                    {!! Form::select('site_group', ['0' => 'All Sites', Auth::user()->company_id => Auth::user()->company->name,
-                                    Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name], null, ['class' => 'form-control bs-select', 'id' => 'site_group']) !!}
-                                </div>
+                                <x-form.select name="site_group" :options="['0' => 'All Sites', Auth::user()->company_id => Auth::user()->company->name, Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name]" value="0"/>
                             </div>
                         @else
-                            {!! Form::hidden('site_group', '') !!}
+                            <input type="hidden" name="site_group" id="site_group" value="">
                         @endif
 
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Open</option>
-                                    <option value="9">Resolved</option>
-                                    <option value="0">Closed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" :options="['1' => 'Open', '9' => 'Resolved', '0' => 'Closed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
