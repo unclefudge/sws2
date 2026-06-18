@@ -145,7 +145,7 @@ class PagesController extends Controller
             echo $foc->site->name;
             if ($foc->site->company_id != 3) {
                 echo "**deleted**<br>";
-                //$foc->delete();
+                $foc->delete();
             } else
                 echo ".<br>";
         }
