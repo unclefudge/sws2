@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\ZohoCreateVariation;
 use App\Models\Company\Company;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
@@ -12,7 +11,7 @@ use App\Models\Site\Planner\Trade;
 use App\Models\Site\Site;
 use App\Models\Site\SiteAsbestosRegister;
 use App\Models\Site\SiteDoc;
-use App\Models\Site\SiteNote;
+use App\Models\Site\SiteFoc;
 use App\Models\Site\SiteQa;
 use App\Models\Site\SiteQaAction;
 use App\Models\Site\SiteQaItem;
@@ -141,14 +140,24 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h1>Zoho Create Variation</h1><br>";
+        echo "<h2>FOC active sites</h2><br>";
+        foreach (Site::where('status', 1)->get() as $site) {
+            echo "$site->name<br>";
+            $foc = SiteFoc::where('site_id', $site->id)->first();
+            if (!$foc) {
+                echo "creating FOC<br>";
+                //$foc = SiteFoc::create(['site_id' => $site->id, 'status' => '2']);
+                //$action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
+            }
+        }
+        /*echo "<h1>Zoho Create Variation</h1><br>";
         $note = SiteNote::find(2054);
         echo "Creating variation....2054<br>";
         ZohoCreateVariation::dispatch($note->id);
 
         $note = SiteNote::find(2055);
         echo "Creating variation....2055<br>";
-        ZohoCreateVariation::dispatch($note->id);
+        ZohoCreateVariation::dispatch($note->id);*/
 
         /*echo "<h2>Site Hazards</h2><br>";
         foreach (SiteHazardFile::all() as $file) {

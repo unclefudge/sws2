@@ -82,14 +82,14 @@
                         @if (Auth::user()->permissionLevel('view.site.maintenance', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib']"/>
+                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect()"/>
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
                         @endif
 
                         <div class="col-md-2 pull-right">
-                            <x-form.select name="status1" id="status1" :options="['-1' => 'Disabled', '2' => 'Upcoming', '1' => 'Active', '0' => 'Completed']" value="1"/>
+                            <x-form.select name="status1" id="status1" :options="['2' => 'Upcoming', '1' => 'Active', '0' => 'Completed', '-1' => 'Disabled']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
