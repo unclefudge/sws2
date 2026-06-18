@@ -142,9 +142,10 @@ class PagesController extends Controller
 
         echo "cleanip up foc<br>";
         foreach (SiteFoc::all() as $foc) {
-            echo "$foc->name";
+            echo $foc->site->name;
             if ($foc->site->company_id != 3) {
                 echo "**deleted**<br>";
+                //$foc->delete();
             } else
                 echo ".<br>";
         }
