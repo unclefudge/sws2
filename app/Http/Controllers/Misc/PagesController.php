@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Misc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Company\Company;
-use App\Models\Misc\Action;
 use App\Models\Misc\Permission2;
 use App\Models\Site\Planner\SitePlanner;
 use App\Models\Site\Planner\Task;
@@ -141,7 +140,15 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h2>Site Status</h2><br>";
+        echo "cleanip up foc<br>";
+        foreach (SiteFoc::all() as $foc) {
+            echo "$foc->name";
+            if ($foc->site->company_id != 3) {
+                echo "**deleted**<br>";
+            } else
+                echo ".<br>";
+        }
+        /*echo "<h2>Site Status</h2><br>";
         $sites = ['8259', '8274', '8275', '8276', '8281', '8282', '8283', '8284', '8285', '8287', '8289'];
         foreach ($sites as $sid) {
             echo "$sid - ";
@@ -170,7 +177,7 @@ class PagesController extends Controller
                 $foc = SiteFoc::create(['site_id' => $site->id, 'status' => '2']);
                 $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
             }
-        }
+        }*/
 
         /*echo "<h1>Zoho Create Variation</h1><br>";
         $note = SiteNote::find(2054);
