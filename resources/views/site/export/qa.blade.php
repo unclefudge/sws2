@@ -15,7 +15,6 @@
 
 @section('content')
 
-
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,29 +26,27 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteQaExport', ['action' => 'Site\SiteQaController@qaPDF', 'class' => 'horizontal-form']) !!}
-                        <div class="row">
-                            <div class="col-md-3"><h4>QA Report by Site</h4></div>
-                            <div class="col-md-3">
-                                {!! Form::select('site_id', Auth::user()->company->sitesQaSelect('1', 'prompt'),
-                                null, ['class' => 'form-control select2" style="width:100%"', 'id' => 'site_id']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteQaController::class, 'qaPDF']) }}" class="horizontal-form">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-3"><h4>QA Report by Site</h4></div>
+                                <div class="col-md-3">
+                                    <x-form.select name="site_id" :options="Auth::user()->company->sitesQaSelect('1', 'prompt')" id="site_id" plugin="select2" style="width:100%" placeholder="Select site"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn green" name="export_site" value="true"> Generate PDF</button>
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn green" name="export_site" value="true"> Generate PDF</button>
-                            </div>
-                        </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/export" class="btn default"> Back</a>
-                        </div>
-                        {!! Form::close() !!}
+                            <div class="form-actions right">
+                                <a href="/site/export" class="btn default"> Back</a>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -62,14 +59,15 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({
-            placeholder: "Select site",
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({
+                placeholder: "Select site",
+            });
         });
-    });
-</script>
+    </script>
 @stop

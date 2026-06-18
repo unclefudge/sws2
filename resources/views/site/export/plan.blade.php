@@ -26,84 +26,68 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {{--{!! Form::model('SitePlannerExport', ['action' => 'Site\Planner\SitePlannerExportController@sitePDF', 'class' => 'horizontal-form']) !!}--}}
-                        {!! Form::open(['action' => 'Site\Planner\SitePlannerExportController@sitePDF', 'class' => 'horizontal-form']) !!}
-                        <div class="row" style="padding-bottom: 5px">
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('date', $errors) !!}">
-                                    {!! Form::label('date', 'Date From', ['class' => 'control-label']) !!}
-                                    <div class="input-group date date-picker">
-                                        {!! Form::text('date', $date, ['class' => 'form-control form-control-inline', 'readonly',
-                                        'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy"]) !!}
-                                        <span class="input-group-btn">
-                                            <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                                        </span>
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\Planner\SitePlannerExportController::class, 'sitePDF']) }}" class="horizontal-form">
+                            @csrf
+                            <div class="row" style="padding-bottom: 5px">
+                                <div class="col-md-3">
+                                    <x-form.datepicker name="date" label="Date From" :value="$date" format="dd-mm-yyyy" readonly/>
+                                </div>
+                                <div class="col-md-3">
+                                    <x-form.input name="weeks" label="Weeks to Export" value="2"/>
+                                </div>
+                            </div>
+                            <hr style="margin: 5px 0px 15px 0px">
+                            <div class="row">
+                                <div class="col-md-3"><h4>Export Planner by Site (Client)</h4></div>
+                                <div class="col-md-6">
+                                    <x-form.select name="site_id_client[]" :options="Auth::user()->authSitesSelect('view.site', [1, 2], 'ALL')" id="site_id_client" plugin="select2" multiple style="width:100%"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn green" name="export_site_client" value="true"> View PDF</button>
+                                </div>
+                            </div>
+                            <br>
+                            @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin') || (Auth::user()->isAreaSupervisor()))
+                                <div class="row">
+                                    <div class="col-md-3"><h4>Export Planner by Site</h4></div>
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id[]" :options="Auth::user()->authSitesSelect('view.site.export', [1, 2], 'ALL')" id="site_id" plugin="select2" multiple style="width:100%"/>
                                     </div>
-                                    <!-- /input-group -->
-                                    {!! fieldErrorMessage('date', $errors) !!}
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn green" name="export_site" value="true"> View PDF</button>
+                                    </div>
                                 </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-3"><h4>Export Planner by Company</h4></div>
+                                    <div class="col-md-6">
+                                        <x-form.select name="company_id[]" :options="Auth::user()->company->companiesSelect('all')" id="company_id" plugin="select2" multiple style="width:100%"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn green" name="export_company" value="true"> View PDF</button>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-3"><h4>Export Planner by Supervisor</h4></div>
+                                    <div class="col-md-6">
+                                        <x-form.select name="supervisor_id[]" :options="Auth::user()->company->supervisorsSelect()" id="supervisor_id" plugin="select2" multiple style="width:100%"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn green" name="export_supervisor" value="true"> View PDF</button>
+                                    </div>
+                                </div>
+                                <br>
+                            @endif
+                            <div class="form-actions right">
+                                <a href="{{ URL::previous() }}" class="btn default"> Back</a>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group {!! fieldHasError('weeks', $errors) !!}">
-                                    {!! Form::label('weeks', 'Weeks to Export', ['class' => 'control-label']) !!}
-                                    {!! Form::text('weeks', '2', ['class' => 'form-control']) !!}
-                                    {!! fieldErrorMessage('weeks', $errors) !!}
-                                </div>
-                            </div>
-                        </div>
-                        <hr style="margin: 5px 0px 15px 0px">
-                        <div class="row">
-                            <div class="col-md-3"><h4>Export Planner by Site (Client)</h4></div>
-                            <div class="col-md-6">
-                                {!! Form::select('site_id_client', Auth::user()->authSitesSelect('view.site', [1,2], 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id_client[]', 'id' => 'site_id_client', 'multiple' ]) !!}
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn green" name="export_site_client" value="true"> View PDF</button>
-                            </div>
-                        </div>
-                        <br>
-                        @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|web-admin') || (Auth::user()->isAreaSupervisor()))
-                            <div class="row">
-                                <div class="col-md-3"><h4>Export Planner by Site</h4></div>
-                                <div class="col-md-6">
-                                    {!! Form::select('site_id', Auth::user()->authSitesSelect('view.site.export', [1,2], 'ALL'), null, ['class' => 'form-control select2', 'name' => 'site_id[]', 'id' => 'site_id', 'multiple' ]) !!}
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn green" name="export_site" value="true"> View PDF</button>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-md-3"><h4>Export Planner by Company</h4></div>
-                                <div class="col-md-6">
-                                    {!! Form::select('company_id', Auth::user()->company->companiesSelect('all'), null, ['class' => 'form-control select2', 'name' => 'company_id[]', 'id' => 'company_id', 'multiple' ]) !!}
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn green" name="export_company" value="true"> View PDF</button>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-md-3"><h4>Export Planner by Supervisor</h4></div>
-                                <div class="col-md-6">
-                                    {!! Form::select('company_id', Auth::user()->company->supervisorsSelect(), null, ['class' => 'form-control select2', 'name' => 'supervisor_id[]', 'id' => 'supervisor_id', 'multiple' ]) !!}
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn green" name="export_supervisor" value="true"> View PDF</button>
-                                </div>
-                            </div>
-                            <br>
-                        @endif
-                        <div class="form-actions right">
-                            <a href="{{ URL::previous() }}" class="btn default"> Back</a>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

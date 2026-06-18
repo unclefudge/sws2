@@ -26,52 +26,49 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteMaintenance', ['action' => 'Site\SiteMaintenanceCategoryController@store', 'class' => 'horizontal-form']) !!}
-                        @include('form-error')
-                        <input type="hidden" name="company_id" value="{{ Auth::user()->company_id }}">
-                        <div class="form-body">
-                            <h4>Site Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    @if ($main->site)
-                                        <b>{{ $main->site->name }}</b><br>
-                                    @endif
-                                    @if ($main->site)
-                                        {{ $main->site->full_address }}<br><br>
-                                    @endif
-                                </div>
-                                <div class="col-md-3">
-                                    @if ($main->supervisor)
-                                        <b>Supervisor:</b> {{ $main->supervisor }}
-                                    @endif
-                                </div>
-                            </div>
-                            <br><br>
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceCategoryController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
+                            @include('form-error')
+                            <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Maintenance Item', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea("item", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item"]) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                            <div class="form-body">
+                                <h4>Site Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        @if ($main->site)
+                                            <b>{{ $main->site->name }}</b><br>
+                                        @endif
+                                        @if ($main->site)
+                                            {{ $main->site->full_address }}<br><br>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if ($main->supervisor)
+                                            <b>Supervisor:</b> {{ $main->supervisor }}
+                                        @endif
+                                    </div>
+                                </div>
+                                <br><br>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="item" label="Maintenance Item" rows="3" placeholder="Specific details of maintenance request item"/>
                                     </div>
                                 </div>
                             </div>
 
-                        </div>
-                        <div class="form-actions right">
-                            <a href="/site/maintenance/{{$main->id}}" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> Save</button>
-                        </div>
+                            <div class="form-actions right">
+                                <a href="/site/maintenance/{{$main->id}}" class="btn default"> Back</a>
+                                <button type="submit" class="btn green"> Save</button>
+                            </div>
+                        </form>
                     </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -88,4 +85,3 @@
         });
     </script>
 @stop
-

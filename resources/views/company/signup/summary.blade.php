@@ -50,7 +50,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Summary</span>
                             <span class="caption-helper"></span>
                         </div>
@@ -71,14 +70,26 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Phone</b></div>
-                                    <div class="col-xs-9">@if ($company->primary_contact()->phone)<a
-                                                href="tel:{{ preg_replace("/[^0-9]/", "", $company->primary_contact()->phone) }}"> {{ $company->primary_contact()->phone }} </a>@else - @endif</div>
+                                    <div class="col-xs-9">@if ($company->primary_contact()->phone)
+                                            <a
+                                                    href="tel:{{ preg_replace("/[^0-9]/", "", $company->primary_contact()->phone) }}"> {{ $company->primary_contact()->phone }} </a>
+                                        @else
+                                            -
+                                        @endif</div>
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Email</b></div>
-                                    <div class="col-xs-9">@if ($company->primary_contact()->email)<a
-                                                href="mailto:{{ $company->primary_contact()->email }}"> {{ $company->primary_contact()->email }} </a>@else - @endif</div>
+                                    <div class="col-xs-9">@if ($company->primary_contact()->email)
+                                            <a
+                                                    href="mailto:{{ $company->primary_contact()->email }}"> {{ $company->primary_contact()->email }} </a>
+                                        @else
+                                            -
+                                        @endif</div>
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Address</b></div>
                                     <div class="col-xs-9">
-                                        @if($company->primary_contact()->address){{ $company->primary_contact()->address }}&nbsp; @else - @endif
+                                        @if($company->primary_contact()->address)
+                                            {{ $company->primary_contact()->address }}&nbsp;
+                                        @else
+                                            -
+                                        @endif
                                         {{ $company->primary_contact()->SuburbStatePostcode }}
                                     </div>
                                 </div>
@@ -95,18 +106,36 @@
                                     <div class="col-xs-3" style="padding-left: 0px"><b>ABN</b></div>
                                     <div class="col-xs-9">{{ $company->abn }}</div>
                                     <div class="col-xs-3" style="padding-left: 0px"><b>GST</b></div>
-                                    <div class="col-xs-9">@if($company->gst) Yes @elseif($company->gst == '0') No @else - @endif</div>
+                                    <div class="col-xs-9">@if($company->gst)
+                                            Yes
+                                        @elseif($company->gst == '0')
+                                            No
+                                        @else
+                                            -
+                                        @endif</div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Phone</b></div>
-                                    <div class="col-xs-9">@if ($company->phone)<a
-                                                href="tel:{{ preg_replace("/[^0-9]/", "", $company->phone) }}"> {{ $company->phone }} </a>@else - @endif</div>
+                                    <div class="col-xs-9">@if ($company->phone)
+                                            <a
+                                                    href="tel:{{ preg_replace("/[^0-9]/", "", $company->phone) }}"> {{ $company->phone }} </a>
+                                        @else
+                                            -
+                                        @endif</div>
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Email</b></div>
-                                    <div class="col-xs-9">@if ($company->email)<a
-                                                href="mailto:{{ $company->email }}"> {{ $company->email }} </a>@else - @endif</div>
+                                    <div class="col-xs-9">@if ($company->email)
+                                            <a
+                                                    href="mailto:{{ $company->email }}"> {{ $company->email }} </a>
+                                        @else
+                                            -
+                                        @endif</div>
                                     <div class="col-xs-3" style="padding-left: 0px"><b>Address</b></div>
                                     <div class="col-xs-9">
-                                        @if($company->address){{ $company->address }}&nbsp; @else - @endif
+                                        @if($company->address)
+                                            {{ $company->address }}&nbsp;
+                                        @else
+                                            -
+                                        @endif
                                         {{ $company->SuburbStatePostcode }}
                                     </div>
                                     <div class="col-sm-3" style="padding-left: 0px"><b>Primary Contact</b></div>
@@ -160,36 +189,37 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
 
-        var table_staff = $('#table_staff').DataTable({
-            processing: true,
-            serverSide: true,
-            bFilter: false,
-            bLengthChange: false,
-            ajax: {
-                'url': '/company/dt/users',
-                'type': 'GET',
-                'data': function (d) {
-                    d.company_id = {{ $company->id }};
-                    d.staff = 'staff';
-                    d.status = 1;
-                }
-            },
-            columns: [
-                {data: 'full_name', name: 'full_name'},
-                {data: 'phone', name: 'phone', orderable: false},
-                {data: 'email', name: 'email', orderable: false},
-            ],
-            order: [
-                [1, "asc"]
-            ]
+            var table_staff = $('#table_staff').DataTable({
+                processing: true,
+                serverSide: true,
+                bFilter: false,
+                bLengthChange: false,
+                ajax: {
+                    'url': '/company/dt/users',
+                    'type': 'GET',
+                    'data': function (d) {
+                        d.company_id = {{ $company->id }};
+                        d.staff = 'staff';
+                        d.status = 1;
+                    }
+                },
+                columns: [
+                    {data: 'full_name', name: 'full_name'},
+                    {data: 'phone', name: 'phone', orderable: false},
+                    {data: 'email', name: 'email', orderable: false},
+                ],
+                order: [
+                    [1, "asc"]
+                ]
+            });
+
         });
 
-    });
 
-
-</script>
+    </script>
 @stop

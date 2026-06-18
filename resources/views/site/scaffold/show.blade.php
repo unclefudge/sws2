@@ -90,9 +90,7 @@
                                             <div class="row" style="margin: 0">
                                                 @foreach ($images as $attachment)
                                                     <div style="width: 60px; float: left; padding-right: 5px">
-                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                        </a>
+                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity><img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -147,8 +145,6 @@
 
                         </div>
 
-                        {!! Form::close() !!}
-
                         <div class="form-actions right">
                             <a href="/site/scaffold/handover" class="btn default"> Back</a>
                             @if(Auth::user()->allowed2('del.site.scaffold.handover', $report))
@@ -169,31 +165,28 @@
     <div id="modal_email" class="modal fade bs-modal" tabindex="-1" role="basic" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::model($report, ['method' => 'POST', 'action' => ['Site\SiteScaffoldHandoverController@emailPDF', $report->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'form_signed']) !!}
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
-                    <h4 class="modal-title text-center"><b>Email Scaffold Handover Certificate</b></h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group {!! fieldHasError('decks', $errors) !!}">
-                                {!! Form::label('email', 'Email certificate to the below email address(s)', ['class' => 'control-label']) !!}
-                                {!! Form::text('email', null, ['class' => 'form-control', 'required']) !!}
-                                {!! fieldErrorMessage('email', $errors) !!}
+                <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteScaffoldHandoverController::class, 'emailPDF'], $report->id) }}" class="horizontal-form" enctype="multipart/form-data" id="form_signed">
+                    @csrf
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                        <h4 class="modal-title text-center"><b>Email Scaffold Handover Certificate</b></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <x-form.input name="email" label="Email certificate to the below email address(s)" required/>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn green">Send</button>
-                </div>
-                {!! Form::close() !!}
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn green">Send</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

@@ -2,16 +2,16 @@
 
 @section('content')
 
-@section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('site'))
-            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
-        @endif
-        <li><span>Risk Documents</span></li>
-    </ul>
+    @section('breadcrumbs')
+        <ul class="page-breadcrumb breadcrumb">
+            <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+            @if (Auth::user()->hasAnyPermissionType('site'))
+                <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
+            @endif
+            <li><span>Risk Documents</span></li>
+        </ul>
     @stop
-            <!-- BEGIN PAGE CONTENT INNER -->
+    
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -29,29 +29,25 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
-                                {!! Form::label('site_id', '&nbsp;', ['class' => 'control-label']) !!}
-                                <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                    {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                </select>
-                            </div>
+                            <x-form.select name="site_id" plugin="select2" style="width:100%">
+                                {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
+                            </x-form.select>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Document</th>
                             </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
+            </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -69,42 +65,43 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
 
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({
-            placeholder: "Select Site",
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({
+                placeholder: "Select Site",
+            });
+
         });
 
-    });
+        var site_id = $('#site_id').val();
 
-    var site_id = $('#site_id').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/doc/type/dt/RISK') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.site_id = $('#site_id').val();
+                }
+            },
+            columns: [
+                {data: 'id', name: 'id', orderable: false, searchable: false},
+                {data: 'name', name: 'name'},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/doc/type/dt/RISK') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.site_id = $('#site_id').val();
-            }
-        },
-        columns: [
-            {data: 'id', name: 'id', orderable: false, searchable: false},
-            {data: 'name', name: 'name'},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
-
-    $('#site_id').change(function () {
-        table1.ajax.reload();
-    });
-</script>
+        $('#site_id').change(function () {
+            table1.ajax.reload();
+        });
+    </script>
 @stop

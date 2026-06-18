@@ -6,144 +6,134 @@
         </div>
     </div>
     <div class="portlet-body form">
-        {!! Form::model($site, ['method' => 'POST', 'action' => ['Site\SiteController@updateClient', $site->id]]) !!}
-        {{-- Primary Details --}}
-        <div class="row">
-            <div class="col-md-12"><b>Primary Contact</b></div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Title --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client1_title', $errors) !!}">
-                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client1_title', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client1_title', $errors) !!}
+        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteController::class, 'updateClient'], $site->id) }}">
+            @csrf
+            {{-- Primary Details --}}
+            <div class="row">
+                <div class="col-md-12"><b>Primary Contact</b></div>
+            </div>
+            <hr class="field-hr">
+            {{-- Primary Title --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client1_title') ? 'has-error' : '' }}">
+                    <label for="client1_title" class="col-md-3 control-label font-yellow">Title:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client1_title" :value="$site->client1_title"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Firstname --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client1_firstname', $errors) !!}">
-                {!! Form::label('client1_firstname', 'First Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client1_firstname', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client1_firstname', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Firstname --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client1_firstname') ? 'has-error' : '' }}">
+                    <label for="client1_firstname" class="col-md-3 control-label font-yellow">First Name:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client1_firstname" :value="$site->client1_firstname"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Lastname --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client1_lastname', $errors) !!}">
-                {!! Form::label('client1_lastname', 'Last Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client1_lastname', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client1_lastname', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Lastname --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client1_lastname') ? 'has-error' : '' }}">
+                    <label for="client1_lastname" class="col-md-3 control-label font-yellow">Last Name:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client1_lastname" :value="$site->client1_lastname"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Phone --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client1_mobile', $errors) !!}">
-                {!! Form::label('client1_mobile', 'Mobile:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client1_mobile', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client1_mobile', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Phone --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client1_mobile') ? 'has-error' : '' }}">
+                    <label for="client1_mobile" class="col-md-3 control-label font-yellow">Mobile:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client1_mobile" :value="$site->client1_mobile"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Email --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client1_email', $errors) !!}">
-                {!! Form::label('client1_email', 'Email:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client1_email', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client1_email', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Email --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client1_email') ? 'has-error' : '' }}">
+                    <label for="client1_email" class="col-md-3 control-label font-yellow">Email:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client1_email" :value="$site->client1_email"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
+            <hr class="field-hr">
 
-        {{-- Secondary Details --}}
-        <div class="row">
-            <div class="col-md-12"><br><b>Secondary Contact</b></div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Title --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client2_title', $errors) !!}">
-                {!! Form::label('client1_title', 'Title:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client2_title', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client2_title', $errors) !!}
+            {{-- Secondary Details --}}
+            <div class="row">
+                <div class="col-md-12"><br><b>Secondary Contact</b></div>
+            </div>
+            <hr class="field-hr">
+            {{-- Primary Title --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client2_title') ? 'has-error' : '' }}">
+                    <label for="client1_title" class="col-md-3 control-label font-yellow">Title:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client2_title" :value="$site->client2_title"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Firstname --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client2_firstname', $errors) !!}">
-                {!! Form::label('client2_firstname', 'First Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client2_firstname', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client2_firstname', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Firstname --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client2_firstname') ? 'has-error' : '' }}">
+                    <label for="client2_firstname" class="col-md-3 control-label font-yellow">First Name:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client2_firstname" :value="$site->client2_firstname"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Lastname --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client2_lastname', $errors) !!}">
-                {!! Form::label('client2_lastname', 'Last Name:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client2_lastname', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client2_lastname', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Lastname --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client2_lastname') ? 'has-error' : '' }}">
+                    <label for="client2_lastname" class="col-md-3 control-label font-yellow">Last Name:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client2_lastname" :value="$site->client2_lastname"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Phone --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client2_mobile', $errors) !!}">
-                {!! Form::label('client2_mobile', 'Mobile:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client2_mobile', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client2_mobile', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Phone --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client2_mobile') ? 'has-error' : '' }}">
+                    <label for="client2_mobile" class="col-md-3 control-label font-yellow">Mobile:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client2_mobile" :value="$site->client2_mobile"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        {{-- Primary Email --}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client2_email', $errors) !!}">
-                {!! Form::label('client2_email', 'Email:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client2_email', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client2_email', $errors) !!}
+            <hr class="field-hr">
+            {{-- Primary Email --}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client2_email') ? 'has-error' : '' }}">
+                    <label for="client2_email" class="col-md-3 control-label font-yellow">Email:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client2_email" :value="$site->client2_email"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr class="field-hr">
-        <br>
-        {{-- Client Intro--}}
-        <div class="row">
-            <div class="form-group {!! fieldHasError('client_intro', $errors) !!}">
-                {!! Form::label('client_intro', 'Letter intro:', ['class' => 'col-md-3 control-label font-yellow']) !!}
-                <div class="col-md-9">
-                    {!! Form::text('client_intro', null, ['class' => 'form-control']) !!}
-                    {!! fieldErrorMessage('client_intro', $errors) !!}
+            <hr class="field-hr">
+            <br>
+            {{-- Client Intro--}}
+            <div class="row">
+                <div class="form-group {{ $errors->has('client_intro') ? 'has-error' : '' }}">
+                    <label for="client_intro" class="col-md-3 control-label font-yellow">Letter intro:</label>
+                    <div class="col-md-9">
+                        <x-form.input name="client_intro" :value="$site->client_intro"/>
+                    </div>
                 </div>
             </div>
-        </div>
-        <br>
-        <div class="form-actions right">
-            <button class="btn default" onclick="cancelForm(event, 'client')">Cancel</button>
-            <button type="submit" class="btn green"> Save</button>
-        </div>
-        {!! Form::close() !!}
+            <br>
+            <div class="form-actions right">
+                <button class="btn default" onclick="cancelForm(event, 'client')">Cancel</button>
+                <button type="submit" class="btn green"> Save</button>
+            </div>
+        </form>
     </div>
 </div>

@@ -37,8 +37,8 @@
                         <p>{{ $worksite->address }}, {{ $worksite->suburb }}</p>
                         <hr>
 
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_attenance', ['action' => ['Site\SiteCheckinController@processCheckin', $worksite->id], 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'processCheckin'], $worksite->id) }}" enctype="multipart/form-data">
+                            @csrf
 
                         @include('form-error')
 
@@ -51,10 +51,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question20', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question20" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -65,10 +62,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question21', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question21" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -79,10 +73,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question22', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question22" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -94,10 +85,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question2', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question2" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -108,10 +96,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question3', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question3" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -123,10 +108,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question14', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question14" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -137,10 +119,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question15', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question15" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -151,10 +130,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question16', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question16" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -165,10 +141,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question17', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question17" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -179,10 +152,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('safe_site', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger', 'id'=>'safe_site']) !!}
+                                        <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -196,15 +166,14 @@
                             <div class="form-actions">
                                 <button type="submit" class="btn green" name="checkinTruck" value="true" id="submit">Submit</button>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

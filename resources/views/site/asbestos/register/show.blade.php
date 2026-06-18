@@ -18,7 +18,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-file-text-o "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Asbestos Register</span>
                             <span class="caption-helper"> ID: {{ $asb->id }}</span>
                         </div>
@@ -51,14 +50,14 @@
                             <table class="table table-striped table-bordered table-nohover order-column">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="10%">Date Identified</th>
+                                    <th style="width:10%">Date Identified</th>
                                     <th> Location of ACM</th>
                                     <th> Type</th>
                                     <th> Friable / Non-Friable</th>
                                     <th> Quantity</th>
                                     <th> Condition</th>
                                     <th> Assessment / Action</th>
-                                    <th width="10%"></th>
+                                    <th style="width:10%"></th>
                                 </tr>
                                 </thead>
 
@@ -92,8 +91,6 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        {!! Form::close() !!}
 
                         <div class="form-actions right">
                             <a href="/site/asbestos/register" class="btn default"> Back</a>
@@ -140,4 +137,3 @@
         });
     </script>
 @stop
-

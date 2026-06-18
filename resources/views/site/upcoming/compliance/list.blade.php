@@ -151,7 +151,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 
     <!-- Edit Modal -->
     <div id="modal_edit" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
@@ -162,54 +161,37 @@
                     <h4 class="modal-title" id="site_name"></h4>
                 </div>
                 <div class="modal-body">
-                    {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteUpcomingComplianceController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
-                    <input type="hidden" name="site_id" id="site_id" value="">
+                    <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteUpcomingComplianceController::class, 'updateJob']) }}" class="horizontal-form" enctype="multipart/form-data" id="talk_form">
+                    @csrf
+                    <x-form.hidden name="site_id" value=""/>
 
                     {{-- Drafting --}}
                     @if (Auth::user()->hasAnyRole2('dra-draftsperson|dra-drafting-manager|mgt-general-manager|web-admin'))
                         {{-- CC --}}
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('cc_stage', 'Stage', ['class' => 'control-label']) !!}
-                                    {!! Form::select('cc_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'cc_stage', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="cc_stage" label="Stage" :options="$settings_select['opt']" style="width:100%"/>
                             </div>
                             <div class="col-md-9">
-                                <div class="form-group">
-                                    {!! Form::label('cc', 'CC', ['class' => 'control-label']) !!}
-                                    {!! Form::text('cc', null, ['class' => 'form-control', 'id' => 'cc']) !!}
-                                </div>
+                                <x-form.input name="cc" label="CC"/>
                             </div>
                         </div>
                         {{-- FC Plans --}}
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('fc_plans_stage', 'Stage', ['class' => 'control-label']) !!}
-                                    {!! Form::select('fc_plans_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'fc_plans_stage', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="fc_plans_stage" label="Stage" :options="$settings_select['opt']" style="width:100%"/>
                             </div>
                             <div class="col-md-9">
-                                <div class="form-group">
-                                    {!! Form::label('fc_plans', 'FC Plans', ['class' => 'control-label']) !!}
-                                    {!! Form::text('fc_plans', null, ['class' => 'form-control', 'id' => 'fc_plans']) !!}
-                                </div>
+                                <x-form.input name="fc_plans" label="FC Plans"/>
                             </div>
                         </div>
                         {{-- FC Struct --}}
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('fc_struct_stage', 'Stage', ['class' => 'control-label']) !!}
-                                    {!! Form::select('fc_struct_stage', $settings_select['opt'], null, ['class' => 'form-control bs-select', 'id' => 'fc_struct_stage', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="fc_struct_stage" label="Stage" :options="$settings_select['opt']" style="width:100%"/>
                             </div>
                             <div class="col-md-9">
-                                <div class="form-group">
-                                    {!! Form::label('fc_struct', 'FC Structural', ['class' => 'control-label']) !!}
-                                    {!! Form::text('fc_struct', null, ['class' => 'form-control', 'id' => 'fc_struct']) !!}
-                                </div>
+                                <x-form.input name="fc_struct" label="FC Structural"/>
                             </div>
                         </div>
                     @endif
@@ -219,16 +201,10 @@
                         {{-- CF-EST --}}
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('cf_est_stage', 'Stage', ['class' => 'control-label']) !!}
-                                    {!! Form::select('cf_est_stage', $settings_select['cfest'], null, ['class' => 'form-control bs-select', 'id' => 'cf_est_stage', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="cf_est_stage" label="Stage" :options="$settings_select['cfest']" style="width:100%"/>
                             </div>
                             <div class="col-md-9">
-                                <div class="form-group">
-                                    {!! Form::label('cf_est', 'CF-EST', ['class' => 'control-label']) !!}
-                                    {!! Form::text('cf_est', null, ['class' => 'form-control', 'id' => 'cf_est']) !!}
-                                </div>
+                                <x-form.input name="cf_est" label="CF-EST"/>
                             </div>
                         </div>
                     @endif
@@ -238,16 +214,10 @@
                         {{-- CF-ADM --}}
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="form-group">
-                                    {!! Form::label('cf_adm_stage', 'Stage', ['class' => 'control-label']) !!}
-                                    {!! Form::select('cf_adm_stage', $settings_select['cfadm'], null, ['class' => 'form-control bs-select', 'id' => 'cf_adm_stage', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="cf_adm_stage" label="Stage" :options="$settings_select['cfadm']" style="width:100%"/>
                             </div>
                             <div class="col-md-9">
-                                <div class="form-group">
-                                    {!! Form::label('cf_adm', 'CF-ADM', ['class' => 'control-label']) !!}
-                                    {!! Form::text('cf_adm', null, ['class' => 'form-control', 'id' => 'cf_adm']) !!}
-                                </div>
+                                <x-form.input name="cf_adm" label="CF-ADM"/>
                             </div>
                         </div>
                     @endif
@@ -256,10 +226,7 @@
                         {{-- CF-ADM --}}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    {!! Form::label('steel', 'Steel', ['class' => 'control-label']) !!}
-                                    {!! Form::select('steel', $steel_cats, null, ['class' => 'form-control bs-select', 'id' => 'steel', 'width' => '100%']) !!}
-                                </div>
+                                <x-form.select name="steel" label="Steel" :options="$steel_cats" style="width:100%"/>
                             </div>
                         </div>
                     @endif
@@ -268,7 +235,7 @@
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
                     <button type="submit" class="btn green">Save</button>
                 </div>
-                {!! Form::close() !!}
+                </form>
             </div>
         </div>
     </div>

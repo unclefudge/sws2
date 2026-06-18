@@ -32,7 +32,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="10%">Date</th>
+                                <th style="width:10%">Date</th>
                                 <th>Extension Report</th>
                             </tr>
                             </thead>
@@ -51,7 +51,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

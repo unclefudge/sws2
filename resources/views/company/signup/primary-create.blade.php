@@ -38,13 +38,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Business Owner (primary user)</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('user', ['action' => 'Auth\RegistrationController@primaryStore', 'class' => 'horizontal-form']) !!}
                         {!! Form::hidden('signup_key', $company->signup_key) !!}
                         @include('form-error')
@@ -63,7 +61,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('password', $errors) !!}">
                                         {!! Form::label('password', 'Password *', ['class' => 'control-label']) !!}
-                                        <input type="password" class="form-control" name="password"  value="{{ old('password') }}">
+                                        <input type="password" class="form-control" name="password" value="{{ old('password') }}">
                                         {!! fieldErrorMessage('password', $errors) !!}
                                     </div>
                                 </div>
@@ -193,29 +191,30 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
 
-        /* Select2 */
+            /* Select2 */
 
-        $("#continue").show();
-
-        // Show Subcontractor field
-        if ($("#employment_type").val() == '3') {
-            $("#subcontract_type_field").show();
-            $("#continue").show();
-        }
-
-        $("#employment_type").on("change", function () {
-            $("#subcontract_type_field").hide();
             $("#continue").show();
 
+            // Show Subcontractor field
             if ($("#employment_type").val() == '3') {
                 $("#subcontract_type_field").show();
-                $("#continue").hide();
+                $("#continue").show();
             }
+
+            $("#employment_type").on("change", function () {
+                $("#subcontract_type_field").hide();
+                $("#continue").show();
+
+                if ($("#employment_type").val() == '3') {
+                    $("#subcontract_type_field").show();
+                    $("#continue").hide();
+                }
+            });
         });
-    });
-</script>
+    </script>
 @stop

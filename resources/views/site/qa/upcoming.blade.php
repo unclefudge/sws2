@@ -29,12 +29,12 @@
                     </div>
                     <div class="row">
                         @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
-                            <input type="hidden" id="supervisor_sel" value="1">
+                            <x-form.hidden name="supervisor_sel" id="supervisor_sel" value="1"/>
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'Active sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $super_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'Active sites'] + Auth::user()->company->reportsTo()->supervisorsSelect()" :value="$super_id"/>
                             </div>
                         @else
-                            <input type="hidden" id="supervisor_sel" value="0">
+                            <x-form.hidden name="supervisor_sel" id="supervisor_sel" value="0"/>
                         @endif
 
                     </div>
@@ -84,7 +84,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

@@ -64,16 +64,16 @@
                                 <div class="row" style="margin-top: 10px; margin-bottom: 10px;">
                                     <div class="col-sm-2">
                                         @if ($item->type == 'yn')
-                                            {!! Form::select("resp-$item->id", ['' => 'No', 'Yes' => 'Yes', 'N/A' => 'N/A'], $item->response, ['class' => 'form-control bs-select', 'disabled']) !!}
+                                            <x-form.select :name="'resp-' . $item->id" :options="['' => 'No', 'Yes' => 'Yes', 'N/A' => 'N/A']" :value="$item->response" disabled/>
                                         @else
-                                            {!! Form::select("resp-$item->id", ['No' => 'No', 'Yes' => 'Yes'], ($item->response) ? 'Yes' : 'No', ['class' => 'form-control bs-select', 'disabled', 'id' => "sel-$item->id"]) !!}
+                                            <x-form.select :name="'resp-' . $item->id" :options="['No' => 'No', 'Yes' => 'Yes']" :value="$item->response ? 'Yes' : 'No'" :id="'sel-' . $item->id" disabled/>
                                         @endif
                                     </div>
                                     <div class="col-sm-10">
                                         <div>{{ $item->name }}</div>
                                         @if ($item->type != 'yn')
                                             <div style="margin-top: 10px">
-                                                {!! Form::textarea("resp-$item->id", $item->response, ['rows' => '5', 'class' => 'form-control', 'placeholder' => 'Provide details', 'id' => "resp-$item->id", 'disabled']) !!}
+                                                <x-form.textarea :name="'resp-' . $item->id" :id="'resp-' . $item->id" :value="$item->response" rows="5" placeholder="Provide details" disabled/>
                                             </div>
                                         @endif
                                     </div>
@@ -123,7 +123,6 @@
                             </div>
 
                         </div>
-                        {!! Form::close() !!}
                     </div>
                 </div>
             </div>

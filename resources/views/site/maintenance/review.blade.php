@@ -42,9 +42,10 @@
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($main, ['action' => ['Site\SiteMaintenanceController@review', $main->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                            <input type="hidden" name="main_id" id="main_id" value="{{ $main->id }}">
-                            <input type="hidden" name="site_id" id="site_id" value="{{ $main->site_id }}">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceController::class, 'review'], $main->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            <x-form.hidden name="main_id" id="main_id" :value="$main->id"/>
+                            <x-form.hidden name="site_id" id="site_id" :value="$main->site_id"/>
                             @include('form-error')
 
                             {{-- Progress Steps --}}
@@ -92,21 +93,9 @@
                                         @endif
                                     </div>
                                     <div id="site-edit">
-                                        <div class="form-group {!! fieldHasError('reported', $errors) !!}">
-                                            {!! Form::label('reported', 'Reported', ['class' => 'control-label']) !!}
-                                            {!! Form::text('reported', ($main->reported) ? $main->reported->format('d/m/Y') : null, ['class' => 'form-control', 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            {!! fieldErrorMessage('reported', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('completed', $errors) !!}">
-                                            {!! Form::label('completed', 'Prac Completed', ['class' => 'control-label']) !!}
-                                            {!! Form::text('completed', ($main->completed) ? $main->completed->format('d/m/Y') : null, ['class' => 'form-control', 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            {!! fieldErrorMessage('completed', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
-                                            {!! Form::label('supervisor', 'Supervisor', ['class' => 'control-label']) !!}
-                                            {!! Form::text('supervisor', $main->supervisor, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('supervisor', $errors) !!}
-                                        </div>
+                                        <x-form.input name="reported" label="Reported" :value="($main->reported) ? $main->reported->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
+                                        <x-form.input name="completed" label="Prac Completed" :value="($main->completed) ? $main->completed->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
+                                        <x-form.input name="supervisor" label="Supervisor" :value="$main->supervisor"/>
                                     </div>
                                 </div>
                                 <div class="col-md-1"></div>
@@ -136,27 +125,15 @@
                                     <div id="client-edit">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <div class="form-group {!! fieldHasError('contact_name', $errors) !!}">
-                                                    {!! Form::label('contact_name', 'Name', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_name', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_name', $errors) !!}
-                                                </div>
+                                                <x-form.input name="contact_name" label="Name"/>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-4">
-                                                <div class="form-group {!! fieldHasError('contact_phone', $errors) !!}">
-                                                    {!! Form::label('contact_phone', 'Phone', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_phone', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_phone', $errors) !!}
-                                                </div>
+                                                <x-form.input name="contact_phone" label="Phone"/>
                                             </div>
                                             <div class="col-md-8">
-                                                <div class="form-group {!! fieldHasError('contact_email', $errors) !!}">
-                                                    {!! Form::label('contact_email', 'Email', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_email', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_email', $errors) !!}
-                                                </div>
+                                                <x-form.input name="contact_email" label="Email"/>
                                             </div>
                                         </div>
                                     </div>
@@ -194,7 +171,7 @@
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                                 <div class="row">
                                     <div class="col-md-6" style="background: #f1f0ef">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                        <x-form.filepond/><br><br>
                                     </div>
                                 </div>
                                 <br>
@@ -206,26 +183,20 @@
                             <div class="row">
                                 {{-- Category --}}
                                 <div class="col-md-3 ">
-                                    <div class="form-group">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
                                         @else
-                                            {!! Form::text('category_text', $main->category->name, ['class' => 'form-control', 'readonly']) !!}
+                                            <x-form.input name="category_text" label="Category" :value="$main->category->name" readonly/>
                                         @endif
-                                    </div>
                                 </div>
 
                                 {{-- Warranty --}}
                                 <div class="col-md-2 ">
-                                    <div class="form-group">
-                                        {!! Form::label('warranty', 'Warranty', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {!! Form::select('warranty', $maintenanceWarranty::all(), $main->warranty, ['class' => 'form-control bs-select', 'id' => 'warranty']) !!}
+                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <x-form.select name="warranty" id="warranty" label="Warranty" :options="$maintenanceWarranty::all()" :value="$main->warranty"/>
                                         @else
-                                            {!! Form::text('warranty_text', $maintenanceWarranty::name($main->warranty), ['class' => 'form-control', 'readonly']) !!}
+                                            <x-form.input name="warranty_text" label="Warranty" :value="$maintenanceWarranty::name($main->warranty)" readonly/>
                                         @endif
-                                    </div>
                                 </div>
                             </div>
 
@@ -234,14 +205,14 @@
                                 <div class="note note-warning">
                                     <h4>Assign Request to Maintenance Supervisor</h4>
                                     <hr style="padding: 0px; margin: 0px 0px 10px 0px; border-color: #000000">
-                                    <input type="hidden" name="visited" value="0">
+                                    <x-form.hidden name="visited" value="0"/>
 
                                     @if(Auth::user()->allowed2('sig.site.maintenance', $main))
                                         <div class="row">
                                             <div class="col-md-5">
                                                 {{-- Supervisor --}}
-                                                <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('company_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                                    {!! Form::label('super_id', 'Assign to', ['class' => 'control-label']) !!}
+                                                <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('company_id') ? '' : 'display:show' }}" id="company-div">
+                                                    <label for="super_id" class="control-label">Assign to</label>
                                                     <select id="super_id" name="super_id" class="form-control select2" style="width:100%">
                                                         <option value=""></option>
                                                         <optgroup label="Cape Code Supervisors"></optgroup>
@@ -253,15 +224,15 @@
                                                         <optgroup label="Not in Warranty"></optgroup>
                                                         <option value="declined">Decline request (not in warranty)</option>
                                                     </select>
-                                                    {!! fieldErrorMessage('super_id', $errors) !!}
+                                                    <x-form.error name="super_id"/>
                                                 </div>
                                             </div>
 
                                             {{-- Planner Date --}}
                                             {{--}}
                                             <div class="col-md-3 ">
-                                                <div class="form-group {!! fieldHasError('visit_date', $errors) !!}">
-                                                    {!! Form::label('visit_date', 'Visit Date', ['class' => 'control-label']) !!}
+                                                <div class="form-group {{ $errors->has('visit_date') ? 'has-error' : '' }}">
+                                                    <label for="visit_date" class="control-label">Visit Date</label>
                                                     <div class="input-group input-medium date date-picker" data-date-format="dd/mm/yyyy" data-date-start-date="+0d" data-date-reset>
                                                         <input type="text" class="form-control" value="{!! nextWorkDate(\Carbon\Carbon::today(), '+', 3)->format('d/m/Y') !!}" readonly style="background:#FFF" id="visit_date" name="visit_date">
                                             <span class="input-group-btn">
@@ -298,10 +269,7 @@
                             <div class="row">
                                 <div class="col-xs-1 ">Item {{$item->order}}</div>
                                 <div class="col-xs-11 ">
-                                    <div class="form-group {!! fieldHasError("item$item->order", $errors) !!}">
-                                        {!! Form::textarea("item$item->order", $item->name, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request $item->order."]) !!}
-                                        {!! fieldErrorMessage("item$item->order", $errors) !!}
-                                    </div>
+                                    <x-form.textarea :name="'item'.$item->order" rows="3" :value="$item->name" :placeholder="'Specific details of maintenance request '.$item->order.'.'"/>
                                 </div>
                             </div>
                         @endforeach
@@ -345,7 +313,7 @@
                             @endif
                         </div>
                         <br><br>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -373,10 +341,10 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
-                            <th width="5%"></th>
+                            <th style="width:20%"> Name</th>
+                            <th style="width:5%"></th>
                         </tr>
                         </thead>
                         <tbody>

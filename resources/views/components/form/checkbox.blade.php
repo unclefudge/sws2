@@ -14,6 +14,6 @@
                 {{ old($name, $checked) ? 'checked' : '' }}
                 {{ $attributes }}
         >
-        {{ $label }}
+        {!! $label !!}
     </label>
 </div>

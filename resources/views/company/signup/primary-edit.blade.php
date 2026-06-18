@@ -38,7 +38,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Business Owner (primary user)</span>
                             <span class="caption-helper"></span>
                         </div>
@@ -62,7 +61,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('password', $errors) !!}">
                                         {!! Form::label('password', 'Password *', ['class' => 'control-label']) !!}
-                                        <input type="password" class="form-control" name="password"  value="{{ old('password') }}">
+                                        <input type="password" class="form-control" name="password" value="{{ old('password') }}">
                                         {!! fieldErrorMessage('password', $errors) !!}
                                     </div>
                                 </div>
@@ -199,31 +198,32 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
 
-        /* Select2 */
+            /* Select2 */
 
-        // Show Subcontractor field
-        if ($("#employment_type").val() == '3')
-            $("#subcontract_type_field").show();
-
-        $("#employment_type").on("change", function () {
-            $("#subcontract_type_field").hide();
+            // Show Subcontractor field
             if ($("#employment_type").val() == '3')
                 $("#subcontract_type_field").show();
-        });
 
-        // Show appropriate Subcontractor message
-        $("#subcontractor_type").on("change", function () {
-            $("#subcontractor_wc").hide();
-            $("#subcontractor_sa").hide();
-            if ($("#subcontractor_type").val() == '1' || $("#subcontractor_type").val() == '4')
-                $("#subcontractor_wc").show();
-            if ($("#subcontractor_type").val() == '2' || $("#subcontractor_type").val() == '3')
-                $("#subcontractor_sa").show();
+            $("#employment_type").on("change", function () {
+                $("#subcontract_type_field").hide();
+                if ($("#employment_type").val() == '3')
+                    $("#subcontract_type_field").show();
+            });
+
+            // Show appropriate Subcontractor message
+            $("#subcontractor_type").on("change", function () {
+                $("#subcontractor_wc").hide();
+                $("#subcontractor_sa").hide();
+                if ($("#subcontractor_type").val() == '1' || $("#subcontractor_type").val() == '4')
+                    $("#subcontractor_wc").show();
+                if ($("#subcontractor_type").val() == '2' || $("#subcontractor_type").val() == '3')
+                    $("#subcontractor_sa").show();
+            });
         });
-    });
-</script>
+    </script>
 @stop

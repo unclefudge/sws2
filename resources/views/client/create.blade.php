@@ -23,7 +23,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Create New Client</span>
                             <span class="caption-helper"></span>
                         </div>
@@ -33,7 +32,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('client', ['action' => 'Misc\ClientController@store', 'class' => 'horizontal-form']) !!}
                         {!! Form::hidden('company_id', Auth::User()->company_id) !!}
                         @include('form-error')
@@ -127,13 +125,13 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -144,7 +142,8 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 

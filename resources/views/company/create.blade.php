@@ -21,13 +21,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Create New Company</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('company', ['action' => 'Company\CompanyController@store', 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 
@@ -116,18 +114,19 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-    $(document).ready(function () {
-        /* Select2 */
-        $("#trades").select2({placeholder: "Select one or more", width: '100%'});
-        $("#category").select2({placeholder: "Select one", width: '100%'});
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* Select2 */
+            $("#trades").select2({placeholder: "Select one or more", width: '100%'});
+            $("#category").select2({placeholder: "Select one", width: '100%'});
+        });
+    </script>
 
 @stop
 

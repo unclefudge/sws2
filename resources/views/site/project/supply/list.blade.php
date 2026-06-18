@@ -33,29 +33,24 @@
                     @if (Auth::user()->permissionLevel('view.site.qa', 3) == 99)
                         <input type="hidden" id="supervisor_sel" value="1">
                         <div class="col-md-4">
-                            {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect(), ($signoff) ? 'signoff' : session('/site/qa:supervisor'), ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                            <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect()" :value="($signoff) ? 'signoff' : session('/site/qa:supervisor')"/>
                         </div>
                     @else
                         <input type="hidden" id="supervisor_sel" value="0">
                     @endif
                     <div class="row">
                         <div class="col-md-3 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" id="status" :options="['1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Site Name</th>
-                                <th width="10%"> Updated</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -64,7 +59,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

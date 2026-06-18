@@ -6,7 +6,6 @@
             <div class="col-md-6 col-md-offset-3">
                 <div class="portlet light bordered">
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         <form method="POST" action="/login" id="login_form">
                             {{ csrf_field() }}
 

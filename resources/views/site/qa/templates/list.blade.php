@@ -13,7 +13,6 @@
 
 @section('content')
     <div class="page-content-inner">
-        <!-- Templates -->
         <div class="row">
             <div class="col-md-12">
                 <div class="portlet light ">
@@ -32,22 +31,17 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status2" id="status2" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status2" id="status2" :options="['1' => 'Active', '0' => 'Inactive']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
                         <table class="table table-striped table-bordered table-hover order-column" id="table2">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="5%"> #</th>
+                                <th style="width:5%"> #</th>
                                 <th> Name</th>
-                                <th width="10%"> Updated</th>
-                                <th width="5%"></th>
+                                <th style="width:10%"> Updated</th>
+                                <th style="width:5%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -56,7 +50,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

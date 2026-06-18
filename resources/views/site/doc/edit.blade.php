@@ -18,80 +18,62 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit Document </span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('sitedoc', ['method' => 'PATCH', 'action' => ['Site\SiteDocController@update', $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteDocController::class, 'update'], $doc->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::select('site_id', Auth::user()->company->sitesSelect(),
-                                             $doc->site_id, ['class' => 'form-control select2']) !!}
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.select name="site_id" label="Site" :options="Auth::user()->company->sitesSelect()" :value="$doc->site_id" plugin="select2"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.select name="type" label="Type" :options="['' => 'Select Type', 'RISK' => 'Risk', 'HAZ' => 'Hazard', 'PLAN' => 'Plan']" :value="$doc->type"/>
+                                    </div>
+                                    <div class="col-md-1 pull-right hidden-sm hidden-xs">
+                                        <a href="{{ $doc->attachment_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type', ['' => 'Select Type', 'RISK' => 'Risk', 'HAZ' => 'Hazard', 'PLAN' => 'Plan'],
-                                             $doc->type, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Name" :value="$doc->name"/>
+                                    </div>
+                                    <div class="col-md-4 pull-right">
+                                        <button type="button" class="btn blue pull-right" style="margin-top: 25px" id="change_file"> Change File</button>
+                                    </div>
+                                    <div class="col-xs-2 pull-right visible-sm visible-xs">
+                                        <a href="{{ $doc->report_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
                                     </div>
                                 </div>
-                                <div class="col-md-1 pull-right hidden-sm hidden-xs">
-                                    <a href="{{ $doc->attachment_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $doc->name, ['class' => 'form-control']) !!}
+                                <!-- File upload -->
+                                <div class="row" style="display: none" id="uploadfile-div">
+                                    <div class="col-md-6">
+                                        <div class="form-group {{ $errors->has('uploadfile') ? 'has-error' : '' }}">
+                                            <label class="control-label">Select File</label>
+                                            <input id="uploadfile" name="uploadfile" type="file" class="file-loading">
+                                            <x-form.error name="uploadfile"/>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 pull-right">
-                                    <button type="button" class="btn blue pull-right" style="margin-top: 25px" id="change_file"> Change File</button>
-                                </div>
-                                <div class="col-xs-2 pull-right visible-sm visible-xs">
-                                    <a href="{{ $doc->report_url }}" target="_blank"><i class="fa fa-bold fa-4x fa-file-text-o" style="margin-top: 25px"></i></a>
-                                </div>
-                            </div>
-                            <!-- File upload -->
-                            <div class="row" style="display: none" id="uploadfile-div">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('uploadfile', $errors) !!}">
-                                        <label class="control-label">Select File</label>
-                                        <input id="uploadfile" name="uploadfile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('uploadfile', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="form-section"></h3>
-                            <!-- Notes -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', $doc->notes, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
+                                <h3 class="form-section"></h3>
+                                <!-- Notes -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="notes" label="Notes" rows="2" :value="$doc->notes"/>
                                         <span class="help-block"> For internal use only </span>
                                     </div>
                                 </div>
+                                <div class="form-actions right">
+                                    <button type="submit" name="back" value="back" class="btn default"> Back</button>
+                                    <button type="submit" name="save" value="save" class="btn green">Save</button>
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <button type="submit" name="back" value="back" class="btn default"> Back</button>
-                                <button type="submit" name="save" value="save" class="btn green">Save</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
@@ -101,7 +83,6 @@
                 {!! $doc->displayUpdatedBy() !!}
             </div>
         </div>
-        <!-- END PAGE CONTENT INNER -->
     </div>
 @stop
 

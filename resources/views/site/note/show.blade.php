@@ -26,23 +26,18 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($note, ['method' => 'POST', 'action' => ['Site\SiteNoteController@uploadAttachment', $note->id], 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteNoteController::class, 'uploadAttachment'], $note->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
                         <div class="form-body">
                             <div class="row">
                                 {{-- Site --}}
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        {!! Form::label('site_name', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_name', $note->site->name, ['class' => 'form-control', 'readonly', 'id' => 'site_name']) !!}
-                                        <input type="hidden" name="site_id" value="{{ $note->site_id }}">
-                                    </div>
+                                    <x-form.input name="site_name" label="Site" :value="$note->site->name" id="site_name" readonly/>
+                                    <x-form.hidden name="site_id" :value="$note->site_id"/>
                                 </div>
                                 {{-- Category --}}
                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('category_name', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::text('category_name', ($note->category_id) ? $note->category->name : 'none', ['class' => 'form-control', 'readonly', 'id' => 'category_name']) !!}
-                                    </div>
+                                    <x-form.input name="category_name" label="Category" :value="($note->category_id) ? $note->category->name : 'none'" id="category_name" readonly/>
                                 </div>
                             </div>
 
@@ -50,36 +45,21 @@
                             @if ($note->category_id == '15')
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="costing_extra_credit" label="Credit / Extra" :value="$note->costing_extra_credit" readonly/>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_item', $note->costing_item, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="costing_item" label="New item / In Lieu of" :value="$note->costing_item" readonly/>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_priority', 'Priority', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_priority', $note->costing_priority, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="costing_priority" label="Priority" :value="$note->costing_priority" readonly/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_room', $note->costing_room, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="costing_room" label="Room" :value="$note->costing_room" readonly/>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group">
-                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label', 'readonly']) !!}
-                                            {!! Form::text('costing_location', $note->costing_location, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="costing_location" label="Location" :value="$note->costing_location" readonly/>
                                     </div>
                                 </div>
                                 @php
@@ -91,19 +71,12 @@
                             @if (in_array($note->category_id, [16, 19, 20, 93]))
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_name', $note->variation_name, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="variation_name" label="Variation Name" :value="$note->variation_name" readonly/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            {!! Form::label('variation_name', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {{--}}{!! Form::text('variation_info', $note->variation_info, ['class' => 'form-control', 'readonly']) !!}--}}
-                                            {!! Form::textarea('variation_info', $note->variation_info, ['rows' => 5, 'class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.textarea name="variation_info" label="Variation Description" :value="$note->variation_info" rows="5" readonly/>
                                     </div>
                                 </div>
                             @endif
@@ -112,33 +85,23 @@
                             @if (in_array($note->category_id, [16, 19, 93]))
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            {!! Form::text('variation_net',  $note->variation_net, ['class' => 'form-control', 'readonly']) !!}
-                                            {!! fieldErrorMessage('variation_net', $errors) !!}
-                                        </div>
+                                        <x-form.input name="variation_net" label="Net Cost <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_net" readonly/>
                                     </div>
+
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_cost', $note->variation_cost, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="variation_cost" label="Gross Cost (incl GST + 20% margin)" :value="$note->variation_cost" readonly/>
                                     </div>
+
                                     @if (in_array($note->category_id, [16, 19]))
                                         <div class="col-md-3">
-                                            <div class="form-group">
-                                                {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                                {!! Form::text('costing_extra_credit', $note->costing_extra_credit, ['class' => 'form-control', 'readonly']) !!}
-                                            </div>
+                                            <x-form.input name="costing_extra_credit" label="Credit / Extra" :value="$note->costing_extra_credit" readonly/>
                                         </div>
                                     @endif
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="variation_days" class="control-label">Total Extension Days (discussed with Client) Description <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            {!! Form::text('variation_days', $note->variation_days, ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="variation_days" label="Total Extension Days (discussed with Client) Description <span class='font-grey-silver'>(Admin use only)</span>" :value="$note->variation_days" readonly/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -159,24 +122,11 @@
                             @if (in_array($note->category_id, ['89']))
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="prac_notified" class="control-label"> Prac Notified
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date you will be delivering letters. Please make sure you have given 7 working days notice"> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            {!! Form::text('prac_notified', ($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="prac_notified" label="Prac Notified" help="Date you will be delivering letters. Please make sure you have given 7 working days notice" :value="($note->prac_notified) ? $note->prac_notified->format('d/m/Y') : ''" readonly/>
                                     </div>
+
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="prac_meeting_date" class="control-label"> Prac Meeting Date
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            {!! Form::text('prac_notified', ($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="prac_meeting_date" label="Prac Meeting Date" help="Date you will be holding the Prac Meeting with the Client." :value="($note->prac_meeting) ? $note->prac_meeting->format('d/m/Y') : ''" readonly/>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
@@ -185,7 +135,7 @@
                                                    data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
                                                 </a>
                                             </label>
-                                            {!! Form::text('prac_notified', ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '', ['class' => 'form-control', 'readonly']) !!}
+                                            <input type="text" name="prac_notified" id="prac_notified" value="{{ old('prac_notified', ($note->prac_meeting) ? $note->prac_meeting->format('h:i A') : '') }}" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -195,20 +145,13 @@
                             @if (in_array($note->category_id, ['94']))
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('occupation_date', $errors) !!}">
-                                            <label for="occupation_date" class="control-label"> Date of Occupancy
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date client took occupancy"> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            {!! Form::text('occupation_date', ($note->occupation_date) ? $note->occupation_date->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="occupation_date" label="Date of Occupancy" help="Date client took occupancy" :value="($note->occupation_date) ? $note->occupation_date->format('d/m/Y') : ''" readonly/>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-12">
-                                        {!! Form::label('occupation_area', 'Areas Client has taken Occupation of', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('occupation_area', $note->occupation_area, ['class' => 'form-control', 'readonly']) !!}
+                                        <x-form.textarea name="occupation_area" label="Areas Client has taken Occupation of" :value="$note->occupation_area" readonly/>
                                         <br><br>
                                     </div>
                                 </div>
@@ -218,10 +161,7 @@
                             @if (in_array($note->category_id, ['12, 13, 14']))
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <div class="form-group">
-                                            {!! Form::label('response_req', 'Response Required', ['class' => 'control-label']) !!}
-                                            {!! Form::text('response_req', ($note->response_req) ? 'Yes' : 'No - FYI only', ['class' => 'form-control', 'readonly']) !!}
-                                        </div>
+                                        <x-form.input name="response_req" label="Response Required" :value="($note->response_req) ? 'Yes' : 'No - FYI only'" readonly/>
                                     </div>
                                 </div>
                             @endif
@@ -252,9 +192,7 @@
                                             @if (Auth::user()->hasPermission2("del.site.note"))
                                                 <i class="fa fa-times font-red deleteFile edit-toggle" style="cursor:pointer; display:none;" data-name="{{ $attachment->name }}" data-attachid="{{$attachment->id}}"></i>
                                             @endif
-                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                            </a>
+                                            <a href="{{ $attachment->url }}" target="_blank" data-lity><img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                         </div>
                                     @endforeach
                                 </div>
@@ -279,7 +217,7 @@
                         <div class="row edit-toggle" style="display: none">
                             <div class="col-md-6">
                                 <h5 id="uploads_label">Upload Attachments</h5>
-                                <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                <x-form.filepond/><br><br>
                             </div>
                             <div class="col-md-6">
                                 <br><br>
@@ -287,7 +225,7 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
+                        </form>
 
                         {{-- Reply --}}
                         @if ($note->extraNotes->count())
@@ -317,9 +255,7 @@
                                 <a href="/site/{{$note->id}}/notes/convert" class="btn green"> Copy & Create To Approved Site Variation </a>
                             @endif
                         </div>
-
                     </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>

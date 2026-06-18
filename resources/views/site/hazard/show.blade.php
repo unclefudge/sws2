@@ -19,7 +19,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-file-text-o "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Hazard</span>
                             <span class="caption-helper"> ID: {{ $hazard->id }}</span>
                         </div>

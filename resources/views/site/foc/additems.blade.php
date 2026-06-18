@@ -25,124 +25,102 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model($foc, ['method' => 'PATCH','action' => ['Site\SiteFocController@addItemsSave',  $foc->id], 'class' => 'horizontal-form']) !!}
-                        <input type="hidden" id="item_count" value="5">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteFocController::class, 'addItemsSave'], $foc->id) }}" class="horizontal-form">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" id="item_count" value="5">
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <h4>Site Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    @if ($foc->site)
-                                        <b>{{ $foc->site->name }}</b><br>
-                                        {{ $foc->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
-                                    @endif
-                                </div>
-                            </div>
-                            <br>
-
-                            {{-- Items --}}
-                            <div id="items-div">
-                                <h4>FOC Item(s)</h4>
+                            <div class="form-body">
+                                <h4>Site Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <?php $itemCount = $foc->items->count() ?>
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <div class="row">
-                                        <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
-                                        <div class="col-xs-8 ">
-                                            <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                {!! fieldErrorMessage('item1', $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-3">
-                                            <div class="form-group {!! fieldHasError("cat$i", $errors) !!}">
-                                                {!! Form::select("cat$i", $cats, null, ['class' => 'form-control bs-select', 'title' => 'Select category', 'name' => "cat$i", 'id' => "cat$i"]) !!}
-                                                {!! fieldErrorMessage("cat$i", $errors) !!}
-                                            </div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        @if ($foc->site)
+                                            <b>{{ $foc->site->name }}</b><br>
+                                            {{ $foc->site->full_address }}<br>
+                                            <b>Supervisor:</b> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : 'none'}}<br>
+                                        @endif
                                     </div>
-                                @endfor
+                                </div>
+                                <br>
 
-                                {{-- Extra 5 Items --}}
-                                <button class="btn blue" id="more5">More Items</button>
-                                <div id="more_items5" style="display: none">
-                                    @for ($i = 6; $i <= 10; $i++)
+                                {{-- Items --}}
+                                <div id="items-div">
+                                    <h4>FOC Item(s)</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <?php $itemCount = $foc->items->count() ?>
+                                    @for ($i = 1; $i <= 5; $i++)
                                         <div class="row">
                                             <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
                                             <div class="col-xs-8 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
-                                                </div>
+                                                <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
                                             </div>
                                             <div class="col-xs-3">
-                                                <div class="form-group {!! fieldHasError("cat$i", $errors) !!}">
-                                                    {!! Form::select("cat$i", $cats, null, ['class' => 'form-control bs-select', 'title' => 'Select category', 'name' => "cat$i", 'id' => "cat$i"]) !!}
-                                                    {!! fieldErrorMessage("cat$i", $errors) !!}
-                                                </div>
+                                                <x-form.select :name="'cat'.$i" :id="'cat'.$i" :options="$cats" title="Select category"/>
                                             </div>
                                         </div>
                                     @endfor
-                                    <button class="btn blue" id="more10">More Items</button>
-                                </div>
-                                {{-- Extra 10 Items --}}
-                                <div id="more_items10" style="display: none">
-                                    @for ($i = 11; $i <= 15; $i++)
-                                        <div class="row">
-                                            <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
-                                            <div class="col-xs-8 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
+
+                                    {{-- Extra 5 Items --}}
+                                    <button class="btn blue" id="more5">More Items</button>
+                                    <div id="more_items5" style="display: none">
+                                        @for ($i = 6; $i <= 10; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
+                                                <div class="col-xs-8 ">
+                                                    <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
+                                                </div>
+                                                <div class="col-xs-3">
+                                                    <x-form.select :name="'cat'.$i" :id="'cat'.$i" :options="$cats" title="Select category"/>
                                                 </div>
                                             </div>
-                                            <div class="col-xs-3">
-                                                <div class="form-group {!! fieldHasError("cat$i", $errors) !!}">
-                                                    {!! Form::select("cat$i", $cats, null, ['class' => 'form-control bs-select', 'title' => 'Select category', 'name' => "cat$i", 'id' => "cat$i"]) !!}
-                                                    {!! fieldErrorMessage("cat$i", $errors) !!}
+                                        @endfor
+                                        <button class="btn blue" id="more10">More Items</button>
+                                    </div>
+                                    {{-- Extra 10 Items --}}
+                                    <div id="more_items10" style="display: none">
+                                        @for ($i = 11; $i <= 15; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
+                                                <div class="col-xs-8 ">
+                                                    <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
+                                                </div>
+                                                <div class="col-xs-3">
+                                                    <x-form.select :name="'cat'.$i" :id="'cat'.$i" :options="$cats" title="Select category"/>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endfor
-                                    <button class="btn blue" id="more15">More Items</button>
-                                </div>
-                                {{-- Extra 15 Items --}}
-                                <div id="more_items15" style="display: none">
-                                    @for ($i = 16; $i <= 20; $i++)
-                                        <div class="row">
-                                            <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
-                                            <div class="col-xs-8 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
+                                        @endfor
+                                        <button class="btn blue" id="more15">More Items</button>
+                                    </div>
+                                    {{-- Extra 15 Items --}}
+                                    <div id="more_items15" style="display: none">
+                                        @for ($i = 16; $i <= 20; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i+$itemCount}}</div>
+                                                <div class="col-xs-8 ">
+                                                    <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
+                                                </div>
+                                                <div class="col-xs-3">
+                                                    <x-form.select :name="'cat'.$i" :id="'cat'.$i" :options="$cats" title="Select category"/>
                                                 </div>
                                             </div>
-                                            <div class="col-xs-3">
-                                                <div class="form-group {!! fieldHasError("cat$i", $errors) !!}">
-                                                    {!! Form::select("cat$i", $cats, null, ['class' => 'form-control bs-select', 'title' => 'Select category', 'name' => "cat$i", 'id' => "cat$i"]) !!}
-                                                    {!! fieldErrorMessage("cat$i", $errors) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endfor
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/foc" class="btn default"> Back</a>
-                            <button type="submit" class="btn green" id="submit"> Save</button>
-                        </div>
+                            <div class="form-actions right">
+                                <a href="/site/foc" class="btn default"> Back</a>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
+                            </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -190,11 +168,6 @@
                 $('#more15').hide();
                 $('#more_items15').show();
             });
-
-
-            function updateFields() {
-
-            }
         });
     </script>
 @stop

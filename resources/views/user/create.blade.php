@@ -4,15 +4,15 @@
 @extends('layout')
 
 @if (Auth::user()->company->status != 2)
-@section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('user'))
-            <li><a href="/company/{{ Auth::user()->company->id}}/user">Users</a><i class="fa fa-circle"></i></li>
-        @endif
-        <li><span>Create new user</span></li>
-    </ul>
-@stop
+    @section('breadcrumbs')
+        <ul class="page-breadcrumb breadcrumb">
+            <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+            @if (Auth::user()->hasAnyPermissionType('user'))
+                <li><a href="/company/{{ Auth::user()->company->id}}/user">Users</a><i class="fa fa-circle"></i></li>
+            @endif
+            <li><span>Create new user</span></li>
+        </ul>
+    @stop
 @endif
 
 @section('content')
@@ -63,7 +63,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Create New User</span>
                             <span class="caption-helper"></span>
                         </div>
@@ -292,7 +291,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -306,62 +305,62 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $('.date-picker').datepicker({autoclose: true, clearBtn: true, format: 'dd/mm/yyyy'});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $('.date-picker').datepicker({autoclose: true, clearBtn: true, format: 'dd/mm/yyyy'});
 
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-        /* Select2 */
-        $("#roles").select2({placeholder: "Select one or more roles", width: '100%'});
-        $("#trades").select2({placeholder: "Select one or more", width: '100%'});
+            /* Select2 */
+            $("#roles").select2({placeholder: "Select one or more roles", width: '100%'});
+            $("#trades").select2({placeholder: "Select one or more", width: '100%'});
 
-        $("#user_creation_fields").hide();
-        $("#company_creation_fields").hide();
-        $("#apprentice_start_field").hide();
-
-        // Show User Creation fields
-        if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
-            $("#user_creation_fields").show();
-
-        // Show Company Creations field
-        if ($("#employment_type").val() == 3)
-            $("#company_creation_fields").show();
-
-        $("#employment_type").on("change", function () {
             $("#user_creation_fields").hide();
             $("#company_creation_fields").hide();
+            $("#apprentice_start_field").hide();
 
-            //if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
+            // Show User Creation fields
+            if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
                 $("#user_creation_fields").show();
+
+            // Show Company Creations field
             if ($("#employment_type").val() == 3)
                 $("#company_creation_fields").show();
-        });
 
-        // Show Apprentice Start field
-        if ($("#apprentice").val() == 1)
-            $("#apprentice_start_field").show();
+            $("#employment_type").on("change", function () {
+                $("#user_creation_fields").hide();
+                $("#company_creation_fields").hide();
 
-        $("#apprentice").on("change", function () {
-            $("#apprentice_start_field").hide();
+                //if ($("#employment_type").val() == 1 || $("#employment_type").val() == 2)
+                $("#user_creation_fields").show();
+                if ($("#employment_type").val() == 3)
+                    $("#company_creation_fields").show();
+            });
+
+            // Show Apprentice Start field
             if ($("#apprentice").val() == 1)
                 $("#apprentice_start_field").show();
+
+            $("#apprentice").on("change", function () {
+                $("#apprentice_start_field").hide();
+                if ($("#apprentice").val() == 1)
+                    $("#apprentice_start_field").show();
+            });
+
+
+            // Show appropriate Subcontractor message
+            /*$("#subcontractor_type").on("change", function () {
+                $("#subcontractor_wc").hide();
+                $("#subcontractor_sa").hide();
+                if ($("#subcontractor_type").val() == '1' || $("#subcontractor_type").val() == '4')
+                    $("#subcontractor_wc").show();
+                if ($("#subcontractor_type").val() == '2' || $("#subcontractor_type").val() == '3')
+                    $("#subcontractor_sa").show();
+            });*/
+
         });
-
-
-
-        // Show appropriate Subcontractor message
-        /*$("#subcontractor_type").on("change", function () {
-            $("#subcontractor_wc").hide();
-            $("#subcontractor_sa").hide();
-            if ($("#subcontractor_type").val() == '1' || $("#subcontractor_type").val() == '4')
-                $("#subcontractor_wc").show();
-            if ($("#subcontractor_type").val() == '2' || $("#subcontractor_type").val() == '3')
-                $("#subcontractor_sa").show();
-        });*/
-
-    });
-</script>
+    </script>
 @stop
 

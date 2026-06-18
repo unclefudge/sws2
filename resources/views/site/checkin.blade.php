@@ -36,9 +36,8 @@
                         </h2>
                         <p>{{ $worksite->address }}, {{ $worksite->suburb }}</p>
                         <hr>
-
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_attenance', ['action' => ['Site\SiteCheckinController@processCheckin', $worksite->id], 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'processCheckin'], $worksite->id) }}" enctype="multipart/form-data">
+                            @csrf
                         @include('form-error')
 
                         <p>Please answer the following questions.</p>
@@ -50,10 +49,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question20', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question20" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -64,10 +60,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question21', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question21" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -78,10 +71,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question22', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question22" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -93,10 +83,7 @@
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question18', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question18" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
@@ -109,11 +96,8 @@
                             <br>
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group {!! fieldHasError('transient', $errors) !!}">
-                                        {!! Form::checkbox('question4', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                    <div class="form-group {{ $errors->has('transient') ? 'has-error' : '' }}">
+                                        <input type="checkbox" name="question4" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -123,11 +107,8 @@
                             <div class="row visible-xs">&nbsp;</div>
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group {!! fieldHasError('transient', $errors) !!}">
-                                        {!! Form::checkbox('question1', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                    <div class="form-group {{ $errors->has('transient') ? 'has-error' : '' }}">
+                                        <input type="checkbox" name="question1" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -139,10 +120,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question2', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question2" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -153,10 +131,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question3', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question3" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -168,10 +143,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question5', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question5" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -241,8 +213,7 @@
                                                                             @if ($worksite->docsOfType('HAZ')->first())
                                                                                 @foreach($worksite->docsOfType('HAZ') as $doc)
                                                                                     <li class="mt-list-item" style="padding: 10px 0px">
-                                                                                        <div class="list-icon-container"><a href="{{\App\Services\FileBank::url($doc->attachment) }}"><i
-                                                                                                        class="fa fa-file-text-o"></i></a></div>
+                                                                                        <div class="list-icon-container"><a href="{{\App\Services\FileBank::url($doc->attachment) }}"><i class="fa fa-file-text-o"></i></a></div>
                                                                                         <div class="list-item-content">{{ $doc->name }}</div>
                                                                                     </li>
                                                                                 @endforeach
@@ -261,8 +232,7 @@
                                                     <div class="panel panel-default">
                                                         <div class="panel-heading">
                                                             <h4 class="panel-title">
-                                                                <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3">
-                                                                    Safe Work Method Statements </a>
+                                                                <a class="accordion-toggle accordion-toggle-styled collapsed" data-toggle="collapse" data-parent="#accordion3" href="#collapse_3_3">Safe Work Method Statements </a>
                                                             </h4>
                                                         </div>
                                                         <div id="collapse_3_3" class="panel-collapse collapse">
@@ -276,8 +246,7 @@
                                                                                         <li class="mt-list-item" style="padding: 10px 0px">
                                                                                             <div class="list-icon-container">
                                                                                                 @if($doc->attachment)
-                                                                                                    <a href="{{\App\Services\FileBank::url($doc->attachment)}}"><i
-                                                                                                                class="fa fa-file-text-o"></i></a>
+                                                                                                    <a href="{{\App\Services\FileBank::url($doc->attachment)}}"><i class="fa fa-file-text-o"></i></a>
                                                                                                 @endif
                                                                                             </div>
                                                                                             <div class="list-item-content">{{ $doc->name }}</div>
@@ -307,10 +276,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question19', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question19" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -321,8 +287,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question6', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small', 'data-on-text'=>'Yes', 'data-on-color'=>'success','data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question6" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -333,10 +298,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question7', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question7" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -347,10 +309,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('question8', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                        <input type="checkbox" name="question8" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -361,10 +320,7 @@
                             <div class="row">
                                 <div class="col-sm-2 col-xs-4 text-center">
                                     <div class="form-group">
-                                        {!! Form::checkbox('safe_site', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger', 'id'=>'safe_site']) !!}
+                                        <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
                                     </div>
                                 </div>
                                 <div class="col-sm-10 col-xs-8">
@@ -378,15 +334,14 @@
                             <div class="form-actions">
                                 <button type="submit" class="btn green" name="checkin" value="true" id="submit">Submit</button>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

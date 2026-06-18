@@ -16,7 +16,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Sign Up</span>
                             <span class="caption-helper"></span>
                         </div>
@@ -31,7 +30,7 @@
                                     <div class="col-sm-3 mt-step-col first">
                                         <div class="mt-step-number bg-white font-grey">1</div>
                                         <div class="mt-step-title uppercase font-grey-cascade">Business Owner</div>
-                                            <div class="mt-step-content font-grey-cascade">Add primary user</div>
+                                        <div class="mt-step-content font-grey-cascade">Add primary user</div>
                                     </div>
                                     <div class="col-sm-3 mt-step-col">
                                         <div class="mt-step-number bg-white font-grey">2</div>
@@ -77,5 +76,6 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
 @stop

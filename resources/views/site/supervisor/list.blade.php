@@ -61,9 +61,9 @@
                                     <table v-show="xx.supers.length" class="table table-striped table-bordered table-hover order-column">
                                         <thead>
                                         <tr class="mytable-header">
-                                            <th width="3%"></th>
-                                            <th width="50%"><a href="#" v-on:click="sortBy('name')"> Name </a></th>
-                                            <th width="5%">Actions</th>
+                                            <th style="width:3%"></th>
+                                            <th style="width:50%"><a href="#" v-on:click="sortBy('name')"> Name </a></th>
+                                            <th style="width:5%">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -93,7 +93,7 @@
                                                         <template v-for="sup_child in xx.supers">
                                                             <tr v-if="sup_child.parent_id == sup.id">
                                                                 <td>@{{ sup_child.name }}</td>
-                                                                <td width="5%" class="text-center">
+                                                                <td style="width:5%" class="text-center">
                                                                     @if (Auth::user()->hasPermission2('edit.area.super'))
                                                                         <span v-on:click="delSuper(sup_child)" class="finger"><i class="fa fa-trash" style=""></i></span>
                                                                     @endif

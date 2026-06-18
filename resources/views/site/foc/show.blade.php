@@ -165,7 +165,8 @@
                                 </div>
                                 {{-- Add Attachments --}}
                                 <div class="col-md-3" style="background: #f1f0ef;">
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                    <x-form.filepond/>
+                                    <br><br>
                                 </div>
                             </div>
 

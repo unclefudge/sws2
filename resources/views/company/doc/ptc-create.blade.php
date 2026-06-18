@@ -65,7 +65,6 @@
                             </div>
                         </div>
                         <div class="portlet-body form">
-                            <!-- BEGIN FORM-->
                             {!! Form::model('CompanyDocPeriodTrade', ['action' => ['Company\CompanyPeriodTradeController@store', $company->id], 'class' => 'horizontal-form']) !!}
                             @include('form-error')
 

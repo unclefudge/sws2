@@ -45,7 +45,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit Talk3</span>
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
@@ -235,6 +234,7 @@
                 "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.1.1/"
             }
         }
+
 
 
 

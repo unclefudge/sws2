@@ -16,7 +16,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit SDS </span>
                         </div>
                     </div>
@@ -112,7 +111,7 @@
                             @if ($sds->attachment)
                                 <div class="row" id="attachment_div">
                                     <div class="col-md-12">
-                                            <b>SDS File</b><br> <a href="{{ $sds->attachment_url }}">{{ $sds->attachment }} </a>
+                                        <b>SDS File</b><br> <a href="{{ $sds->attachment_url }}">{{ $sds->attachment }} </a>
                                         @if ($sds->status && $sds->attachment)
                                             &nbsp; &nbsp;<i class="fa fa-times font-red" id="delete"></i><br><br>
                                         @endif
@@ -165,40 +164,41 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-        /* Bootstrap Fileinput */
-        $("#singlefile").fileinput({
-            showUpload: false,
-            allowedFileExtensions: ["pdf"],
-            browseClass: "btn blue",
-            browseLabel: "Browse",
-            browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
-            //removeClass: "btn btn-danger",
-            removeLabel: "",
-            removeIcon: "<i class=\"fa fa-trash\"></i> ",
-            uploadClass: "btn btn-info",
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $("#change_file").click(function () {
-            $('#attachment-div').hide();
-            $('#uploadfile-div').show();
+        $(document).ready(function () {
+            /* Bootstrap Fileinput */
+            $("#singlefile").fileinput({
+                showUpload: false,
+                allowedFileExtensions: ["pdf"],
+                browseClass: "btn blue",
+                browseLabel: "Browse",
+                browseIcon: "<i class=\"fa fa-folder-open\"></i> ",
+                //removeClass: "btn btn-danger",
+                removeLabel: "",
+                removeIcon: "<i class=\"fa fa-trash\"></i> ",
+                uploadClass: "btn btn-info",
+            });
+
+            $("#change_file").click(function () {
+                $('#attachment-div').hide();
+                $('#uploadfile-div').show();
+            });
+
+            $("#delete").click(function (e) {
+                e.preventDefault();
+                $('#delete_attachment').val(1);
+                $('#uploadfile_div').show();
+                $('#attachment_div').hide();
+            });
         });
 
-        $("#delete").click(function (e) {
-            e.preventDefault();
-            $('#delete_attachment').val(1);
-            $('#uploadfile_div').show();
-            $('#attachment_div').hide();
-        });
-    });
-
-</script>
+    </script>
 @stop

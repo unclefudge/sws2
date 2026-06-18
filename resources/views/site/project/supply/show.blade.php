@@ -137,8 +137,7 @@
                                 @endif
                             </div>
 
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                        </div>
                     </div>
                 </div>
             </div>

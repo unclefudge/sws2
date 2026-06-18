@@ -165,6 +165,7 @@ class SiteDocController extends Controller
         if ($previous_url['path'] == '/site/doc/plan/create')
             return view('site/doc/plan/list', compact('site_id', 'type'));
 
+        //return back();
         return view('site/doc/list', compact('site_id', 'type'));
     }
 
@@ -286,7 +287,7 @@ class SiteDocController extends Controller
         $records = SiteDoc::with('site')->whereIn('site_id', $allowedSites)->where('status', 1);
         if ($type !== 'ALL')
             $records->where('type', $type);
-        
+
 
         $user = Auth::user();
         return DataTables::of($records)

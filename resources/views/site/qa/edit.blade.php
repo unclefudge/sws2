@@ -18,19 +18,19 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit Report</span>
                             <span class="caption-helper">ID: {{ $qa->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($qa, ['method' => 'PATCH', 'action' => ['Site\SiteQaController@update', $qa->id], 'class' => 'horizontal-form', 'files' => true, 'id'=>'qa_form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteQaController::class, 'update'], $qa->id) }}" class="horizontal-form" enctype="multipart/form-data" id="qa_form">
+                            @csrf
+                            @method('PATCH')
                         @include('form-error')
 
-                        <input type="hidden" name="master" value="{{ $qa->master }}">
-                        <input type="hidden" name="version" value="{{ $qa->version }}">
-                        <input type="hidden" name="company_id" value="{{ $qa->company_id }}">
+                        <x-form.hidden name="master" :value="$qa->master"/>
+                        <x-form.hidden name="version" :value="$qa->version"/>
+                        <x-form.hidden name="company_id" :value="$qa->company_id"/>
                         <div class="form-body">
                             @if ($qa->master)
                                 <div class="row" style="padding-bottom: 10px">
@@ -44,32 +44,20 @@
                             @endif
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $qa->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="name" label="Name" :value="$qa->name"/>
                                 </div>
                                 <div class="col-md-2 pull-right">
-                                    <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                        {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        @if (Auth::user()->hasPermission2('del.site.qa.templates'))
-                                            {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive'], $qa->status, ['class' => 'form-control bs-select']) !!}
-                                        @else
-                                            {!! Form::text('status_text', ($qa->status) ? 'Active' : 'Inactive', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                            {!! fieldErrorMessage('status', $errors) !!}
-                                    </div>
+                                    @if (Auth::user()->hasPermission2('del.site.qa.templates'))
+                                        <x-form.select name="status" label="Status" :options="['1' => 'Active', '0' => 'Inactive']" :value="$qa->status"/>
+                                    @else
+                                        <x-form.input name="status_text" label="Status" :value="($qa->status) ? 'Active' : 'Inactive'" readonly/>
+                                    @endif
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteQaCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                        Note: If you change category this won't update any currently active/past QA's
-                                    </div>
+                                    <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteQaCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" :value="$qa->category_id" plugin="select2" title="Select category"/>
+                                    Note: If you change category this won't update any currently active/past QA's
                                 </div>
                             </div>
 
@@ -87,21 +75,16 @@
                             @foreach ($qa->items->sortBy('order') as $item)
                                 <div class="row" id="itemrow{{ $item->order }}">
                                     <div class="col-md-6">
-                                        <div class="form-group">
-                                            {!! Form::textarea("item$item->order", $item->name, ['rows' => '2', 'class' => 'form-control', 'placeholder' => "Item $item->order.", 'id' => "item$item->order"]) !!}
-                                        </div>
+                                        <x-form.textarea :name="'item' . $item->order" rows="2" :value="$item->name" :placeholder="'Item ' . $item->order . '.'"/>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError("task$item->order", $errors) !!}">
-                                            {!! Form::select("task$item->order", Auth::user()->company->taskSelect(),$item->task_id, ['class' => 'form-control select2 task_sel']) !!}
-                                            {!! fieldErrorMessage("task$item->order", $errors) !!}
-                                        </div>
+                                        <x-form.select :name="'task' . $item->order" :id="'task' . $item->order" :options="Auth::user()->company->taskSelect()" :value="$item->task_id" plugin="select2 task_sel"/>
                                     </div>
                                     <div class="col-md-1">
                                         <div class="form-group">
                                             <div class="mt-checkbox-list">
                                                 <label class="mt-checkbox mt-checkbox-outline">
-                                                    {!! Form::checkbox("super$item->order", 1, $item->super, ['class' => 'mt-checkbox']) !!}
+                                                    <input type="checkbox" name="super{{ $item->order }}" value="1" class="mt-checkbox" {{ old('super' . $item->order, $item->super) ? 'checked' : '' }}>
                                                     <span></span>
                                                 </label>
                                             </div>
@@ -111,7 +94,7 @@
                                         <div class="form-group">
                                             <div class="mt-checkbox-list">
                                                 <label class="mt-checkbox mt-checkbox-outline">
-                                                    {!! Form::checkbox("cert$item->order", 1, $item->certification, ['class' => 'mt-checkbox']) !!}
+                                                    <input type="checkbox" name="cert{{ $item->order }}" value="1" class="mt-checkbox" {{ old('cert' . $item->order, $item->certification) ? 'checked' : '' }}>
                                                     <span></span>
                                                 </label>
                                             </div>
@@ -121,67 +104,59 @@
                                         <a id="del{{$item->order}}" name="del{{$item->order}}" class="deleteItem" onClick="deleteItem(this.id)"><i class="fa fa-times font-red"></i> </a>
                                     </div>
                                 </div>
-                                @endforeach
+                            @endforeach
 
-                                        <!-- Extra Fields -->
-                                <button class="btn blue" id="more">More Items</button>
-                                <div class="row" id="more_items" style="display: none">
-                                    @for ($i = $qa->items->count() + 1; $i <= 25; $i++)
-                                        <div class="col-md-6">
-                                            <div class="form-group">{!! Form::text("item$i", null, ['class' => 'form-control', 'placeholder' => "Item $i."]) !!}</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group {!! fieldHasError("task$i", $errors) !!}">
-                                                <select id="task{{$i}}" name="task{{$i}}" class="form-control select2 task_sel" style="width: 100%">
-                                                    <option value=""></option>
-                                                    @foreach(Auth::user()->company->taskSelect() as $value => $name)
-                                                        <option value="{{ $value }}" @if ($value == old("task$i")) selected @endif >{{ $name }}</option>
-                                                    @endforeach
-                                                </select>
-                                                {!! fieldErrorMessage("task$i", $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <div class="form-group">
-                                                <div class="mt-checkbox-list">
-                                                    <label class="mt-checkbox mt-checkbox-outline">
-                                                        {!! Form::checkbox("super$i", 1, null, ['class' => 'mt-checkbox']) !!}
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <div class="form-group">
-                                                <div class="mt-checkbox-list">
-                                                    <label class="mt-checkbox mt-checkbox-outline">
-                                                        {!! Form::checkbox("cert$i", 1, null, ['class' => 'mt-checkbox']) !!}
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endfor
-                                </div>
-
-                                <!-- Version -->
-                                <div class="row">
-                                    <div class="col-md-3 pull-right text-right" style="margin-top: 15px; padding-right: 20px">
-                                    <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $qa->version }} </span>
+                            <!-- Extra Fields -->
+                            <button class="btn blue" id="more">More Items</button>
+                            <div class="row" id="more_items" style="display: none">
+                                @for ($i = $qa->items->count() + 1; $i <= 25; $i++)
+                                    <div class="col-md-6">
+                                        <x-form.input :name="'item' . $i" :placeholder="'Item ' . $i . '.'"/>
                                     </div>
+                                    <div class="col-md-4">
+                                        <x-form.select :name="'task' . $i" :id="'task' . $i" :options="['' => ''] + Auth::user()->company->taskSelect()" plugin="select2 task_sel" style="width:100%"/>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <div class="mt-checkbox-list">
+                                                <label class="mt-checkbox mt-checkbox-outline">
+                                                    <input type="checkbox" name="super{{ $i }}" value="1" class="mt-checkbox" {{ old("super$i") ? 'checked' : '' }}>
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="form-group">
+                                            <div class="mt-checkbox-list">
+                                                <label class="mt-checkbox mt-checkbox-outline">
+                                                    <input type="checkbox" name="cert{{ $i }}" value="1" class="mt-checkbox" {{ old("cert$i") ? 'checked' : '' }}>
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endfor
+                            </div>
+
+                            <!-- Version -->
+                            <div class="row">
+                                <div class="col-md-3 pull-right text-right" style="margin-top: 15px; padding-right: 20px">
+                                    <span class="font-grey-salsa"><span class="font-grey-salsa">version {{ $qa->version }} </span>
                                 </div>
+                            </div>
                         </div>
                         <div class="form-actions right">
                             <a href="{{ url()->previous() }}" class="btn default"> Back</a>
                             <button type="submit" class="btn green"> Save</button>
                         </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -195,38 +170,39 @@
     <script src="/js/libs/fileinput.min.js"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#category_id").select2({placeholder: "Select category", width: "100%"});
-        $(".task_sel").select2({placeholder: "Select task",});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#category_id").select2({placeholder: "Select category", width: "100%"});
+            $(".task_sel").select2({placeholder: "Select task",});
 
-        $("#more").click(function (e) {
-            e.preventDefault();
-            $('#more').hide();
-            $('#more_items').show();
+            $("#more").click(function (e) {
+                e.preventDefault();
+                $('#more').hide();
+                $('#more_items').show();
+            });
         });
-    });
 
-    function deleteItem(item_id) {
-        var id = item_id.substring(3);
-        var item_name = $("#item" + id).val();
-        swal({
-            title: "Are you sure?",
-            text: item_name,
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $("#item" + id).val('DELETE-ITEM');
-            $("#itemrow" + id).hide();
-        });
-    }
-    ;
-</script>
+        function deleteItem(item_id) {
+            var id = item_id.substring(3);
+            var item_name = $("#item" + id).val();
+            swal({
+                title: "Are you sure?",
+                text: item_name,
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $("#item" + id).val('DELETE-ITEM');
+                $("#itemrow" + id).hide();
+            });
+        }
+        ;
+    </script>
 @stop
 

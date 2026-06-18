@@ -19,7 +19,6 @@
                     <div class="portlet light ">
                         <div class="portlet-title">
                             <div class="caption font-dark">
-                                <i class="icon-layers"></i>
                                 <span class="caption-subject bold uppercase font-green-haze"> In Progress</span>
                             </div>
                             <div class="actions">
@@ -73,13 +72,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-3 pull-right">
-                            <div class="form-group">
-                                <select name="status1" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Active / Maintenance</option>
-                                    <option value="-1" selected>Upcoming</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status1" :options="['1' => 'Active / Maintenance', '-1' => 'Upcoming', '0' => 'Completed']" value="-1"/>
                         </div>
                     </div>
                     <div class="portlet-body">

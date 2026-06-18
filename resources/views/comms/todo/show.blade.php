@@ -15,13 +15,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase"> Todo item</span>
                             <span class="caption-helper"> - ID: {{ $todo->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model($todo, ['method' => 'PATCH', 'action' => ['Comms\TodoController@update', $todo->id], 'files' => true, 'id' => 'todo_form']) !!}
                         @include('form-error')
 

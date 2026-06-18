@@ -20,7 +20,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model($doc, ['method' => 'PATCH', 'action' => ['Misc\ConstructionDocController@update', $doc->id], 'class' => 'horizontal-form', 'files' => true]) !!}
                         @include('form-error')
 

@@ -31,9 +31,9 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_attenance', ['action' => 'Site\SiteCheckinController@getQuestions']) !!}
-                        <input type="hidden" name="checkin" value="true">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'getQuestions']) }}">
+                            @csrf
+                        <x-form.hidden name="checkin" value="true"/>
                         @include('form-error')
 
                         <div class="form-body">
@@ -53,14 +53,14 @@
                             <div class="form-actions" style="display: none" id="div_checkin">
                                 <button type="submit" class="btn green">Check-in</button>
                             </div>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -72,18 +72,19 @@
     <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        /* Select2 */
-        $("#site_id").select2({placeholder: "Select Site",});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            /* Select2 */
+            $("#site_id").select2({placeholder: "Select Site",});
 
-        // Reload table on change of site_id or type
-        $('#site_id').change(function () {
-            $('#div_checkin').show();
+            // Reload table on change of site_id or type
+            $('#site_id').change(function () {
+                $('#div_checkin').show();
+            });
         });
-    });
-</script>
+    </script>
 @stop
 

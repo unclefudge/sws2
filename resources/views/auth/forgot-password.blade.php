@@ -6,7 +6,6 @@
             <div class="col-md-6 col-md-offset-3">
                 <div class="portlet light bordered">
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         <form method="POST" action="/password/email">
                             {{ csrf_field() }}
 
@@ -32,7 +31,9 @@
                                     </div>
                                 @endif
 
-                                <a href="{{ URL::previous() }}"><button type="button" id="back-btn" class="btn btn-default">Back</button></a>
+                                <a href="{{ URL::previous() }}">
+                                    <button type="button" id="back-btn" class="btn btn-default">Back</button>
+                                </a>
                                 <button type="submit" class="btn btn-success" style="margin-left: 15px">Submit</button>
                             </div>
                         </form>

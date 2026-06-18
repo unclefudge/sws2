@@ -30,41 +30,37 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_attenance', ['action' => ['Site\SiteController@processCheckin', $worksite->slug], 'files' => true]) !!}
-                        <input type="hidden" name="reason" value="Special Trade Checkin">
-                        <input type="hidden" name="action" value="Special Trade Checkin">
-                        <input type="hidden" name="super_name" id="super_name" value="{{ $worksite->supervisorsContactSBC() }}">
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteController::class, 'processCheckin'], $worksite->slug) }}" enctype="multipart/form-data">
+                            @csrf
+                            <x-form.hidden name="reason" value="Special Trade Checkin"/>
+                            <x-form.hidden name="action" value="Special Trade Checkin"/>
+                            <x-form.hidden name="super_name" :value="$worksite->supervisorsContactSBC()"/>
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <p>Please answer the following questions.</p>
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('safe_site', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger', 'id'=>'safe_site']) !!}
+                            <p>Please answer the following questions.</p>
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        The work site is safe for me to complete the duties assigned to me
                                     </div>
                                 </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    The work site is safe for me to complete the duties assigned to me
+                                <div class="form-actions">
+                                    <button type="submit" class="btn green" name="checkinTrade" value="true">Submit</button>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn green" name="checkinTrade" value="true">Submit</button>
-                            </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                                <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -76,14 +72,15 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
     <script>
         //$('#status').val();
         swal({
             title: "Unable to Enter Site",
-            text: "Please contact <b>"+$('#super_name').val()+"</b> to discuss and resolve the worksite issue.<br><br><span class='font-red'>You have <b>NOT</b> been signed in and therefore are required to stay off the site until issue is resolved and sign in is achieved</span>",
+            text: "Please contact <b>" + $('#super_name').val() + "</b> to discuss and resolve the worksite issue.<br><br><span class='font-red'>You have <b>NOT</b> been signed in and therefore are required to stay off the site until issue is resolved and sign in is achieved</span>",
             showCancelButton: false,
             confirmButtonColor: "#3598dc",
             confirmButtonText: "Ok",

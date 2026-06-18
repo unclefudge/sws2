@@ -10,8 +10,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -26,31 +24,21 @@
                                 <button class="btn btn-circle green btn-outline btn-sm" id="add_note">Add</button>
                             @endif
                             @if(Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/note/settings"
-                                   data-original-title="Settings">Settings</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/note/settings" data-original-title="Settings">Settings</a>
                             @endif
                         </div>
                     </div>
-                    {!! Form::hidden('site_id_set', $site_id, ['id' => 'site_id_set']) !!}
+                    <x-form.hidden name="site_id_set" :value="$site_id" id="site_id_set"/>
 
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="form-group">
-                                {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
-                            </div>
+                            <x-form.select name="site_id" label="Site" :options="$site_list" :value="$site_id" id="site_id" plugin="select2"/>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                {!! Form::label('supervisor', 'Supervisor', ['class' => 'control-label']) !!}
-                                {!! Form::select('supervisor', ['' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
-                            </div>
+                            <x-form.select name="supervisor" label="Supervisor" :options="['' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect()" id="supervisor"/>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                {!! Form::label('category', 'Category', ['class' => 'control-label']) !!}
-                                {!! Form::select('category', ['' => 'All categories'] + $categories, null, ['class' => 'form-control bs-select', 'id' => 'category']) !!}
-                            </div>
+                            <x-form.select name="category" label="Category" :options="['' => 'All categories'] + $categories" id="category"/>
                         </div>
                     </div>
 
@@ -78,7 +66,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

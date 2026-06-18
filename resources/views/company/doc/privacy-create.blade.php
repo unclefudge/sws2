@@ -26,7 +26,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('CompanyPrivacyPolicy', ['action' => ['Company\CompanyPrivacyPolicyController@store', $company->id], 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 
@@ -294,26 +293,27 @@
     <script src="/js/moment.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
-        $('#sign_contractor_accept').on('click', function () {
-            var name = $('#signed_name').val();
-            var user = "{!! Auth::user()->fullname !!}";
-            var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
-            var date = moment().format('DD/MM/YYYY, h:mm:ss a');
-            var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
-            $('#contractor_signed_name').val(signed_string);
-            if (name != '') {
-                $('#submit').show();
-                $('#contractor_signed_name_field').show();
-            } else {
-                $('#contractor_signed_name').val('');
-                $('#contractor_signed_name_field').hide();
-                $('#submit').hide();
-            }
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
+            $('#sign_contractor_accept').on('click', function () {
+                var name = $('#signed_name').val();
+                var user = "{!! Auth::user()->fullname !!}";
+                var email = "{!! (Auth::user()->email) ?  ' ('.Auth::user()->email.')' : '' !!}";
+                var date = moment().format('DD/MM/YYYY, h:mm:ss a');
+                var signed_string = name + "\n" + 'Digitally signed by ' + user + email + "\nDate: " + date;
+                $('#contractor_signed_name').val(signed_string);
+                if (name != '') {
+                    $('#submit').show();
+                    $('#contractor_signed_name_field').show();
+                } else {
+                    $('#contractor_signed_name').val('');
+                    $('#contractor_signed_name_field').hide();
+                    $('#submit').hide();
+                }
+            });
         });
-    });
 
-</script>
+    </script>
 @stop

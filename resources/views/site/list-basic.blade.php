@@ -8,8 +8,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -23,15 +21,11 @@
                     <div class="row">
                         @if (Auth::user()->permissionLevel('view.site.list', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('view.site.list', Auth::user()->company->reportsTo()->id)))
                             <div class="col-md-5">
-                                <div class="form-group">
-                                    {!! Form::select('site_group', ['0' => 'All Sites', Auth::user()->company_id => Auth::user()->company->name,
-                                    Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name], null, ['class' => 'form-control bs-select', 'id' => 'site_group']) !!}
-                                </div>
+                                <x-form.select name="site_group" :options="['0' => 'All Sites', Auth::user()->company_id => Auth::user()->company->name, Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name]"/>
                             </div>
                         @endif
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
+                            <x-form.select name="status">
                                     <option value="1" selected>Active</option>
                                     @if (Auth::user()->hasAnyRole2('mgt-general-manager|con-construction-manager|whs-manager|web-admin'))
                                         <option value="-1">Upcoming</option>
@@ -45,8 +39,7 @@
                                         {{-- Ian Ewin --}}
                                         <option value="2">Maintenance</option>
                                     @endif
-                                </select>
-                            </div>
+                            </x-form.select>
                         </div>
 
                     </div>
@@ -54,13 +47,13 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table_list">
                             <thead>
                             <tr class="mytable-header">
-                                {{--}}<th width="10%"> Job #</th>--}}
+                                {{--}}<th style="width:10%"> Job #</th>--}}
                                 {{--}}<th> Suburb</th>--}}
                                 <th> Site</th>
                                 {{-- CapeCod + JonSpin --}}
                                 @if (Auth::user()->isCC() ||  in_array(Auth::user()->company_id, [96, 29]))
                                     {{-- CC, JonSpin Building,  GBT Carpentry--}}
-                                    <th width="15%"> Phone</th>
+                                    <th style="width:15%"> Phone</th>
                                 @endif
                                 <th> Address</th>
                                 <th> Supervisor</th>

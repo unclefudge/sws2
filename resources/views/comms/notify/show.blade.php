@@ -15,13 +15,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase"> Alert Notification</span>
                             <span class="caption-helper"> - ID: {{ $notify->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model($notify, ['method' => 'PATCH', 'action' => ['Comms\NotifyController@update', $notify->id], 'files' => true]) !!}
                         {!! Form::hidden('company_id', $notify->company_id) !!}
                         {!! Form::hidden('type', $notify->type) !!}
@@ -86,7 +84,9 @@
                                                 / {{ $notify->assignedTo()->count() }}</span></p>
                                     @endif
                                     <p>
-                                    @if ($notify->viewedBySBC()) <p><b>Viewed by:</b> {{ $notify->viewedBySBC() }}</p> @endif
+                                    @if ($notify->viewedBySBC())
+                                        <p><b>Viewed by:</b> {{ $notify->viewedBySBC() }}</p>
+                                    @endif
                                     @if ($notify->unviewedBySBC()) <p><b>Unseen by:</b> {{ $notify->unviewedBySBC() }}</p> @endif
                                     </p>
                                 </div>
@@ -103,7 +103,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -120,28 +120,29 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $.ajaxSetup({
-        headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
-    });
-
-    $(document).ready(function () {
-
-        $(window).resize(function(){
-            $(".sweet-alert").css("margin-top",-$(".sweet-alert").outerHeight()/2);
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $.ajaxSetup({
+            headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}
         });
 
-        $("#test_alert").click(function (e) {
-            e.preventDefault();
-            swal($("#title").val(), $("#mesg").val());
-        })
+        $(document).ready(function () {
 
-    });
-</script>
+            $(window).resize(function () {
+                $(".sweet-alert").css("margin-top", -$(".sweet-alert").outerHeight() / 2);
+            });
+
+            $("#test_alert").click(function (e) {
+                e.preventDefault();
+                swal($("#title").val(), $("#mesg").val());
+            })
+
+        });
+    </script>
 @stop
 

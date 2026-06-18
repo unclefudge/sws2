@@ -25,29 +25,27 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {{--{!! Form::model('SitePlannerExport', ['action' => 'Site\Planner\SitePlannerExportController@attendancePDF', 'class' => 'horizontal-form']) !!} --}}
-                        {!! Form::open(['action' => 'Site\Planner\SitePlannerExportController@attendancePDF', 'class' => 'horizontal-form']) !!}
-                        <div class="row">
-                            <div class="col-md-3"><h4>Export Attendance for Site</h4></div>
-                            <div class="col-md-3">
-                                {!! Form::select('site_id', Auth::user()->authSitesSelect('view.site.export', '1', 'prompt'),
-                                null, ['class' => 'form-control bs-select', 'id' => 'site_id',]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\Planner\SitePlannerExportController::class, 'attendancePDF']) }}" class="horizontal-form">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-3"><h4>Export Attendance for Site</h4></div>
+                                <div class="col-md-3">
+                                    <x-form.select name="site_id" :options="Auth::user()->authSitesSelect('view.site.export', '1', 'prompt')" id="site_id"/>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn green" name="export_attendance" value="true"> View PDF</button>
+                                </div>
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn green" name="export_attendance" value="true"> View PDF</button>
+                            <br>
+                            <div class="form-actions right">
+                                <a href="/site/export" class="btn default"> Back</a>
                             </div>
-                        </div>
-                        <br>
-                        <div class="form-actions right">
-                            <a href="/site/export" class="btn default"> Back</a>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 
@@ -61,7 +59,8 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 @stop

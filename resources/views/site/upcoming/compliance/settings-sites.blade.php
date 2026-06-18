@@ -25,43 +25,38 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteUpcomingSettings', ['method' => 'POST', 'action' => ['Site\SiteUpcomingComplianceController@updateSettings'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteUpcomingComplianceController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
+                            <div class="form-body">
+                                <ul class="nav nav-tabs ">
+                                    <li class="">
+                                        <a href="/site/upcoming/compliance/settings/stages"> Stage Options </a>
+                                    </li>
+                                    <li class="">
+                                        <a href="/site/upcoming/compliance/settings/steel"> STEEL Options </a>
+                                    </li>
+                                    <li class="active">
+                                        <a> Additional Sites </a>
+                                    </li>
+                                </ul>
 
-                        <div class="form-body">
-                            <ul class="nav nav-tabs ">
-                                <li class="">
-                                    <a href="/site/upcoming/compliance/settings/stages"> Stage Options </a>
-                                </li>
-                                <li class="">
-                                    <a href="/site/upcoming/compliance/settings/steel"> STEEL Options </a>
-                                </li>
-                                <li class="active">
-                                    <a> Additional Sites </a>
-                                </li>
-                            </ul>
-
-                            {{-- Additional Sites --}}
-                            <h3>Additional Sites (manually)</h3>
-                            <hr class="field-hr">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
-                                        {!! Form::label('special_sites', 'Sites', ['class' => 'control-label']) !!}
-                                        {!! Form::select('special_sites', Auth::user()->company->sitesSelect(), $special_sites, ['class' => 'form-control select2', 'name' => 'special_sites[]', 'id'  => 'special_sites', 'title' => 'Select one or more sites', 'multiple']) !!}
-                                        {!! fieldErrorMessage('special_sites', $errors) !!}
+                                {{-- Additional Sites --}}
+                                <h3>Additional Sites (manually)</h3>
+                                <hr class="field-hr">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.select name="special_sites[]" label="Sites" :options="Auth::user()->company->sitesSelect()" :value="$special_sites" plugin="select2" title="Select one or more sites" multiple/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="form-actions right">
-                                <a href="/site/upcoming/compliance" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
-                            </div>
+                                <div class="form-actions right">
+                                    <a href="/site/upcoming/compliance" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
+                                </div>
 
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -25,110 +25,97 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteUpcomingSettings', ['method' => 'POST', 'action' => ['Site\SiteUpcomingComplianceController@updateSettings'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteUpcomingComplianceController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        @include('form-error')
+                            <div class="form-body">
+                                <ul class="nav nav-tabs ">
+                                    <li class="active">
+                                        <a> Stage Options </a>
+                                    </li>
+                                    <li class="">
+                                        <a href="/site/upcoming/compliance/settings/steel"> STEEL Options </a>
+                                    </li>
+                                    <li class="">
+                                        <a href="/site/upcoming/compliance/settings/sites"> Additional Sites </a>
+                                    </li>
+                                </ul>
+                                <?php
+                                //$colours = ['col2-blue-3B67BD', 'col2-green-0A9A5B', 'col2-yellow-FFEC00', 'col2-orange-F77402', 'col2-red-ED0F17', 'col2-purple-A32AA2']
+                                //$fields = ['cc' => "CC", 'fc_plans' => "FC Plans", 'fc_struct' => 'FC Structural'];
+                                $colours = ['col-blue-C5D1EC', 'col-green-B5E2CD', 'col-yellow-FFFAAE', 'col-orange-FDD7B1', 'col-red-FBB6B9', 'col-purple-E4BFE4'];
+                                $fields = ['opt' => 'Standard Stage Options', 'cfest' => 'CF-EST Stage Options', 'cfadm' => 'CF-ADM Stage Options'];
+                                ?>
 
-                        <div class="form-body">
-                            <ul class="nav nav-tabs ">
-                                <li class="active">
-                                    <a> Stage Options </a>
-                                </li>
-                                <li class="">
-                                    <a href="/site/upcoming/compliance/settings/steel"> STEEL Options </a>
-                                </li>
-                                <li class="">
-                                    <a href="/site/upcoming/compliance/settings/sites"> Additional Sites </a>
-                                </li>
-                            </ul>
-                            <?php
-                            //$colours = ['col2-blue-3B67BD', 'col2-green-0A9A5B', 'col2-yellow-FFEC00', 'col2-orange-F77402', 'col2-red-ED0F17', 'col2-purple-A32AA2']
-                            //$fields = ['cc' => "CC", 'fc_plans' => "FC Plans", 'fc_struct' => 'FC Structural'];
-                            $colours = ['col-blue-C5D1EC', 'col-green-B5E2CD', 'col-yellow-FFFAAE', 'col-orange-FDD7B1', 'col-red-FBB6B9', 'col-purple-E4BFE4'];
-                            $fields = ['opt' => 'Standard Stage Options', 'cfest' => 'CF-EST Stage Options', 'cfadm' => 'CF-ADM Stage Options'];
-                            ?>
-
-                            @foreach ($fields as $field => $title)
-                                <h3>{{ $title }} <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="{{$field}}-add_btn">Add option</button></small></span></h3>
-                                <hr class="field-hr">
-                                <div class="row">
-                                    <div class="col-md-1">&nbsp;</div>
-                                    <div class="col-md-2"><b>Name</b></div>
-                                    <div class="col-md-3"><b>Default text</b></div>
-                                    <div class="col-md-6"><b>Colour</b></div>
-                                </div>
-                                @foreach ($settings->where('field', $field)->sortBy('order') as $setting)
+                                @foreach ($fields as $field => $title)
+                                    <h3>{{ $title }} <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="{{$field}}-add_btn">Add option</button></small></span></h3>
+                                    <hr class="field-hr">
                                     <div class="row">
-                                        <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ $setting->order }}. &nbsp; </span></div>
-                                        <div class="col-md-2">
-                                            <div class="form-group {!! fieldHasError("$field-$setting->id", $errors) !!}">
-                                                {!! Form::text("$field-$setting->id", $setting->name, ['class' => 'form-control', 'id' => "$field-$setting->id"]) !!}
-                                                {!! fieldErrorMessage("$field-$setting->id", $errors) !!}
+                                        <div class="col-md-1">&nbsp;</div>
+                                        <div class="col-md-2"><b>Name</b></div>
+                                        <div class="col-md-3"><b>Default text</b></div>
+                                        <div class="col-md-6"><b>Colour</b></div>
+                                    </div>
+                                    @foreach ($settings->where('field', $field)->sortBy('order') as $setting)
+                                        <div class="row">
+                                            <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ $setting->order }}. &nbsp; </span></div>
+                                            <div class="col-md-2">
+                                                <x-form.input :name="$field . '-' . $setting->id" :value="$setting->name"/>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <x-form.input :name="$field . '-' . $setting->id . '-text'" :value="$setting->value"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                @foreach ($colours as $colour)
+                                                        <?php $opacity = ($colour == $setting->colour) ? '1' : '0.15' ?>
+                                                    <span class="hoverDiv" style="padding: 3px" id="{{$field}}_{{$setting->id}}_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: {{$opacity}};" id="{{$field}}_{{$setting->id}}_{{$colour}}_i"></span>
+                                                @endforeach
+                                                <a href="/site/upcoming/compliance/settings/del/{{ $setting->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i> </a>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="hidden" name="{{$field}}-{{$setting->id}}-colour" id="{{$field}}-{{$setting->id}}-colour" value="{{$setting->colour}}">
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError("$field-$setting->id-text", $errors) !!}">
-                                                {!! Form::text("$field-$setting->id-text", $setting->value, ['class' => 'form-control', 'id' => "$field-$setting->id-text"]) !!}
-                                                {!! fieldErrorMessage("$field-$setting->id-text", $errors) !!}
+                                        @if ($loop->last)
+                                            <br>
+                                        @else
+                                            <hr style="padding: 0px; margin: 10px 0px 10px 0px;">
+                                        @endif
+                                    @endforeach
+
+                                    {{-- Additiona field --}}
+                                    <div style="{{ ($errors->has("$field-addfield-name")) ? '' : 'display: none' }}" id="{{$field}}-add-items">
+                                        <input type="hidden" name="{{$field}}-addfield" id="{{$field}}-addfield" value="{{ ($errors->has("$field-addfield-name")) ? 1 : 0 }}">
+
+                                        <div class="row">
+                                            <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings->where('field', $field)) +1 }}. &nbsp; </span></div>
+                                            <div class="col-md-2">
+                                                <x-form.input :name="$field . '-addfield-name'"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            @foreach ($colours as $colour)
-                                                    <?php $opacity = ($colour == $setting->colour) ? '1' : '0.15' ?>
-                                                <span class="hoverDiv" style="padding: 3px" id="{{$field}}_{{$setting->id}}_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: {{$opacity}};" id="{{$field}}_{{$setting->id}}_{{$colour}}_i"></span>
-                                            @endforeach
-                                            <a href="/site/upcoming/compliance/settings/del/{{ $setting->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i> </a>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <input type="hidden" name="{{$field}}-{{$setting->id}}-colour" id="{{$field}}-{{$setting->id}}-colour" value="{{$setting->colour}}">
+                                            <div class="col-md-3">
+                                                <x-form.input :name="$field . '-addfield-text'"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                @foreach ($colours as $colour)
+                                                    <span class="hoverDiv" style="padding: 3px" id="{{$field}}_addfield_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: 0.2" id="{{$field}}_addfield_{{$colour}}_i"></span>
+                                                @endforeach
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="hidden" name="{{$field}}-addfield-colour" id="{{$field}}-addfield-colour" value="">
+                                            </div>
                                         </div>
                                     </div>
-                                    @if ($loop->last)
-                                        <br>
-                                    @else
-                                        <hr style="padding: 0px; margin: 10px 0px 10px 0px;">
-                                    @endif
+                                    <br>
                                 @endforeach
 
-                                {{-- Additiona field --}}
-                                <div style="{{ ($errors->has("$field-addfield-name")) ? '' : 'display: none' }}" id="{{$field}}-add-items">
-                                    <input type="hidden" name="{{$field}}-addfield" id="{{$field}}-addfield" value="{{ ($errors->has("$field-addfield-name")) ? 1 : 0 }}">
-
-                                    <div class="row">
-                                        <div class="col-md-1"><span class="pull-right" style="margin-top: 5px"> {{ count($settings->where('field', $field)) +1 }}. &nbsp; </span></div>
-                                        <div class="col-md-2">
-                                            <div class="form-group {!! fieldHasError("$field-addfield-name", $errors) !!}">
-                                                {!! Form::text("$field-addfield-name", null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage("$field-addfield-name", $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError("$field-addfield-text", $errors) !!}">
-                                                {!! Form::text("$field-addfield-text", null, ['class' => 'form-control', 'id' => "$field-addfield-text"]) !!}
-                                                {!! fieldErrorMessage("$field-addfield-text", $errors) !!}
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            @foreach ($colours as $colour)
-                                                <span class="hoverDiv" style="padding: 3px" id="{{$field}}_addfield_{{$colour}}_s"><img src="/img/{{$colour}}.png" style="opacity: 0.2" id="{{$field}}_addfield_{{$colour}}_i"></span>
-                                            @endforeach
-                                        </div>
-                                        <div class="col-md-3">
-                                            <input type="hidden" name="{{$field}}-addfield-colour" id="{{$field}}-addfield-colour" value="">
-                                        </div>
-                                    </div>
+                                <div class="form-actions right">
+                                    <a href="/site/upcoming/compliance" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
                                 </div>
-                                <br>
-                            @endforeach
 
-                            <div class="form-actions right">
-                                <a href="/site/upcoming/compliance" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
                             </div>
-
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

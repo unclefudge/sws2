@@ -45,7 +45,6 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold ">EDIT TALK (v3)</span>
                             <span class="caption-helper">ID: {{ $talk->id }}</span>
                         </div>
@@ -312,7 +311,7 @@
                 }
             });
         });
-        
+
         /* Bootstrap Fileinput */
         $("#singlefile").fileinput({
             showUpload: false,

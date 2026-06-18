@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Site\Planner;
+namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Models\Site\Planner\SiteCompliance;
@@ -61,13 +61,15 @@ class SiteComplianceController extends Controller
                     $nc_dates = $user->nc_dates;
                 } else {
                     $user = User::find($comply->user_id);
-                    $nc = $user->nonCompliant()->count();
-                    $dates = $user->nonCompliant()->pluck('date');
-                    $nc_dates = [];
-                    foreach ($dates as $date) {
-                        $nc_dates[] = $date->format('d/m/Y');
-                    }
-                    $users[$comply->user_id] = (object)['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias, 'nc' => $nc, 'nc_dates' => $nc_dates];
+                    $nonCompliant = $user->nonCompliant();
+                    $nc = $nonCompliant->count();
+                    $nc_dates = $nonCompliant->sortByDesc('date')->take(10)->pluck('date')
+                        ->map(function ($date) {
+                            return $date ? $date->format('d/m/Y') : '';
+                        })
+                        ->filter()->values()->toArray();
+
+                    $users[$comply->user_id] = (object)['id' => $user->id, 'full_name' => $user->full_name, 'company_name' => $user->company->name_alias, 'nc' => $nc, 'nc_dates' => $nc_dates,];
                     $company_name = $user->company->name_alias;
                 }
                 $array['user_id'] = $user->id;

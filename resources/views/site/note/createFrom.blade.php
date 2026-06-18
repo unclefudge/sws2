@@ -23,218 +23,147 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <input name="previous_url" type="hidden" value="{!! url()->previous() !!}">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteNoteController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            <x-form.hidden name="previous_url" :value="url()->previous()"/>
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                {{-- Site --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                            <div class="form-body">
+                                <div class="row">
+                                    {{-- Site --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" label="Site" :options="$site_list" :value="$site_id" id="site_id" plugin="select2"/>
+                                    </div>
+                                    {{-- Category --}}
+                                    <div class="col-md-4">
+                                        <x-form.select name="category_id" label="Category" :options="['' => 'Select category'] + $categories" :value="16" id="category_id"/>
                                     </div>
                                 </div>
-                                {{-- Category --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', ['' => 'Select category'] + $categories, 16, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Variation Fields --}}
-                            <div id="variation_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_name', $errors) !!}">
-                                            {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
-                                            {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('variation_info', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_info', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="variation_cost_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
-                                            <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            {!! Form::text('variation_net', $existing->variation_net, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_net', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
-                                            {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_cost', $existing->variation_cost, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_cost', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div id="extracredit_div">
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
-                                                {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                                {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
-                                                {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
-                                            <label for="variation_days" class="control-label">Total Extension Days (discussed with Client) Description <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            <input type="text" class="form-control" value="{{ $existing->variation_days }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
-                                            {!! fieldErrorMessage('variation_days', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                {{-- Variation items --}}
-                                <div class="row">
-                                    <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
-                                </div>
-                                @php ($i = 0)
-                                @foreach ($existing->costs as $cost)
-                                    @php ($i++)
+                                {{-- Variation Fields --}}
+                                <div id="variation_fields" style="display: none">
                                     <div class="row">
-                                        <div class="col-md-1 text-center">{{ $i }}.</div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
-                                                {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, $cost->cost_id, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage("cc-$i", $errors) !!}
-                                            </div>
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_name" label="Variation Name"/>
                                         </div>
-                                        <div class="col-md-8">
-                                            <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                {!! Form::text("cinfo-$i", $cost->details, ['class' => 'form-control', 'placeholder' => "Details & Cost of item $cost->order."]) !!}
-                                                {!! fieldErrorMessage("cinfo-$i", $errors) !!}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.textarea name="variation_info" label="Variation Description" rows="5"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="variation_cost_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.input name="variation_net" label="Net Cost <span class='font-grey-silver'>(Admin use only)</span>" onkeydown="return isNumber(event)"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.input name="variation_cost" label="Gross Cost (incl GST + 20% margin)" :value="$existing->variation_cost"/>
+                                        </div>
+                                        <div id="extracredit_div">
+                                            <div class="col-md-3">
+                                                <x-form.select name="variation_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" id="variation_extra_credit"/>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
-
-                                {{-- Extra Items --}}
-                                <button class="btn blue" id="more">More Items</button>
-                                <div id="more_items" style="display: none">
-                                    @for ($i = $existing->costs->count() + 1; $i <= 20; $i++)
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_days" label="Total Extension Days (discussed with Client) Description <span class='font-grey-silver'>(Admin use only)</span>" onkeydown="return isNumber(event)"/>
+                                        </div>
+                                    </div>
+                                    {{-- Variation items --}}
+                                    <div class="row">
+                                        <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
+                                    </div>
+                                    @php ($i = 0)
+                                    @foreach ($existing->costs as $cost)
+                                        @php ($i++)
                                         <div class="row">
                                             <div class="col-md-1 text-center">{{ $i }}.</div>
                                             <div class="col-md-3">
-                                                <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
-                                                    {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
-                                                    {!! fieldErrorMessage("cc-$i", $errors) !!}
-                                                </div>
+                                                <x-form.select name="cc-{{ $i }}" :options="['' => 'Select cost centre'] + $cost_centres" :value="$cost->cost_id"/>
                                             </div>
-                                            <div class="col-md-7">
-                                                <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                    {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details & Cost of item $i."]) !!}
-                                                    {!! fieldErrorMessage("cinfo-$i", $errors) !!}
-                                                </div>
+                                            <div class="col-md-8">
+                                                <x-form.input name="cinfo-{{ $i }}" :value="$cost->details" placeholder="Details & Cost of item {{ $cost->order }}."/>
                                             </div>
                                         </div>
-                                    @endfor
+                                    @endforeach
+
+                                    {{-- Extra Items --}}
+                                    <button class="btn blue" id="more">More Items</button>
+                                    <div id="more_items" style="display: none">
+                                        @for ($i = $existing->costs->count() + 1; $i <= 20; $i++)
+                                            <div class="row">
+                                                <div class="col-md-1 text-center">{{ $i }}.</div>
+                                                <div class="col-md-3">
+                                                    <x-form.select name="cc-{{ $i }}" :options="['' => 'Select cost centre'] + $cost_centres"/>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <x-form.input name="cinfo-{{ $i }}" placeholder="Details & Cost of item {{ $i }}."/>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    <br><br>
                                 </div>
+
+                                {{-- Costing Fields --}}
+                                <div id="costing_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call']" id="costing_extra_credit"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_item" label="New item / In Lieu of" :options="['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of']" id="costing_item"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_priority" label="Priority" :options="['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days']" id="costing_priority"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.input name="costing_room" label="Room"/>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <x-form.input name="costing_location" label="Location"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Response Required --}}
+                                <div id="response_req_field" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" id="response_req"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="notes" label="Note (Admin use only)" :value="$existing->notes" rows="5"/>
+                                    </div>
+                                </div>
+
+                                {{-- Attachments --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Upload Attachments</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
+                                    </div>
+                                </div>
+
                                 <br><br>
-                            </div>
-
-                            {{-- Costing Fields --}}
-                            <div id="costing_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit',  'Wet Call' => 'Wet Call'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
-                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_item', $errors) !!}">
-                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_item', ['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
-                                            {!! fieldErrorMessage('costing_item', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_priority', $errors) !!}">
-                                            {!! Form::label('costing_priority', 'Priority', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_priority', ['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
-                                            {!! fieldErrorMessage('costing_priority', $errors) !!}
-                                        </div>
-                                    </div>
+                                <div class="form-actions right">
+                                    <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_room', $errors) !!}">
-                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_room', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('costing_room', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group {!! fieldHasError('costing_location', $errors) !!}">
-                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_location', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('costing_location', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Response Required --}}
-                            <div id="response_req_field" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('response_req', $errors) !!}">
-                                            {!! Form::label('response_req', 'Response Required', ['class' => 'control-label']) !!}
-                                            {!! Form::select('response_req', ['0' => 'No - FYI only', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'response_req']) !!}
-                                            {!! fieldErrorMessage('response_req', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Note (Admin use only)', ['class' => 'control-label', 'id' => 'notes_label']) !!}
-                                        {!! Form::textarea('notes', $existing->notes, ['rows' => '5', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Attachments --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Upload Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
-
-                            <br><br>
-                            <div class="form-actions right">
-                                <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
-                            </div>
-
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

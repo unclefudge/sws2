@@ -24,7 +24,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('todo', ['action' => ['Comms\TodoController@store'], 'files' => true]) !!}
                         @include('form-error')
 

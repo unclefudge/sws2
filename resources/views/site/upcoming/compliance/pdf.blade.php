@@ -27,15 +27,11 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteUpcomingSettingsPDF', ['action' => 'Site\SiteUpcomingComplianceController@createPDF', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteUpcomingComplianceController::class, 'createPDF']) }}" class="horizontal-form">
+                        @csrf
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group {!! fieldHasError('email_list', $errors) !!}">
-                                    {!! Form::label('email_list', 'Email List', ['class' => 'control-label']) !!}
-                                    {!! Form::select('email_list', ['' => 'Select user(s)'] + Auth::user()->company->staffSelect('select', '1'), $email_list, ['class' => 'form-control select2', 'name' => 'email_list[]', 'id'  => 'email_list', 'title' => 'Select one or more users', 'multiple']) !!}
-                                    {!! fieldErrorMessage('email_list', $errors) !!}
-                                </div>
+                                <x-form.select name="email_list[]" label="Email List" :options="['' => 'Select user(s)'] + Auth::user()->company->staffSelect('select', '1')" :value="$email_list" plugin="select2" title="Select one or more users" multiple/>
                             </div>
                         </div>
                         <div class="row">
@@ -48,13 +44,12 @@
                         <div class="form-actions right">
                             <a href="/site/upcoming/compliance" class="btn default"> Back</a>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

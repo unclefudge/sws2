@@ -24,7 +24,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        {!! Form::model('SuperChecklistSettings', ['method' => 'POST', 'action' => ['Misc\SuperChecklistController@updateSettings'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\SuperChecklistController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
 
                         @include('form-error')
 
@@ -33,11 +34,7 @@
                             <hr class="field-hr">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('super_list', $errors) !!}">
-                                        {!! Form::label('super_list', 'Supervisor(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('super_list', Auth::user()->company->supervisorsSelect(), $super_list, ['class' => 'form-control bs-select', 'name' => 'super_list[]', 'title' => 'Select one or more supervisors', 'multiple']) !!}
-                                        {!! fieldErrorMessage('super_list', $errors) !!}
-                                    </div>
+                                    <x-form.select name="super_list[]" label="Supervisor(s)" :options="Auth::user()->company->supervisorsSelect()" :value="$super_list" title="Select one or more supervisors" multiple/>
                                 </div>
                             </div>
 
@@ -46,6 +43,7 @@
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>

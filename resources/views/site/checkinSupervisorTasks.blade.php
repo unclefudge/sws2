@@ -31,7 +31,7 @@
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+    @stop
 
 
 @section('page-level-plugins-head')

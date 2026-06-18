@@ -22,7 +22,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('ClientPlannerEmail', ['action' => 'Client\ClientPlannerEmailController@store', 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 

@@ -18,13 +18,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit Leave </span>
                             <span class="caption-helper"> - {{ $leave->company->name_alias }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('company_leave', ['method' => 'PATCH', 'action' => ['Company\CompanyLeaveController@update', $leave->id], 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 
@@ -69,13 +67,13 @@
                             </div>
                         </div> <!--/form-body-->
                         {!! Form::close() !!}
-                                <!-- END FORM-->
+                        <!-- END FORM-->
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop <!-- END Content -->
 
 
 @section('page-level-plugins-head')
@@ -91,8 +89,9 @@
     <script src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
 @stop
 

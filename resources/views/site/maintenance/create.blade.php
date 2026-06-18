@@ -19,191 +19,139 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Maintenance Request</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteQa', ['action' => 'Site\SiteMaintenanceController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        {{-- Progress Steps --}}
-                        <div class="mt-element-step hidden-sm hidden-xs">
-                            <div class="row step-thin" id="steps">
-                                <div class="col-md-6 mt-step-col first active">
-                                    <div class="mt-step-number bg-white font-grey">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                    <div class="mt-step-content font-grey-cascade">Create request</div>
-                                </div>
-                                <div class="col-md-6 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
-                                    <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
+                            {{-- Progress Steps --}}
+                            <div class="mt-element-step hidden-sm hidden-xs">
+                                <div class="row step-thin" id="steps">
+                                    <div class="col-md-6 mt-step-col first active">
+                                        <div class="mt-step-number bg-white font-grey">1</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
+                                        <div class="mt-step-content font-grey-cascade">Create request</div>
+                                    </div>
+                                    <div class="col-md-6 mt-step-col last">
+                                        <div class="mt-step-number bg-white font-grey">2</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Assign</div>
+                                        <div class="mt-step-content font-grey-cascade">Assign supervisor</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-body">
-                            <h4>Site Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Completed/Maintenance Sites', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                            <div class="form-body">
+                                <h4>Site Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" id="site_id" label="Completed/Maintenance Sites" plugin="select2" style="width:100%">
                                             <optgroup label="Completed Sites"></optgroup>
                                             {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id'), 0) !!}
                                             <optgroup label="Maintenance Sites"></optgroup>
                                             {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id'), 2) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                                        </x-form.select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <x-form.input name="site_suburb" label="Suburb" readonly/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.input name="site_code" label="Job #" readonly/>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        {!! Form::label('site_suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_suburb', null, ['class' => 'form-control', 'readonly']) !!}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="supervisor" label="Supervisor"/>
                                     </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        {!! Form::label('site_code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('site_code', null, ['class' => 'form-control', 'readonly']) !!}
+                                    <div class="col-md-3">
+                                        <x-form.datepicker name="completed" label="Prac Completed" placeholder="dd/mm/yyyy"/>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
-                                        {!! Form::label('supervisor', 'Supervisor', ['class' => 'control-label']) !!}
-                                        {!! Form::text('supervisor', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('supervisor', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('completed', $errors) !!}">
-                                        {!! Form::label('completed', 'Prac Completed', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('completed', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        {!! fieldErrorMessage('completed', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('reported', $errors) !!}">
-                                        {!! Form::label('reported', 'Reported', ['class' => 'control-label']) !!}
-                                        <div class="input-group date date-picker">
-                                            {!! Form::text('reported', \Carbon\Carbon::now()->format('d/m/Y'), ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                        </div>
-                                        {!! fieldErrorMessage('reported', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <h4>Client Contact Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('contact_name', $errors) !!}">
-                                        {!! Form::label('contact_name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('contact_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('contact_name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('contact_phone', $errors) !!}">
-                                        {!! Form::label('contact_phone', 'Phone', ['class' => 'control-label']) !!}
-                                        {!! Form::text('contact_phone', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('contact_phone', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('contact_email', $errors) !!}">
-                                        {!! Form::label('contact_email', 'Email', ['class' => 'control-label']) !!}
-                                        {!! Form::text('contact_email', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('contact_email', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <h4>Request Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Category --}}
-                                <div class="col-md-3 ">
-                                    <div class="form-group">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
+                                    <div class="col-md-3">
+                                        <x-form.datepicker name="reported" label="Reported" :value="\Carbon\Carbon::now()->format('d/m/Y')" placeholder="dd/mm/yyyy"/>
                                     </div>
                                 </div>
 
-                                {{-- Warranty --}}
-                                <div class="col-md-2 ">
-                                    <div class="form-group">
-                                        {!! Form::label('warranty', 'Warranty', ['class' => 'control-label']) !!}
-                                        {!! Form::select('warranty', $maintenanceWarranty::all(), null, ['class' => 'form-control bs-select', 'id' => 'warranty']) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Photo/Docs --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Upload Photos/Documents</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
 
-                            {{-- Items --}}
-                            <div id="items-div">
-                                <h4>Maintenance Item(s)</h4>
+                                <h4>Client Contact Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <div class="row">
-                                        <div class="col-xs-1 ">Item {{$i}}</div>
-                                        <div class="col-xs-11 ">
-                                            <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                {!! fieldErrorMessage('item1', $errors) !!}
-                                            </div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="contact_name" label="Name"/>
                                     </div>
-                                @endfor
+                                    <div class="col-md-3">
+                                        <x-form.input name="contact_phone" label="Phone"/>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <x-form.input name="contact_email" label="Email"/>
+                                    </div>
+                                </div>
 
-                                {{-- Extra Items --}}
-                                <button class="btn blue" id="more">More Items</button>
-                                <div id="more_items" style="display: none">
-                                    @for ($i = 6; $i <= 20; $i++)
+
+                                <h4>Request Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Category --}}
+                                    <div class="col-md-3 ">
+                                        <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
+                                    </div>
+
+                                    {{-- Warranty --}}
+                                    <div class="col-md-2 ">
+                                        <x-form.select name="warranty" id="warranty" label="Warranty" :options="$maintenanceWarranty::all()"/>
+                                    </div>
+                                </div>
+                                {{-- Photo/Docs --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Upload Photos/Documents</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
+                                    </div>
+                                </div>
+
+                                {{-- Items --}}
+                                <div id="items-div">
+                                    <h4>Maintenance Item(s)</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    @for ($i = 1; $i <= 5; $i++)
                                         <div class="row">
                                             <div class="col-xs-1 ">Item {{$i}}</div>
                                             <div class="col-xs-11 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
-                                                </div>
+                                                <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
                                             </div>
                                         </div>
                                     @endfor
+
+                                    {{-- Extra Items --}}
+                                    <button class="btn blue" id="more">More Items</button>
+                                    <div id="more_items" style="display: none">
+                                        @for ($i = 6; $i <= 20; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i}}</div>
+                                                <div class="col-xs-11 ">
+                                                    <x-form.textarea :name="'item'.$i" rows="3" :placeholder="'Specific details of maintenance request item '.$i.'.'"/>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/maintenance" class="btn default"> Back</a>
-                            <button type="submit" class="btn green" id="submit"> Save</button>
-                        </div>
+                            <div class="form-actions right">
+                                <a href="/site/maintenance" class="btn default"> Back</a>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
+                            </div>
+                        </form>
                     </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

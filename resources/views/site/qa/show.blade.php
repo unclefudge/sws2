@@ -46,8 +46,7 @@
                             <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
                             <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
                             <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager"
-                                   value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
+                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{!! (!$qa->master && in_array(Auth::user()->id, $qa->site->areaSupervisors()->pluck('id')->toArray())) ? 1 : 0  !!}">
                             <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.qa') }}">
                             <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ Auth::user()->allowed2('edit.site.qa', $qa) }}">
 
@@ -227,7 +226,6 @@
     </div>
 
     <pre v-if="xx.dev">@{{ $data | json }}</pre>
-    -->
 
     <!-- loading Spinner -->
     <div v-show="xx.spinner" style="background-color: #FFF; padding: 20px;">
@@ -241,9 +239,9 @@
         <table v-show="xx.itemList.length" class="table table-striped table-bordered table-nohover order-column">
             <thead>
             <tr class="mytable-header">
-                <th width="5%"></th>
+                <th style="width:5%"></th>
                 <th> Maintenance Item</th>
-                <th width="15%"> Checked Date</th>
+                <th style="width:15%"> Checked Date</th>
             </tr>
             </thead>
             <tbody>
@@ -368,10 +366,10 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
-                            <th width="5%"></th>
+                            <th style="width:20%"> Name</th>
+                            <th style="width:5%"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -508,7 +506,7 @@
                 },
                 itemCompany: function (record) {
                     this.xx.sel_company = [];
-// Get Company list
+                    // Get Company list
                     $.getJSON('/site/qa/company/' + record.task_id, function (companies) {
                         this.xx.sel_company = companies;
                         this.xx.done_by = record.done_by;
@@ -569,7 +567,7 @@
                     this.xx.showSignOff = false;
                 },
                 updateItemDB: function (record) {
-//alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
+                    //alert('update item id:'+record.id+' task:'+record.task_id+' by:'+record.done_by);
                     this.$http.patch('/site/qa/item/' + record.id, record)
                         .then(function (response) {
                             this.itemsCompleted();
@@ -607,7 +605,7 @@
                     return '';
                 },
                 doNothing: function () {
-//
+                    //
                 },
             },
         });

@@ -23,8 +23,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteFocCategories', ['method' => 'POST', 'action' => ['Site\SiteFocController@updateSettings'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteFocController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
 
                         @include('form-error')
 
@@ -47,10 +47,7 @@
                                         <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
                                     </div>
                                     <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError("cat-$cat->id", $errors) !!}">
-                                            {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
-                                            {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
-                                        </div>
+                                        <x-form.input :name="'cat-'.$cat->id" :id="'cat-'.$cat->id" :value="$cat->name"/>
                                     </div>
                                     <div class="col-xs-2">
                                         <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
@@ -63,15 +60,12 @@
 
                             {{-- Additional category --}}
                             <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
-                                <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
+                                <x-form.hidden name="add_cat" id="add_cat" :value="$errors->has('add_cat_name') ? 1 : 0"/>
                                 <div class="row">
                                     <div class="col-xs-1">&nbsp;</div>
                                     <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
                                     <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
-                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
-                                        </div>
+                                        <x-form.input name="add_cat_name"/>
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +77,7 @@
                             </div>
 
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

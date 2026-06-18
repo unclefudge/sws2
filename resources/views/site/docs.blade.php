@@ -12,9 +12,7 @@
 
 
 @section('content')
-    {{-- BEGIN PAGE CONTENT INNER --}}
     <div class="page-content-inner">
-
         @include('site/_header')
 
         <div class="row">
@@ -32,12 +30,10 @@
                         </div>
                     </div>
                     <div class="portlet-body">
-                        <input type="hidden" id="site_id" name="site_id" value="{{ $site->id }}">
+                        <x-form.hidden name="site_id" :value="$site->id"/>
                         <div class="row">
                             <div class="col-md-2">
-                                <div class="form-group">
-                                    {!! Form::select('type', Auth::user()->siteDocTypeSelect('view', 'all'), null, ['class' => 'form-control bs-select', 'id' => 'type']) !!}
-                                </div>
+                                <x-form.select name="type" :options="Auth::user()->siteDocTypeSelect('view', 'all')"/>
                             </div>
                         </div>
                         <div class="row">
@@ -45,10 +41,10 @@
                                 <table class="table table-striped table-bordered table-hover order-column" id="table1">
                                     <thead>
                                     <tr class="mytable-header">
-                                        <th width="5%"> #</th>
-                                        <th width="7%"> Type</th>
+                                        <th style="width:5%"> #</th>
+                                        <th style="width:7%"> Type</th>
                                         <th> Document</th>
-                                        <th width="10%"> Action</th>
+                                        <th style="width:10%"> Action</th>
                                     </tr>
                                     </thead>
                                 </table>
@@ -65,7 +61,6 @@
             {!! $site->displayUpdatedBy() !!}
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

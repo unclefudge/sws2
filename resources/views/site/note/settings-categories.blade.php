@@ -23,8 +23,8 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteNoteCategories', ['method' => 'POST', 'action' => ['Site\SiteNoteController@updateSettings'], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteNoteController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
 
                         @include('form-error')
 
@@ -57,14 +57,10 @@
                                         <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
                                     </div>
                                     <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError("cat-$cat->id", $errors) !!}">
-                                            {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
-                                            {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
-                                        </div>
+                                        <x-form.input name="cat-{{ $cat->id }}" :value="$cat->name" id="cat-{{ $cat->id }}"/>
                                     </div>
                                     <div class="col-xs-4">
-                                        {!! Form::select("notify_users-$cat->id", Auth::user()->company->staffSelect(),
-                                            $cat->notifyUsersArray(), ['class' => 'form-control select2', 'name' => "notify_users-$cat->id[]", 'multiple' => 'multiple', 'width' => '100%']) !!}
+                                        <x-form.select name="notify_users-{{ $cat->id }}[]" :options="Auth::user()->company->staffSelect()" :value="$cat->notifyUsersArray()" plugin="select2" style="width:100%" multiple/>
                                     </div>
                                     <div class="col-xs-2">
                                         <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
@@ -77,19 +73,15 @@
 
                             {{-- Additional category --}}
                             <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
-                                <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
+                                <x-form.hidden name="add_cat" id="add_cat" :value="($errors->has('add_cat_name')) ? 1 : 0"/>
                                 <div class="row">
                                     <div class="col-xs-1">&nbsp;</div>
                                     <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
                                     <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
-                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
-                                        </div>
+                                        <x-form.input name="add_cat_name"/>
                                     </div>
                                     <div class="col-xs-4">
-                                        {!! Form::select("add_cat_notify_users", Auth::user()->company->staffSelect(),
-                                            null, ['class' => 'form-control select2', 'name' => "add_cat_notify_users[]", 'multiple' => 'multiple', 'width' => '100%']) !!}
+                                        <x-form.select name="add_cat_notify_users[]" :options="Auth::user()->company->staffSelect()" plugin="select2" style="width:100%" multiple/>
                                     </div>
                                 </div>
                             </div>
@@ -101,7 +93,7 @@
                             </div>
 
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

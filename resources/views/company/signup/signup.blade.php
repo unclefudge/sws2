@@ -19,13 +19,11 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Registration</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('user', ['action' => 'Auth\RegistrationController@refStore', 'class' => 'horizontal-form']) !!}
                         @include('form-error')
 
@@ -43,7 +41,7 @@
                                 <div class="col-md-4">
                                     <div class="form-group {!! fieldHasError('password', $errors) !!}">
                                         {!! Form::label('password', 'Password', ['class' => 'control-label']) !!}
-                                        <input type="password" class="form-control" name="password"  value="{{ old('password') }}" required>
+                                        <input type="password" class="form-control" name="password" value="{{ old('password') }}" required>
                                         {!! fieldErrorMessage('password', $errors) !!}
                                     </div>
                                 </div>

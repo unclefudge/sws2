@@ -1,11 +1,5 @@
 @extends('layout')
 
-@section('pagetitle')
-    <div class="page-title">
-        <h1><i class="fa fa-file-text-o"></i> Quality Assurance Reports</h1>
-    </div>
-@stop
-
 @section('breadcrumbs')
     <ul class="page-breadcrumb breadcrumb">
         <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
@@ -43,7 +37,7 @@
                             <tr class="mytable-header">
                                 <th> Name</th>
                                 <th> Sub Reports</th>
-                                <th width="10%"></th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -52,7 +46,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

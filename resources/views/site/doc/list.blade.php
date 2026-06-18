@@ -12,75 +12,61 @@
 
 @section('content')
     <div class="page-content-inner">
-        {!! Form::model('sitedoc', ['action' => 'Site\SiteDocController@create']) !!}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light ">
-                    <div class="portlet-title">
-                        <div class="caption font-dark">
-                            <i class="icon-layers"></i>
-                            <span class="caption-subject bold uppercase font-green-haze"> Site Document Management</span>
+        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteDocController::class, 'create']) }}">
+            @csrf
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title">
+                            <div class="caption font-dark">
+                                <i class="icon-layers"></i>
+                                <span class="caption-subject bold uppercase font-green-haze"> Site Document Management</span>
+                            </div>
+                            <div class="actions">
+                                @if(Auth::user()->hasAnyPermission2('add.site.doc|add.safety.doc'))
+                                    <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
+                                @endif
+                            </div>
                         </div>
-                        <div class="actions">
-                            @if(Auth::user()->hasAnyPermission2('add.site.doc|add.safety.doc'))
-                                <button type="submit" class="btn btn-circle green btn-outline btn-sm" data-original-title="Add">Add</button>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6" id="site_active">
-                            <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6" id="site_active">
                                 <!--<label for="site_id_active" class="control-label">Active Sites ({!! Auth::user()->company->sites(1)->count() !!})</label>-->
-                                {!! Form::select('site_id_active', Auth::user()->company->sitesSelect('ALL', 1), null, ['class' => 'form-control select2', 'id' => 'site_id_active']) !!}
+                                <x-form.select name="site_id_active" :options="Auth::user()->company->sitesSelect('ALL', 1)" plugin="select2" id="site_id_active" style="width:100%"/>
                             </div>
-                        </div>
-                        <div class="col-md-6" id="site_completed">
-                            <div class="form-group">
+                            <div class="col-md-6" id="site_completed">
                                 <!--<label for="site_id_completed" class="control-label">Completed Sites ({!! Auth::user()->company->sites('0')->count() !!})</label>-->
-                                {!! Form::select('site_id_completed', Auth::user()->company->sitesSelect('ALL', 0), null, ['class' => 'form-control select2', 'id' => 'site_id_completed']) !!}
+                                <x-form.select name="site_id_completed" :options="Auth::user()->company->sitesSelect('ALL', 0)" plugin="select2" id="site_id_completed" style="width:100%"/>
                             </div>
-                        </div>
-                        <div class="col-md-6" id="site_upcoming">
-                            <div class="form-group">
+                            <div class="col-md-6" id="site_upcoming">
                                 <!--<label for="site_id_all" class="control-label">Any Site ({!! Auth::user()->company->sites()->count() !!})</label>-->
-                                {!! Form::select('site_id_upcoming', Auth::user()->company->sitesSelect('ALL', -1), null, ['class' => 'form-control select2', 'id' => 'site_id_upcoming']) !!}
+                                <x-form.select name="site_id_upcoming" :options="Auth::user()->company->sitesSelect('ALL', -1)" plugin="select2" id="site_id_upcoming" style="width:100%"/>
+                            </div>
+                            <div class="col-md-2">
+                                <x-form.select name="type" :options="Auth::user()->siteDocTypeSelect('view', 'all')" :value="$type" id="type"/>
+                            </div>
+                            <div class="col-md-2 pull-right">
+                                <x-form.select name="status" :options="['1' => 'Active', '-1' => 'Upcoming', '0' => 'Completed']" value="1" id="status"/>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                {!! Form::select('type', Auth::user()->siteDocTypeSelect('view', 'all'), $type, ['class' => 'form-control bs-select', 'id' => 'type']) !!}
-                            </div>
+                        <div class="portlet-body">
+                            <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                <thead>
+                                <tr class="mytable-header">
+                                    <th style="width:5%"> #</th>
+                                    <th style="width:7%"> Type</th>
+                                    <th style="width:20%"> Site</th>
+                                    <th> Document</th>
+                                    <th style="width:10%"> Updated</th>
+                                    <th style="width:10%"> Action</th>
+                                </tr>
+                                </thead>
+                            </table>
                         </div>
-                        <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="-1">Upcoming</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                            <thead>
-                            <tr class="mytable-header">
-                                <th width="5%"> #</th>
-                                <th width="7%"> Type</th>
-                                <th width="20%"> Site</th>
-                                <th> Document</th>
-                                <th width="10%"> Updated</th>
-                                <th width="10%"> Action</th>
-                            </tr>
-                            </thead>
-                        </table>
                     </div>
                 </div>
-            </div> <!-- end portlet -->
-        </div>
-        {!! Form::close() !!}
+            </div>
+        </form>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -139,7 +125,7 @@
             columns: [
                 {data: 'id', name: 'id', orderable: false, searchable: false},
                 {data: 'type', name: 'type'},
-                {data: 'name', orderable: false, searchable: true}, // 👈 IMPORTANT
+                {data: 'site.name', orderable: false, searchable: true}, // 👈 IMPORTANT
                 {data: 'name', name: 'name'},
                 {data: 'updatedDate', orderable: false, searchable: false},
                 {data: 'action', orderable: false, searchable: false},

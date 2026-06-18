@@ -39,7 +39,7 @@
                         <table class="table table-striped table-bordered table-hover order-column" id="table1">
                             <thead>
                             <tr class="mytable-header">
-                                <th width="10%"> Week</th>
+                                <th style="width:10%"> Week</th>
                                 <th> Checklist Summary</th>
                             </tr>
                             </thead>

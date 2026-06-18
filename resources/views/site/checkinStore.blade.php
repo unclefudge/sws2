@@ -36,188 +36,152 @@
                         </h2>
                         <p>{{ $worksite->address }}, {{ $worksite->suburb }}</p>
                         <hr>
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteCheckinController::class, 'processCheckin'], $worksite->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            @include('form-error')
 
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site_attenance', ['action' => ['Site\SiteCheckinController@processCheckin', $worksite->id], 'files' => true]) !!}
+                            <p>Please answer the following questions.</p>
+                            <div class="form-body">
+                                {{--}}
+                                <div class="note note-success">
+                                    <h4><b>COVID - Safety Requirements</b></h4>
+                                    <hr style="color: #000">
+                                    <div class="row">
+                                        <div class="col-sm-2 col-xs-4 text-center">
+                                            <div class="form-group">
+                                                <input type="checkbox" name="question20" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-10 col-xs-8">
+                                            I have <b>signed in</b> to the NSW service Covid safe check in
+                                        </div>
+                                    </div>
+                                    <div class="row visible-xs">&nbsp;</div>
+                                    <div class="row">
+                                        <div class="col-sm-2 col-xs-4 text-center">
+                                            <div class="form-group">
+                                                <input type="checkbox" name="question21" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-10 col-xs-8">
+                                            I will <b>wear a mask</b> as required and <b>observe all other Gov directives</b>.
+                                        </div>
+                                    </div>
+                                    <div class="row visible-xs">&nbsp;</div>
+                                    <div class="row">
+                                        <div class="col-sm-2 col-xs-4 text-center">
+                                            <div class="form-group">
+                                                <input type="checkbox" name="question22" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-10 col-xs-8">
+                                            I understand the current NSW Health orders and <b>comply with its requirements</b> in relation to vaccinations and or covid testing.
+                                        </div>
+                                    </div>
+                                </div> --}}
 
-                        @include('form-error')
-
-                        <p>Please answer the following questions.</p>
-                        <div class="form-body">
-                            {{--}}
-                            <div class="note note-success">
-                                <h4><b>COVID - Safety Requirements</b></h4>
-                                <hr style="color: #000">
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question20', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question2" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
-                                        I have <b>signed in</b> to the NSW service Covid safe check in
+                                        I declare I am <b>fit for work</b> and am <b>not under the influence of alcohol, drugs or prescription medication</b> that may affect my capacity to work
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group {{ $errors->has('transient') ? 'has-error' : '' }}">
+                                            <input type="checkbox" name="question9" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I will <b>store all materials safely</b> in the designated areas
                                     </div>
                                 </div>
                                 <div class="row visible-xs">&nbsp;</div>
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question21', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question10" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
-                                        I will <b>wear a mask</b> as required and <b>observe all other Gov directives</b>.
+                                        I will <b>assess my tasks</b> and <b>implement</b> controls as necessary (such as use of a mechanical aid for manual tasks) so as not to expose myself to a risk of injury
                                     </div>
                                 </div>
                                 <div class="row visible-xs">&nbsp;</div>
                                 <div class="row">
                                     <div class="col-sm-2 col-xs-4 text-center">
                                         <div class="form-group">
-                                            {!! Form::checkbox('question22', '1', false,
-                                             ['class' => 'make-switch', 'data-size' => 'small',
-                                             'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                             'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
+                                            <input type="checkbox" name="question11" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
                                         </div>
                                     </div>
                                     <div class="col-sm-10 col-xs-8">
-                                        I understand the current NSW Health orders and <b>comply with its requirements</b> in relation to vaccinations and or covid testing.
+                                        I will ensure <b>all safety devices</b> such as handrails <b>are in place</b>
                                     </div>
                                 </div>
-                            </div> --}}
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="question7" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I will <b>report all incidents, near misses, unsafe work practices and conditions</b> that I am involved with or that come to my attention
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="question12" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I will <b>practice good housekeeping</b> at all times and <b>ensure all aisles are kept clear and tidy</b>
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="question13" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I will ensure the <b>site is left secure, is safe for others</b> and the lights are turned off
+                                    </div>
+                                </div>
+                                <div class="row visible-xs">&nbsp;</div>
+                                <div class="row">
+                                    <div class="col-sm-2 col-xs-4 text-center">
+                                        <div class="form-group">
+                                            <input type="checkbox" name="safe_site" value="1" class="make-switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" id="safe_site">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-10 col-xs-8">
+                                        I have <b>conducted my own assessment</b> of the site and believe it to be <b>safe to work</b>
+                                    </div>
+                                </div>
 
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question2', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I declare I am <b>fit for work</b> and am <b>not under the influence of alcohol, drugs or prescription medication</b> that may affect my capacity to work
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group {!! fieldHasError('transient', $errors) !!}">
-                                        {!! Form::checkbox('question9', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will <b>store all materials safely</b> in the designated areas
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question10', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will <b>assess my tasks</b> and <b>implement</b> controls as necessary (such as use of a mechanical aid for manual tasks) so as not to expose myself to a risk of injury
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question11', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will ensure <b>all safety devices</b> such as handrails <b>are in place</b>
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question7', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will <b>report all incidents, near misses, unsafe work practices and conditions</b> that I am involved with or that come to my attention
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question12', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will <b>practice good housekeeping</b> at all times and <b>ensure all aisles are kept clear and tidy</b>
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('question13', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I will ensure the <b>site is left secure, is safe for others</b> and the lights are turned off
-                                </div>
-                            </div>
-                            <div class="row visible-xs">&nbsp;</div>
-                            <div class="row">
-                                <div class="col-sm-2 col-xs-4 text-center">
-                                    <div class="form-group">
-                                        {!! Form::checkbox('safe_site', '1', false,
-                                         ['class' => 'make-switch', 'data-size' => 'small',
-                                         'data-on-text'=>'Yes', 'data-on-color'=>'success',
-                                         'data-off-text'=>'No', 'data-off-color'=>'danger', 'id'=>'safe_site']) !!}
-                                    </div>
-                                </div>
-                                <div class="col-sm-10 col-xs-8">
-                                    I have <b>conducted my own assessment</b> of the site and believe it to be <b>safe to work</b>
-                                </div>
-                            </div>
+                                <!-- Unsafe Site Fields -->
+                                @include('site/_checkin_hazard')
 
-                            <!-- Unsafe Site Fields -->
-                            @include('site/_checkin_hazard')
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn green" name="checkinStore" value="true" id="submit">Submit</button>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn green" name="checkinStore" value="true" id="submit">Submit</button>
+                                </div>
                             </div>
-                        </div> <!--/form-body-->
-                        {!! Form::close() !!}
-                        <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

@@ -23,305 +23,201 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteNote', ['action' => 'Site\SiteNoteController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <input name="previous_url" type="hidden" value="{!! url()->previous() !!}">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteNoteController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            <x-form.hidden name="previous_url" :value="url()->previous()"/>
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                {{-- Site --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!} {!! fieldHasError('site_id2', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <div id="site_div">
-                                            {!! Form::select('site_id', $site_list, $site_id, ['class' => 'form-control select2', 'id' => 'site_id']) !!}
-                                        </div>
-                                        <div id="siteall_div" style="display: none">
-                                            {!! Form::select('site_id2', $site_list_all, $site_id, ['class' => 'form-control select2', 'id' => 'site_id2']) !!}
-                                        </div>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                        {!! fieldErrorMessage('site_id2', $errors) !!}
-                                    </div>
-                                </div>
-                                {{-- Category --}}
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('category_id', $errors) !!}">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        {!! Form::select('category_id', ['' => 'Select category'] + $categories, null, ['class' => 'form-control bs-select', 'id' => 'category_id']) !!}
-                                        {!! fieldErrorMessage('category_id', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Variation Fields --}}
-                            <div id="variation_fields" style="display: none">
+                            <div class="form-body">
                                 <div class="row">
+                                    {{-- Site --}}
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_name', $errors) !!}">
-                                            {!! Form::label('variation_name', 'Variation Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('variation_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_name', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_info', $errors) !!}">
-                                            {!! Form::label('variation_info', 'Variation Description', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('variation_info', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('variation_info', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="variation_cost_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('variation_net', $errors) !!}">
-                                            <label for="variation_net" class="control-label">Net Cost <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            <input type="text" class="form-control" value="{{ old('variation_net') }}" id="variation_net" name="variation_net" onkeydown="return isNumber(event)"/>
-                                            {{--}}{!! Form::text('variation_net', null, ['class' => 'form-control']) !!}--}}
-                                            {!! fieldErrorMessage('variation_net', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('variation_cost', $errors) !!}">
-                                            {!! Form::label('variation_cost', 'Gross Cost (incl GST + 20% margin)', ['class' => 'control-label']) !!}
-                                            <input type="text" class="form-control" value="{{ old('variation_cost') }}" id="variation_cost" name="variation_cost" onkeydown="return isNumber(event)"/>
-                                            {{--}}{!! Form::text('variation_cost', null, ['class' => 'form-control']) !!} --}}
-                                            {!! fieldErrorMessage('variation_cost', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div id="extracredit_div">
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('variation_extra_credit', $errors) !!}">
-                                                {!! Form::label('variation_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                                {!! Form::select('variation_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'variation_extra_credit']) !!}
-                                                {!! fieldErrorMessage('variation_extra_credit', $errors) !!}
+                                        <div class="form-group {{ $errors->has('site_id') ? 'has-error' : '' }} {{ $errors->has('site_id2') ? 'has-error' : '' }}">
+                                            <label for="site_id" class="control-label">Site</label>
+                                            <div id="site_div">
+                                                <x-form.select name="site_id" :options="$site_list" :value="$site_id" id="site_id" plugin="select2"/>
                                             </div>
+                                            <div id="siteall_div" style="display: none">
+                                                <x-form.select name="site_id2" :options="$site_list_all" :value="$site_id" id="site_id2" plugin="select2"/>
+                                            </div>
+                                            <x-form.error name="site_id"/>
+                                            <x-form.error name="site_id2"/>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('variation_days', $errors) !!}">
-                                            <label for="variation_days" class="control-label">Total Extension Days (discussed with Client) Description <span class="font-grey-silver">(Admin use only)</span> </label>
-                                            <input type="text" class="form-control" value="{{ old('variation_days') }}" id="variation_days" name="variation_days" onkeydown="return isNumber(event)"/>
-                                            {!! fieldErrorMessage('variation_days', $errors) !!}
-                                        </div>
+                                    {{-- Category --}}
+                                    <div class="col-md-4">
+                                        <x-form.select name="category_id" label="Category" :options="['' => 'Select category'] + $categories" id="category_id"/>
                                     </div>
                                 </div>
-                                {{-- Variation items --}}
-                                <div class="row">
-                                    <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
-                                </div>
-                                @for ($i = 1; $i <= 5; $i++)
+
+                                {{-- Variation Fields --}}
+                                <div id="variation_fields" style="display: none">
                                     <div class="row">
-                                        <div class="col-md-1 text-center">{{ $i }}.</div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
-                                                {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage("cc-$i", $errors) !!}
-                                            </div>
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_name" label="Variation Name"/>
                                         </div>
-                                        <div class="col-md-8">
-                                            <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details & Cost of item $i."]) !!}
-                                                {!! fieldErrorMessage("cinfo-$i", $errors) !!}
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.textarea name="variation_info" label="Variation Description" rows="5"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="variation_cost_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.input name="variation_net" label="Net Cost <span class='font-grey-silver'>(Admin use only)</span>" onkeydown="return isNumber(event)"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.input name="variation_cost" label="Gross Cost (incl GST + 20% margin)"/>
+                                        </div>
+                                        <div id="extracredit_div">
+                                            <div class="col-md-3">
+                                                <x-form.select name="variation_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" id="variation_extra_credit"/>
                                             </div>
                                         </div>
                                     </div>
-                                @endfor
-
-                                {{-- Extra Items --}}
-                                <button class="btn blue" id="more">More Items</button>
-                                <div id="more_items" style="display: none">
-                                    @for ($i = 6; $i <= 20; $i++)
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <x-form.input name="variation_days" label="Total Extension Days (discussed with Client) Description <span class='font-grey-silver'>(Admin use only)</span>" onkeydown="return isNumber(event)"/>
+                                        </div>
+                                    </div>
+                                    {{-- Variation items --}}
+                                    <div class="row">
+                                        <div class="col-md-12">Variation items <span class="font-grey-silver">(Admin use only)</span></div>
+                                    </div>
+                                    @for ($i = 1; $i <= 5; $i++)
                                         <div class="row">
                                             <div class="col-md-1 text-center">{{ $i }}.</div>
                                             <div class="col-md-3">
-                                                <div class="form-group {!! fieldHasError("cc-$i", $errors) !!}">
-                                                    {!! Form::select("cc-$i", ['' => 'Select cost centre'] + $cost_centres, null, ['class' => 'form-control bs-select']) !!}
-                                                    {!! fieldErrorMessage("cc-$i", $errors) !!}
-                                                </div>
+                                                <x-form.select name="cc-{{ $i }}" :options="['' => 'Select cost centre'] + $cost_centres"/>
                                             </div>
-                                            <div class="col-md-7">
-                                                <div class="form-group {!! fieldHasError("cinfo-$i", $errors) !!}">
-                                                    {!! Form::text("cinfo-$i", null, ['class' => 'form-control', 'placeholder' => "Details 7 Cost of item $i."]) !!}
-                                                    {!! fieldErrorMessage("cinfo-$i", $errors) !!}
-                                                </div>
+                                            <div class="col-md-8">
+                                                <x-form.input name="cinfo-{{ $i }}" placeholder="Details & Cost of item {{ $i }}."/>
                                             </div>
                                         </div>
                                     @endfor
-                                </div>
-                                <br><br>
-                            </div>
 
-                            {{-- Costing Fields --}}
-                            <div id="costing_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_extra_credit', $errors) !!}">
-                                            {!! Form::label('costing_extra_credit', 'Credit / Extra', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_extra_credit', ['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit'], null, ['class' => 'form-control bs-select', 'id' => 'costing_extra_credit']) !!}
-                                            {!! fieldErrorMessage('costing_extra_credit', $errors) !!}
-                                        </div>
+                                    {{-- Extra Items --}}
+                                    <button class="btn blue" id="more">More Items</button>
+                                    <div id="more_items" style="display: none">
+                                        @for ($i = 6; $i <= 20; $i++)
+                                            <div class="row">
+                                                <div class="col-md-1 text-center">{{ $i }}.</div>
+                                                <div class="col-md-3">
+                                                    <x-form.select name="cc-{{ $i }}" :options="['' => 'Select cost centre'] + $cost_centres"/>
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <x-form.input name="cinfo-{{ $i }}" placeholder="Details 7 Cost of item {{ $i }}."/>
+                                                </div>
+                                            </div>
+                                        @endfor
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_item', $errors) !!}">
-                                            {!! Form::label('costing_item', 'New item / In Lieu of', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_item', ['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
-                                            {!! fieldErrorMessage('costing_item', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_priority', $errors) !!}">
-                                            {!! Form::label('costing_priority', 'Priority', ['class' => 'control-label']) !!}
-                                            {!! Form::select('costing_priority', ['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days'], null, ['class' => 'form-control bs-select', 'id' => 'costing_item']) !!}
-                                            {!! fieldErrorMessage('costing_priority', $errors) !!}
-                                        </div>
-                                    </div>
+                                    <br><br>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('costing_room', $errors) !!}">
-                                            {!! Form::label('costing_room', 'Room', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_room', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('costing_room', $errors) !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group {!! fieldHasError('costing_location', $errors) !!}">
-                                            {!! Form::label('costing_location', 'Location', ['class' => 'control-label']) !!}
-                                            {!! Form::text('costing_location', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('costing_location', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Prac Completion Fields --}}
-                            <div id="prac_completion_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('prac_notified', $errors) !!}">
-                                            <label for="prac_notified" class="control-label"> Prac Notified
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date you will be delivering letters. Please make sure you have given 7 working days notice."> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            <div class="input-group date date-picker">
-                                                {!! Form::text('prac_notified', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                            </div>
-                                            {!! fieldErrorMessage('prac_notified', $errors) !!}
+                                {{-- Costing Fields --}}
+                                <div id="costing_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_extra_credit" label="Credit / Extra" :options="['' => 'Select option', 'Extra' => 'Extra', 'Credit' => 'Credit']" id="costing_extra_credit"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_item" label="New item / In Lieu of" :options="['' => 'Select option', 'New item' => 'New item', 'In Lieu of' => 'In Lieu of']" id="costing_item"/>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <x-form.select name="costing_priority" label="Priority" :options="['' => 'Select option', '1-2 days' => '1-2 days', '3-5 days' => '3-5 days', '5+ days' => '5+ days']" id="costing_priority"/>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('prac_meeting_date', $errors) !!}">
-                                            <label for="prac_notified" class="control-label"> Prac Meeting Date
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            <div class="input-group date date-picker">
-                                                {!! Form::text('prac_meeting_date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                            </div>
-                                            {!! fieldErrorMessage('prac_meeting_date', $errors) !!}
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.input name="costing_room" label="Room"/>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <x-form.input name="costing_location" label="Location"/>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('prac_meeting_time', $errors) !!}">
-                                            <label for="prac_notified" class="control-label"> Prac Meeting Time
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            <div class="input-group">
-                                                {{--}}<input type="text" class="form-control timepicker timepicker-no-seconds" value="09:00 AM">--}}
-                                                {!! Form::text('prac_meeting_time', '', ['class' => 'form-control timepicker', 'placeholder' => "09:00 AM"]) !!}
-                                                <span class="input-group-btn">
+                                </div>
+
+                                {{-- Prac Completion Fields --}}
+                                <div id="prac_completion_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="prac_notified" label="Prac Notified" help="Date you will be delivering letters. Please make sure you have given 7 working days notice."/>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="prac_meeting_date" label="Prac Meeting Date" help="Date you will be holding the Prac Meeting with the Client."/>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="form-group {{ $errors->has('prac_meeting_time') ? 'has-error' : '' }}">
+                                                <label for="prac_notified" class="control-label"> Prac Meeting Time
+                                                    <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
+                                                       data-content="Time you will be holding the Prac Meeting with the Client."> <i class="fa fa-question-circle font-grey-silver"></i>
+                                                    </a>
+                                                </label>
+                                                <div class="input-group">
+                                                    {{--}}<input type="text" class="form-control timepicker timepicker-no-seconds" value="09:00 AM">--}}
+                                                    <input type="text" name="prac_meeting_time" id="prac_meeting_time" value="" class="form-control timepicker" placeholder="09:00 AM">
+                                                    <span class="input-group-btn">
                                                     <button class="btn default" type="button"><i class="fa fa-clock-o"></i></button>
                                                 </span>
+                                                </div>
+                                                <x-form.error name="prac_meeting_time"/>
                                             </div>
-                                            {!! fieldErrorMessage('prac_meeting_time', $errors) !!}
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Early Occupation Fields --}}
-                            <div id="occupation_fields" style="display: none">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('occupation_date', $errors) !!}">
-                                            <label for="occupation_date" class="control-label"> Date of Occupancy
-                                                <a href="javascript:;" class="popovers" data-container="body" data-trigger="hover"
-                                                   data-content="Date client took occupancy"> <i class="fa fa-question-circle font-grey-silver"></i>
-                                                </a>
-                                            </label>
-                                            <div class="input-group date date-picker">
-                                                {!! Form::text('occupation_date', '', ['class' => 'form-control form-control-inline', 'style' => 'background:#FFF', 'data-date-format' => "dd-mm-yyyy", 'placeholder' => 'dd/mm/yyyy']) !!}
-                                                <span class="input-group-btn"><button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button></span>
-                                            </div>
-                                            {!! fieldErrorMessage('occupation_date', $errors) !!}
+                                {{-- Early Occupation Fields --}}
+                                <div id="occupation_fields" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.datepicker name="occupation_date" label="Date of Occupancy" help="Date client took occupancy"/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <x-form.textarea name="occupation_area" label="Areas Client has taken Occupation of" rows="5"/>
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- Response Required --}}
+                                <div id="response_req_field" style="display: none">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <x-form.select name="response_req" label="Response Required" :options="['0' => 'No - FYI only', '1' => 'Yes']" id="response_req"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                {{-- Notes --}}
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('occupation_area', $errors) !!}">
-                                            {!! Form::label('occupation_area', 'Areas Client has taken Occupation of', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('occupation_area', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('occupation_area', $errors) !!}
-                                        </div>
+                                        <x-form.textarea name="notes" label="Note (Admin use only)" rows="5"/>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Response Required --}}
-                            <div id="response_req_field" style="display: none">
+                                {{-- Attachments --}}
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-group {!! fieldHasError('response_req', $errors) !!}">
-                                            {!! Form::label('response_req', 'Response Required', ['class' => 'control-label']) !!}
-                                            {!! Form::select('response_req', ['0' => 'No - FYI only', '1' => 'Yes'], null, ['class' => 'form-control bs-select', 'id' => 'response_req']) !!}
-                                            {!! fieldErrorMessage('response_req', $errors) !!}
-                                        </div>
+                                    <div class="col-md-6">
+                                        <h5 id="uploads_label">Upload Attachments</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
                                     </div>
                                 </div>
-                            </div>
 
-
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Note (Admin use only)', ['class' => 'control-label', 'id' => 'notes_label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '5', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
+                                <br><br>
+                                <div class="form-actions right">
+                                    <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
                                 </div>
-                            </div>
 
-                            {{-- Attachments --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5 id="uploads_label">Upload Attachments</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
                             </div>
-
-                            <br><br>
-                            <div class="form-actions right">
-                                <a href="{!! url()->previous() !!}" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
-                            </div>
-
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

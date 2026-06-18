@@ -22,7 +22,6 @@
                 <div class="portlet light ">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="icon-layers"></i>
                             <span class="caption-subject font-green-haze bold uppercase">Compliance</span>
                         </div>
                     </div>

@@ -50,401 +50,350 @@
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            {!! Form::model($main, ['method' => 'PATCH', 'action' => ['Site\SiteMaintenanceController@update', $main->id], 'class' => 'horizontal-form']) !!}
-                            <input type="hidden" id="site_id" value="{{ $main->site_id }}">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceController::class, 'update'], $main->id) }}" class="horizontal-form">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" id="site_id" value="{{ $main->site_id }}">
 
-                            @include('form-error')
+                                @include('form-error')
 
-                            <input v-model="xx.main.id" type="hidden" id="main_id" value="{{ $main->id }}">
-                            <input v-model="xx.main.name" type="hidden" id="main_name" value="{{ $main->name }}">
-                            <input v-model="xx.main.site_id" type="hidden" id="main_site_id"
-                                   value="{{ $main->site_id }}">
-                            <input v-model="xx.main.status" type="hidden" id="main_status" value="{{ $main->status }}">
-                            <input v-model="xx.main.warranty" type="hidden" id="main_warranty"
-                                   value="{{ $main->warranty }}">
-                            <input v-model="xx.main.assigned_to" type="hidden" id="main_assigned_to" name="assigned_to"
-                                   value="{{ $main->assigned_to }}">
-                            <input v-model="xx.main.planner_id" type="hidden" id="main_planner_id" name="planner_id"
-                                   value="{!! ($main->planner) ? $main->planner->id : '' !!}">
-                            <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date"
-                                   value="{!! ($main->planner) ? $main->planner->from : '' !!}">
-                            <input v-model="xx.main.planner_task_id" type="hidden" id="main_planner_task_id"
-                                   value="{!! ($main->planner) ? $main->planner->task_id : '' !!}">
-                            <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date"
-                                   value="{!! ($main->planner) ? $main->planner->from : '' !!}">
-                            <input v-model="xx.main.signed" type="hidden" id="main_signed"
-                                   value="{{ $main->isSigned() }}">
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $main->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status"
-                                   value="{{ $main->status }}">
-                            <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
-                            <input v-model="xx.user_fullname" type="hidden" id="fullname"
-                                   value="{{ Auth::user()->fullname }}">
-                            <input v-model="xx.company_id" type="hidden" id="company_id"
-                                   value="{{ Auth::user()->company->reportsTo()->id }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager"
-                                   value="{{ Auth::user()->allowed2('sig.site.maintenance', $main) }}">
-                            <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
-                                   value="{!! (in_array(Auth::user()->id, $main->site->areaSupervisors()->pluck('id')->toArray()) || $main->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.site.maintenance')) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff"
-                                   value="{{ Auth::user()->hasPermission2('sig.site.maintenance') }}">
-                            <input v-model="xx.user_edit" type="hidden" id="user_edit"
-                                   value="{{ (Auth::user()->allowed2('edit.site.maintenance', $main) || $main->super_id == Auth::user()->id) ? 1 : 0 }}">
+                                <input v-model="xx.main.id" type="hidden" id="main_id" value="{{ $main->id }}">
+                                <input v-model="xx.main.name" type="hidden" id="main_name" value="{{ $main->name }}">
+                                <input v-model="xx.main.site_id" type="hidden" id="main_site_id" value="{{ $main->site_id }}">
+                                <input v-model="xx.main.status" type="hidden" id="main_status" value="{{ $main->status }}">
+                                <input v-model="xx.main.warranty" type="hidden" id="main_warranty" value="{{ $main->warranty }}">
+                                <input v-model="xx.main.assigned_to" type="hidden" id="main_assigned_to" name="assigned_to" value="{{ $main->assigned_to }}">
+                                <input v-model="xx.main.planner_id" type="hidden" id="main_planner_id" name="planner_id" value="{!! ($main->planner) ? $main->planner->id : '' !!}">
+                                <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date" value="{!! ($main->planner) ? $main->planner->from : '' !!}">
+                                <input v-model="xx.main.planner_task_id" type="hidden" id="main_planner_task_id" value="{!! ($main->planner) ? $main->planner->task_id : '' !!}">
+                                <input v-model="xx.main.planner_task_date" type="hidden" id="main_planner_task_date" value="{!! ($main->planner) ? $main->planner->from : '' !!}">
+                                <input v-model="xx.main.signed" type="hidden" id="main_signed" value="{{ $main->isSigned() }}">
+                                <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $main->id }}">
+                                <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $main->status }}">
+                                <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
+                                <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
+                                <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
+                                <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.site.maintenance', $main) }}">
+                                <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
+                                       value="{!! (in_array(Auth::user()->id, $main->site->areaSupervisors()->pluck('id')->toArray()) || $main->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.site.maintenance')) ? 1 : 0  !!}">
+                                <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.site.maintenance') }}">
+                                <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ (Auth::user()->allowed2('edit.site.maintenance', $main) || $main->super_id == Auth::user()->id) ? 1 : 0 }}">
 
 
-                            <!-- Fullscreen devices -->
-                            @if ($main->status && $main->items->count() == $main->itemsChecked()->count())
-                                <div class="col-md-12 note note-warning">
-                                    <p>All items have been completed and request requires
-                                        <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
-                                        at the bottom
-                                    </p>
-                                </div>
-                            @endif
-
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <h4>Site Details
-                                                @if ($main->status > 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                    <button class="btn dark btn-outline btn-sm pull-right"
-                                                            style="margin-top: -10px; border: 0px" id="edit-site">Edit
-                                                    </button>
-                                                @endif
-                                            </h4>
-                                        </div>
+                                <!-- Fullscreen devices -->
+                                @if ($main->status && $main->items->count() == $main->itemsChecked()->count())
+                                    <div class="col-md-12 note note-warning">
+                                        <p>All items have been completed and request requires
+                                            <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
+                                            at the bottom
+                                        </p>
                                     </div>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($main->site)
-                                        <b>{{ $main->site->name }}</b>
-                                    @endif<br>
-                                    @if ($main->site)
-                                        {{ $main->site->full_address }}<br>
-                                    @endif
-                                    <br>
-                                    @if ($main->completed)
-                                        <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
-                                    @endif
-                                    <div id="site-show">
-                                        @if ($main->supervisor)
-                                            <b>Supervisor:</b> {{ $main->supervisor }}
-                                        @endif
-                                    </div>
-                                    <div id="site-edit">
-                                        <div class="form-group {!! fieldHasError('completed', $errors) !!}">
-                                            {!! Form::label('completed', 'Prac Completed', ['class' => 'control-label']) !!}
-                                            {!! Form::text('completed', ($main->completed) ? $main->completed->format('d/m/Y') : null, ['class' => 'form-control', 'placeholder' => 'dd/mm/yyyy']) !!}
-                                            {!! fieldErrorMessage('completed', $errors) !!}
-                                        </div>
-                                        <div class="form-group {!! fieldHasError('supervisor', $errors) !!}">
-                                            {!! Form::label('supervisor', 'Supervisor', ['class' => 'control-label']) !!}
-                                            {!! Form::text('supervisor', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('supervisor', $errors) !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-1"></div>
+                                @endif
 
-                                <div class="col-md-6">
-                                    <div class="row">
-                                        <div class="col-md-5">
-                                            <h4>Client Details
-                                                @if ($main->status > 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                                    <button class="btn dark btn-outline btn-sm pull-right" style="margin: -10px 0px 0px 50px; border: 0px" id="edit-client">Edit</button>
-                                                @endif
-                                            </h4>
-                                        </div>
-                                        <div class="col-md-7">
-                                            <h2 style="margin: 0px; padding-right: 20px">
-                                                @if($main->status == '-1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
-                                                @endif
-                                                @if($main->status == '0')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs"><small
-                                                                class="font-red">COMPLETED {{ $main->updated_at->format('d/m/Y') }}</small></span>
-                                                    <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $main->updated_at->format('d/m/Y') }}</span>
-                                                @endif
-                                                @if($main->status == '1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
-                                                @endif
-                                                @if($main->status == '2')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">UNDER REVIEW</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">UNDER REVIEW</span>
-                                                @endif
-                                                @if($main->status == '4')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
-                                                @endif
-                                            </h2>
-                                        </div>
-                                    </div>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    <div id="client-show">
-                                        @if ($main->contact_name)
-                                            <b>{{ $main->contact_name }}</b>
-                                        @endif<br>
-                                        @if ($main->contact_phone)
-                                            {{ $main->contact_phone }}<br>
-                                        @endif
-                                        @if ($main->contact_email)
-                                            {{ $main->contact_email }}<br>
-                                        @endif
-                                        @if($main->nextClientVisit())
-                                            <br><b>Scheduled
-                                                Visit:</b> {{ ($main->nextClientVisit()->entity_type == 'c' && $main->nextClientVisit()->company ) ? $main->nextClientVisit()->company->name : 'Unassigned Company'}}
-                                            &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
-                                        @endif
-                                    </div>
-                                    <div id="client-edit">
+                                <div class="row">
+                                    <div class="col-md-5">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <div class="form-group {!! fieldHasError('contact_name', $errors) !!}">
-                                                    {!! Form::label('contact_name', 'Name', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_name', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_name', $errors) !!}
-                                                </div>
+                                                <h4>Site Details
+                                                    @if ($main->status > 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                        <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-site">Edit</button>
+                                                    @endif
+                                                </h4>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="form-group {!! fieldHasError('contact_phone', $errors) !!}">
-                                                    {!! Form::label('contact_phone', 'Phone', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_phone', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_phone', $errors) !!}
-                                                </div>
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div class="form-group {!! fieldHasError('contact_email', $errors) !!}">
-                                                    {!! Form::label('contact_email', 'Email', ['class' => 'control-label']) !!}
-                                                    {!! Form::text('contact_email', null, ['class' => 'form-control']) !!}
-                                                    {!! fieldErrorMessage('contact_email', $errors) !!}
-                                                </div>
-                                            </div>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @if ($main->site)
+                                            <b>{{ $main->site->name }}</b>
+                                        @endif<br>
+                                        @if ($main->site)
+                                            {{ $main->site->full_address }}<br>
+                                        @endif
+                                        <br>
+                                        @if ($main->completed)
+                                            <b>Prac Completion:</b> {{ $main->completed->format('d/m/Y') }}<br>
+                                        @endif
+                                        <div id="site-show">
+                                            @if ($main->supervisor)
+                                                <b>Supervisor:</b> {{ $main->supervisor }}
+                                            @endif
+                                        </div>
+                                        <div id="site-edit">
+                                            <x-form.input name="completed" label="Prac Completed" :value="($main->completed) ? $main->completed->format('d/m/Y') : null" placeholder="dd/mm/yyyy"/>
+                                            <x-form.input name="supervisor" label="Supervisor"/>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <br>
+                                    <div class="col-md-1"></div>
 
-
-                            {{-- Gallery --}}
-                            <br>
-                            <div class="row" id="photos-show">
-                                <div class="col-md-7">
-                                    <h4>Photos
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
-                                        @endif</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/maintenance/_gallery')
-                                </div>
-                                <div class="col-md-1"></div>
-                                <div class="col-md-4" id="docs-show">
-                                    <h4>Documents
-                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
-                                        @endif
-                                    </h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @include('site/maintenance/_docs')
-                                </div>
-                            </div>
-
-                            <div id="photos-edit">
-                                <h4>Photos / Documents
-                                    @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
-                                        <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
-                                    @endif</h4>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                <div class="row">
-                                    <div class="col-md-6" style="background: #f1f0ef">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <h4>Client Details
+                                                    @if ($main->status > 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                        <button class="btn dark btn-outline btn-sm pull-right" style="margin: -10px 0px 0px 50px; border: 0px" id="edit-client">Edit</button>
+                                                    @endif
+                                                </h4>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <h2 style="margin: 0px; padding-right: 20px">
+                                                    @if($main->status == '-1')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
+                                                    @endif
+                                                    @if($main->status == '0')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs"><small class="font-red">COMPLETED {{ $main->updated_at->format('d/m/Y') }}</small></span>
+                                                        <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $main->updated_at->format('d/m/Y') }}</span>
+                                                    @endif
+                                                    @if($main->status == '1')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
+                                                    @endif
+                                                    @if($main->status == '2')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">UNDER REVIEW</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">UNDER REVIEW</span>
+                                                    @endif
+                                                    @if($main->status == '4')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                                    @endif
+                                                </h2>
+                                            </div>
+                                        </div>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        <div id="client-show">
+                                            @if ($main->contact_name)
+                                                <b>{{ $main->contact_name }}</b>
+                                            @endif<br>
+                                            @if ($main->contact_phone)
+                                                {{ $main->contact_phone }}<br>
+                                            @endif
+                                            @if ($main->contact_email)
+                                                {{ $main->contact_email }}<br>
+                                            @endif
+                                            @if($main->nextClientVisit())
+                                                <br><b>Scheduled
+                                                    Visit:</b> {{ ($main->nextClientVisit()->entity_type == 'c' && $main->nextClientVisit()->company ) ? $main->nextClientVisit()->company->name : 'Unassigned Company'}}
+                                                &nbsp; ({{ $main->nextClientVisit()->from->format('d/m/Y') }})<br>
+                                            @endif
+                                        </div>
+                                        <div id="client-edit">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <x-form.input name="contact_name" label="Name"/>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <x-form.input name="contact_phone" label="Phone"/>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <x-form.input name="contact_email" label="Email"/>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <br>
-                            </div>
 
-                            {{-- Under Review - asign to super --}}
-                            <h4>Maintenance Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Goodwill --}}
-                                {{--}}
-                                <div class="col-md-2 ">
-                                    <div class="form-group">
-                                        {!! Form::label('goodwill', 'Goodwill', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('goodwill', ['1' => 'Yes', '0' => 'No'], $main->goodwill, ['class' => 'form-control bs-select', 'id' => 'goodwill']) !!}
-                                        @else
-                                            {!! Form::text('goodwill_text', ($main->goodwill) ? 'Yes' : 'No', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
+
+                                {{-- Gallery --}}
+                                <br>
+                                <div class="row" id="photos-show">
+                                    <div class="col-md-7">
+                                        <h4>Photos
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-photos">Edit</button>
+                                            @endif</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/maintenance/_gallery')
                                     </div>
-                                </div>--}}
-
-                                {{-- Category --}}
-                                <div class="col-md-3 ">
-                                    <div class="form-group">
-                                        {!! Form::label('category_id', 'Category', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('category_id', (['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name' ,'id')->toArray()), null, ['class' => 'form-control select2', 'title' => 'Select category', 'id' => 'category_id']) !!}
-                                        @else
-                                            {!! Form::text('category_text', ($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : 'Select Category', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>
-
-                                {{-- Warranty --}}
-                                <div class="col-md-2 ">
-                                    <div class="form-group">
-                                        {!! Form::label('warranty', 'Warranty', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('warranty', $maintenanceWarranty::all(), $main->warranty, ['class' => 'form-control bs-select', 'id' => 'warranty']) !!}
-                                        @else
-                                            {!! Form::text('warranty_text', $maintenanceWarranty::name($main->warranty), ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>
-
-                                {{-- Client Contacted --}}
-                                <div class="col-md-2">
-                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main))
-                                        <div class="input-group" style="width=80%">
-                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
-                                               value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_contacted', ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>
-
-                                {{-- Client Appointment --}}
-                                <div class="col-md-2">
-                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
-                                    @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main) )
-                                        <div class="input-group">
-                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
-                                               value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_appointment', ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>
-
-                                {{-- Status --}}
-                                <div class="col-md-2 pull-right">
-                                    <div class="form-group">
-                                        {!! Form::label('status', 'Status', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '-1' => 'Decline', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
-                                        @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {!! Form::select('status', ['1' => 'Active', '4' => 'On Hold'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
-                                        @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                            {!! Form::select('status', ['0' => 'Completed', '1' => 'Re-Activate'], $main->status, ['class' => 'form-control bs-select', 'id' => 'status']) !!}
-                                        @else
-                                            {!! Form::text('status_text', ($main->status == 0) ? 'Completed' : 'Declined', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row note note-warning" id="onhold-div"
-                                 style="{{ fieldHasError('onhold_reason', $errors) ? 'display:show' : 'display:none' }}">
-                                {{-- On Hold Reason --}}
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('onhold_reason', $errors) !!}"
-                                         style="{{ fieldHasError('onhold_reason', $errors) ? '' : 'display:show' }}"
-                                         id="onhold_reason-div">
-                                        {!! Form::label('onhold_reason', 'Please specify the reason for placing request ON HOLD', ['class' => 'control-label']) !!}
-                                        {!! Form::text('onhold_reason', null, ['class' => 'form-control', 'id' => 'onhold_reason']) !!}
-                                        {!! fieldErrorMessage('onhold_reason', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                {{-- Assigned Supervisor --}}
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Maintenance Supervisor', ['class' => 'control-label']) !!}
-                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                            {{-- Supervisor --}}
-                                            <select id="super_id" name="super_id" class="form-control select2"
-                                                    style="width:100%">
-                                                <option value=""></option>
-                                                {{--}}<optgroup label="Cape Code Supervisors"></optgroup>--}}
-                                                @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                    <option value="{{ $super->id }}" {{ ($super->id == $main->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
-                                                @endforeach
-                                                {{--}}
-                                                <optgroup label="External Users"></optgroup>
-                                                <option value="2023" {{ ('2023' == $main->super_id) ? 'selected' : '' }}>
-                                                    Jason Habib (Prolific Projects)
-                                                </option>--}}
-                                            </select>
-                                            {!! fieldErrorMessage('super_id', $errors) !!}
-                                        @else
-                                            {!! Form::text('assigned_super_text', ($main->super_id) ? $main->taskOwner->name : '-', ['class' => 'form-control', 'readonly']) !!}
-                                        @endif
-                                        {!! fieldErrorMessage('super_id', $errors) !!}
-                                    </div>
-                                </div>
-
-                                {{-- AC Form --}}
-                                @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
-                                    <div class="col-md-2 pull-right">
-                                        @if ($main->site->aftercare == "No")
-                                            <span class="font-red"><br>AC Not Requested</span>
-                                            <input type="hidden" name="ac_form_required" value="0">
-                                        @else
-                                            {!! Form::label('ac_form_required', 'AC Form Required', ['class' => 'control-label']) !!}
-                                            {!! Form::select('ac_form_required', ['0' => 'No', '1' => 'Yes'], 0, ['class' => 'form-control bs-select', 'id' => 'ac_form_required']) !!}
-                                        @endif
-                                    </div>
-                                @endif
-
-                                @if (!$main->status)
-                                    <div class="col-md-2 pull-right">
-                                        @if ($main->site->aftercare == "No")
-                                            <span class="font-red"><br>AC Not Requested</span>
-                                            <input type="hidden" name="ac_form_required" value="0">
-                                        @else
-                                            {!! Form::label('ac_form_sent', 'AC Form Sent', ['class' => 'control-label']) !!}
-
-                                            @if (Auth::user()->allowed2('add.site.maintenance'))
-                                                <div class="input-group">
-                                                    <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
-                                                </div>
-                                                @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
-                                                    <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
-                                                @else
-                                                    <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
-                                                @endif
-                                            @else
-                                                {!! Form::text('ac_form_sent', ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-4" id="docs-show">
+                                        <h4>Documents
+                                            @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                                <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="edit-docs">Edit</button>
                                             @endif
-                                            <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
+                                        </h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @include('site/maintenance/_docs')
+                                    </div>
+                                </div>
+
+                                <div id="photos-edit">
+                                    <h4>Photos / Documents
+                                        @if(Auth::user()->allowed2('add.site.maintenance') || Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <button class="btn dark btn-outline btn-sm pull-right" style="margin-top: -10px; border: 0px" id="view-photos">View</button>
+                                        @endif</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    <div class="row">
+                                        <div class="col-md-6" style="background: #f1f0ef">
+                                            <x-form.filepond/>
+                                            <br><br>
+                                        </div>
+                                    </div>
+                                    <br>
+                                </div>
+
+                                {{-- Under Review - asign to super --}}
+                                <h4>Maintenance Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Goodwill --}}
+                                    {{--}}
+                                    <div class="col-md-2 ">
+                                        <div class="form-group">
+                                            <label for="goodwill" class="control-label">Goodwill</label>
+                                            @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                                <x-form.select name="goodwill" id="goodwill" :options="['1' => 'Yes', '0' => 'No']" :value="$main->goodwill"/>
+                                            @else
+                                                <x-form.input name="goodwill_text" :value="($main->goodwill) ? 'Yes' : 'No'" readonly/>
+                                            @endif
+                                        </div>
+                                    </div>--}}
+
+                                    {{-- Category --}}
+                                    <div class="col-md-3 ">
+                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            <x-form.select name="category_id" id="category_id" label="Category" :options="['' => 'Select category'] + \App\Models\Site\SiteMaintenanceCategory::all()->sortBy('name')->pluck('name', 'id')->toArray()" plugin="select2" title="Select category"/>
+                                        @else
+                                            <x-form.input name="category_text" label="Category" :value="($main->category_id) ? \App\Models\Site\SiteMaintenanceCategory::find($main->category_id)->name : 'Select Category'" readonly/>
                                         @endif
                                     </div>
-                                @endif
-                            </div>
-                            <div class="row">
-                                @if (Auth::user()->allowed2('edit.site.maintenance', $main))
-                                    <div class="col-md-1 pull-right">
-                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+
+                                    {{-- Warranty --}}
+                                    <div class="col-md-2 ">
+                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            <x-form.select name="warranty" id="warranty" label="Warranty" :options="$maintenanceWarranty::all()" :value="$main->warranty"/>
+                                        @else
+                                            <x-form.input name="warranty_text" label="Warranty" :value="$maintenanceWarranty::name($main->warranty)" readonly/>
+                                        @endif
                                     </div>
-                                @endif
-                            </div>
+
+                                    {{-- Client Contacted --}}
+                                    <div class="col-md-2">
+                                        <label for="client_contacted" class="control-label">Client Contacted</label>
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            <div class="input-group" style="width=80%">
+                                                <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                            </div>
+                                            <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
+                                                   value="{{  ($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''}}">
+                                        @else
+                                            <x-form.input name="client_contacted" :value="($main->client_contacted) ? $main->client_contacted->format('d/m/Y') : ''" readonly/>
+                                        @endif
+                                    </div>
+
+                                    {{-- Client Appointment --}}
+                                    <div class="col-md-2">
+                                        <label for="client_appointment" class="control-label">Client Appointment</label>
+                                        @if ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main) || Auth::user()->allowed2('sig.site.maintenance', $main) )
+                                            <div class="input-group">
+                                                <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                            </div>
+                                            <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
+                                                   value="{{  ($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''}}">
+                                        @else
+                                            <x-form.input name="client_appointment" :value="($main->client_appointment) ? $main->client_appointment->format('d/m/Y') : ''" readonly/>
+                                        @endif
+                                    </div>
+
+                                    {{-- Status --}}
+                                    <div class="col-md-2 pull-right">
+                                        @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                            <x-form.select name="status" id="status" label="Status" :options="['1' => 'Active', '-1' => 'Decline', '4' => 'On Hold']" :value="$main->status"/>
+                                        @elseif ($main->status && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <x-form.select name="status" id="status" label="Status" :options="['1' => 'Active', '4' => 'On Hold']" :value="$main->status"/>
+                                        @elseif ($main->status == 0 && Auth::user()->allowed2('edit.site.maintenance', $main))
+                                            <x-form.select name="status" id="status" label="Status" :options="['0' => 'Completed', '1' => 'Re-Activate']" :value="$main->status"/>
+                                        @else
+                                            <x-form.input name="status_text" label="Status" :value="($main->status == 0) ? 'Completed' : 'Declined'" readonly/>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="row note note-warning" id="onhold-div"
+                                     style="{{ $errors->has('onhold_reason') ? 'display:show' : 'display:none' }}">
+                                    {{-- On Hold Reason --}}
+                                    <div class="col-md-12">
+                                        <div id="onhold_reason-div" style="{{ $errors->has('onhold_reason') ? '' : 'display:show' }}">
+                                            <x-form.input name="onhold_reason" label="Please specify the reason for placing request ON HOLD"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    {{-- Assigned Supervisor --}}
+                                    <div class="col-md-5">
+                                        <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('super_id') ? '' : 'display:show' }}" id="company-div">
+                                            <label for="super_id" class="control-label">Maintenance Supervisor</label>
+                                            @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                                {{-- Supervisor --}}
+                                                <select id="super_id" name="super_id" class="form-control select2"
+                                                        style="width:100%">
+                                                    <option value=""></option>
+                                                    {{--}}<optgroup label="Cape Code Supervisors"></optgroup>--}}
+                                                    @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
+                                                        <option value="{{ $super->id }}" {{ ($super->id == $main->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
+                                                    @endforeach
+                                                    {{--}}
+                                                    <optgroup label="External Users"></optgroup>
+                                                    <option value="2023" {{ ('2023' == $main->super_id) ? 'selected' : '' }}>
+                                                        Jason Habib (Prolific Projects)
+                                                    </option>--}}
+                                                </select>
+                                                <x-form.error name="super_id"/>
+                                            @else
+                                                <x-form.input name="assigned_super_text" :value="($main->super_id) ? $main->taskOwner->name : '-'" readonly/>
+                                            @endif
+                                            <x-form.error name="super_id"/>
+                                        </div>
+                                    </div>
+
+                                    {{-- AC Form --}}
+                                    @if ($main->status && Auth::user()->allowed2('sig.site.maintenance', $main))
+                                        <div class="col-md-2 pull-right">
+                                            @if ($main->site->aftercare == "No")
+                                                <span class="font-red"><br>AC Not Requested</span>
+                                                <x-form.hidden name="ac_form_required" value="0"/>
+                                            @else
+                                                <x-form.select name="ac_form_required" id="ac_form_required" label="AC Form Required" :options="['0' => 'No', '1' => 'Yes']" value="0"/>
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if (!$main->status)
+                                        <div class="col-md-2 pull-right">
+                                            @if ($main->site->aftercare == "No")
+                                                <span class="font-red"><br>AC Not Requested</span>
+                                                <x-form.hidden name="ac_form_required" value="0"/>
+                                            @else
+                                                <label for="ac_form_sent" class="control-label">AC Form Sent</label>
+
+                                                @if (Auth::user()->allowed2('add.site.maintenance'))
+                                                    <div class="input-group">
+                                                        <datepicker :value.sync="xx.ac_form_sent" format="dd/MM/yyyy" :placeholder="choose date"></datepicker>
+                                                    </div>
+                                                    @if ($main->ac_form_sent && $main->ac_form_sent == '0001-01-01 01:01:01')
+                                                        <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="N/A">
+                                                    @else
+                                                        <input v-model="xx.ac_form_sent" type="hidden" name="ac_form_sent" value="{{  ($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''}}">
+                                                    @endif
+                                                @else
+                                                    <x-form.input name="ac_form_sent" :value="($main->ac_form_sent) ? $main->ac_form_sent->format('d/m/Y') : ''" readonly/>
+                                                @endif
+                                                <div style="text-align: right"><a href="#" id="ac_form_mark_na" v-on:click.prevent="$root.$broadcast('ac_form_na', 1)">Mark as N/A</a></div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="row">
+                                    @if (Auth::user()->allowed2('edit.site.maintenance', $main))
+                                        <div class="col-md-1 pull-right">
+                                            <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                        </div>
+                                    @endif
+                                </div>
                         </div>
-
-
                         <br>
-
 
                         {{-- Maintenance Items --}}
                         <div class="row">
@@ -486,19 +435,17 @@
                                 <h3>Assigned Tasks
                                     {{-- Show add if user has permission to edit maintenance --}}
                                     @if ($main->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/maintenance_task/{{ $main->id}}"
-                                           class="btn btn-circle green btn-outline btn-sm pull-right"
-                                           data-original-title="Add">Add</a>
+                                        <a href="/todo/create/maintenance_task/{{ $main->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
                                     @endif
                                 </h3>
                                 @if ($main->todos()->count())
                                     <table class="table table-striped table-bordered table-nohover order-column">
                                         <thead>
                                         <tr class="mytable-header">
-                                            <th width="5%">#</th>
+                                            <th style="width:5%">#</th>
                                             <th> Action</th>
-                                            <th width="15%">Created by</th>
-                                            <th width="15%">Completed by</th>
+                                            <th style="width:15%">Created by</th>
+                                            <th style="width:15%">Completed by</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -524,9 +471,7 @@
                                                         <div class="row" style="margin: 0">
                                                             @foreach ($images as $attachment)
                                                                 <div style="width: 60px; float: left; padding-right: 5px">
-                                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                    </a>
+                                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity><img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail"></a>
                                                                 </div>
                                                             @endforeach
                                                         </div>
@@ -553,7 +498,8 @@
                                                 $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
                                                 $done_by = ($done_by) ? $done_by->full_name : 'unknown';
                                                 ?>
-                                            <td>@if ($todo->status && !$todo->done_by)
+                                            <td>
+                                                @if ($todo->status && !$todo->done_by)
                                                     <span class="font-red">Outstanding</span>
                                                 @else
                                                     {!! $done_by  !!}<br>{{ $done_at }}
@@ -567,7 +513,7 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
+                        </form>
 
                         {{-- Sign Off --}}
                         <hr>
@@ -585,14 +531,9 @@
                                     {!! \App\User::find($main->supervisor_sign_by)->full_name !!},
                                     &nbsp;{{ $main->supervisor_sign_at->format('d/m/Y') }}
                                 @else
-                                    <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 1"
-                                            v-on:click.prevent="$root.$broadcast('signOff', 'super')"
-                                            class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
-                                    </button>
-                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 0"
-                                          class="font-red">Pending</span>
-                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
-                                          class="font-grey-silver">Waiting for items to be completed</span>
+                                    <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 1" v-on:click.prevent="$root.$broadcast('signOff', 'super')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off</button>
+                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_supervisor == 0" class="font-red">Pending</span>
+                                    <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                 @endif
                             </div>
                         </div>
@@ -605,17 +546,13 @@
                                 @else
                                     @if ($main->supervisor_sign_by)
                                         <button v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && (xx.user_manager == 1 || xx.user_signoff)"
-                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')"
-                                                class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign
-                                            Off
+                                                v-on:click.prevent="$root.$broadcast('signOff', 'manager')" class=" btn blue btn-xs btn-outline sbold uppercase margin-bottom">Sign Off
                                         </button>
                                         <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total && xx.user_manager == 0 && !xx.user_signoff"
                                               class="font-red">Pending</span>
                                     @else
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total"
-                                              class="font-red">Waiting for Maintenance Supervisor Sign Off</span>
-                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
-                                              class="font-grey-silver">Waiting for items to be completed</span>
+                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done == xx.main.items_total" class="font-red">Waiting for Maintenance Supervisor Sign Off</span>
+                                        <span v-if="xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total" class="font-grey-silver">Waiting for items to be completed</span>
                                     @endif
                                 @endif
                             </div>
@@ -625,12 +562,9 @@
                         <div class="pull-right" style="min-height: 50px">
                             <a href="/site/maintenance" class="btn default"> Back</a>
                             @if (!$main->master && Auth::user()->allowed2('edit.site.maintenance', $main))
-                                <button v-if="xx.main.status == 1 && xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total"
-                                        class="btn blue"
-                                        v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
+                                <button v-if="xx.main.status == 1 && xx.main.items_total != 0 && xx.main.items_done != xx.main.items_total" class="btn blue" v-on:click.prevent="$root.$broadcast('updateReportStatus', 2)"> Place On Hold
                                 </button>
-                                <button v-if="xx.main.status == 2 || xx.main.status == -1 " class="btn green"
-                                        v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
+                                <button v-if="xx.main.status == 2 || xx.main.status == -1 " class="btn green" v-on:click.prevent="$root.$broadcast('updateReportStatus', 1)"> Make Active
                                 </button>
                             @endif
                         </div>
@@ -664,10 +598,10 @@
             <thead>
             <tr class="mytable-header">
                 <th> Maintenance Item</th>
-                <th width="30%"> Assigned Task</th>
-                <th width="15%"> Completed</th>
-                <th width="10%"> Action</th>
-                {{--}}<th width="15%"> Checked</th>--}}
+                <th style="width:30%"> Assigned Task</th>
+                <th style="width:15%"> Completed</th>
+                <th style="width:10%"> Action</th>
+                {{--}}<th style="width:15%"> Checked</th>--}}
             </tr>
             </thead>
             <tbody>
@@ -748,9 +682,7 @@
                     <div class="col-md-3">Planner Task</div>
                     <div class="col-md-9">
                         <select v-model="xx.item.planner_task_id" class='form-control' v-on:change="doNothing">
-                            <option v-for="option in xx.sel_task" value="@{{ option.value }}"
-                                    selected="@{{option.value == item.planner_task_id}}">@{{ option.text }}
-                            </option>
+                            <option v-for="option in xx.sel_task" value="@{{ option.value }}" selected="@{{option.value == item.planner_task_id}}">@{{ option.text }}</option>
                         </select>
                     </div>
                 </div>
@@ -769,9 +701,7 @@
                     <div class="col-md-9">
                         <div v-if="xx.editItemModal" class="input-group">
                             <select v-model="xx.item.status" class='form-control' v-on:change="doNothing" style="width: 160px">
-                                <option v-for="option in xx.sel_checked" value="@{{ option.value }}"
-                                        selected="@{{option.value == item.status}}">@{{ option.text }}
-                                </option>
+                                <option v-for="option in xx.sel_checked" value="@{{ option.value }}" selected="@{{option.value == item.status}}">@{{ option.text }}</option>
                             </select>
                         </div>
                     </div>
@@ -800,18 +730,15 @@
                     <h3>Notes
                         {{-- Show add if user has permission to edit maintenance --}}
                         {{--}}@if (Auth::user()->allowed2('edit.site.maintenance', $main)) --}}
-                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')"
-                                class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
-                        </button>
+                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                         {{--}}@endif --}}
                     </h3>
-                    <table v-show="actionList.length"
-                           class="table table-striped table-bordered table-nohover order-column">
+                    <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Action</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

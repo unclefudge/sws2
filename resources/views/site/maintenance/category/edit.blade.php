@@ -21,39 +21,35 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Edit Category</span>
                             <span class="caption-helper">ID: {{ $cat->id }}</span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($cat, ['method' => 'PATCH', 'action' => ['Site\SiteMaintenanceCategoryController@update', $cat->id], 'class' => 'horizontal-form','id'=>'main_form']) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteMaintenanceCategoryController::class, 'update'], $cat->id) }}" class="horizontal-form" id="main_form">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
+                            <div class="form-body">
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', $cat->name, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.input name="name" label="Name" :value="$cat->name"/>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-actions right">
-                            <a href="/site/maintenance/category" class="btn default"> Back</a>
-                            <button type="submit" class="btn green"> Save</button>
-                        </div>
+                            <div class="form-actions right">
+                                <a href="/site/maintenance/category" class="btn default"> Back</a>
+                                <button type="submit" class="btn green"> Save</button>
+                            </div>
+                        </form>
                     </div>
-                    {!! Form::close() !!}
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -62,11 +58,11 @@
 @section('page-level-plugins')
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script>
-    $(document).ready(function () {
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script>
+        $(document).ready(function () {
 
-    });
-</script>
+        });
+    </script>
 @stop
-

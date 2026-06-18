@@ -23,7 +23,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model($item, ['method' => 'PATCH', 'action' => ['Misc\EquipmentController@update', $item->id], 'class' => 'horizontal-form', 'files' => true]) !!}
                         <?php $sub_cat = $item->category_id; ?>
                         @include('form-error')

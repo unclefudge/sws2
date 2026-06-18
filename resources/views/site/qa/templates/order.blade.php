@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <input type="hidden" name="company_id" value="{{ Auth::user()->company_id }}">
+                        <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
                         <div class="form-body">
                             {{--}}
                             <div class="row">

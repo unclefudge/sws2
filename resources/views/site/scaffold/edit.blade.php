@@ -40,10 +40,12 @@ $duty_class = [
                     </div>
                     <div class="portlet-body form">
                         <div class="page-content-inner">
-                            {!! Form::model($report, ['method' => 'PATCH', 'action' => ['Site\SiteScaffoldHandoverController@update', $report->id], 'class' => 'horizontal-form', 'files' => true, 'id' => 'form_signed']) !!}
-                            <input type="hidden" name="report_id" id="report_id" value="{{ $report->id }}">
-                            <input type="hidden" name="site_id" id="site_id" value="{{ $report->site_id }}">
-                            <input type="hidden" name="done_at" id="done_at" value="0">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteScaffoldHandoverController::class, 'update'], $report->id) }}" class="horizontal-form" enctype="multipart/form-data" id="form_signed">
+                                @csrf
+                                @method('PATCH')
+                            <x-form.hidden name="report_id" id="report_id" :value="$report->id"/>
+                            <x-form.hidden name="site_id" id="site_id" :value="$report->site_id"/>
+                            <x-form.hidden name="done_at" id="done_at" value="0"/>
 
                             @include('form-error')
 
@@ -60,36 +62,20 @@ $duty_class = [
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Description and location of area handed over', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea("location", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
-                                    </div>
+                                    <x-form.textarea name="location" label="Description and location of area handed over" :value="$report->location" rows="3" placeholder="Specific details"/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('use', $errors) !!}">
-                                        {!! Form::label('use', 'Intended use of the scaffold', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea("use", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
-                                        {!! fieldErrorMessage('use', $errors) !!}
-                                    </div>
+                                    <x-form.textarea name="use" label="Intended use of the scaffold" :value="$report->use" rows="3" placeholder="Specific details"/>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('duty', $errors) !!}">
-                                        {!! Form::label('duty', 'Duty Classification', ['class' => 'control-label']) !!}
-                                        {!! Form::select('duty', $duty_class, null, ['class' => 'form-control bs-select', 'name' => 'duty', 'title' => 'Select class']) !!}
-                                        {!! fieldErrorMessage('duty', $errors) !!}
-                                    </div>
+                                    <x-form.select name="duty" label="Duty Classification" :options="$duty_class" :value="$report->duty" title="Select class"/>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('decks', $errors) !!}">
-                                        {!! Form::label('decks', 'No. of working decks', ['class' => 'control-label']) !!}
-                                        {!! Form::text('decks', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('decks', $errors) !!}
-                                    </div>
+                                    <x-form.input name="decks" label="No. of working decks" :value="$report->decks"/>
                                 </div>
                             </div>
 
@@ -97,7 +83,7 @@ $duty_class = [
                                 <div class="col-md-6">
                                     <h5>Upload Photos/Documents of Scaffold</h5>
                                     <div style="background:#eee">
-                                        <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
+                                        <x-form.filepond/><br><br>
                                     </div>
                                 </div>
                             </div>
@@ -106,10 +92,7 @@ $duty_class = [
                             <hr style="padding: 0px; margin: 0px 0px 10px 0px">
                             <div class="row">
                                 <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::textarea("notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
-                                    </div>
+                                    <x-form.textarea name="notes" :value="$report->notes" rows="5" placeholder="Details"/>
                                 </div>
                             </div>
 
@@ -194,33 +177,20 @@ $duty_class = [
                             {{-- Name + Date --}}
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('inspector_name', $errors) !!}">
-                                        {!! Form::label('inspector_name', 'Name of licensed scaffolder performing handover inspection', ['class' => 'control-label']) !!}
-                                        {!! Form::text('inspector_name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('inspector_name', $errors) !!}
-                                    </div>
+                                    <x-form.input name="inspector_name" label="Name of licensed scaffolder performing handover inspection" :value="$report->inspector_name"/>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('handover_date', $errors) !!}">
-                                        {!! Form::label('handover_date', 'Date & Time of Handover', ['class' => 'control-label']) !!}
-                                        <div class="input-group date form_datetime form_datetime bs-datetime" data-date-end-date="0d"> <!-- bs-datetime -->
-                                            {!! Form::text('handover_date', ($report->handover_date) ? $report->handover_date->format('d F Y - H:i') : null, ['class' => 'form-control', 'readonly', 'style' => 'background:#FFF']) !!}
-                                            <span class="input-group-addon">
-                                                <button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-                                            </span>
-                                        </div>
-                                        {!! fieldErrorMessage('handover_date', $errors) !!}
-                                    </div>
+                                    <x-form.datetimepicker name="handover_date" label="Date & Time of Handover" :value="($report->handover_date) ? $report->handover_date->format('d F Y - H:i') : null"/>
                                 </div>
                             </div>
 
                             {{-- SingleFile Upload --}}
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                    <div class="form-group {{ $errors->has('singlefile') ? 'has-error' : '' }}">
                                         <label class="control-label">Photo of High Risk Work Licence</label>
                                         <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                        {!! fieldErrorMessage('singlefile', $errors) !!}
+                                        <x-form.error name="singlefile"/>
                                     </div>
                                 </div>
                             </div>
@@ -234,7 +204,7 @@ $duty_class = [
                                 @endif
                             </div>
                             <br><br>
-                            {!! Form::close() !!}
+                            </form>
                         </div>
                     </div>
                 </div>

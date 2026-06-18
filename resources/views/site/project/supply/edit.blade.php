@@ -29,239 +29,224 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model($project, ['method' => 'PATCH', 'action' => ['Site\SiteProjectSupplyController@update', $project->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteProjectSupplyController::class, 'update'], $project->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            {{-- Site --}}
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <h2 style="margin-top: 0px">{{ $project->site->name }}</h2>
-                                    {{ $project->site->fulladdress }}
-                                </div>
-                                <div class="col-md-5">
-                                    @if (!$project->status)
-                                        <h2 class="font-red pull-right" style="margin-top: 0px">COMPLETED</h2>
-                                    @endif
-                                    <b>Job #:</b> {{ $project->site->code }}<br>
-                                    <b>Supervisor:</b> {{ $project->site->supervisorName }}<br>
-                                </div>
-                            </div>
-                            <hr style="padding: 0px; margin: 0px 0px 30px 0px">
-
-                            <h3>Project Supply Information <span class="pull-right"></span></h3>
-                            <hr style="padding: 0px; margin: 0px 0px 30px 0px">
-
-                            <div class="row bold hidden-sm hidden-xs">
-                                <div class="col-md-2">{{ $title->name }}</div>
-                                <div class="col-md-3">{{ $title->supplier }}</div>
-                                <div class="col-md-3">{{ $title->type }}</div>
-                                <div class="col-md-2">{{ $title->colour }}</div>
-                                {{--}}<div class="col-md-2">Notes</div>--}}
-                            </div>
-                            <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
-
-                            {{-- Products --}}
-                            @foreach ($project->itemsOrdered() as $item)
-
-                                {!! Form::hidden("product-$item->id",  $item->product, ['class' => 'form-control', 'id' => "product-$item->id"]) !!}
-                                {!! Form::hidden("supplier-$item->id",  $item->supplier, ['class' => 'form-control', 'id' => "supplier-$item->id"]) !!}
-                                {!! Form::hidden("type-$item->id",  $item->type, ['class' => 'form-control', 'id' => "type-$item->id"]) !!}
-
-                                    <?php
-                                    $supplierOpts = $item->productRef->supplyOptions('supplier');
-                                    $typeOpts = $item->productRef->supplyOptions('type');
-                                    $type = $supplier = null;
-                                    if ($item->type)
-                                        $type = (in_array($item->type, $typeOpts)) ? $item->type : 'other';
-                                    if ($item->supplier)
-                                        $supplier = (in_array($item->supplier, $supplierOpts)) ? $item->supplier : 'other';
-                                    ?>
-                                <div class="row" id="item-{{ $item->id }}">
-                                    <div class="col-md-2">
-                                        <div class="hidden-sm hidden-xs">
-                                            {{ ($item->product_id == 2) ? 'Special Item' : $item->product }} &nbsp; @if ($item->isComplete())
-                                                <i class="fa fa-check font-green-haze"></i>
-                                            @endif
-                                        </div>
-                                        <div class="visible-sm visible-xs">
-                                            <br><b>{{ ($item->product_id == 2) ? 'Special Item' : $item->product }}</b>
-                                            <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
-                                            @if ($item->product_id == 2)
-                                                <div>Product</div>
-                                            @endif
-                                        </div>
-                                        {!! (in_array($item->product_id, $lockup) ? "<span class='font-red'>LOCKUP</span>" : "") !!}
-                                        @if ($item->product_id == 2)
-                                            <div class="form-group">
-                                                {!! Form::text("product_txt_$item->id", $item->product, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
-                                            </div>
+                            <div class="form-body">
+                                {{-- Site --}}
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <h2 style="margin-top: 0px">{{ $project->site->name }}</h2>
+                                        {{ $project->site->fulladdress }}
+                                    </div>
+                                    <div class="col-md-5">
+                                        @if (!$project->status)
+                                            <h2 class="font-red pull-right" style="margin-top: 0px">COMPLETED</h2>
                                         @endif
+                                        <b>Job #:</b> {{ $project->site->code }}<br>
+                                        <b>Supervisor:</b> {{ $project->site->supervisorName }}<br>
                                     </div>
-                                    <div class="col-md-3">
-                                        {{-- Supplier --}}
-                                        <div class="visible-sm visible-xs">Supplier</div>
-                                        @if ($supplierOpts)
-                                            <div id="div-supplier-opt-{{$item->id}}">
-                                                <div class="form-group">
-                                                    {!! Form::select("supplier_opt_$item->id", $supplierOpts, $supplier, ['class' => 'form-control bs-select supplyOption']) !!}
-                                                </div>
-                                            </div>
-                                        @endif
-                                        <div id="div-supplier-txt-{{$item->id}}" @if ($supplier != 'other' && $supplierOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 2)
-                                                <br class="hidden-sm hidden-xs">
-                                            @endif
-                                            <div class="form-group">
-                                                {!! Form::text("supplier_txt_$item->id", $item->supplier, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        {{-- Type --}}
-                                        <div class="visible-sm visible-xs">Type</div>
-                                        @if ($typeOpts)
-                                            <div id="div-type-opt-{{$item->id}}">
-                                                <div class="form-group">
-                                                    {!! Form::select("type_opt_$item->id", $typeOpts, $type, ['class' => 'form-control bs-select typeOption']) !!}
-                                                </div>
-                                            </div>
-                                        @endif
-                                        <div id="div-type-txt-{{$item->id}}" @if ($type != 'other' && $typeOpts) style="display: none" @endif>
-                                            @if ($item->product_id == 2)
-                                                <br class="hidden-sm hidden-xs">
-                                            @endif
-                                            <div class="form-group">
-                                                {!! Form::text("type_txt_$item->id", $item->type, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- Colour --}}
-                                    <div class="col-md-2">
-                                        <div class="visible-sm visible-xs">Colour</div>
-                                        @if ($item->product_id == 2)
-                                            <br class="hidden-sm hidden-xs">
-                                        @endif
-                                        {!! Form::text("colour-$item->id", $item->colour, ['class' => 'form-control']) !!}
-                                    </div>
-                                    <div class="col-md-2">
-                                        <a href="#"><i class="fa fa-times font-red delItem" id="del-{{$item->id}}" name="del-{{$item->product}}"></i></a>
-                                    </div>
-                                    {{-- Notes --}}
-                                    {{--}}
-                                    <div class="col-md-2">
-                                        <div class="visible-sm visible-xs"><br>Notes</div>
-                                        {!! Form::text("notes_$product->id", null, ['class' => 'form-control',]) !!}
-                                    </div>--}}
                                 </div>
-                                <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                <div class="visible-sm visible-xs"><br></div>
-                            @endforeach
+                                <hr style="padding: 0px; margin: 0px 0px 30px 0px">
 
-                            {{-- Special Items --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button class="btn blue" id="btn-add-item">Add Special Items</button>
+                                <h3>Project Supply Information <span class="pull-right"></span></h3>
+                                <hr style="padding: 0px; margin: 0px 0px 30px 0px">
+
+                                <div class="row bold hidden-sm hidden-xs">
+                                    <div class="col-md-2">{{ $title->name }}</div>
+                                    <div class="col-md-3">{{ $title->supplier }}</div>
+                                    <div class="col-md-3">{{ $title->type }}</div>
+                                    <div class="col-md-2">{{ $title->colour }}</div>
+                                    {{--}}<div class="col-md-2">Notes</div>--}}
                                 </div>
-                            </div>
+                                <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
 
-                            <div id="add-items" style="display: none">
-                                <h3>Special Items</h3>
-                                <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    {!! Form::hidden("product-s$i", null, ['class' => 'form-control', 'id' => "product-s$i"]) !!}
-                                    {!! Form::hidden("supplier-s$i", null, ['class' => 'form-control', 'id' => "supplier-s$i"]) !!}
-                                    {!! Form::hidden("type-s$i",  null, ['class' => 'form-control', 'id' => "type-s$i"]) !!}
-                                    <div class="row">
-                                        {{-- Product --}}
+                                {{-- Products --}}
+                                @foreach ($project->itemsOrdered() as $item)
+                                    <x-form.hidden name="product-{{ $item->id }}" id="product-{{ $item->id }}" :value="$item->product"/>
+                                    <x-form.hidden name="supplier-{{ $item->id }}" id="supplier-{{ $item->id }}" :value="$item->supplier"/>
+                                    <x-form.hidden name="type-{{ $item->id }}" id="type-{{ $item->id }}" :value="$item->type"/>
+
+                                        <?php
+                                        $supplierOpts = $item->productRef->supplyOptions('supplier');
+                                        $typeOpts = $item->productRef->supplyOptions('type');
+                                        $type = $supplier = null;
+                                        if ($item->type)
+                                            $type = (in_array($item->type, $typeOpts)) ? $item->type : 'other';
+                                        if ($item->supplier)
+                                            $supplier = (in_array($item->supplier, $supplierOpts)) ? $item->supplier : 'other';
+                                        ?>
+                                    <div class="row" id="item-{{ $item->id }}">
                                         <div class="col-md-2">
+                                            <div class="hidden-sm hidden-xs">
+                                                {{ ($item->product_id == 2) ? 'Special Item' : $item->product }} &nbsp; @if ($item->isComplete())
+                                                    <i class="fa fa-check font-green-haze"></i>
+                                                @endif
+                                            </div>
                                             <div class="visible-sm visible-xs">
-                                                <br><b>Special Item }}</b>
+                                                <br><b>{{ ($item->product_id == 2) ? 'Special Item' : $item->product }}</b>
                                                 <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
-                                                <div>Product</div>
+                                                @if ($item->product_id == 2)
+                                                    <div>Product</div>
+                                                @endif
                                             </div>
-                                            <div class="form-group">
-                                                {!! Form::text("product_txt_s$i", null, ['class' => 'form-control productText', 'placeholder' => 'Enter product']) !!}
-                                            </div>
+                                            {!! (in_array($item->product_id, $lockup) ? "<span class='font-red'>LOCKUP</span>" : "") !!}
+                                            @if ($item->product_id == 2)
+                                                <x-form.input name="product_txt_{{ $item->id }}" :value="$item->product" class="productText" placeholder="Enter product"/>
+                                            @endif
                                         </div>
-                                        <div class="col-md-3" id="div-supplier-txt-s{{$i}}">
+                                        <div class="col-md-3">
                                             {{-- Supplier --}}
                                             <div class="visible-sm visible-xs">Supplier</div>
-                                            <div>
-                                                <div class="form-group">
-                                                    {!! Form::text("supplier_txt_s$i", null, ['class' => 'form-control supplyText', 'placeholder' => 'Enter supplier']) !!}
+                                            @if ($supplierOpts)
+                                                <div id="div-supplier-opt-{{$item->id}}">
+                                                    <x-form.select name="supplier_opt_{{ $item->id }}" :options="$supplierOpts" :value="$supplier" class="supplyOption"/>
                                                 </div>
+                                            @endif
+                                            <div id="div-supplier-txt-{{$item->id}}" @if ($supplier != 'other' && $supplierOpts) style="display: none" @endif>
+                                                @if ($item->product_id == 2)
+                                                    <br class="hidden-sm hidden-xs">
+                                                @endif
+                                                <x-form.input name="supplier_txt_{{ $item->id }}" :value="$item->supplier" class="supplyText" placeholder="Enter supplier"/>
                                             </div>
                                         </div>
-                                        <div class="col-md-3" id="div-type-s{{$i}}">
+                                        <div class="col-md-3">
                                             {{-- Type --}}
                                             <div class="visible-sm visible-xs">Type</div>
-                                            <div id="div-type-txt-s{{$i}}">
-                                                <div class="form-group">
-                                                    {!! Form::text("type_txt_s$i", null, ['class' => 'form-control typeText', 'placeholder' => 'Enter type']) !!}
+                                            @if ($typeOpts)
+                                                <div id="div-type-opt-{{$item->id}}">
+                                                    <x-form.select name="type_opt_{{ $item->id }}" :options="$typeOpts" :value="$type" class="typeOption"/>
                                                 </div>
+                                            @endif
+                                            <div id="div-type-txt-{{$item->id}}" @if ($type != 'other' && $typeOpts) style="display: none" @endif>
+                                                @if ($item->product_id == 2)
+                                                    <br class="hidden-sm hidden-xs">
+                                                @endif
+                                                <x-form.input name="type_txt_{{ $item->id }}" :value="$item->type" class="typeText" placeholder="Enter type"/>
                                             </div>
                                         </div>
                                         {{-- Colour --}}
-                                        <div class="col-md-2" id="div-colour-s{{$i}}">
-                                            <div class="visible-sm visible-xs">Colour</div>{!! Form::text("colour-s$i", null, ['class' => 'form-control', 'placeholder' => 'Enter colour']) !!}</div>
+                                        <div class="col-md-2">
+                                            <div class="visible-sm visible-xs">Colour</div>
+                                            @if ($item->product_id == 2)
+                                                <br class="hidden-sm hidden-xs">
+                                            @endif
+                                            <x-form.input name="colour-{{ $item->id }}" :value="$item->colour"/>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <a href="#"><i class="fa fa-times font-red delItem" id="del-{{$item->id}}" name="del-{{$item->product}}"></i></a>
+                                        </div>
                                         {{-- Notes --}}
                                         {{--}}
                                         <div class="col-md-2">
                                             <div class="visible-sm visible-xs"><br>Notes</div>
-                                            {!! Form::text("notes_s$i", null, ['class' => 'form-control',]) !!}
+                                            <x-form.input name="notes_{{ $product->id }}"/>
                                         </div>--}}
                                     </div>
                                     <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
                                     <div class="visible-sm visible-xs"><br></div>
-                                @endfor
-                            </div>
-                            <br><br>
+                                @endforeach
+
+                                {{-- Special Items --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn blue" id="btn-add-item">Add Special Items</button>
+                                    </div>
+                                </div>
+
+                                <div id="add-items" style="display: none">
+                                    <h3>Special Items</h3>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <x-form.hidden name="product-s{{ $i }}" id="product-s{{ $i }}"/>
+                                        <x-form.hidden name="supplier-s{{ $i }}" id="supplier-s{{ $i }}"/>
+                                        <x-form.hidden name="type-s{{ $i }}" id="type-s{{ $i }}"/>
+                                        <div class="row">
+                                            {{-- Product --}}
+                                            <div class="col-md-2">
+                                                <div class="visible-sm visible-xs">
+                                                    <br><b>Special Item }}</b>
+                                                    <hr class="visible-sm visible-xs" style="padding: 0px; margin: 5px 0px 20px 0px;">
+                                                    <div>Product</div>
+                                                </div>
+                                                <x-form.input name="product_txt_s{{ $i }}" class="productText" placeholder="Enter product"/>
+                                            </div>
+                                            <div class="col-md-3" id="div-supplier-txt-s{{$i}}">
+                                                {{-- Supplier --}}
+                                                <div class="visible-sm visible-xs">Supplier</div>
+                                                <div>
+                                                    <x-form.input name="supplier_txt_s{{ $i }}" class="supplyText" placeholder="Enter supplier"/>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3" id="div-type-s{{$i}}">
+                                                {{-- Type --}}
+                                                <div class="visible-sm visible-xs">Type</div>
+                                                <div id="div-type-txt-s{{$i}}">
+                                                    <x-form.input name="type_txt_s{{ $i }}" class="typeText" placeholder="Enter type"/>
+                                                </div>
+                                            </div>
+                                            {{-- Colour --}}
+                                            <div class="col-md-2" id="div-colour-s{{$i}}">
+                                                <div class="visible-sm visible-xs">Colour</div>
+                                                <x-form.input name="colour-s{{ $i }}" placeholder="Enter colour"/>
+                                            </div>
+                                            {{-- Notes --}}
+                                            {{--}}
+                                            <div class="col-md-2">
+                                                <div class="visible-sm visible-xs"><br>Notes</div>
+                                                <x-form.input name="notes_s{{ $i }}"/>
+                                            </div>--}}
+                                        </div>
+                                        <hr class="hidden-sm hidden-xs" style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                        <div class="visible-sm visible-xs"><br></div>
+                                    @endfor
+                                </div>
+                                <br><br>
 
 
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h5><b>PROJECT SUPPLY ELECTRONIC SIGN-OFF</b></h5>
-                                    <p>The above supply items have been verified by the site construction supervisor.</p>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h5><b>PROJECT SUPPLY ELECTRONIC SIGN-OFF</b></h5>
+                                        <p>The above supply items have been verified by the site construction supervisor.</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3 text-right">Site Supervisor:</div>
+                                    <div class="col-sm-9">
+                                        @if ($project->supervisor_sign_by)
+                                            {!! \App\User::find($project->supervisor_sign_by)->full_name !!}, &nbsp;{{ $project->supervisor_sign_at->format('d/m/Y') }}
+                                        @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                            <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                        @elseif (Auth::user()->isSupervisor() || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                                            <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                        @else
+                                            <span class="font-red">Pending</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-sm-3 text-right">Site Manager:</div>
+                                    <div class="col-sm-9">
+                                        @if ($project->manager_sign_by)
+                                            {!! \App\User::find($project->manager_sign_by)->full_name !!}, &nbsp;{{ $project->manager_sign_at->format('d/m/Y') }}
+                                        @elseif ($project->items->count() != $project->itemsCompleted()->count())
+                                            <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
+                                        @elseif (!$project->supervisor_sign_by)
+                                            <span class="font-red">Waiting for Site Supervisor Sign Off</span>
+                                        @elseif (Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
+                                            <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <br><br>
+                                <div class="form-actions right">
+                                    <a href="/site/supply" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-3 text-right">Site Supervisor:</div>
-                                <div class="col-sm-9">
-                                    @if ($project->supervisor_sign_by)
-                                        {!! \App\User::find($project->supervisor_sign_by)->full_name !!}, &nbsp;{{ $project->supervisor_sign_at->format('d/m/Y') }}
-                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
-                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
-                                    @elseif (Auth::user()->isSupervisor() || Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
-                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
-                                    @else
-                                        <span class="font-red">Pending</span>
-                                    @endif
-                                </div>
-                                <div class="col-sm-3 text-right">Site Manager:</div>
-                                <div class="col-sm-9">
-                                    @if ($project->manager_sign_by)
-                                        {!! \App\User::find($project->manager_sign_by)->full_name !!}, &nbsp;{{ $project->manager_sign_at->format('d/m/Y') }}
-                                    @elseif ($project->items->count() != $project->itemsCompleted()->count())
-                                        <span class="font-grey-silver">Waiting for ({{ ($project->items->count()  - $project->itemsCompleted()->count()) }}) items to be completed</span>
-                                    @elseif (!$project->supervisor_sign_by)
-                                        <span class="font-red">Waiting for Site Supervisor Sign Off</span>
-                                    @elseif (Auth::user()->hasAnyRole2('con-construction-manager|web-admin|mgt-general-manager'))
-                                        <button class="btn blue btn-xs btn-outline sbold uppercase margin-bottom signoff">Sign Off</button>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <br><br>
-                            <div class="form-actions right">
-                                <a href="/site/supply" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
-                            </div>
-
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>

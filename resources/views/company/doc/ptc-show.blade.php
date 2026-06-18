@@ -36,7 +36,6 @@
                         @endif
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model($ptc, ['method' => 'PATCH', 'action' => ['Company\CompanyPeriodTradeController@update', $company->id, $ptc->id], 'class' => 'horizontal-form']) !!}
 
                         @include('form-error')

@@ -43,13 +43,13 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th> Supervisor</th>
-                                <th width="7%"> Mon</th>
-                                <th width="7%"> Tue</th>
-                                <th width="7%"> Wed</th>
-                                <th width="7%"> Thu</th>
-                                <th width="7%"> Fri</th>
-                                <th width="20%"> Signed by</th>
-                                <th width="7%"></th>
+                                <th style="width:7%"> Mon</th>
+                                <th style="width:7%"> Tue</th>
+                                <th style="width:7%"> Wed</th>
+                                <th style="width:7%"> Thu</th>
+                                <th style="width:7%"> Fri</th>
+                                <th style="width:20%"> Signed by</th>
+                                <th style="width:7%"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -80,19 +80,19 @@
                         @foreach ($checklists_previous_week as $checklist)
                             @if (in_array($checklist->super_id, $supervisors))
                                 @if (!$found)
-                                        <?php $found ++ ?>
+                                        <?php $found++ ?>
                                     <h3>Outstanding Last Week: {{ $fri->subWeek()->format('j F, Y') }}</h3>
                                     <table class="table table-striped table-bordered table-hover order-column" id="table1">
                                         <thead>
                                         <tr class="mytable-header">
                                             <th> Supervisor</th>
-                                            <th width="7%"> Mon</th>
-                                            <th width="7%"> Tue</th>
-                                            <th width="7%"> Wed</th>
-                                            <th width="7%"> Thu</th>
-                                            <th width="7%"> Fri</th>
-                                            <th width="20%"> Signed by</th>
-                                            <th width="7%"></th>
+                                            <th style="width:7%"> Mon</th>
+                                            <th style="width:7%"> Tue</th>
+                                            <th style="width:7%"> Wed</th>
+                                            <th style="width:7%"> Thu</th>
+                                            <th style="width:7%"> Fri</th>
+                                            <th style="width:20%"> Signed by</th>
+                                            <th style="width:7%"></th>
                                         </tr>
                                         </thead>
                                         <tbody>

@@ -26,7 +26,7 @@
                         </div>
                         <div class="actions">
                             @if(Auth::user()->hasPermission2('add.site.maintenance'))
-                                 <a class="btn btn-circle green btn-outline btn-sm" href="/site/maintenance/category/create" data-original-title="Add">Add</a>
+                                <a class="btn btn-circle green btn-outline btn-sm" href="/site/maintenance/category/create" data-original-title="Add">Add</a>
                             @endif
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                             <thead>
                             <tr class="mytable-header">
                                 <th> Name</th>
-                                <th width="10%"></th>
+                                <th style="width:10%"></th>
                             </tr>
                             </thead>
                         </table>
@@ -44,7 +44,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -58,62 +57,63 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script type="text/javascript">
-    $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {'X-CSRF-Token': $('meta[name=token]').attr('value')}});
 
-    var status1 = $('#status1').val();
-    var table1 = $('#table1').DataTable({
-        pageLength: 100,
-        processing: true,
-        serverSide: true,
-        ajax: {
-            'url': '{!! url('site/categories/maintenance/dt/main_cats') !!}',
-            'type': 'GET',
-            'data': function (d) {
-                d.status = $('#status1').val();
-            }
-        },
-        columns: [
-            {data: 'name', name: 'name'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ],
-        order: [
-            [1, "asc"]
-        ]
-    });
+        var status1 = $('#status1').val();
+        var table1 = $('#table1').DataTable({
+            pageLength: 100,
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url': '{!! url('site/categories/maintenance/dt/main_cats') !!}',
+                'type': 'GET',
+                'data': function (d) {
+                    d.status = $('#status1').val();
+                }
+            },
+            columns: [
+                {data: 'name', name: 'name'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ],
+            order: [
+                [1, "asc"]
+            ]
+        });
 
-    $('select#status1').change(function () {
-        table1.ajax.reload();
-    });
+        $('select#status1').change(function () {
+            table1.ajax.reload();
+        });
 
-    table1.on('click', '.btn-delete[data-remote]', function (e) {
-        e.preventDefault();
-        var url = $(this).data('remote');
-        var name = $(this).data('name');
+        table1.on('click', '.btn-delete[data-remote]', function (e) {
+            e.preventDefault();
+            var url = $(this).data('remote');
+            var name = $(this).data('name');
 
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this category!<br><b>" + name + "</b>",
-            showCancelButton: true,
-            cancelButtonColor: "#555555",
-            confirmButtonColor: "#E7505A",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: true,
-            html: true,
-        }, function () {
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                dataType: 'json',
-                data: {method: '_DELETE', submit: true},
-                success: function (data) {
-                    toastr.error('Deleted category');
-                },
-            }).always(function (data) {
-                $('#table1').DataTable().draw(false);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to recover this category!<br><b>" + name + "</b>",
+                showCancelButton: true,
+                cancelButtonColor: "#555555",
+                confirmButtonColor: "#E7505A",
+                confirmButtonText: "Yes, delete it!",
+                allowOutsideClick: true,
+                html: true,
+            }, function () {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    data: {method: '_DELETE', submit: true},
+                    success: function (data) {
+                        toastr.error('Deleted category');
+                    },
+                }).always(function (data) {
+                    $('#table1').DataTable().draw(false);
+                });
             });
         });
-    });
-</script>
+    </script>
 @stop

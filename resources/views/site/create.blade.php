@@ -23,198 +23,123 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('site', ['action' => 'Site\SiteController@store', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h4>Site Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4>Site Details</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    </div>
                                 </div>
-                            </div>
 
-                            @if (Auth::user()->permissionLevel('add.site', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('add.site', Auth::user()->company->reportsTo()->id)))
+                                @if (Auth::user()->permissionLevel('add.site', Auth::user()->company_id) && (Auth::user()->company->parent_company && Auth::user()->permissionLevel('add.site', Auth::user()->company->reportsTo()->id)))
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <x-form.select name="company_id" id="site_group" label="Site Owner" :options="[Auth::user()->company_id => Auth::user()->company->name, Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name]"/>
+                                        </div>
+                                    </div>
+                                @elseif (Auth::user()->permissionLevel('add.site', Auth::user()->company_id))
+                                    <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
+                                @elseif (Auth::user()->permissionLevel('add.site', Auth::user()->company->reportsTo()->id))
+                                    <x-form.hidden name="company_id" :value="Auth::user()->company->parent_company"/>
+                                @endif
+
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group">
-                                            {!! Form::label('company_id', 'Site Owner', ['class' => 'control-label']) !!}
-                                            {!! Form::select('company_id', [Auth::user()->company_id => Auth::user()->company->name, Auth::user()->company->parent_company => Auth::user()->company->reportsTo()->name], null, ['class' => 'form-control bs-select', 'id' => 'site_group']) !!}
-                                        </div>
+                                        <x-form.input name="name" label="Name"/>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-form.input name="code" label="Job #"/>
+                                    </div>
+                                    <div class="col-md-2 pull-right">
+                                        <x-form.select name="status" label="Status" :options="['-1' => 'Upcoming', '1' => 'Active', '0' => 'Completed']" value="-1"/>
                                     </div>
                                 </div>
-                            @elseif (Auth::user()->permissionLevel('add.site', Auth::user()->company_id))
-                                {!! Form::hidden('company_id', Auth::user()->company_id) !!}
-                            @elseif (Auth::user()->permissionLevel('add.site', Auth::user()->company->reportsTo()->id))
-                                {!! Form::hidden('company_id', Auth::user()->company->parent_company) !!}
-                            @endif
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                        {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('name', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('code', $errors) !!}">
-                                        {!! Form::label('code', 'Job #', ['class' => 'control-label']) !!}
-                                        {!! Form::text('code', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('code', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-2 pull-right">
-                                    <div class="form-group {!! fieldHasError('status', $errors) !!}">
-                                        {!! Form::label('staus', 'Status', ['class' => 'control-label']) !!}
-                                        {!! Form::select('status', ['-1' => 'Upcoming', '1' => 'Active', '0' => 'Completed'],
-                                         '-1', ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('status', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Address --}}
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('address', $errors) !!}">
-                                        {!! Form::label('address', 'Address', ['class' => 'control-label']) !!}
-                                        {!! Form::text('address', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('address', $errors) !!}
+                                {{-- Address --}}
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="address" label="Address"/>
                                     </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group {!! fieldHasError('suburb', $errors) !!}">
-                                                {!! Form::label('suburb', 'Suburb', ['class' => 'control-label']) !!}
-                                                {!! Form::text('suburb', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('suburb', $errors) !!}
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <x-form.input name="suburb" label="Suburb"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('state', $errors) !!}">
-                                                {!! Form::label('state', 'State', ['class' => 'control-label']) !!}
-                                                {!! Form::select('state', $ozstates::all(),
-                                                 'NSW', ['class' => 'form-control bs-select']) !!}
-                                                {!! fieldErrorMessage('state', $errors) !!}
+                                            <div class="col-md-3">
+                                                <x-form.select name="state" label="State" :options="$ozstates::all()" value="NSW"/>
                                             </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group {!! fieldHasError('postcode', $errors) !!}">
-                                                {!! Form::label('postcode', 'Postcode', ['class' => 'control-label']) !!}
-                                                {!! Form::text('postcode', null, ['class' => 'form-control']) !!}
-                                                {!! fieldErrorMessage('postcode', $errors) !!}
+                                            <div class="col-md-3">
+                                                <x-form.input name="postcode" label="Postcode"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {{-- Supervisors --}}
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="form-group {!! fieldHasError('supervisors', $errors) !!}" id="super-div">
-                                        {!! Form::label('supervisors', 'Supervisor(s)', ['class' => 'control-label']) !!}
-                                        {!! Form::select('supervisors',
-                                        Auth::user()->company->supervisorsSelect(),
-                                         null, ['class' => 'form-control bs-select', 'name' => 'supervisors[]', 'title' => 'Select one or more supervisors', 'multiple']) !!}
-                                        {!! fieldErrorMessage('supervisors', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- Client + Supervisor(s) -->
-                            <br>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h4>Client Details</h4>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <!--
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_id', $errors) !!}">
-                                        {!! Form::label('client_id', 'Client', ['class' => 'control-label']) !!}
-                                {!! Form::select('client_id', Auth::user()->company->clientSelect('prompt'),
-                                 '', ['class' => 'form-control bs-select']) !!}
-                                {!! fieldErrorMessage('client_id', $errors) !!}
+                                {{-- Supervisors --}}
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div id="super-div">
+                                            <x-form.select name="supervisors" label="Supervisor(s)" :options="Auth::user()->company->supervisorsSelect()" title="Select a supervisor"/>
                                         </div>
                                     </div>
-                                    -->
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
-                                        {!! Form::label('client_phone_desc', 'Primary Contact Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone_desc', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone_desc', $errors) !!}
-                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_phone', $errors) !!}">
-                                        {!! Form::label('client_phone', 'Primary Phone No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('client_email', $errors) !!}">
-                                        {!! Form::label('client_email', 'Primary Email', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_email', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_email', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('client_phone_desc', $errors) !!}">
-                                        {!! Form::label('client_phone2_desc', 'Second Contact Name', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone2_desc', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone2_desc', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('client_phone2', $errors) !!}">
-                                        {!! Form::label('client_phone2', 'Secondary Phone No.', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_phone2', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_phone2', $errors) !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('client_email2', $errors) !!}">
-                                        {!! Form::label('client_email2', 'Secondary Email', ['class' => 'control-label']) !!}
-                                        {!! Form::text('client_email2', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('client_email2', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-                            <h3 class="form-section"></h3>
 
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea('notes', null, ['rows' => '2', 'class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
+                                <!-- Client + Supervisor(s) -->
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4>Client Details</h4>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="client_phone_desc" label="Primary Contact Name"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.input name="client_phone" label="Primary Phone No."/>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <x-form.input name="client_email" label="Primary Email"/>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <x-form.input name="client_phone2_desc" label="Second Contact Name"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.input name="client_phone2" label="Secondary Phone No."/>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <x-form.input name="client_email2" label="Secondary Email"/>
+                                    </div>
+                                </div>
+                                <h3 class="form-section"></h3>
+
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <x-form.textarea name="notes" label="Notes" rows="2"/>
                                         <span class="help-block"> For internal use only </span>
                                     </div>
                                 </div>
+                                <div class="form-actions right">
+                                    <a href="/site" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green">Save</button>
+                                </div>
                             </div>
-                            <div class="form-actions right">
-                                <a href="/site" class="btn default"> Back</a>
-                                <button type="submit" class="btn green">Save</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
@@ -225,15 +150,15 @@
     <script src="/assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
-<script>
-    $(document).ready(function () {
-        //$('#transient').bootstrapSwitch('state', false);
-        $('#transient').on('switchChange.bootstrapSwitch', function (event, state) {
-            $('#super-div').toggle();
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-bootstrap-select.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            //$('#transient').bootstrapSwitch('state', false);
+            $('#transient').on('switchChange.bootstrapSwitch', function (event, state) {
+                $('#super-div').toggle();
+            });
         });
-    });
-</script>
+    </script>
 @stop
-

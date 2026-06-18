@@ -22,7 +22,6 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
                         {!! Form::model('Equipment', ['action' => 'Misc\EquipmentController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
 
                         @include('form-error')

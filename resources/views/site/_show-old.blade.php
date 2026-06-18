@@ -20,10 +20,9 @@
             <span>Profile</span>
         </li>
     </ul>
-    @stop
+@stop
 
-    @section('content')
-            <!-- BEGIN PAGE CONTENT INNER -->
+@section('content')
     <div class="page-content-inner">
         <div class="profile">
             <div class="tabbable-line tabbable-full-width">
@@ -40,7 +39,7 @@
                 <div class="tab-content">
                     <!-- tab main -->
                     @include('site._tab-profile')
-                            <!-- tab settings -->
+                    <!-- tab settings -->
                     @include('site._tab-settings')
                 </div>
             </div>
@@ -51,7 +50,6 @@
             {!! $site->displayUpdatedBy() !!}
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')
@@ -75,13 +73,14 @@
     <script src="/assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
-<script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
-<script>
-    $('.date-picker').datepicker({
-        autoclose: true,
-        clearBtn: true,
-        format: 'dd/mm/yyyy',
-    });
-</script>
+@section('page-level-scripts')
+    {{-- Metronic + custom Page Scripts --}}
+    <script src="/assets/pages/scripts/components-date-time-pickers.min.js" type="text/javascript"></script>
+    <script>
+        $('.date-picker').datepicker({
+            autoclose: true,
+            clearBtn: true,
+            format: 'dd/mm/yyyy',
+        });
+    </script>
 @stop

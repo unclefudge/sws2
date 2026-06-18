@@ -49,223 +49,224 @@
                     </div>
                     <div class="portlet-body">
                         <div class="page-content-inner">
-                            {!! Form::model($prac, ['method' => 'PATCH', 'action' => ['Site\SitePracCompletionController@update', $prac->id], 'class' => 'horizontal-form']) !!}
-                            <input type="hidden" id="site_id" value="{{ $prac->site_id }}">
+                            <form method="POST" action="{{ action([App\Http\Controllers\Site\SitePracCompletionController::class, 'update'], $prac->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" id="site_id" value="{{ $prac->site_id }}">
 
-                            @include('form-error')
+                                @include('form-error')
 
-                            <input v-model="xx.prac.id" type="hidden" id="prac_id" value="{{ $prac->id }}">
-                            <input v-model="xx.prac.name" type="hidden" id="prac_name" value="{{ $prac->name }}">
-                            <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
-                            <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
-                            <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
-                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
-                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
-                            <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
-                            <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
-                            <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
-                            <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.prac.completion', $prac) }}">
-                            <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
-                                   value="{!! (in_array(Auth::user()->id, $prac->site->areaSupervisors()->pluck('id')->toArray()) || $prac->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.prac.completion')) ? 1 : 0  !!}">
-                            <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.prac.completion') }}">
-                            <input v-model="xx.user_edit" type="hidden" id="user_edit"
-                                   value="{{ (Auth::user()->allowed2('edit.prac.completion', $prac) || $prac->super_id == Auth::user()->id) ? 1 : 0 }}">
+                                <input v-model="xx.prac.id" type="hidden" id="prac_id" value="{{ $prac->id }}">
+                                <input v-model="xx.prac.name" type="hidden" id="prac_name" value="{{ $prac->name }}">
+                                <input v-model="xx.prac.site_id" type="hidden" id="prac_site_id" value="{{ $prac->site_id }}">
+                                <input v-model="xx.prac.status" type="hidden" id="prac_status" value="{{ $prac->status }}">
+                                <input v-model="xx.prac.signed" type="hidden" id="prac_signed" value="{{ $prac->isSigned() }}">
+                                <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $prac->id }}">
+                                <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $prac->status }}">
+                                <input v-model="xx.user_id" type="hidden" id="user_id" value="{{ Auth::user()->id }}">
+                                <input v-model="xx.user_fullname" type="hidden" id="fullname" value="{{ Auth::user()->fullname }}">
+                                <input v-model="xx.company_id" type="hidden" id="company_id" value="{{ Auth::user()->company->reportsTo()->id }}">
+                                <input v-model="xx.user_manager" type="hidden" id="user_manager" value="{{ Auth::user()->allowed2('sig.prac.completion', $prac) }}">
+                                <input v-model="xx.user_supervisor" type="hidden" id="user_supervisor"
+                                       value="{!! (in_array(Auth::user()->id, $prac->site->areaSupervisors()->pluck('id')->toArray()) || $prac->super_id == Auth::user()->id || Auth::user()->hasPermission2('sig.prac.completion')) ? 1 : 0  !!}">
+                                <input v-model="xx.user_signoff" type="hidden" id="user_signoff" value="{{ Auth::user()->hasPermission2('sig.prac.completion') }}">
+                                <input v-model="xx.user_edit" type="hidden" id="user_edit" value="{{ (Auth::user()->allowed2('edit.prac.completion', $prac) || $prac->super_id == Auth::user()->id) ? 1 : 0 }}">
 
 
-                            <!-- Fullscreen devices -->
-                            @if ($prac->status && $prac->items->count() == $prac->itemsCompleted()->count())
-                                <div class="col-md-12 note note-warning">
-                                    <p>All items have been completed and request requires
-                                        <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
-                                        at the bottom
-                                    </p>
-                                </div>
-                            @endif
-
-                            <div class="row">
-                                {{-- Site Details --}}
-                                <div class="col-md-5">
-                                    <div class="row">
-                                        <div class="col-md-12"><h4>Site Details</h4></div>
+                                <!-- Fullscreen devices -->
+                                @if ($prac->status && $prac->items->count() == $prac->itemsCompleted()->count())
+                                    <div class="col-md-12 note note-warning">
+                                        <p>All items have been completed and request requires
+                                            <button class="btn btn-xs btn-outline dark disabled">Sign Off</button>
+                                            at the bottom
+                                        </p>
                                     </div>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    @if ($prac->site)
-                                        <b>{{ $prac->site->name }}</b><br>
-                                        {{ $prac->site->full_address }}<br>
-                                        <b>Supervisor:</b> {{ $prac->site->supervisor->name }}<br>
-                                    @endif
-                                </div>
-                                <div class="col-md-1"></div>
+                                @endif
 
-                                <div class="col-md-6">
-                                    {{-- Status --}}
-                                    <div class="row">
-                                        <div class="col-md-5"><h4>Client Details</h4></div>
-                                        <div class="col-md-7">
-                                            <h2 style="margin: 0px; padding-right: 20px">
-                                                @if($prac->status == '-1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
+                                <div class="row">
+                                    {{-- Site Details --}}
+                                    <div class="col-md-5">
+                                        <div class="row">
+                                            <div class="col-md-12"><h4>Site Details</h4></div>
+                                        </div>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        @if ($prac->site)
+                                            <b>{{ $prac->site->name }}</b><br>
+                                            {{ $prac->site->full_address }}<br>
+                                            <b>Supervisor:</b> {{ $prac->site->supervisor->name }}<br>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-1"></div>
+
+                                    <div class="col-md-6">
+                                        {{-- Status --}}
+                                        <div class="row">
+                                            <div class="col-md-5"><h4>Client Details</h4></div>
+                                            <div class="col-md-7">
+                                                <h2 style="margin: 0px; padding-right: 20px">
+                                                    @if($prac->status == '-1')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">DECLINED</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">DECLINED</span>
+                                                    @endif
+                                                    @if($prac->status == '0')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs"><small
+                                                                    class="font-red">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</small></span>
+                                                        <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</span>
+                                                    @endif
+                                                    @if($prac->status == '1')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
+                                                    @endif
+                                                    @if($prac->status == '2')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
+                                                    @endif
+                                                    @if($prac->status == '4')
+                                                        <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
+                                                        <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
+                                                    @endif
+                                                </h2>
+                                            </div>
+                                        </div>
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                        {{-- Client Details --}}
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                @if ($prac->site->client1_name)
+                                                    <b>Primary Contact</b><br>
+                                                    {!! $prac->site->client1_name ? $prac->site->client1_name."<br>" : '' !!}
+                                                    {!! ($prac->site->client1_mobile) ? $prac->site->client1_mobile."<br>" : '' !!}
+                                                    {!! ($prac->site->client1_email) ? $prac->site->client1_email : '' !!}
                                                 @endif
-                                                @if($prac->status == '0')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs"><small
-                                                                class="font-red">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</small></span>
-                                                    <span class="text-center font-red visible-sm visible-xs">COMPLETED {{ $prac->updated_at->format('d/m/Y') }}</span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                @if ($prac->site->client2_name)
+                                                    <b>Secondary Contact</b><br>
+                                                    {!! $prac->site->client2_name ? $prac->site->client2_name."<br>" : '' !!}
+                                                    {!! ($prac->site->client2_mobile) ? $prac->site->client2_mobile."<br>" : '' !!}
+                                                    {!! ($prac->site->client2_email) ? $prac->site->client2_email : '' !!}
                                                 @endif
-                                                @if($prac->status == '1')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ACTIVE</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ACTIVE</span>
-                                                @endif
-                                                @if($prac->status == '2')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">IN PROGRESS</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">IN PROGRESS</span>
-                                                @endif
-                                                @if($prac->status == '4')
-                                                    <span class="pull-right font-red hidden-sm hidden-xs">ON HOLD</span>
-                                                    <span class="text-center font-red visible-sm visible-xs">ON HOLD</span>
-                                                @endif
-                                            </h2>
+                                            </div>
                                         </div>
                                     </div>
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                    {{-- Client Details --}}
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            @if ($prac->site->client1_name)
-                                                <b>Primary Contact</b><br>
-                                                {!! $prac->site->client1_name ? $prac->site->client1_name."<br>" : '' !!}
-                                                {!! ($prac->site->client1_mobile) ? $prac->site->client1_mobile."<br>" : '' !!}
-                                                {!! ($prac->site->client1_email) ? $prac->site->client1_email : '' !!}
+                                </div>
+                                <br>
+
+
+                                {{-- Attachments --}}
+                                <h4>Attachments</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        @php
+                                            $attachments = $prac->attachments;
+                                            $images = $attachments->where('type', 'image');
+                                            $files  = $attachments->where('type', 'file');
+                                        @endphp
+                                        @if ($attachments->isNotEmpty())
+                                            {{-- Image attachments --}}
+                                            @if ($images->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($images as $attachment)
+                                                        <div style="width: 60px; float: left; padding-right: 5px">
+                                                            @if(Auth::user()->allowed2('del.prac.completion', $prac))
+                                                                <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
+                                                            @endif
+                                                            <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             @endif
-                                        </div>
-                                        <div class="col-md-6">
-                                            @if ($prac->site->client2_name)
-                                                <b>Secondary Contact</b><br>
-                                                {!! $prac->site->client2_name ? $prac->site->client2_name."<br>" : '' !!}
-                                                {!! ($prac->site->client2_mobile) ? $prac->site->client2_mobile."<br>" : '' !!}
-                                                {!! ($prac->site->client2_email) ? $prac->site->client2_email : '' !!}
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <br>
 
-
-                            {{-- Attachments --}}
-                            <h4>Attachments</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    @php
-                                        $attachments = $prac->attachments;
-                                        $images = $attachments->where('type', 'image');
-                                        $files  = $attachments->where('type', 'file');
-                                    @endphp
-                                    @if ($attachments->isNotEmpty())
-                                        {{-- Image attachments --}}
-                                        @if ($images->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($images as $attachment)
-                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                            {{-- File attachments --}}
+                                            @if ($files->isNotEmpty())
+                                                <div class="row" style="margin: 0">
+                                                    @foreach ($files as $attachment)
+                                                        <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
                                                         @if(Auth::user()->allowed2('del.prac.completion', $prac))
                                                             <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
                                                         @endif
-                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                        </a>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-
-                                        {{-- File attachments --}}
-                                        @if ($files->isNotEmpty())
-                                            <div class="row" style="margin: 0">
-                                                @foreach ($files as $attachment)
-                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a>
-                                                    @if(Auth::user()->allowed2('del.prac.completion', $prac))
-                                                        <i class="fa fa-times font-red deleteFile" style="cursor:pointer" data-name="{{ $attachment->name }}" data-did="{{$attachment->id}}"></i>
-                                                    @endif
-                                                    <br>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    @else
-                                        None
-                                    @endif
-                                </div>
-                                {{-- Add Attachments --}}
-                                <div class="col-md-3" style="background: #f1f0ef;">
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
-
-
-                            {{-- Under Review - asign to super --}}
-                            <h4>Prac Completion Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Client Contacted --}}
-                                {{--}}<div class="col-md-2">
-                                    {!! Form::label('client_contacted', 'Client Contacted', ['class' => 'control-label']) !!}
-                                    @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac))
-                                        <div class="input-group" style="width=80%">
-                                            <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
-                                               value="{{  ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_contacted', ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>--}}
-
-                                {{-- Client Appointment --}}
-                                {{--}}<div class="col-md-2">
-                                    {!! Form::label('client_appointment', 'Client Appointment', ['class' => 'control-label']) !!}
-                                    @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac) )
-                                        <div class="input-group">
-                                            <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
-                                        </div>
-                                        <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
-                                               value="{{  ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : ''}}">
-                                    @else
-                                        {!! Form::text('client_appointment', ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : '', ['class' => 'form-control', 'readonly']) !!}
-                                    @endif
-                                </div>--}}
-
-                                {{-- Assigned Supervisor --}}
-                                <div class="col-md-5">
-                                    <div class="form-group {!! fieldHasError('super_id', $errors) !!}" style="{{ fieldHasError('super_id', $errors) ? '' : 'display:show' }}" id="company-div">
-                                        {!! Form::label('super_id', 'Prac Supervisor', ['class' => 'control-label']) !!}
-                                        @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
-                                            {{-- Supervisor --}}
-                                            <select id="super_id" name="super_id" class="form-control select2"
-                                                    style="width:100%">
-                                                <option value=""></option>
-                                                <optgroup label="Cape Code Supervisors"></optgroup>
-                                                @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
-                                                    <option value="{{ $super->id }}" {{ ($super->id == $prac->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
-                                                @endforeach
-                                                <optgroup label="External Users"></optgroup>
-                                                <option value="2023" {{ ('2023' == $prac->super_id) ? 'selected' : '' }}>
-                                                    Jason Habib (Prolific Projects)
-                                                </option>
-                                            </select>
-                                            {!! fieldErrorMessage('super_id', $errors) !!}
+                                                        <br>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         @else
-                                            {!! Form::text('assigned_super_text', ($prac->super_id) ? $prac->supervisor->name : '-', ['class' => 'form-control', 'readonly']) !!}
+                                            None
                                         @endif
-                                        {!! fieldErrorMessage('super_id', $errors) !!}
+                                    </div>
+                                    {{-- Add Attachments --}}
+                                    <div class="col-md-3" style="background: #f1f0ef;">
+                                        <x-form.filepond/>
+                                        <br><br>
                                     </div>
                                 </div>
 
-                                @if (Auth::user()->allowed2('edit.prac.completion', $prac))
-                                    <div class="col-md-1 pull-right">
-                                        <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+
+                                {{-- Under Review - asign to super --}}
+                                <h4>Prac Completion Details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Client Contacted --}}
+                                    {{--}}<div class="col-md-2">
+                                        <label for="client_contacted" class="control-label">Client Contacted</label>
+                                        @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac))
+                                            <div class="input-group" style="width=80%">
+                                                <datepicker :value.sync="xx.client_contacted" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                            </div>
+                                            <input v-model="xx.client_contacted" type="hidden" name="client_contacted"
+                                                   value="{{  ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : ''}}">
+                                        @else
+                                            <input type="text" name="client_contacted" id="client_contacted" value="{{ ($prac->client_contacted) ? $prac->client_contacted->format('d/m/Y') : '' }}" class="form-control" readonly>
+                                        @endif
+                                    </div>--}}
+
+                                    {{-- Client Appointment --}}
+                                    {{--}}<div class="col-md-2">
+                                        <label for="client_appointment" class="control-label">Client Appointment</label>
+                                        @if ($prac->status && Auth::user()->allowed2('edit.prac.completion', $prac) || Auth::user()->allowed2('sig.prac.completion', $prac) )
+                                            <div class="input-group">
+                                                <datepicker :value.sync="xx.client_appointment" format="dd/MM/yyyy" :placeholder="choose date" style="z-index: 888 !important"></datepicker>
+                                            </div>
+                                            <input v-model="xx.client_appointment" type="hidden" name="client_appointment"
+                                                   value="{{  ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : ''}}">
+                                        @else
+                                            <input type="text" name="client_appointment" id="client_appointment" value="{{ ($prac->client_appointment) ? $prac->client_appointment->format('d/m/Y') : '' }}" class="form-control" readonly>
+                                        @endif
+                                    </div>--}}
+
+                                    {{-- Assigned Supervisor --}}
+                                    <div class="col-md-5">
+                                        <div class="form-group {{ $errors->has('super_id') ? 'has-error' : '' }}" style="{{ $errors->has('super_id') ? '' : 'display:show' }}" id="company-div">
+                                            <label for="super_id" class="control-label">Prac Supervisor</label>
+                                            @if ($prac->status && Auth::user()->allowed2('sig.prac.completion', $prac))
+                                                {{-- Supervisor --}}
+                                                <select id="super_id" name="super_id" class="form-control select2"
+                                                        style="width:100%">
+                                                    <option value=""></option>
+                                                    <optgroup label="Cape Code Supervisors"></optgroup>
+                                                    @foreach (Auth::user()->company->supervisors()->sortBy('name') as $super)
+                                                        <option value="{{ $super->id }}" {{ ($super->id == $prac->super_id) ? 'selected' : '' }}>{{ $super->name }}</option>
+                                                    @endforeach
+                                                    <optgroup label="External Users"></optgroup>
+                                                    <option value="2023" {{ ('2023' == $prac->super_id) ? 'selected' : '' }}>
+                                                        Jason Habib (Prolific Projects)
+                                                    </option>
+                                                </select>
+                                            @else
+                                                <input type="text" name="assigned_super_text" id="assigned_super_text" value="{{ ($prac->super_id) ? $prac->supervisor->name : '-' }}" class="form-control" readonly>
+                                            @endif
+                                            <x-form.error name="super_id"/>
+                                        </div>
                                     </div>
-                                @endif
-                            </div>
+
+                                    @if (Auth::user()->allowed2('edit.prac.completion', $prac))
+                                        <div class="col-md-1 pull-right">
+                                            <button id="submit" type="submit" name="save" class="btn blue" style="margin-top: 25px">Save</button>
+                                        </div>
+                                    @endif
+                                </div>
                         </div>
                         <br>
 
@@ -310,9 +311,7 @@
                                 <h3>Assigned Tasks
                                     {{-- Show add if user has permission to edit prac --}}
                                     @if ($prac->status && Auth::user()->hasAnyRole2('con-construction-manager|con-administrator|web-admin|mgt-general-manager'))
-                                        <a href="/todo/create/prac_completion_task/{{ $prac->id}}"
-                                           class="btn btn-circle green btn-outline btn-sm pull-right"
-                                           data-original-title="Add">Add</a>
+                                        <a href="/todo/create/prac_completion_task/{{ $prac->id}}" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</a>
                                     @endif
                                 </h3>
                                 @if ($prac->todos()->count())
@@ -328,62 +327,62 @@
                                         </thead>
                                         <tbody>
                                         @foreach($prac->todos() as $todo)
-                                            tr>
-                                            <td>
-                                                <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
-                                            </td>
-                                            <td>
-                                                {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
-                                                @if ($todo->comments)
-                                                    <br><b>Comments:</b> {{ $todo->comments }}
-                                                @endif
-                                                @php
-                                                    $attachments = $todo->attachments;
-                                                    $images = $attachments->where('type', 'image');
-                                                    $files  = $attachments->where('type', 'file');
-                                                @endphp
-                                                @if ($attachments->isNotEmpty())
-                                                    <hr style="margin: 10px 0px; padding: 0px;">
-                                                    {{-- Image attachments --}}
-                                                    @if ($images->isNotEmpty())
-                                                        <div class="row" style="margin: 0">
-                                                            @foreach ($images as $attachment)
-                                                                <div style="width: 60px; float: left; padding-right: 5px">
-                                                                    <a href="{{ $attachment->url }}" target="_blank" data-lity>
-                                                                        <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
-                                                                    </a>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
+                                            <tr>
+                                                <td>
+                                                    <div class="text-center"><a href="/todo/{{ $todo->id }}"><i class="fa fa-search"></i></a></div>
+                                                </td>
+                                                <td>
+                                                    {{ $todo->info }}<br><br><i>Assigned to: {{ $todo->assignedToBySBC() }}</i>
+                                                    @if ($todo->comments)
+                                                        <br><b>Comments:</b> {{ $todo->comments }}
                                                     @endif
+                                                    @php
+                                                        $attachments = $todo->attachments;
+                                                        $images = $attachments->where('type', 'image');
+                                                        $files  = $attachments->where('type', 'file');
+                                                    @endphp
+                                                    @if ($attachments->isNotEmpty())
+                                                        <hr style="margin: 10px 0px; padding: 0px;">
+                                                        {{-- Image attachments --}}
+                                                        @if ($images->isNotEmpty())
+                                                            <div class="row" style="margin: 0">
+                                                                @foreach ($images as $attachment)
+                                                                    <div style="width: 60px; float: left; padding-right: 5px">
+                                                                        <a href="{{ $attachment->url }}" target="_blank" data-lity>
+                                                                            <img src="{{ $attachment->url }}" class="thumbnail img-responsive img-thumbnail">
+                                                                        </a>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
 
-                                                    {{-- File attachments --}}
-                                                    @if ($files->isNotEmpty())
-                                                        <div class="row" style="margin: 0">
-                                                            @foreach ($files as $attachment)
-                                                                <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
-                                                            @endforeach
-                                                        </div>
+                                                        {{-- File attachments --}}
+                                                        @if ($files->isNotEmpty())
+                                                            <div class="row" style="margin: 0">
+                                                                @foreach ($files as $attachment)
+                                                                    <i class="fa fa-file-text-o"></i> &nbsp; <a href="{{ $attachment->url }}" target="_blank"> {{ $attachment->name }}</a><br>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
                                                     @endif
-                                                @endif
-                                                <br>
-                                                {{-- Old Image attachments --}}
-                                                @if ($todo->attachment)
-                                                    <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
-                                                @endif
-                                            </td>
-                                            <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
-                                                <?php
-                                                $done_by = App\User::find($todo->done_by);
-                                                $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
-                                                $done_by = ($done_by) ? $done_by->full_name : 'unknown';
-                                                ?>
-                                            <td>@if ($todo->status && !$todo->done_by)
-                                                    <span class="font-red">Outstanding</span>
-                                                @else
-                                                    {!! $done_by  !!}<br>{{ $done_at }}
-                                                @endif
-                                            </td>
+                                                    <br>
+                                                    {{-- Old Image attachments --}}
+                                                    @if ($todo->attachment)
+                                                        <a href="{{ $todo->attachmentUrl }}" data-lity class="btn btn-xs blue"><i class="fa fa-picture-o"></i></a>
+                                                    @endif
+                                                </td>
+                                                <td>{!! App\User::findOrFail($todo->created_by)->full_name  !!}<br>{{ $todo->created_at->format('d/m/Y')}}</td>
+                                                    <?php
+                                                    $done_by = App\User::find($todo->done_by);
+                                                    $done_at = ($done_by) ? $todo->done_at->format('d/m/Y') : '';
+                                                    $done_by = ($done_by) ? $done_by->full_name : 'unknown';
+                                                    ?>
+                                                <td>@if ($todo->status && !$todo->done_by)
+                                                        <span class="font-red">Outstanding</span>
+                                                    @else
+                                                        {!! $done_by  !!}<br>{{ $done_at }}
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                         </tbody>
@@ -392,7 +391,7 @@
                             </div>
                         </div>
 
-                        {!! Form::close() !!}
+                        </form>
 
                         {{-- Sign Off --}}
                         <hr>
@@ -613,9 +612,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h3>Notes
-                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')"
-                                class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add
-                        </button>
+                        <button v-on:click.prevent="$root.$broadcast('add-action-modal')" class="btn btn-circle green btn-outline btn-sm pull-right" data-original-title="Add">Add</button>
                     </h3>
                     <table v-show="actionList.length"
                            class="table table-striped table-bordered table-nohover order-column">

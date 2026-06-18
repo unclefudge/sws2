@@ -10,8 +10,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -29,12 +27,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status" id="status" :options="['1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -113,7 +106,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

@@ -38,7 +38,9 @@
                         </div>
                     </div>--}}
                     <div class="portlet-body form">
-                        {!! Form::model($checklist, ['method' => 'PATCH', 'action' => ['Misc\SuperChecklistController@update', $checklist->id], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\SuperChecklistController::class, 'update'], $checklist->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
                         <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $checklist->id }}">
                         <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $checklist->status }}">
                         <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $checklist->resolved_at }}">
@@ -133,7 +135,7 @@
                                 <button type="submit" class="btn green"> Save</button>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -156,9 +158,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Note</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

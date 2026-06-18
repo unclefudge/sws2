@@ -33,10 +33,12 @@
                         <h3>Week of {{ $extension->date->format('d/m/Y') }}
                             @if (in_array(Auth::user()->id, [3, 108, 325, 1359]) || Auth::user()->permissionLevel('view.site.extension', 3) == 99)
                                 {{-- Fudge, Kirstie, Michelle, Courtney --}}
-                                <span class="pull-right" style="width: 200px">{!! Form::select('supervisor', ['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect(), $supervisor_id, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}</span>
+                                <span class="pull-right" style="width: 200px">
+                                     <x-form.select name="supervisor" :options="['0' => 'All supervisors'] + Auth::user()->company->reportsTo()->supervisorsSelect()" :value="$supervisor_id"/>
+                                </span>
                             @endif
                         </h3>
-
+                        {{-- Approved Variation Notes --}}
                         @if ($notes->count())
                             <div class="col-md-12 note note-warning">
                                 The following sites had Approved Site Variations Notes added the previous week:
@@ -47,6 +49,7 @@
                                 </ul>
                             </div>
                         @endif
+                        {{-- Client Info tasks --}}
                         @if ($clientTasks->count())
                             <div class="col-md-12 note note-warning">
                                 The following sites had Client Information tasks the previous week:
@@ -57,6 +60,7 @@
                                 </ul>
                             </div>
                         @endif
+                        {{-- Public Holidays --}}
                         @if (count($public_holidays) && Auth::user()->hasAnyRole2('mgt-general-manager|web-admin'))
                             <div class="col-md-12 note note-warning">
                                 The following public holidays occur this week:
@@ -171,7 +175,7 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
+
 
     <!--  Edit Modal -->
     <div id="modal_edit" class="modal fade bs-modal-lg" tabindex="-1" aria-hidden="true">
@@ -182,59 +186,51 @@
                     <h4 class="modal-title" id="site_name"></h4>
                 </div>
                 <div class="modal-body">
-                    {!! Form::model('upcoming', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateJob'], 'class' => 'horizontal-form', 'files' => true, 'id'=>'talk_form']) !!}
-                    <input type="hidden" name="ext_id" id="ext_id" value="">
-                    <input type="hidden" name="reason_na" id="reason_na" value="{{ $reason_na }}">
-                    <input type="hidden" name="reason_publichol" id="reason_publichol" value="{{ $reason_publichol }}">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                {!! Form::label('reasons', 'Extend Reasons', ['class' => 'control-label']) !!}
-                                {!! Form::select('reasons', $extend_reasons, null, ['class' => 'form-control select2', 'id' => 'reasons', 'name' => 'reasons[]', 'multiple', 'width' => '100%']) !!}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                {!! Form::label('days', 'Days', ['class' => 'control-label', 'id' => 'days_label']) !!}
-                                <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeydown="return isNumber(event)"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                {!! Form::label('extension_notes', 'Extend notes', ['class' => 'control-label', 'id' => 'extension_notes_label']) !!}
-                                {!! Form::textarea('extension_notes', null, ['class' => 'form-control', 'rows' => 5, 'id' => 'extension_notes']) !!}
-                            </div>
-                        </div>
-                    </div>
-                    @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                    <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateJob']) }}" class="horizontal-form" enctype="multipart/form-data">
+                        @csrf
+                        <x-form.hidden name="ext_id" id="ext_id" value=""/>
+                        <x-form.hidden name="reason_na" id="reason_na" :value="$reason_na"/>
+                        <x-form.hidden name="reason_publichol" id="reason_publichol" :value="$reason_publichol"/>
                         <div class="row">
-                            <div class="col-sm-2 col-xs-4 text-center">
-                                <div class="form-group">
-                                    {!! Form::checkbox('multi_extension', '1', null, ['class' => 'make-switch', 'data-size' => 'small', 'id' => 'multi_extension',
-                                     'data-on-text'=>'Yes', 'data-on-color'=>'success', 'data-off-text'=>'No', 'data-off-color'=>'danger']) !!}
-                                </div>
+                            <div class="col-md-12">
+                                <x-form.select name="reasons[]" id="reasons" label="Extend Reasons" :options="$extend_reasons" plugin="select2" style="width:100%" multiple/>
                             </div>
-                            <div class="col-sm-10 col-xs-8">Assign same Extension to other sites?</div>
                         </div>
-                        <div class="row" id="multi-div" style="display: none">
+                        <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    {!! Form::label('multi_sites', 'Multiple Sites', ['class' => 'control-label']) !!}
-                                    {!! Form::select('multi_sites', $multi_site_sel, null, ['class' => 'form-control select2', 'id' => 'multi_sites', 'name' => 'multi_sites[]', 'multiple', 'width' => '100%']) !!}
+                                    <label for="days" class="control-label" id="days_label">Days</label>
+                                    <input type="text" class="form-control" value="{{ old('days') }}" id="days" name="days" onkeydown="return isNumber(event)"/>
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="extension_notes" class="control-label" id="extension_notes_label">Extend notes</label>
+                                    <textarea name="extension_notes" id="extension_notes" class="form-control" rows="5">{{ old('extension_notes') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Auth::user()->hasAnyRole2('web-admin|mgt-general-manager'))
+                            <div class="row">
+                                <div class="col-sm-2 col-xs-4">
+                                    <x-form.checkbox2 name="multi_extension"/>
+                                </div>
+                                <div class="col-sm-10 col-xs-8" style="padding-left: 35px; height: 4rem; line-height: 4rem;">Assign same Extension to other sites?</div>
+                            </div>
+                            <div class="row" id="multi-div" style="display: none">
+                                <div class="col-md-12">
+                                    <x-form.select name="multi_sites[]" id="multi_sites" label="Multiple Sites" :options="$multi_site_sel" plugin="select2" style="width:100%" multiple/>
+                                </div>
+                            </div>
                     @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn dark btn-outline">Close</button>
                     <button type="submit" class="btn green" id="savenote">Save</button>
                 </div>
-                {!! Form::close() !!}
+                </form>
             </div>
         </div>
     </div>
@@ -310,10 +306,8 @@
             });
 
 
-            $('#multi_extension').on('switchChange.bootstrapSwitch', function (event, state) {
-                $("#multi-div").hide();
-                if (state)
-                    $("#multi-div").show();
+            $('#multi_extension').on('change', function () {
+                $("#multi-div").toggle($(this).is(':checked'));
             });
 
             $(".deleteExt").click(function (e) {
@@ -346,7 +340,7 @@
 
                 if ($("#reasons option:selected").length) {
                     if ($("#reasons").val().includes(reason_na)) {
-// NA selected so clear all other options and leave NA only
+                        // NA selected so clear all other options and leave NA only
                         $("#reasons").val([reason_na]).trigger('change.select2'); // update select2 val without triggering change
                         $("#days").val('');
                         $("#extension_notes").val('');
@@ -359,7 +353,7 @@
                         $("#days_label").show();
                         $("#extension_notes").show();
                         $("#extension_notes_label").show();
-// Enforce Days + Notes are required
+                        // Enforce Days + Notes are required
                         $("#days_label").html("Days <span class='font-red'>(required)</span>");
                         let required = false;
                         $("#reasons").val().forEach(function (item, index) {

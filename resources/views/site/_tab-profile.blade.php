@@ -101,10 +101,10 @@
                             <table class="table table-striped table-bordered table-hover order-column" id="table_staff555">
                                 <thead>
                                 <tr class="mytable-header">
-                                    <th width="5%"> Date</th>
+                                    <th style="width:5%"> Date</th>
                                     <th> Name</th>
                                     <th> Company</th>
-                                    <th width="5%"></th>
+                                    <th style="width:5%"></th>
                                 </tr>
                                 </thead>
                                 <tbody>

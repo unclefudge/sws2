@@ -8,8 +8,6 @@
 @stop
 
 @section('content')
-
-    <!-- BEGIN PAGE CONTENT INNER -->
     <div class="page-content-inner">
         <div class="row">
             <div class="col-md-12">
@@ -27,21 +25,19 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            {!! Form::select('supervisor', ['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect(), null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                            <x-form.select name="supervisor" :options="['all' => 'All sites'] + Auth::user()->company->reportsTo()->supervisorsSelect()"/>
                         </div>
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status" id="status" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    @if (Auth::user()->company->subscription)
-                                        <option value="-1">Upcoming</option>
-                                        <option value="0">Completed</option>
-                                        <option value="-2">Cancelled</option>
-                                        <option value="2">Maintenance</option>
-                                        <option value="all">All</option>
-                                    @endif
-                                </select>
-                            </div>
+                            <x-form.select name="status">
+                                <option value="1" selected>Active</option>
+                                @if (Auth::user()->company->subscription)
+                                    <option value="-1">Upcoming</option>
+                                    <option value="0">Completed</option>
+                                    <option value="-2">Cancelled</option>
+                                    <option value="2">Maintenance</option>
+                                    <option value="all">All</option>
+                                @endif
+                            </x-form.select>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -49,13 +45,13 @@
                             <thead>
                             <tr class="mytable-header">
                                 @if (Auth::user()->company->subscription ||  Auth::user()->company_id == '96')
-                                    <th width="5%"> #</th>
+                                    <th style="width:5%"> #</th>
                                 @endif
                                 {{--}}<th> Suburb</th> --}}
                                 <th> Site Name</th>
                                 {{-- CapeCod + JonSpin --}}
                                 @if (Auth::user()->isCC() ||  Auth::user()->company_id == '96')
-                                    <th width="15%"> Phone</th>
+                                    <th style="width:15%"> Phone</th>
                                 @endif
                                 <th> Address</th>
                                 <th> Supervisor</th>
@@ -67,7 +63,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 

@@ -78,24 +78,18 @@
                         @if (Auth::user()->permissionLevel('view.site.maintenance', 3) == 99)
                             <input type="hidden" id="supervisor_sel" value="1">
                             <div class="col-md-4">
-                                {!! Form::select('supervisor', ['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib'], null, ['class' => 'form-control bs-select', 'id' => 'supervisor']) !!}
+                                <x-form.select name="supervisor" id="supervisor" :options="['all' => 'All sites', 'signoff' => 'Require Sign Off'] + Auth::user()->company->reportsTo()->supervisorsSelect() + ['2023' => 'Jason Habib']"/>
                             </div>
                         @else
                             <input type="hidden" id="supervisor_sel" value="0">
                         @endif
 
                         <div class="col-md-4">
-                            {!! Form::select('assigned_to', $assignedList, 'all', ['class' => 'form-control bs-select', 'id' => 'assigned_to']) !!}
+                            <x-form.select name="assigned_to" id="assigned_to" :options="$assignedList" value="all"/>
                         </div>
 
                         <div class="col-md-2 pull-right">
-                            <div class="form-group">
-                                <select name="status1" id="status1" class="form-control bs-select">
-                                    <option value="1" selected>Active</option>
-                                    {{--}}<option value="4">On Hold</option>--}}
-                                    <option value="0">Completed</option>
-                                </select>
-                            </div>
+                            <x-form.select name="status1" id="status1" :options="['1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
@@ -104,8 +98,8 @@
                             <tr class="mytable-header">
                                 <th style="width:5%"> #</th>
                                 <th> Site</th>
-                                {{--}}<th width="10%"> Client Contacted</th>
-                                <th width="10%"> Appointment</th>--}}
+                                {{--}}<th style="width:10%"> Client Contacted</th>
+                                <th style="width:10%"> Appointment</th>--}}
                                 <th style="width:10%"> Supervisor</th>
                                 <th> Assigned Company</th>
                                 <th style="width:10%"> Updated</th>
@@ -118,7 +112,6 @@
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
 @stop
 
 @section('page-level-plugins-head')

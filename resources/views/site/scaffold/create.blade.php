@@ -29,114 +29,92 @@ $duty_class = [
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteScaffoldHandover', ['action' => 'Site\SiteScaffoldHandoverController@store', 'class' => 'horizontal-form']) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteScaffoldHandoverController::class, 'store']) }}" class="horizontal-form">
+                            @csrf
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        {{-- Progress Steps --}}
-                        <div class="mt-element-step hidden-sm hidden-xs">
-                            <div class="row step-thin" id="steps">
-                                <div class="col-md-6 mt-step-col first active">
-                                    <div class="mt-step-number bg-white font-grey">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Create</div>
-                                    <div class="mt-step-content font-grey-cascade">Create certificate</div>
-                                </div>
-                                <div class="col-md-6 mt-step-col last">
-                                    <div class="mt-step-number bg-white font-grey">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Sign Off</div>
-                                    <div class="mt-step-content font-grey-cascade">Certificate Sign Off</div>
+                            {{-- Progress Steps --}}
+                            <div class="mt-element-step hidden-sm hidden-xs">
+                                <div class="row step-thin" id="steps">
+                                    <div class="col-md-6 mt-step-col first active">
+                                        <div class="mt-step-number bg-white font-grey">1</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Create</div>
+                                        <div class="mt-step-content font-grey-cascade">Create certificate</div>
+                                    </div>
+                                    <div class="col-md-6 mt-step-col last">
+                                        <div class="mt-step-number bg-white font-grey">2</div>
+                                        <div class="mt-step-title uppercase font-grey-cascade">Sign Off</div>
+                                        <div class="mt-step-content font-grey-cascade">Certificate Sign Off</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <br>
-                        <div class="form-body">
-                            <h4 class="font-green-haze">Site details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                {{-- Site --}}
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
+                            <br>
+                            <div class="form-body">
+                                <h4 class="font-green-haze">Site details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    {{-- Site --}}
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" id="site_id" label="Site" plugin="select2" style="width:100%">
                                             @if ($site)
                                                 <option value="{{ $site->id }}">{{ $site->name }}</option>
                                             @else
                                                 {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
                                             @endif
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
+                                        </x-form.select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <h4 class="font-green-haze">Scaffold details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('location', $errors) !!}">
-                                        {!! Form::label('location', 'Description and location of area handed over', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea("location", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
-                                        {!! fieldErrorMessage('location', $errors) !!}
+                                <h4 class="font-green-haze">Scaffold details</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12 ">
+                                        <x-form.textarea name="location" label="Description and location of area handed over" rows="3" placeholder="Specific details"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('use', $errors) !!}">
-                                        {!! Form::label('use', 'Intended use of the scaffold', ['class' => 'control-label']) !!}
-                                        {!! Form::textarea("use", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details"]) !!}
-                                        {!! fieldErrorMessage('use', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-12 ">
+                                        <x-form.textarea name="use" label="Intended use of the scaffold" rows="3" placeholder="Specific details"/>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <div class="form-group {!! fieldHasError('duty', $errors) !!}">
-                                        {!! Form::label('duty', 'Duty Classification', ['class' => 'control-label']) !!}
-                                        {!! Form::select('duty', $duty_class, null, ['class' => 'form-control bs-select', 'name' => 'duty', 'title' => 'Select class']) !!}
-                                        {!! fieldErrorMessage('duty', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-7">
+                                        <x-form.select name="duty" label="Duty Classification" :options="$duty_class" title="Select class"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-form.input name="decks" label="No. of working decks"/>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group {!! fieldHasError('decks', $errors) !!}">
-                                        {!! Form::label('decks', 'No. of working decks', ['class' => 'control-label']) !!}
-                                        {!! Form::text('decks', null, ['class' => 'form-control']) !!}
-                                        {!! fieldErrorMessage('decks', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Upload Photos/Documents of Scaffold</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
-
-                            <h4 class="font-green-haze">Notes</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-12 ">
-                                    <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                        {!! Form::textarea("notes", null, ['rows' => '5', 'class' => 'form-control', 'placeholder' => "Details"]) !!}
-                                        {!! fieldErrorMessage('notes', $errors) !!}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Upload Photos/Documents of Scaffold</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-actions right">
-                                <a href="/site/scaffold/handover" class="btn default"> Back</a>
-                                <button type="submit" class="btn green" id="submit"> Save</button>
+                                <h4 class="font-green-haze">Notes</h4>
+                                <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                <div class="row">
+                                    <div class="col-md-12 ">
+                                        <x-form.textarea name="notes" rows="5" placeholder="Details"/>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions right">
+                                    <a href="/site/scaffold/handover" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green" id="submit"> Save</button>
+                                </div>
                             </div>
-                        </div>
-                        {!! Form::close() !!} <!-- END FORM-->
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')

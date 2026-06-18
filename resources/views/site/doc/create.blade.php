@@ -1,33 +1,32 @@
 @extends('layout')
 
 @section('breadcrumbs')
-    <ul class="page-breadcrumb breadcrumb">
-        <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
-        @if (Auth::user()->hasAnyPermissionType('site'))
-            <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
-        @endif
-        <li><a href="/site/doc">Documents</a><i class="fa fa-circle"></i></li>
-        <li><span>Create Document</span></li>
-    </ul>
+<ul class="page-breadcrumb breadcrumb">
+    <li><a href="/">Home</a><i class="fa fa-circle"></i></li>
+    @if (Auth::user()->hasAnyPermissionType('site'))
+    <li><a href="/site">Sites</a><i class="fa fa-circle"></i></li>
+    @endif
+    <li><a href="/site/doc">Documents</a><i class="fa fa-circle"></i></li>
+    <li><span>Create Document</span></li>
+</ul>
 @stop
 
 @section('content')
-    <div class="page-content-inner">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="portlet light bordered">
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="fa fa-pencil "></i>
-                            <span class="caption-subject font-green-haze bold uppercase">Create Document </span>
-                        </div>
+<div class="page-content-inner">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="portlet light bordered">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <span class="caption-subject font-green-haze bold uppercase">Create Document </span>
                     </div>
-                    <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('sitedoc', ['action' => 'Site\SiteDocController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
+                </div>
+                <div class="portlet-body form">
+                    <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteDocController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                        @csrf
                         @include('form-error')
-                        {!! Form::hidden('create', 'true') !!}
-                        {!! Form::hidden('company_id', Auth::user()->company_id) !!}
+                        <x-form.hidden name="create" value="true"/>
+                        <x-form.hidden name="company_id" :value="Auth::user()->company_id"/>
 
                         <div class="alert alert-danger alert-dismissable" style="display: none;" id="multifile-error">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
@@ -40,30 +39,23 @@
                         <div class="form-body">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}" id="site_id_form">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        @if (in_array(Auth::user()->id, ['1032'])) {{-- Ian Ewin --}}
-                                            {!! Form::select('site_id', Auth::user()->company->reportsTo()->sitesSelect('prompt'), $site_id, ['class' => 'form-control select2']) !!}
+                                    <div id="site_id_form">
+                                        @if (in_array(Auth::user()->id, ['1032']))
+                                        {{--Ian
+                                        Ewin - -}}
+                                        <x-form.select name="site_id" label="Site" :options="Auth::user()->company->reportsTo()->sitesSelect('prompt')" :value="$site_id" plugin="select2"/>
                                         @else
-                                            {!! Form::select('site_id', Auth::user()->company->sitesSelect('prompt'), $site_id, ['class' => 'form-control select2']) !!}
+                                        <x-form.select name="site_id" label="Site" :options="Auth::user()->company->sitesSelect('prompt')" :value="$site_id" plugin="select2"/>
                                         @endif
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group {!! fieldHasError('type', $errors) !!}" id="type_form">
-                                        {!! Form::label('type', 'Type', ['class' => 'control-label']) !!}
-                                        {!! Form::select('type',Auth::user()->siteDocTypeSelect('add', 'prompt'),
-                                             $type, ['class' => 'form-control bs-select']) !!}
-                                        {!! fieldErrorMessage('type', $errors) !!}
+                                    <div id="type_form">
+                                        <x-form.select name="type" label="Type" :options="Auth::user()->siteDocTypeSelect('add', 'prompt')" :value="$type"/>
                                     </div>
                                 </div>
                                 <div class="col-md-2 pull-right">
-                                    <div class="form-group">
-                                        {!! Form::label('files', 'Files', ['class' => 'control-label']) !!}
-                                        {!! Form::select('files', ['single' => 'Single File', 'multi' => 'Multiple Files'],
-                                             'single', ['class' => 'form-control bs-select']) !!}
-                                    </div>
+                                    <x-form.select name="files" label="Files" :options="['single' => 'Single File', 'multi' => 'Multiple Files']" value="single"/>
                                 </div>
                             </div>
                             <!-- Multi File upload -->
@@ -89,18 +81,15 @@
                             <div id="singlefile-div" style="display: none">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('name', $errors) !!}">
-                                            {!! Form::label('name', 'Name', ['class' => 'control-label']) !!}
-                                            {!! Form::text('name', null, ['class' => 'form-control']) !!}
-                                        </div>
+                                        <x-form.input name="name" label="Name"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group {!! fieldHasError('singlefile', $errors) !!}">
+                                        <div class="form-group {{ $errors->has('singlefile') ? 'has-error' : '' }}">
                                             <label class="control-label">Select File</label>
                                             <input id="singlefile" name="singlefile" type="file" class="file-loading">
-                                            {!! fieldErrorMessage('singlefile', $errors) !!}
+                                            <x-form.error name="singlefile"/>
                                         </div>
                                     </div>
                                 </div>
@@ -108,12 +97,8 @@
                                 <!-- Notes -->
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <div class="form-group {!! fieldHasError('notes', $errors) !!}">
-                                            {!! Form::label('notes', 'Notes', ['class' => 'control-label']) !!}
-                                            {!! Form::textarea('notes', '', ['rows' => '2', 'class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('notes', $errors) !!}
-                                            <span class="help-block"> For internal use only </span>
-                                        </div>
+                                        <x-form.textarea name="notes" label="Notes" rows="2"/>
+                                        <span class="help-block"> For internal use only </span>
                                     </div>
                                 </div>
                             </div>
@@ -122,29 +107,29 @@
                                 <button type="submit" name="save" value="save" class="btn green" id="save" style="display: none;">Save</button>
                             </div>
                         </div>
-                    </div> <!--/form-body-->
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-    <!-- END PAGE CONTENT INNER -->
-    </div>
+</div>
+</div>
 @stop
 
 @section('page-level-plugins-head')
-    <link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="/css/libs/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('page-level-plugins')
-    <script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-    <script src="/js/libs/fileinput.min.js"></script>
-    <!--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>-->
+<script src="/assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+<script src="/js/libs/fileinput.min.js"></script>
+<!--<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>-->
 @stop
 
-@section('page-level-scripts') {{-- Metronic + custom Page Scripts --}}
+@section('page-level-scripts')
+{{-- Metronic + custom Page Scripts --}}
 <script src="/assets/pages/scripts/components-select2.min.js" type="text/javascript"></script>
 <script>
     $.ajaxSetup({
@@ -189,15 +174,15 @@
             },
             layoutTemplates: {
                 main1: '<div class="input-group {class}">\n' +
-                '   {caption}\n' +
-                '   <div class="input-group-btn">\n' +
-                '       {remove}\n' +
-                '       {upload}\n' +
-                '       {browse}\n' +
-                '   </div>\n' +
-                '</div>\n' +
-                '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
-                '{preview}\n'
+                    '   {caption}\n' +
+                    '   <div class="input-group-btn">\n' +
+                    '       {remove}\n' +
+                    '       {upload}\n' +
+                    '       {browse}\n' +
+                    '   </div>\n' +
+                    '</div>\n' +
+                    '<div class="kv-upload-progress hide" style="margin-top:10px"></div>\n' +
+                    '{preview}\n'
             },
         });
 

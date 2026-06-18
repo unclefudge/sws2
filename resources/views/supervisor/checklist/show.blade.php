@@ -35,67 +35,69 @@
                         </div>
                     </div>--}}
                     <div class="portlet-body form">
-                        {!! Form::model($checklist, ['method' => 'PATCH', 'action' => ['Misc\SuperChecklistController@update', $checklist->id], 'class' => 'horizontal-form', 'files' => true]) !!}
-                        {!! Form::hidden('day', $day) !!}
-                        <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $checklist->id }}">
-                        <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $checklist->status }}">
-                        <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $checklist->resolved_at }}">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Misc\SuperChecklistController::class, 'update'], $checklist->id) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('PATCH')
+                            <x-form.hidden name="day" :value="$day"/>
+                            <input v-model="xx.table_id" type="hidden" id="table_id" value="{{ $checklist->id }}">
+                            <input v-model="xx.record_status" type="hidden" id="record_status" value="{{ $checklist->status }}">
+                            <input v-model="xx.record_resdate" type="hidden" id="record_resdate" value="{{ $checklist->resolved_at }}">
+                            @include('form-error')
 
 
-                        <h3>{{ $checklist->date->addDays($day-1)->format('l - j F, Y') }}</h3>
-                        <h4>Supervisor: {{ $checklist->supervisor->name }}</h4>
-                        <br>
-                        <div class="form-body">
+                            <h3>{{ $checklist->date->addDays($day-1)->format('l - j F, Y') }}</h3>
+                            <h4>Supervisor: {{ $checklist->supervisor->name }}</h4>
+                            <br>
+                            <div class="form-body">
 
-                            @foreach ($categories as $category)
-                                @if ($category->isRequiredForSupervisor($checklist->supervisor, $day))
-                                    <h4 class="font-green-haze"><b>{{$category->name}}</b>{!! ($category->description) ? ": <small>$category->description</small>" : '' !!}</h4>
-                                    <hr class="field-hr">
-                                    <table class="table table-striped table-bordered table-hover order-column" id="table1">
-                                        @foreach ($category->questions as $question)
-                                                <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', $day)->first(); ?>
+                                @foreach ($categories as $category)
+                                    @if ($category->isRequiredForSupervisor($checklist->supervisor, $day))
+                                        <h4 class="font-green-haze"><b>{{$category->name}}</b>{!! ($category->description) ? ": <small>$category->description</small>" : '' !!}</h4>
+                                        <hr class="field-hr">
+                                        <table class="table table-striped table-bordered table-hover order-column" id="table1">
+                                            @foreach ($category->questions as $question)
+                                                    <?php $response = \App\Models\Misc\Supervisor\SuperChecklistResponse::where('checklist_id', $checklist->id)->where('question_id', $question->id)->where('day', $day)->first(); ?>
 
-                                            @if ($response)
-                                                <tr>
-                                                    <td>{{$response->question->name}}</td>
-                                                    <td style="min-width:200px; width: 200px">
-                                                        <div class="form-group">
-                                                            <div class="btn-group" min-width:150px>
-                                                                <button id="r{{$response->id}}-y" class="btn button-resp {{ ($response->value == 'y') ? 'green' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="y" data-btype="green" data-bval="Yes">Yes</button>
-                                                                <button id="r{{$response->id}}-n" class="btn button-resp {{ ($response->value == 'n') ? 'red' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="n" data-btype="red" data-bval="No">No</button>
-                                                                <button id="r{{$response->id}}-na" class="btn button-resp {{ ($response->value == 'na') ? 'dark' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="na" data-btype="dark" data-bval="N/A">N/A</button>
+                                                @if ($response)
+                                                    <tr>
+                                                        <td>{{$response->question->name}}</td>
+                                                        <td style="min-width:200px; width: 200px">
+                                                            <div class="form-group">
+                                                                <div class="btn-group" min-width:150px>
+                                                                    <button id="r{{$response->id}}-y" class="btn button-resp {{ ($response->value == 'y') ? 'green' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="y" data-btype="green" data-bval="Yes">Yes</button>
+                                                                    <button id="r{{$response->id}}-n" class="btn button-resp {{ ($response->value == 'n') ? 'red' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="n" data-btype="red" data-bval="No">No</button>
+                                                                    <button id="r{{$response->id}}-na" class="btn button-resp {{ ($response->value == 'na') ? 'dark' : '' }}" style="margin-right: 10px; width:50px" data-rid="{{$response->id}}" data-val="na" data-btype="dark" data-bval="N/A">N/A</button>
+                                                                </div>
+                                                                <input type="hidden" id="r{{$response->id}}" name="r{{$response->id}}" value="{{$response->value}}">
                                                             </div>
-                                                            <input type="hidden" id="r{{$response->id}}" name="r{{$response->id}}" value="{{$response->value}}">
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </table>
-                                @endif
-                            @endforeach
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </table>
+                                    @endif
+                                @endforeach
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    Finally plan tomorrows run, Starting project 7 am along with time allocation and so on till office between 2:30 & 3 daily. Go home turn off, knowing that you have done all you can.
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        Finally plan tomorrows run, Starting project 7 am along with time allocation and so on till office between 2:30 & 3 daily. Go home turn off, knowing that you have done all you can.
+                                    </div>
+                                </div>
+
+                                {{-- Notes --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <app-actions :table_id="{{ $checklist->id }}"></app-actions>
+                                    </div>
+                                </div>
+                                <br><br>
+
+                                <div class="form-actions right">
+                                    <a href="/supervisor/checklist" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
                                 </div>
                             </div>
-
-                            {{-- Notes --}}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <app-actions :table_id="{{ $checklist->id }}"></app-actions>
-                                </div>
-                            </div>
-                            <br><br>
-
-                            <div class="form-actions right">
-                                <a href="/supervisor/checklist" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
-                            </div>
-                        </div>
-                        {!! Form::close() !!}
+                        </form>
                     </div>
                 </div>
             </div>
@@ -118,9 +120,9 @@
                     <table v-show="actionList.length" class="table table-striped table-bordered table-nohover order-column">
                         <thead>
                         <tr class="mytable-header">
-                            <th width="10%">Date</th>
+                            <th style="width:10%">Date</th>
                             <th> Note</th>
-                            <th width="20%"> Name</th>
+                            <th style="width:20%"> Name</th>
                         </tr>
                         </thead>
                         <tbody>

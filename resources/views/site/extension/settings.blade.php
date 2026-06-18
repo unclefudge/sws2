@@ -18,68 +18,61 @@
                 <div class="portlet light bordered">
                     <div class="portlet-title">
                         <div class="caption">
-                            <i class="fa fa-pencil "></i>
                             <span class="caption-subject font-green-haze bold uppercase">Contract Time Extensions Settings</span>
                             <span class="caption-helper"></span>
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('SiteExtensionCategories', ['method' => 'POST', 'action' => ['Site\SiteExtensionController@updateSettings',], 'class' => 'horizontal-form', 'files' => true]) !!}
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SiteExtensionController::class, 'updateSettings']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
 
-                        @include('form-error')
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <h3>Extend Reasons <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="btn-add-item">Add option</button></small></span></h3>
+                            <div class="form-body">
+                                <h3>Extend Reasons <span class="pull-right"><small><button class="btn btn-circle btn-outline btn-sm blue btn-add-item" id="btn-add-item">Add option</button></small></span></h3>
 
-                            <hr class="field-hr">
-                            @foreach ($cats as $cat)
-                                <div class="row">
-                                    <div class="col-xs-1">
-                                        <a href="/category/order/up/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
-                                        <a href="/category/order/down/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
-                                    </div>
-                                    <div class="col-xs-1">
-                                        <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
-                                    </div>
-                                    <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError("cat-$cat->id", $errors) !!}">
-                                            {!! Form::text("cat-$cat->id", $cat->name, ['class' => 'form-control', 'id' => "cat-$cat->id"]) !!}
-                                            {!! fieldErrorMessage("cat-$cat->id", $errors) !!}
+                                <hr class="field-hr">
+                                @foreach ($cats as $cat)
+                                    <div class="row">
+                                        <div class="col-xs-1">
+                                            <a href="/category/order/up/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-up"></i></a><br>
+                                            <a href="/category/order/down/{{ $cat->id }}" style="margin-left: 10px"><i class="fa fa-chevron-down"></i></a>
+                                        </div>
+                                        <div class="col-xs-1">
+                                            <span style="margin-top: 5px"> {{ $cat->order }}. &nbsp; </span>
+                                        </div>
+                                        <div class="col-xs-4">
+                                            <x-form.input :name="'cat-' . $cat->id" :id="'cat-' . $cat->id" :value="$cat->name"/>
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
                                         </div>
                                     </div>
-                                    <div class="col-xs-2">
-                                        <a href="/category/del/{{ $cat->id }}" style="margin-left: 30px"><i class="fa fa-times font-red"></i></a>
-                                    </div>
-                                </div>
-                                @if (!$loop->last)
-                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
-                                @endif
-                            @endforeach
+                                    @if (!$loop->last)
+                                        <hr style="padding: 0px; margin: 0px 0px 10px 0px;">
+                                    @endif
+                                @endforeach
 
-                            {{-- Additional category --}}
-                            <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
-                                <input type="hidden" name="add_cat" id="add_cat" value="{{ ($errors->has('add_cat_name')) ? 1 : 0 }}">
-                                <div class="row">
-                                    <div class="col-xs-1">&nbsp;</div>
-                                    <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
-                                    <div class="col-xs-4">
-                                        <div class="form-group {!! fieldHasError('add_cat_name', $errors) !!}">
-                                            {!! Form::text('add_cat_name', null, ['class' => 'form-control']) !!}
-                                            {!! fieldErrorMessage('add_cat_name', $errors) !!}
+                                {{-- Additional category --}}
+                                <div style="{{ ($errors->has('add_cat_name')) ? '' : 'display: none' }}" id="add-items">
+                                    <x-form.hidden name="add_cat" id="add_cat" :value="($errors->has('add_cat_name')) ? 1 : 0"/>
+                                    <div class="row">
+                                        <div class="col-xs-1">&nbsp;</div>
+                                        <div class="col-xs-1"><span style="margin-top: 5px"> {{ count($cats) +1 }}. &nbsp; </span></div>
+                                        <div class="col-xs-4">
+                                            <x-form.input name="add_cat_name"/>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <br>
+                                <br>
 
-                            <div class="form-actions right">
-                                <a href="/site/extension" class="btn default"> Back</a>
-                                <button type="submit" class="btn green"> Save</button>
-                            </div>
+                                <div class="form-actions right">
+                                    <a href="/site/extension" class="btn default"> Back</a>
+                                    <button type="submit" class="btn green"> Save</button>
+                                </div>
 
-                        </div> <!-- /Form body -->
-                        {!! Form::close() !!}
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

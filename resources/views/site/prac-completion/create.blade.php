@@ -24,109 +24,94 @@
                         </div>
                     </div>
                     <div class="portlet-body form">
-                        <!-- BEGIN FORM-->
-                        {!! Form::model('modal', ['action' => 'Site\SitePracCompletionController@store', 'class' => 'horizontal-form', 'files' => true]) !!}
-                        <input type="hidden" id="item_count" value="5">
-                        @include('form-error')
+                        <form method="POST" action="{{ action([App\Http\Controllers\Site\SitePracCompletionController::class, 'store']) }}" class="horizontal-form" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" id="item_count" value="5">
+                            @include('form-error')
 
-                        <div class="form-body">
-                            <h4>Site Details</h4>
-                            <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group {!! fieldHasError('site_id', $errors) !!}">
-                                        {!! Form::label('site_id', 'Site', ['class' => 'control-label']) !!}
-                                        <select id="site_id" name="site_id" class="form-control select2" style="width:100%">
-                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
-                                        </select>
-                                        {!! fieldErrorMessage('site_id', $errors) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Photo/Docs --}}
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Upload Photos/Documents</h5>
-                                    <input type="file" class="filepond" name="filepond[]" multiple/><br><br>
-                                </div>
-                            </div>
-
-                            {{-- Items --}}
-                            <div id="items-div">
-                                <h4>Prac Item(s)</h4>
+                            <div class="form-body">
+                                <h4>Site Details</h4>
                                 <hr style="padding: 0px; margin: 0px 0px 10px 0px">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <div class="row">
-                                        <div class="col-xs-1 ">Item {{$i}}</div>
-                                        <div class="col-xs-11 ">
-                                            <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                {!! fieldErrorMessage('item1', $errors) !!}
-                                            </div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <x-form.select name="site_id" id="site_id" label="Site" plugin="select2" style="width:100%">
+                                            {!! Auth::user()->authSitesSelect2Options('view.site.list', old('site_id')) !!}
+                                        </x-form.select>
                                     </div>
-                                @endfor
+                                </div>
 
-                                {{-- Extra 5 Items --}}
-                                <button class="btn blue" id="more5">More Items</button>
-                                <div id="more_items5" style="display: none">
-                                    @for ($i = 6; $i <= 10; $i++)
-                                        <div class="row">
-                                            <div class="col-xs-1 ">Item {{$i}}</div>
-                                            <div class="col-xs-11 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endfor
-                                    <button class="btn blue" id="more10">More Items</button>
+                                {{-- Photo/Docs --}}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Upload Photos/Documents</h5>
+                                        <x-form.filepond/>
+                                        <br><br>
+                                    </div>
                                 </div>
-                                {{-- Extra 10 Items --}}
-                                <div id="more_items10" style="display: none">
-                                    @for ($i = 11; $i <= 15; $i++)
+
+                                {{-- Items --}}
+                                <div id="items-div">
+                                    <h4>Prac Item(s)</h4>
+                                    <hr style="padding: 0px; margin: 0px 0px 10px 0px">
+                                    @for ($i = 1; $i <= 5; $i++)
                                         <div class="row">
                                             <div class="col-xs-1 ">Item {{$i}}</div>
                                             <div class="col-xs-11 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
-                                                </div>
+                                                <x-form.textarea :name="'item' . $i" rows="3" :placeholder="'Specific details of maintenance request item ' . $i . '.'"/>
                                             </div>
                                         </div>
                                     @endfor
-                                    <button class="btn blue" id="more15">More Items</button>
-                                </div>
-                                {{-- Extra 15 Items --}}
-                                <div id="more_items15" style="display: none">
-                                    @for ($i = 16; $i <= 20; $i++)
-                                        <div class="row">
-                                            <div class="col-xs-1 ">Item {{$i}}</div>
-                                            <div class="col-xs-11 ">
-                                                <div class="form-group {!! fieldHasError('item1', $errors) !!}">
-                                                    {!! Form::textarea("item$i", null, ['rows' => '3', 'class' => 'form-control', 'placeholder' => "Specific details of maintenance request item $i."]) !!}
-                                                    {!! fieldErrorMessage('item1', $errors) !!}
+
+                                    {{-- Extra 5 Items --}}
+                                    <button class="btn blue" id="more5">More Items</button>
+                                    <div id="more_items5" style="display: none">
+                                        @for ($i = 6; $i <= 10; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i}}</div>
+                                                <div class="col-xs-11 ">
+                                                    <x-form.textarea :name="'item' . $i" rows="3" :placeholder="'Specific details of maintenance request item ' . $i . '.'"/>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endfor
+                                        @endfor
+                                        <button class="btn blue" id="more10">More Items</button>
+                                    </div>
+                                    {{-- Extra 10 Items --}}
+                                    <div id="more_items10" style="display: none">
+                                        @for ($i = 11; $i <= 15; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i}}</div>
+                                                <div class="col-xs-11 ">
+                                                    <x-form.textarea :name="'item' . $i" rows="3" :placeholder="'Specific details of maintenance request item ' . $i . '.'"/>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                        <button class="btn blue" id="more15">More Items</button>
+                                    </div>
+                                    {{-- Extra 15 Items --}}
+                                    <div id="more_items15" style="display: none">
+                                        @for ($i = 16; $i <= 20; $i++)
+                                            <div class="row">
+                                                <div class="col-xs-1 ">Item {{$i}}</div>
+                                                <div class="col-xs-11 ">
+                                                    <x-form.textarea :name="'item' . $i" rows="3" :placeholder="'Specific details of maintenance request item ' . $i . '.'"/>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-actions right">
-                            <a href="/site/prac-completion" class="btn default"> Back</a>
-                            <button type="submit" class="btn green" id="submit"> Save</button>
-                        </div>
+                            <div class="form-actions right">
+                                <a href="/site/prac-completion" class="btn default"> Back</a>
+                                <button type="submit" class="btn green" id="submit"> Save</button>
+                            </div>
                     </div>
-                    {!! Form::close() !!}
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-@stop <!-- END Content -->
+@stop
 
 
 @section('page-level-plugins-head')
