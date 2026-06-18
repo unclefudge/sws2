@@ -140,16 +140,37 @@ class PagesController extends Controller
     public function quick()
     {
 
-        echo "<h2>FOC active sites</h2><br>";
+        echo "<h2>Site Status</h2><br>";
+        $sites = ['8259', '8274', '8275', '8276', '8281', '8282', '8283', '8284', '8285', '8287', '8289'];
+        foreach ($sites as $sid) {
+            echo "$sid - ";
+            $site = Site::where('code', $sid)->first();
+            if ($site)
+                echo "$site->statusText<br>";
+            else
+                echo "not in SWS<br>";
+        }
+
         foreach (Site::where('status', 1)->get() as $site) {
             echo "$site->name<br>";
             $foc = SiteFoc::where('site_id', $site->id)->first();
             if (!$foc) {
                 echo "creating FOC<br>";
-                //$foc = SiteFoc::create(['site_id' => $site->id, 'status' => '2']);
-                //$action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
+                $foc = SiteFoc::create(['site_id' => $site->id, 'status' => '1']);
+                $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
             }
         }
+
+        foreach (Site::where('status', '-1')->get() as $site) {
+            echo "$site->name<br>";
+            $foc = SiteFoc::where('site_id', $site->id)->first();
+            if (!$foc) {
+                echo "creating FOC<br>";
+                $foc = SiteFoc::create(['site_id' => $site->id, 'status' => '2']);
+                $action = Action::create(['action' => "FOC created", 'table' => 'site_foc', 'table_id' => $foc->id]);
+            }
+        }
+
         /*echo "<h1>Zoho Create Variation</h1><br>";
         $note = SiteNote::find(2054);
         echo "Creating variation....2054<br>";
