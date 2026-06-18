@@ -12,53 +12,53 @@
 
 @section('content')
     <div class="page-content-inner">
+        {{--}}
+                @if ($progress->count() && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-area-supervisor'))
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="portlet light ">
+                                <div class="portlet-title">
+                                    <div class="caption font-dark">
+                                        <i class="icon-layers"></i>
+                                        <span class="caption-subject bold uppercase font-green-haze"> In Progress</span>
+                                    </div>
+                                </div>
 
-        @if ($progress->count() && Auth::user()->hasAnyRole2('web-admin|mgt-general-manager|con-area-supervisor'))
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="portlet light ">
-                        <div class="portlet-title">
-                            <div class="caption font-dark">
-                                <i class="icon-layers"></i>
-                                <span class="caption-subject bold uppercase font-green-haze"> In Progress</span>
+                                <div>
+                                    <table class="table table-striped table-bordered table-hover order-column" id="under_review">
+                                        <thead>
+                                        <tr class="mytable-header">
+                                            <th style="width:5%"> #</th>
+                                            <th style="width:10%"> Created</th>
+                                            <th> Site</th>
+                                            <th> Current Site Supervisor</th>
+                                            <th style="width:15%"></th>
+                                        </tr>
+                                        </thead>
+                                        @foreach ($progress as $foc)
+                                            <tr>
+                                                <td>
+                                                    <div class="text-center"><a href="/site/foc/{{ $foc->id }}"><i class="fa fa-search"></i></a></div>
+                                                </td>
+                                                <td> {{ $foc->created_at->format('d/m/Y') }}</td>
+                                                <td> {{ $foc->site->name }}</td>
+                                                <td> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : "N/A"}}</td>
+                                                <td>
+                                                    @if(Auth::user()->allowed2('edit.site.foc', $foc))
+                                                        <a href="/site/foc/{{ $foc->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
+                                                    @endif
+                                                    @if(Auth::user()->allowed2('del.site.foc', $foc))
+                                                        <button class="btn grey btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $foc->id }}" data-name="{{ $foc->site->name }}"><i class="fa fa-eye"> </i></button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </div>
                             </div>
                         </div>
-
-                        <div>
-                            <table class="table table-striped table-bordered table-hover order-column" id="under_review">
-                                <thead>
-                                <tr class="mytable-header">
-                                    <th style="width:5%"> #</th>
-                                    <th style="width:10%"> Created</th>
-                                    <th> Site</th>
-                                    <th> Current Site Supervisor</th>
-                                    <th style="width:15%"></th>
-                                </tr>
-                                </thead>
-                                @foreach ($progress as $foc)
-                                    <tr>
-                                        <td>
-                                            <div class="text-center"><a href="/site/foc/{{ $foc->id }}"><i class="fa fa-search"></i></a></div>
-                                        </td>
-                                        <td> {{ $foc->created_at->format('d/m/Y') }}</td>
-                                        <td> {{ $foc->site->name }}</td>
-                                        <td> {{ ($foc->site->supervisor_id) ? $foc->site->supervisor->name : "N/A"}}</td>
-                                        <td>
-                                            @if(Auth::user()->allowed2('edit.site.foc', $foc))
-                                                <a href="/site/foc/{{ $foc->id }}/edit" class="btn blue btn-xs btn-outline sbold uppercase margin-bottom"><i class="fa fa-pencil"></i> Edit</a>
-                                            @endif
-                                            @if(Auth::user()->allowed2('del.site.foc', $foc))
-                                                <button class="btn grey btn-xs sbold uppercase margin-bottom delete-report" data-id="{{ $foc->id }}" data-name="{{ $foc->site->name }}"><i class="fa fa-eye"> </i></button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </div>
                     </div>
-                </div>
-            </div>
-        @endif
+                @endif --}}
 
         <div class="row">
             <div class="col-md-12">
@@ -89,7 +89,7 @@
                         @endif
 
                         <div class="col-md-2 pull-right">
-                            <x-form.select name="status1" id="status1" :options="['-1' => 'Disabled', '1' => 'Active', '0' => 'Completed']" value="1"/>
+                            <x-form.select name="status1" id="status1" :options="['-1' => 'Disabled', '2' => 'Upcoming', '1' => 'Active', '0' => 'Completed']" value="1"/>
                         </div>
                     </div>
                     <div class="portlet-body">
