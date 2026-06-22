@@ -247,7 +247,7 @@ class RequestDesignerController extends Controller
 
                 // Full submission summary stored in Zoho's Description field.
                 'Client_Comments' => implode("\n", array_filter([
-                    'Request a Designer Visit form submission',
+                    'Request a Designer Visit form',
                     '--------------------------------------------',
                     //'',
                     //'PART 1',
